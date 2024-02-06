@@ -1,0 +1,19 @@
+﻿@model EIDSS.Web.Administration.Security.ViewModels.UserGroup.SystemFunctionsSectionViewModel
+
+<form id="SystemFunctionsForm">
+    <div class="container-fluid">
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4 heading-for="@HeadingResourceKeyConstants.UserGroupDetailsSystemFunctionsHeading"></h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editSystemFunctionsSectionButton" href="#userGroupWizard-h-2" class="edit-section"><span class="far fa-edit fa-lg"></span></a>
+            </div>
+        </div>
+        <div class="form-row">
+            <div id="SystemFunctionsPermissions" class="card-body">
+             @await Component.InvokeAsync("SystemFunctionsView", Model.SystemFunctionPageViewModel)
+            </div>
+        </div>
+    </div>
+</form>

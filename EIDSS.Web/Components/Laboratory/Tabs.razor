@@ -1,0 +1,57 @@
+﻿@using EIDSS.Domain.Enumerations
+@using static ClientLibrary.Enumerations.EIDSSConstants
+
+@inherits TabsBase
+
+<RadzenTabs Change="OnChange" RenderMode="TabRenderMode.Server" SelectedIndex="(int) Tab" Style="height: calc(100vh - 245px)">
+    <Tabs>
+        <RadzenTabsItem Text="@SamplesTabName">
+            @if (Tab == LaboratoryTabEnum.Samples)
+            {
+                <div class="@LaboratoryModuleCSSClassConstants.LaboratoryTab">
+                    <Samples SearchEvent="OnReloadSamplesTabCount" ClearSearchEvent="OnReloadSamplesTabCount" SaveEvent="OnReloadTabCounts" SetMyFavoriteEvent="OnReloadMyFavoritesTabCount" SetMyFavoriteForNewRecordEvent="@(_ => OnReloadMyFavoritesTabCountForNewRecord(1))" TransferOutEvent="OnUpdateTransferCount"/>
+                </div>
+            }
+        </RadzenTabsItem>
+        <RadzenTabsItem Text="@TestingTabName">
+            @if (Tab == LaboratoryTabEnum.Testing)
+            {
+                <div class="@LaboratoryModuleCSSClassConstants.LaboratoryTab">
+                    <Testing SearchEvent="OnReloadTestingTabCount" ClearSearchEvent="OnReloadTestingTabCount" SaveEvent="OnReloadTabCounts" SetMyFavoriteEvent="OnReloadMyFavoritesTabCount"/>
+                </div>
+            }
+        </RadzenTabsItem>
+        <RadzenTabsItem Text="@TransferredTabName">
+            @if (Tab == LaboratoryTabEnum.Transferred)
+            {
+                <div class="@LaboratoryModuleCSSClassConstants.LaboratoryTab">
+                    <Transferred SearchEvent="OnReloadTransferredTabCount" ClearSearchEvent="OnReloadTransferredTabCount" SaveEvent="OnReloadTabCounts" SetMyFavoriteEvent="OnReloadMyFavoritesTabCount"/>
+                </div>
+            }
+        </RadzenTabsItem>
+        <RadzenTabsItem Text="@MyFavoritesTabName">
+            @if (Tab == LaboratoryTabEnum.MyFavorites)
+            {
+                <div class="@LaboratoryModuleCSSClassConstants.LaboratoryTab">
+                    <MyFavorites SearchEvent="OnReloadMyFavoritesTabCountForSearch" ClearSearchEvent="OnReloadMyFavoritesTabCountForSearch" SaveEvent="OnReloadTabCounts" SetMyFavoriteEvent="OnReloadMyFavoritesTabCount" TransferOutEvent="OnUpdateTransferCount"/>
+                </div>
+            }
+        </RadzenTabsItem>
+        <RadzenTabsItem Text="@BatchesTabName">
+            @if (Tab == LaboratoryTabEnum.Batches)
+            {
+                <div class="@LaboratoryModuleCSSClassConstants.LaboratoryTab">
+                    <Batches SearchEvent="OnReloadBatchesTabCount" ClearSearchEvent="OnReloadBatchesTabCount" SaveEvent="OnReloadTabCounts" SetMyFavoriteEvent="OnReloadMyFavoritesTabCount"/>
+                </div>
+            }
+        </RadzenTabsItem>
+        <RadzenTabsItem Text="@ApprovalsTabName">
+            @if (Tab == LaboratoryTabEnum.Approvals)
+            {
+                <div class="@LaboratoryModuleCSSClassConstants.LaboratoryTab">
+                    <Approvals SearchEvent="OnReloadApprovalsTabCount" ClearSearchEvent="OnReloadApprovalsTabCount" SaveEvent="OnReloadTabCounts"/>
+                </div>
+            }
+        </RadzenTabsItem>
+    </Tabs>
+</RadzenTabs>

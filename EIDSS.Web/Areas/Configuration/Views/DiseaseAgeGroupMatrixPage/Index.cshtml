@@ -1,0 +1,266 @@
+﻿@model BaseReferenceEditorPagesViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
+@using EIDSS.Web.TagHelpers.Models;
+@using EIDSS.ClientLibrary.Enumerations;
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.DiseaseAgeGroupMatrixPageHeading);
+
+    //PAGE LEVEL
+    Model.PageName = Localizer.GetString(HeadingResourceKeyConstants.DiseaseAgeGroupMatrixPageHeading);
+    Model.PageLevelAddButtonModalText = Localizer.GetString(ButtonResourceKeyConstants.AddButton);
+    Model.PageLevelAddButtonModal = "mdAddDiseaseAgeGroup";
+    Model.PageLevelAddButtonID = "btnPageLevelAddButton";
+
+    //SET UP DROPDOWN
+    var select2Configuration = new Select2Configruation
+    {
+        DropDownId = "ddlDisease",
+        ControltargetId = "ReferenceEditorDynamic",
+        Label = Localizer.GetString(FieldLabelResourceKeyConstants.AgeGroupDiseaseFieldLabel),
+        ControlTargetType = DropDownTargetTypes.Table,
+        Endpoint = Url.Action("GetFilteredDiseaseForLookup", "CrossCutting", new {Area = "CrossCutting", accessoryCode = HACodeList.HumanHACode, usingTypeID = UsingType.StandardCaseType}),
+        AddModalId = "bAddDisease",
+        AddButtonId = "btnAddDisease",
+        IncludeAddButton = true,
+        isVisible = true
+    };
+    Model.Select2Configurations.Add(select2Configuration);
+
+    //SET UP MODAL (Add Disease Age Group)
+    var eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.AgeGroupDetailsModalHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton)
+        },
+        ModalId = "mdAddDiseaseAgeGroup",
+        SavingControlsCollection = "ddlDisease",
+        TargetGridControlID = "gDiseaseAgeGroupMatrix", //ID of Grid to Refresh
+        PostAjaxDataUrl = Url.Action("AddDiseaseAgeGroup", "DiseaseAgeGroupMatrixPage"),
+        SaveCompleteMethod = "CheckSuccessOnAddDiseaseAgeGroup",
+        DisplayConfirmCancelModal = true
+    };
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.AgeGroupFieldLabel),
+        ControlName = "IdfsDiagnosisAgeGroup",
+        ControlType = ControlType.DropDown,
+        AllowMultipleDropDownItemSelection = false,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "modalDropDown",
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = (long) ReferenceTypes.AgeGroups, intHACode = HACodeList.HumanHACode})
+    });
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //######################################
+    // Disease Modal Configuration
+    //######################################
+    <partial name="_DiseaseModalPartial"/>
+
+    //SET UP GRID
+    Model.eidssGridConfiguration.GridId = "gDiseaseAgeGroupMatrix";
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.ControlFilterID = "ddlDisease";
+    Model.eidssGridConfiguration.ControlIdThatRefreshGrid = "ddlDisease";
+    Model.eidssGridConfiguration.EditModalAjaxUrl = Url.Action("EditDiseaseAgeGroup", "DiseaseAgeGroupMatrixPage");
+    Model.eidssGridConfiguration.DeleteModalAjaxUrl = Url.Action("DeleteDiseaseAgeGroup", "DiseaseAgeGroupMatrixPage");
+    Model.eidssGridConfiguration.DeleteCompleteMethod = "CheckDeleteSuccess";
+    Model.eidssGridConfiguration.AjaxDataUrl = Url.Action("GetList", "DiseaseAgeGroupMatrixPage");
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.EnableCustomSearching = false;
+    Model.eidssGridConfiguration.EditType = EditType.Inline;
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels
+    {
+        DeleteExceptionTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        DeleteExceptionMessage = Localizer.GetString(MessageResourceKeyConstants.InUseReferenceValueAreYouSureMessage),
+        DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage),
+        EditModalMessage = Localizer.GetString((int) InterfaceEditorResourceSetEnum.WarningMessages + "Are you sure that you want to edit this record?" + (long) InterfaceEditorTypeEnum.Message),
+        DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+        SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
+        DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton),
+        CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton),
+        CancelInlineEditTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage),
+        YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton),
+        NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton),
+        SaveInlineEditTitle = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+        SaveInlineEditMessage = Localizer.GetString((int) InterfaceEditorResourceSetEnum.WarningMessages + "Are you sure that you want to save this record?" + (long) InterfaceEditorTypeEnum.Message)
+    };
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        ColumnName = "Row",
+        Visible = true,
+        ColumnType = ColumnType.ReadOnly,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = string.Empty,
+        ColumnName = "IdfDiagnosisAgeGroupToDiagnosis",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = string.Empty,
+        ColumnName = "IdfsDiagnosisAgeGroup",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.AgeGroupColumnHeading),
+        ColumnName = "StrAgeGroupDefault",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true,
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = string.Empty,
+        ColumnName = "name",
+        ColumnType = ColumnType.Delete,
+        Visible = Model.UserPermissions.Delete
+    });
+}
+
+<!-- Hidden fields -->
+<input id="hfWritePermission" type="hidden" value="@Model.UserPermissions.Write.ToString()"/>
+<input id="hfCreatePermission" type="hidden" value="@Model.UserPermissions.Create.ToString()"/>
+
+<!-- Save Success Message Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Duplicate Record Message Modal -->
+<div class="modal fade" id="duplicatesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsg"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Changes Message Modal -->
+<div class="modal fade" id="mdCancelChanges" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.NoButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_BaseReferenceEditorsPartial"/>
+<partial name="_InformationalModalPartial" for="InformationMessage"/>
+
+<script type="text/javascript">
+    ///Load Default Data
+    $(document).ready(function() {
+
+        $("#btnPageLevelAddButton").prop("disabled", true);
+
+        if ($("#hfCreatePermission").val() === "False") {
+            $("#btnAddDisease").prop("disabled", true);
+        }
+
+        $('#ddlDisease').on('change',
+            function() {
+
+                if ($(this).find('option:selected').val().trim() == '') {
+                    $("#btnPageLevelAddButton").prop("disabled", true);
+                } else {
+
+                    if ($("#hfWritePermission").val() === "True") {
+                        $("#btnPageLevelAddButton").prop("disabled", false);
+                    }
+                }
+            });
+    });
+
+    function CheckSuccess(data) {
+        if (data.value.returnMessage == "SUCCESS") {
+            $("#successModal").modal("show");
+            updateNotificationEnvelopeCount();
+        } else if (response.value.returnMessage == "DOES EXIST") {
+            $("#dDuplicatesModal").modal("show");
+            $("#dupemsg").html(response.value.duplicationMessage);
+        }
+    };
+
+    // Method called after execution of Save Method Returns Data back from the controller
+    function CheckSuccessOnAddDiseaseAgeGroup(data) {
+        var stringifiedData = JSON.stringify(data);
+        var parsedData = JSON.parse(stringifiedData);
+
+        if (parsedData.returnMessage == "SUCCESS") {
+            $("#successModal").modal("show");
+            updateNotificationEnvelopeCount();
+        } else if (parsedData.returnMessage == "DOES EXIST") {
+            $("#duplicatesModal").modal("show");
+            $("#dupemsg").html(parsedData.strDuplicatedField);
+        }
+    };
+
+    function CheckDeleteSuccess(data) {
+        var stringifiedData = JSON.stringify(data);
+        var parsedData = JSON.parse(stringifiedData);
+        if (parsedData.returnMessage === "SUCCESS") {
+            updateNotificationEnvelopeCount();
+            showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+        }
+    };
+</script>

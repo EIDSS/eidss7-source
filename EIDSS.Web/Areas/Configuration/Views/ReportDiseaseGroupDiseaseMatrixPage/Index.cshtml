@@ -1,0 +1,243 @@
+﻿@model BaseReferenceEditorPagesViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
+@using EIDSS.Web.TagHelpers.Models
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.ReportDiseaseGroupDiseaseMatrixPageHeading);
+
+    //PageLevel
+    Model.PageName = Localizer.GetString(HeadingResourceKeyConstants.ReportDiseaseGroupDiseaseMatrixPageHeading);
+    Model.PageLevelAddButtonModalText = Localizer.GetString(ButtonResourceKeyConstants.AddButton);
+    Model.PageLevelAddButtonModal = "mdAddReportDiseaseGroupDiseaseMatrix";
+    Model.PageLevelAddButtonID = "btnPageLevelAddButton";
+
+    //SET UP MODAL (Add "Report Disease Group - Disease" Matrix record)
+    var eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.ReportDiseaseGroupDiseaseMatrixPageHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            SuccessModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+            SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        },
+        ModalId = "mdAddReportDiseaseGroupDiseaseMatrix",
+        SavingControlsCollection = "ddlCustomReportType,ddlReportDiseaseGroup",
+        TargetGridControlID = "gReportDiseaseGroupDiseaseMatrix", //ID of Grid to Refresh
+        PostAjaxDataUrl = Url.Action("AddReportDiseaseGroupDiseaseMatrix", "ReportDiseaseGroupDiseaseMatrixPage"),
+        SaveCompleteMethod = "CheckSuccess"
+    };
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.AgeGroupDiseaseFieldLabel),
+        ControlName = "IdfsDiagnosis",
+        ControlType = ControlType.DropDownAddButtonOpenModal,
+        OpenModalName = "bAddDisease",
+        AllowMultipleDropDownItemSelection = false,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "ddAddDisease",
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("DiseaseListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", intHACode = HACodeList.HumanHACode})
+    });
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //SET UP DROPDOWN (CUSTOM REPORT TYPE)
+    var select2ConfigurationCustomReportType = new Select2Configruation
+    {
+        DropDownId = "ddlCustomReportType",
+        Label = Localizer.GetString(FieldLabelResourceKeyConstants.CustomReportTypeFieldLabel),
+        ControlTargetType = DropDownTargetTypes.Table,
+        Endpoint = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = 19000129}),
+        IncludeAddButton = false,
+        isVisible = true
+    };
+    Model.Select2Configurations.Add(select2ConfigurationCustomReportType);
+
+    //SET UP DROPDOWN (REPORT DISEASE GROUP)
+    var select2ConfigurationReportDiseaseGroup = new Select2Configruation
+    {
+        DropDownId = "ddlReportDiseaseGroup",
+        Label = Localizer.GetString(FieldLabelResourceKeyConstants.ReportDiseaseGroupFieldLabel),
+        ControlTargetType = DropDownTargetTypes.Table,
+        Endpoint = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = 19000130}),
+        IncludeAddButton = false,
+        isVisible = true
+    };
+    Model.Select2Configurations.Add(select2ConfigurationReportDiseaseGroup);
+
+    //SET UP GRID
+    Model.eidssGridConfiguration.GridId = "gReportDiseaseGroupDiseaseMatrix";
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.ControlFilterID = "ddlCustomReportType,ddlReportDiseaseGroup";
+    Model.eidssGridConfiguration.ControlIdThatRefreshGrid = "ddlCustomReportType,ddlReportDiseaseGroup";
+    Model.eidssGridConfiguration.AjaxDataUrl = Url.Action("GetList", "ReportDiseaseGroupDiseaseMatrixPage");
+    Model.eidssGridConfiguration.DeleteModalAjaxUrl = Url.Action("DeleteReportDiseaseGroupDiseaseMatrix", "ReportDiseaseGroupDiseaseMatrixPage");
+    Model.eidssGridConfiguration.DeleteCompleteMethod = "CheckDeleteSuccess";
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.EnableCustomSearching = false;
+    Model.eidssGridConfiguration.EditType = EditType.Inline;
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels
+    {
+        DeleteExceptionTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        DeleteExceptionMessage = Localizer.GetString(MessageResourceKeyConstants.InUseReferenceValueAreYouSureMessage),
+        DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage),
+        EditModalMessage = Localizer.GetString((int) InterfaceEditorResourceSetEnum.WarningMessages + "Are you sure that you want to edit this record?" + (long) InterfaceEditorTypeEnum.Message),
+        DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+        SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
+        DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton),
+        CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton),
+        CancelInlineEditTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage),
+        YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton),
+        NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton),
+        SaveInlineEditTitle = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+        SaveInlineEditMessage = Localizer.GetString((int) InterfaceEditorResourceSetEnum.WarningMessages + "Are you sure that you want to save this record?" + (long) InterfaceEditorTypeEnum.Message)
+    };
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        ColumnName = "row",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false,
+        Orderable = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "IdfDiagnosisToGroupForReportType",
+        ColumnName = "IdfDiagnosisToGroupForReportType",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.ConfigureVeterinaryAggregateReportMatrixDiseaseColumnHeading),
+        ColumnName = "StrDiagnosis",
+        Visible = true,
+        Orderable = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.UsingTypeColumnHeading),
+        ColumnName = "StrUsingType",
+        Visible = true,
+        Orderable = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.AccessoryCodeColumnHeading),
+        ColumnName = "StrAccessoryCode",
+        Visible = true,
+        Orderable = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.IsDeletedColumnHeading),
+        ColumnName = "StrIsDelete",
+        Visible = true,
+        Orderable = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "name",
+        ColumnTitleHeader = string.Empty,
+        ColumnType = ColumnType.Delete,
+        Visible = Model.UserPermissions.Delete
+    });
+}
+
+<!-- Duplicate Record Message Modal -->
+<div class="modal fade" id="duplicatesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsg"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden fields -->
+<input id="hfWritePermission" type="hidden" value="@Model.UserPermissions.Write.ToString()"/>
+<input id="hfCreatePermission" type="hidden" value="@Model.UserPermissions.Create.ToString()"/>
+
+<partial name="_DiseaseModalPartial"/>
+<partial name="_BaseReferenceEditorsPartial"/>
+<partial name="_InformationalModalPartial" for="InformationMessage"/>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#btnPageLevelAddButton").prop("disabled", true);
+
+        $('#ddlCustomReportType').on('change',
+            function() {
+                ToggleSaveButton();
+            });
+
+        $('#ddlReportDiseaseGroup').on('change',
+            function() {
+                ToggleSaveButton();
+            });
+
+        function ToggleSaveButton() {
+            if ($("#ddlCustomReportType").find('option:selected').val().trim() == '' || $("#ddlReportDiseaseGroup").find('option:selected').val().trim() == '') {
+                $("#btnPageLevelAddButton").prop("disabled", true);
+            } else {
+
+                if ($("#hfWritePermission").val() === "True") {
+                    $("#btnPageLevelAddButton").prop("disabled", false);
+                }
+            }
+        }
+    });
+
+    function CheckSuccess(data) {
+        var stringifiedData = JSON.stringify(data);
+        var parsed_data = JSON.parse(stringifiedData);
+
+        if (parsed_data.returnMessage == "SUCCESS") {
+            $("#mdAddReportDiseaseGroupDiseaseMatrixSuccessModal").modal("show");
+            updateNotificationEnvelopeCount();
+        } else if (parsed_data.returnMessage == "DOES EXIST") {
+            $("#dupemsg").html(parsed_data.strClientPageMessage);
+            $("#duplicatesModal").modal("show");
+        }
+    };
+
+    function CheckDeleteSuccess(data) {
+        var stringifiedData = JSON.stringify(data);
+        var parsedData = JSON.parse(stringifiedData);
+        if (parsedData.returnMessage === "SUCCESS") {
+            updateNotificationEnvelopeCount();
+            showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+        }
+    };
+</script>

@@ -1,0 +1,86 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.CrossCutting
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits LaboratoryTestInterpretationBase
+
+<RadzenTemplateForm Data="Model" @ref="Form" Submit="OnSubmit" TItem="LaboratoryTestInterpretationGetListViewModel">
+    <div class="card">
+        <DataAnnotationsValidator/>
+        <div class="form-row">
+            @if (DiseaseReport.ReportCategoryTypeID == (long) CaseTypeEnum.Avian)
+            {
+                <InterfaceEditorResource CssClass="col-3" For="species" InterfaceEditorKey="@SpeciesFieldLabelResourceKey" IsRow="false">
+                    <RadzenTextBox @bind-Value="Model.Species" class="form-control" Disabled="true" Name="species"/>
+                </InterfaceEditorResource>
+            }
+            else
+            {
+                <InterfaceEditorResource CssClass="col-3" For="animalID" InterfaceEditorKey="@AnimalIdFieldLabelResourceKey" IsRow="false">
+                    <RadzenTextBox @bind-Value="Model.EIDSSAnimalID" class="form-control" Disabled="true" Name="animalID"/>
+                </InterfaceEditorResource>
+            }
+            <InterfaceEditorResource CssClass="col-9" For="disease" InterfaceEditorKey="@DiseaseFieldLabelResourceKey" IsRow="false">
+                <RadzenTextBox @bind-Value="Model.DiseaseName" class="form-control" Disabled="true" Name="disease"/>
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource CssClass="col-6" For="testName" InterfaceEditorKey="@TestNameFieldLabelResourceKey" IsRow="false">
+                <RadzenTextBox @bind-Value="Model.TestNameTypeName" class="form-control" Disabled="true" Name="testName"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-6" For="testCategory" InterfaceEditorKey="@TestCategoryFieldLabelResourceKey" IsRow="false">
+                <RadzenTextBox @bind-Value="Model.TestCategoryTypeName" class="form-control" Disabled="true" Name="testCategory"/>
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource CssClass="col-3" For="labSampleID" InterfaceEditorKey="@LabSampleIdFieldLabelResourceKey" IsRow="false">
+                <RadzenTextBox @bind-Value="Model.EIDSSLaboratorySampleID" class="form-control" Disabled="true" Name="labSampleID"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-3" For="sampleType" InterfaceEditorKey="@SampleTypeFieldLabelResourceKey" IsRow="false">
+                <RadzenTextBox @bind-Value="Model.SampleTypeName" class="form-control" Disabled="true" Name="sampleType"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-3" For="fieldSampleID" InterfaceEditorKey="@FieldSampleIdFieldLabelResourceKey" IsRow="false">
+                <RadzenTextBox @bind-Value="Model.EIDSSLocalOrFieldSampleID" class="form-control" Disabled="true" Name="fieldSampleID"/>
+            </InterfaceEditorResource>
+        </div>
+        <InterfaceEditorResource CssClass="col-12" For="ruleOutRuleIn" InterfaceEditorKey="@RuleOutRuleInFieldLabelResourceKey" IsRow="true">
+            <RadzenRadioButtonList @bind-Value="Model.InterpretedStatusTypeID" Change="args => OnInterpretedStatusTypeChange(args)" Data="InterpretedStatusTypes" Disabled="!Model.CanInterpretTestResultPermissionIndicator" Name="ruleOutRuleIn" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="ruleOutRuleInComments" InterfaceEditorKey="@RuleOutRuleInCommentsFieldLabelResourceKey" IsRow="true">
+            <RadzenTextBox @bind-Value="Model.InterpretedComment" class="form-control" Disabled="Model.InterpretedStatusTypeID == null" MaxLength="200" Name="ruleOutRuleInComments"/>
+        </InterfaceEditorResource>
+        <div class="form-row">
+            <InterfaceEditorResource CssClass="col-3" For="dateInterpreted" InterfaceEditorKey="@DateInterpretedFieldLabelResourceKey" IsRow="false">
+                <br/>
+                <RadzenDatePicker AllowClear="true" @bind-Value="Model.InterpretedDate" DateFormat="d" Disabled="true" Name="dateInterpreted" TValue="DateTime?"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-9" For="interpretedBy" InterfaceEditorKey="@InterpretedByFieldLabelResourceKey" IsRow="false">
+                <RadzenTextBox @bind-Value="Model.InterpretedByPersonName" class="form-control" Disabled="true" Name="interpretedBy"/>
+            </InterfaceEditorResource>
+        </div>
+        <InterfaceEditorResource CssClass="col-3" For="validated" InterfaceEditorKey="@ValidatedFieldLabelResourceKey" IsRow="true">
+            <br/>
+            <RadzenCheckBox @bind-Value="Model.ValidatedStatusIndicator" Change="args => OnValidatedChange(args)" Disabled="!Model.CanValidateTestResultPermissionIndicator || Model.InterpretedStatusTypeID == null" Name="validated" TriState="false" TValue="bool"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="validatedComments" InterfaceEditorKey="@ValidatedCommentsFieldLabelResourceKey" IsRow="true">
+            <RadzenTextBox @bind-Value="Model.ValidatedComment" class="form-control" Disabled="Model.ValidatedStatusIndicator == false" MaxLength="200" Name="validatedComments"/>
+        </InterfaceEditorResource>
+        <div class="form-row">
+            <InterfaceEditorResource CssClass="col-3" For="dateValidated" InterfaceEditorKey="@DateValidatedFieldLabelResourceKey" IsRow="false">
+                <br/>
+                <RadzenDatePicker AllowClear="true" @bind-Value="Model.ValidatedDate" DateFormat="d" Disabled="true" Name="dateValidated" TValue="DateTime?"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-9" For="validatedBy" InterfaceEditorKey="@ValidatedByFieldLabelResourceKey" IsRow="false">
+                <RadzenTextBox @bind-Value="Model.ValidatedByPersonName" class="form-control" Disabled="true" Name="validatedBy"/>
+            </InterfaceEditorResource>
+        </div>
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-md-12">
+                    <button class="btn btn-outline-primary" @onclick="OnCancel" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button class="btn btn-primary" @onsubmit="OnSubmit" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

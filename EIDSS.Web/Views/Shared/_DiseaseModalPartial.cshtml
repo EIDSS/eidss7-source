@@ -1,0 +1,165 @@
+﻿@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+
+@{
+    //Modal
+    EIDSSModalConfiguration eIDSSModalConfigurationDisease = new EIDSSModalConfiguration();
+    eIDSSModalConfigurationDisease.ModalId = "bAddDisease";
+    eIDSSModalConfigurationDisease.ControlLabels.ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.DiseaseDetailsModalHeading);
+    eIDSSModalConfigurationDisease.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    eIDSSModalConfigurationDisease.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    eIDSSModalConfigurationDisease.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    eIDSSModalConfigurationDisease.TargetGridControlID = "gDiseases";
+    eIDSSModalConfigurationDisease.PostAjaxDataUrl = @Url.Action("AddEditDisease", "DiseasePage", new { Area = "Administration" });
+
+    //success modal configs
+    eIDSSModalConfigurationDisease.ControlLabels.SuccessModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    eIDSSModalConfigurationDisease.ControlLabels.SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage);
+    eIDSSModalConfigurationDisease.ControlLabels.OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton);
+    eIDSSModalConfigurationDisease.SaveCompleteMethod = "CheckSuccess";
+
+    eIDSSModalConfigurationDisease.ControlNames.Add(new EIDSSControlNames()
+    {
+        ControlName = "strDefault",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "EnglishValueRequired"
+    });
+    eIDSSModalConfigurationDisease.ControlNames.Add(new EIDSSControlNames()
+    {
+        ControlName = "strName",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "NationalValueRequired"
+    });
+    eIDSSModalConfigurationDisease.ControlNames.Add(new EIDSSControlNames()
+    {
+        ControlName = "strIDC10",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.ICD10FieldLabel),
+        Visible = true
+    });
+    eIDSSModalConfigurationDisease.ControlNames.Add(new EIDSSControlNames()
+    {
+        ControlName = "strOIECode",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OIECodeFieldLabel),
+        Visible = true
+    });
+    eIDSSModalConfigurationDisease.ControlNames.Add(new EIDSSControlNames()
+    {
+        ControlName = "idfsUsingType",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.UsingTypeFieldLabel),
+        ClassName = "ddAddDiagnosisUsingType",
+        ControlType = ControlType.DropDown,
+        Visible = true,
+        AllowMultipleDropDownItemSelection = false,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = "19000020" }),
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        }
+    });
+    eIDSSModalConfigurationDisease.ControlNames.Add(new EIDSSControlNames()
+    {
+        ControlName = "strLabTestName",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.LabTestFieldLabel),
+        ClassName = "ddAddLabTest",
+        ControlType = ControlType.DropDownAddButtonOpenModal,
+        DropDownAddButtonOpenModalCustomFunction = "SetReferenceType(19000097)",
+        OpenModalName = "AddBaseReference",
+        Visible = true,
+        AllowMultipleDropDownItemSelection = true,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = "19000097" })
+    });
+    eIDSSModalConfigurationDisease.ControlNames.Add(new EIDSSControlNames()
+    {
+        ControlName = "strHACodeNames",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.AccessoryCodeFieldLabel),
+        ClassName = "ddAddAccessoryCode",
+        ControlType = ControlType.DropDown,
+        AllowMultipleDropDownItemSelection = true,
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting",referenceTypeID = (long) ReferenceTypes.AccessoryCode, intHACode = 226 }),
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+        }
+    });
+    eIDSSModalConfigurationDisease.ControlNames.Add(new EIDSSControlNames()
+    {
+        ControlName = "strPensideTestName",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.PensideTestFieldLabel),
+        ClassName = "ddAddPensideTestName",
+        ControlType = ControlType.DropDownAddButtonOpenModal,
+        DropDownAddButtonOpenModalCustomFunction = "SetReferenceType(19000104)",
+        OpenModalName = "AddBaseReference",
+        AllowMultipleDropDownItemSelection = true,
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = "19000104" })
+    });
+    eIDSSModalConfigurationDisease.ControlNames.Add(new EIDSSControlNames()
+    {
+        ControlName = "strSampleTypeName",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.SampleTypeFieldLabel),
+        ClassName = "ddAddSampleType",
+        ControlType = ControlType.DropDownAddButtonOpenModal,
+        OpenModalName = "AddSampleType",
+        AllowMultipleDropDownItemSelection = true,
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = "19000087" }),
+
+    });
+
+    List<RadionCheckBoxOptions> trueFalseOptions = new List<RadionCheckBoxOptions>()
+{
+        (new RadionCheckBoxOptions() { Value = "false", Key = string.Empty, IsChecked = false })
+    };
+
+    eIDSSModalConfigurationDisease.ControlNames.Add(new EIDSSControlNames()
+    {
+        ControlName = "blnZoonotic",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.ZoonoticDiseaseFieldLabel),
+        Visible = true,
+        ControlType = ControlType.CheckBox,
+        RadioCheckBoxOptions = trueFalseOptions
+    });
+    eIDSSModalConfigurationDisease.ControlNames.Add(new EIDSSControlNames()
+    {
+        ControlName = "blnSyndrome",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.SyndromicSurveillanceFieldLabel),
+        Visible = true,
+        ControlType = ControlType.CheckBox,
+        RadioCheckBoxOptions = trueFalseOptions
+    });
+    eIDSSModalConfigurationDisease.ControlNames.Add(new EIDSSControlNames()
+    {
+        ControlName = "intOrder",
+        ControlType = ControlType.Numeric,
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidationRule = "[0,2147483647]",
+            RangeValidationMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsInvalidValidRangeIsMessage)
+        },
+        ClassName = "intOrderRange"
+    });
+
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfigurationDisease);
+
+}
+
+
+<partial name="_sampleTypeModalPartial" />
+<partial name="_baseReferenceModalPartial" />

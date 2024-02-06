@@ -1,0 +1,209 @@
+﻿@model EIDSS.Web.Areas.Administration.SubAreas.Security.ViewModels.SecurityPolicy.SecurityPolicyDetailsViewModel
+
+@{
+    ViewData["Title"] = "Security Policy";
+}
+
+
+
+<partial name="_ErrorModalPartial" />
+<partial name="_InformationalModalPartial" for="InformationalMessage" />
+<partial name="_WarningModalPartial" />
+
+<form id="securityPolicyForm" method="post" asp-action="Index" asp-controller="SecurityPolicy" asp-area="Administration">
+    <div class="card">
+        <div class="card-header">
+            <h3>@Localizer.GetString(HeadingResourceKeyConstants.SecurityPolicyPageHeading)</h3>
+        </div>
+
+        <div class="card-body">
+            <div class="col-sm-11">
+                
+                <h4>@Localizer.GetString(HeadingResourceKeyConstants.SecurityPolicyPasswordPolicyHeading)</h4>
+
+                <div class="form-group row">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="SecurityConfigurationViewModel.MinPasswordLength" field-label-for="@FieldLabelResourceKeyConstants.SecurityPolicy_MinimumPasswordLength_FieldLabel" class="col-md-9"></label>
+                    <div class="col-md-2">
+                        <input asp-for="SecurityConfigurationViewModel.MinPasswordLength" type="number" class="form-control">
+                    </div>
+                    <span asp-validation-for="SecurityConfigurationViewModel.MinPasswordLength" class="col-md-10 text-danger"></span>
+                </div>
+                <div class="form-group row">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="SecurityConfigurationViewModel.EnforcePasswordHistoryCount" field-label-for="@FieldLabelResourceKeyConstants.SecurityPolicy_EnforcePasswordHistory_FieldLabel" class="col-md-9 col-form-label"></label>
+                    <div class="col-md-2">
+                        <input asp-for="SecurityConfigurationViewModel.EnforcePasswordHistoryCount" type="number" class="form-control">
+                    </div>
+                    <span asp-validation-for="SecurityConfigurationViewModel.EnforcePasswordHistoryCount" class="col-md-10 text-danger"></span>
+                </div>
+                <div class="form-group row">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="SecurityConfigurationViewModel.MinPasswordAgeDays" field-label-for="@FieldLabelResourceKeyConstants.SecurityPolicy_MinimumPasswordAgeDays_FieldLabel" class="col-md-9 col-form-label"></label>
+                    <div class="col-md-2">
+                        <input asp-for="SecurityConfigurationViewModel.MinPasswordAgeDays" type="number" class="form-control">
+                    </div>
+                    <span asp-validation-for="SecurityConfigurationViewModel.MinPasswordAgeDays" class="col-md-10 text-danger"></span>
+                </div>
+                <div class="form-group row">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="SecurityConfigurationViewModel.ForceUppercaseFlag" field-label-for="@FieldLabelResourceKeyConstants.SecurityPolicy_ForceUpperCaseCharacters_FieldLabel" class="col-md-9 col-form-label"></label>
+                    <div class="col-md-2">
+                        <input asp-for="SecurityConfigurationViewModel.ForceUppercaseFlag" type="checkbox" class="form-check-input">
+                    </div>
+                    <span asp-validation-for="SecurityConfigurationViewModel.ForceUppercaseFlag" class="col-md-10 text-danger"></span>
+                </div>
+                <div class="form-group row">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="SecurityConfigurationViewModel.ForceNumberUsageFlag" field-label-for="@FieldLabelResourceKeyConstants.SecurityPolicy_ForceNumbers_FieldLabel" class="col-md-9 col-form-label"></label>
+                    <div class="col-md-2">
+                        <input asp-for="SecurityConfigurationViewModel.ForceNumberUsageFlag" type="checkbox" class="form-check-input">
+                    </div>
+                    <span asp-validation-for="SecurityConfigurationViewModel.ForceNumberUsageFlag" class="col-md-10 text-danger"></span>
+
+                </div>
+                <div class="form-group row">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="SecurityConfigurationViewModel.ForceLowercaseFlag" field-label-for="@FieldLabelResourceKeyConstants.SecurityPolicy_ForceLowerCaseCharacters_FieldLabel" class="col-md-9 col-form-label"></label>
+                    <div class="col-md-2">
+                        <input asp-for="SecurityConfigurationViewModel.ForceLowercaseFlag" type="checkbox" class="form-check-input">
+                    </div>
+                    <span asp-validation-for="SecurityConfigurationViewModel.ForceLowercaseFlag" class="col-md-10 text-danger"></span>
+                </div>
+                <div class="form-group row">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="SecurityConfigurationViewModel.ForceSpecialCharactersFlag" field-label-for="@FieldLabelResourceKeyConstants.SecurityPolicy_ForceSpecialCharacters_FieldLabel" class="col-md-9 col-form-label"></label>
+                    <div class="col-md-2">
+                        <input asp-for="SecurityConfigurationViewModel.ForceSpecialCharactersFlag" type="checkbox" class="form-check-input">
+                    </div>
+                    <span asp-validation-for="SecurityConfigurationViewModel.ForceSpecialCharactersFlag" class="col-md-10 text-danger"></span>
+                </div>
+                <div class="form-group row">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="SecurityConfigurationViewModel.AllowUseOfSpaceFlag" field-label-for="@FieldLabelResourceKeyConstants.SecurityPolicy_AllowUseOfSpace_FieldLabel" class="col-md-9 col-form-label"></label>
+                    <div class="col-md-2">
+                        <input asp-for="SecurityConfigurationViewModel.AllowUseOfSpaceFlag" type="checkbox" class="form-check-input">
+                    </div>
+                    <span asp-validation-for="SecurityConfigurationViewModel.AllowUseOfSpaceFlag" class="col-md-10 text-danger"></span>
+                </div>
+                <div class="form-group row">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="SecurityConfigurationViewModel.PreventSequentialCharacterFlag" field-label-for="@FieldLabelResourceKeyConstants.SecurityPolicy_PreventSequentialCharacters_FieldLabel" class="col-md-9 form-check-label"></label>
+                    <div class="col-md-2">
+                        <input asp-for="SecurityConfigurationViewModel.PreventSequentialCharacterFlag" type="checkbox" class="form-check-input">
+                    </div>
+                    <span asp-validation-for="SecurityConfigurationViewModel.PreventSequentialCharacterFlag" class="col-md-10 text-danger"></span>
+                </div>
+                <div class="form-group row">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="SecurityConfigurationViewModel.PreventUsernameUsageFlag" field-label-for="@FieldLabelResourceKeyConstants.SecurityPolicy_PreventUseOfTheUsernameAsThePassword_FieldLabel" class="col-md-9 form-check-label"></label>
+                    <div class="col-md-2">
+                        <input asp-for="SecurityConfigurationViewModel.PreventUsernameUsageFlag" type="checkbox" class="form-check-input">
+                    </div>
+                    <span asp-validation-for="SecurityConfigurationViewModel.PreventUsernameUsageFlag" class="col-md-10 text-danger"></span>
+                </div>
+            </div>
+
+            <div class="col-sm-11">
+                <h4>@Localizer.GetString(HeadingResourceKeyConstants.SecurityPolicyLockoutPolicyHeading)</h4>
+
+                <div class="form-group row">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="SecurityConfigurationViewModel.LockoutThld" field-label-for="@FieldLabelResourceKeyConstants.SecurityPolicy_AccountLockoutThreshold_FieldLabel" class="col-md-9 col-form-label"></label>
+                    <div class="col-md-2">
+                        <input asp-for="SecurityConfigurationViewModel.LockoutThld" type="number" class="form-control">
+                    </div>
+                    <span asp-validation-for="SecurityConfigurationViewModel.LockoutThld" class="col-md-10 text-danger"></span>
+                </div>
+                <div class="form-group row">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="SecurityConfigurationViewModel.SesnInactivityTimeOutMins" field-label-for="@FieldLabelResourceKeyConstants.SecurityPolicy_SessionInactivityTimeoutMinutes_FieldLabel" class="col-md-9 col-form-label"></label>
+                    <div class="col-md-2">
+                        <input asp-for="SecurityConfigurationViewModel.SesnInactivityTimeOutMins" type="number" class="form-control">
+                    </div>
+                    <span asp-validation-for="SecurityConfigurationViewModel.SesnInactivityTimeOutMins" class="col-md-10 text-danger"></span>
+                </div>
+                <div class="form-group row">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="SecurityConfigurationViewModel.MaxSessionLength" field-label-for="@FieldLabelResourceKeyConstants.SecurityPolicy_SessionMaximumLengthHours_FieldLabel" class="col-md-9 col-form-label"></label>
+                    <div class="col-md-2">
+                        <input asp-for="SecurityConfigurationViewModel.MaxSessionLength" type="number" class="form-control">
+                    </div>
+                    <span asp-validation-for="SecurityConfigurationViewModel.MaxSessionLength" class="col-md-10 text-danger"></span>
+                </div>
+                <div class="form-group row">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="SecurityConfigurationViewModel.SesnIdleTimeoutWarnThldMins" field-label-for="@FieldLabelResourceKeyConstants.SecurityPolicy_DisplaySessionInactivityTimeoutWarningMinutes_FieldLabel" class="col-md-9 col-form-label"></label>
+                    <div class="col-md-2">
+                        <input asp-for="SecurityConfigurationViewModel.SesnIdleTimeoutWarnThldMins" type="number" class="form-control">
+                    </div>
+                    <span asp-validation-for="SecurityConfigurationViewModel.SesnIdleTimeoutWarnThldMins" class="col-md-10 text-danger"></span>
+                </div>
+                <div class="form-group row">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="SecurityConfigurationViewModel.SesnIdleCloseoutThldMins" field-label-for="@FieldLabelResourceKeyConstants.SecurityPolicy_DisplaySessionCloseoutWarningMinutes_FieldLabel" class="col-md-9 col-form-label"></label>
+                    <div class="col-md-2">
+                        <input asp-for="SecurityConfigurationViewModel.SesnIdleCloseoutThldMins" type="number" class="form-control">
+                    </div>
+                    <span asp-validation-for="SecurityConfigurationViewModel.SesnIdleCloseoutThldMins" class="col-md-10 text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <input asp-for="SecurityConfigurationViewModel.SecurityPolicyConfigurationUID" type="hidden" />
+
+        <div class="card-footer">
+            <button type="submit" id="btnSubmit" class="btn btn-outline-primary" disabled="@(Model.WriteAccessToSecurityPolicy == false && Model.ReadAccessToSecurityPolicy == true)"  button-for="@ButtonResourceKeyConstants.SaveButton" ></button>
+            <button class="btn btn-default" id="cancelBtn" onclick="cancel('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)', event)">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>        
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(function () {
+
+
+
+
+            $('#securityPolicyForm').areYouSure(
+                {
+                    message: "Did you forget to save your standard coffee order?"
+                }
+            );
+
+        });
+
+      
+
+
+        function cancel(message, event) {
+            event.preventDefault();
+            showWarningModal(message).then(response => {
+                if (response) {
+                    HistoryRedirect();
+                }
+            });
+        };
+
+        function CancelPage() {
+            $("#cancelModal").modal('show');
+        }
+
+        function HistoryRedirect() {
+            var referrer = document.referrer;
+            //If the referrer is the same page or view in the same controller we redirect to dashboard else we redirect to the referrer
+            if (referrer.search("SecurityPolicy") > -1) {
+                window.location.replace('@Url.Action("Dashboard", "Administration", new { area = "",subArea =""})');
+            }
+
+            else {
+                window.location.replace(referrer);
+            }
+        }
+
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+}
+

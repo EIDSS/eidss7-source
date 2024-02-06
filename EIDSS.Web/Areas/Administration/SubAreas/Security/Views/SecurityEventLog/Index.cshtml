@@ -1,0 +1,12 @@
+﻿@using EIDSS.Web.Enumerations
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using EIDSS.Web.Components.Administration.Security.SecurityEventLog
+
+<div class="card">
+    <div class="card-header">
+        <h3>@Localizer.GetString(HeadingResourceKeyConstants.SecurityEventsLogSecurityEventLogHeading)</h3>
+    </div>
+    <div class="card-body">
+        <component type="typeof(SearchSecurityEventLog)" render-mode="Server" param-Mode=@SearchModeEnum.Default param-CallbackUrl='string.Empty' />
+    </div>
+</div>

@@ -1,0 +1,8 @@
+﻿XSITE Scaffolding CLI command info:
+
+-- THE XSITECONTEXT CLASS HAS SOME CUSTOM MODIFICATIONS, NAMELY THE LANGUAGECODE PROPERTY!!!!!!!
+dotnet ef dbContext scaffold "Data Source =100.104.1.167\ngsqldev1;Initial Catalog=eidss7_XSite;User Id=srvcEidss;Password=nBZD66);" Microsoft.EntityFrameworkCore.SqlServer --context-dir Contexts --output-dir ReturnModels --table tContainers --table tContainersLayout --table tContainersType --table tDocumentContainerMapping --table tDocumentGroupMapping --table tDocumentGroups --table tDocuments --force --no-onconfiguring --no-build --context xSiteContext 
+
+
+
+

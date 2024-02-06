@@ -1,0 +1,390 @@
+﻿@using System.Threading.Tasks;
+@using EIDSS.ClientLibrary.ApiClients.FlexForm;
+@using EIDSS.Web.ViewModels.CrossCutting;
+@using EIDSS.Domain.RequestModels.FlexForm;
+@using EIDSS.Domain.ResponseModels.FlexForm;
+@using System.Collections.Generic;
+@using System.Diagnostics
+@using System.Linq;
+@using Newtonsoft.Json;
+@using EIDSS.Domain.Enumerations;
+@using Microsoft.Extensions.Logging
+@using Serilog.Core
+
+@inherits BaseComponent;
+
+<RadzenTemplateForm @ref="TemplateForm" Data="ComponentParameter" TItem="FlexForm.Parameter">
+    @if (ShouldRender())
+    {
+        <div class="card-header">
+            @TitleFragment
+        </div>
+        <div class="card-body">
+            <table>
+                <thead>
+                    <tr>
+                        @TableHeaderFragment
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        foreach (var matrixDataRow in Request.MatrixData)
+                        {
+                            var totalId = 0;
+                            var onChangeScript = "var t = 0;$(\"[sumtag='MSF-" + totalId + "']\").each(function (i, j) { if(!isNaN(parseInt($(j).val()))) { t += parseInt($(j).val()); }});$(\"[totaltag='MTF-" + totalId + "']\").val(t);}";
+                            var sumTag = "MSF-" + totalId.ToString();
+                            var totalTag = "MTF-" + totalId++.ToString();
+
+                            <tr>
+                                @foreach (var data in matrixDataRow.MatrixData)
+                                {
+                                    <td>@data</td>
+                                }
+
+                                @foreach (var section in Sections)
+                                {
+                                    foreach (var item in FlexFormQuestionnaires.Where(x => x.idfsSection == section.SectionId && x.idfsParameter != x.idfsSection && x.idfsEditor is not null)) @* Temporary skip sections and labels until proper implementation *@
+                                    {
+                                        <td>
+                                            @{
+                                                FlexFormActivityParametersListResponseModel flexFormAnswer = null;
+                                                flexFormAnswer = Answers is { Count: > 0 }
+                                                ? Answers.FirstOrDefault(x => x.idfsParameter == item.idfsParameter && x.idfRow == matrixDataRow.idfRow)
+                                                : new FlexFormActivityParametersListResponseModel();
+
+                                                var tagId = ComponentParameters.FirstOrDefault(x => x.ParameterId == item.idfsParameter && x.IdfRow == matrixDataRow.idfRow)?.TagID;
+                                                
+                                                ComponentParameter = new FlexForm.Parameter
+                                                {
+                                                    ParameterId = item.idfsParameter,
+                                                    IdfRow = matrixDataRow.idfRow,
+                                                    Value = flexFormAnswer?.varValue,
+                                                    EditorId = item.idfsEditor == null
+                                                        ? (long)FlexibleFormEditorTypeEnum.TextBox
+                                                        : long.Parse(item.idfsEditor.ToString()),
+                                                    Name = item.ParameterName,
+                                                    TagID = tagId ?? new Random(1).Next(),
+                                                    ParameterType = Convert.ToInt64(item.idfsParameterType)
+
+                                                };
+
+                                                ComponentParameters.Add(ComponentParameter);
+
+                                                <FlexFormParameter FfParameter="@ComponentParameter" FormDisabledIndicator="@FormDisabledIndicator" IsGrid="true" />
+                                            }
+                                        </td>
+                                    }
+                                }
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        FlexFormLoading = false;
+    }
+
+</RadzenTemplateForm>
+
+
+@code {
+
+    #region Globals
+
+    #region Dependencies
+
+    [Inject] private IJSRuntime JsRuntime { get; set; }
+    [Inject] private IFlexFormClient FlexFormClient { get; set; }
+    [Inject] private ILogger<FlexFormMatrix> Logger { get; set; }
+
+    #endregion
+
+    #region Parameters
+
+    [Parameter] public FlexFormQuestionnaireGetRequestModel Request { get; set; }
+    [Parameter] public bool FormDisabledIndicator { get; set; } = false;
+
+    #endregion
+
+    #region Properties
+
+    public FlexFormQuestionnaireViewModel FlexFormQuestionnaireViewModel { get; set; }
+    public FlexForm.Parameter ComponentParameter { get; set; }
+    public List<FlexForm.Parameter> ComponentParameters { get; set; }
+
+    protected RenderFragment TitleFragment { get; set; }
+    protected RenderFragment TableHeaderFragment { get; set; }
+    protected RadzenTemplateForm<FlexForm.Parameter> TemplateForm { get; set; }
+
+    private List<FlexFormQuestionnaireResponseModel> FlexFormQuestionnaires { get; set; }
+    private string Title { get; set; }
+    private string LanguageId { get; set; }
+    private List<Section> Sections { get; set; }
+    private Section SectionItem { get; set; }
+    private long? SectionId { get; set; }
+    private string StrFlexFormSectionHtml { get; set; }
+    private List<FlexFormActivityParametersListResponseModel> Answers { get; set; }
+    private FlexFormActivityParametersListResponseModel Answer { get; set; }
+
+    private static bool FlexFormLoading { get; set; } = false;
+
+    #endregion
+
+    #region Internal Data Structures
+
+    private class Section
+    {
+        public long SectionId { get; set; }
+        public bool IsGrid { get; set; }
+    }
+
+    #endregion
+
+    #endregion
+
+    #region Methods
+
+    #region Lifecyle Methods
+
+    protected override async Task OnInitializedAsync()
+    {
+        _logger = Logger;
+
+        ComponentParameter = new FlexForm.Parameter();
+        ComponentParameters = new List<FlexForm.Parameter>();
+        Sections = new List<Section>();
+
+        await base.OnInitializedAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            FlexFormLoading = true;
+            await RenderTemplate();
+            StateHasChanged();
+        }
+
+    }
+
+    protected override bool ShouldRender()
+    {
+        return FlexFormLoading;
+    }
+
+    #endregion
+
+    #region Render Builders
+
+    private RenderFragment RenderTitleFragment() => builder =>
+    {
+        builder.AddMarkupContent(0, $"<h6 title>{Title}</h6>");
+    };
+
+    private RenderFragment RenderTableHeaderFragment() => builder =>
+    {
+        // matrix columns
+        foreach (var matrixColumn in Request.MatrixColumns)
+        {
+            builder.AddMarkupContent(1, $"<th class=\"pr-2\" scope=\"col\">{matrixColumn}</th>");
+        }
+
+        // sections
+        foreach (var section in Sections)
+        {
+            // parameter columns
+            foreach (var item in FlexFormQuestionnaires)
+            {
+                //TODO: skip sections and labels until proper implementation
+                if (item.idfsSection == item.idfsParameter || item.idfsEditor is null)
+                    continue;
+
+                if (item.idfsSection == section.SectionId)
+                {
+                    builder.AddMarkupContent(2, $"<th class=\"pr-2\" scope=\"col\">{item.ParameterName}</th>");
+                }
+            }
+        }
+    };
+
+    #endregion
+
+    #region Save Method
+
+    public async Task SaveFlexForm()
+    {
+
+        try
+        {
+
+            var observations = new List<FlexFormObservationAnswers>();
+
+            // matrix columns
+            foreach (var matrixData in Request.MatrixData)
+            {
+                foreach (var parameter in FlexFormQuestionnaires)
+                {
+                    //TODO: skip sections and labels until proper implementation
+                    if (parameter.idfsSection == parameter.idfsParameter || parameter.idfsEditor is null)
+                        continue;
+
+                    FlexForm.Parameter componentParameter = null;
+                    IRadzenFormComponent control = null;
+                    if (ComponentParameters is { Count: > 0 })
+                    {
+                        componentParameter = ComponentParameters.FirstOrDefault(x => x.ParameterId == parameter.idfsParameter && x.IdfRow == matrixData.idfRow);
+                        if (componentParameter != null)
+                            control = TemplateForm.FindComponent($"{componentParameter.ParameterId.ToString()}-{matrixData.idfRow.ToString()}-{componentParameter.TagID.ToString()}");
+                    }
+
+                    var observation = new FlexFormObservationAnswers();
+
+                    switch (parameter.idfsEditor)
+                    {
+                        case (long)FlexibleFormEditorTypeEnum.TextBox:
+                            if (componentParameter != null)
+                            {
+                                observation.answer = control is { HasValue: true } ? control.GetValue().ToString() : null;
+                                observation.idfRow = matrixData.idfRow;
+                                observation.idfsEditor = parameter.idfsEditor;
+                                observation.idfsParameter = parameter.idfsParameter;
+                            }
+                            break;
+                        case (long)FlexibleFormEditorTypeEnum.TextBoxTotalField:
+                            if (componentParameter != null)
+                            {
+                                observation.answer = control is { HasValue: true } ? control.GetValue().ToString() : null;
+                                observation.idfRow = matrixData.idfRow;
+                                observation.idfsEditor = parameter.idfsEditor;
+                                observation.idfsParameter = parameter.idfsParameter;
+                            }
+                            break;
+                        case (long)FlexibleFormEditorTypeEnum.TextBoxSummingField:
+                            if (componentParameter != null)
+                            {
+                                observation.answer = control is { HasValue: true } ? control.GetValue().ToString() : null;
+                                observation.idfRow = matrixData.idfRow;
+                                observation.idfsEditor = parameter.idfsEditor;
+                                observation.idfsParameter = parameter.idfsParameter;
+                            }
+                            break;
+                        case (long)FlexibleFormEditorTypeEnum.DatePicker:
+                            if (componentParameter != null)
+                            {
+                                observation.answer = control is { HasValue: true } ? control.GetValue().ToString() : null;
+                                observation.idfRow = matrixData.idfRow;
+                                observation.idfsEditor = parameter.idfsEditor;
+                                observation.idfsParameter = parameter.idfsParameter;
+                            }
+                            break;
+                        default:
+                            if (componentParameter != null)
+                            {
+                                observation.answer = control is { HasValue: true } ? control.GetValue().ToString() : null;
+                                observation.idfRow = matrixData.idfRow;
+                                observation.idfsEditor = (long)FlexibleFormEditorTypeEnum.TextBox;
+                                observation.idfsParameter = parameter.idfsParameter;
+                            }
+                            break;
+                    }
+
+                    observations.Add(observation);
+                }
+            }
+
+            var saveAnswerRequest = new FlexFormActivityParametersSaveRequestModel
+                {
+                    Answers = JsonConvert.SerializeObject(observations),
+                    idfsFormTemplate = FlexFormQuestionnaires[0].idfsFormTemplate,
+                    idfObservation = Request.idfObservation == 0 ? null : Request.idfObservation,
+                    User = Request.User
+                };
+
+            var response = await FlexFormClient.SaveAnswers(saveAnswerRequest);
+            Request.idfObservation = response.idfObservation;
+
+            await Render();
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e, "There was a problem saving the flex form.");
+            await ShowErrorDialog(Localizer.GetString(MessageResourceKeyConstants.FlexibleFormDesignerProblemWithDesignMessage), null);
+        }
+
+    }
+
+    #endregion
+
+    #region Re-render
+
+    /// <summary>
+    /// Sends a state change to the flex form.
+    /// </summary>
+    /// <param name="isDisabled">Sets the FormDisabledIndicator property on refresh.</param>
+    /// <returns></returns>
+    public async Task Refresh(bool isDisabled = false)
+    {
+        FlexFormLoading = true;
+        FormDisabledIndicator = isDisabled;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Reloads the flex form questionnaire and sends a state change to the flex form.
+    /// </summary>
+    /// <returns></returns>
+    public async Task Render()
+    {
+        await LoadQuestionnaire();
+        FlexFormLoading = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task RenderTemplate()
+    {
+        TitleFragment = RenderTitleFragment();
+        TableHeaderFragment = RenderTableHeaderFragment();
+        await Render();
+    }
+
+    #endregion
+
+    #region Load Flex Form
+
+    private async Task LoadQuestionnaire()
+    {
+
+        Title = Request.Title;
+        LanguageId = Request.LangID;
+
+        // get the questions and then
+        // extract the distinct sections
+        FlexFormQuestionnaires = await FlexFormClient.GetQuestionnaire(Request);
+        if (FlexFormQuestionnaires.Count > 0)
+        {
+            Sections = FlexFormQuestionnaires.DistinctBy(q => q.idfsSection)
+                .Select(q => new Section() { IsGrid = q.blnGrid ?? false, SectionId = q.idfsSection ?? 0 })
+                .ToList();
+        }
+
+        if (Request.idfObservation != null)
+        {
+            var answersRequest = new FlexFormActivityParametersGetRequestModel
+                {
+                    observationList = Request.idfObservation.ToString(),
+                    LangID = Request.LangID
+                };
+
+            Answers = await FlexFormClient.GetAnswers(answersRequest);
+        }
+
+        #endregion
+
+        #endregion
+    }
+
+    }

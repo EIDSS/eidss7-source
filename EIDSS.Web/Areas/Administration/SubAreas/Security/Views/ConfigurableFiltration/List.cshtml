@@ -1,0 +1,241 @@
+﻿@model EIDSS.Web.Administration.Security.ViewModels.ConfigurableFiltrationSearchViewModel
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.AccessRulesSearchPageHeading);
+
+    Model.AccessRulesGridConfiguration = new();
+    Model.AccessRulesGridConfiguration.GridId = "accessRulesTable";
+    Model.AccessRulesGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.AccessRulesGridConfiguration.ControlFilterID = "SearchCriteria_AccessRuleID,SearchCriteria_AccessRuleName,SearchCriteria_BorderingAreaRuleIndicator,SearchCriteria_DefaultRuleIndicator,SearchCriteria_ReciprocalRuleIndicator,SearchCriteria_AccessToGenderAndAgeDataPermissionIndicator,SearchCriteria_AccessToPersonalDataPermissionIndicator,SearchCriteria_CreatePermissionIndicator,SearchCriteria_DeletePermissionIndicator,SearchCriteria_ReadPermissionIndicator,SearchCriteria_WritePermissionIndicator,SearchCriteria_GrantingActorSiteCode,SearchCriteria_GrantingActorSiteHASCCode,SearchCriteria_GrantingActorSiteName,SearchCriteria_ReceivingActorSiteCode,SearchCriteria_ReceivingActorSiteHASCCode,SearchCriteria_ReceivingActorSiteName";
+    Model.AccessRulesGridConfiguration.AjaxDataUrl = Url.Action("GetAccessRuleListDataTable");
+    Model.AccessRulesGridConfiguration.EnableServerSide = true;
+    Model.AccessRulesGridConfiguration.EnableCustomSearching = false;
+    Model.AccessRulesGridConfiguration.EnableProcessingMessage = true;
+    Model.AccessRulesGridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.PageRedirect;
+    Model.AccessRulesGridConfiguration.EditPageRedirectLink = @Url.Action("Details", "ConfigurableFiltration", new { Area = "Administration", SubArea = "Security" });;
+    Model.AccessRulesGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "AccessRuleID", ColumnTitleHeader = String.Empty, ColumnType = ColumnType.Details, Visible = true, ColumnAjaxDataUrl = Url.Action("Details", "ConfigurableFiltration"), Orderable = true });
+    Model.AccessRulesGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "AccessRuleName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.AccessRuleNameColumnHeading), ColumnType = ColumnType.Default, Visible = true, Orderable = true });
+    Model.AccessRulesGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "BorderingAreaRuleIndicator", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.BorderingAreaRuleIndicatorColumnHeading), ColumnType = ColumnType.Default, Visible = true, Orderable = true });
+    Model.AccessRulesGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "DefaultRuleIndicator", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.DefaultRuleIndicatorColumnHeading), ColumnType = ColumnType.Default, Visible = true, Orderable = true });
+    Model.AccessRulesGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ReciprocalRuleIndicator", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.ReciprocalRuleIndicatorColumnHeading), ColumnType = ColumnType.Default, Visible = true, Orderable = true });
+    Model.AccessRulesGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "AccessRuleID", ColumnTitleHeader = String.Empty, ColumnType = ColumnType.Edit, Visible = true });
+}
+<partial name="_InformationalModalPartial" for="InformationalMessage" />
+<partial name="_WarningModalPartial" />
+
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@HeadingResourceKeyConstants.AccessRulesSearchPageHeading"></h3>
+    </div>
+    <div class="card-body">
+        <form id="SearchForm" method="post">
+            <div id="configurableFiltrationSearchCriteria" class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-11">
+                            <h4 id="searchCriteriaHeader" heading-for="@HeadingResourceKeyConstants.SearchCriteriaHeading"></h4>
+                        </div>
+                        <div class="col-1 right">
+                            <span id="toggleConfigurableFiltrationSearchIcon" class="fas fa-caret-down align-bottom fa-2x" data-toggle="collapse" data-target="#configurableFiltrationSearchCriteriaForm" aria-expanded="true" onclick="toggleConfigurableFiltrationSearchCriteria(event);">&nbsp;</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="configurableFiltrationSearchCriteriaForm" class="card-body show">
+                    <div class="form-row">
+                        <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.SearchAccessRulesAccessRuleIDFieldLabel">
+                            <label asp-for="SearchCriteria.AccessRuleID" field-label-for="@FieldLabelResourceKeyConstants.SearchAccessRulesAccessRuleIDFieldLabel"></label>
+                            <input asp-for="SearchCriteria.AccessRuleID" type="text" class="form-control" />
+                        </div>
+                        <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.SearchAccessRulesAccessRuleNameFieldLabel">
+                            <label asp-for="SearchCriteria.AccessRuleName" field-label-for="@FieldLabelResourceKeyConstants.SearchAccessRulesAccessRuleNameFieldLabel"></label>
+                            <input asp-for="SearchCriteria.AccessRuleName" type="text" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.SearchAccessRulesBorderingAreaRuleFieldLabel">
+                            <input asp-for="SearchCriteria.BorderingAreaRuleIndicator" type="checkbox" class="form-check-input" />
+                            <label asp-for="SearchCriteria.BorderingAreaRuleIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.SearchAccessRulesBorderingAreaRuleFieldLabel"></label>
+                        </div>
+                        <div class="form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.SearchAccessRulesDefaultRuleFieldLabel">
+                            <input asp-for="SearchCriteria.DefaultRuleIndicator" type="checkbox" class="form-check-input" />
+                            <label class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.SearchAccessRulesDefaultRuleFieldLabel"></label>
+                        </div>
+                        <div class="form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.SearchAccessRulesReciprocalRuleFieldLabel">
+                            <input asp-for="SearchCriteria.ReciprocalRuleIndicator" type="checkbox" class="form-check-input" />
+                            <label class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.SearchAccessRulesReciprocalRuleFieldLabel"></label>
+                        </div>
+                    </div>
+                    <fieldset class="border p-2">
+                        <legend class="w-auto" heading-for="@HeadingResourceKeyConstants.PermissionsHeading"></legend>
+
+                        <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.SearchAccessRulesAccessToGenderAndAgeDataPermissionIndicatorFieldLabel">
+                            <input asp-for="SearchCriteria.AccessToGenderAndAgeDataPermissionIndicator" type="checkbox" class="form-check-input" />
+                            <label asp-for="SearchCriteria.AccessToGenderAndAgeDataPermissionIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.SearchAccessRulesAccessToGenderAndAgeDataPermissionIndicatorFieldLabel"></label>
+                        </div>
+                        <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.SearchAccessRulesAccessToPersonalDataPermissionIndicatorFieldLabel">
+                            <input asp-for="SearchCriteria.AccessToPersonalDataPermissionIndicator" type="checkbox" class="form-check-input" />
+                            <label asp-for="SearchCriteria.AccessToPersonalDataPermissionIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.SearchAccessRulesAccessToPersonalDataPermissionIndicatorFieldLabel"></label>
+                        </div>
+                        <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.SearchAccessRulesCreatePermissionIndicatorFieldLabel">
+                            <input asp-for="SearchCriteria.CreatePermissionIndicator" type="checkbox" class="form-check-input" />
+                            <label asp-for="SearchCriteria.CreatePermissionIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.SearchAccessRulesCreatePermissionIndicatorFieldLabel"></label>
+                        </div>
+                        <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.SearchAccessRulesDeletePermissionIndicatorFieldLabel">
+                            <input asp-for="SearchCriteria.DeletePermissionIndicator" type="checkbox" class="form-check-input" />
+                            <label asp-for="SearchCriteria.DeletePermissionIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.SearchAccessRulesDeletePermissionIndicatorFieldLabel"></label>
+                        </div>
+                        <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.SearchAccessRulesReadPermissionIndicatorFieldLabel">
+                            <input asp-for="SearchCriteria.ReadPermissionIndicator" type="checkbox" class="form-check-input" />
+                            <label asp-for="SearchCriteria.ReadPermissionIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.SearchAccessRulesReadPermissionIndicatorFieldLabel"></label>
+                        </div>
+                        <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.SearchAccessRulesWritePermissionIndicatorFieldLabel">
+                            <input asp-for="SearchCriteria.WritePermissionIndicator" type="checkbox" class="form-check-input" />
+                            <label asp-for="SearchCriteria.WritePermissionIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.SearchAccessRulesWritePermissionIndicatorFieldLabel"></label>
+                        </div>
+                    </fieldset>
+                    <div class="form-row">
+                        <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.SearchAccessRulesGrantingActorSiteCodeFieldLabel">
+                            <label asp-for="SearchCriteria.GrantingActorSiteCode" field-label-for="@FieldLabelResourceKeyConstants.SearchAccessRulesGrantingActorSiteCodeFieldLabel"></label>
+                            <input asp-for="SearchCriteria.GrantingActorSiteCode" type="text" class="form-control" />
+                        </div>
+                        <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.SearchAccessRulesGrantingActorSiteHASCCodeFieldLabel">
+                            <label asp-for="SearchCriteria.GrantingActorSiteHASCCode" field-label-for="@FieldLabelResourceKeyConstants.SearchAccessRulesGrantingActorSiteHASCCodeFieldLabel"></label>
+                            <input asp-for="SearchCriteria.GrantingActorSiteHASCCode" type="text" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-row" hidden-if="@FieldLabelResourceKeyConstants.SearchAccessRulesGrantingActorSiteNameFieldLabel">
+                        <div class="form-group col-md-12">
+                            <label asp-for="SearchCriteria.GrantingActorSiteName" field-label-for="@FieldLabelResourceKeyConstants.SearchAccessRulesGrantingActorSiteNameFieldLabel"></label>
+                            <input asp-for="SearchCriteria.GrantingActorSiteName" type="text" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.SearchAccessRulesReceivingActorSiteCodeFieldLabel">
+                            <label asp-for="SearchCriteria.ReceivingActorSiteCode" field-label-for="@FieldLabelResourceKeyConstants.SearchAccessRulesReceivingActorSiteCodeFieldLabel"></label>
+                            <input asp-for="SearchCriteria.ReceivingActorSiteCode" type="text" class="form-control" />
+                        </div>
+                        <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.SearchAccessRulesReceivingActorSiteHASCCodeFieldLabel">
+                            <label asp-for="SearchCriteria.ReceivingActorSiteHASCCode" field-label-for="@FieldLabelResourceKeyConstants.SearchAccessRulesReceivingActorSiteHASCCodeFieldLabel"></label>
+                            <input asp-for="SearchCriteria.ReceivingActorSiteHASCCode" type="text" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-12" hidden-if="@FieldLabelResourceKeyConstants.SearchAccessRulesReceivingActorSiteNameFieldLabel">
+                            <label asp-for="SearchCriteria.ReceivingActorSiteName" field-label-for="@FieldLabelResourceKeyConstants.SearchAccessRulesReceivingActorSiteNameFieldLabel"></label>
+                            <input asp-for="SearchCriteria.ReceivingActorSiteName" type="text" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div id="configurableFiltrationSearchCriteriaCommands" class="card-footer">
+                    <button id="cancelSearchCriteria" type="button" class="btn btn-outline-primary" onclick="cancelConfigurableFiltrationSearch('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)', event)" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+                    <button id="clear" type="button" onclick="resetForm();" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.ClearButton"></button>
+                    <button id="search" type="submit" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.SearchButton"></button>
+                    <button id="addAccessRuleSearchCriteria" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.AddButton" onclick="location.href='@Url.Action("Details", "ConfigurableFiltration")'" visible="@Model.ConfigurableFiltrationPermissions.Create"></button>
+                </div>
+            </div>
+            <input type="hidden" asp-for="SearchCriteria.SortColumn" />
+            <input type="hidden" asp-for="SearchCriteria.SortOrder" />
+            <br />
+        </form>
+        <div id="configurableFiltrationSearchResults" class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-12">
+                        <h4 id="searchResultsHeader" heading-for="@HeadingResourceKeyConstants.SearchResultsHeading"></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="col-12">
+                    @if (Model.ShowSearchResults)
+                    {
+                        <eidss-grid id="@Model.AccessRulesGridConfiguration.GridId"
+                                    grid-configuration="@Model.AccessRulesGridConfiguration"
+                                    class-name="@Model.AccessRulesGridConfiguration.GridClass"
+                                    enable-server-side="true"
+                                    enable-processing="@Model.AccessRulesGridConfiguration.EnableProcessingMessage"
+                                    enable-search="false"
+                                    end-point="@Model.AccessRulesGridConfiguration.AjaxDataUrl"
+                                    filtered-control-ids="@Model.AccessRulesGridConfiguration.ControlFilterID"
+                                    control-labels="@Model.AccessRulesGridConfiguration.ControlLabels">
+                        </eidss-grid>
+                    }
+                </div>
+            </div>
+            <div id="configurableFiltrationSearchResultsCommands" class="card-footer">
+                <button id="cancelSearchResults" type="button" class="btn btn-outline-primary" onclick="cancelConfigurableFiltrationSearch('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)', event)" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+                <button id="addAccessRuleSearchResults" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.AddButton" onclick="location.href='@Url.Action("Details", "ConfigurableFiltration")'" visible="@Model.ConfigurableFiltrationPermissions.Create"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function toggleConfigurableFiltrationSearchCriteria(e) {
+        if ($("#configurableFiltrationSearchCriteriaForm").hasClass("show")) {
+            $("#toggleConfigurableFiltrationSearchIcon").removeClass("fa-caret-up").addClass("fa-caret-down");
+            $("#cancelSearchCriteria").hide();
+            $("#clear").hide();
+            $("#search").hide();
+            $("#configurableFiltrationSearchCriteriaForm").collapse("show");
+            $("#configurableFiltrationSearchCriteriaCommands").hide();
+            $("#cancelSearchResults").show();
+        }
+        else {
+            $("#toggleConfigurableFiltrationSearchIcon").removeClass("fa-caret-down").addClass("fa-caret-up");
+            $("#cancelSearchCriteria").hide();
+            $("#clear").show();
+            $("#search").show();
+            $("#addAccessRuleSearchCriteria").hide();
+            $("#configurableFiltrationSearchCriteriaForm").collapse("show");
+            $("#configurableFiltrationSearchResults").show();
+            $("#configurableFiltrationSearchCriteriaCommands").show();
+        }
+    };
+
+    function hideConfigurableFiltrationSearchCriteria() {
+        $("#toggleConfigurableFiltrationSearchIcon").show();
+        $("#configurableFiltrationSearchCriteriaForm").collapse("hide");
+        $("#configurableFiltrationSearchCriteriaCommands").hide();
+        $("#configurableFiltrationSearchResultsCommands").show();
+        $("#configurableFiltrationSearchResults").show();
+    };
+
+    function showConfigurableFiltrationSearchCriteria() {
+        $("#toggleConfigurableFiltrationSearchIcon").hide();
+        $("#configurableFiltrationSearchCriteriaForm").collapse("show");
+        $("#configurableFiltrationSearchCriteriaCommands").show();
+        $("#configurableFiltrationSearchResults").hide();
+    };
+
+    function resetForm() {
+        $("#configurableFiltrationSearchCriteriaForm").find(":input").each(function () {
+            switch (this.type) {
+                case "password":
+                case "select-multiple":
+                case "select-one":
+                case "text":
+                case "textarea":
+                    $(this).val("");
+                    break;
+                case "checkbox":
+                case "radio":
+                    this.checked = false;
+            }
+        });
+    };
+
+    function cancelConfigurableFiltrationSearch(message, event) {
+        event.preventDefault();
+
+        showWarningModal(message).then(response => {
+            if (response)
+                location.href = "/Administration/Dashboard";
+        });
+    };
+</script>
+
+@if (ViewBag.JavaScriptFunction != null)
+{
+    <script type="text/javascript">
+        @Html.Raw(ViewBag.JavaScriptFunction)
+    </script>
+}

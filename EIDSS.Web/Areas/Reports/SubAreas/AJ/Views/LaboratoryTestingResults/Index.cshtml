@@ -1,0 +1,173 @@
+﻿@model EIDSS.Web.Areas.Reports.SubAreas.AJ.ViewModels.LaboratoryTestingResultsViewModel
+@using EIDSS.ReportViewer
+@{
+    ViewBag.Title = Localizer.GetString(HeadingResourceKeyConstants.LaboratoryTestingResultsPageHeading);
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@(HeadingResourceKeyConstants.LaboratoryTestingResultsPageHeading + "," + Model.LanguageId)"></h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            <div class="form-row">
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="LanguageId" field-label-for="@(FieldLabelResourceKeyConstants.LanguageFieldLabel + "," + Model.LanguageId)"></label>
+                        <div class="input-group">
+                            <select asp-for="LanguageId"
+                                    asp-items="@(new SelectList(Model.ReportLanguageModels, "LangID", "Language"))" class="form-control">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                        <i class="fas fa-asterisk text-danger"></i>
+                        <label asp-for="SampleID" field-label-for="@(FieldLabelResourceKeyConstants.SampleIDFieldLabel + "," + Model.LanguageId)"></label>
+                        <input type="text" asp-for="SampleID" class="form-control" />
+                        <span asp-validation-for="SampleID" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                        <br />
+                        <button type="button" id="submitValidate" class="btn btn-primary" button-for="@(ButtonResourceKeyConstants.ReportsValidateButton + "," + Model.LanguageId)"></button>
+                    </div>
+                    <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                        <i class="fas fa-asterisk text-danger"></i>
+                        <label asp-for="DepartmentID" field-label-for="@(FieldLabelResourceKeyConstants.LabDepartmentFieldLabel + "," + Model.LanguageId)"></label>
+                            <div class="input-group">
+                                <select asp-for="DepartmentID"
+                                        asp-items="@(new SelectList(Model.LABTestingResultsDepartmentList, "idfsReference", "strName"))" class="form-control">
+                                    <option value="0"></option>
+                                </select>
+                                <span asp-validation-for="DepartmentID" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4 text-right">
+                            <button type="submit" id="submitReport" class="btn btn-primary" button-for="@(ButtonResourceKeyConstants.GenerateReportButton + "," + Model.LanguageId)"></button>
+                        </div>
+                    </div>
+            <div class="form-row">
+                <div class="form-group col-md-2 form-check form-check-inline" style="@(Model.ShowIncludeSignature ? "display:block;" : "display:none;")">
+                    <input asp-for="IncludeSignature" class="form-check-input" type="checkbox" />
+                    <label asp-for="IncludeSignature" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.IncludeSignatureFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+                <div class="form-group col-md-4 form-check form-check-inline" style="@(Model.ShowUseArchiveData ? "display:block;" : "display:none;")">
+                    <input asp-for="UseArchiveData" class="form-check-input" type="checkbox" />
+                    <label asp-for="UseArchiveData" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.UseArchivedDataFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+            </div>
+        </form>
+        <div class="col-xs-4 col-xs-offset-4" id="divLoading"></div>
+        <div id="ReportView"></div>
+    </div>
+</div>
+@section runreport {
+    <script type="text/javascript">
+            function submitReport() {
+                $("#ReportView").html("");
+                onBegin();
+                $.ajax({
+                    url: '@Url.Action("GenerateReport", "LaboratoryTestingResults", new { Area = "Reports", SubArea = "AJ" })',//controller name and action
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(getFormData())  //information for search
+                })
+                    .done(function (result) {
+                        $('#ReportView').html(result); //write returned partial view to empty div
+                        onComplete();
+                    })
+            };
+
+            function onBegin() {
+                $("#divLoading").html('<image  src="@Url.Content("~/Includes/Images/ajax-loader.gif")"  alt="Loading, please wait" />');
+            };
+
+            function onComplete() {
+                var jsonData = {
+                    "strReportName":'@Model.ReportName',
+                    "idfIsSignatureIncluded": $("#IncludeSignature").is(':checked') ? 'true' : 'false'
+                };
+                //Save ReportAudit
+                 $.ajax({
+                    url: '@Url.Action("SaveReportAudit", "LaboratoryTestingResults", new { Area = "Reports", SubArea = "AJ" })',//controller name and action
+                    type: 'POST',
+                    contentType :'application/json; charset=utf-8',
+                    data: JSON.stringify(jsonData)  //information for search
+                })
+                .done(function (result) {
+                    $("#divLoading").html("");
+                })
+            };
+
+            function getFormData() {
+                var jsonData = {
+                    "LanguageId": $("#LanguageId").val(),
+                    "SampleID": $("#SampleID").val(),
+                    "DepartmentID": $("#DepartmentID").val(),
+                    "UseArchiveData": $("#UseArchiveData").is(':checked') ? 'true' : 'false',
+                    "IncludeSignature": $("#IncludeSignature").is(':checked') ? 'true' : 'false',
+                    "PrintDateTime": localDate()
+                };
+
+                return jsonData;
+        }
+
+        $(document).ready(function () {
+            //$("#SentTo").prop("disabled", true);
+            //$("#submitValidate").prop("disabled", true);
+            //$('#SentTo').empty();
+
+            $("#SampleID").keyup(function () {
+                //Reference the Button.
+                var btnSubmit = $("#submitValidate");
+                var ddSentTo = $("#DepartmentID");
+
+                //Verify the TextBox value.
+                if ($(this).val().trim() != "") {
+                    //Enable the TextBox when TextBox has value.
+                    btnSubmit.removeAttr("disabled");
+                    ddSentTo.removeAttr("disabled");
+                } else {
+                    //Disable the TextBox when TextBox is empty.
+                    $('#DepartmentID').empty();
+                    btnSubmit.attr("disabled", "disabled");
+                    ddSentTo.attr("disabled", "disabled");
+                }
+            });
+
+            $("#submitValidate").on("click", function () {
+                RefreshSentTo();
+            });
+        });
+
+        function RefreshSentTo() {
+            var langId = $("#LanguageId").val();
+            var sampleId = $("#SampleID").val();
+            var selectedDepartmentID = $("#DepartmentID").val();
+            $('#DepartmentID').empty();
+
+            $.ajax({
+                url: '@Url.Action("GetLABTestingResultsDepartmentList", "LaboratoryTestingResults", new { Area = "Reports", SubArea = "AJ" })' + "?langId=" + langId + "&sampleId=" + sampleId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#DepartmentID').empty();
+                    if (data != null) {
+                        var items = '<option value="0"></option>';
+                        $.each(data, function (i, departmentID) {
+                            items += "<option value='" + departmentID.idfsReference + "'>" + departmentID.strName + "</option>";
+                        });
+                        $("#SampleID").val(sampleId);
+                        $('#DepartmentID').html(items);
+                        $("#DepartmentID").val(selectedDepartmentID);
+                    }
+                });
+        };
+    </script>
+    @if (@Model.JavascriptToRun != null)
+    {
+        <script type="text/javascript">
+            @Html.Raw(@Model.JavascriptToRun)
+        </script>
+    }
+}

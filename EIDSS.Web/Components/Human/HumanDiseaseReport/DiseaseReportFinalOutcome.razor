@@ -1,0 +1,90 @@
+﻿@using EIDSS.Domain.ResponseModels.Administration
+@using EIDSS.Web.ViewModels.Human
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits EIDSS.Web.Components.Human.HumanDiseaseReport.DiseaseReportFinalOutcomeBase
+
+<RadzenTemplateForm id="FinalOutcomeForm" @ref="_form" TItem="DiseaseReportFinalOutcomeViewModel" Data="@Model" Submit="@HandleValidFinalOutcomeSubmit" OnInvalidSubmit="@HandleInvalidFinalOutcomeSubmit">
+    <div class="card">
+        <div class="card-header">
+            <h4>@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportFinalOutcomeHeading)</h4>
+        </div>
+        <div class="card-body">
+            @if ((Model.blnFinalSSD == null || (Model.blnFinalSSD != null && Model.blnFinalSSD.Value == false))
+          && (Model.blnInitialSSD == null || (Model.blnInitialSSD != null && Model.blnInitialSSD.Value == false)
+          ))
+            {
+                <div class="form-row">
+
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportFinalOutcomeFinalCaseClassificationFieldLabel" IsRow="false" CssClass="col-md-6" For="FinalCaseClassificationDD">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="FinalCaseClassificationDD" TValue="long?" LoadData="@LoadFinalCaseClassification" Data="@finalCaseClassification" ValueProperty="idfsBaseReference" TextProperty="StrDefault" @bind-Value="@Model.idfsFinalCaseStatus" Count="@finalCaseClassificationCount" class="form-control" Disabled="@isReportClosed" Change="@(args => UpdateFinalCaseClassification(args))"></RadzenDropDown>
+                    </InterfaceEditorResource>
+
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportFinalOutcomeDateOfFinalCaseClassificationFieldLabel" IsRow="false" CssClass="col-md-4" For="datFinalCaseClassificationDate">
+                        <RadzenDatePicker id="datFinalCaseClassificationDate" Name="datFinalCaseClassificationDate" AllowClear="true" AllowInput="true" class="form-control-range" TValue="DateTime?" @bind-Value="@Model.datFinalCaseClassificationDate" DateFormat="d" Change="@(args => UpdateFinalClassificationDate(args))" Disabled="@isReportClosed"/>
+                        <RadzenCompareValidator Value="@Model.datSampleStatusDate" Component="datFinalCaseClassificationDate" Popup=false Operator="CompareOperator.GreaterThanEqual"
+                                                Text=@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFinalOutcomeDateOfFinalCaseClassificationFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportTestsResultDateFieldLabel))
+                                                Style="display: block" />
+                        <RadzenCompareValidator Value="@DateTime.Now" Component="datFinalCaseClassificationDate" Popup=false Operator="CompareOperator.LessThanEqual"
+                                                Text=@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)
+                                                Style="display: block" />
+                    </InterfaceEditorResource>
+                </div>
+            }
+                <div class="form-row">
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportFinalOutcomeBasisOfDiagnosisFieldLabel" IsRow="false" CssClass="col-md-12">
+
+
+                        <RadzenCheckBox id="blnClinicalDiagBasis" name="blnClinicalDiagBasis" @bind-Value="@Model.blnClinicalDiagBasis" TValue="bool?" Change="@(args => UpdateblnClinicalDiagBasis(args))" Disabled="@isReportClosed"></RadzenCheckBox>
+                        <label for="blnClinicalDiagBasis">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFinalOutcomeClinicalFieldLabel)</label>
+
+                        <RadzenCheckBox id="blnEpiDiagBasis" name="blnEpiDiagBasis" @bind-Value="@Model.blnEpiDiagBasis" TValue="bool?" Change="@(args => UpdateblnEpiDiagBasis(args))" Disabled="@isReportClosed"></RadzenCheckBox>
+                        <label for="blnEpiDiagBasis">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFinalOutcomeEpidemiologicalLinksFieldLabel)</label>
+
+                        <RadzenCheckBox id="blnLabDiagBasis" name="blnLabDiagBasis" @bind-Value="@Model.blnLabDiagBasis" TValue="bool?" Change="@(args => UpdateblnLabDiagBasis(args))" Disabled="@isReportClosed"></RadzenCheckBox>
+                        <label for="blnLabDiagBasis">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFinalOutcomeLaboratoryTestsFieldLabel)</label>
+                        <label id="WarningBasisOfDiagnosis" name="WarningBasisOfDiagnosis"></label>
+                    </InterfaceEditorResource>
+                </div>
+                <div class="form-row">
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportFinalOutcomeOutcomeFieldLabel" IsRow="false" CssClass="col-md-6" For="FinalOutcomeDD">
+                        <div class="input-group flex-nowrap">
+                            <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="FinalOutcomeDD" TValue="long?" LoadData="@LoadFinalOutcome" Data="@finalOutcome" ValueProperty="idfsBaseReference" TextProperty="StrDefault" @bind-Value="@Model.idfsOutCome" Count="@finalOutcomeCount" class="form-control" Change="@(args => UpdateFinalOutcome(args))" Disabled="@isReportClosed"></RadzenDropDown>
+                            @if (canAddBaseReference)
+                            {
+                                <button id="AddEmployee" type="button" @onclick=@(() => OpenAddBaseReference()) class="btn btn-outline-secondary btn-sm" disabled="@@isReportClosed"><span class="fas fa-plus" aria-hidden="true"></span></button>
+                            }
+                        </div>
+                    </InterfaceEditorResource>
+                    @if (showDateOfDeath)
+                    {
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportFinalOutcomeDateOfDeathFieldLabel" IsRow="false" CssClass="col-md-4" For="datDateOfDeath">
+                        <RadzenDatePicker id="datDateOfDeath" Name="datDateOfDeath" AllowClear="true" AllowInput="true" class="form-control-range" TValue="DateTime?" @bind-Value="@Model.datDateOfDeath" DateFormat="d" Change="@(args => UpdateDateOfDeath(args))" Disabled="@isReportClosed"/>
+                    <RadzenCompareValidator Value="@DateTime.Now" Component="datDateOfDeath" Popup=false Operator="CompareOperator.LessThanEqual"
+                                            Text=@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)
+                                            Style="display: block" />
+                    </InterfaceEditorResource>
+                    }
+                </div>
+                <div class="form-row">
+                    <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.CampaignInformationCommentsDescriptionsColumnHeading" CssClass="col-md-3" IsRow="false" For="Comments">
+                        <RadzenTextBox id="Comments" Name="Comments" class="form-control" @bind-Value="@Model.Comments" Change="@(args => UpdateComments(args))" Disabled="@isReportClosed"></RadzenTextBox>
+                    </InterfaceEditorResource>
+
+
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportFinalOutcomeEpidemiologistNameFieldLabel" IsRow="false" CssClass="col-md-6" For="strEpidemiologistsNameDD">
+                        <div class="input-group flex-nowrap">
+                            <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="strEpidemiologistsNameDD" TValue="long?" LoadData="@LoadEpidemologistName" Data="@epidemogistName" ValueProperty="idfPerson" TextProperty="FullName" @bind-Value="@Model.idfInvestigatedByPerson" Count="@EpidemologistCount" class="form-control" Change="@(args => UpdateEpidemologist(args))" Disabled="@isReportClosed"></RadzenDropDown>
+                            @if (canAddEmployee)
+                            {
+                                <button id="AddEmployee" type="button" @onclick=@(() => OpenEmployeeAddModal()) class="btn btn-outline-secondary btn-sm" disabled="@@isReportClosed"><span class="fas fa-plus" aria-hidden="true"></span></button>
+                            }
+                        </div>
+                    </InterfaceEditorResource>
+                </div>
+            </div>
+    <div class="card-footer">
+
+    </div>
+        </div>
+  </RadzenTemplateForm>

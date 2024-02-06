@@ -1,0 +1,265 @@
+﻿@model EIDSS.Web.ViewModels.BaseReferenceEditorPagesViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<label>Employee Catedgory</label>
+<label>
+    User
+    <input type="radio" name="userNonUser" />
+</label>
+<label>
+    Non User
+    <input type="radio" name="userNonUser" />
+</label>
+
+
+<br />
+
+
+<section>
+    @{
+        Select2Configruation select2Configruation = new Select2Configruation();
+        select2Configruation.DropDownId = "PersonalIDTypeDD";
+
+        //select2Configruation.Label = Localizer.GetString(FieldLabelResourceKeyConstants.ReferenceTypeFieldLabel);
+        //select2Configruation.ControlTargetType = DropDownTargetTypes.Table;
+        //select2Configruation.Endpoint = @Url.Action("GetBaseReferenceTypesForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", intHACode = 226 });
+        //select2Configruation.ControlTargetUrl = @Url.Action("GetBaseReferenceTableNew", "BaseReferencePage");
+        //select2Configruation.isVisible = true;
+        //select2Configruation.CustomJsOnChangeFunction = "ChangeAddButtonActiveStatus";//Create This Javascript Method Below in the Scripts tag
+        //select2Configruation.CustomJsOnClearFunction = "SelectOnClear"; //Create This Javascript Method Below in the Scripts tag
+        //select2Configruation.DisabledControls = "AddBaseReferenceButton";
+
+        //Display Add Button Next To DropDown
+        //select2Configruation.IncludeAddButton = false;
+        //Modal To Launch When Button is Clicked
+        // select2Configruation.AddModalId = "exampleModal";
+        select2Configruation.defaultSelect2Selection = new Select2DataItem() { id = EIDSSConstants.BaseReferenceTypeIds.AccessionCondition.ToString(), text = Model.DefaultPersonalIDType };
+        Model.Select2Configurations.Add(select2Configruation);
+
+
+
+
+
+        select2Configruation = new Select2Configruation();
+        select2Configruation.DropDownId = "OrganizationDD";
+
+        //select2Configruation.Label = Localizer.GetString(FieldLabelResourceKeyConstants.ReferenceTypeFieldLabel);
+        //select2Configruation.ControlTargetType = DropDownTargetTypes.Table;
+        //select2Configruation.Endpoint = @Url.Action("GetBaseReferenceTypesForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", intHACode = 226 });
+        //select2Configruation.ControlTargetUrl = @Url.Action("GetBaseReferenceTableNew", "BaseReferencePage");
+        //select2Configruation.isVisible = true;
+        //select2Configruation.CustomJsOnChangeFunction = "ChangeAddButtonActiveStatus";//Create This Javascript Method Below in the Scripts tag
+        //select2Configruation.CustomJsOnClearFunction = "SelectOnClear"; //Create This Javascript Method Below in the Scripts tag
+        //select2Configruation.DisabledControls = "AddBaseReferenceButton";
+
+        //Display Add Button Next To DropDown
+        //select2Configruation.IncludeAddButton = false;
+        //Modal To Launch When Button is Clicked
+        // select2Configruation.AddModalId = "exampleModal";
+        //select2Configruation.defaultSelect2Selection = new Select2DataItem() { id = "19000110", text = "Assecioned Data" };
+        Model.Select2Configurations.Add(select2Configruation);
+
+
+
+
+
+        select2Configruation = new Select2Configruation();
+        select2Configruation.DropDownId = "SiteIdDD";
+
+        //select2Configruation.Label = Localizer.GetString(FieldLabelResourceKeyConstants.ReferenceTypeFieldLabel);
+        //select2Configruation.ControlTargetType = DropDownTargetTypes.Table;
+        //select2Configruation.Endpoint = @Url.Action("GetBaseReferenceTypesForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", intHACode = 226 });
+        //select2Configruation.ControlTargetUrl = @Url.Action("GetBaseReferenceTableNew", "BaseReferencePage");
+        //select2Configruation.isVisible = true;
+        //select2Configruation.CustomJsOnChangeFunction = "ChangeAddButtonActiveStatus";//Create This Javascript Method Below in the Scripts tag
+        //select2Configruation.CustomJsOnClearFunction = "SelectOnClear"; //Create This Javascript Method Below in the Scripts tag
+        //select2Configruation.DisabledControls = "AddBaseReferenceButton";
+
+        //Display Add Button Next To DropDown
+        //select2Configruation.IncludeAddButton = false;
+        //Modal To Launch When Button is Clicked
+        // select2Configruation.AddModalId = "exampleModal";
+        //select2Configruation.defaultSelect2Selection = new Select2DataItem() { id = "19000110", text = "Assecioned Data" };
+        Model.Select2Configurations.Add(select2Configruation);
+
+
+
+
+
+        select2Configruation = new Select2Configruation();
+        select2Configruation.DropDownId = "DepartmentDD";
+
+        //select2Configruation.Label = Localizer.GetString(FieldLabelResourceKeyConstants.ReferenceTypeFieldLabel);
+        //select2Configruation.ControlTargetType = DropDownTargetTypes.Table;
+        //select2Configruation.Endpoint = @Url.Action("GetBaseReferenceTypesForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", intHACode = 226 });
+        //select2Configruation.ControlTargetUrl = @Url.Action("GetBaseReferenceTableNew", "BaseReferencePage");
+        //select2Configruation.isVisible = true;
+        //select2Configruation.CustomJsOnChangeFunction = "ChangeAddButtonActiveStatus";//Create This Javascript Method Below in the Scripts tag
+        //select2Configruation.CustomJsOnClearFunction = "SelectOnClear"; //Create This Javascript Method Below in the Scripts tag
+        //select2Configruation.DisabledControls = "AddBaseReferenceButton";
+
+        //Display Add Button Next To DropDown
+        //select2Configruation.IncludeAddButton = false;
+        //Modal To Launch When Button is Clicked
+        // select2Configruation.AddModalId = "exampleModal";
+        //select2Configruation.defaultSelect2Selection = new Select2DataItem() { id = "19000110", text = "Assecioned Data" };
+        Model.Select2Configurations.Add(select2Configruation);
+
+
+
+        select2Configruation = new Select2Configruation();
+        select2Configruation.DropDownId = "PositionDD";
+
+        //select2Configruation.Label = Localizer.GetString(FieldLabelResourceKeyConstants.ReferenceTypeFieldLabel);
+        //select2Configruation.ControlTargetType = DropDownTargetTypes.Table;
+        //select2Configruation.Endpoint = @Url.Action("GetBaseReferenceTypesForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", intHACode = 226 });
+        //select2Configruation.ControlTargetUrl = @Url.Action("GetBaseReferenceTableNew", "BaseReferencePage");
+        //select2Configruation.isVisible = true;
+        //select2Configruation.CustomJsOnChangeFunction = "ChangeAddButtonActiveStatus";//Create This Javascript Method Below in the Scripts tag
+        //select2Configruation.CustomJsOnClearFunction = "SelectOnClear"; //Create This Javascript Method Below in the Scripts tag
+        //select2Configruation.DisabledControls = "AddBaseReferenceButton";
+
+        //Display Add Button Next To DropDown
+        //select2Configruation.IncludeAddButton = false;
+        //Modal To Launch When Button is Clicked
+        // select2Configruation.AddModalId = "exampleModal";
+        //select2Configruation.defaultSelect2Selection = new Select2DataItem() { id = "19000110", text = "Assecioned Data" };
+        Model.Select2Configurations.Add(select2Configruation);
+
+    }
+    <div id="card">
+
+        <div class="card-header"><h2>PERSON INFORMATION</h2></div>
+        <div class="card-body">
+            <eidss-select2DropDown id="@Model.Select2Configurations[0].DropDownId"
+                                   control-target-id="@Model.Select2Configurations[0].ControltargetId"
+                                   target-type="@Model.Select2Configurations[0].ControlTargetType"
+                                   target-ajax-url="@Model.Select2Configurations[0].ControlTargetUrl"
+                                   selectct2-default-data="@Model.Select2Configurations[0].defaultSelect2Selection"
+                                   end-point="@Model.Select2Configurations[0].Endpoint"
+                                   label-name="@Model.Select2Configurations[0].Label"
+                                   is-visible="@Model.Select2Configurations[0].isVisible"
+                                   include-add-button="@Model.Select2Configurations[0].IncludeAddButton"
+                                   add-modal-id="@Model.Select2Configurations[0].AddModalId"
+                                   custom-js-on-change-function="@Model.Select2Configurations[0].CustomJsOnChangeFunction"
+                                   custom-js-on-clear-function="@Model.Select2Configurations[0].CustomJsOnClearFunction"
+                                   disabled-controls="@Model.Select2Configurations[0].DisabledControls"
+                                   filter-id="@Model.Select2Configurations[0].FilteredId">
+
+            </eidss-select2DropDown>
+
+
+
+            <label>PERSONAL ID</label>
+            <input type="text" />
+
+
+            <label>FIRST NAME</label>
+            <input type="text" />
+
+
+
+            <label>MIDDLE NAME</label>
+            <input type="text" />
+
+
+            <label>LAST NAME</label>
+            <input type="text" />
+
+
+            <!--Organization-->
+            <eidss-select2DropDown id="@Model.Select2Configurations[1].DropDownId"
+                                   control-target-id="@Model.Select2Configurations[1].ControltargetId"
+                                   target-type="@Model.Select2Configurations[1].ControlTargetType"
+                                   target-ajax-url="@Model.Select2Configurations[1].ControlTargetUrl"
+                                   selectct2-default-data="@Model.Select2Configurations[1].defaultSelect2Selection"
+                                   end-point="@Model.Select2Configurations[1].Endpoint"
+                                   label-name="@Model.Select2Configurations[1].Label"
+                                   is-visible="@Model.Select2Configurations[1].isVisible"
+                                   include-add-button="@Model.Select2Configurations[1].IncludeAddButton"
+                                   add-modal-id="@Model.Select2Configurations[1].AddModalId"
+                                   custom-js-on-change-function="@Model.Select2Configurations[1].CustomJsOnChangeFunction"
+                                   custom-js-on-clear-function="@Model.Select2Configurations[1].CustomJsOnClearFunction"
+                                   disabled-controls="@Model.Select2Configurations[1].DisabledControls"
+                                   filter-id="@Model.Select2Configurations[1].FilteredId">
+            </eidss-select2DropDown>
+
+
+
+
+            <!--SITE ID-->
+            <eidss-select2DropDown id="@Model.Select2Configurations[2].DropDownId"
+                                   control-target-id="@Model.Select2Configurations[2].ControltargetId"
+                                   target-type="@Model.Select2Configurations[2].ControlTargetType"
+                                   target-ajax-url="@Model.Select2Configurations[2].ControlTargetUrl"
+                                   selectct2-default-data="@Model.Select2Configurations[2].defaultSelect2Selection"
+                                   end-point="@Model.Select2Configurations[2].Endpoint"
+                                   label-name="@Model.Select2Configurations[2].Label"
+                                   is-visible="@Model.Select2Configurations[2].isVisible"
+                                   include-add-button="@Model.Select2Configurations[2].IncludeAddButton"
+                                   add-modal-id="@Model.Select2Configurations[2].AddModalId"
+                                   custom-js-on-change-function="@Model.Select2Configurations[2].CustomJsOnChangeFunction"
+                                   custom-js-on-clear-function="@Model.Select2Configurations[2].CustomJsOnClearFunction"
+                                   disabled-controls="@Model.Select2Configurations[2].DisabledControls"
+                                   filter-id="@Model.Select2Configurations[2].FilteredId">
+            </eidss-select2DropDown>
+
+            <!--Department-->
+            <eidss-select2DropDown id="@Model.Select2Configurations[2].DropDownId"
+                                   control-target-id="@Model.Select2Configurations[2].ControltargetId"
+                                   target-type="@Model.Select2Configurations[2].ControlTargetType"
+                                   target-ajax-url="@Model.Select2Configurations[2].ControlTargetUrl"
+                                   selectct2-default-data="@Model.Select2Configurations[2].defaultSelect2Selection"
+                                   end-point="@Model.Select2Configurations[2].Endpoint"
+                                   label-name="@Model.Select2Configurations[2].Label"
+                                   is-visible="@Model.Select2Configurations[2].isVisible"
+                                   include-add-button="@Model.Select2Configurations[2].IncludeAddButton"
+                                   add-modal-id="@Model.Select2Configurations[2].AddModalId"
+                                   custom-js-on-change-function="@Model.Select2Configurations[2].CustomJsOnChangeFunction"
+                                   custom-js-on-clear-function="@Model.Select2Configurations[2].CustomJsOnClearFunction"
+                                   disabled-controls="@Model.Select2Configurations[2].DisabledControls"
+                                   filter-id="@Model.Select2Configurations[2].FilteredId">
+            </eidss-select2DropDown>
+
+
+
+
+
+
+            <!--Postion-->
+            <eidss-select2DropDown id="@Model.Select2Configurations[2].DropDownId"
+                                   control-target-id="@Model.Select2Configurations[2].ControltargetId"
+                                   target-type="@Model.Select2Configurations[2].ControlTargetType"
+                                   target-ajax-url="@Model.Select2Configurations[2].ControlTargetUrl"
+                                   selectct2-default-data="@Model.Select2Configurations[2].defaultSelect2Selection"
+                                   end-point="@Model.Select2Configurations[2].Endpoint"
+                                   label-name="@Model.Select2Configurations[2].Label"
+                                   is-visible="@Model.Select2Configurations[2].isVisible"
+                                   include-add-button="@Model.Select2Configurations[2].IncludeAddButton"
+                                   add-modal-id="@Model.Select2Configurations[2].AddModalId"
+                                   custom-js-on-change-function="@Model.Select2Configurations[2].CustomJsOnChangeFunction"
+                                   custom-js-on-clear-function="@Model.Select2Configurations[2].CustomJsOnClearFunction"
+                                   disabled-controls="@Model.Select2Configurations[2].DisabledControls"
+                                   filter-id="@Model.Select2Configurations[2].FilteredId">
+            </eidss-select2DropDown>
+
+
+
+
+
+        </div>
+
+    </div>
+
+
+
+
+
+</section>

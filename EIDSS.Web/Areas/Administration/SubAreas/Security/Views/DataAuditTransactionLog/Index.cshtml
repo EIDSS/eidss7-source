@@ -1,0 +1,14 @@
+﻿@model EIDSS.Web.Areas.Human.Person.ViewModels.PersonSearchPageViewModel
+@using EIDSS.Web.Enumerations
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using EIDSS.Web.Components.Administration.DataAudit
+
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@HeadingResourceKeyConstants.SearchDataAuditLogDataAuditTransactionLogHeading"></h3>
+    </div>
+    <div class="card-body">
+        <component type="typeof(SearchTransactionLog)" render-mode="Server" param-Mode=@SearchModeEnum.Default param-CallbackUrl='string.Empty' />
+    </div>
+</div>
+

@@ -1,0 +1,287 @@
+﻿@model EIDSS.Web.Areas.Human.ViewModels.Person.PersonDetailsViewModel
+<div id="personWizard">
+    <h4 heading-for="@HeadingResourceKeyConstants.PersonInformationHeading"></h4>
+    <section>
+        <partial name="_PersonInformationPartial" for="PersonInformationSection" />
+    </section>
+    <h4 heading-for="@HeadingResourceKeyConstants.PersonAddressHeading"></h4>
+    <section>
+        <partial name="_PersonAddressPartial" for="PersonAddressSection" />
+    </section>
+    <h4 heading-for="@HeadingResourceKeyConstants.PersonEmploymentSchoolInformationHeading"></h4>
+    <section>
+        <partial name="_PersonEmploymentSchoolPartial" for="PersonEmploymentSchoolSection" />
+    </section>
+    <h4 heading-for="@HeadingResourceKeyConstants.ReviewHeading"></h4>
+    <section>
+    </section>
+</div>
+
+<script>
+    initializeSideBar_Immediate();
+    function initializeSideBar_Immediate() {
+        var stepsWizard = $("#personWizard").steps({
+            headerTag: "h4",
+            titleTemplate: '<span id="erroredStep" class="fa-stack text-danger" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-times fa-stack-1x fa-inverse"></i></span><span id="step" class="fa-stack text-muted" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span><span id="completedStep" class="fa-stack text-success" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span><span id="reviewStep" class="fa-stack text-muted" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-clipboard-list fa-stack-1x fa-inverse"></i></span> <span class="stepTitleText">#title#</span>',
+            bodyTag: "section",
+            transitionEffect: "none",
+            stepsOrientation: "vertical",
+            enableAllSteps: true,
+            enableCancelButton: true,
+            enableKeyNavigation: true,
+            //forceMoveForward: true,
+            labels: {
+                cancel: "@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)",
+                finish: "@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)",
+                next: "@Localizer.GetString(ButtonResourceKeyConstants.NextButton)",
+                previous: "@Localizer.GetString(ButtonResourceKeyConstants.PreviousButton)",
+                loading: "@Localizer.GetString(MessageResourceKeyConstants.PleaseWaitWhileWeProcessYourRequestMessage)"
+            },
+            onInit: function (event) { },
+            onCanceled: function (event) { cancelPersonDetails('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)', event); },
+            onStepChanging: function (event, currentIndex, newIndex) {
+                switch (currentIndex) {
+                    case 0:
+                        $("#PersonInformationForm").validate({
+                            ignore: null
+                        });
+
+                        if ($("#PersonInformationForm").valid()) {
+                            return true;
+                        }
+                        break;
+                    case 1:
+                        $("#PersonAddressForm").validate({
+                            ignore: null
+                        });
+
+                        if ($("#PersonAddressForm").valid()) {
+                            return true;
+                        }
+                        break;
+                    case 2:
+                        $("#PersonEmploymentSchoolForm").validate({
+                            ignore: null
+                        });
+
+                        if ($("#PersonEmploymentSchoolForm").valid()) {
+                            return true;
+                        }
+                        break;
+                    case 3:
+                        return true;
+                        break;
+                }
+            },
+            onStepChanged: function (event, currentIndex, priorIndex) {
+                currentStep = currentIndex; //Set current step number in currentStep variable
+                if (currentIndex === 2) {
+                    $('#divDiseaseReports').hide();
+                    $('#divOutbreakCaseReports').hide();
+                }
+
+                if (currentIndex === 3) {
+                    $('#divDiseaseReports').show();
+                    $('#divOutbreakCaseReports').show();
+                    //$('#divDiseaseReports').removeAttr('disabled');
+                    // $('#diseaseReports').removeAttr('disabled');
+                }
+            },
+
+            onFinished: function (event, currentIndex) {
+                var isValidLastName = true;
+                var lastName = $("#PersonInformationSection_PersonDetails_LastOrSurname").val();
+                if (lastName == null || lastName == "")
+                    isValidLastName = false;
+
+                var isValidAge = true;
+                var ReportedAge = $("#PersonInformationSection_PersonDetails_ReportedAge").val();
+                var age = parseInt(ReportedAge);
+                if (age > 200 && $("#ReportedAgeUOMID").val() == '10042003') {
+                    showInformationalModalWait('The value of field Age shall not exceed 31 days, or 60 months, or 200 years.').then(response => {
+                        if (response) {
+                        }
+                    });
+                    isValidAge = false;
+                }
+
+                var isValidAdminLevel1 = true;
+                var adminLevel1 = $("#PersonAddressSection_CurrentAddress_AdminLevel1Value").val();
+                if (adminLevel1 == null || adminLevel1 == "")
+                    isValidAdminLevel1 = false;
+
+                var isValidAdminLevel2 = true;
+                var adminLevel2 = $("#PersonAddressSection_CurrentAddress_AdminLevel2Value").val();
+                if (adminLevel2 == null || adminLevel2 == "")
+                    isValidAdminLevel2 = false;
+
+                if (isValidLastName && isValidAdminLevel1 && isValidAdminLevel2 && isValidAge) {
+                    submitPersonDetails(event);
+                } else {
+                    if (isValidLastName && isValidAge)
+                        $("#personWizard").steps("setStep", 1);
+                    else
+                        $("#personWizard").steps("setStep", 0);
+                }
+            }
+        });
+
+        for (let i = 0; i < @Model.StartIndex; i++) {
+            stepsWizard.steps("next"); // this will send us on next step :-)
+            stepsWizard.steps("next"); // this will send us on next step :-)
+            stepsWizard.steps("next"); // this will send us on next step :-)
+        }
+    };
+
+    function submitPersonDetails(event)
+    {
+        var request = {};
+        request.HumanMasterID = $("#PersonInformationSection_PersonDetails_HumanActualId").val();
+        request.PersonalIDType = $("#PersonalIDType").val();
+        request.EIDSSPersonID = $("#PersonInformationSection_PersonDetails_EIDSSPersonID").val();
+        request.PersonalID = $("#PersonInformationSection_PersonDetails_PersonalID").val();
+        request.FirstOrGivenName = $("#PersonInformationSection_PersonDetails_FirstOrGivenName").val();
+        request.SecondName = $("#PersonInformationSection_PersonDetails_SecondName").val();
+        request.LastOrSurname = $("#PersonInformationSection_PersonDetails_LastOrSurname").val();
+        request.DateOfBirth = $("#PersonInformationSection_PersonDetails_DateOfBirth").val();
+        request.ReportedAge = $("#PersonInformationSection_PersonDetails_ReportedAge").val();
+        request.ReportedAgeUOMID = $("#ReportedAgeUOMID").val();
+        request.GenderTypeID = $("#GenderType").val();
+        request.CitizenshipTypeID = $("#Citizenship").val();
+        request.PassportNumber = $("#PersonInformationSection_PersonDetails_PassportNumber").val();
+
+        request.HumanGeoLocationID = $("#PersonInformationSection_PersonDetails_HumanGeoLocationID").val();
+        request.HumanidfsCountry = $("#PersonAddressSection_CurrentAddress_AdminLevel0Value").val();
+        request.HumanidfsRegion = $("#PersonAddressSection_CurrentAddress_AdminLevel1Value").val();
+        request.HumanidfsRayon = $("#PersonAddressSection_CurrentAddress_AdminLevel2Value").val();
+        request.HumanidfsSettlement = $("#PersonAddressSection_CurrentAddress_AdminLevel3Value").val();
+        request.HumanstrStreetName = $("#PersonAddressSection_CurrentAddress_StreetText").val();
+        request.HumanstrApartment = $("#PersonAddressSection_CurrentAddress_Apartment").val();
+        request.HumanstrBuilding = $("#PersonAddressSection_CurrentAddress_Building").val();
+        request.HumanstrHouse = $("#PersonAddressSection_CurrentAddress_House").val();
+        request.HumanidfsPostalCode = $("#PersonAddressSection_CurrentAddress_PostalCodeText").val();
+        request.HumanstrLatitude = $("#PersonAddressSection_CurrentAddress_Latitude").val();
+        request.HumanstrLongitude = $("#PersonAddressSection_CurrentAddress_Longitude").val();
+
+        request.HumanPermGeoLocationID = $("#PersonInformationSection_PersonDetails_HumanPermGeoLocationID").val();
+        request.HumanPermidfsCountry = $("#PersonAddressSection_PermanentAddress_AdminLevel0Value option:selected").val();
+        request.HumanPermidfsRegion = $("#PersonAddressSection_PermanentAddress_AdminLevel1Value option:selected").val();
+        request.HumanPermidfsRayon = $("#PersonAddressSection_PermanentAddress_AdminLevel2Value option:selected").val();
+        request.HumanPermidfsSettlement = $("#PersonAddressSection_PermanentAddress_AdminLevel3Value option:selected").val();
+        request.HumanPermstrStreetName = $("#PersonAddressSection_PermanentAddress_StreetText option:selected").val();
+        request.HumanPermstrApartment = $("#PersonAddressSection_PermanentAddress_Apartment").val();
+        request.HumanPermstrBuilding = $("#PersonAddressSection_PermanentAddress_Building").val();
+        request.HumanPermstrHouse = $("#PersonAddressSection_PermanentAddress_House").val();
+        request.HumanPermidfsPostalCode = $("#PersonAddressSection_PermanentAddress_PostalCodeText option:selected").val();
+
+        request.HumanAltGeoLocationID = $("#PersonInformationSection_PersonDetails_HumanAltGeoLocationID").val();
+        request.HumanAltForeignAddressIndicator = $("#HumanAltForeignAddressIndicator").is(':checked') ? 'true' : 'false';
+        request.HumanAltForeignidfsCountry = $("#HumanAltForeignidfsCountry").val();
+        request.HumanAltForeignAddressString = $("#PersonAddressSection_PersonDetails_HumanAltForeignAddressString").val();
+        request.HumanAltidfsCountry = $("#PersonAddressSection_AlternateAddress_AdminLevel0Value").val();
+        request.HumanAltidfsRegion = $("#PersonAddressSection_AlternateAddress_AdminLevel1Value").val();
+        request.HumanAltidfsRayon = $("#PersonAddressSection_AlternateAddress_AdminLevel2Value").val();
+        request.HumanAltidfsSettlement = $("#PersonAddressSection_AlternateAddress_AdminLevel3Value").val();
+        request.HumanAltstrStreetName = $("#PersonAddressSection_AlternateAddress_StreetText").val();
+        request.HumanAltstrApartment = $("#PersonAddressSection_AlternateAddress_Apartment").val();
+        request.HumanAltstrBuilding = $("#PersonAddressSection_AlternateAddress_Building").val();
+        request.HumanAltstrHouse = $("#PersonAddressSection_AlternateAddress_House").val();
+        request.HumanAltidfsPostalCode = $("#PersonAddressSection_AlternateAddress_PostalCodeText").val();
+
+        request.HomePhone = $("#PersonInformationSection_PersonDetails_HomePhone").val();
+        request.WorkPhone = $("#PersonInformationSection_PersonDetails_WorkPhone").val();
+
+        request.ContactPhoneCountryCode = $("#PersonAddressSection_PersonDetails_ContactPhoneCountryCode").val();
+        request.ContactPhone = $("#PersonAddressSection_PersonDetails_ContactPhone").val();
+        request.ContactPhoneTypeID = $("#PhoneType").val();
+        request.ContactPhone2CountryCode = $("#PersonAddressSection_PersonDetails_ContactPhone2CountryCode").val();
+        request.ContactPhone2 = $("#PersonAddressSection_PersonDetails_ContactPhone2").val();
+        request.ContactPhone2TypeID = $("#PhoneType2").val();
+
+        request.IsEmployedTypeID = $("#PersonEmploymentSchoolSection_PersonDetails_IsThisPersonCurrentlyEmployed:checked").val();
+        request.OccupationTypeID = $("#OccupationType").val();
+        request.EmployerName = $("#PersonEmploymentSchoolSection_PersonDetails_EmployerName").val();
+        request.EmployedDateLastPresent = $("#PersonDetails_EmployedDateLastPresent").val();
+        request.EmployerForeignAddressIndicator = $("#EmployerForeignAddressIndicator").is(':checked') ? 'true' : 'false';
+        request.EmployerForeignidfsCountry = $("#EmployerForeignidfsCountry").val();
+        request.EmployerForeignAddressString = $("#PersonEmploymentSchoolSection_PersonDetails_EmployerForeignAddressString").val();
+        request.EmployerGeoLocationID = $("#PersonInformationSection_PersonDetails_EmployerGeoLocationID").val();
+        request.EmployeridfsCountry = $("#PersonEmploymentSchoolSection_WorkAddress_AdminLevel0Value option:selected").val();
+        request.EmployeridfsRegion = $("#PersonEmploymentSchoolSection_WorkAddress_AdminLevel1Value option:selected").val();
+        request.EmployeridfsRayon = $("#PersonEmploymentSchoolSection_WorkAddress_AdminLevel2Value option:selected").val();
+        request.EmployeridfsSettlement = $("#PersonEmploymentSchoolSection_WorkAddress_AdminLevel3Value option:selected").val();
+        request.EmployerstrStreetName = $("#PersonEmploymentSchoolSection_WorkAddress_StreetText option:selected").val();
+        request.EmployerstrApartment = $("#PersonEmploymentSchoolSection_WorkAddress_Apartment").val();
+        request.EmployerstrBuilding = $("#PersonEmploymentSchoolSection_WorkAddress_Building").val();
+        request.EmployerstrHouse = $("#PersonEmploymentSchoolSection_WorkAddress_House").val();
+        request.EmployeridfsPostalCode = $("#PersonEmploymentSchoolSection_WorkAddress_PostalCodeText option:selected").val();
+        request.EmployerPhone = $("#PersonEmploymentSchoolSection_PersonDetails_EmployerPhone").val();
+
+        request.IsStudentTypeID = $("#PersonEmploymentSchoolSection_PersonDetails_IsThisPersonCurrentlyAttendSchool:checked").val();
+        request.SchoolName = $("#PersonEmploymentSchoolSection_PersonDetails_SchoolName").val();
+        request.SchoolDateLastAttended = $("#PersonDetails_SchoolDateLastAttended").val();
+        request.SchoolForeignAddressIndicator = $("#SchoolForeignAddressIndicator").is(':checked') ? 'true' : 'false';
+        request.SchoolForeignidfsCountry = $("#SchoolForeignidfsCountry").val();
+        request.SchoolForeignAddressString = $("#PersonEmploymentSchoolSection_PersonDetails_SchoolForeignAddressString").val();
+        request.SchoolGeoLocationID = $("#PersonInformationSection_PersonDetails_SchoolGeoLocationID").val();
+        request.SchoolidfsCountry = $("#PersonEmploymentSchoolSection_SchoolAddress_AdminLevel0Value").val();
+        request.SchoolidfsRegion = $("#PersonEmploymentSchoolSection_SchoolAddress_AdminLevel1Value").val();
+        request.SchoolidfsRayon = $("#PersonEmploymentSchoolSection_SchoolAddress_AdminLevel2Value").val();
+        request.SchoolidfsSettlement = $("#PersonEmploymentSchoolSection_SchoolAddress_AdminLevel3Value").val();
+        request.SchoolstrStreetName = $("#PersonEmploymentSchoolSection_SchoolAddress_StreetText").val();
+        request.SchoolstrApartment = $("#PersonEmploymentSchoolSection_SchoolAddress_Apartment").val();
+        request.SchoolstrBuilding = $("#PersonEmploymentSchoolSection_SchoolAddress_Building").val();
+        request.SchoolstrHouse = $("#PersonEmploymentSchoolSection_SchoolAddress_House").val();
+        request.SchoolidfsPostalCode = $("#PersonEmploymentSchoolSection_SchoolAddress_PostalCodeText").val();
+        request.SchoolPhone = $("#PersonEmploymentSchoolSection_PersonDetails_SchoolPhone").val();
+
+
+            $.ajax({
+                url: '@Url.Action("SavePerson", "PersonDetails", new { Area = "Human" })',
+                data: JSON.stringify(request),
+                contentType: "application/json",
+                dataType: "json",
+                type: "POST",
+                success: function (response) {
+                    if (response.errorMessage != null) {
+                        showErrorModal(response.errorMessage);
+                    }
+                    else {
+                        $("#PersonInformationSection_PersonDetails_EIDSSPersonID").val(response.personInformationSection.personDetails.eIDSSPersonID);
+                        $("#PersonInformationSection_PersonDetails_HumanActualId").val(response.humanMasterID);
+
+                        showNewPersonRecordSuccessModal(response.informationalMessage).then(response => {
+                            if (response == 1) {
+                                // Add Disease Report
+                                var humanActualId = $("#PersonInformationSection_PersonDetails_HumanActualId").val();
+                                location.href = '@Url.Action("LoadDiseaseReport", "HumanDiseaseReport", new { area = "Human"})?humanId=' + humanActualId;
+                            }
+                            else if (response == 2) {
+                                // Return To Dashboard
+                                location.href = '@Url.Action("Index", "Dashboard", new { area = "Administration" })';
+                            } else {
+                                $("#newPersonRecordSuccessModal").modal("hide");
+                                var humanActualId = $("#PersonInformationSection_PersonDetails_HumanActualId").val();
+                                location.href = '@Url.Action("DetailsReviewPage", "Person", new { area = "Human" })?id=' + humanActualId + '&reviewPageNo=3';
+                            }
+
+                            });
+                    }
+                },
+                error: function (response) { alert("An error occurred: " + response); }
+            });
+    };
+
+    function cancelPersonDetails(message, event) {
+            event.preventDefault();
+
+            showWarningModal(message).then(response => {
+                if (response)
+                    location.href = '@Url.Action("Index", "Person")';
+            });
+    };
+
+
+
+
+</script>

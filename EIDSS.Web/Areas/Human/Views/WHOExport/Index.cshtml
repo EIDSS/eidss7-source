@@ -1,0 +1,25 @@
+﻿@using EIDSS.Web.Components.Human.WHOExport
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.HumanExporttoCISIDWHOExportHeading);
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3>@Localizer.GetString(HeadingResourceKeyConstants.HumanExporttoCISIDWHOExportHeading)</h3>
+    </div>
+    <div class="card-body">
+        <component type="typeof(WHOExport)" render-mode="Server" />
+    </div>
+</div>
+
+    <script type="text/javascript">
+        function saveAsFile(filename, bytesBase64) {
+            var link = document.createElement('a');
+            link.download = filename;
+            link.href = "data:application/octet-stream;base64," + bytesBase64;
+            document.body.appendChild(link); // Needed for Firefox
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>

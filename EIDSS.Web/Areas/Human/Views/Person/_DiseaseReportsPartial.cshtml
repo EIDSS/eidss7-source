@@ -1,0 +1,78 @@
+﻿@model EIDSS.Web.Areas.Human.ViewModels.Person.DiseaseReportsViewModel
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@{
+    //Disease Reports Grid
+    Model.eidssGridConfiguration = new();
+    Model.eidssGridConfiguration.GridId = "diseaseReportsGrid";
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.AjaxDataUrl = Url.Action("GetHumanDiseaseReportList", "PersonDetails", new { Area = "Human" });
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.EnableSearching = false;
+    Model.eidssGridConfiguration.EnableCustomSearching = false;
+    Model.eidssGridConfiguration.EnableProcessingMessage = true;
+    Model.eidssGridConfiguration.ControlFilterID = "PersonInformationSection_PersonDetails_HumanActualId";
+    Model.eidssGridConfiguration.ControlLabels.DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage);
+    Model.eidssGridConfiguration.ControlLabels.DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.eidssGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.eidssGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ReportKey", ColumnTitleHeader = "ReportKey", ColumnType = ColumnType.ReadOnly, Orderable = false, Visible = false });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "ReportID",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsReportIDColumnHeading),
+        ColumnType = Model.PermissionsAccessToHumanDiseaseReportData.Read == true ? ColumnType.HyperLinkToReview : ColumnType.Default,
+        HyperLinkDataField = "ReportKey",
+        ColumnHyperlinkURL = @Url.Action("SelectForReadOnly", "HumanDiseaseReport", new { Area = "Human" }),
+        //ColumnHyperlinkURL = "#",
+        //ColumnHyperlinkJSFunction = "selectHDRForReadOnly(ReportKey)",
+        Visible = true,
+        ReviewPageNo = 9
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "DiseaseName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsDiseasesColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    //Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "FinalDiagnosisDate", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsDateEnteredColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = false });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ClassificationTypeName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsCaseClassificationColumnHeading), ColumnType = ColumnType.Default, Visible = true });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ReportStatusTypeName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsReportStatusColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+}
+
+<div id="diseaseReports">
+    <input type="hidden" asp-for="HumanMasterID" />
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4>Disease Reports</h4>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-12 text-right">
+                <button id="addHumanDiseaseReport" type="button" class="btn btn-outline-primary sidebar-do-not-disable" onclick="addHumanDiseaseRept();" button-for="@ButtonResourceKeyConstants.AddButton"  visible="@Model.PermissionsAccessToHumanDiseaseReportData.Create"></button>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-12">
+                <eidss-grid id="@Model.eidssGridConfiguration.GridId"
+                            grid-configuration="@Model.eidssGridConfiguration"
+                            enable-server-side="@Model.eidssGridConfiguration.EnableServerSide"
+                            enable-processing="@Model.eidssGridConfiguration.EnableProcessingMessage"
+                            enable-top-header-search-button="@Model.eidssGridConfiguration.EnableCustomSearching"
+                            enable-search="@Model.eidssGridConfiguration.EnableSearching"
+                            class-name="@Model.eidssGridConfiguration.GridClass"
+                            end-point="@Model.eidssGridConfiguration.AjaxDataUrl"
+                            filtered-control-ids="@Model.eidssGridConfiguration.ControlFilterID"
+                            control-labels="@Model.eidssGridConfiguration .ControlLabels">
+                </eidss-grid>
+            </div>
+        </div>
+</div>
+
+<script type="text/javascript">
+
+    function addHumanDiseaseRept() {
+        var humanActualId = $("#PersonInformationSection_PersonDetails_HumanActualId").val();
+        location.href = '@Url.Action("LoadDiseaseReport", "HumanDiseaseReport", new { area = "Human"})?humanId=' + humanActualId;
+    };
+
+    function selectHDRForReadOnly(id) {
+        alert(id)
+        location.href = '@Url.Action("SelectForReadOnly", "HumanDiseaseReport", new { area = "Human"})?humanId=' + id;
+    };
+
+</script>

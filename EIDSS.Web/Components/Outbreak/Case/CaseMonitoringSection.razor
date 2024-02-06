@@ -1,0 +1,121 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Outbreak
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.FlexForm
+
+@inherits CaseMonitoringSectionBase
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-9">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.CreateVeterinaryCaseCaseMonitoringHeading)</h4>
+        </div>
+        <div class="col-3 text-right">
+            @if (Model.CreatePermissionIndicator && Model.CaseId is null)
+            {
+                <button class="btn btn-link add-section" id="addCaseMonitoring" @onclick="OnAddCaseMonitoringClick" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+                switch (Model.CaseTypeId)
+                {
+                    case (long) CaseTypeEnum.Human:
+                        <a class="edit-section" href="#caseDiseaseReportWizard-h-6" id="editCaseMonitoringSectionButton">
+                            <span class="fas fa-edit fa-lg"></span>
+                        </a>
+                        break;
+                    case (long) CaseTypeEnum.Vector:
+                        <a class="edit-section" href="#caseWizard-h-5" id="editCaseMonitoringSectionButton">
+                            <span class="fas fa-edit fa-lg"></span>
+                        </a>
+                        break;
+                    default:
+                        <a class="edit-section" href="#caseWizard-h-5" id="editCaseMonitoringSectionButton">
+                            <span class="fas fa-edit fa-lg"></span>
+                        </a>
+                        break;
+                }
+            }
+            else if (Model.CaseDisabledIndicator || Model.WritePermissionIndicator == false)
+            {
+                <button class="btn btn-link add-section disabled" disabled id="addCaseMonitoring" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-link add-section" id="addCaseMonitoring" @onclick="OnAddCaseMonitoringClick" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+
+                switch (Model.CaseTypeId)
+                {
+                    case (long) CaseTypeEnum.Human:
+                        <a class="edit-section" href="#caseDiseaseReportWizard-h-6" id="editCaseMonitoringSectionButton">
+                            <span class="fas fa-edit fa-lg"></span>
+                        </a>
+                        break;
+                    case (long) CaseTypeEnum.Vector:
+                        <a class="edit-section" href="#caseWizard-h-5" id="editCaseMonitoringSectionButton">
+                            <span class="fas fa-edit fa-lg"></span>
+                        </a>
+                        break;
+                    default:
+                        <a class="edit-section" href="#caseWizard-h-5" id="editCaseMonitoringSectionButton">
+                            <span class="fas fa-edit fa-lg"></span>
+                        </a>
+                        break;
+                }
+            }
+        </div>
+    </div>
+</div>
+<EditForm id="CaseMonitoringForm" Model="@Model">
+    <div class="card">
+        <div class="card-header">
+            <h3>@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryDiseaseReportCaseLogHeading)</h3>
+        </div>
+        <div id="divCaseLogsSection" class="card-body">
+            <div class="form-row">
+                <div class="form-group col-12">
+                    <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" Count="Count" Data="Model.CaseMonitorings" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="args => LoadCaseMonitoringData(args)" PageSizeOptions="pageSizeOptions" @ref="CaseMonitoringGrid" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="true" TItem="CaseMonitoringGetListViewModel">
+                        <Columns>
+                            <RadzenDataGridColumn FormatString="{0:d}" Property="MonitoringDate" TItem="CaseMonitoringGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCaseMonitoringMonitoringDateColumnHeading)" Width="125px"/>
+                            <RadzenDataGridColumn Filterable="false" Frozen="true" Property="AnimalID" Sortable="false" TextAlign="TextAlign.Center" TItem="CaseMonitoringGetListViewModel" Title="" Width="55px">
+                                <Template Context="item">
+                                    @if (Model.WritePermissionIndicator)
+                                    {
+                                        <button class="btn btn-link" @onclick="_ => OnEditCaseMonitoringClick(item)">
+                                            <span class="fas fa-edit"></span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-link disabled" disabled>
+                                            <span class="fas fa-edit disabled"></span>
+                                        </button>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="CaseMonitoringGetListViewModel" Property="CaseMonitoringId" Frozen="true" Reorderable="false" Sortable="false" Title="" TextAlign="TextAlign.Center" Width="40px">
+                                <Template Context="item">
+                                    @if (Model.WritePermissionIndicator)
+                                    {
+                                        <button class="btn btn-link" @onclick="_ => OnDeleteCaseMonitoringClick(item)">
+                                            <span class="fas fa-trash"></span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-link disabled" disabled>
+                                            <span class="fas fa-trash disabled"></span>
+                                        </button>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>

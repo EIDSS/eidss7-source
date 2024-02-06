@@ -1,0 +1,15 @@
+Georgia
+
+dotnet-svcutil CommonDataWeb1.wsdl -ct System.Collections.Generic.List`1 -n *,EIDSS.Api.Integrations.PIN.Georgia -tf netcoreapp1.0
+
+Azerbaijan
+
+
+
+-- Mock GG Service service contract only...
+svcutil CommonDataWeb1.wsdl /ct:System.Collections.Generic.List`1 /d:Mock /sc /n:*,PIN.Georgia
+
+
+--- Mock GG Service client that i converted into service...
+svcutil CommonDataWeb1.wsdl /ct:System.Collections.Generic.List`1 /d:Mock /n:*,PIN.Georgia
+

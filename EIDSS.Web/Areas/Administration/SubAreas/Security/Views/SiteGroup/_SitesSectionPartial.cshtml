@@ -1,0 +1,113 @@
+﻿@model EIDSS.Web.Areas.Administration.SubAreas.Security.ViewModels.SiteGroup.SitesSectionViewModel;
+@{
+    Model.SiteGridConfiguration = new();
+    Model.SiteGridConfiguration.GridId = "siteGroupSitesTable";
+    Model.SiteGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.SiteGridConfiguration.EnableServerSide = false;
+    Model.SiteGridConfiguration.EnableCustomSearching = false;
+    Model.SiteGridConfiguration.EnableSearching = true;
+    Model.SiteGridConfiguration.EnableProcessingMessage = true;
+    Model.SiteGridConfiguration.sDom = "t";
+    Model.SiteGridConfiguration.ControlLabels.DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage);
+    Model.SiteGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.SiteGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.SiteGridConfiguration.ControlLabels.DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.SiteGridConfiguration.DeleteModalAjaxUrl = @Url.Action("DeleteSiteToSiteGroup", "SiteGroup", new { Area = "Administration", SubArea = "Security" });
+    Model.SiteGridConfiguration.DeleteCompleteMethod = "deleteSiteToSiteGroup";
+    Model.SiteGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "SiteToSiteGroupID", ColumnTitleHeader = "Site Group to Site ID", ColumnType = ColumnType.Default, Searchable = true, Visible = false });
+    Model.SiteGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "SiteID", ColumnTitleHeader = "Site ID", ColumnType = ColumnType.Default, Searchable = true, Visible = false });
+    Model.SiteGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "SiteName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SiteGroupSitesSiteNameColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Searchable = true, Visible = true });
+    Model.SiteGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "EIDSSSiteID", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SiteGroupSitesEIDSSSiteIDColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Searchable = true, Visible = true });
+    Model.SiteGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "RowStatus", ColumnTitleHeader = "Row Status", ColumnType = ColumnType.Default, Searchable = true, Visible = false });
+    Model.SiteGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "RowAction", ColumnTitleHeader = "Row Action", ColumnType = ColumnType.Default, Searchable = true, Visible = false });
+    Model.SiteGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "SiteToSiteGroupID", ColumnTitleHeader = "", ColumnType = ColumnType.Remove, Orderable = false, Visible = true });
+}
+<div id="sitesSectionForm">
+    <div class="container-fluid">
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4 heading-for="@HeadingResourceKeyConstants.SiteGroupDetailsSitesHeading"></h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editSitesSectionButton" href="#siteGroupWizard-h-1" class="edit-section"><span class="fas fa-edit fa-lg"></span></a>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-12 text-right"><button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#searchSiteModal" button-for="@ButtonResourceKeyConstants.SearchButton"></button></div>
+        </div>
+        <div class="form-row">
+            <div class="col-12">
+                <eidss-grid id="@Model.SiteGridConfiguration.GridId"
+                            grid-configuration="@Model.SiteGridConfiguration"
+                            enable-server-side="@Model.SiteGridConfiguration.EnableServerSide"
+                            enable-processing="@Model.SiteGridConfiguration.EnableProcessingMessage"
+                            enable-top-header-search-button="@Model.SiteGridConfiguration.EnableCustomSearching"
+                            enable-search="@Model.SiteGridConfiguration.EnableSearching"
+                            class-name="@Model.SiteGridConfiguration.GridClass"
+                            end-point="@Model.SiteGridConfiguration.AjaxDataUrl"
+                            filtered-control-ids="@Model.SiteGridConfiguration.ControlFilterID"
+                            control-labels="@Model.SiteGridConfiguration.ControlLabels">
+                </eidss-grid>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function initializeSitesSection() {
+        $.ajax({
+            url: '@Url.Action("GetSiteList", "SiteGroup", new { Area = "Administration", SubArea = "Security" })',
+            data: $("#SiteGroupInformationSection_SiteGroupDetails_SiteGroupID").val(),
+            contentType: "application/json",
+            type: "POST",
+            success: function (response)
+            {
+                // Add the data retrieved from the database, if any.
+                $("#siteGroupSitesTable").DataTable().rows.add(response.data).draw();
+            },
+            error: function (reponse) { alert("An error occurred: " + reponse); }
+        });
+    };
+
+    ///
+    /// User selected site record.
+    ///
+    $("body").on("click", "#siteGroupSitesTable tbody tr", function () {
+        $("#siteGroupSitesTable").DataTable().$("tr.selected").removeClass("selected");
+        $(this).addClass("selected");
+        $(this).select();
+
+        var row = $("#siteGroupSitesTable").DataTable().row($(this).closest("tr"));
+    });
+
+    ///
+    /// Response from ajax call for delete.
+    ///
+    function deleteSiteToSiteGroup(response) {
+        var rowIndex;
+        $("#siteGroupSitesTable").DataTable().rows(function (idx, data, node) {
+            if (data[0] == response.SiteToSiteGroupID) {
+                rowIndex = idx;
+            }
+
+            return false;
+        });
+
+        var row = $("#siteGroupSitesTable").DataTable().rows(rowIndex);
+        if (response.SiteToSiteGroupID < 0) {
+            $("#siteGroupSitesTable").DataTable().row(rowIndex).remove().draw();
+        }
+        else {
+            row.data()[0][4] = '@Convert.ToInt64(RowStatusTypes.Inactive)';
+            row.data()[0][5] = "D";
+            row.nodes().to$().attr("excluded", "true");
+            $("#siteGroupSitesTable").DataTable().row(row).invalidate().draw();
+        }
+    };
+
+    // Filters the sites table to only show the sites for active records, in the event the user
+    // confirmed a record deletion that is pending save to the database.
+    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+        if ($("#siteGroupSitesTable").DataTable() != undefined)
+            return $("#siteGroupSitesTable").DataTable().row(dataIndex).nodes().to$().attr("excluded") != "true"
+    });
+</script>

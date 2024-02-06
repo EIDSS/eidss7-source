@@ -1,0 +1,58 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.FlexForm
+@using EIDSS.Domain.Enumerations
+
+@inherits AnimalBase
+
+<RadzenTemplateForm Data="Model" @ref="Form" Submit="OnSubmit" TItem="AnimalGetListViewModel">
+    <div class="card">
+        <DataAnnotationsValidator/>
+        <div class="form-row">
+            <InterfaceEditorResource CssClass="col-4" For="herdID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LivestockDiseaseReportAnimalDetailsModalHerdIDFieldLabel" IsRow="false">
+                <RadzenDropDown @ref="FarmGroupDropDown" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@(OnHerdChange)" class="form-control" Data="FarmGroups" LoadData="GetFarmGroups" Name="herdID" TextProperty="EIDSSFlockOrHerdID" TValue="long?" Value="@Model.HerdID" ValueProperty="FlockOrHerdID"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-4" For="animalID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LivestockDiseaseReportAnimalDetailsModalAnimalIDFieldLabel" IsRow="false">
+                <RadzenTextBox @ref="AnimalIdTextBox" class="form-control" MaxLength="200" Name="animalID" Value="@Model.EIDSSAnimalID"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-4" For="species" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LivestockDiseaseReportAnimalDetailsModalSpeciesFieldLabel" IsRow="false">
+                <RadzenDropDown @ref="SpeciesDropDown" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@(OnSpeciesChange)" class="form-control" Data="Species" LoadData="GetSpecies" Name="species" TextProperty="SpeciesTypeName" TValue="long?" Value="@Model.SpeciesID" ValueProperty="SpeciesID"/>
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource CssClass="col-4" For="ageTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LivestockDiseaseReportAnimalDetailsModalAgeFieldLabel" IsRow="false">
+                <RadzenDropDown @ref="AgeTypeDropDown" AllowClear="true" AllowFiltering="true" class="form-control" Data="AgeTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetAgeTypes" Name="ageTypeID" TextProperty="strAnimalType" TValue="long?" Value="Model.AgeTypeID" ValueProperty="idfsAnimalAge"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-4" For="sexTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LivestockDiseaseReportAnimalDetailsModalSexFieldLabel" IsRow="false">
+                <RadzenDropDown @ref="SexTypeDropDown" AllowClear="true" AllowFiltering="true" class="form-control" Data="SexTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetSexTypes" Name="sexTypeID" TextProperty="Name" TValue="long?" Value="@Model.SexTypeID" ValueProperty="IdfsBaseReference"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-4" For="conditionTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LivestockDiseaseReportAnimalDetailsModalStatusFieldLabel" IsRow="false">
+                <RadzenDropDown @ref="ConditionTypeDropDown" AllowClear="true" AllowFiltering="true" class="form-control" Data="ConditionTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetConditionTypes" Name="conditionTypeID" TextProperty="Name" TValue="long?" Value="Model.ConditionTypeID" ValueProperty="IdfsBaseReference"/>
+            </InterfaceEditorResource>
+        </div>
+        <InterfaceEditorResource CssClass="col-12" For="note" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LivestockDiseaseReportAnimalDetailsModalNoteAdditionalInfoFieldLabel" IsRow="true">
+            <RadzenTextBox @ref="AnimalDescriptionTextBox" class="form-control" MaxLength="200" Name="note" Value="@Model.AnimalDescription"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="clinicalSigns" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LivestockDiseaseReportAnimalDetailsModalClinicalSignsforthisAnimalFieldLabel" IsRow="true">
+            <RadzenRadioButtonList @bind-Value="Model.ClinicalSignsIndicator" Change="@(args => OnClinicalSignsChange(args))" TValue="long?">
+                <Items>
+                    <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.YesFieldLabel)" TValue="long?" Value="@((long) YesNoUnknownEnum.Yes)" />
+                    <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.NoFieldLabel)" TValue="long?" Value="@((long) YesNoUnknownEnum.No)"/>
+                    <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.CommonLabelsUnknownFieldLabel)" TValue="long?" Value="@((long) YesNoUnknownEnum.Unknown)"/>
+                </Items>
+            </RadzenRadioButtonList>
+        </InterfaceEditorResource>
+        @if (Model.ClinicalSignsIndicator is not null && Model.ClinicalSignsIndicator == (long)YesNoUnknown.Yes)
+        {
+            <FlexForm @ref="ClinicalSigns" Request="Model.ClinicalSignsFlexFormRequest" />
+        }
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-12">
+                    <button class="btn btn-outline-primary" @onclick="OnCancel" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button class="btn btn-primary" @onsubmit="OnSubmit" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

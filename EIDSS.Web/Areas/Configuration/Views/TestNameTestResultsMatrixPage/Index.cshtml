@@ -1,0 +1,505 @@
+﻿@model ConfigurationMatrixPagesViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@using EIDSS.ClientLibrary.Enumerations;
+@{
+    //PageLevel
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.TestTestResultsMatrixPageHeading);
+    Model.PageName = Localizer.GetString(HeadingResourceKeyConstants.TestTestResultsMatrixPageHeading);
+    Model.PageLevelAddButtonModalText = Localizer.GetString(ButtonResourceKeyConstants.AddButton);
+    Model.PageLevelAddButtonModal = "AddTestNameTestResultsMatrix";
+    Model.PageLevelAddButtonID = "AddTestNameTestResultsMatrixButton";
+
+    //Radio Buttons
+    Model.RadioButton2Configurations.Add("19000097", Localizer.GetString(FieldLabelResourceKeyConstants.TestTestResultMatrixLaboratoryTestFieldLabel));
+    Model.RadioButton2Configurations.Add("19000104", Localizer.GetString(FieldLabelResourceKeyConstants.TestTestResultMatrixPensideTestFieldLabel));
+
+
+    //DropDowns
+    var select2Configuration = new Select2Configruation
+    {
+        DropDownId = "TestNameDD",
+        ControltargetId = "TestNameTestResultsMatrixGrid",
+        Label = Localizer.GetString(FieldLabelResourceKeyConstants.TestNameFieldLabel),
+        ControlTargetType = DropDownTargetTypes.Table,
+        CustomJsOnClearFunction = "SelectOnClear",
+        CustomJsOnChangeFunction = "ChangeAddButtonActiveStatus",
+        DisabledControls = "AddTestNameTestResultsMatrixButton",
+        Endpoint = Url.Action("GetBaseReferenceListForSelect2DropDownWithSorting", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000097, sortColumn = "intOrder" }),
+        ControlTargetUrl = Url.Action("GetList", "TestNameTestResultsMatrixPage", new {Area = "Configuration"}),
+        FilteredId = "RadioButton2Configurations",
+        isVisible = true
+    };
+
+    //Display Add Button Next To DropDown
+    if (Model.UserPermissions.Create)
+        select2Configuration.IncludeAddButton = true;
+    //Modal To Launch When Button is Clicked
+    select2Configuration.AddModalId = "TestNameSave";
+
+    Model.Select2Configurations.Add(select2Configuration);
+
+    //SET UP MODAL
+    var eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.TestTestResultDetailsModalHeading), //Localizer.GetString((int)InterfaceEditorResourceSetEnum.VectorTypeCollectionMethodMatrix + "Modal" + (long)InterfaceEditorTypeEnum.Heading);
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            //success modal configs
+            SuccessModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+            SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        },
+        ModalId = "AddTestNameTestResultsMatrix",
+        SavingControlsCollection = "TestNameDD,RadioButton2Configurations",
+        TargetGridControlID = "TestNameTestResultsMatrixGrid", //ID of Grid to Refresh
+        PostAjaxDataUrl = Url.Action("Create", "TestNameTestResultsMatrixPage"), //Save Endpoint
+        SaveCompleteMethod = "CheckSuccess"
+    };
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.TestResultFieldLabel),
+        ControlName = "idfsTestResult",
+        ControlType = ControlType.DropDownAddButtonOpenModal,
+        OpenModalName = "AddTestResults",
+        ClassName = "ddAddTestResultsRequired",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        FilteredControlId = "RadioButton2Configurations",
+        ControlAjaxDataUrl = Url.Action("GetTestResultsList", "TestNameTestResultsMatrixPage", new {Area = "Configuration"})
+    });
+    var yesNoOptions2 = new List<RadionCheckBoxOptions>
+    {
+        new() {Value = "2", Key = string.Empty, IsChecked = false}
+    };
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        ControlName = "blnIndicative",
+        ControlType = ControlType.CheckBox,
+        RadioCheckBoxOptions = yesNoOptions2,
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.IndicativeFieldLabel)
+    });
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //SET UP MODAL2     Add Test Name
+    eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.AddTestNameModalTestNameDetailsModalHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            SuccessModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+            SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        },
+        ModalId = "TestNameSave",
+        SavingControlsCollection = "TestNameDD,RadioButton2Configurations",
+        TargetGridControlID = "TestNameList", //ID of Grid to Refresh
+        PostAjaxDataUrl = Url.Action("AddTestName", "TestNameTestresultsMatrixPage"),
+        SaveCompleteMethod = "CheckSuccessTestNameSave"
+    };
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "StrDefault",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "DefaultValueRequired"
+        //VaildationProperty = VaildationRuleType.ValidationRuleType.REQUIRED
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ControlName = "StrName",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "NationalValueRequired"
+        //VaildationProperty = VaildationRuleType.ValidationRuleType.REQUIRED
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        VaildationProperty = VaildationRuleType.ValidationRuleType.REQUIRED,
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.AccessoryCodeFieldLabel),
+        ControlName = "IntHACode",
+        ControlType = ControlType.DropDown,
+        AllowMultipleDropDownItemSelection = true,
+        ClassName = "modalDropDown",
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = (long) ReferenceTypes.AccessoryCode, intHACode = 226 })
+    });
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlName = "IntOrder",
+        ControlType = ControlType.Numeric,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidatorMessage = "Number is Out Of Range",
+            ValidationRule = "[-2147483648,2147483647]"
+        },
+        ClassName = "IntOrderRange",
+        Visible = true
+    });
+
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //SET UP MODAL3     AddTestResults
+    eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.AddTestResultModalTestResultDetailsModalHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            SuccessModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+            SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        },
+        ModalId = "AddTestResults",
+        SavingControlsCollection = "TestNameDD,RadioButton2Configurations",
+        TargetGridControlID = "TestNameTestResultsMatrixList", //ID of Grid to Refresh
+        PostAjaxDataUrl = Url.Action("AddTestResults", "TestNameTestResultsMatrixPage"),
+        SaveCompleteMethod = "CheckSuccessAddTestResults"
+    };
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        VaildationProperty = VaildationRuleType.ValidationRuleType.REQUIRED,
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "StrDefault",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "DefaultValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        VaildationProperty = VaildationRuleType.ValidationRuleType.REQUIRED,
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ControlName = "StrName",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "DefaultValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        VaildationProperty = VaildationRuleType.ValidationRuleType.REQUIRED,
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.AccessoryCodeFieldLabel),
+        ControlName = "IntHACode",
+        ControlType = ControlType.DropDown,
+        AllowMultipleDropDownItemSelection = true,
+        ClassName = "modalDropDown",
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = (long) ReferenceTypes.AccessoryCode, intHACode = 226 })
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlName = "IntOrder",
+        ControlType = ControlType.Numeric,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidatorMessage = "Number is Out Of Range",
+            ValidationRule = "[-2147483648,2147483647]"
+        },
+        ClassName = "IntOrderRange",
+        Visible = true
+    });
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //SETUP GRID
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.GridId = "TestNameTestResultsMatrixGrid";
+    Model.eidssGridConfiguration.ControlFilterID = "TestNameDD,RadioButton2Configurations";
+    Model.eidssGridConfiguration.AjaxDataUrl = Url.Action("GetList", "TestNameTestResultsMatrixPage");
+    Model.eidssGridConfiguration.EditModalAjaxUrl = Url.Action("Edit", "TestNameTestResultsMatrixPage");
+    Model.eidssGridConfiguration.DeleteModalAjaxUrl = Url.Action("Delete", "TestNameTestResultsMatrixPage");
+    Model.eidssGridConfiguration.DeleteCompleteMethod = "CheckDeleteSuccess";
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels
+    {
+        DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage),
+        DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        EditModalTitle = Localizer.GetString((int) InterfaceEditorResourceSetEnum.CommonHeadings + "Edit Record" + (long) InterfaceEditorTypeEnum.Heading),
+        CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+        SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
+        DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton),
+        CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton),
+        YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton),
+        NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton)
+    };
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "Row",
+        ColumnName = "row",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString((int) InterfaceEditorResourceSetEnum.CommonHeadings + "idfsTestResult" + (long) InterfaceEditorTypeEnum.ColumnHeading),
+        ColumnName = "KeyId",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString((int) InterfaceEditorResourceSetEnum.CommonHeadings + "idfsTestName" + (long) InterfaceEditorTypeEnum.ColumnHeading),
+        ColumnName = "idfsTestName",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.TestResultColumnHeading),
+        ColumnName = "strTestResultDefault",
+        ColumnType = ColumnType.Default,
+        Visible = true,
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.IndicativeColumnHeading),
+        ColumnName = "blnIndicative",
+        ColumnType = ColumnType.CheckBox,
+        Visible = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString((int) InterfaceEditorResourceSetEnum.CommonHeadings + "idfsTestResultRelation" + (long) InterfaceEditorTypeEnum.ColumnHeading),
+        ColumnName = "TestResultRelation",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = string.Empty,
+        ColumnName = "name",
+        ColumnType = ColumnType.Delete,
+        Visible = Model.UserPermissions.Delete
+    });
+}
+
+<div class="modal fade" id="duplicatesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsg"></span>
+            </div>
+            <div class="modal-footer">
+                <button id="editRecordButton" class="btn btn-primary" onclick="EditDuplicateRecord('AddTestNameTestResults');">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="duplicatesModalAddTestName" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsgAddTestName"></span>
+            </div>
+            <div class="modal-footer">
+                <button id="editRecordButton" class="btn btn-primary" onclick="EditDuplicateRecord('AddTestName');">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="duplicatesModalAddTestResults" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsgAddTestResults"></span>
+            </div>
+            <div class="modal-footer">
+                <button id="editRecordButton" class="btn btn-primary" onclick="EditDuplicateRecord('AddTestResults');">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_ConfigurationPartial"/>
+<partial name="_InformationalModalPartial" for="InformationMessage" />
+
+@section Scripts
+{
+    <script>
+        ///Load Default Data
+        $(document).ready(function() {
+        });
+
+        ///Method called after execution of Save Method Returns Data back from the controller
+        function CheckSuccess(data) {
+            var stringifiedData = JSON.stringify(data);
+            var parsedData = JSON.parse(stringifiedData);
+          
+            if (parsedData.returnMessage == "SUCCESS") {
+                $("#AddTestNameTestResultsMatrixSuccessModal").modal("show");
+                updateNotificationEnvelopeCount();
+            }
+            if (parsedData.returnMessage == "DOES EXIST" | parsedData.returnMessage == "EXISTS") {
+                $("#duplicatesModal").modal("show");
+                $("#dupemsg").html(parsedData.strDuplicatedField);
+            }
+        };
+
+        function CheckSuccessTestNameSave(data) {
+            var stringifiedData = JSON.stringify(data);
+            var parsedData = JSON.parse(stringifiedData);
+            if (parsedData.returnMessage == "SUCCESS") {
+                $("#AddTestNameTestResultsMatrixSuccessModal").modal("show");
+                updateNotificationEnvelopeCount();
+            }
+            if (parsedData.returnMessage == "DOES EXIST") {
+                $("#duplicatesModalAddTestName").modal("show");
+                $("#dupemsgAddTestName").html(parsedData.strDuplicatedField);
+            }
+        };
+
+        function CheckSuccessAddTestResults(data) {
+            var stringifiedData = JSON.stringify(data);
+            var parsedData = JSON.parse(stringifiedData);
+            if (parsedData.returnMessage == "SUCCESS") {
+                $("#AddTestNameTestResultsMatrixSuccessModal").modal("show");
+                updateNotificationEnvelopeCount();
+            }
+            if (parsedData.returnMessage == "DOES EXIST") {
+                $("#duplicatesModalAddTestResults").modal("show");
+                $("#dupemsgAddTestResults").html(parsedData.strDuplicatedField);
+            }
+        };
+
+        function CheckDeleteSuccess(data) {
+            var stringifiedData = JSON.stringify(data);
+            var parsedData = JSON.parse(stringifiedData);
+            if (parsedData.returnMessage === "SUCCESS") {
+                updateNotificationEnvelopeCount();
+                showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+            }
+        };
+
+        function EditDuplicateRecord(modelType) {
+            switch (modelType) {
+            case "AddTestName":
+                $("#AddTestNameTestResultsMatrixSuccessModal").modal("hide");
+                $("#duplicatesModalAddTestName").modal("hide");
+                $("#TestNameSave").modal("show");
+                break;
+            case "AddTestResults":
+                $("#AddTestNameTestResultsMatrixSuccessModal").modal("hide");
+                $("#duplicatesModalAddTestResults").modal("hide");
+                $("#AddTestResults").modal("show");
+                break;
+            default:
+                $("#AddTestNameTestResultsMatrixSuccessModal").modal("hide");
+                $("#duplicatesModal").modal("hide");
+                $("#AddTestNameTestResultsMatrix").modal("show");
+                break;
+            }
+        };
+
+        function PrepareNewRecord() {
+            $("#AddTestNameTestResultsMatrixSuccessModal").modal("hide");
+            $("#duplicatesModal").modal("hide");
+            $("#AddTestNameTestResultsMatrix").modal("show");
+
+        };
+
+        function PrepareNewRecordAddTestName() {
+            $("#AddTestNameTestResultsMatrixSuccessModal").modal("hide");
+            $("#duplicatesModalAddTestName").modal("hide");
+            $("#TestNameSave").modal("show");
+        };
+
+        function PrepareNewRecordAddTestResults() {
+            $("#AddTestNameTestResultsMatrixSuccessModal").modal("hide");
+            $("#duplicatesModalAddTestResults").modal("hide");
+            $("#AddTestResults").modal("show");
+        };
+
+        //DropDownChange // Note There is A DropDownChange Event
+        //DropDownChange // Note There is A DropDownChange Event
+        function ChangeAddButtonActiveStatus(data) {
+            switch (parseInt(data.id)) {
+            case 19000097:
+                $("#AddTestNameTestResultsMatrixButton").prop('disabled', true);
+                break;
+            case 19000104:
+                $("#AddTestNameTestResultsMatrixButton").prop('disabled', true);
+                break;
+            default:
+                $("#AddTestNameTestResultsMatrixButton").prop('disabled', false);
+            }
+        };
+
+        // When Drop Down Items Are Cleared
+        function SelectOnClear(data) {
+            $("#AddTestNameTestResultsMatrixButton").prop('disabled', true);
+        };
+
+        //
+        // Styling to handle stacked modals for the Collection Method  modals.
+        //
+        $(document).on("show.bs.modal",
+            ".modal",
+            function(event) {
+                var zIndex = 1040 + (10 * $(".modal:visible").length);
+                $(this).css("z-index", zIndex);
+                setTimeout(function() {
+                        $(".modal-backdrop").not(".modal-stack").css("z-index", zIndex - 1).addClass("modal-stack");
+                    },
+                    0);
+            });
+
+    </script>
+}

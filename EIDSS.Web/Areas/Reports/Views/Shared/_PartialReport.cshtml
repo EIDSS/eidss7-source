@@ -1,0 +1,7 @@
+﻿@using EIDSS.Web.Components.CrossCutting
+
+@model EIDSS.Web.ViewModels.ReportViewModel
+@{
+    ViewBag.Title = "ReportViewer";
+}
+<component type="typeof(DisplayReport)" render-mode="Static" param-ReportName="Model.ReportPath" param-Parameters="Model.Parameters" param-CancelButtonVisibleIndicator="false" />

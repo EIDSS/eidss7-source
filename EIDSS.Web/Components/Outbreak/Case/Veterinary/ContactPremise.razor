@@ -1,0 +1,71 @@
+﻿@using EIDSS.Domain.ViewModels.Outbreak
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+
+@inherits ContactPremiseBase
+
+<RadzenTemplateForm Data="Model" @ref="Form" Submit="OnSaveClick" TItem="ContactGetListViewModel">
+    <div class="card">
+        <div class="card-body">
+            <DataAnnotationsValidator/>
+            <h4>@Localizer.GetString(HeadingResourceKeyConstants.OutbreakContactsDemographicsHeading)</h4>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-4" For="farmOwnerLastName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsLastNameFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="@Model.LastName" class="form-control" MaxLength="200" Name="farmOwnerLastName" @ref="FarmOwnerLastNameTextBox"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-12" For="farmOwnerFirstName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsFirstNameFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="@Model.FirstName" class="form-control" MaxLength="200" Name="farmOwnerFirstName" @ref="FarmOwnerFirstNameTextBox"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-12" For="farmOwnerMiddleName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsMiddleNameFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="@Model.SecondName" class="form-control" MaxLength="200" Name="farmOwnerMiddleName" @ref="FarmOwnerMiddleNameTextBox"></RadzenTextBox>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-4" For="farmTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmInformationFarmTypeFieldLabel" IsRow="false">
+                    <RadzenCheckBoxList AllowClear="true" @bind-Value="@Model.SelectedFarmTypes" class="form-control" Data="@FarmTypes" id="farmTypeID" Name="farmTypeID" Orientation="Orientation.Horizontal" TextProperty="Name" TValue="long" ValueProperty="IdfsBaseReference"/>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-12" For="farmName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsFarmNameFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="@Model.FarmName" class="form-control" MaxLength="200" Name="farmName" @ref="FarmNameTextBox"></RadzenTextBox>
+                </InterfaceEditorResource>
+            </div>
+            <h4>@Localizer.GetString(HeadingResourceKeyConstants.OutbreakContactsCurrentAddressHeading)</h4>
+            <div class="form-row">
+                <div class="col-12">
+                    <LocationView ParmLocationViewModel="@Model.FarmLocation"/>
+                </div>
+            </div>
+            <h4>@Localizer.GetString(HeadingResourceKeyConstants.OutbreakContactsContactTracingHeading)</h4>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-3" For="dateOfLastContact" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsDateOfLastContactFieldLabel" IsRow="true">
+                    <br/>
+                    <RadzenDatePicker AllowClear="true" @bind-Value="Model.DateOfLastContact" DateFormat="d" Name="dateOfLastContact" TValue="DateTime?"/>
+                    <br/>
+                    <RadzenCompareValidator Component="dateOfLastContact" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="@DateTime.Now"/>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-9" For="placeOfLastContact" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsPlaceOfLastContactFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="Model.PlaceOfLastContact" class="form-control" MaxLength="200" Name="placeOfLastContact"/>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource For="contactStatusTypeDropDown" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsContactStatusFieldLabel" IsRow="true">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" class="form-control" Data="ContactStatusTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetContactStatusTypes" Name="contactStatusTypeDropDown" @ref="ContactStatusTypeDropDown" TextProperty="Name" TValue="long?" Value="@Model.ContactStatusID" ValueProperty="IdfsBaseReference"/>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-9" For="contactComments" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsDetailsOfLastContactFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="Model.Comment" class="form-control" MaxLength="500" Name="contactComments"/>
+                </InterfaceEditorResource>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-12">
+                    <button class="btn btn-outline-primary" @onclick="OnCancelClick" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button class="btn btn-primary" @onsubmit="OnSaveClick" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

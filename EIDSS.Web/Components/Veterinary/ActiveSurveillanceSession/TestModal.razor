@@ -1,0 +1,83 @@
+﻿@using Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Domain.Enumerations
+
+@inherits EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession.TestModalBase
+
+<RadzenTemplateForm @ref="Form" TItem="LaboratoryTestGetListViewModel" Data="StateContainer.LaboratoryTestDetail" Submit="OnSubmit">
+    <div class="card">
+        <div class="card-body">
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalFieldSampleIDieldLabel" IsRow="false" CssClass="col-6" For="fieldSampleID">
+                    <RadzenDropDown Name="fieldSampleID" class="form-control" TValue="long?" @bind-Value="StateContainer.LaboratoryTestDetail.SampleID" Data="Samples"
+                                    LoadData="GetSamples" TextProperty="EIDSSLocalOrFieldSampleID" ValueProperty="SampleID" Change="@(args => OnSampleChange(args))" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalLabSampleIDFieldLabel" IsRow="false" CssClass="col-6" For="labSampleID">
+                    <RadzenTextBox Name="labSampleID" class="form-control" @bind-Value="StateContainer.LaboratoryTestDetail.EIDSSLaboratorySampleID" Disabled="true" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalFarmIDFieldLabel" IsRow="false" CssClass="col-6" For="farmID">
+                    <RadzenTextBox Name="farmID" class="form-control" @bind-Value="StateContainer.LaboratoryTestDetail.EIDSSFarmID" Disabled="true"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalSampleTypeFieldLabel" IsRow="false" CssClass="col-6" For="sampleType">
+                    <RadzenTextBox Name="sampleType" class="form-control" @bind-Value="StateContainer.LaboratoryTestDetail.SampleTypeName" Disabled="true"></RadzenTextBox>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalAnimalIDFieldLabel" IsRow="false" CssClass="col-6" For="animalID">
+                    <RadzenTextBox Name="animalID" class="form-control" @bind-Value="StateContainer.LaboratoryTestDetail.EIDSSAnimalID" Disabled="true"></RadzenTextBox>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalTestDiseaseFieldLabel" IsRow="false" CssClass="col-6" For="testDisease">
+                    <RadzenDropDown Name="testDisease" class="form-control" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    FilterOperator="StringFilterOperator.StartsWith" TValue="long?" @bind-Value="StateContainer.LaboratoryTestDetail.DiseaseID" LoadData="GetDiseases"
+                                    Data="TestDiseases" TextProperty="DiseaseName" ValueProperty="DiseaseID" Disabled="@Disabled" Change="OnTestDiseaseChange" />
+                </InterfaceEditorResource>
+                <div class="form-group col-6 d-inline-flex align-items-center pt-lg-4">
+                    <RadzenCheckBox Name="filterByDisease" class="form-check-inline" TriState="false" @bind-Value="IsDiseaseFiltered" TValue="bool" Change="@OnFilterByDiseaseChange" />
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.SessionInformationFilterByDiseaseFieldLabel)</label>
+                </div>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalTestNameFieldLabel" IsRow="false" CssClass="col-6" For="testName">
+                    <RadzenDropDown Name="testName" class="form-control" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" TValue="long?" @bind-Value="StateContainer.LaboratoryTestDetail.TestNameTypeID" LoadData="GetTestNameTypes" Data="TestNameTypes" TextProperty="Name" ValueProperty="IdfsBaseReference" Disabled="@Disabled" Change="OnTestNameChange" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalTestCategoryFieldLabel" IsRow="false" CssClass="col-6" For="testCategory">
+                    <RadzenDropDown Name="testCategory" class="form-control" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" TValue="long?" @bind-Value="StateContainer.LaboratoryTestDetail.TestCategoryTypeID" LoadData="GetTestCategoryTypes" Data="TestCategoryTypes" TextProperty="Name" ValueProperty="IdfsBaseReference" Disabled="@Disabled" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalTestStatusFieldLabel" IsRow="false" CssClass="col-6" For="testStatus">
+                    <RadzenTextBox Name="testStatus" class="form-control" @bind-Value="StateContainer.LaboratoryTestDetail.TestStatusTypeName" ReadOnly="true" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalTestResultFieldLabel" IsRow="false" CssClass="col-6" For="testResult">
+                    <div class="input-group">
+                        <RadzenDropDown Name="testResult" class="form-control" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" TValue="long?" @bind-Value="StateContainer.LaboratoryTestDetail.TestResultTypeID" LoadData="GetTestResultTypes" Data="TestResultTypes" TextProperty="strTestResultName" ValueProperty="idfsTestResult" Disabled="@Disabled" />
+                    </div>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalResultDateFieldLabel" IsRow="false" CssClass="col-6" For="resultDate">
+                    <RadzenDatePicker Name="resultDate" class="form-control-range" @bind-Value="StateContainer.LaboratoryTestDetail.ResultDate" Disabled="@Disabled" DateFormat="d" />
+                    <RadzenCompareValidator Value="@StateContainer.LaboratoryTestDetail.SentDate" Component="resultDate" Popup=false Operator="CompareOperator.LessThanEqual"
+                                            Text=@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), Localizer.GetString(FieldLabelResourceKeyConstants.TestDetailsModalResultDateFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.TransferOutModalDateSentFieldLabel))
+                                            Style="display: block" Visible=@(!string.IsNullOrEmpty(StateContainer.LaboratoryTestDetail.SentDate.ToString())) />
+                    <RadzenCompareValidator Value="@DateTime.Now" Component="resultDate" Popup=false Operator="CompareOperator.LessThanEqual"
+                                            Text=@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)
+                                            Style="display: block" />
+                </InterfaceEditorResource>
+
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-md-12">
+                    <button type="button" class="btn btn-outline-primary" @onclick="OnCancel">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button type="submit" class="btn btn-primary" @onsubmit="OnSubmit">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

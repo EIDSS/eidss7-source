@@ -1,0 +1,212 @@
+﻿
+@model EIDSS.Web.Administration.Security.ViewModels.UserGroup.UsersAndGroupsSectionViewModel
+@{
+
+    Model.EmployeesForUserGroupGridConfiguration.GridId = "employeesForUserGroupGrid";
+    Model.EmployeesForUserGroupGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.EmployeesForUserGroupGridConfiguration.AjaxDataUrl = Url.Action("GetEmployeesForUserGroupList", "UserGroupPage", new { Area = "Administration", SubArea = "Security" });
+    Model.EmployeesForUserGroupGridConfiguration.ControlFilterID = "UsersAndGroupsSection_idfEmployeeGroup";
+    Model.EmployeesForUserGroupGridConfiguration.ControlIdThatRefreshGrid = "searchEmployee,deleteEmployee,selectActors";
+    //Model.EmployeesForUserGroupGridConfiguration.EnableServerSide = true;
+    Model.EmployeesForUserGroupGridConfiguration.EnableServerSide = false;
+    Model.EmployeesForUserGroupGridConfiguration.EnableCustomSearching = false;
+    Model.EmployeesForUserGroupGridConfiguration.EnableProcessingMessage = true;
+    Model.EmployeesForUserGroupGridConfiguration.sDom = "t";
+    Model.EmployeesForUserGroupGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "idfEmployee",
+        ColumnTitleHeader = String.Empty,
+        ColumnType = ColumnType.Selection,
+        Visible = true
+    });
+    Model.EmployeesForUserGroupGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "idfEmployeeGroup",
+        ColumnTitleHeader = String.Empty,
+        ColumnType = ColumnType.Details,
+        Visible = false
+    });
+    Model.EmployeesForUserGroupGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "TypeID",
+        ColumnTitleHeader = String.Empty,
+        ColumnType = ColumnType.ReadOnly,
+        Visible = false
+    });
+    Model.EmployeesForUserGroupGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "TypeName",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.ActorTypeNameColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.Default
+    });
+    Model.EmployeesForUserGroupGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "Name",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.NameColumnHeading),
+        Visible = true,
+        VisibleInModal = true
+    });
+    Model.EmployeesForUserGroupGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "Organization",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.UserGroupDetailsOrganizationColumnHeading),
+        ColumnType = ColumnType.Default,
+        Visible = true,
+        Orderable = true
+    });
+    Model.EmployeesForUserGroupGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "Description",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.UserGroupDetailsDescriptionColumnHeading),
+        ColumnType = ColumnType.Default,
+        Visible = true,
+        Orderable = true
+    });
+    Model.EmployeesForUserGroupGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() 
+    { 
+        ColumnName = "RowStatus", 
+        ColumnTitleHeader = "Row Status", 
+        ColumnType = ColumnType.Default, 
+        Searchable = true, 
+        Visible = false 
+    });
+    Model.EmployeesForUserGroupGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() 
+    { 
+        ColumnName = "RowAction", 
+        ColumnTitleHeader = "Row Action", 
+        ColumnType = ColumnType.Default, 
+        
+        Searchable = true, Visible = false 
+    });
+
+    //Model.EmployeesForUserGroupGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    //{
+    //    ColumnName = "idfUserID",
+    //    ColumnTitleHeader = String.Empty,
+    //    ColumnType = ColumnType.Details,
+    //    Visible = false
+    //});
+    //Model.EmployeesForUserGroupGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    //{
+    //    ColumnName = "UserName",
+    //    ColumnTitleHeader = String.Empty,
+    //    ColumnType = ColumnType.Details,
+    //    Visible = false
+    //});
+}
+
+<partial name="_SearchEmployeeActorModalPartial" for="@Model.SearchEmployeeActorViewModel" />
+
+<form id="usersAndGroupsForm">
+    <input type="hidden" asp-for="idfEmployeeGroup" />
+    <div class="container-fluid">
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4 heading-for="@HeadingResourceKeyConstants.UserGroupDetailsUsersAndGroupsHeading"></h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editUsersAndGroupsSectionButton" href="#userGroupWizard-h-1" class="edit-section"><span class="far fa-edit fa-lg"></span></a>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-12 text-right">
+                <button id="searchEmployee" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#searchEmployeeActorModal"
+                        button-for="@ButtonResourceKeyConstants.AddButton" visible="@Model.UserGroupPermissions.Create"></button>
+                <button id="deleteEmployee" type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.DeleteButton"
+                        onclick="deleteEmployees('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage)', event, '@Model.idfEmployeeGroup')"
+                        visible="@Model.UserGroupPermissions.Delete"></button>
+            </div>
+        </div>
+        <eidss-grid id="@Model.EmployeesForUserGroupGridConfiguration.GridId"
+                    grid-configuration="@Model.EmployeesForUserGroupGridConfiguration"
+                    class-name="@Model.EmployeesForUserGroupGridConfiguration.GridClass"
+                    enable-server-side="true"
+                    enable-processing="@Model.EmployeesForUserGroupGridConfiguration.EnableProcessingMessage"
+                    enable-search="false"
+                    end-point="@Model.EmployeesForUserGroupGridConfiguration.AjaxDataUrl"
+                    enable-custom-search="false"
+                    filtered-control-ids="@Model.EmployeesForUserGroupGridConfiguration.ControlFilterID"
+                    controls-that-refresh-the-grid="@Model.EmployeesForUserGroupGridConfiguration.ControlIdThatRefreshGrid"
+                    control-labels="@Model.EmployeesForUserGroupGridConfiguration.ControlLabels">
+        </eidss-grid>
+
+    </div>
+</form>
+
+<script type="text/javascript">
+
+        function initializeSearchEmployeeActor(EmployeeIndicator) {
+            showSearchEmployeeActorModal();
+        };
+
+
+    // Handle click on employeesForUserGroupGrid checkbox
+    $("#employeesForUserGroupGrid tbody").on("click", 'input[type="checkbox"]', function (e) {
+        var $row = $(this).closest("tr");
+
+        if (this.checked) {
+
+            $row.addClass("selected");
+        } else {
+            $row.removeClass("selected");
+        }
+
+        // Prevent click event from propagating to parent
+        e.stopPropagation();
+    });
+
+
+    function deleteEmployees(message, event, Id) {
+        actors = [];
+        var selectedActors = $("#employeesForUserGroupGrid").DataTable().rows([".selected"]).data().toArray();
+        $.each(selectedActors, function (index, value) {
+            actors.push(value[0]);
+        });
+        var idfEmployeeList = actors.join(", ");
+
+        var idfEmployeeGroup = $("[id$=idfEmployeeGroup]").val();
+
+        var jsonData = {
+            "idfEmployeeGroup": idfEmployeeGroup,
+            "idfEmployeeList": idfEmployeeList
+        };
+
+        $.ajax({
+            url: '@Url.Action("DeleteEmployeesFromUserGroup", "UserGroupPage", new {Area = "Administration", SubArea = "Security"})',
+            data: JSON.stringify(jsonData),
+            contentType: "application/json",
+            type: "POST",
+            success: function (response) {
+                $('#employeesForUserGroupGrid').DataTable().ajax.reload();
+
+            },
+            error: function (reponse) { alert("An error occurred: " + reponse); }
+        });
+
+    };
+
+    function initializeEmployeesForUserGroupListTable() {
+        alert("initializeEmployeesForUserGroupListTable!!");
+        var idfEmployeeGroup = $("[id$=SearchCriteria_idfEmployeeGroup]").val();
+        alert(idfEmployeeGroup);
+
+         $.ajax({
+             url: '@Url.Action("GetEmployeesForUserGroupList", "UserGroupPage", new { Area = "Administration", SubArea = "Security"})',
+             data: idfEmployeeGroup,
+             contentType: "application/json",
+             type: "POST",
+             success: function (response) {
+             alert("success!!");
+             // Add the data retrieved from the database, if any.
+             },
+             error: function (reponse) {
+                alert("An error occurred: " + reponse);
+             }
+         });
+
+    };
+
+
+</script>
+

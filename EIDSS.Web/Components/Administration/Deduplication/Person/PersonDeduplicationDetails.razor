@@ -1,0 +1,175 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Web.Areas.Administration.SubAreas.Deduplication.ViewModels.PersonDeduplication
+@inherits EIDSS.Web.Components.Administration.Deduplication.Person.PersonDeduplicationDetailsBase
+
+<RadzenTemplateForm id="personDeduplicationDetailsForm" @ref="form" TItem="PersonDeduplicationDetailsViewModel" Data="@Model">
+    @if (showDetails)
+    {
+        <RadzenTabs Change="@OnChange" RenderMode="TabRenderMode.Server" SelectedIndex="(int)Tab">
+            <Tabs>
+                <RadzenTabsItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonInformationFieldLabel)">
+                    @if (Tab == PersonDeduplicationTabEnum.Information)
+                    {
+                        <div>
+                            <Information />
+                        </div>
+                    }
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonAddressFieldLabel)">
+                    @if (Tab == PersonDeduplicationTabEnum.Address)
+                    {
+                        <div>
+                            <Address />
+                        </div>
+                    }
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonEmploymentFieldLabel)">
+                    @if (Tab == PersonDeduplicationTabEnum.Employment)
+                    {
+                        <div>
+                            <Employment />
+                        </div>
+                    }
+                </RadzenTabsItem>
+            </Tabs>
+        </RadzenTabs>
+
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-md-12">
+                    <button id="cancelButton" class="btn btn-outline-primary" type="button" @onclick=@(() => CancelMergeClicked())>@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    @if (showPreviousButton)
+                    {<button id="previousButton" class="btn btn-outline-primary" type="button" @onclick=@(() => PreviousClicked())>@Localizer.GetString(ButtonResourceKeyConstants.PreviousButton)</button>}
+                    @if (showNextButton)
+                    {<button id="nextButton" class="btn btn-outline-primary" type="button" @onclick=@(() => NextClicked())>@Localizer.GetString(ButtonResourceKeyConstants.NextButton)</button>}
+                    <button id="mergeButton" type="button" class="btn btn-primary" disabled="@disableMergeButton" @onclick="OnMergeAsync">@Localizer.GetString(@ButtonResourceKeyConstants.DeduplicationMergeButtonText)</button>
+                </div>
+            </div>
+        </div>
+    }
+    @if (showReview)
+    {
+        <RadzenCard>
+        <div class="card-header">
+            <div class="form-row">
+                <div class="col-md-11">
+                    <h4>@Localizer.GetString(HeadingResourceKeyConstants.PersonInformationHeading)</h4>
+                </div>
+                <div class="col-md-1">
+                    <button class="btn d-inline-block" @onclick=@(() => EditClickAsync(0))><i class="fas fa-edit fa-lg"></i></button>
+                </div>
+            </div>
+        </div>
+            <div class="form-row">
+                <div class="col-md-12">
+                <RadzenDataList WrapItems=false AllowPaging=false Data=PersonDeduplicationService.SurvivorInfoList TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
+                    <Template Context="field">
+                    @if (field.Index < GenderTypeID)
+                    {
+                        <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key Disabled=@field.Disabled TriState=false Style="vertical-align: top !important;" />
+                        <div class="ml-2 d-inline-block vertical-align-middle">
+                            <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <RadzenPanel Visible="@(field.Index < GenderTypeID)">
+                        <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key Disabled=@field.Disabled TriState=false Style="vertical-align: top !important;" />
+                        <div class="ml-2 d-inline-block vertical-align-middle">
+                            <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                        </RadzenPanel>
+                    }
+                    </Template>
+                </RadzenDataList>
+                </div>
+            </div>
+        </RadzenCard>
+        <RadzenCard >
+        <div class="card-header">
+            <div class="form-row">
+                <div class="col-md-11">
+                    <h4>@Localizer.GetString(HeadingResourceKeyConstants.PersonAddressHeading)</h4>
+                </div>
+                <div class="col-md-1">
+                    <button class="btn d-inline-block" @onclick=@(() => EditClickAsync(1))><i class="fas fa-edit fa-lg"></i></button>
+                </div>
+            </div>
+        </div>
+            <div class="form-row">
+                <div class="col-md-12">
+                <RadzenDataList WrapItems=false AllowPaging=false Data=PersonDeduplicationService.SurvivorAddressList TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
+                    <Template Context="field">
+                    @if (field.Index < HumanidfsRegion)
+                    {
+                        <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key Disabled=@field.Disabled TriState=false Style="vertical-align: top !important;" />
+                        <div class="ml-2 d-inline-block vertical-align-middle">
+                            <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <RadzenPanel Visible="@(field.Index < HumanidfsRegion)">
+                        <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key Disabled=@field.Disabled TriState=false Style="vertical-align: top !important;" />
+                        <div class="ml-2 d-inline-block vertical-align-middle">
+                            <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                        </RadzenPanel>
+                    }
+                    </Template>
+                </RadzenDataList>
+                </div>
+            </div>
+            </RadzenCard>
+    <RadzenCard>
+        <div class="card-header">
+            <div class="form-row">
+                <div class="col-md-11">
+                    <h4>@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonEmploymentFieldLabel)</h4>
+                </div>
+                <div class="col-md-1">
+                    <button class="btn d-inline-block" @onclick=@(() => EditClickAsync(2))><i class="fas fa-edit fa-lg"></i></button>
+                </div>
+            </div>
+        </div>
+            <div class="form-row">
+                <div class="col-md-12">
+                <RadzenDataList WrapItems=false AllowPaging=false Data=PersonDeduplicationService.SurvivorEmpList TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
+                    <Template Context="field">
+                    @if (field.Index < IsEmployedTypeID)
+                    {
+                        <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key Disabled=@field.Disabled TriState=false Style="vertical-align: top !important;" />
+                        <div class="ml-2 d-inline-block vertical-align-middle">
+                            <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <RadzenPanel Visible="@(field.Index < IsEmployedTypeID)">
+                        <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key Disabled=@field.Disabled TriState=false Style="vertical-align: top !important;" />
+                        <div class="ml-2 d-inline-block vertical-align-middle">
+                            <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                        </RadzenPanel>
+                    }
+                    </Template>
+                </RadzenDataList>
+                </div>
+            </div>
+    </RadzenCard>
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-md-12">
+                    <button id="cancelButtonReview" class="btn btn-outline-primary" type="button" @onclick=@(() => CancelMergeClicked()) >@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button id="saveButton" type="button" class="btn btn-primary" @onclick="OnSaveAsync">@Localizer.GetString(@ButtonResourceKeyConstants.SaveButton)</button>
+                </div>
+            </div>
+        </div>
+    }
+</RadzenTemplateForm>

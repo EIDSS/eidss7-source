@@ -1,0 +1,176 @@
+﻿@model EIDSS.Web.Areas.Administration.SubAreas.Security.ViewModels.SystemFunctions.SystemFunctionSearchViewModel
+@{
+    ViewData["Title"] = "System Functions";
+
+
+    Model.SystemFunctionsGridConfiguration = new();
+    Model.SystemFunctionsGridConfiguration.GridId = "systemFunctionsTable";
+    Model.SystemFunctionsGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.SystemFunctionsGridConfiguration.AjaxDataUrl = Url.Action("GetSystemFunctionsList", "SystemFunctions", new { Area = "Administration", SubArea = "Security" });
+    Model.SystemFunctionsGridConfiguration.EnableServerSide = true;
+    Model.SystemFunctionsGridConfiguration.EnableCustomSearching = true;
+    Model.SystemFunctionsGridConfiguration.EnableProcessingMessage = true;
+    Model.SystemFunctionsGridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.PageRedirect;
+    Model.SystemFunctionsGridConfiguration.EditPageRedirectLink = "Details";
+    Model.SystemFunctionsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "Row",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.SystemFunctionsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = "idfsBaseReference",
+        ColumnName = "idfsBaseReference",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.SystemFunctionsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "SystemFunction",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SystemFunctionsNameColumnHeading),
+        ColumnType = ColumnType.Default,
+        Visible = true,
+        Orderable = true
+
+    });
+    //Model.SystemFunctionsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    //{
+    //    ColumnName = "name",
+    //    ColumnTitleHeader = String.Empty,
+    //    ColumnType = ColumnType.Link,
+    //    CustomLinkText="Details",
+    //    ColumnHyperlinkURL = @Url.Action("Details", "SystemFunctions", new { Area = "Administration", SubArea="Security" }),
+    //    Visible = Model.AcccessRightReadPermission == true && Model.AcccessRightReadPermission == true,
+    //    Orderable = false,
+    //    ClassName= "fas fa-ellipsis-h fa-1x",
+    //    AssociatedFieldId = "idfsBaseReference"
+
+
+    //});
+
+    Model.SystemFunctionsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "name",
+        ColumnTitleHeader = String.Empty,
+        ColumnType = ColumnType.Link,
+        ColumnHyperlinkURL = @Url.Action("Details", "SystemFunctions", new { Area = "Administration", SubArea = "Security" }),
+        ClassName = "fas fa-ellipsis-h",
+        Visible = Model.AcccessRightReadPermission == true && Model.AcccessRightReadPermission == true,
+        Orderable = false
+    });
+
+    //Model.SystemFunctionsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    //{
+    //    ColumnName = "name",
+    //    ColumnTitleHeader = String.Empty,
+    //    ColumnType = ColumnType.Details,
+    //    ColumnHyperlinkURL = @Url.Action("Details", "SystemFunctions", new { Area = "Administration", SubArea = "Security" }),
+    //    Visible = false,
+    //    Orderable = false,
+
+
+    //});
+}
+
+<partial name="_InformationalModalPartial" for="InformationalMessage" />
+<partial name="_WarningModalPartial" />
+
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@HeadingResourceKeyConstants.SystemFunctionsHeading"></h3>
+    </div>
+    <div class="card-body">
+       
+            <div class="card-body">
+                <eidss-grid id="@Model.SystemFunctionsGridConfiguration.GridId"
+                            grid-configuration="@Model.SystemFunctionsGridConfiguration"
+                            filtered-control-ids="@Model.SystemFunctionsGridConfiguration.ControlFilterID"
+                            enable-server-side="@Model.SystemFunctionsGridConfiguration.EnableServerSide"
+                            enable-processing="@Model.SystemFunctionsGridConfiguration.EnableProcessingMessage"
+                            enable-search="@Model.SystemFunctionsGridConfiguration.EnableSearching"
+                            class-name="@Model.SystemFunctionsGridConfiguration.GridClass"
+                            end-point="@Model.SystemFunctionsGridConfiguration.AjaxDataUrl"
+                            enable-top-header-search-button="@Model.SystemFunctionsGridConfiguration.EnableCustomSearching"
+                            control-labels="@Model.SystemFunctionsGridConfiguration.ControlLabels"
+                            controls-that-refresh-the-grid="@Model.SystemFunctionsGridConfiguration.ControlIdThatRefreshGrid">
+
+                </eidss-grid>
+
+            </div>
+            <div id="systemFunctionsSearchResultsCommands" class="card-footer">
+                <button id="cancelSearchResults" type="button" class="btn btn-outline-primary" onclick="cancelSearch('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)', event)" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+            </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    if ("@Model.SysemFunctionListReadPermission" == "False" && "@Model.SysemFunctionListWritePermission" == "False"  && "@Model.AcccessRightReadPermission" == "False" && "@Model.AcccessRightReadPermission" == "False") {
+
+        showInformationalModal("@Model.NoAccessInformationMessage");
+        location.href = "/Administration/Dashboard";
+     };
+
+   function toggleSystemFunctionsSearchCriteria(e) {
+
+        var icon = document.getElementById('toggleSystemFunctionsSearchIcon');
+        if (icon.classList == 'svg-inline--fa fa-caret-down fa-w-10 toggle-icon fa-2x') {
+            icon.classList.toggle("fa-caret-up");
+            $('#cancelSearchCriteria').hide();
+            $('#clear').show();
+            $('#search').show();
+            $("#systemFunctionsSearchCriteriaForm").collapse('hide');
+            $("#systemFunctionsSearchCriteriaCommands").show();
+        }
+        else {
+            icon.classList.toggle("fa-caret-down");
+            $("#cancelSearchCriteria").hide();
+            $("#clear").hide();
+            $("#search").hide();
+            $("#systemFunctionsSearchCriteriaForm").collapse('show');
+            $("#systemFunctionsSearchCriteriaCommands").hide();
+            $("#cancelSearchResults").show();
+        }
+    };
+
+    function hideSystemFunctionsSearchCriteria() {
+        $("#systemFunctionsSearchCriteriaForm").collapse('hide');
+        $("#systemFunctionsSearchCriteriaCommands").hide();
+        $("#systemFunctionsSearchResultsCommands").show();
+    };
+
+    function showSystemFunctionsSearchCriteria() {
+        $("#aToggleSystemFunctionsSearch").hide();
+        $("#systemFunctionsSearchCriteriaForm").collapse('show');
+        $("#systemFunctionsSearchCriteriaCommands").show();
+        $("#systemFunctionsSearchResults").hide();
+
+    };
+
+    function cancelSearch(message, event) {
+        event.preventDefault();
+
+         event.preventDefault();
+            showWarningModal(message).then(response => {
+                if (response) {
+                    HistoryRedirect();
+                }
+            });
+    }
+
+     function HistoryRedirect() {
+            var referrer = document.referrer;
+            //If the referrer is the same page or view in the same controller we redirect to dashboard else we redirect to the referrer
+            if (referrer.search("SystemFunctions") > -1) {
+                window.location.replace('@Url.Action("Dashboard", "Administration", new { area = "",subArea =""})');
+            }
+
+            else {
+                window.location.replace(referrer);
+            }
+        }
+
+</script>

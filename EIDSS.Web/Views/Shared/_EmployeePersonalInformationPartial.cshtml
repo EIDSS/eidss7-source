@@ -1,0 +1,360 @@
+﻿@model EIDSS.Web.ViewModels.Administration.EmployeePersonalInfoPageViewModel;
+@{
+    //DropDowns
+    var defaultReference = new Select2DataItem();
+
+    if (Model.PersonalIDType != null && Model.PersonalIDTypeName != null && Model.PersonalIDTypeName != "")
+        defaultReference = new Select2DataItem { id = Model.PersonalIDType.ToString(), text = Model.PersonalIDTypeName };
+
+    Model.PersonalIdTypeDD.DropDownId = "PersonalIdTypeDD";
+    Model.PersonalIdTypeDD.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.PersonalIdTypeDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.PersonalIDTypeFieldLabel);
+    Model.PersonalIdTypeDD.Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000148 });
+    Model.PersonalIdTypeDD.isVisible = true;
+    Model.PersonalIdTypeDD.defaultSelect2Selection = defaultReference;
+    Model.PersonalIdTypeDD.CustomJsOnChangeFunction = "CheckPersonalIDRequired";
+    Model.PersonalIdTypeDD.CustomJsOnClearFunction = "disablePersonalID";
+    Model.PersonalIdTypeDD.CustomJsOnUnselectFunction = "disablePersonalID";
+    Model.PersonalIdTypeDD.isRequired = true;
+    Model.PersonalIdTypeDD.RequiredErrorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage);
+
+    Model.OrganizationDD.DropDownId = "OrganizationDD";
+    Model.OrganizationDD.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.OrganizationDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.OrganizationDefaultFieldLabel);
+    Model.OrganizationDD.Endpoint = @Url.Action("GetOrganizationsAdvancedListUser", "CrossCutting", new { Area = "CrossCutting" });
+    Model.OrganizationDD.isVisible = true;
+    if (Model.OrganizationID != null && Model.AbbreviatedName != null && Model.AbbreviatedName != "")
+    {
+        defaultReference = new Select2DataItem { id = Model.OrganizationID.ToString(), text = Model.AbbreviatedName };
+        Model.OrganizationDD.defaultSelect2Selection = defaultReference;
+    }
+    Model.OrganizationDD.CustomJsOnChangeFunction = "FillSiteDetails";
+    Model.OrganizationDD.DisabledControls = "DepartmentDD";
+    Model.OrganizationDD.FilteredId = "PersonalInfoSection_EmployeeCategoryList";
+    Model.OrganizationDD.isRequired = true;
+    Model.OrganizationDD.RequiredErrorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage);
+
+    Model.DepartmentDD.DropDownId = "DepartmentDD";
+    Model.DepartmentDD.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.DepartmentDD.FilteredId = "OrganizationDD";
+    Model.DepartmentDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.DepartmentFieldLabel);
+    Model.DepartmentDD.Endpoint = @Url.Action("GetDepartmentList", "EmployeePage", new { Area = "Administration" });
+    Model.DepartmentDD.isVisible = true;
+    if (Model.DepartmentID != null && Model.DepartmentName != null && Model.DepartmentName != "")
+    {
+        defaultReference = new Select2DataItem { id = Model.DepartmentID.ToString(), text = Model.DepartmentName };
+
+        Model.DepartmentDD.defaultSelect2Selection = defaultReference;
+    }
+    @if (Model.CanAccessOrganizationsList.Create)
+    {
+        Model.DepartmentDD.IncludeAddButton = true;
+        Model.DepartmentDD.AddButtonId = "AddDepartment";
+        Model.DepartmentDD.AddModalId = "DepartmentSave";
+    }
+
+    Model.PositionDD.DropDownId = "PositionDD";
+    Model.PositionDD.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.PositionDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.PositionFieldLabel);
+    Model.PositionDD.Endpoint = @Url.Action("GetPositionList", "EmployeePage", new { Area = "Administration" });
+    Model.PositionDD.isVisible = true;
+    @if (Model.CanManageReferencesandConfiguratuionsPermission.Create)
+        Model.PositionDD.IncludeAddButton = true;
+    if (Model.PositionTypeID != null && Model.PositionTypeName != null && Model.PositionTypeName != "")
+    {
+        defaultReference = new Select2DataItem { id = Model.PositionTypeID.ToString(), text = Model.PositionTypeName };
+        Model.PositionDD.defaultSelect2Selection = defaultReference;
+    }
+    Model.PositionDD.AddModalId = "PositionSave";
+
+    //SET UP MODAL1     AddDepartment
+    var eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = @Localizer.GetString(HeadingResourceKeyConstants.DepartmentDetailsModalHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            SuccessModalTitle = @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+            SuccessMessage = @Localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        },
+        ModalId = "DepartmentSave",
+        SaveCompleteMethod = "CheckSuccessModal",
+        TargetGridControlID = "GetDepartmentList", //ID of Grid to Refresh
+        SavingControlsCollection = "OrganizationDD",
+        PostAjaxDataUrl = @Url.Action("SaveDepartment", "EmployeePage", new { Area = "Administration" })
+    };
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "Default",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+        },
+        ClassName = "DefaultValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ControlName = "Name",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+        },
+        ClassName = "NationalValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlName = "Order",
+        ControlType = ControlType.Numeric,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsInvalidValidRangeIsMessage),
+            ValidationRule = "[-2147483648,2147483647]"
+        },
+        ClassName = "IntOrderRange",
+        Visible = true
+    });
+
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //SET UP MODAL2     AddPosition
+    eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = @Localizer.GetString(HeadingResourceKeyConstants.AddPositionModalHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            SuccessModalTitle = @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+            SuccessMessage = @Localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        },
+        ModalId = "PositionSave",
+        TargetGridControlID = "GePositionList", //ID of Grid to Refresh
+        PostAjaxDataUrl = @Url.Action("SavePosition", "EmployeePage", new { Area = "Administration" }),
+        SaveCompleteMethod = "CheckSuccessModal"
+    };
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "Default",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+        },
+        ClassName = "DefaultValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ControlName = "Name",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+        },
+        ClassName = "NationalValueRequired"
+    });
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlName = "Order",
+        ControlType = ControlType.Numeric,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsInvalidValidRangeIsMessage),
+            ValidationRule = "[-2147483648,2147483647]"
+        },
+        ClassName = "IntOrderRange",
+        Visible = true
+    });
+
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+    }
+<form id="PersonalInfoForm">
+    <div class="container-fluid">       
+        <div class="form-row">          
+            <div class="form-group col-md-12">
+                <input type="hidden" id="hdfCategory" value="@Model.idfsEmployeeCategory" />
+                <label asp-for="@Model.EmployeeCategoryList" field-label-for="@FieldLabelResourceKeyConstants.EmployeeCategoryFieldLabel" class="control-label"></label>
+                @if (Model.EmployeeCategoryList != null)
+                {
+                    if (Model.EmployeeCategoryList.Count > 0)
+                    {
+                        var isfirst = true;
+                        foreach (var item in Model.EmployeeCategoryList)
+                        {
+                            if (Model.UserPermissions.Create)
+                            {
+                                if (Model.EmployeeCategory == null)
+                                {
+                                    if (isfirst)
+                                    {
+                                        isfirst = false;
+                                        <input asp-for="@Model.EmployeeCategoryList" onclick="CallMe(this)" type="radio" value="@item.IdfsBaseReference" checked /> @item.Name
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="@Model.EmployeeCategoryList" onclick="CallMe(this)" type="radio" value="@item.IdfsBaseReference" /> @item.Name
+                                    }
+                                }
+                                else
+                                {
+                                    if (Model.EmployeeCategory != null && Model.EmployeeCategory.Equals(item.Name))
+                                    {
+                                        <input asp-for="@Model.EmployeeCategoryList" onclick="CallMe(this)" type="radio" value="@item.IdfsBaseReference" checked /> @item.Name
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="@Model.EmployeeCategoryList" onclick="CallMe(this)" type="radio" value="@item.IdfsBaseReference" /> @item.Name
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (Model.EmployeeCategory == null)
+                                {
+                                    if (isfirst)
+                                    {
+                                        isfirst = false;
+                                        <input asp-for="@Model.EmployeeCategoryList" onclick="CallMe(this)" type="radio" value="@item.IdfsBaseReference" disabled checked /> @item.Name
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="@Model.EmployeeCategoryList" onclick="CallMe(this)" type="radio" value="@item.IdfsBaseReference" disabled /> @item.Name
+                                    }
+                                }
+                                else
+                                {
+                                    if (Model.EmployeeCategory != null && Model.EmployeeCategory.Equals(item.Name))
+                                    {
+                                        <input asp-for="@Model.EmployeeCategoryList" onclick="CallMe(this)" type="radio" value="@item.IdfsBaseReference" disabled checked /> @item.Name
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="@Model.EmployeeCategoryList" onclick="CallMe(this)" type="radio" value="@item.IdfsBaseReference" disabled /> @item.Name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4 heading-for="@HeadingResourceKeyConstants.EmployeePersonalInformationHeading"></h4>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OrganizationDefaultFieldLabel"></i>
+
+                <input type="hidden" asp-for="@Model.PersonalIDType" />
+                <eidss-select2DropDown class-name="form-control" control-target-id="@Model.PersonalIdTypeDD.ControltargetId" custom-js-on-change-function="@Model.PersonalIdTypeDD.CustomJsOnChangeFunction" custom-js-on-clear-function="@Model.PersonalIdTypeDD.CustomJsOnClearFunction" custom-js-on-unselect-function="@Model.PersonalIdTypeDD.CustomJsOnUnselectFunction" end-point="@Model.PersonalIdTypeDD.Endpoint" id="@Model.PersonalIdTypeDD.DropDownId" is-required="@Model.PersonalIdTypeDD.isRequired" is-visible="@Model.PersonalIdTypeDD.isVisible" label-name="@Model.PersonalIdTypeDD.Label" name="@Model.PersonalIdTypeDD.DropDownId" required-error-message="@Model.PersonalIdTypeDD.RequiredErrorMessage" selectct2-default-data="@Model.PersonalIdTypeDD.defaultSelect2Selection" target-ajax-url="@Model.PersonalIdTypeDD.ControlTargetUrl" target-type="@Model.PersonalIdTypeDD.ControlTargetType">
+                </eidss-select2DropDown>
+                <span asp-validation-for="@Model.PersonalIDType" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-6">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.PersonalIDFieldLabel"></i>
+                <label asp-for="@Model.PersonalID" field-label-for="@FieldLabelResourceKeyConstants.PersonalIDFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.PersonalID" class="form-control" onchange="validatePersonalID();">
+                <span asp-validation-for="@Model.PersonalID" class="text-danger"></span>
+                <div id="ValPersonalID" class="text-danger"></div>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.EmployeeFirstNameFieldLabel"></i>
+                <label asp-for="@Model.FirstOrGivenName" field-label-for="@FieldLabelResourceKeyConstants.EmployeeFirstNameFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.FirstOrGivenName" class="form-control" />
+                <span asp-validation-for="@Model.FirstOrGivenName" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-6">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.EmployeeMiddleNameFieldLabel"></i>
+                <label asp-for="@Model.SecondName" field-label-for="@FieldLabelResourceKeyConstants.EmployeeMiddleNameFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.SecondName" class="form-control" />
+                <span asp-validation-for="@Model.SecondName" class="text-danger"></span>
+            </div>
+
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.EmployeeLastNameFieldLabel"></i>
+                <label asp-for="@Model.LastOrSurName" field-label-for="@FieldLabelResourceKeyConstants.EmployeeLastNameFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.LastOrSurName" class="form-control" />
+                <span asp-validation-for="@Model.LastOrSurName" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-6">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.PhoneFieldLabel"></i>
+                <label asp-for="@Model.ContactPhone" field-label-for="@FieldLabelResourceKeyConstants.PhoneFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.ContactPhone" class="form-control" onchange="validatePhone(false);" />
+                <span asp-validation-for="@Model.SecondName" class="text-danger"></span>
+                <div id="ValContactPhone" class="text-danger"></div>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OrganizationDefaultFieldLabel"></i>
+                <eidss-select2DropDown control-target-id="@Model.OrganizationDD.ControltargetId" custom-js-on-change-function="@Model.OrganizationDD.CustomJsOnChangeFunction" end-point="@Model.OrganizationDD.Endpoint" filter-id="@Model.OrganizationDD.FilteredId" id="@Model.OrganizationDD.DropDownId" is-required="@Model.OrganizationDD.isRequired" is-visible="@Model.OrganizationDD.isVisible" label-name="@Model.OrganizationDD.Label" name="@Model.OrganizationDD.DropDownId" required-error-message="@Model.OrganizationDD.RequiredErrorMessage" selectct2-default-data="@Model.OrganizationDD.defaultSelect2Selection" target-ajax-url="@Model.OrganizationDD.ControlTargetUrl" target-type="@Model.OrganizationDD.ControlTargetType">
+                </eidss-select2DropDown>
+                <span asp-validation-for="@Model.OrganizationID" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-6">
+                <label asp-for="@Model.SiteName" field-label-for="@FieldLabelResourceKeyConstants.SiteIDDefaultFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.SiteName" class="form-control" disabled>
+                <input type="hidden" id="SiteDD" value="@Model.SiteID"/>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.DepartmentFieldLabel"></i>
+                <eidss-select2DropDown add-button-id="@Model.DepartmentDD.AddButtonId" add-modal-id="@Model.DepartmentDD.AddModalId" asp-for="@Model.DepartmentID" class-name="form-control" control-target-id="@Model.DepartmentDD.ControltargetId" end-point="@Model.DepartmentDD.Endpoint" filter-id="@Model.DepartmentDD.FilteredId" id="@Model.DepartmentDD.DropDownId" include-add-button="@Model.DepartmentDD.IncludeAddButton" is-visible="@Model.DepartmentDD.isVisible" label-name="@Model.DepartmentDD.Label" selectct2-default-data="@Model.DepartmentDD.defaultSelect2Selection" target-ajax-url="@Model.DepartmentDD.ControlTargetUrl" target-type="@Model.DepartmentDD.ControlTargetType">
+                </eidss-select2DropDown>
+                <span asp-validation-for="@Model.DepartmentID" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-6">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.PositionFieldLabel"></i>
+                <eidss-select2DropDown add-modal-id="@Model.PositionDD.AddModalId" asp-for="@Model.PositionTypeID" class-name="form-control" end-point="@Model.PositionDD.Endpoint" filter-id="@Model.PositionDD.FilteredId" id="@Model.PositionDD.DropDownId" include-add-button="@Model.PositionDD.IncludeAddButton" is-visible="@Model.PositionDD.isVisible" label-name="@Model.PositionDD.Label" name="@Model.PositionDD.DropDownId" selectct2-default-data="@Model.PositionDD.defaultSelect2Selection" target-ajax-url="@Model.PositionDD.ControlTargetUrl" target-type="@Model.PositionDD.ControlTargetType">
+                </eidss-select2DropDown>
+                <span asp-validation-for="@Model.PositionTypeID" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="duplicatesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <span id="dupemsg"></span>
+                </div>
+                <div class="modal-footer">                 
+                    <button id="editRecordButton" class="btn btn-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

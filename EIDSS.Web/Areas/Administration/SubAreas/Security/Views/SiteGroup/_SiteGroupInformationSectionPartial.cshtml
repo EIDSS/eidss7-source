@@ -1,0 +1,147 @@
+﻿@model EIDSS.Web.Areas.Administration.SubAreas.Security.ViewModels.SiteGroup.SiteGroupInformationSectionViewModel;
+@{
+    var defaultData = new Select2DataItem();
+    defaultData = new Select2DataItem() { id = Model.SiteGroupDetails.SiteGroupTypeID.ToString(), text = Model.SiteGroupDetails.SiteGroupTypeName };
+    Model.SiteGroupTypeSelect.DropDownId = "SiteGroupTypeSelect";
+    Model.SiteGroupTypeSelect.defaultSelect2Selection = defaultData;
+    Model.SiteGroupTypeSelect.Label = Localizer.GetString(FieldLabelResourceKeyConstants.SiteGroupDetailsSiteGroupTypeFieldLabel);
+    Model.SiteGroupTypeSelect.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.SiteGroupTypeSelect.AddModalId = "addSiteGroupTypeModal";
+    Model.SiteGroupTypeSelect.Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = (long)ReferenceTypes.SiteGroupType });
+    Model.SiteGroupTypeSelect.isVisible = true;
+    Model.SiteGroupTypeSelect.isRequired = true;
+    Model.SiteGroupTypeSelect.RequiredErrorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage);
+    Model.SiteGroupTypeSelect.IncludeAddButton = Model.LoggedInUserPermissions.Create;
+
+    Model.SiteGroupTypeModal.ModalId = "addSiteGroupTypeModal";
+    Model.SiteGroupTypeModal.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    Model.SiteGroupTypeModal.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    Model.SiteGroupTypeModal.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    Model.SiteGroupTypeModal.ControlLabels.ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.SiteGroupTypeDetailsModalHeading);
+    Model.SiteGroupTypeModal.PostAjaxDataUrl = @Url.Action("AddSiteGroupType", "SiteGroup", new { Area = "Administration", SubArea = "Security" });
+    Model.SiteGroupTypeModal.ControlLabels.SuccessModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.SiteGroupTypeModal.ControlLabels.SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage);
+    Model.SiteGroupTypeModal.ControlLabels.OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton);
+    Model.SiteGroupTypeModal.SaveCompleteMethod = "CheckAddSiteGroupType";
+    Model.SiteGroupTypeModal.ControlNames.Add(new EIDSSControlNames() { ControlName = "strDefault", LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel), Visible = true, ValidationSetting = new ValidatorSettings() { ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED, ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage) }, ClassName = "form-control DefaultValueRequired" });
+    Model.SiteGroupTypeModal.ControlNames.Add(new EIDSSControlNames() { ControlName = "strName", LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel), Visible = true, ValidationSetting = new ValidatorSettings() { ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED, ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage) }, ClassName = "form-control NationalValueRequired" });
+    Model.SiteGroupTypeModal.ControlNames.Add(new EIDSSControlNames() { ControlName = "intOrder", LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel), Visible = true, ControlType = ControlType.Numeric, DefaultContent = "0", ValidationSetting = new ValidatorSettings() { ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE, ValidationRule = "[0,2147483647]", RangeValidationMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsInvalidValidRangeIsMessage) }, ClassName = "form-control IntOrderRange" });
+
+    defaultData = new Select2DataItem() { id = Model.SiteGroupDetails.CentralSiteID.ToString(), text = Model.SiteGroupDetails.CentralSiteName };
+    Model.CentralSiteSelect.DropDownId = "CentralSiteSelect";
+    Model.CentralSiteSelect.defaultSelect2Selection = defaultData;
+    Model.CentralSiteSelect.Label = Localizer.GetString(FieldLabelResourceKeyConstants.SiteGroupDetailsCentralSiteFieldLabel);
+    Model.CentralSiteSelect.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.CentralSiteSelect.Endpoint = @Url.Action("GetSiteList", "CrossCutting", new { Area = "CrossCutting" });
+    Model.CentralSiteSelect.isVisible = true;
+}
+<form id="siteGroupInformationForm">
+    <div class="container-fluid">
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4 heading-for="@HeadingResourceKeyConstants.SiteGroupDetailsSiteGroupInfoHeading"></h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editSiteGroupInformationSectionButton" href="#siteGroupWizard-h-0" class="edit-section"><span class="fas fa-edit fa-lg"></span></a>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label asp-for="SiteGroupDetails.SiteGroupID" field-label-for="@FieldLabelResourceKeyConstants.SiteGroupDetailsSiteGroupIDFieldLabel"></label>
+                <input asp-for="SiteGroupDetails.SiteGroupID" class="form-control" readonly />
+            </div>
+            <div class="form-group col-md-6">
+                <i class="fas fa-asterisk text-danger"></i>
+                <label asp-for="SiteGroupDetails.SiteGroupName" field-label-for="@FieldLabelResourceKeyConstants.SiteGroupDetailsSiteGroupNameFieldLabel"></label>
+                <input asp-for="SiteGroupDetails.SiteGroupName" class="form-control" />
+                <span asp-validation-for="SiteGroupDetails.SiteGroupName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <i class="fas fa-asterisk text-danger"></i>
+                <eidss-select2DropDown id="@Model.SiteGroupTypeSelect.DropDownId"
+                                       name="@Model.SiteGroupTypeSelect.DropDownId"
+                                       target-ajax-url="@Model.SiteGroupTypeSelect.ControlTargetUrl"
+                                       selectct2-default-data="@Model.SiteGroupTypeSelect.defaultSelect2Selection"
+                                       end-point="@Model.SiteGroupTypeSelect.Endpoint"
+                                       label-name="@Model.SiteGroupTypeSelect.Label"
+                                       is-visible="@Model.SiteGroupTypeSelect.isVisible"
+                                       is-required="@Model.SiteGroupTypeSelect.isRequired"
+                                       add-modal-id="@Model.SiteGroupTypeSelect.AddModalId"
+                                       include-add-button="@Model.SiteGroupTypeSelect.IncludeAddButton"
+                                       required-error-message="@Model.SiteGroupTypeSelect.RequiredErrorMessage">
+                </eidss-select2DropDown>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-12" hidden-if="@FieldLabelResourceKeyConstants.SiteGroupDetailsDescriptionFieldLabel">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.SiteGroupDetailsDescriptionFieldLabel"></i>
+                <label asp-for="SiteGroupDetails.SiteGroupDescription" field-label-for="@FieldLabelResourceKeyConstants.SiteGroupDetailsDescriptionFieldLabel"></label>
+                <input asp-for="SiteGroupDetails.SiteGroupDescription" class="form-control" />
+                <span asp-validation-for="SiteGroupDetails.SiteGroupDescription" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.SiteGroupDetailsCentralSiteFieldLabel">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.SiteGroupDetailsCentralSiteFieldLabel"></i>
+                <eidss-select2DropDown id="@Model.CentralSiteSelect.DropDownId"
+                                       name="@Model.CentralSiteSelect.DropDownId"
+                                       target-ajax-url="@Model.CentralSiteSelect.ControlTargetUrl"
+                                       selectct2-default-data="@Model.CentralSiteSelect.defaultSelect2Selection"
+                                       end-point="@Model.CentralSiteSelect.Endpoint"
+                                       label-name="@Model.CentralSiteSelect.Label"
+                                       is-visible="@Model.CentralSiteSelect.isVisible">
+                </eidss-select2DropDown>
+                <span asp-validation-for="SiteGroupDetails.CentralSiteID" class="text-danger"></span>
+            </div>
+        </div>
+        @await Component.InvokeAsync("LocationView", Model.DetailsLocationViewModel)
+        <div class="form-row">
+            <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.SiteGroupDetailsSiteGroupActiveFieldLabel">
+                <input asp-for="SiteGroupDetails.ActiveStatusIndicator" type="checkbox" class="form-check-input" />
+                <label asp-for="SiteGroupDetails.ActiveStatusIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.SiteGroupDetailsSiteGroupActiveFieldLabel"></label>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="modal fade" id="duplicateSiteGroupTypeModal" tabindex="-1" role="dialog" aria-labelledby="duplicateSiteGroupTypeModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="duplicateSiteGroupTypeModalHeader"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="duplicateSiteGroupTypeMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" button-for="@ButtonResourceKeyConstants.NoButton"></button>
+                <button type="button" class="btn btn-primary" onclick="editDuplicateRecord();" button-for="@ButtonResourceKeyConstants.YesButton"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function initializeSiteGroupInformationSection() {
+    };
+
+    ///
+    /// Checks the response of the add site group type reference data operation.
+    ///
+    function CheckAddSiteGroupType(response) {
+        if (response.returnMessage == '@EIDSSConstants.DatabaseResponses.Success') {
+            $("#addSiteGroupTypeModalSuccessModal").modal("show");
+        } else if (response.returnMessage == '@EIDSSConstants.DatabaseResponses.DoesExist') {
+            $("#duplicateSiteGroupTypeModal").modal("show");
+            $("#duplicateSiteGroupTypeMessage").html(response.strClientPageMessage);
+        }
+    };
+
+    function editDuplicateRecord(modelType) {
+        $("#duplicateSiteGroupTypeModal").modal("hide");
+        $("#addSiteGroupTypeModal").modal("show");
+    };
+</script>

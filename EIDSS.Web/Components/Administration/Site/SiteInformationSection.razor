@@ -1,0 +1,83 @@
+﻿@using EIDSS.Domain.ViewModels.Administration
+@using EIDSS.Domain.ViewModels.Administration.Security
+@using EIDSS.Web.Areas.Administration.SubAreas.Security.ViewModels.Site
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Domain.Enumerations
+
+@inherits SiteInformationSectionBase
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-9">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.SiteDetailsSiteInformationHeading)</h4>
+        </div>
+        <div class="col-3 text-right">
+            <a id="editSiteInformationSectionButton" href="#siteWizard-h-0" class="edit-section">
+                <span class="fas fa-edit fa-lg"></span>
+            </a>
+        </div>
+    </div>
+</div>
+<RadzenTemplateForm @ref="Form" TItem="SiteDetailsViewModel" Data="Model">
+    <div class="card">
+        <div class="card-body">
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SiteDetailsSiteIDFieldLabel" IsRow="false" CssClass="col-6" For="@nameof(Model.SiteInformationSection.SiteDetails.SiteID)">
+                    @if (Model.SiteInformationSection.SiteDetails.SiteID is null)
+                    {
+                        <RadzenTextBox class="form-control" Disabled="true" Name="@nameof(Model.SiteInformationSection.SiteDetails.SiteID)"/>
+                    }
+                    else
+                    {
+                        var siteId = Model.SiteInformationSection.SiteDetails.SiteID.ToString();
+                        <RadzenTextBox @bind-Value="@siteId" class="form-control" Disabled="true" Name="@nameof(Model.SiteInformationSection.SiteDetails.SiteID)"/>
+                    }
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SiteDetailsSiteCodeFieldLabel" IsRow="false" CssClass="col-6" For="@nameof(Model.SiteInformationSection.SiteDetails.EIDSSSiteID)">
+                    <RadzenTextBox @bind-Value="Model.SiteInformationSection.SiteDetails.EIDSSSiteID" class="form-control" Name="@nameof(EIDSSSiteID)" @ref="EIDSSSiteID" TabIndex="1"/>
+                </InterfaceEditorResource>
+            </div>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SiteDetailsParentSiteFieldLabel" IsRow="true" For="@nameof(Model.SiteInformationSection.SiteDetails.ParentSiteID)">
+                <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="Model.SiteInformationSection.SiteDetails.ParentSiteID" class="form-control" Data="ParentSites" LoadData="GetSites" Name="@nameof(Model.SiteInformationSection.SiteDetails.ParentSiteID)" @ref="ParentSite" TabIndex="2" TextProperty="SiteName" TValue="long?" ValueProperty="SiteID"/>
+            </InterfaceEditorResource>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SiteDetailsSiteNameFieldLabel" IsRow="false" CssClass="col-6" For="@nameof(Model.SiteInformationSection.SiteDetails.SiteName)">
+                    <RadzenTextBox @bind-Value="Model.SiteInformationSection.SiteDetails.SiteName" class="form-control" Name="@nameof(Model.SiteInformationSection.SiteDetails.SiteName)" @ref="SiteName" TabIndex="3"/>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SiteDetailsSiteTypeFieldLabel" IsRow="false" CssClass="col-6" For="@nameof(Model.SiteInformationSection.SiteDetails.SiteTypeID)">
+                    <div class="input-group mb-3">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="Model.SiteInformationSection.SiteDetails.SiteTypeID" class="form-control" Data="SiteTypes" LoadData="GetSiteTypes" Name="@nameof(Model.SiteInformationSection.SiteDetails.SiteTypeID)" @ref="SiteType" TabIndex="4" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"/>
+                        <div class="input-group-append">
+                            <button id="addSiteType" type="button" class="btn btn-outline-secondary btn-sm" @onclick="@OnAddSiteTypeClick">
+                                <span class="fas fa-plus" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    </div>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SiteDetailsHASCSiteIDFieldLabel" IsRow="false" CssClass="col-6" For="@nameof(Model.SiteInformationSection.SiteDetails.HASCSiteID)">
+                    <RadzenTextBox @bind-Value="Model.SiteInformationSection.SiteDetails.HASCSiteID" class="form-control" Name="@nameof(Model.SiteInformationSection.SiteDetails.HASCSiteID)" @ref="HASCSiteID" TabIndex="5" Disabled="!string.IsNullOrEmpty(Model.SiteInformationSection.SiteDetails.SiteID.ToString())"/>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SiteDetailsOrganizationFieldLabel" IsRow="false" CssClass="col-6" For="@nameof(Model.SiteInformationSection.SiteDetails.SiteOrganizationID)">
+                    <div class="input-group mb-3">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="Model.SiteInformationSection.SiteDetails.SiteOrganizationID" class="form-control" Data="Organizations" LoadData="GetOrganizations" Name="@nameof(Model.SiteInformationSection.SiteDetails.SiteOrganizationID)" @ref="Organization" TabIndex="6" TextProperty="name" TValue="long?" ValueProperty="idfOffice"/>
+                        <div class="input-group-append">
+                            <button id="searchOrganization" type="button" class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#searchOrganizationModal">
+                                <span class="fas fa-search" aria-hidden="true"></span>
+                            </button>
+                            <button id="addOrganization" type="button" class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#addOrganizationModal">
+                                <span class="fas fa-plus" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    </div>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SiteDetailsSiteActiveFieldLabel" IsRow="false" CssClass="col-6" For="@nameof(Model.SiteInformationSection.SiteDetails.ActiveStatusIndicator)">
+                    <RadzenCheckBox @bind-Value="Model.SiteInformationSection.SiteDetails.ActiveStatusIndicator" class="form-check-inline" Name="@nameof(Model.SiteInformationSection.SiteDetails.ActiveStatusIndicator)" TriState="false" TValue="bool"/>
+                </InterfaceEditorResource>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

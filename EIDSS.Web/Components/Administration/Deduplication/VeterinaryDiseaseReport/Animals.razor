@@ -1,0 +1,84 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+
+@inherits EIDSS.Web.Components.Administration.Deduplication.VeterinaryDiseaseReport.AnimalsBase
+
+<div class="form-row">
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord" TValue="int" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.RecordSelection
+                                       Change="@((args) => OnRecordSelectionChangeAsync(Model.ReportType, args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="Animals"></div>
+                <RadzenCheckBox Name="chkCheckAllAnimals" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.chkCheckAllAnimals TValue="bool" Change="@((args) => OnCheckAllAnimalsChangeAsync(args))" />
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllAnimals" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord2" TValue="int" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.Record2Selection
+                                       Change="@((args) => OnRecord2SelectionChangeAsync(Model.ReportType, args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="Animals2"></div>
+                <RadzenCheckBox Name="chkCheckAllAnimals2" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.chkCheckAllAnimals2 TValue="bool" Change="@((args) => OnCheckAllAnimals2ChangeAsync(args))" />
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllAnimals2" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+</div>
+<div class="form-row">
+    <div class="col-6">
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" 
+            Count="@VeterinaryDiseaseReportDeduplicationService.AnimalsCount" 
+            Data="@VeterinaryDiseaseReportDeduplicationService.Animals" 
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@VeterinaryDiseaseReportDeduplicationService.SelectedAnimals"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            PageSizeOptions="pageSizeOptions" @ref="AnimalsGrid" 
+            ShowPagingSummary="true" TItem="AnimalGetListViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="AnimalGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool" 
+                        Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedAnimals != null && VeterinaryDiseaseReportDeduplicationService.SelectedAnimals.Contains(data))" 
+                        Change="@(args => OnAnimalRowCheckChangeAsync(args, data, false))" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="EIDSSHerdID" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsHerdIDColumnHeading)" Width="150px"/>
+                <RadzenDataGridColumn Property="EIDSSAnimalID" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsAnimalIDColumnHeading)" Width="150px"/>
+                <RadzenDataGridColumn Property="SpeciesTypeName" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsSpeciesColumnHeading)" Width="150px"/>
+                <RadzenDataGridColumn Property="AgeTypeName" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsAgeColumnHeading)" Width="150px"/>
+                <RadzenDataGridColumn Property="SexTypeName" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsSexColumnHeading)" Width="150px"/>
+                <RadzenDataGridColumn Property="ConditionTypeName" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsStatusColumnHeading)" Width="150px"/>
+                <RadzenDataGridColumn Property="AnimalDescription" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsNoteAdditionalInfoColumnHeading)"/>
+             </Columns>
+        </RadzenDataGrid>
+    </div>
+    <div class="col-6">
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" 
+            Count="@VeterinaryDiseaseReportDeduplicationService.AnimalsCount2" 
+            Data="@VeterinaryDiseaseReportDeduplicationService.Animals2" 
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@VeterinaryDiseaseReportDeduplicationService.SelectedAnimals2"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            PageSizeOptions="pageSizeOptions" @ref="AnimalsGrid" 
+            ShowPagingSummary="true" TItem="AnimalGetListViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="AnimalGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool" 
+                        Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedAnimals2 != null && VeterinaryDiseaseReportDeduplicationService.SelectedAnimals2.Contains(data))" 
+                        Change="@(args => OnAnimalRowCheckChangeAsync(args, data, true))" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="EIDSSHerdID" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsHerdIDColumnHeading)" Width="150px"/>
+                <RadzenDataGridColumn Property="EIDSSAnimalID" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsAnimalIDColumnHeading)" Width="150px"/>
+                <RadzenDataGridColumn Property="SpeciesTypeName" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsSpeciesColumnHeading)" Width="150px"/>
+                <RadzenDataGridColumn Property="AgeTypeName" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsAgeColumnHeading)" Width="150px"/>
+                <RadzenDataGridColumn Property="SexTypeName" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsSexColumnHeading)" Width="150px"/>
+                <RadzenDataGridColumn Property="ConditionTypeName" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsStatusColumnHeading)" Width="150px"/>
+                <RadzenDataGridColumn Property="AnimalDescription" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsNoteAdditionalInfoColumnHeading)"/>
+             </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>

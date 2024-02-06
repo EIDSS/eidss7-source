@@ -1,0 +1,71 @@
+﻿@using EIDSS.Domain.ViewModels.Outbreak
+@using EIDSS.Localization.Constants
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.FlexForm
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Enumerations
+
+@inherits OutbreakInvestigationSectionBase
+
+<div class="container-fluid">
+    <div class="form-row">
+        <div class="col-9">
+            <h4 class="header">@SectionHeadingResourceKey</h4>
+        </div>
+        <div class="col-3 text-right">
+            @if (Model.CreatePermissionIndicator && Model.CaseId is null)
+            {
+                <a class="edit-section" href="#caseDiseaseReportWizard-h-5" id="editOutbreakInvestigationSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            }
+            else if (Model.CaseDisabledIndicator == false && Model.WritePermissionIndicator)
+            {
+                <a class="edit-section" href="#caseDiseaseReportWizard-h-5" id="editOutbreakInvestigationSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            }
+        </div>
+    </div>
+</div>
+<RadzenTemplateForm @ref="Form" TItem="CaseGetDetailViewModel" Data="Model">
+    <div class="card">
+        <div class="card-header">
+            <h3>@SectionHeadingResourceKey</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-7" For="@nameof(Model.InvestigatedByOrganizationId)" InterfaceEditorKey="@InvestigatorOrganizationFieldLabelResourceKey" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.InvestigatedByOrganizationId" Change="@(OnInvestigatedByOrganizationChange)" class="form-control" Data="@Organizations" Disabled="Model.CaseDisabledIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="@nameof(Model.InvestigatedByOrganizationId)" @ref="InvestigatedByOrganizationDropDown" TabIndex="1" TextProperty="name" TValue="long?" ValueProperty="idfOffice" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-5" For="@nameof(Model.InvestigatedByPersonId)" InterfaceEditorKey="@InvestigatorNameFieldLabelResourceKey" IsRow="false">
+                    <div class="input-group mb-3">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="Model.InvestigatedByPersonId" class="form-control" Data="InvestigatedByPersons" Disabled="Model.CaseDisabledIndicator" LoadData="GetInvestigatedByPersons" Name="@nameof(Model.InvestigatedByPersonId)" @ref="InvestigatedByPersonDropDown" TabIndex="2" TextProperty="FullName" TValue="long?" ValueProperty="idfPerson" />
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary btn-sm" id="addInvestigatedByPerson" @onclick="@(AddInvestigatedByPersonClick)" type="button"><span class="fas fa-plus" aria-hidden="true"></span></button>
+                        </div>            
+                    </div>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-3" For="@nameof(Model.InvestigationDate)" InterfaceEditorKey="@StartingDateOfInvestigationFieldLabelResourceKey" IsRow="false">
+                <br />
+                <RadzenDatePicker AllowClear="true" @bind-Value="Model.InvestigationDate" DateFormat="d" Disabled="Model.CaseDisabledIndicator" Name="@nameof(Model.InvestigationDate)" @ref="InvestigationStartDateDatePicker" TabIndex="3" TValue="DateTime?" />
+                <RadzenCompareValidator Component="@nameof(Model.InvestigationDate)" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="DateTime.Now" />
+            </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-4" For="@nameof(Model.StatusTypeId)" InterfaceEditorKey="@CaseStatusFieldLabelResourceKey" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="Model.StatusTypeId" class="form-control" Data="CaseStatusTypes" Disabled="Model.CaseDisabledIndicator" LoadData="GetCaseStatusTypes" Name="@nameof(Model.StatusTypeId)" @ref="StatusDropDown" TabIndex="4" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-4" For="@nameof(Model.ClassificationTypeId)" InterfaceEditorKey="@CaseClassificationFieldLabelResourceKey" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="Model.ClassificationTypeId" class="form-control" Data="ClassificationTypes" Disabled="Model.CaseDisabledIndicator" LoadData="GetClassificationTypes" Name="@nameof(Model.ClassificationTypeId)" @ref="ClassificationDropDown" TabIndex="5" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+                </InterfaceEditorResource>
+            </div>
+            <InterfaceEditorResource For="@nameof(Model.PrimaryCaseIndicator)" InterfaceEditorKey="@PrimaryCaseFieldLabelResourceKey" IsRow="true">
+                <RadzenCheckBox @bind-Value="Model.PrimaryCaseIndicator" Disabled="Model.CaseDisabledIndicator" Name="@nameof(Model.PrimaryCaseIndicator)" @ref="PrimaryCaseIndicatorCheckBox" TabIndex="6" TValue="bool" />
+            </InterfaceEditorResource>
+            <h4 class="header non-section">@Localizer.GetString(HeadingResourceKeyConstants.OutbreakCaseInvestigationCaseQuestionnaireHeading)</h4>
+
+            <FlexForm FormDisabledIndicator="Model.CaseDisabledIndicator" @ref="CaseQuestionnaireFlexForm" Request="Model.CaseQuestionnaireFlexFormRequest" />
+        </div>
+    </div>
+</RadzenTemplateForm>

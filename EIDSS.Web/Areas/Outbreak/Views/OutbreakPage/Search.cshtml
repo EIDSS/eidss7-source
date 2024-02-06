@@ -1,0 +1,207 @@
+﻿@model EIDSS.Web.Areas.Outbreak.ViewModels.OutbreakPageViewModel;
+@using EIDSS.ClientLibrary.Enumerations;
+@using EIDSS.Domain.Enumerations
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+
+<form id="fAdvancedOutbreakSearch">
+    <div class="card" id="dOutbreakSearch">
+        <div class="card-header">
+            <h3>@Localizer.GetString(HeadingResourceKeyConstants.OutbreakManagementListSearchOutbreakHeading)</h3>
+        </div>
+        <div class="card-body">
+            <div class="card-header">
+                <a class="d-inline-block" href="#divAdvanceSearchCriteriaForm" data-toggle="collapse">
+                    <span id="toggleOutbreakSearchIcon" class="fas fa-caret-up align-bottom fa-2x" data-toggle="collapse" data-target="#dSessionSearchCriteria" onclick="outbreakCreate.toggleOutbreakSearchCriteria();">&nbsp;</span>
+                </a>
+                <h4 class="title d-inline-block">@Localizer.GetString(HeadingResourceKeyConstants.SearchCriteriaHeading)</h4>
+            </div>
+            <div id="dSessionSearchCriteria" class="show">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                            <label>@Localizer.GetString(FieldLabelResourceKeyConstants.SearchOutbreaksOutbreakIDFieldLabel)</label>
+                            <input asp-for="SearchCriteria.OutbreakID" class="form-control" id="OutbreakId" type="text" />
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                            @{
+                                var outbreakType = new Select2Configruation
+                                {
+                                    DropDownId = "OutbreakTypeId",
+                                    Label = @Localizer.GetString(FieldLabelResourceKeyConstants.SearchOutbreaksTypeFieldLabel),
+                                    ControlTargetType = DropDownTargetTypes.DropDown,
+                                    Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000513 }),
+                                    isVisible = true,
+                                    CustomJsOnChangeFunction = "DiseaseEnable"
+                                };
+                            }
+                            <eidss-select2DropDown control-target-id="" custom-js-on-change-function="@outbreakType.CustomJsOnChangeFunction" end-point="@outbreakType.Endpoint" filter-sort-enable="false" id="@outbreakType.DropDownId" is-visible="@outbreakType.isVisible" label-name="@outbreakType.Label" name="@outbreakType.DropDownId" selectct2-default-data="@outbreakType.defaultSelect2Selection" target-ajax-url="@outbreakType.Endpoint" target-type="@outbreakType.ControlTargetType">
+                            </eidss-select2DropDown>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                            @{
+                                var outbreakDisease = new Select2Configruation
+                                {
+                                    DropDownId = "idfsDiagnosisOrDiagnosisGroup",
+                                    Label = @Localizer.GetString(FieldLabelResourceKeyConstants.SearchOutbreaksDiseaseFieldLabel),
+                                    ControlTargetType = DropDownTargetTypes.DropDown,
+                                    Endpoint = Url.Action("DiseaseListForSelect2DropDownAdvanced", "CrossCutting", new { Area = "CrossCutting", intHACode = EIDSSConstants.HACodeList.AllHACode, idfsUsingType = EIDSSConstants.UsingType.StandardCaseType }),
+                                    isVisible = true
+                                };
+                            }
+                            <eidss-select2DropDown control-target-id="" disabled-controls="@outbreakDisease.DisabledControls" end-point="@outbreakDisease.Endpoint" id="@outbreakDisease.DropDownId" is-visible="@outbreakDisease.isVisible" label-name="@outbreakDisease.Label" name="@outbreakDisease.DropDownId" selectct2-default-data="@outbreakDisease.defaultSelect2Selection" target-ajax-url="@outbreakDisease.Endpoint" target-type="@outbreakDisease.ControlTargetType">
+                            </eidss-select2DropDown>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionStartDateFieldLabel)</label>
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6">
+                            <label asp-for="SearchCriteria.StartDateFrom">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchOutbreaksStartDateFromFieldLabel)</label>
+                            <eidss-calendar asp-for="@Model.SearchCriteria.StartDateFrom" class="form-control" id="SearchCriteria.StartDateFrom" name="SearchCriteria.StartDateFrom" SearchFilter="true"></eidss-calendar>
+                            <span asp-validation-for="SearchCriteria.StartDateFrom" class="text-danger"></span>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6">
+                            <label asp-for="SearchCriteria.StartDateTo">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchOutbreaksStartDateToFieldLabel)</label>
+                            <eidss-calendar asp-for="@Model.SearchCriteria.StartDateTo" class="form-control" id="SearchCriteria.StartDateTo" name="SearchCriteria.StartDateTo" SearchFilter="true"></eidss-calendar>
+                            <span asp-validation-for="SearchCriteria.StartDateTo" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                            @{
+                                var defaultData = new Select2DataItem
+                                {
+                                    id = Convert.ToInt64(OutbreakSessionStatus.InProgress).ToString(),
+                                    text = Model.DefaultOutbreakStatusTypeName
+                                };
+                                var outbreakStatus = new Select2Configruation
+                                {
+                                    DropDownId = "idfsOutbreakStatus",
+                                    Label = @Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionStatusFieldLabel),
+                                    ControlTargetType = DropDownTargetTypes.DropDown,
+                                    defaultSelect2Selection = defaultData,
+                                    Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000063 }),
+                                    isVisible = true
+                                };
+                            }
+                            <eidss-select2DropDown control-target-id="" custom-js-on-change-function="@outbreakStatus.CustomJsOnChangeFunction" end-point="@outbreakStatus.Endpoint" id="@outbreakStatus.DropDownId" is-visible="@outbreakStatus.isVisible" label-name="@outbreakStatus.Label" name="@outbreakStatus.DropDownId" selectct2-default-data="@outbreakStatus.defaultSelect2Selection" target-ajax-url="@outbreakStatus.Endpoint" target-type="@outbreakStatus.ControlTargetType">
+                            </eidss-select2DropDown>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row" id="adminAreaSearch">
+                        <div class="col-md-12">
+                            @await Component.InvokeAsync("LocationView", Model.SessionLocationViewModel)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="dSessionResults" class="card-body collapse">
+            <div class="card-header">
+                <h4 heading-for="@HeadingResourceKeyConstants.OutbreakManagementListSearchResultsHeading" id="searchCriteriaHeader"></h4>
+            </div>
+            <partial name="_SessionList" />
+        </div>
+
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center">
+                    <input asp-for="@Model.SearchCriteria.AdvancedSearchIndicator" id="AdvancedSearchIndicator" type="hidden" value="true" />
+                    <input asp-for="@Model.DefaultOutbreakStatusTypeName" id="DefaultOutbreakStatusTypeName" type="hidden" value="@Model.DefaultOutbreakStatusTypeName" />
+                    <input class="btn btn-default" ID="btnPrint" onclick="showPrint();" type="button" value="@Localizer.GetString(ButtonResourceKeyConstants.PrintButton)" />
+                    <input class="btn btn-default" ID="btnCancel" onclick="outbreakCreate.cancelAdvancedSearch();" type="button" value="@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)" />
+                    <input class="btn btn-default" ID="btnClear" onclick="outbreakCreate.clearSearchFields();" type="button" value="@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)" />
+                    <input class="btn btn-default" ID="btnAdd" onclick="location.href = '@Url.Action("Index", "OutbreakSession", new {Area = "Outbreak"})'" type="button" value="@Localizer.GetString(ButtonResourceKeyConstants.AddButton)" />
+                    <input class="btn btn-primary" ID="btnSearchList" onclick="outbreakCreate.getFilterSession();" type="button" value="@Localizer.GetString(ButtonResourceKeyConstants.SearchButton)" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div aria-hidden="true" aria-labelledby="printModalHeader" class="modal fade" id="printModal" role="dialog" tabindex="-1">
+    <div class="modal-lg modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="printModalHeader">@(Localizer.GetString(HeadingResourceKeyConstants.CommonHeadingsPrintHeading))</h5>
+                <button aria-label="Close" class="close" data-dismiss="modal" onclick="refreshPage();" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="printModalReport"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/Outbreak/SessionCreate.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        outbreakCreate.cancelAdvancedSearchUrl = '@Url.Action("Index","OutbreakPage", new { Area = "Outbreak" })';
+    });
+    
+    function showPrint() {
+        var model = {};
+        model.OutbreakID = $("#OutbreakId").val();
+        model.OutbreakTypeID = $("#OutbreakTypeId").val();
+        model.SearchDiagnosisGroup = $("#idfsDiagnosisOrDiagnosisGroup").val();
+        model.StartDateFrom = $("#SearchCriteria_StartDateFrom").val();
+        model.StartDateTo = $("#SearchCriteria_StartDateTo").val();
+        model.OutbreakStatusTypeID = $("#idfsOutbreakStatus").val();
+        
+        var table = $("#gOutbreaks").DataTable();
+        var order = table.order();
+        var sortColumn = order[0][0];
+        var title = table.columns(sortColumn).header();
+        var sortOrder = order[0][1];
+        model.SortColumn = $(title).html();
+        model.SortOrder = sortOrder;
+
+        var adminLevelID = "";
+
+        for (var i = 1; i < 8; i++) {
+            if ($("#AdminLevel" + i + "Value").val() != undefined) {
+                if ($("#AdminLevel" + i + "Value").val() != '') {
+                    adminLevelID = $("#AdminLevel" + i + "Value").val();
+                }
+            }
+        }
+
+        model.AdministrativeLevelID = adminLevelID;
+
+        //go get the partial view for the print modal
+        $.ajax({
+            url: '@Url.Action("PrintOutbreakSessions", "OutbreakPage", new { Area = "Outbreak" })',
+            type: 'POST',
+            data: JSON.stringify(model),
+            dataType: "HTML",
+            contentType: "application/json: charset=utf-8",
+            success: function (resp) {
+                $("#printModalReport").html(resp);
+                $("#printModal").modal('show');
+                $("#divShowPrint").css("display", "block");
+            },
+            complete: function (resp) {
+            },
+            error: function (request, error) {
+            }
+        });
+    }
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}

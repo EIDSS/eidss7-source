@@ -1,0 +1,246 @@
+﻿@model EIDSS.Web.Areas.Administration.SubAreas.Security.ViewModels.SiteGroup.SiteGroupDetailsViewModel
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.SiteGroupDetailsPageHeading);
+}
+
+<partial name="_ErrorModalPartial" />
+<partial name="_InformationalModalPartial" for="InformationalMessage" />
+<partial name="_WarningModalPartial" />
+
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@HeadingResourceKeyConstants.SiteGroupDetailsPageHeading"></h3>
+    </div>
+    <div class="card-body">
+        <div id="siteGroupWizard">
+            <h4 heading-for="@HeadingResourceKeyConstants.SiteGroupDetailsSiteGroupInfoHeading"></h4>
+            <section>
+                <partial name="_SiteGroupInformationSectionPartial" for="SiteGroupInformationSection" />
+                <form id="siteGroupDeleteForm" class="hidden" method="post" asp-action="Delete">
+                    <input type="hidden" id="siteGroupID" name="siteGroupID" />
+                </form>
+            </section>
+            <h4 heading-for="@HeadingResourceKeyConstants.SiteGroupDetailsSitesHeading"></h4>
+            <section>
+                <partial name="_SitesSectionPartial" for="SitesSection" />
+            </section>
+            <h4 heading-for="@HeadingResourceKeyConstants.ReviewHeading"></h4>
+            <section>
+            </section>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="searchSiteModal" tabindex="-1" role="dialog" aria-labelledby="searchSiteModal" aria-hidden="true" style="overflow-y: auto;">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="searchSiteModalHeader" heading-for="@HeadingResourceKeyConstants.SearchSitesPageHeading"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @await Component.InvokeAsync("SiteSearch", new { recordSelectionIndicator = true, showInModalIndicator = true, interfaceEditorSet = InterfaceEditorResourceSetEnum.SearchSitesModal })
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+            ///
+            /// Parameters for the site group's side bar and wizard elements.
+            ///
+        $("#siteGroupWizard").steps({
+            headerTag: "h4",
+            titleTemplate: '<span id="erroredStep" class="fa-stack text-danger" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-times fa-stack-1x fa-inverse"></i></span><span id="step" class="fa-stack text-muted" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span><span id="completedStep" class="fa-stack text-success" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span><span id="reviewStep" class="fa-stack text-muted" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-clipboard-list fa-stack-1x fa-inverse"></i></span> <span class="stepTitleText">#title#</span>',
+            bodyTag: "section",
+            transitionEffect: "none",
+            stepsOrientation: "vertical",
+            enableAllSteps: true,
+            enableCancelButton: true,
+            enableKeyNavigation: true,
+            labels: {
+                cancel: "@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)",
+                finish: "@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)",
+                next: "@Localizer.GetString(ButtonResourceKeyConstants.NextButton)",
+                previous: "@Localizer.GetString(ButtonResourceKeyConstants.PreviousButton)",
+                loading: "@Localizer.GetString(MessageResourceKeyConstants.PleaseWaitWhileWeProcessYourRequestMessage)"
+            },
+            onInit: function (event) {
+                initializeSiteGroupInformationSection(); initializeSitesSection();
+            },
+            onCanceled: function (event) { cancelSiteGroupDetails('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)', event); },
+            onStepChanging: function (event, currentIndex, newIndex) {
+                switch (currentIndex) {
+                    case 0:
+                        $("#siteGroupInformationForm").validate({
+                            ignore: null
+                        });
+                        if ($("#siteGroupInformationForm").valid()) {
+                            return true;
+                        }
+                        else
+                            return; //just return; do not send false to allow the navigation to move forward.
+                        break;
+                    case 1:
+                        return true;
+                        break;
+                    default:
+                        return true;
+                        break;
+                }
+            },
+            onFinished: function (event) {
+                var valid = $("#siteGroupWizard").steps("validateStep", $("#siteGroupInformationForm"));
+                if (valid) {
+                    submitSiteGroupDetails(event);
+                } else {
+                    $("#siteGroupWizard").steps("setStep", 0);
+                }
+            }
+        });
+
+        ///
+        /// Clears the form input elements.
+        ///
+        function resetForm() {
+            var siteGroupID = $("#SiteGroupInformationSection_SiteGroupDetails_SiteGroupID").val();
+
+            $("#siteGroupDetailsForm").find(":input").each(function () {
+                switch (this.type) {
+                    case "password":
+                    case "select-multiple":
+                    case "select-one":
+                    case "text":
+                    case "textarea":
+                        $(this).val("");
+                        break;
+                    case "checkbox":
+                    case "radio":
+                        this.checked = false;
+                }
+            });
+
+            $("#SiteGroupInformationSection_SiteGroupDetails_SiteGroupID").val(siteGroupID);
+        };
+
+        ///
+        /// Handler from the side bar that prompts the user to confirm canceling the details
+        /// view and returning to the site group list view.
+        ///
+        function cancelSiteGroupDetails(message, event) {
+            event.preventDefault();
+
+            showWarningModal(message).then(response => {
+                if (response)
+                    location.href = '@Url.Action("List", "SiteGroup")';
+            });
+        };
+
+        ///
+        /// Styling to handle stacked modals for the site permissions modals.
+        ///
+        $(document).on("show.bs.modal", ".modal", function (event) {
+            var zIndex = 1040 + (10 * $(".modal:visible").length);
+            $(this).css("z-index", zIndex);
+            setTimeout(function () {
+                $(".modal-backdrop").not(".modal-stack").css("z-index", zIndex - 1).addClass("modal-stack");
+            }, 0);
+        });
+
+        ///
+        /// Shows a warning prompt to the user to confirm the deletion of a site group.
+        ///
+        function deleteSiteGroup(message, event, id) {
+            event.preventDefault();
+
+            showWarningModal(message).then(function () {
+                $("#siteGroupID").val(id);
+                $("#siteGroupDeleteForm").submit();
+            });
+        };
+
+        ///
+        /// Handler from the side bar's submit button to attempt to save a site group.
+        ///
+        function submitSiteGroupDetails(event) {
+            var request = {};
+            request.SiteGroupID = $("#SiteGroupInformationSection_SiteGroupDetails_SiteGroupID").val();
+            request.SiteGroupName = $("#SiteGroupInformationSection_SiteGroupDetails_SiteGroupName").val();
+            request.SiteGroupTypeID = ($("#SiteGroupTypeSelect").val() == "" ? "" : $("#SiteGroupTypeSelect").val());
+            request.Description = $("#SiteGroupInformationSection_SiteGroupDetails_SiteGroupDescription").val();
+            request.CentralSiteID = $("#CentralSiteSelect").val();
+
+            // Get the lowest level and set the administrative level ID accordingly.
+            var callingObjectID = '@Model.SiteGroupInformationSection.DetailsLocationViewModel.CallingObjectID';
+            if ($("#" + callingObjectID + "Settlement").val())
+                request.LocationID = $("#" + callingObjectID + "Settlement").val();
+            else if ($("#" + callingObjectID + "AdminLevel3Value").val())
+                request.LocationID = $("#" + callingObjectID + "AdminLevel3Value").val();
+            else if ($("#" + callingObjectID + "AdminLevel2Value").val())
+                request.LocationID = $("#" + callingObjectID + "AdminLevel2Value").val();
+            else if ($("#" + callingObjectID + "AdminLevel1Value").val())
+                request.LocationID = $("#" + callingObjectID + "AdminLevel1Value").val();
+            else if ($("#" + callingObjectID + "AdminLevel0Value").val())
+                request.LocationID = $("#" + callingObjectID + "AdminLevel0Value").val();
+
+            request.ActiveStatusIndicator = $("#SiteGroupInformationSection_SiteGroupDetails_ActiveStatusIndicator").is(":checked") ? "true" : "false";
+
+            var sites = [];
+            var sitesTable = $("#siteGroupSitesTable").DataTable().rows().data().toArray();
+            var site;
+            $.each(sitesTable, function (index, value) {
+                site = new Object();
+                site.SiteToSiteGroupID = value[0].toString();
+                site.SiteID = value[1].toString();
+                site.EIDSSSiteID = value[3].toString();
+                site.RowStatus = value[4].toString();
+                site.RowAction = value[5].toString();
+
+                sites.push(site);
+            });
+            request.Sites = JSON.stringify(sites);
+
+            $.ajax({
+                url: '@Url.Action("SaveSiteGroup", "SiteGroup", new { Area = "Administration", SubArea = "Security" })',
+                data: JSON.stringify(request),
+                contentType: "application/json",
+                dataType: "json",
+                type: "POST",
+                success: function (response) {
+                    if (response.errorMessage != null) {
+                        showErrorModal(response.errorMessage);
+                    }
+                    else {
+                        $("#SiteGroupInformation_SiteGroupDetails_SiteGroupID").val(response.siteGroupInformationSection.siteGroupDetails.siteGroupID);
+
+                        $("#siteGroupSitesTable").DataTable().clear();
+                        initializeSitesSection();
+
+                        showInformationalModalWait(response.informationalMessage).then(response => {
+                        if (response)
+                                location.href = '@Url.Action("List", "SiteGroup", new { Area = "Administration", SubArea = "Security" })';
+                        });
+                    }
+                },
+                error: function (response) { alert("An error occurred: " + response); }
+            });
+        };
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<eidss-reference-editors-modal control-labels="@Model.SiteGroupInformationSection.SiteGroupTypeModal.ControlLabels"
+                               ajax-save-url="@Model.SiteGroupInformationSection.SiteGroupTypeModal.PostAjaxDataUrl"
+                               modal-configuration="@Model.SiteGroupInformationSection.SiteGroupTypeModal"
+                               modal-id="@Model.SiteGroupInformationSection.SiteGroupTypeModal.ModalId">
+</eidss-reference-editors-modal>
+
+@if (ViewBag.JavaScriptFunction != null)
+{
+    <script type="text/javascript">
+        @Html.Raw(ViewBag.JavaScriptFunction)
+    </script>
+}

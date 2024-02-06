@@ -1,0 +1,54 @@
+﻿@using EIDSS.Domain.ResponseModels.Outbreak
+@using EIDSS.Domain.ViewModels.Veterinary;
+@using EIDSS.Web.Components.CrossCutting
+@inherits OutbreakCaseListBase
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-6">
+                <h5>@Localizer.GetString(HeadingResourceKeyConstants.FarmDetailsOutbreakCasesHeading)</h5>
+            </div>
+            <div class="col-6 text-right mb-2">
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowPaging="true" AllowSorting="true" Count="@OutbreakCaseCount" Data="@StateContainer.OutbreakCases" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" ExpandMode="DataGridExpandMode.Single" IsLoading="@IsLoading" LoadData="@(args => LoadOutbreakGridView(args))" Name="outbreakCaseResults" PageSize="10" @ref="OutbreakCaseGrid" TItem="VeterinaryDiseaseReportViewModel">
+            <Columns>
+                <RadzenDataGridColumn Property="ReportID" Sortable="true" TItem="VeterinaryDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmOutbreakCasesOutbreakCaseIDColumnHeading)" Width="175px"/>
+                <RadzenDataGridColumn Property="SpeciesList" Sortable="true" TItem="VeterinaryDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmOutbreakCasesSpeciesColumnHeading)" Width="175px"/>
+                <RadzenDataGridColumn FormatString="{0:d}" Property="EnteredDate" Sortable="true" TItem="VeterinaryDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmOutbreakCasesDateEnteredColumnHeading)" Width="175px" />
+                <RadzenDataGridColumn FormatString="{0:d}" Property="InvestigationDate" Sortable="true" TItem="VeterinaryDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmOutbreakCasesInvestigationDateColumnHeading)" Width="175px" />
+                <RadzenDataGridColumn Property="DiseaseName" Sortable="true" TItem="VeterinaryDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmOutbreakCasesDiseaseColumnHeading)" Width="175px"/>
+                <RadzenDataGridColumn Property="ClassificationTypeName" Sortable="true" TItem="VeterinaryDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmOutbreakCasesCaseClassificationColumnHeading)" Width="175px"/>
+                <RadzenDataGridColumn Property="ReportStatusTypeName" Sortable="true" TItem="VeterinaryDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmOutbreakCasesStatusColumnHeading)" Width="175px"/>
+                <RadzenDataGridColumn Property="ReportTypeName" Sortable="true" TItem="VeterinaryDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmOutbreakCasesTypeColumnHeading)" Width="175px"/>
+                <RadzenDataGridColumn Property="OutbreakID" Sortable="true" TItem="VeterinaryDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmOutbreakCasesOutbreakIDColumnHeading)" Width="175px"/>
+            </Columns>
+            <Template Context="data">
+                <RadzenCard>
+                    <div class="row">
+                        <InterfaceEditorResource CssClass="col-4" For="reportDate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmDiseaseAndOutbreakReportsReportDateFieldLabel" IsRow="false">
+                            <input class="form-control-plaintext" id="reportDate" name="reportDate" readonly type="text" value="@(data.ReportDate.HasValue ? data.ReportDate.Value.ToShortDateString() : string.Empty)"/>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource CssClass="col-4" For="reportedByPersonName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmDiseaseAndOutbreakReportsReportedByFieldLabel" IsRow="false">
+                            <input class="form-control-plaintext" id="reportedByPersonName" readonly type="text" value="@data.ReportedByPersonName"/>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource CssClass="col-4" For="investigatedByPersonName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmDiseaseAndOutbreakReportsInvestigatedByFieldLabel" IsRow="false">
+                            <input class="form-control-plaintext" id="investigatedByPersonName" readonly value="@data.InvestigatedByPersonName"/>
+                        </InterfaceEditorResource>
+                    </div>
+                    <div class="row">
+                        <InterfaceEditorResource CssClass="col-4" For="totalSickAnimalQuantity" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchVeterinaryDiseaseReportsModalSickAnimalQuantityFieldLabel" IsRow="false">
+                            <input class="form-control-plaintext" id="totalSickAnimalQuantity" readonly value="@data.TotalSickAnimalQuantity"/>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource CssClass="col-4" For="totalDeadAnimalQuantity" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchVeterinaryDiseaseReportsModalDeadAnimalQuantityFieldLabel" IsRow="false">
+                            <input class="form-control-plaintext" id="totalDeadAnimalQuantity" readonly value="@data.TotalDeadAnimalQuantity"/>
+                        </InterfaceEditorResource>
+                    </div>
+                </RadzenCard>
+            </Template>
+        </RadzenDataGrid>
+    </div>
+</div>

@@ -1,0 +1,33 @@
+﻿@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Services
+@inherits EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession.SurveillanceSessionHeaderBase
+
+@if (StateContainer.ShowSessionHeaderIndicator)
+{
+    <RadzenTemplateForm @ref="Form" TItem="VeterinaryActiveSurveillanceSessionStateContainerService" Data=@StateContainer>
+        <div class="card">
+            <div class="card-header">
+                <div class="form-row">
+                    <div class="col-lg-11">
+                    </div>
+                    <div class="col-lg-1">
+                        <span id="sSessionHeaderToggle" class="fas fa-caret-up align-bottom fa-2x e-dark-blue" data-toggle="collapse" data-target="#divSessionHeader" aria-expanded="false" onclick="toggleSurveillanceSessionSummary();">&nbsp;</span>
+                    </div>
+                </div>
+            </div>
+            <div id="divSessionHeader" class="card-body show">
+                <div class="form-row">
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationSessionIDFieldLabel" IsRow="false" CssClass="col-3" For="sessionID">
+                        <RadzenTextBox Name="sessionID" class="form-control" @bind-Value="@StateContainer.SessionID" Disabled="true"></RadzenTextBox>
+                    </InterfaceEditorResource>
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationStatusFieldLabel" IsRow="false" CssClass="col-6" For="sessionStatusTypeName">
+                        <RadzenTextBox Name="sessionStatusTypeName" class="form-control" @bind-Value="@StateContainer.SessionStatusTypeName" Disabled="true" />
+                    </InterfaceEditorResource>
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationDiseaseFieldLabel" IsRow="false" CssClass="col-3" For="legacySessionID">
+                        <RadzenTextBox Name="diseases" class="form-control" Value="@StateContainer.DiseaseString" Disabled="true"></RadzenTextBox>
+                    </InterfaceEditorResource>
+                </div>
+            </div>
+        </div>
+    </RadzenTemplateForm>
+}

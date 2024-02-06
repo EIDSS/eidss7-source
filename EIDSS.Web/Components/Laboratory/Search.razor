@@ -1,0 +1,104 @@
+﻿@using EIDSS.Domain.Enumerations
+@inherits SearchComponent
+
+<div class="form-group form-group-sm border-right px-4" id="divSearch">
+    <div class="container-fluid">
+        @{
+            if (Tab == LaboratoryTabEnum.Batches)
+            {
+                <text>
+                    <div class="form-row">
+                        @Localizer.GetString(FieldLabelResourceKeyConstants.LaboratoryBatchesAddSampleToBatchFieldLabel)
+                    </div>
+                </text>
+            }
+        }
+        <form @onsubmit="SearchButtonClicked">
+            <div class="form-row">
+                <div class="form-group">
+                    @if (SearchDisabledIndicator)
+                    {
+                        <div class="input-group">
+                            <RadzenTextBox class="form-control" Disabled="true" Name="simpleSearchString"/>
+                            <button class="input-group-text lighten-3 disabled" id="clearSearch" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToClearToolTip)" type="button">
+                                <i class="fas fa-times text-grey" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <button class="btn btn-outline-primary ml-2 disabled" id="simpleSearch" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSearchToolTip)" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    }
+                    else
+                    {
+                        <div class="input-group">
+                            <RadzenTextBox autofocus @bind-Value="SearchString" class="form-control" Name="simpleSearchString"/>
+                            <button class="input-group-text lighten-3" id="clearSearch" @onclick="ClearButtonClicked" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToClearToolTip)" type="button">
+                                <i class="fas fa-times text-grey" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <button class="btn btn-outline-primary ml-2" id="simpleSearch" @onclick="SearchButtonClicked" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSearchToolTip)" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    }
+                </div>
+            </div>
+        </form>
+        <div class="form-row">
+            @if (Tab == LaboratoryTabEnum.Batches)
+            {
+            }
+            else
+            {
+                <button class="btn btn-link" @onclick="OpenAdvancedSearch" type="button">@Localizer.GetString(ButtonResourceKeyConstants.LaboratorySamplesAdvancedSearchButtonText)</button>
+            }
+        </div>
+        @if (!string.IsNullOrEmpty(SearchString) | AdvancedSearchPerformedIndicator && SearchDisabledIndicator == false)
+        {
+            <div class="form-row" id="searchResults">
+                <label class="queryText" id="queryText">@SearchString</label>&nbsp;<label id="searchResults" class="searchResultsHeading">@Localizer.GetString(HeadingResourceKeyConstants.SearchResultsHeading)</label>
+            </div>
+        }
+    </div>
+</div>
+@{
+    if (Tab == LaboratoryTabEnum.Samples)
+    {
+        <text>
+            <div class="form-group form-group-sm px-4" id="divFilter">
+                <div class="container-fluid">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label id="samplesTabFilterLabel">@Localizer.GetString(FieldLabelResourceKeyConstants.LaboratorySamplesFilterFieldLabel)</label>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            @if (SearchDisabledIndicator)
+                            {
+                                <RadzenCheckBox class="form-check-inline" Disabled="true" Name="testUnassignedIndicator" TValue="bool"/>
+                            }
+                            else
+                            {
+                                <RadzenCheckBox @bind-Value="TestUnassignedIndicator" Change="args => OnTestUnassignedIndicatorChanged(args)" class="form-check-inline" Name="testUnassignedIndicator" TriState="false" TValue="bool" />
+                            }
+                            <label>@Localizer.GetString(FieldLabelResourceKeyConstants.LaboratorySamplesTestNotAssignedFieldLabel)</label>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            @if (SearchDisabledIndicator)
+                            {
+                                <RadzenCheckBox class="form-check-inline" Disabled="true" Name="testCompletedIndicator" TValue="bool"/>
+                            }
+                            else
+                            {
+                                <RadzenCheckBox @bind-Value="TestCompletedIndicator" Change="args => OnTestCompletedIndicatorChanged(args)" class="form-check-inline" Name="testCompletedIndicator" TriState="false" TValue="bool" />
+                            }
+                            <label>@Localizer.GetString(FieldLabelResourceKeyConstants.LaboratorySamplesTestCompleteFieldLabel)</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </text>
+    }
+}

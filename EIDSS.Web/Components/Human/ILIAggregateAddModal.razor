@@ -1,0 +1,142 @@
+﻿@using EIDSS.Domain.ViewModels.Human
+@using EIDSS.Web.Components.CrossCutting
+@inherits EIDSS.Web.Components.Human.ILIAggregateAddModalBase
+
+<RadzenTemplateForm Data="ILIAggregateDetail" @ref="Form" Submit="OnSubmitClick" TItem="ILIAggregateDetailViewModel">    
+    
+    <DataAnnotationsValidator/>
+
+    <div style="padding:0px 0px 10px 0px;">       
+        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ILIAggregateDetailsNameOfHospitalSentinelStationFieldLabel" IsRow="false" CssClass="col-md-6 p-0" For="idfHospital">
+            <RadzenDropDown id="idfHospital"
+                            Name="idfHospital"
+                            AllowClear="true"
+                            TValue="long?"
+                            Data="@Hospitals"
+                            LoadData="@GetHospitals"
+                            ValueProperty="OrganizationKey"
+                            TextProperty="FullName"
+                            @bind-Value="@ILIAggregateDetail.IdfHospital"
+                            class="form-control"
+                            Style="width:300px;">
+            </RadzenDropDown>
+        </InterfaceEditorResource>
+    </div>
+
+    <div style="padding:10px 0px 10px 0px;">
+        <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.ILIAggregateDetails0To4FieldLabel)"></RadzenLabel>
+        <br />
+        <RadzenNumeric Name="IntAge0_4"
+                       TValue="int?"
+                       Style="width:100px;"
+                       @bind-Value="@ILIAggregateDetail.IntAge0_4"
+                       AutoComplete="false"
+                       Min="0"
+                       Change="(()=> CalculateTotalILI())">
+        </RadzenNumeric>
+    </div>
+
+    <div style="padding:10px 0px 10px 0px;">
+        <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.ILIAggregateDetails5To14FieldLabel)"></RadzenLabel>
+        <br />
+        <RadzenNumeric Name="IntAge5_14"
+                       TValue="int?"
+                       Style="width:100px;"
+                       @bind-Value="@ILIAggregateDetail.IntAge5_14"
+                       AutoComplete="false"
+                       Min="0"
+                       Change="(()=> CalculateTotalILI())">
+        </RadzenNumeric>
+    </div>
+
+    <div style="padding:10px 0px 10px 0px;">
+        <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.ILIAggregateDetails15To29FieldLabel)"></RadzenLabel>
+        <br />
+        <RadzenNumeric Name="IntAge15_29"
+                       TValue="int?"
+                       Style="width:100px;"
+                       @bind-Value="@ILIAggregateDetail.IntAge15_29"
+                       AutoComplete="false"
+                       Min="0"
+                       Change="(()=> CalculateTotalILI())">
+        </RadzenNumeric>
+    </div>
+
+    <div style="padding:10px 0px 10px 0px;">
+        <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.ILIAggregateDetails30To64FieldLabel)"></RadzenLabel>
+        <br />
+        <RadzenNumeric Name="IntAge30_64"
+                       TValue="int?"
+                       Style="width:100px;"
+                       @bind-Value="@ILIAggregateDetail.IntAge30_64"
+                       AutoComplete="false"
+                       Min="0"
+                       Change="(()=> CalculateTotalILI())">
+        </RadzenNumeric>
+    </div>
+
+    <div style="padding:10px 0px 10px 0px;">
+        <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.ILIAggregateDetailsGreaterThanOrEqualTo65FieldLabel)"></RadzenLabel>
+        <br />
+        <RadzenNumeric Name="IntAge65"
+                       TValue="int?"
+                       Style="width:100px;"
+                       @bind-Value="@ILIAggregateDetail.IntAge65"
+                       AutoComplete="false"
+                       Min="0"
+                       Change="(()=> CalculateTotalILI())">
+        </RadzenNumeric>
+    </div>
+
+    <div style="padding:10px 0px 10px 0px;">
+        <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.ILIAggregateDetailsTotalILIFieldLabel)"></RadzenLabel>
+        <br />
+        <RadzenNumeric Name="IntTotalILI"
+                       TValue="int?"
+                       Style="width:100px;"
+                       @bind-Value="@ILIAggregateDetail.InTotalILI"
+                       AutoComplete="false"
+                       Min="0">
+        </RadzenNumeric>
+    </div>
+
+    <div style="padding:10px 0px 10px 0px;">
+        <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.ILIAggregateDetailsTotalAdmissionsFieldLabel)"></RadzenLabel>
+        <br />
+        <RadzenNumeric Name="IntTotalAdmissions"
+                       TValue="int?"
+                       Style="width:100px;"
+                       @bind-Value="@ILIAggregateDetail.IntTotalAdmissions"
+                       AutoComplete="false"
+                       Min="0">
+        </RadzenNumeric>
+    </div>
+
+    <div style="padding:10px 0px 10px 0px;">
+        <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.ILIAggregateDetailsILISamplesFieldLabel)"></RadzenLabel>
+        <br />
+        <RadzenNumeric Name="IntILISamples"
+                       TValue="int?"
+                       Style="width:100px;"
+                       @bind-Value="@ILIAggregateDetail.IntILISamples"
+                       AutoComplete="false"
+                       Min="0">
+        </RadzenNumeric>
+    </div>
+
+    <div style="padding-top:20px;">
+        <button id="btnILIAggregateCancel"
+                type="button"
+                class="btn btn-secondary"
+                @onclick="((args) => DiagService.Close(null))">
+            @Localizer.GetString(ButtonResourceKeyConstants.CancelButton)
+        </button>
+
+        <button id="btnILIAggregate" 
+                type="submit"
+                class="btn btn-primary">
+            @Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        </button>
+    </div>
+
+</RadzenTemplateForm>

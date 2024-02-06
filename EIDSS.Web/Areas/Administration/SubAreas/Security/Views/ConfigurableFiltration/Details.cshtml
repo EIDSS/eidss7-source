@@ -1,0 +1,336 @@
+﻿@model EIDSS.Web.Administration.Security.ViewModels.ConfigurableFiltrationDetailsViewModel
+@addTagHelper *, EIDSS.Web.Components
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.AccessRuleDetailsPageHeading);
+
+    Model.ReceivingActorsGridConfiguration = new();
+    Model.ReceivingActorsGridConfiguration.GridId = "receivingActorsTable";
+    Model.ReceivingActorsGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.ReceivingActorsGridConfiguration.EnableServerSide = false;
+    Model.ReceivingActorsGridConfiguration.EnableCustomSearching = false;
+    Model.ReceivingActorsGridConfiguration.EnableSearching = true;
+    Model.ReceivingActorsGridConfiguration.EnableProcessingMessage = true;
+    Model.ReceivingActorsGridConfiguration.sDom = "t";
+    Model.ReceivingActorsGridConfiguration.ControlLabels.DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage);
+    Model.ReceivingActorsGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.ReceivingActorsGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.ReceivingActorsGridConfiguration.ControlLabels.DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.ReceivingActorsGridConfiguration.DeleteModalAjaxUrl = @Url.Action("DeleteReceivingActor", "ConfigurableFiltration", new { Area = "Administration", SubArea = "Security" });
+    Model.ReceivingActorsGridConfiguration.DeleteCompleteMethod = "deleteReceivingActor";
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "AccessRuleActorID", ColumnTitleHeader = "Access Rule Actor ID", ColumnType = ColumnType.Default, Searchable = true, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "AccessRuleID", ColumnTitleHeader = "Access Rule ID", ColumnType = ColumnType.Default, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ActorTypeID", ColumnTitleHeader = "Actor Type ID", ColumnType = ColumnType.Default, Orderable = false, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ActorTypeName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.ActorTypeNameColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ActorName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.NameColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "SiteName", ColumnTitleHeader = "Site Name", ColumnType = ColumnType.Default, Orderable = false, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "SiteGroupID", ColumnTitleHeader = "Site Group ID", ColumnType = ColumnType.Default, Orderable = false, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "SiteID", ColumnTitleHeader = "Site ID", ColumnType = ColumnType.Default, Orderable = false, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "EmployeeGroupID", ColumnTitleHeader = "Employee Group ID", ColumnType = ColumnType.Default, Orderable = false, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "EmployeeID", ColumnTitleHeader = "Employee ID", ColumnType = ColumnType.Default, Orderable = false, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "AccessToGenderAndAgeDataPermissionIndicator", ColumnTitleHeader = "Access to Gender and Age Data", ColumnType = ColumnType.Default, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "AccessToPersonalDataPermissionIndicator", ColumnTitleHeader = "Access to Personal Data", ColumnType = ColumnType.Default, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "CreatePermissionIndicator", ColumnTitleHeader = "Create", ColumnType = ColumnType.Default, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "DeletePermissionIndicator", ColumnTitleHeader = "Delete", ColumnType = ColumnType.Default, Orderable = false, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ReadPermissionIndicator", ColumnTitleHeader = "Read", ColumnType = ColumnType.Default, Orderable = false, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "WritePermissionIndicator", ColumnTitleHeader = "Write", ColumnType = ColumnType.Default, Orderable = false, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "RowStatus", ColumnTitleHeader = "Row Status", ColumnType = ColumnType.Default, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "RowAction", ColumnTitleHeader = "Row Action", ColumnType = ColumnType.Default, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "AccessRuleActorID", ColumnTitleHeader = "", ColumnType = ColumnType.Remove, Visible = true });
+}
+
+<partial name="_SearchActorModalPartial" for="SearchActorViewModel" />
+<partial name="_ErrorModalPartial" />
+<partial name="_InformationalModalPartial" for="InformationalMessage" />
+<partial name="_WarningModalPartial" />
+
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@HeadingResourceKeyConstants.AccessRuleDetailsPageHeading"></h3>
+    </div>
+    <div class="card-body">
+        <form id="accessRuleDetailsForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="AccessRuleDetails.AccessRuleID" field-label-for="@FieldLabelResourceKeyConstants.AccessRuleDetailsAccessRuleIDFieldLabel"></label>
+                    <label id="accessRuleIDLabel" class="form-control disabled">@Model.AccessRuleDetails.AccessRuleID</label>
+                    <input id="accessRuleIDHidden" type="hidden" asp-for="AccessRuleDetails.AccessRuleID" />
+                </div>
+                <div class="form-group col-md-8">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="AccessRuleDetails.AccessRuleName" field-label-for="@FieldLabelResourceKeyConstants.AccessRuleDetailsAccessRuleNameFieldLabel"></label>
+                    <input asp-for="AccessRuleDetails.AccessRuleName" class="form-control" />
+                    <span asp-validation-for="AccessRuleDetails.AccessRuleName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.AccessRuleDetailsBorderingAreaRuleFieldLabel">
+                    <input asp-for="AccessRuleDetails.BorderingAreaRuleIndicator" type="checkbox" class="form-check-input" />
+                    <label asp-for="AccessRuleDetails.BorderingAreaRuleIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.AccessRuleDetailsBorderingAreaRuleFieldLabel"></label>
+                    <span asp-validation-for="AccessRuleDetails.BorderingAreaRuleIndicator" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.AccessRuleDetailsDefaultRuleFieldLabel">
+                    <input asp-for="AccessRuleDetails.DefaultRuleIndicator" type="checkbox" class="form-check-input" />
+                    <label asp-for="AccessRuleDetails.DefaultRuleIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.AccessRuleDetailsDefaultRuleFieldLabel"></label>
+                    <span asp-validation-for="AccessRuleDetails.DefaultRuleIndicator" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.AccessRuleDetailsReciprocalRuleFieldLabel">
+                    <input asp-for="AccessRuleDetails.ReciprocalRuleIndicator" type="checkbox" class="form-check-input" />
+                    <label asp-for="AccessRuleDetails.ReciprocalRuleIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.AccessRuleDetailsReciprocalRuleFieldLabel"></label>
+                    <span asp-validation-for="AccessRuleDetails.ReciprocalRuleIndicator" class="text-danger"></span>
+                </div>
+            </div>
+            <fieldset class="border p-2">
+                <legend class="w-auto" heading-for="@HeadingResourceKeyConstants.PermissionsHeading"></legend>
+                <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.AccessRuleDetailsAccessToGenderAndAgeDataPermissionIndicatorFieldLabel">
+                    <input asp-for="AccessRuleDetails.AccessToGenderAndAgeDataPermissionIndicator" type="checkbox" class="form-check-input" />
+                    <label asp-for="AccessRuleDetails.AccessToGenderAndAgeDataPermissionIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.AccessRuleDetailsAccessToGenderAndAgeDataPermissionIndicatorFieldLabel"></label>
+                </div>
+                <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.AccessRuleDetailsAccessToPersonalDataPermissionIndicatorFieldLabel">
+                    <input asp-for="AccessRuleDetails.AccessToPersonalDataPermissionIndicator" type="checkbox" class="form-check-input" />
+                    <label asp-for="AccessRuleDetails.AccessToPersonalDataPermissionIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.AccessRuleDetailsAccessToPersonalDataPermissionIndicatorFieldLabel"></label>
+                </div>
+                <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.AccessRuleDetailsCreatePermissionIndicatorFieldLabel">
+                    <input asp-for="AccessRuleDetails.CreatePermissionIndicator" type="checkbox" class="form-check-input" />
+                    <label asp-for="AccessRuleDetails.CreatePermissionIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.AccessRuleDetailsCreatePermissionIndicatorFieldLabel"></label>
+                </div>
+                <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.AccessRuleDetailsDeletePermissionIndicatorFieldLabel">
+                    <input asp-for="AccessRuleDetails.DeletePermissionIndicator" type="checkbox" class="form-check-input" />
+                    <label asp-for="AccessRuleDetails.DeletePermissionIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.AccessRuleDetailsDeletePermissionIndicatorFieldLabel"></label>
+                </div>
+                <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.AccessRuleDetailsReadPermissionIndicatorFieldLabel">
+                    <input asp-for="AccessRuleDetails.ReadPermissionIndicator" type="checkbox" class="form-check-input" />
+                    <label asp-for="AccessRuleDetails.ReadPermissionIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.AccessRuleDetailsReadPermissionIndicatorFieldLabel"></label>
+                </div>
+                <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.AccessRuleDetailsWritePermissionIndicatorFieldLabel">
+                    <input asp-for="AccessRuleDetails.WritePermissionIndicator" type="checkbox" class="form-check-input" />
+                    <label asp-for="AccessRuleDetails.WritePermissionIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.AccessRuleDetailsWritePermissionIndicatorFieldLabel"></label>
+                </div>
+            </fieldset>
+
+            <fieldset class="border p-2">
+                <legend class="w-auto" heading-for="@HeadingResourceKeyConstants.GrantingActorHeading"></legend>
+
+                <div class="input-group mb-3">
+                    <input type="hidden" id="grantingActorSiteGroupID" asp-for="AccessRuleDetails.GrantingActorSiteGroupID" />
+                    <input type="hidden" id="grantingActorSiteID" asp-for="AccessRuleDetails.GrantingActorSiteID" />
+                    <input type="text" class="form-control" aria-describedby="basic-addon2" id="grantingActorNameTextBox" asp-for="AccessRuleDetails.GrantingActorName">
+                    <div class="input-group-append">
+                        <button id="searchGrantingActor" type="button" class="btn btn-outline-secondary btn-sm" onclick="initializeSearchActor(true);"><span class="fas fa-search" aria-hidden="true"></span></button>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset class="border p-2">
+                <legend class="w-auto" heading-for="@HeadingResourceKeyConstants.ReceivingActorsHeading"></legend>
+                <div class="row">
+                    <div class="col-md-12 text-right">
+                        <button id="addActor" type="button" class="btn btn-link" onclick="initializeSearchActor(false);">
+                            <span class="fas fa-plus fa-lg"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <eidss-grid id="@Model.ReceivingActorsGridConfiguration.GridId"
+                                grid-configuration="@Model.ReceivingActorsGridConfiguration"
+                                enable-server-side="@Model.ReceivingActorsGridConfiguration.EnableServerSide"
+                                enable-processing="@Model.ReceivingActorsGridConfiguration.EnableProcessingMessage"
+                                enable-top-header-search-button="@Model.ReceivingActorsGridConfiguration.EnableCustomSearching"
+                                enable-search="@Model.ReceivingActorsGridConfiguration.EnableSearching"
+                                class-name="@Model.ReceivingActorsGridConfiguration.GridClass"
+                                end-point="@Model.ReceivingActorsGridConfiguration.AjaxDataUrl"
+                                filtered-control-ids="@Model.ReceivingActorsGridConfiguration.ControlFilterID"
+                                control-labels="@Model.ReceivingActorsGridConfiguration.ControlLabels">
+                    </eidss-grid>
+                </div>
+            </fieldset>
+            <div class="card-footer">
+                <button type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.CancelButton" onclick="cancelDetails('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)', event)"></button>
+                <button type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.ClearButton" onclick="resetForm();"></button>
+                <button type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.DeleteButton" onclick="deleteAccessRule('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage)', event, '@Model.AccessRuleDetails.AccessRuleID')" visible-if="@Model.DeleteVisibleIndicator"></button>
+                <button type="submit" class="btn btn-primary" id="saveButton" button-for="@ButtonResourceKeyConstants.SubmitButton" onclick="submitAccessRuleDetails();"></button>
+            </div>
+        </form>
+        <form id="accessRuleDeleteForm" class="hidden" method="post" asp-action="Delete">
+            <input type="hidden" id="accessRuleID" name="accessRuleID" />
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            initializeActorsTable();
+        });
+
+        function resetForm() {
+            var accessRuleID = $("#accessRuleIDHidden").val();
+
+            $("#accessRuleDetailsForm").find(":input").each(function () {
+                switch (this.type) {
+                    case "password":
+                    case "select-multiple":
+                    case "select-one":
+                    case "text":
+                    case "textarea":
+                        $(this).val("");
+                        break;
+                    case "checkbox":
+                    case "radio":
+                        this.checked = false;
+                }
+            });
+
+            $("#accessRuleIDLabel").val = accessRuleID;
+        };
+
+        function cancelDetails(message, event) {
+            event.preventDefault();
+
+            showWarningModal(message).then(response => {
+                if (response)
+                    location.href = '@Url.Action("List", "ConfigurableFiltration")';
+            });
+        };
+
+        function deleteAccessRule(message, event, id) {
+            event.preventDefault();
+
+            showWarningModal(message).then(function () {
+                $("#accessRuleID").val(id);
+                $("#accessRuleDeleteForm").submit();
+            });
+        };
+
+        function initializeSearchActor(grantingActorIndicator) {
+            $("#searchActorGrantingActorIndicator").val(grantingActorIndicator.toString());
+
+            $("#duplicateCheckGrantingActorSiteGroupID").val($("#grantingActorSiteGroupID").val());
+            $("#duplicateCheckGrantingActorSiteID").val($("#grantingActorSiteID").val());
+
+            showSearchActorModal();
+        };
+
+        ///
+        /// Loads the actor records for the selected disease record, and initializes the corresponding
+        /// dataTables object that displays the records.
+        ///
+        function initializeActorsTable() {
+            $.ajax({
+                url: '@Url.Action("GetReceivingActorList", "ConfigurableFiltration")',
+                data: $("#accessRuleIDHidden").val(),
+                contentType: "application/json",
+                type: "POST",
+                success: function (response) {
+                    // Add the data retrieved from the database, if any.
+                    $("#receivingActorsTable").DataTable().rows.add(response.data).draw();
+                },
+                error: function (reponse) { alert("An error occurred: " + reponse); }
+            });
+        };
+
+        ///
+        /// Response from ajax call for delete.
+        ///
+        function deleteReceivingActor(response) {
+            var rowIndex;
+            $("#receivingActorsTable").DataTable().rows(function (idx, data, node) {
+                if (data[0] == response.AccessRuleActorID) {
+                    rowIndex = idx;
+                }
+
+                return false;
+            });
+            var row = $("#receivingActorsTable").DataTable().rows(rowIndex);
+            if (response.AccessRuleActorID < 0) {
+                $("#receivingActorsTable").DataTable().row(rowIndex).remove().draw();
+            }
+            else {
+                row.data()[0][16] = '@Convert.ToInt64(RowStatusTypes.Inactive)';
+                row.data()[0][17] = '@Convert.ToInt32(RowActionTypeEnum.Delete)';
+                row.nodes().to$().attr("excluded", "true");
+                $("#receivingActorsTable").DataTable().row(row).invalidate().draw();
+            }
+        };
+
+        // Filters the actors table to only show the actors for active records, in the event the user
+        // confirmed a record deletion that is pending save to the database.
+        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+            return $("#receivingActorsTable").DataTable().row(dataIndex).nodes().to$().attr("excluded") != "true"
+        });
+
+        function submitAccessRuleDetails() {
+            $("#saveButton").attr("href", "#finish");
+            $("#processing").removeClass("fas fa-sync fa-spin");
+
+            var request = {};
+            request.AccessRuleID = ($("#accessRuleIDHidden").val() == "" ? "" : $("#accessRuleIDHidden").val());
+            request.AccessRuleName = $("#AccessRuleDetails_AccessRuleName").val();
+            request.BorderingAreaRuleIndicator = $("#AccessRuleDetails_BorderingAreaRuleIndicator").is(":checked") ? "true" : "false";
+            request.DefaultRuleIndicator = $("#AccessRuleDetails_DefaultRuleIndicator").is(":checked") ? "true" : "false";
+            request.ReciprocalRuleIndicator = $("#AccessRuleDetails_ReciprocalRuleIndicator").is(":checked") ? "true" : "false";
+            request.GrantingActorSiteGroupID = ($("#grantingActorSiteGroupID").val() == "" ? "" : $("#grantingActorSiteGroupID").val());
+            request.GrantingActorSiteID = ($("#grantingActorSiteID").val() == "" ? "" : $("#grantingActorSiteID").val());
+            request.AccessToGenderAndAgeDataPermissionIndicator = $("#AccessRuleDetails_AccessToGenderAndAgeDataPermissionIndicator").is(":checked") ? "true" : "false";
+            request.AccessToPersonalDataPermissionIndicator = $("#AccessRuleDetails_AccessToPersonalDataPermissionIndicator").is(":checked") ? "true" : "false";
+            request.CreatePermissionIndicator = $("#AccessRuleDetails_CreatePermissionIndicator").is(":checked") ? "true" : "false";
+            request.DeletePermissionIndicator = $("#AccessRuleDetails_DeletePermissionIndicator").is(":checked") ? "true" : "false";
+            request.ReadPermissionIndicator = $("#AccessRuleDetails_ReadPermissionIndicator").is(":checked") ? "true" : "false";
+            request.WritePermissionIndicator = $("#AccessRuleDetails_WritePermissionIndicator").is(":checked") ? "true" : "false";
+
+            var receivingActors = [];
+            var receivingActorsTable = $("#receivingActorsTable").DataTable().rows().data().toArray();
+            var actor;
+            $.each(receivingActorsTable, function (index, value) {
+                actor = new Object();
+                actor.AccessRuleActorID = value[0];
+                actor.GrantingActorIndicator = 0;
+                actor.ActorSiteGroupID = (value[6] == "" ? null : value[6]);
+                actor.ActorSiteID = (value[7] == "" ? null : value[7]);
+                actor.ActorEmployeeGroupID = (value[8] == "" ? null : value[8]);
+                actor.ActorUserID = (value[9] == "" ? null : value[9]);
+                actor.RowStatus = value[16];
+                actor.RowAction = value[17];
+
+                receivingActors.push(actor);
+            });
+            request.ReceivingActors = JSON.stringify(receivingActors);
+
+            $.ajax({
+                url: '@Url.Action("SaveAccessRule", "ConfigurableFiltration", new { Area = "Administration", SubArea = "Security" })',
+                data: JSON.stringify(request),
+                contentType: "application/json",
+                dataType: "json",
+                type: "POST",
+                success: function (response) {
+                    if (response.errorMessage != null) {
+                        showErrorModal(response.errorMessage);
+                    }
+                    else {
+                        $("#receivingActorsTable").DataTable().clear();
+                        $("#accessRuleIDHidden").val(response.accessRuleDetails.accessRuleID);
+                        initializeActorsTable();
+
+                        $("#accessRuleIDLabel").text(response.accessRuleDetails.accessRuleID);
+
+                        showInformationalModalWait(response.informationalMessage);
+
+                        $("#saveButton").attr("href", "#finish");
+                        $("#processing").removeClass("fas fa-sync fa-spin");
+                    }
+                },
+                error: function (response) { alert("An error occurred: " + response); }
+            });
+        };
+    </script>
+}
+
+@if (ViewBag.JavaScriptFunction != null)
+{
+    <script type="text/javascript">
+        @Html.Raw(ViewBag.JavaScriptFunction)
+    </script>
+}

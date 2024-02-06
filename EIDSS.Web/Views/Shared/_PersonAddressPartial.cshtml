@@ -1,0 +1,385 @@
+﻿@model EIDSS.Web.Areas.Human.ViewModels.Person.PersonAddressSectionViewModel
+
+@{
+    //Radio Buttons
+    Model.PersonDetails.IsAnotherAddressList = new Dictionary<string, string>();
+    Model.PersonDetails.IsAnotherAddressList.Add("10100001", "Yes");
+    Model.PersonDetails.IsAnotherAddressList.Add("10100002", "No");
+
+    Model.PersonDetails.IsAnotherPhoneList = new Dictionary<string, string>
+    ();
+    Model.PersonDetails.IsAnotherPhoneList.Add("10100001", "Yes");
+    Model.PersonDetails.IsAnotherPhoneList.Add("10100002", "No");
+}
+
+<form id="PersonAddressForm">
+    <div class="container-fluid">
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4 heading-for="@HeadingResourceKeyConstants.PersonAddressHeading"></h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editPersonAddressSectionButton" href="#personWizard-h-1" class="edit-section"><span class="fas fa-edit fa-lg"></span></a>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-11">
+                <h5 heading-for="@HeadingResourceKeyConstants.PersonAddressCurrentAddressHeading"></h5>
+            </div>
+        </div>
+        <div id="divCurrentAddress">
+            <partial name="_PersonLocationPartial" for="@Model.CurrentAddress" />
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label asp-for="@Model.PersonDetails.ContactPhone" field-label-for="@FieldLabelResourceKeyConstants.PersonAddressCurrentAddressCountryCodeAndNumberFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.PersonDetails.ContactPhone " class="form-control" value="@Model.PersonDetails.ContactPhone" onchange="validatePhone(false);" />
+                <div id="ValContactPhone" class="text-danger"></div>
+            </div>
+            <div class="form-group col-md-6">
+                <label asp-for="@Model.PersonDetails.ContactPhoneTypeName" field-label-for="@FieldLabelResourceKeyConstants.PersonAddressCurrentAddressPhoneTypeFieldLabel" class="control-label"></label>
+                <select id="PhoneType" asp-for="@Model.PersonDetails.ContactPhoneTypeID" asp-items="@(new SelectList(Model.PhoneTypeList,"IdfsBaseReference","StrDefault"))" class="form-control"></select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-12">
+                <input type="hidden" id="hdfAnotherPhone" value="@Model.PersonDetails.IsAnotherPhone" />
+                <label asp-for="@Model.PersonDetails.IsAnotherPhone" field-label-for="@FieldLabelResourceKeyConstants.PersonAddressIsThereAnotherPhoneNumberForThisPersonFieldLabel" class="control-label"></label>
+                @if (Model.PersonDetails.IsAnotherPhoneList != null)
+                {
+                    if (Model.PersonDetails.IsAnotherPhoneList.Count() > 0)
+                    {
+
+                        foreach (var item in Model.PersonDetails.IsAnotherPhoneList)
+                        {
+                            if (Model.PersonDetails.IsAnotherPhone == "Yes" && item.Key == EIDSSConstants.YesNoValueList.Yes)
+                            {
+                                <input asp-for="@Model.PersonDetails.IsAnotherPhoneList" onclick="CheckAnotherPhone(this)" type="radio" value="@item.Key" checked /> @item.Value
+                            }
+                            else if (Model.PersonDetails.IsAnotherPhone == "No" && item.Key == EIDSSConstants.YesNoValueList.No)
+                            {
+                                <input asp-for="@Model.PersonDetails.IsAnotherPhoneList" onclick="CheckAnotherPhone(this)" type="radio" value="@item.Key" checked /> @item.Value
+                            }
+                            else
+                            {
+                                <input asp-for="@Model.PersonDetails.IsAnotherPhoneList" onclick="CheckAnotherPhone(this)" type="radio" value="@item.Key" /> @item.Value
+                            }
+                        }
+                    }
+                }
+            </div>
+        </div>
+        <div class="form-row" id="DivAnotherPhone" style="display:none">
+            <div class="form-group col-md-6">
+                <label asp-for="@Model.PersonDetails.ContactPhone2" field-label-for="@FieldLabelResourceKeyConstants.PersonAddressCurrentAddressCountryCodeAndNumberFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.PersonDetails.ContactPhone2 " class="form-control" value="@Model.PersonDetails.ContactPhone2" onchange="validatePhone2(false);" />
+                <div id="ValContactPhone2" class="text-danger"></div>
+            </div>
+            <div class="form-group col-md-6">
+                <label asp-for="@Model.PersonDetails.ContactPhone2TypeName" field-label-for="@FieldLabelResourceKeyConstants.PersonAddressCurrentAddressPhoneTypeFieldLabel" class="control-label"></label>
+                <select id="PhoneType2" asp-for="@Model.PersonDetails.ContactPhone2TypeID" asp-items="@(new SelectList(Model.Phone2TypeList,"IdfsBaseReference","StrDefault"))" class="form-control"></select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-12">
+                <input type="hidden" id="hdfAnotherAddress" value="@Model.PersonDetails.YNAnotherAddress" />
+                <label asp-for="@Model.PersonDetails.YNAnotherAddress" field-label-for="@FieldLabelResourceKeyConstants.PersonAddressIsThereAnotherAddressWhereThisPersonCanResideFieldLabel" class="control-label"></label>
+                @if (Model.PersonDetails.IsAnotherAddressList != null)
+                {
+                    if (Model.PersonDetails.IsAnotherAddressList.Count() > 0)
+                    {
+                        foreach (var item in Model.PersonDetails.IsAnotherAddressList)
+                        {
+                            if (Model.PersonDetails.YNAnotherAddress == "Yes" && item.Key == EIDSSConstants.YesNoValueList.Yes)
+                            {
+                                <input asp-for="@Model.PersonDetails.IsAnotherAddressList" onclick="CheckAnotherAddress(this)" type="radio" value="@item.Key" checked /> @item.Value
+                            }
+                            else if (Model.PersonDetails.YNAnotherAddress == "No" && item.Key == EIDSSConstants.YesNoValueList.No)
+                            {
+                                <input asp-for="@Model.PersonDetails.IsAnotherAddressList" onclick="CheckAnotherAddress(this)" type="radio" value="@item.Key" checked /> @item.Value
+                            }
+                            else
+                            {
+                                <input asp-for="@Model.PersonDetails.IsAnotherAddressList" onclick="CheckAnotherAddress(this)" type="radio" value="@item.Key" /> @item.Value
+                            }
+                        }
+                    }
+                }
+            </div>
+        </div>
+        <div id="DivAnotherAddress" style="display:none">
+            <div class="form-row">
+                <div class="col-md-11">
+                    <h5>Permanent Address</h5>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    @if (Model.PersonDetails.YNPermanentSameAddress != null && Model.PersonDetails.YNPermanentSameAddress == "Yes")
+                    {
+                        <input type="checkbox" class="form-check-inline" id="YNPermanentSameAddress" value="@Model.PersonDetails.YNPermanentSameAddress" checked />
+                    }
+                    else
+                    {
+                        <input type="checkbox" class="form-check-inline" id="YNPermanentSameAddress" value="@Model.PersonDetails.YNPermanentSameAddress" />
+                    }
+                    <label asp-for="@Model.PersonDetails.YNPermanentSameAddress" field-label-for="@FieldLabelResourceKeyConstants.PersonAddressPermanentAddressSameAsCurrentAddressFieldLabel" class="control-label"></label>
+                </div>
+            </div>
+            <div id="divPermanentAddress">
+                <partial name="_PersonLocationPartial" for="@Model.PermanentAddress" />
+            </div>
+            <div class="form-row">
+                <div class="col-md-11">
+                    <h5 heading-for="@HeadingResourceKeyConstants.PersonAddressAlternateAddressHeading"></h5>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    @if (Model.PersonDetails.HumanAltForeignAddressIndicator != null)
+                    {
+                        @if (Model.PersonDetails.HumanAltForeignAddressIndicator.Value)
+                        {
+                            <input type="checkbox" class="form-check-inline" id="HumanAltForeignAddressIndicator" value="@Model.PersonDetails.HumanAltForeignAddressIndicator" checked />
+                        }
+                        else
+                        {
+                            <input type="checkbox" class="form-check-inline" id="HumanAltForeignAddressIndicator" value="@Model.PersonDetails.HumanAltForeignAddressIndicator" />
+                        }
+                    }
+                    else
+                    {
+                        <input type="checkbox" class="form-check-inline" id="HumanAltForeignAddressIndicator" value="@Model.PersonDetails.HumanAltForeignAddressIndicator" />
+                    }
+                    <label asp-for="PersonDetails.HumanAltForeignAddressIndicator">@Localizer.GetString(FieldLabelResourceKeyConstants.ForeignAddressLabel)</label>
+                </div>
+            </div>
+            <div id="divForeignAddress">
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label asp-for="@Model.PersonDetails.HumanAltidfsCountry" field-label-for="@FieldLabelResourceKeyConstants.PersonAddressAlternateAddressCountryFieldLabel" class="control-label"></label>
+                        <select id="HumanAltForeignidfsCountry" asp-for="@Model.PersonDetails.HumanAltidfsCountry" asp-items="@(new SelectList(Model.HumanCountryList,"idfsCountry","strCountryName"))" class="form-control"></select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label asp-for="@Model.PersonDetails.HumanAltForeignAddressString" field-label-for="@FieldLabelResourceKeyConstants.PersonAddressAlternateAddressOtherForeignAddressFieldLabel" class="control-label"></label>
+                        <input asp-for="@Model.PersonDetails.HumanAltForeignAddressString " class="form-control" value="@Model.PersonDetails.HumanAltForeignAddressString" />
+                    </div>
+                </div>
+            </div>
+            <div id="divAlternateAddress">
+                <partial name="_PersonLocationPartial" for="@Model.AlternateAddress" />
+            </div>
+        </div>
+    </div>
+</form>
+<partial name="_ValidationScriptsPartial" />
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        IsAnotherPhone = $("input[name='PersonAddressSection.PersonDetails.IsAnotherPhoneList']:checked").val();
+        if (IsAnotherPhone != null && IsAnotherPhone != "" && IsAnotherPhone == '10100001') {
+            $("#DivAnotherPhone").prop("style", "display: block;");    //Show
+        }
+        else {
+            $("#DivAnotherPhone").prop("style", "display: none;");   //Hide
+        };
+
+        YNAnotherAddress = $("input[name='PersonAddressSection.PersonDetails.IsAnotherAddressList']:checked").val();
+        if (YNAnotherAddress != null && YNAnotherAddress != "" && YNAnotherAddress == '10100001') {
+            $("#DivAnotherAddress").prop("style", "display: block;");    //Show
+            if ($("#HumanAltForeignAddressIndicator").is(':checked')) {
+                $("#divAlternateAddress").hide();
+                $("#divForeignAddress").show();
+            }
+            else {
+                $("#divAlternateAddress").show();
+                $("#divForeignAddress").hide();
+            }
+        }
+        else {
+            $("#DivAnotherAddress").prop("style", "display: none;");   //Hide
+        };
+
+        YNPermanentSameAddress = $("#YNPermanentSameAddress").val();
+        if (YNPermanentSameAddress == 'Yes') {
+            $('#divPermanentAddress').find('*').attr('disabled', true);
+        }
+        else {
+            $("#divWorkAddress").prop("style", "display: block;");
+        }
+
+        if ($("#HumanAltForeignAddressIndicator").is(':checked')) {
+            $("#divAlternateAddress").hide();
+            $("#divForeignAddress").show();
+        }
+        else {
+            $("#divAlternateAddress").show();
+            $("#divForeignAddress").hide();
+        }
+    });
+
+    function CheckAnotherPhone(e) {
+        $("#hdfAnotherPhone").val(e.value);
+        IsAnotherPhone = e.value;
+        if (IsAnotherPhone != null && IsAnotherPhone != "" && IsAnotherPhone == '10100001') {
+            $("#DivAnotherPhone").prop("style", "display: block;");    //Show
+        }
+        else {
+            $("#DivAnotherPhone").prop("style", "display: none;");   //Hide
+        };
+    };
+
+    function CheckAnotherAddress(e) {
+        $("#hdfAnotherAddress").val(e.value);
+        IsAnotherAddress = e.value;
+        if (IsAnotherAddress != null && IsAnotherAddress != "" && IsAnotherAddress == '10100001') {
+            $("#DivAnotherAddress").prop("style", "display: block;");    //Show
+            $("#divAlternateAddress").show();
+            $("#divForeignAddress").hide();
+        }
+        else {
+            $("#DivAnotherAddress").prop("style", "display: none;");   //Hide
+        };
+    };
+
+    $("#HumanAltForeignAddressIndicator").click(function () {
+        if ($(this).is(':checked')) {
+            $("#divAlternateAddress").hide();
+            $("#divForeignAddress").show();
+        }
+        else {
+            $("#divAlternateAddress").show();
+            $("#divForeignAddress").hide();
+        }
+    });
+
+    $("#YNPermanentSameAddress").click(function () {
+        if ($(this).is(':checked')) {
+            // copy current address to work Address
+            $("#PersonInformationSection_PersonDetails_HumanPermGeoLocationID").val($("#PersonInformationSection_PersonDetails_HumanGeoLocationID").val());
+
+            var request = {};
+            request.HumanidfsCountry = $("#PersonAddressSection_CurrentAddress_AdminLevel0Value").val();
+            request.HumanidfsRegion = $("#PersonAddressSection_CurrentAddress_AdminLevel1Value").val();
+            request.HumanidfsRayon = $("#PersonAddressSection_CurrentAddress_AdminLevel2Value").val();
+            request.HumanidfsSettlementType = $("#PersonAddressSection_CurrentAddress_SettlementType").val();
+            request.HumanidfsSettlement = $("#PersonAddressSection_CurrentAddress_AdminLevel3Value").val();
+            request.HumanstrStreetName = $("#PersonAddressSection_CurrentAddress_StreetText").val();
+            request.HumanstrApartment = $("#PersonAddressSection_CurrentAddress_Apartment").val();
+            request.HumanstrBuilding = $("#PersonAddressSection_CurrentAddress_Building").val();
+            request.HumanstrHouse = $("#PersonAddressSection_CurrentAddress_House").val();
+            request.HumanidfsPostalCode = $("#PersonAddressSection_CurrentAddress_PostalCodeText").val();
+
+            var addressDiv = $('#divPermanentAddress');
+            $.ajax({
+                url: '@Url.Action("CopyCurrentAddressToPermanentAddress", "PersonDetails", new { Area = "Human" })',
+                data: JSON.stringify(request),
+                contentType: "application/json; charset=utf-8",
+                dataType: "html",
+                type: "POST",
+                success: function (response) {
+                    addressDiv.html(response);
+                    $('#divPermanentAddress').find('*').attr('disabled', true);
+                }
+            });
+        }
+        else {
+            // work Address data fields shall be cleared and available for data entry
+            $('#divPermanentAddress').find('*').attr('disabled', false);
+            $("#PersonInformationSection_PersonDetails_HumanPermGeoLocationID").prop("disabled", false);
+            $("#PersonInformationSection_PersonDetails_HumanPermGeoLocationID").val('');
+
+            $("#PersonAddressSection_PermanentAddress_AdminLevel1Value").val('');
+            $("#PersonAddressSection_PermanentAddress_AdminLevel2Value").val('');
+            $("#PersonAddressSection_PermanentAddress_AdminLevel3Value").val('');
+            $("#PersonAddressSection_PermanentAddress_SettlementType").val('');
+
+            $("#PersonAddressSection_PermanentAddress_StreetText").val('');
+            $("#PersonAddressSection_PermanentAddress_Apartment").val('');
+            $("#PersonAddressSection_PermanentAddress_Building").val('');
+            $("#PersonAddressSection_PermanentAddress_House").val('');
+            $("#PersonAddressSection_PermanentAddress_PostalCodeText").val('');
+
+
+             var request = {};
+
+            request.HumanidfsCountry = $("#PersonAddressSection_PermanentAddress_AdminLevel0Value").val();
+            request.HumanidfsRegion = $("#PersonAddressSection_PermanentAddress_AdminLevel1Value").val();
+            request.HumanidfsRayon = $("#PersonAddressSection_PermanentAddress_AdminLevel2Value").val();
+            request.HumanidfsSettlement = $("#PersonAddressSection_PermanentAddress_AdminLevel3Value").val();
+            request.HumanidfsSettlementType = $("#PersonAddressSection_PermanentAddress_SettlementType").val();
+
+            request.HumanstrStreetName = $("#PersonAddressSection_PermanentAddress_StreetText").val();
+            request.HumanstrApartment = $("#PersonAddressSection_PermanentAddress_Apartment").val();
+            request.HumanstrBuilding = $("#PersonAddressSection_PermanentAddress_Building").val();
+            request.HumanstrHouse = $("#PersonAddressSection_PermanentAddress_House").val();
+            request.HumanidfsPostalCode = $("#PersonAddressSection_PermanentAddress_PostalCodeText").val();
+            var addressDiv = $('#divPermanentAddress');
+             $.ajax({
+                url: '@Url.Action("CopyCurrentAddressToPermanentAddress", "PersonDetails", new { Area = "Human" })',
+                data: JSON.stringify(request),
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                dataType: "html",
+                type: "POST",
+                success: function (response) {
+                    addressDiv.html(response);
+                }
+            });
+        }
+    });
+
+    $("#PersonAddressSection_PersonDetails_ContactPhone").on("change", function () {
+        var contactPhone = $("#PersonAddressSection_PersonDetails_ContactPhone").val();
+        if (contactPhone != null && contactPhone != "")
+            validatePhone(false);
+    });
+
+    function validatePhone(IsUserPermission) {
+        var isValidPhone = true;
+        var a = $("#PersonAddressSection_PersonDetails_ContactPhone").val();
+        var filter = /^[0-9]{8,15}$/;
+        if (filter.test(a)) {
+            isValidPhone = true;
+            $("#ValContactPhone").html("");
+        }
+        else {
+            if (a == null && a == "") {
+                isValidPhone = true;
+            }
+            else {
+                $("#ValContactPhone").html('@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)');
+                isValidPhone = false;
+            }
+        }
+        return isValidPhone;
+    };
+
+    $("#PersonAddressSection_PersonDetails_ContactPhone2").on("change", function () {
+        var contactPhone = $("#PersonAddressSection_PersonDetails_ContactPhone2").val();
+        if (contactPhone != null && contactPhone != "")
+            validatePhone(false);
+    });
+
+    function validatePhone2(IsUserPermission) {
+        var isValidPhone = true;
+        var a = $("#PersonAddressSection_PersonDetails_ContactPhone2").val();
+        var filter = /^[0-9]{8,15}$/;
+        if (filter.test(a)) {
+            isValidPhone = true;
+            $("#ValContactPhone2").html("");
+        }
+        else {
+            if (a == null && a == "") {
+                isValidPhone = true;
+            }
+            else {
+                $("#ValContactPhone2").html('@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)');
+                isValidPhone = false;
+            }
+        }
+        return isValidPhone;
+    };
+</script>

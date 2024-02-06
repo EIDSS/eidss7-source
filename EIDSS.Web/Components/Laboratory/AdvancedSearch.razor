@@ -1,0 +1,110 @@
+﻿@using EIDSS.Domain.RequestModels.Laboratory
+@using EIDSS.Web.Components.CrossCutting
+@inherits AdvancedSearchBase
+
+<RadzenTemplateForm Data="SearchCriteria" @ref="Form" Submit="OnSubmitClick" TItem="AdvancedSearchGetRequestModel">
+    <div class="card">
+        <DataAnnotationsValidator/>
+        <InterfaceEditorResource CssClass="col-12" For="laboratorySampleID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchLaboratorySampleIDFieldLabel" IsRow="true">
+            <RadzenTextBox @bind-Value="SearchCriteria.EIDSSLaboratorySampleID" class="form-control" MaxLength="36" Name="laboratorySampleID"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="localOrFieldSampleID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchLocalFieldSampleIDFieldLabel" IsRow="true">
+            <RadzenTextBox @bind-Value="SearchCriteria.EIDSSLocalOrFieldSampleID" class="form-control" MaxLength="36" Name="localOrFieldSampleID"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="sampleTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchSampleTypeFieldLabel" IsRow="true">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="SearchCriteria.SampleTypeID" class="form-control" Data="SampleTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="@GetSampleTypes" Name="sampleTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"></RadzenDropDown>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="sampleStatusTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchSampleStatusFieldLabel" IsRow="true">
+            <RadzenDropDown AllowClear="true" AllowFiltering="false" @bind-Value="SearchCriteria.SampleStatusTypeList" Change="OnSampleStatusChange" class="form-control" Data="AccessionConditionAndSampleStatusTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetAccessionConditionAndSampleStatusTypes" Multiple="true" Name="sampleStatusTypeID" TextProperty="Name" ValueProperty="IdfsBaseReference" />
+        </InterfaceEditorResource>
+        <fieldset>
+            <legend>@Localizer.GetString(HeadingResourceKeyConstants.LaboratoryAdvancedSearchDateRangeHeading)</legend>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-6" For="dateFrom" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchDateFromFieldLabel" IsRow="false">
+                    <br/>
+                    <RadzenDatePicker AllowClear="true" @bind-Value="@SearchCriteria.DateFrom" DateFormat="d" id="dateFrom" Name="dateFrom" TValue="DateTime?" />
+                    <br/>
+                    <RadzenCompareValidator Component="dateFrom" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FromToDatesCompareMessage)" Value="@SearchCriteria.DateTo"/>
+                    <RadzenCompareValidator Component="dateFrom" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="DateTime.Now"/>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-6" For="dateTo" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchDateToFieldLabel" IsRow="false">
+                    <br/>
+                    <RadzenDatePicker AllowClear="true" @bind-Value="@SearchCriteria.DateTo" DateFormat="d" id="dateTo" Name="dateTo" TValue="DateTime?" />
+                    <br/>
+                    <RadzenCompareValidator Component="dateTo" Operator="CompareOperator.GreaterThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FromToDatesCompareMessage)" Value="@SearchCriteria.DateFrom"/>
+                    <RadzenCompareValidator Component="dateTo" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="DateTime.Now"/>
+                </InterfaceEditorResource>
+            </div>
+        </fieldset>
+        <InterfaceEditorResource CssClass="col-12" For="reportOrSessionTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchReportSessionTypeFieldLabel" IsRow="true">
+            <RadzenDropDown AllowClear="true" @bind-Value="SearchCriteria.ReportOrSessionTypeID" Change="args => OnReportOrSessionTypeChange(args)" class="form-control" Data="ReportOrSessionTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetReportOrSessionTypes" Name="reportOrSessionTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="surveillanceTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchSurveillanceTypeFieldLabel" IsRow="true">
+            <RadzenDropDown AllowClear="true" @bind-Value="SearchCriteria.SurveillanceTypeID" class="form-control" Data="SurveillanceTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="@GetSurveillanceTypes" Name="surveillanceTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="reportSessionOrCampaignID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchReportSessionCampaignIDFieldLabel" IsRow="true">
+            <RadzenTextBox @bind-Value="SearchCriteria.EIDSSReportSessionOrCampaignID" class="form-control" MaxLength="36" Name="reportSessionOrCampaignID"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="diseaseID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchDiseaseFieldLabel" IsRow="true">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="SearchCriteria.DiseaseID" class="form-control" Data="Diseases" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetDiseases" Name="diseaseID" TextProperty="DiseaseName" TValue="long?" ValueProperty="DiseaseID" />
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="patientName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchPersonFieldLabel" IsRow="true">
+            <RadzenTextBox @bind-Value="SearchCriteria.PatientName" class="form-control" MaxLength="200" Name="patientName"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="farmOwnerName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchFarmOwnerFieldLabel" IsRow="true">
+            <RadzenTextBox @bind-Value="SearchCriteria.FarmOwnerName" class="form-control" MaxLength="200" Name="farmOwnerName"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="speciesTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchSpeciesFieldLabel" IsRow="true">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="SearchCriteria.SpeciesTypeID" class="form-control" Data="SpeciesTypes" Disabled="IsSpeciesTypeDisabled" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetSpeciesTypes" Name="speciesTypeID" TextProperty="StrName" TValue="long?" ValueProperty="KeyId" />
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="sentToOrganizationID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchOrganizationSentToFieldLabel" IsRow="true">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="SearchCriteria.SentToOrganizationID" class="form-control" Data="SentToOrganizations" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetSentToOrganizations" Name="sentToOrganizationID" TextProperty="name" TValue="long?" ValueProperty="idfOffice"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="transferredToOrganizationID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchOrganizationTransferredToFieldLabel" IsRow="true">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="SearchCriteria.TransferredToOrganizationID" class="form-control" Data="TransferredToOrganizations" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetTransferredToOrganizations" Name="transferredToOrganizationID" TextProperty="name" TValue="long?" ValueProperty="idfOffice"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="transferID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchTransferIDFieldLabel" IsRow="true">
+            <RadzenTextBox @bind-Value="SearchCriteria.EIDSSTransferID" class="form-control" MaxLength="36" Name="transferID"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="resultsReceivedFromOrganizationID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchResultsReceivedFromFieldLabel" IsRow="true">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="SearchCriteria.ResultsReceivedFromOrganizationID" class="form-control" Data="ResultsReceivedFromOrganizations" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetResultsReceivedFromOrganizations" Name="resultsReceivedFromOrganizationID" TextProperty="name" TValue="long?" ValueProperty="idfOffice"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="testNameTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchTestNameFieldLabel" IsRow="true">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="SearchCriteria.TestNameTypeID" class="form-control" Data="TestNameTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetSearchTestNameTypes" Name="testNameTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="testResultTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchTestResultFieldLabel" IsRow="true">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="SearchCriteria.TestResultTypeID" class="form-control" Data="TestResultTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetSearchTestResultTypes" Name="testResultTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="testStatusTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchTestStatusFieldLabel" IsRow="true">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="SearchCriteria.TestStatusTypeID" class="form-control" Data="TestStatusTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetSearchTestStatusTypes" Name="testStatusTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"/>
+        </InterfaceEditorResource>
+        <fieldset>
+            <legend>@Localizer.GetString(HeadingResourceKeyConstants.LaboratoryAdvancedSearchTestResultDateRangeHeading)</legend>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-6" For="testResultDateFrom" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchTestResultDateFromFieldLabel" IsRow="false">
+                    <br/>
+                    <RadzenDatePicker AllowClear="true" @bind-Value="SearchCriteria.TestResultDateFrom" DateFormat="d" Name="testResultDateFrom" TValue="DateTime?"></RadzenDatePicker>
+                    <br/>
+                    <RadzenCompareValidator Component="testResultDateFrom" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FromToDatesCompareMessage)" Value="SearchCriteria.TestResultDateTo"/>
+                    <RadzenCompareValidator Component="testResultDateFrom" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="DateTime.Now"/>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-6" For="testResultDateTo" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratoryAdvancedSearchTestResultDateToFieldLabel" IsRow="false">
+                    <br/>
+                    <RadzenDatePicker AllowClear="true" @bind-Value="SearchCriteria.TestResultDateTo" DateFormat="d" Name="testResultDateTo" TValue="DateTime?"></RadzenDatePicker>
+                    <br/>
+                    <RadzenCompareValidator Component="testResultDateTo" Operator="CompareOperator.GreaterThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FromToDatesCompareMessage)" Value="SearchCriteria.TestResultDateFrom"/>
+                    <RadzenCompareValidator Component="testResultDateTo" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="DateTime.Now"/>
+                </InterfaceEditorResource>
+            </div>
+        </fieldset>
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-12">
+                    <button class="btn btn-outline-primary" id="laboratoryAdvancedSearchCancel" @onclick="OnCancelClick" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToCancelToolTip)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button class="btn btn-outline-primary" id="laboratoryAdvancedSearchClear" @onclick="OnClearClick" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToClearToolTip)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)</button>
+                    <button class="btn btn-primary" id="laboratoryAdvancedSearchSearch" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSearchToolTip)" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SearchButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

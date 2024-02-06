@@ -1,0 +1,144 @@
+﻿@model EIDSS.Web.Areas.Reports.SubAreas.GG.ViewModels.WhoReportOnMeaslesAndRubellaViewModel
+@using EIDSS.ReportViewer
+@{
+    ViewBag.Title = Localizer.GetString(HeadingResourceKeyConstants.WHOReportOnMeaslesAndRubellaPageHeading);
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@(HeadingResourceKeyConstants.WHOReportOnMeaslesAndRubellaPageHeading + "," + Model.LanguageId)"></h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            <div class="form-row">
+                    <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                        <i class="fas fa-asterisk text-danger"></i>
+                        <label asp-for="DateFrom" field-label-for="@(FieldLabelResourceKeyConstants.DateFromFieldLabel + "," + Model.LanguageId)"></label>
+                        <eidss-calendar id="DateFrom" name="DateFrom" asp-for="DateFrom" language="LanguageId" class="form-control"></eidss-calendar>
+                        <span asp-validation-for="DateFrom" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                        <i class="fas fa-asterisk text-danger"></i>
+                        <label asp-for="DateTo" field-label-for="@(FieldLabelResourceKeyConstants.DateToFieldLabel + "," + Model.LanguageId)"></label>
+                        <eidss-calendar id="DateTo" name="DateTo" asp-for="DateTo" language="LanguageId" class="form-control"></eidss-calendar>
+                        <span asp-validation-for="DateTo" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4 text-right">
+                        <button type="submit" id="submitReport" class="btn btn-primary" button-for="@(ButtonResourceKeyConstants.GenerateReportButton + "," + Model.LanguageId)"></button>
+                    </div>
+                </div>
+            <div class="form-row">
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="DiseaseId" field-label-for="@(FieldLabelResourceKeyConstants.DiagnosisFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="DiseaseId" 
+                                asp-items="@(new SelectList(Model.GetHumanWhoMeaslesRubellaDiagnosis, "idfsDiagnosis", "strDiagnosis"))" class="form-control">
+                        </select>
+                        <span class="input-group-append">
+                            <button type="button" id="btnDisease" class="btn btn-outline-secondary btn-sm border-left-0 border"><i class="fa fa-times fa-sm"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group col-md-2 form-check form-check-inline" style="@(Model.ShowIncludeSignature ? "display:block;" : "display:none;")padding-top: 25px;">
+                    <input asp-for="IncludeSignature" class="form-check-input" type="checkbox" />
+                    <label asp-for="IncludeSignature" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.IncludeSignatureFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+                <div class="form-group col-md-4 form-check form-check-inline" style="@(Model.ShowUseArchiveData ? "display:block;" : "display:none;")padding-top: 25px;">
+                    <input asp-for="UseArchiveData" class="form-check-input" type="checkbox" />
+                    <label asp-for="UseArchiveData" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.UseArchivedDataFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+            </div>
+        </form>
+        <div class="col-xs-4 col-xs-offset-4" id="divLoading"></div>
+        <div id="ReportView"></div>
+    </div>
+</div>
+@section runreport {
+    <script type="text/javascript">
+
+        function submitReport() {
+                $("#ReportView").html("");
+                onBegin();
+                $.ajax({
+                    url: '@Url.Action("GenerateReport", "WhoReportOnMeaslesAndRubella", new { Area = "Reports", SubArea = "GG" })',//controller name and action
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(getFormData())  //information for search
+                })
+                    .done(function (result) {
+                        $('#ReportView').html(result); //write returned partial view to empty div
+                        onComplete();
+                    })
+            };
+
+        function onBegin() {
+               $("#divLoading").html('<image  src="@Url.Content("~/Includes/Images/ajax-loader.gif")"  alt="Loading, please wait" />');
+            };
+
+            function onComplete() {
+                var jsonData = {
+                    "strReportName": '@Model.ReportName',
+                    "idfIsSignatureIncluded": $("#IncludeSignature").is(':checked') ? 'true' : 'false'
+                };
+                //Save ReportAudit
+                $.ajax({
+                    url: '@Url.Action("SaveReportAudit", "WhoReportOnMeaslesAndRubella", new { Area = "Reports", SubArea = "GG" })',//controller name and action
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(jsonData)  //information for search
+                })
+                    .done(function (result) {
+                        $("#divLoading").html("");
+                    })
+            };
+
+        function getFormData() {
+            var jsonData = {
+                "DateFrom": $("#DateFrom").val(),
+                "DateTo": $("#DateTo").val(),
+                "DiseaseId": $("#DiseaseId").val(),
+                "UseArchiveData": $("#UseArchiveData").is(':checked') ? 'true' : 'false',
+                "IncludeSignature": $("#IncludeSignature").is(':checked') ? 'true' : 'false',
+                "PrintDateTime": localDate()
+            };
+
+            return jsonData;
+        };
+
+
+        $(document).ready(function () {
+            var ClearDisease = function () {
+                $("#DiseaseId").val("0").change();
+            };
+            $("#btnDisease").on("click", ClearDisease);
+        });
+
+       
+        function RefreshDisease() {
+            var selectedDisease = $('#DiseaseId').val();
+            $.ajax({
+                url: '@Url.Action("GetHumanWhoMeaslesRubellaDiagnosis", "WhoReportOnMeaslesAndRubella", new { Area = "Reports", SubArea = "GG" })' +"?langId=en-US",
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#DiseaseId').empty();
+                    var items = '';
+                    $.each(data, function (i, disease) {
+                        items += "<option value='" + disease.idfsDiagnosis + "'>" + disease.strDiagnosis + "</option>";
+                    });
+                    $('#DiseaseId').html(items);
+                    $('#DiseaseId').val(selectedDisease);
+                });
+        };
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+
+    @if (@Model.JavascriptToRun != null)
+    {
+        <script type="text/javascript">
+            @Html.Raw(@Model.JavascriptToRun)
+        </script>
+    }
+}

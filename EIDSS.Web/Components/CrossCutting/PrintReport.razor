@@ -1,0 +1,9 @@
+﻿@using EIDSS.Domain.ViewModels.CrossCutting
+@inherits EIDSS.Web.Components.CrossCutting.PrintReportBase
+<RadzenCard Style="margin-bottom: 20px;">
+
+</RadzenCard>
+<div class="form-row">
+    <button id="printReportCancel" type="button" class="btn btn-secondary" @onclick="OnCancel">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+    <button id="printReportPrint" type="submit" class="btn btn-primary">@Localizer.GetString(ButtonResourceKeyConstants.PrintButton)</button>
+</div>

@@ -1,0 +1,66 @@
+﻿@using EIDSS.Domain.ViewModels.Laboratory
+@using EIDSS.Web.Components.CrossCutting
+@inherits TransferDetailsBase
+
+<InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TransferOutModalPurposeofTransferFieldLabel" IsRow="true" CssClass="col-12" For="purposeOfTransfer">
+    @if (WritePermissionIndicator && Transfer.WritePermissionIndicator)
+    {
+        <RadzenTextBox @bind-Value="Transfer.PurposeOfTransfer" class="form-control" Disabled="Transfer.TransferFormDisabledIndicator" MaxLength="36" Name="purposeOfTransfer"></RadzenTextBox>
+    }
+    else
+    {
+        <RadzenTextBox @bind-Value="Transfer.PurposeOfTransfer" class="form-control" Disabled="true" MaxLength="36" Name="purposeOfTransfer"></RadzenTextBox>
+    }
+</InterfaceEditorResource>
+<InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TransferOutModalTestRequestedFieldLabel" IsRow="true" CssClass="col-12" For="testRequested">
+    @if (WritePermissionIndicator && Transfer.WritePermissionIndicator)
+    {
+        <RadzenTextBox @bind-Value="Transfer.TestRequested" class="form-control" Disabled="Transfer.TransferFormDisabledIndicator" MaxLength="200" Name="testRequested"></RadzenTextBox>
+    }
+    else
+    {
+        <RadzenTextBox @bind-Value="Transfer.TestRequested" class="form-control" Disabled="true" MaxLength="200" Name="testRequested"></RadzenTextBox>
+    }
+</InterfaceEditorResource>
+<InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TransferOutModalTransferredToFieldLabel" IsRow="true" CssClass="col-12" For="transferredToOrganizationID">
+    @if (WritePermissionIndicator && Transfer.WritePermissionIndicator)
+    {
+        <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="Transfer.TransferredToOrganizationID" class="form-control" Data="TransferredToOrganizations" Disabled="Transfer.TransferFormDisabledIndicator" LoadData="GetTransferredToOrganizations" Name="transferredToOrganizationID" TextProperty="FullName" TValue="long?" ValueProperty="idfOffice"></RadzenDropDown>
+    }
+    else
+    {
+        <RadzenDropDown AllowClear="false" AllowFiltering="false" @bind-Value="Transfer.TransferredToOrganizationID" class="form-control" Data="TransferredToOrganizations" Disabled="true" LoadData="GetTransferredToOrganizations" Name="transferredToOrganizationID" TextProperty="FullName" TValue="long?" ValueProperty="idfOffice"></RadzenDropDown>
+    }
+</InterfaceEditorResource>
+<InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TransferOutModalDateSentFieldLabel" IsRow="true" CssClass="col-12" For="dateSent">
+    <br/>
+    @if (WritePermissionIndicator && Transfer.WritePermissionIndicator)
+    {
+        <RadzenDatePicker AllowClear="true" @bind-Value="Transfer.TransferDate" DateFormat="d" Disabled="Transfer.TransferFormDisabledIndicator" Name="dateSent" TValue="DateTime?"></RadzenDatePicker>
+        <RadzenCompareValidator Component="dateSent" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="DateTime.Now"/>
+    }
+    else
+    {
+        <RadzenDatePicker AllowClear="false" @bind-Value="Transfer.TransferDate" DateFormat="d" Disabled="true" Name="dateSent" TValue="DateTime?"></RadzenDatePicker>
+    }
+</InterfaceEditorResource>
+<div class="form-row">
+    <div class="form-group col-md-12">
+        <label for="transferFromOrganizationName">@Localizer.GetString(FieldLabelResourceKeyConstants.TransferOutModalTransferFromFieldLabel)</label>
+        <br/>
+        <RadzenTextBox @bind-Value="Transfer.TransferredFromOrganizationName" Disabled="true" id="transferFromOrganizationName" Name="transferFromOrganizationName"></RadzenTextBox>
+    </div>
+</div>
+<div class="form-row">
+    <div class="form-group col-md-12">
+        <label for="sentByPersonName">@Localizer.GetString(FieldLabelResourceKeyConstants.TransferOutModalSentByFieldLabel)</label>
+        <br/>
+        <RadzenTextBox @bind-Value="Transfer.SentByPersonName" Disabled="true" id="sentByPersonName" Name="sentByPersonName"></RadzenTextBox>
+    </div>
+</div>
+<div class="form-row">
+    <div class="form-group col-md-12">
+        <RadzenCheckBox @bind-Value="Transfer.PrintBarcodeIndicator" class="form-check-inline" Name="transferOutPrintBarcodeIndicator" TriState="false" TValue="bool"/>
+        <label>@Localizer.GetString(FieldLabelResourceKeyConstants.TransferOutModalPrintBarcodeFieldLabel)</label>
+    </div>
+</div>

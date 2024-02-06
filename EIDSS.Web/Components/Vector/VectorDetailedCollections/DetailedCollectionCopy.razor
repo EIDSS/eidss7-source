@@ -1,0 +1,41 @@
+﻿@using Domain.ViewModels.Vector
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Domain.Enumerations
+@using EIDSS.Web.Services
+
+@inherits EIDSS.Web.Components.Vector.VectorDetailedCollections.DetailedCollectionCopyBase
+
+<RadzenTemplateForm @ref="Form" Data="VectorSessionStateContainer" TItem="VectorSessionStateContainer" Submit="@OnSubmit">
+        <div class="card">
+            <div class="card-body">
+                <div class="form-row">
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionCollectionDataFieldLabel" IsRow="false" CssClass="col-6" For="copyAllData">
+                        <RadzenCheckBox Name="copyAllData" TriState="false" Disabled="true" Value="true" TValue="bool" />
+                    </InterfaceEditorResource>
+                </div>
+                <div class="form-row">
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionVectorDataFieldLabel" IsRow="false" CssClass="col-6" For="copyVectorData">
+                        <RadzenCheckBox Name="copyVectorData" TriState="false" TValue="bool" @bind-Value="VectorSessionStateContainer.CopyVectorData" />
+                    </InterfaceEditorResource>
+                </div>
+                <div class="form-row">
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionSamplesFieldLabel" IsRow="false" CssClass="col-6" For="copySamplesData">
+                        <RadzenCheckBox Name="copySamplesData" TriState="false" TValue="bool" @bind-Value="VectorSessionStateContainer.CopySamples" />
+                    </InterfaceEditorResource>
+                </div>
+                <div class="form-row">
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionFieldTestsFieldLabel" IsRow="false" CssClass="col-6" For="copyFieldTestsData">
+                        <RadzenCheckBox Name="copyFieldTestsData" TriState="false" TValue="bool" @bind-Value="VectorSessionStateContainer.CopyFieldTests" />
+                    </InterfaceEditorResource>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="form-row">
+                    <div class="col-md-12">
+                        <button type="button" class="btn btn-outline-primary" @onclick="OnCancel">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                        <button type="submit" class="btn btn-primary">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+</RadzenTemplateForm>

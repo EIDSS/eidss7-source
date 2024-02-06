@@ -1,0 +1,148 @@
+﻿@model EIDSS.Web.Areas.Reports.ViewModels.PrintBarcodesViewModel
+@using EIDSS.ReportViewer
+
+@{
+    ViewBag.Title = Localizer.GetString(HeadingResourceKeyConstants.PrintBarcodesPageHeading);
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@(HeadingResourceKeyConstants.PrintBarcodesPageHeading + "," + Model.LanguageId)"></h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            <div class="form-row">
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="LanguageId" field-label-for="@(FieldLabelResourceKeyConstants.LanguageFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="LanguageId"
+                                asp-items="@(new SelectList(Model.ReportLanguageModels,"LangID","Language"))" class="form-control">
+                        </select>
+                        <input type="hidden" asp-for="PriorLanguageId" />
+                    </div>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="TypeOfBarCodeLabel" field-label-for="@(FieldLabelResourceKeyConstants.PrintBarcodesTypeOfBarcodeLabelFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="TypeOfBarCodeLabel" style="width: 100%;"
+                                asp-items="@(new SelectList(Model.TypeOfBarCodeLabelList, "IdfsBaseReference", "Name"))" class="form-control">
+                            <option></option>
+                        </select>
+                        <span asp-validation-for="TypeOfBarCodeLabel" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="NoOfLabelsToPrint" field-label-for="@(FieldLabelResourceKeyConstants.PrintBarcodesNumberOfLabelsToPrintFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="NoOfLabelsToPrint"
+                                asp-items="@(new SelectList(Model.NoOfLabelsToPrintList, "Id", "Value"))" class="form-control" style="width:100%">
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4 text-right">
+                    <button type="submit" id="submitReport" class="btn btn-primary" button-for="@(ButtonResourceKeyConstants.GenerateReportButton + "," + Model.LanguageId)"></button>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-2 form-check form-check-inline">
+                    <input asp-for="Prefix" class="form-check-input" type="checkbox"  />
+                    <label asp-for="Prefix" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.PrintBarcodesPrefixFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+                <div class="form-group col-md-2 form-check form-check-inline">
+                    <input asp-for="Site" class="form-check-input" type="checkbox"  />
+                    <label asp-for="Site" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.SiteFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+                <div class="form-group col-md-2 form-check form-check-inline">
+                    <input asp-for="Year" class="form-check-input" type="checkbox"  />
+                    <label asp-for="Year" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.YearFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+                <div class="form-group col-md-2 form-check form-check-inline">
+                    <input asp-for="Date" class="form-check-input" type="checkbox" />
+                    <label asp-for="Date" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.PrintBarcodesDateFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+            </div>          
+        </form>
+        <div class="col-xs-4 col-xs-offset-4" id="divLoading"></div>
+        <div id="ReportView"></div>
+    </div>
+</div>
+
+@section runreport {
+    <script type="text/javascript">
+        function submitReport() {
+                $("#ReportView").html("");
+                onBegin();
+                $.ajax({
+                    url: '@Url.Action("GenerateReport", "PrintBarcodes", new { Area = "Reports", SubArea = "" })',//controller name and action
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(getFormData())  //information for search
+                })
+                    .done(function (result) {
+                        $('#ReportView').html(result); //write returned partial view to empty div
+                        onComplete();
+                    })
+        };
+
+        function onBegin() {
+            $("#divLoading").html('<image  src="@Url.Content("~/Includes/Images/ajax-loader.gif")"  alt="Loading, please wait" />');
+         };
+
+        function onComplete() {
+            var jsonData = {
+                "strReportName": '@Model.ReportName',
+                //"idfIsSignatureIncluded": $("#IncludeSignature").is(':checked') ? 'true' : 'false'
+            };
+            //Save ReportAudit
+            $.ajax({
+                url: '@Url.Action("SaveReportAudit", "PrintBarcodes", new { Area = "Reports", SubArea = "" })',//controller name and action
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(jsonData)  //information for search
+            })
+                .done(function (result) {
+                    $("#divLoading").html("");
+                })
+        };
+
+        function getFormData() {
+            var jsonData = {
+                "LanguageId": $("#LanguageId").val(),
+                "PriorLanguageId": $("#PriorLanguageId").val(),
+                "TypeOfBarCodeLabel": $("#TypeOfBarCodeLabel").val(),
+                "NoOfLabelsToPrint": $("#NoOfLabelsToPrint").val(),
+                "Prefix": $("#Prefix").is(":checked") ? "true" : "false",
+                "Site": $("#Site").is(":checked") ? "true" : "false",
+                "Year": $("#Year").is(":checked") ? "true" : "false",
+                "Date": $("#Date").is(":checked") ? "true" : "false",
+                "PrintDateTime": localDate()
+            };
+
+            return jsonData;
+        };
+
+        $(document).ready(function () {
+            $("#LanguageId").on("change", function () {
+                $.ajax({
+                    url: '@Url.Action("ChangeLanguage", "PrintBarcodes", new { Area = "Reports", SubArea = "" })',
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(getFormData())  //information for search
+                })
+                    .done(function (response) {
+                        $("body").html(response);
+                    });
+            });
+        });
+    </script>
+
+    @if (@Model.JavascriptToRun != null)
+    {
+        <script type="text/javascript">
+            @Html.Raw(@Model.JavascriptToRun)
+        </script>
+    }
+}

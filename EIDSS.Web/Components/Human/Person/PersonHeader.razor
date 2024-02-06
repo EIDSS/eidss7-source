@@ -1,0 +1,32 @@
+﻿@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Services
+@inherits EIDSS.Web.Components.Human.Person.PersonHeaderBase
+
+<RadzenTemplateForm @ref="Form" TItem="PersonStateContainer" Data=@StateContainer>
+    <div class="card">
+        <div class="card-header">
+        </div>
+        <div id="divPersonSummary" class="card-body show">
+            <fieldset>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmInformationDateEnteredFieldLabel" IsRow="false" CssClass="col-4" For="dateEntered">
+                    <RadzenDatePicker 
+                        Name="dateEntered" 
+                        class="form-control-plaintext" 
+                        @bind-Value="@StateContainer.DateEntered" 
+                        ReadOnly=true 
+                        DateFormat="d" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmInformationDateLastUpdatedFieldLabel" IsRow="false" CssClass="col-4" For="dateModified">
+                    <RadzenDatePicker 
+                        Name="dateModified" 
+                        class="form-control-plaintext" 
+                        @bind-Value="@StateContainer.DateModified" 
+                        ReadOnly=true 
+                        DateFormat="d" />
+                </InterfaceEditorResource>
+            </div>
+            </fieldset>
+        </div>
+    </div>
+</RadzenTemplateForm>

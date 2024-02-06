@@ -1,0 +1,80 @@
+﻿@inherits CreateBatchBase
+@using EIDSS.Domain.ViewModels.Laboratory
+@using EIDSS.Web.Components.FlexForm
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Domain.Enumerations
+
+<RadzenTemplateForm Data="Batch" @ref="Form" Submit="OnSaveClick" TItem="BatchesGetListViewModel">
+    <div class="card">
+        <div class="card-body">
+            @if (IsBatchIdVisible)
+            {
+                <InterfaceEditorResource CssClass="col-6" For="batchTestID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.BatchModalBatchIDFieldLabel" IsRow="true">
+                    <br />
+                    <label id="batchTestID">@BatchId</label>
+                </InterfaceEditorResource>
+            }
+            <div class="form-row">
+                <div class="col-6">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.BatchModalTestedNameFieldLabel)</label>
+                    <br />
+                    <label id="testName">@Test.TestNameTypeName</label>
+                </div>
+            </div>
+            @if (IsTestCategoryVisible)
+            {
+                <InterfaceEditorResource CssClass="col-6" For="testCategoryTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalTestCategoryFieldLabel" IsRow="true">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="Test.TestCategoryTypeID" class="form-control" Data="LaboratoryService.TestCategoryTypes" Name="testCategoryTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"/>
+                </InterfaceEditorResource>
+            }
+            @if (IsTestResultVisible)
+            {
+                <InterfaceEditorResource CssClass="col-6" For="testResultTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalTestResultFieldLabel" IsRow="true">
+                    @if (LaboratoryService.TestResultTypes is not null && LaboratoryService.TestResultTypes.Any())
+                    {
+                        <RadzenDropDown AllowClear="Batch.BatchStatusTypeID == (long) BatchTestStatusTypeEnum.InProgress && Batch.WritePermissionIndicator" @bind-Value="Test.TestResultTypeID" Change="args => OnTestResultChange(args)" class="form-control" Data="LaboratoryService.TestResultTypes.Where(x => Test.TestNameTypeID != null && x.idfsTestName == Test.TestNameTypeID).AsODataEnumerable()" Disabled="Batch.BatchStatusTypeID == (long) BatchTestStatusTypeEnum.Closed || Batch.WritePermissionIndicator == false" LoadData="args => GetTestResultTypesByTestName(args, Test.TestNameTypeID)" Name="testResultTypeID" TextProperty="strTestResultName" TValue="long?" ValueProperty="idfsTestResult" />
+                    }
+                </InterfaceEditorResource>
+            }
+            <InterfaceEditorResource CssClass="col-6" For="testedBy" InterfaceEditorKey="@FieldLabelResourceKeyConstants.BatchModalTestedByFieldLabel" IsRow="true">
+                <div class="input-group mb-3">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="Test.TestedByPersonID" class="form-control" Data="EmployeeList" Disabled="Batch is not null && Batch.BatchTestID > 0" LoadData="GetTestedByEmployees" Name="testedBy" TextProperty="FullName" TValue="long?" ValueProperty="idfPerson"/>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary btn-sm" id="AddEmployee" @onclick="@(() => OnAddEmployeeClick())" type="button">
+                            <span class="fas fa-plus" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-6" For="testStartedDate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalTestStartedDateFieldLabel" IsRow="true">
+                <br />
+                <label id="testStartedDate">@TestStartedDate</label>
+            </InterfaceEditorResource>
+            @if (IsTestResultDateVisible)
+            {
+                <div class="form-row">
+                    <div class="col-6">
+                        <label>@Localizer.GetString(FieldLabelResourceKeyConstants.TestDetailsModalResultDateFieldLabel)</label>
+                        <br />
+                        <label id="testResultDate">@TestResultDate</label>
+                    </div>
+                </div>
+            }
+            @if (IsNoteVisible)
+            {
+                <InterfaceEditorResource CssClass="col-6" For="note" InterfaceEditorKey="@FieldLabelResourceKeyConstants.NoteFieldLabel" IsRow="true">
+                    <RadzenTextBox @bind-Value="Note" class="form-control" MaxLength="100" Name="note"/>
+                </InterfaceEditorResource>
+            }
+            <FlexForm @ref="QualityControlValuesFlexForm" Request="FlexFormRequest"/>
+        </div>
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-12">
+                    <button class="btn btn-outline-primary" @onclick="OnCancelClick" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToCancelToolTip)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button class="btn btn-primary" @onsubmit="OnSaveClick" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

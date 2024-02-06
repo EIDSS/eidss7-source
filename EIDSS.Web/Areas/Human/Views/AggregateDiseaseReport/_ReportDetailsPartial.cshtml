@@ -1,0 +1,424 @@
+﻿@model EIDSS.Web.ViewModels.CrossCutting.ReportDetailsSectionViewModel;
+@using EIDSS.ClientLibrary.Enumerations;
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    var defaultData = new Select2DataItem();
+
+    defaultData = new Select2DataItem() { id = Model.AggregateDiseaseReportDetails.idfSentByOffice.ToString(), text = Model.AggregateDiseaseReportDetails.strSentByOffice };
+    Model.SentByOrganizations.DropDownId = "ReportDetailsSection_AggregateDiseaseReportDetails_idfSentByOffice";
+    Model.SentByOrganizations.defaultSelect2Selection = defaultData;
+    Model.SentByOrganizations.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.SentByOrganizations.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationSentByInstitutionFieldLabel);
+    Model.SentByOrganizations.Endpoint = @Url.Action("GetOrganizationsForLookup", "CrossCutting", new { Area = "CrossCutting", organizationSiteAssociation = (int)OrganizationSiteAssociations.OrganizationsWithOrWithoutSite, accessoryCode = EIDSSConstants.HACodeList.HumanHACode });
+    Model.SentByOrganizations.isVisible = true;
+
+    defaultData = new Select2DataItem() { id = Model.AggregateDiseaseReportDetails.idfSentByPerson.ToString(), text = Model.AggregateDiseaseReportDetails.strSentByPerson };
+    Model.SentByOfficers.DropDownId = "ReportDetailsSection_AggregateDiseaseReportDetails_idfSentByPerson";
+    Model.SentByOfficers.defaultSelect2Selection = defaultData;
+    Model.SentByOfficers.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.SentByOfficers.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationSentByOfficerFieldLabel);
+    Model.SentByOfficers.Endpoint = @Url.Action("GetEmployeeLookupList", "CrossCutting", new { Area = "CrossCutting" });
+    Model.SentByOfficers.isVisible = true;
+    Model.SentByOfficers.FilteredId = "ReportDetailsSection_AggregateDiseaseReportDetails_idfSentByOffice";
+    @if (Model.PermissionsCanAccessEmployeesList.Create)
+    {
+        Model.SentByOfficers.IncludeAddButton = true;
+        Model.SentByOfficers.AddModalId = "NonUserEmployeeSave";
+    }
+
+    defaultData = new Select2DataItem() { id = Model.AggregateDiseaseReportDetails.idfReceivedByOffice.ToString(), text = Model.AggregateDiseaseReportDetails.strReceivedByOffice };
+    Model.ReceivedByOrganizations.DropDownId = "ReportDetailsSection_AggregateDiseaseReportDetails_idfReceivedByOffice";
+    Model.ReceivedByOrganizations.defaultSelect2Selection = defaultData;
+    Model.ReceivedByOrganizations.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.ReceivedByOrganizations.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationReceivedByInstitutionFieldLabel);
+    Model.ReceivedByOrganizations.Endpoint = @Url.Action("GetOrganizationsForLookup", "CrossCutting", new { Area = "CrossCutting", organizationSiteAssociation = (int)OrganizationSiteAssociations.OrganizationsWithOrWithoutSite, accessoryCode = EIDSSConstants.HACodeList.HumanHACode });
+    Model.ReceivedByOrganizations.isVisible = true;
+
+    defaultData = new Select2DataItem() { id = Model.AggregateDiseaseReportDetails.idfReceivedByPerson.ToString(), text = Model.AggregateDiseaseReportDetails.strReceivedByPerson };
+    Model.ReceivedByOfficers.DropDownId = "ReportDetailsSection_AggregateDiseaseReportDetails_idfReceivedByPerson";
+    Model.ReceivedByOfficers.defaultSelect2Selection = defaultData;
+    Model.ReceivedByOfficers.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.ReceivedByOfficers.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationReceivedByOfficerFieldLabel);
+    Model.ReceivedByOfficers.Endpoint = @Url.Action("GetEmployeeLookupList", "CrossCutting", new { Area = "CrossCutting" });
+    Model.ReceivedByOfficers.isVisible = true;
+    Model.ReceivedByOfficers.FilteredId = "ReportDetailsSection_AggregateDiseaseReportDetails_idfReceivedByOffice";
+    @if (Model.PermissionsCanAccessEmployeesList.Create)
+    {
+        Model.ReceivedByOfficers.IncludeAddButton = true;
+        Model.ReceivedByOfficers.AddModalId = "NonUserEmployeeSave";
+    }
+
+    Model.Years.DropDownId = "ReportDetailsSection_Year";
+    Model.Years.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportYearFieldLabel);
+    Model.Years.Endpoint = @Url.Action("GetYearList", "CrossCutting", new { Area = "CrossCutting" });
+    Model.Years.isVisible = true;
+
+    Model.Quarters.DropDownId = "ReportDetailsSection_Quarter";
+    Model.Quarters.defaultSelect2Selection = Model.Quarters.defaultSelect2Selection;
+    Model.Quarters.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportQuarterFieldLabel);
+    Model.Quarters.Endpoint = @Url.Action("GetQuarterList", "AggregateDiseaseReport", new { Area = "Human" });
+    Model.Quarters.isVisible = true;
+    Model.Quarters.FilteredId = "ReportDetailsSection_Year";
+
+    Model.Months.DropDownId = "ReportDetailsSection_Month";
+    Model.Months.defaultSelect2Selection = Model.Months.defaultSelect2Selection;
+    Model.Months.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportMonthFieldLabel);
+    Model.Months.Endpoint = @Url.Action("GetMonthList", "AggregateDiseaseReport", new { Area = "Human" });
+    Model.Months.isVisible = true;
+    Model.Months.FilteredId = "ReportDetailsSection_Year";
+
+    Model.Weeks.DropDownId = "ReportDetailsSection_Week";
+    Model.Weeks.defaultSelect2Selection = Model.Weeks.defaultSelect2Selection;
+    Model.Weeks.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportWeekFieldLabel);
+    Model.Weeks.Endpoint = @Url.Action("GetWeekList", "AggregateDiseaseReport", new { Area = "Human" });
+    Model.Weeks.isVisible = true;
+    Model.Weeks.FilteredId = "ReportDetailsSection_Year";
+
+    //defaultData = new Select2DataItem() { id = Model.AggregateDiseaseReportDetails.Organization.ToString(), text = Model.AggregateDiseaseReportDetails.strOrganization };
+    Model.Organizations.DropDownId = "ReportDetailsSection_Organization";
+    //Model.Organizations.defaultSelect2Selection = defaultData;
+    Model.Organizations.defaultSelect2Selection = Model.Organizations.defaultSelect2Selection;
+    Model.Organizations.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportOrganizationFieldLabel);
+    Model.Organizations.Endpoint = @Url.Action("GetOrganizationsByAdministrativeLevelID", "AggregateDiseaseReport", new { Area = "Human", data = Model.AggregateDiseaseReportDetails.idfsAdministrativeUnit });
+    Model.Organizations.isVisible = true;
+
+    <div id="DivAddNonUser">
+    </div>
+}
+
+<form id="reportDetailsForm">
+    <input type="hidden" asp-for="AggregateDiseaseReportDetails.idfAggrCase" />
+    <input type="hidden" asp-for="AggregateDiseaseReportDetails.idfsSite" />
+    <input type="hidden" asp-for="AggregateDiseaseReportDetails.idfsAggrCaseType" />
+    <input type="hidden" asp-for="AggregateDiseaseReportDetails.idfsAdministrativeUnit" />
+    <input type="hidden" asp-for="AggregateDiseaseReportDetails.idfsAreaType" />
+    <input type="hidden" asp-for="AggregateDiseaseReportDetails.idfsPeriodType" />
+    <input type="hidden" asp-for="AggregateDiseaseReportDetails.datStartDate" />
+    <input type="hidden" asp-for="AggregateDiseaseReportDetails.datFinishDate" />
+    <input type="hidden" asp-for="AggregateDiseaseReportDetails.idfCaseObservation" />
+    <input type="hidden" asp-for="AggregateDiseaseReportDetails.idfsCaseFormTemplate" />
+    <input type="hidden" asp-for="AggregateDiseaseReportDetails.idfEnteredByOffice" />
+    <input type="hidden" asp-for="AggregateDiseaseReportDetails.idfEnteredByPerson" />
+
+    <div class="container-fluid">
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4 heading-for="@HeadingResourceKeyConstants.HumanAggregateDiseaseReportReportDetailsHeading"></h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editReportDetailsSectionButton" href="#reportWizard-h-0" class="edit-section"><span class="far fa-edit fa-lg"></span></a>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-11">
+                <h5 heading-for="@HeadingResourceKeyConstants.HumanAggregateDiseaseReportNotificationSentByHeading"></h5>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4" hidden-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationSentByInstitutionFieldLabel">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationSentByInstitutionFieldLabel"></i>
+                <eidss-select2DropDown id="@Model.SentByOrganizations.DropDownId"
+                                       name="@Model.SentByOrganizations.DropDownId"
+                                       target-ajax-url="@Model.SentByOrganizations.ControlTargetUrl"
+                                       target-type="@Model.SentByOrganizations.ControlTargetType"
+                                       selectct2-default-data="@Model.SentByOrganizations.defaultSelect2Selection"
+                                       end-point="@Model.SentByOrganizations.Endpoint"
+                                       label-name="@Model.SentByOrganizations.Label"
+                                       class-name="form-control"
+                                       is-visible="@Model.SentByOrganizations.isVisible"
+                                       asp-for="@Model.AggregateDiseaseReportDetails.idfSentByOffice">
+                </eidss-select2DropDown>
+                <span asp-validation-for="AggregateDiseaseReportDetails.idfSentByOffice" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-4" hidden-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationSentByOfficerFieldLabel">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationSentByOfficerFieldLabel"></i>
+                <eidss-select2DropDown id="@Model.SentByOfficers.DropDownId"
+                                       name="@Model.SentByOfficers.DropDownId"
+                                       target-ajax-url="@Model.SentByOfficers.ControlTargetUrl"
+                                       selectct2-default-data="@Model.SentByOfficers.defaultSelect2Selection"
+                                       end-point="@Model.SentByOfficers.Endpoint"
+                                       label-name="@Model.SentByOfficers.Label"
+                                       class-name="form-control"
+                                       filter-id="@Model.SentByOfficers.FilteredId"
+                                       is-visible="@Model.SentByOfficers.isVisible"
+                                       include-add-button="@Model.SentByOfficers.IncludeAddButton"
+                                       add-modal-id="@Model.SentByOfficers.AddModalId"
+                                       asp-for="@Model.AggregateDiseaseReportDetails.idfSentByPerson">
+                </eidss-select2DropDown>
+                <span asp-validation-for="AggregateDiseaseReportDetails.idfSentByPerson" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-4" hidden-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationSentByDateFieldLabel">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationSentByDateFieldLabel"></i>
+                <label asp-for="AggregateDiseaseReportDetails.datSentByDate" field-label-for="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationSentByDateFieldLabel"></label>
+                <eidss-calendar id="ReportDetailsSection_AggregateDiseaseReportDetails_datSentByDate" name="ReportDetailsSection.AggregateDiseaseReportDetails.datSentByDate" asp-for="AggregateDiseaseReportDetails.datSentByDate" value="@Model.AggregateDiseaseReportDetails.datSentByDate" class="form-control" SearchFilter="true"></eidss-calendar>
+                <span asp-validation-for="AggregateDiseaseReportDetails.datSentByDate" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-11">
+                <h5 heading-for="@HeadingResourceKeyConstants.HumanAggregateDiseaseReportNotificationReceivedByHeading"></h5>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4" hidden-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationReceivedByInstitutionFieldLabel">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationReceivedByInstitutionFieldLabel"></i>
+                <eidss-select2DropDown id="@Model.ReceivedByOrganizations.DropDownId"
+                                       name="@Model.ReceivedByOrganizations.DropDownId"
+                                       target-ajax-url="@Model.ReceivedByOrganizations.ControlTargetUrl"
+                                       selectct2-default-data="@Model.ReceivedByOrganizations.defaultSelect2Selection"
+                                       end-point="@Model.ReceivedByOrganizations.Endpoint"
+                                       label-name="@Model.ReceivedByOrganizations.Label"
+                                       class-name="form-control"
+                                       is-visible="@Model.ReceivedByOrganizations.isVisible"
+                                       asp-for="@Model.AggregateDiseaseReportDetails.idfReceivedByOffice">
+                </eidss-select2DropDown>
+                <span asp-validation-for="AggregateDiseaseReportDetails.idfReceivedByOffice" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-4" hidden-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationReceivedByOfficerFieldLabel">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationReceivedByOfficerFieldLabel"></i>
+                <eidss-select2DropDown id="@Model.ReceivedByOfficers.DropDownId"
+                                       name="@Model.ReceivedByOfficers.DropDownId"
+                                       target-ajax-url="@Model.ReceivedByOfficers.ControlTargetUrl"
+                                       selectct2-default-data="@Model.ReceivedByOfficers.defaultSelect2Selection"
+                                       end-point="@Model.ReceivedByOfficers.Endpoint"
+                                       label-name="@Model.ReceivedByOfficers.Label"
+                                       class-name="form-control"
+                                       include-add-button="@Model.ReceivedByOfficers.IncludeAddButton"
+                                       add-modal-id="@Model.ReceivedByOfficers.AddModalId"
+                                       filter-id="@Model.ReceivedByOfficers.FilteredId"
+                                       is-visible="@Model.ReceivedByOfficers.isVisible"
+                                       asp-for="@Model.AggregateDiseaseReportDetails.idfReceivedByPerson">
+                </eidss-select2DropDown>
+                <span asp-validation-for="AggregateDiseaseReportDetails.idfReceivedByPerson" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-4" hidden-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationReceivedByDateFieldLabel">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationReceivedByDateFieldLabel"></i>
+                <label asp-for="AggregateDiseaseReportDetails.datReceivedByDate" field-label-for="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationReceivedByDateFieldLabel"></label>
+                <eidss-calendar id="ReportDetailsSection_AggregateDiseaseReportDetails_datReceivedByDate" name="ReportDetailsSection.AggregateDiseaseReportDetails.datReceivedByDate" asp-for="AggregateDiseaseReportDetails.datReceivedByDate" value="@Model.AggregateDiseaseReportDetails.datReceivedByDate" class="form-control" SearchFilter="true"></eidss-calendar>
+                <span asp-validation-for="AggregateDiseaseReportDetails.datReceivedByDate" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-11">
+                <h5 heading-for="@HeadingResourceKeyConstants.HumanAggregateDiseaseReportEnteredByHeading"></h5>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4" hidden-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportEnteredByInstitutionFieldLabel">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportEnteredByInstitutionFieldLabel"></i>
+                <label asp-for="AggregateDiseaseReportDetails.strEnteredByOffice" field-label-for="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportEnteredByInstitutionFieldLabel"></label>
+                <input asp-for="AggregateDiseaseReportDetails.strEnteredByOffice" class="form-control" disabled />
+            </div>
+            <div class="form-group col-md-4" hidden-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportEnteredByOfficerFieldLabel">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportEnteredByOfficerFieldLabel"></i>
+                <label asp-for="AggregateDiseaseReportDetails.strEnteredByPerson" field-label-for="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportEnteredByOfficerFieldLabel"></label>
+                <input asp-for="AggregateDiseaseReportDetails.strEnteredByPerson" class="form-control" disabled />
+            </div>
+            <div class="form-group col-md-4" hidden-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportEnteredByDateFieldLabel">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportEnteredByDateFieldLabel"></i>
+                <label asp-for="AggregateDiseaseReportDetails.datEnteredByDate" field-label-for="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportEnteredByDateFieldLabel"></label>
+                <eidss-calendar id="ReportDetailsSection_AggregateDiseaseReportDetails_datEnteredByDate" name="ReportDetailsSection.AggregateDiseaseReportDetails.datEnteredByDate" asp-for="AggregateDiseaseReportDetails.datEnteredByDate" value="@Model.AggregateDiseaseReportDetails.datEnteredByDate" class="form-control" disabled />
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-11">
+                <h5 heading-for="@HeadingResourceKeyConstants.HumanAggregateDiseaseReportGeneralInfoHeading"></h5>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4" hidden-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportReportIDFieldLabel">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportReportIDFieldLabel"></i>
+                <label asp-for="ReportID" field-label-for="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportReportIDFieldLabel"></label>
+                <input asp-for="AggregateDiseaseReportDetails.strCaseID" class="form-control" disabled />
+            </div>
+            <div class="form-group col-md-4" hidden-if="@FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsLegacyIDFieldLabel" visible-if="@Model.LegacyIDVisibleIndicator">
+                <label asp-for="LegacyID" field-label-for="@FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsLegacyIDFieldLabel"></label>
+                <input asp-for="LegacyID" class="form-control" />
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportYearFieldLabel"></i>
+                <eidss-select2DropDown id="@Model.Years.DropDownId"
+                                       name="@Model.Years.DropDownId"
+                                       target-ajax-url="@Model.Years.ControlTargetUrl"
+                                       selectct2-default-data="@Model.Years.defaultSelect2Selection"
+                                       end-point="@Model.Years.Endpoint"
+                                       label-name="@Model.Years.Label"
+                                       class-name="form-control"
+                                       is-visible="@Model.Years.isVisible"
+                                       asp-for="@Model.Year">
+                </eidss-select2DropDown>
+                <span asp-validation-for="Year" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-4" visible-if="@Model.QuarterVisibleIndicator">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportQuarterFieldLabel"></i>
+                @if (Model.Quarter == null)
+                {
+                    <eidss-select2DropDown id="@Model.Quarters.DropDownId"
+                                           name="@Model.Quarters.DropDownId"
+                                           target-ajax-url="@Model.Quarters.ControlTargetUrl"
+                                           end-point="@Model.Quarters.Endpoint"
+                                           label-name="@Model.Quarters.Label"
+                                           class-name="form-control"
+                                           filter-id="@Model.Quarters.FilteredId"
+                                           is-visible="@Model.QuarterVisibleIndicator"
+                                           asp-for="@Model.Quarter">
+                    </eidss-select2DropDown>
+                }
+                else
+                {
+                    <eidss-select2DropDown id="@Model.Quarters.DropDownId"
+                                           name="@Model.Quarters.DropDownId"
+                                           selectct2-default-data="@Model.Quarters.defaultSelect2Selection"
+                                           target-ajax-url="@Model.Quarters.ControlTargetUrl"
+                                           end-point="@Model.Quarters.Endpoint"
+                                           label-name="@Model.Quarters.Label"
+                                           class-name="form-control"
+                                           filter-id="@Model.Quarters.FilteredId"
+                                           is-visible="@Model.QuarterVisibleIndicator"
+                                           asp-for="@Model.Quarter">
+                    </eidss-select2DropDown>
+                }
+                <span asp-validation-for="Quarter" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-4" visible-if="@Model.MonthVisibleIndicator">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportMonthFieldLabel"></i>
+                @if (Model.Month == null)
+                {
+                    <eidss-select2DropDown id="@Model.Months.DropDownId"
+                                           name="@Model.Months.DropDownId"
+                                           target-ajax-url="@Model.Months.ControlTargetUrl"
+                                           end-point="@Model.Months.Endpoint"
+                                           label-name="@Model.Months.Label"
+                                           class-name="form-control"
+                                           filter-id="@Model.Months.FilteredId"
+                                           is-visible="@Model.MonthVisibleIndicator"
+                                           asp-for="@Model.Month">
+                    </eidss-select2DropDown>
+                }
+                else
+                {
+                    <eidss-select2DropDown id="@Model.Months.DropDownId"
+                                           name="@Model.Months.DropDownId"
+                                           selectct2-default-data="@Model.Months.defaultSelect2Selection"
+                                           target-ajax-url="@Model.Months.ControlTargetUrl"
+                                           end-point="@Model.Months.Endpoint"
+                                           label-name="@Model.Months.Label"
+                                           class-name="form-control"
+                                           filter-id="@Model.Months.FilteredId"
+                                           is-visible="@Model.MonthVisibleIndicator"
+                                           asp-for="@Model.Month">
+                    </eidss-select2DropDown>
+                }
+                <span asp-validation-for="Month" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-4" visible-if="@Model.WeekVisibleIndicator">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportWeekFieldLabel"></i>
+                @if (Model.Week == null)
+                {
+                    <eidss-select2DropDown id="@Model.Weeks.DropDownId"
+                                           name="@Model.Weeks.DropDownId"
+                                           target-ajax-url="@Model.Weeks.ControlTargetUrl"
+                                           end-point="@Model.Weeks.Endpoint"
+                                           label-name="@Model.Weeks.Label"
+                                           class-name="form-control"
+                                           filter-id="@Model.Weeks.FilteredId"
+                                           is-visible="@Model.WeekVisibleIndicator"
+                                           asp-for="@Model.Week">
+                    </eidss-select2DropDown>
+                }
+                else
+                {
+                    <eidss-select2DropDown id="@Model.Weeks.DropDownId"
+                                           name="@Model.Weeks.DropDownId"
+                                           selectct2-default-data="@Model.Weeks.defaultSelect2Selection"
+                                           target-ajax-url="@Model.Weeks.ControlTargetUrl"
+                                           end-point="@Model.Weeks.Endpoint"
+                                           label-name="@Model.Weeks.Label"
+                                           class-name="form-control"
+                                           filter-id="@Model.Weeks.FilteredId"
+                                           is-visible="@Model.WeekVisibleIndicator"
+                                           asp-for="@Model.Week">
+                    </eidss-select2DropDown>
+                }
+                <span asp-validation-for="Week" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-4" visible-if="@Model.DayVisibleIndicator">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportDayFieldLabel"></i>
+                <label asp-for="Day" field-label-for="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportDayFieldLabel"></label>
+                <eidss-calendar id="ReportDetailsSection_Day" name="ReportDetailsSection.Day" asp-for="Day" value="@Model.Day" class="form-control" SearchFilter="true"></eidss-calendar>
+                <span asp-validation-for="Day" class="text-danger"></span>
+            </div>
+        </div>
+        <div id="divDetailsLocation">
+            @await Component.InvokeAsync("LocationView", Model.DetailsLocationViewModel)
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4" visible-if="@Model.OrganizationVisibleIndicator">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportOrganizationFieldLabel"></i>
+                <eidss-select2DropDown id="@Model.Organizations.DropDownId"
+                                       control-target-id="@Model.Organizations.ControltargetId"
+                                       selectct2-default-data="@Model.Organizations.defaultSelect2Selection"
+                                       target-type="@Model.Organizations.ControlTargetType"
+                                       target-ajax-url="@Model.Organizations.ControlTargetUrl"
+                                       end-point="@Model.Organizations.Endpoint"
+                                       label-name="@Model.Organizations.Label"
+                                       is-visible="@Model.OrganizationVisibleIndicator"
+                                       asp-for="@Model.Organization">
+                </eidss-select2DropDown>
+                <span asp-validation-for="Organization" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+</form>
+
+<partial name="_NonUserEmployeePersonalInfoPartial" for="EmployeeDetails" />
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ($("#ReportDetailsSection_SelectedAdminLevel").val() != null && $("#ReportDetailsSection_SelectedAdminLevel").val() != '') {
+            var orgControl = "ReportDetailsSection_Organization";
+            refreshDetailsOrgByLocationAdminSelection(orgControl, $("#ReportDetailsSection_SelectedAdminLevel").val());
+        }
+    });
+
+    function initializeReportDetailsSection() {
+    };
+
+    function refreshDetailsOrgByLocationAdminSelection(orgControl, selectedAdminLevelControl) {
+       //Check the cotrols
+       //Call the controller method
+        //Load the orgcontrol with data.
+        var administrativeUnitID = $(selectedAdminLevelControl).val();
+
+        console.log(administrativeUnitID);
+        $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfsAdministrativeUnit").val(administrativeUnitID);
+
+        var url = '@Url.Action("GetOrganizationsByAdministrativeLevelID", "AggregateDiseaseReport")?data=' + administrativeUnitID+"&page=1";
+        $.ajax({
+            url: url,
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+        })
+            .done(function (data) {
+                if (data.results.length > 0) {
+                    $('#ReportDetailsSection_Organization').select2({
+                        data: data.results,
+                        parms: data.parms,
+                        width: '75%',
+                        theme: 'bootstrap',
+                        tags: false,
+                        closeOnSelect: true,
+                        allowClear: true,
+                        minimumInputLength: 0,
+                        multiple: false,
+                        placeholder: ' '
+                    });
+                } else {
+                    $('#ReportDetailsSection_Organization').empty();
+                }
+         });
+
+    };
+</script>

@@ -1,0 +1,29 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model EIDSS.Domain.ViewModels.CrossCutting.AggregateReportGetListViewModel
+
+<div class='row'>
+    <div class='col-lg-6 col-md-6 col-sm-6 col-xs-6'>
+        <label asp-for="@Model.SentByOrganizationName" field-label-for="@FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsNotificationSentbyInstitutionFieldLabel" class="control-label"></label>
+        <input type='text' class='form-control' disabled value="@Model.SentByOrganizationName" />
+    </div>
+    <div class='col-lg-6 col-md-6 col-sm-6 col-xs-6'>
+        <label asp-for="@Model.SentByDate" field-label-for="@FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsDateSentFieldLabel" class="control-label"></label>
+        <input type='text' class='form-control' disabled value="@Model.SentByDate" />
+    </div>
+</div>
+<div class='row'>
+    <div class='col-lg-6 col-md-6 col-sm-6 col-xs-6'>
+        <label asp-for="@Model.ReceivedByOrganizationName" field-label-for="@FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsNotificationReceivedbyInstitutionFieldLabel" class="control-label"></label>
+        <input type='text' class='form-control' disabled value="@Model.ReceivedByOrganizationName" />
+    </div>
+    <div class='col-lg-6 col-md-6 col-sm-6 col-xs-6'>
+        <label asp-for="@Model.ReceivedByDate" field-label-for="@FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsDateReceivedFieldLabel" class="control-label"></label>
+        <input type='text' class='form-control' disabled value="@Model.ReceivedByDate" />
+    </div>
+</div>
+<div class='row'>
+    <div class='col-lg-6 col-md-6 col-sm-6 col-xs-6'>
+        <label asp-for="@Model.EnteredByOrganizationName" field-label-for="@FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsReportEnteredbyInstitutionFieldLabel" class="control-label"></label>
+        <input type='text' class='form-control' disabled value="@Model.EnteredByOrganizationName" />
+    </div>
+</div>

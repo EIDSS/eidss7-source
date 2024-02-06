@@ -1,0 +1,102 @@
+﻿@inherits EIDSS.Web.Components.Vector.VectorAggregateCollections.DiseaseListBase
+
+@using EIDSS.Web.ViewModels.Vector
+@using EIDSS.Domain.ResponseModels.Vector;
+@using EIDSS.Web.Enumerations
+
+<div class="card">
+    <div class="card-body">
+        <div class="form-row justify-content-end mb-3">
+            <div class="col-1">
+                @if (VectorSessionStateContainer.AggregateCollectionDisabledIndicator || (VectorSessionStateContainer.VectorSessionSummaryKey <= 0 && !VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Create)
+                || (VectorSessionStateContainer.VectorSessionSummaryKey > 0 && !VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Write))
+                {
+                    <button id="addAggregateDisease" type="button" class="btn btn-outline-primary" @onclick="@OnAddDiseaseClick" disabled button-for="@ButtonResourceKeyConstants.AddButton">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                }
+                else
+                {
+                    <button id="addAggregateDisease" type="button" class="btn btn-outline-primary" @onclick="@OnAddDiseaseClick" button-for="@ButtonResourceKeyConstants.AddButton">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                }
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-12">
+                <RadzenDataGrid TItem="USP_VCTS_SESSIONSUMMARYDIAGNOSIS_GetDetailResponseModel"
+                                Data="@VectorSessionStateContainer.AggregateCollectionDiseaseList"
+                                @ref="Grid"
+                                LoadData="@LoadDiseaseListGridView"
+                                Count="@DiseaseCount"
+                                EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)"
+                                AllowPaging="true"
+                                PageSize="10"
+                                AllowSorting="true"
+                                AllowColumnResize="true"
+                                RowUpdate="@OnUpdateRow"
+                                RowCreate="@OnCreateRow"
+                                EditMode="DataGridEditMode.Single"
+                                ShowPagingSummary="true">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="USP_VCTS_SESSIONSUMMARYDIAGNOSIS_GetDetailResponseModel" Property="DiseaseName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorAggregateCollectionDiseaseColumnHeading)">
+                            <EditTemplate Context="diagnosisItem">
+                                <RadzenDropDown Name="Disease"
+                                                AllowClear="true"
+                                                TValue="long"
+                                                Data="@DiseaseList"
+                                                LoadData="@LoadDiseases"
+                                                ValueProperty="DiseaseID"
+                                                TextProperty="DiseaseName"
+                                                @bind-Value="@diagnosisItem.DiseaseID"
+                                                Change="@OnDiseaseChange"
+                                                class="form-control"
+                                                AllowFiltering="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                FilterDelay="3" />
+                            </EditTemplate>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="USP_VCTS_SESSIONSUMMARYDIAGNOSIS_GetDetailResponseModel" Property="intPositiveQuantity" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorAggregateCollectionNumberOfPositivePoolsVectorsColumnHeading)">
+                            <EditTemplate Context="diagnosisItem">
+                                <RadzenNumeric @bind-Value="diagnosisItem.intPositiveQuantity" ReadOnly="@(!IsDiseaseSelected)" />
+                            </EditTemplate>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="USP_VCTS_SESSIONSUMMARYDIAGNOSIS_GetDetailResponseModel" Property="" Title="" Sortable="false" Filterable="false"
+                                              Width="100px">
+                            <Template Context="data">
+                                @if (VectorSessionStateContainer.AggregateCollectionDisabledIndicator || (VectorSessionStateContainer.VectorSessionSummaryKey <= 0 && !VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Create)
+                                || (VectorSessionStateContainer.VectorSessionSummaryKey > 0 && !VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Write))
+                                {
+                                    <button @onclick=@(() => OnEditDiseaseClick(data)) class="btn btn-sm" type="button" disabled><i class="fas fa-edit fa-lg"></i></button>
+                                }
+                                else
+                                {
+                                    <button @onclick=@(() => OnEditDiseaseClick(data)) class="btn btn-sm" type="button"><i class="fas fa-edit fa-lg"></i></button>
+                                }
+                            </Template>
+                            <EditTemplate Context="data">
+                                <button @onclick="@(() => OnSaveDiseaseClick(data))" class="btn btn-sm" type="button">
+                                    <i class="fas fa-save fa-lg"></i>
+                                </button>
+                                <button @onclick="@(() => OnCancelDiseaseEditClick(data))" class="btn btn-sm" type="button">
+                                    <i class="fas fa-ban fa-lg"></i>
+                                </button>
+                            </EditTemplate>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="USP_VCTS_SESSIONSUMMARYDIAGNOSIS_GetDetailResponseModel" Property="" Title="" Sortable="false" Filterable="false" Width="50px">
+                            <Template Context="data">
+                                @if (VectorSessionStateContainer.AggregateCollectionDisabledIndicator || (VectorSessionStateContainer.VectorSessionSummaryKey <= 0 && !VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Create)
+                                || (VectorSessionStateContainer.VectorSessionSummaryKey > 0 && !VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Write))
+                                {
+                                    <button @onclick=@(() => OnDeleteDiseaseClick(data)) class="btn btn-sm" type="button" disabled><i class="fas fa-trash fa-lg"></i></button>
+                                }
+                                else
+                                {
+                                    <button @onclick=@(() => OnDeleteDiseaseClick(data)) class="btn btn-sm" type="button"><i class="fas fa-trash fa-lg"></i></button>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+</div>
+

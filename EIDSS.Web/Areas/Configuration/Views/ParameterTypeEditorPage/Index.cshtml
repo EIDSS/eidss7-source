@@ -1,0 +1,787 @@
+﻿@model EIDSS.Web.Areas.Configuration.ViewModels.ParameterTypeEditorPageViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.ParameterTypeEditorPageHeading);
+
+    //PageLevel
+    Model.PageLevelAddButtonModalText = Localizer.GetString(ButtonResourceKeyConstants.AddButton);
+    Model.PageLevelAddButtonID = "AddParameterTypeButton";
+    Model.PageLevelAddButtonModal = "AddEditParameterTypeModal";
+
+    //Modal to Add Parameter Type
+    EIDSSModalConfiguration parameterTypeModal = new EIDSSModalConfiguration();
+    parameterTypeModal.ControlLabels.ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.ParameterDetailsHeading);
+    parameterTypeModal.ModalId = "AddEditParameterTypeModal";
+    parameterTypeModal.SavingControlsCollection = "SelectedDetail_KeyId";
+    parameterTypeModal.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    parameterTypeModal.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    parameterTypeModal.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    parameterTypeModal.TargetGridControlID = "ParameterTypeEditorGrid"; //ID of Grid to Refresh
+    parameterTypeModal.PostAjaxDataUrl = @Url.Action("Create", "ParameterTypeEditorPage", new { Area = "Configuration" });
+    parameterTypeModal.SaveCompleteMethod = "SaveHandler";
+    parameterTypeModal.SuccessConfirmationMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage);
+
+    parameterTypeModal.ControlNames.Add(new EIDSSControlNames()
+            {
+                ControlType = ControlType.Hidden,
+                ControlName = "IdfsParameterType",
+                LabelNameForControl = string.Empty,
+                Visible = false,
+                Orderable = false,
+                ClassName = "idfsParameterType"
+
+            });
+    parameterTypeModal.ControlNames.Add(new EIDSSControlNames()
+            {
+                ValidationSetting = new ValidatorSettings()
+                {
+                    ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+                    ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+                },
+                ClassName = "ptDefaultName",
+                LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+                ControlName = "DefaultName",
+                Visible = true
+            });
+    parameterTypeModal.ControlNames.Add(new EIDSSControlNames()
+            {
+                ValidationSetting = new ValidatorSettings()
+                {
+                    ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+                    ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+                },
+                LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+                ClassName = "ptNationalName",
+                ControlName = "NationalName",
+                Visible = true
+            });
+    parameterTypeModal.ControlNames.Add(new EIDSSControlNames()
+            {
+                ValidationSetting = new ValidatorSettings()
+                {
+                    ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+                    ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+                },
+                LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.ParameterTypeFieldLabel),
+                ControlName = "ParameterTypeName",
+                ControlType = ControlType.DropDown,
+                AllowMultipleDropDownItemSelection = false,
+                ClassName = "ParameterTypeNameAddSelect",
+                Visible = true,
+                DefaultContent = Localizer.GetString(FieldLabelResourceKeyConstants.FixedPresetValuesLabel),
+                ControlAjaxDataUrl = Url.Action("GetParameterTypes", "ParameterTypeEditorPage", new { Area = "Configuration" })
+            });
+    parameterTypeModal.ControlNames.Add(new EIDSSControlNames()
+            {
+                ValidationSetting = new ValidatorSettings()
+                {
+                    ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+                    ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+                },
+                LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.ReferenceTypeFieldLabel),
+                ControlName = "BaseReferenceDD",
+                ControlType = ControlType.DropDown,
+                AllowMultipleDropDownItemSelection = false,
+                ClassName = "BaseReferenceAddSelect",
+                Visible = true,
+                ControlAjaxDataUrl = Url.Action("GetParameterReferenceList", "ParameterTypeEditorPage", new { Area = "Configuration" })
+            });
+
+    Model.ParameterTypeModalConfigurations.Add(parameterTypeModal);
+
+    //SETUP GRID
+    Model.ParameterTypeGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.ParameterTypeGridConfiguration.GridId = "ParameterTypeEditorGrid";
+    Model.ParameterTypeGridConfiguration.EnableCustomSearching = true;
+    Model.ParameterTypeGridConfiguration.AjaxDataUrl = @Url.Action("GetList", "ParameterTypeEditorPage", new { Area = "Configuration" });
+    Model.ParameterTypeGridConfiguration.DeleteModalAjaxUrl = @Url.Action("Delete", "ParameterTypeEditorPage", new { Area = "Configuration" });
+    Model.ParameterTypeGridConfiguration.DeleteCompleteMethod = "DeleteHandler";
+    Model.ParameterTypeGridConfiguration.EditModalAjaxUrl = Url.Action("Save", "ParameterTypeEditorPage", new { Area = "Configuration" });
+    Model.ParameterTypeGridConfiguration.SaveCompleteMethod = "SaveHandler";
+    Model.ParameterTypeGridConfiguration.EnableServerSide = true;
+    Model.ParameterTypeGridConfiguration.EnableProcessingMessage = true;
+    Model.ParameterTypeGridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.None;
+
+    Model.ParameterTypeGridConfiguration.ControlLabels = new EIDSSControlLabels();
+    Model.ParameterTypeGridConfiguration.ControlLabels.DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage);
+    Model.ParameterTypeGridConfiguration.ControlLabels.DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.ParameterTypeGridConfiguration.ControlLabels.EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.ParameterTypeGridConfiguration.ControlLabels.EditModalMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage);
+    Model.ParameterTypeGridConfiguration.ControlLabels.CancelInlineEditTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.ParameterTypeGridConfiguration.ControlLabels.CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage);
+    Model.ParameterTypeGridConfiguration.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    Model.ParameterTypeGridConfiguration.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    Model.ParameterTypeGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.ParameterTypeGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.ParameterTypeGridConfiguration.ControlLabels.DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton);
+    Model.ParameterTypeGridConfiguration.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+
+
+    Model.ParameterTypeGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+                ColumnName = "row",
+                Visible = true,
+                Orderable = false,
+                ColumnType = ColumnType.ReadOnly,
+                VisibleInModal = false
+            });
+    Model.ParameterTypeGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnTitleHeader = "IdfsParameterType",
+                ColumnName = "IdfsParameterType",
+                Visible = false,
+                ColumnType = ColumnType.Default,
+                Orderable = false,
+                VisibleInModal = false
+            });
+    Model.ParameterTypeGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.DefaultValueColumnHeading),
+                ColumnName = "DefaultName",
+                Visible = true,
+                ColumnType = ColumnType.Default,
+                Orderable = true,
+                VisibleInModal = true,
+                ValidationSetting = new ValidatorSettings()
+                {
+                    ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+                    ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+                }
+            });
+    Model.ParameterTypeGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.NationalValueColumnHeading),
+                ColumnName = "NationalName",
+                Visible = true,
+                ColumnType = ColumnType.Default,
+                Orderable = true,
+                VisibleInModal = true,
+                ValidationSetting = new ValidatorSettings()
+                {
+                    ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+                    ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+                }
+            });
+    Model.ParameterTypeGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnTitleHeader = Localizer.GetString(FieldLabelResourceKeyConstants.ReferenceTypeFieldLabel),
+                ColumnName = "IdfsReferenceType",
+                Visible = false,
+                Orderable = false,
+                VisibleInModal = false,
+                ColumnType = ColumnType.Default,
+            });
+    Model.ParameterTypeGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnTitleHeader = "System",
+                ColumnName = "System",
+                Visible = false,
+                ColumnType = ColumnType.Default,
+                Orderable = false,
+                VisibleInModal = false
+            });
+    Model.ParameterTypeGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnTitleHeader = Localizer.GetString(FieldLabelResourceKeyConstants.ParameterTypeFieldLabel),
+                ColumnName = "ParameterTypeName",
+                Visible = true,
+                ColumnType = ColumnType.DropDown,
+                DisplayDropDownInModalOnly = true,
+                AssociatedFieldId = "ParameterTypeName",
+                ClassName = "ParameterTypeNameSelect",
+                SplitCsvValues = false,
+                ColumnAjaxDataUrl = @Url.Action("GetParameterTypes", "ParameterTypeEditorPage", new { Area = "Configuration" }),
+                Orderable = true,
+                VisibleInModal = true,
+                ValidationSetting = new ValidatorSettings()
+                {
+                    ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+                    ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+                }
+
+            });
+    Model.ParameterTypeGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnTitleHeader = Localizer.GetString(FieldLabelResourceKeyConstants.ReferenceTypeFieldLabel),
+                ColumnName = "BaseReferenceListName",
+                Visible = false,
+                VisibleInModal = true,
+                ColumnType = ColumnType.DropDown,
+                DisplayDropDownInModalOnly = true,
+                SplitCsvValues = false,
+                AssociatedFieldId = "IdfsReferenceType",
+                ClassName = "BaseReferenceListNameSelect",
+                ValidationSetting = new ValidatorSettings()
+                {
+                    ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+                    ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+                },
+                AllowMultipleDropDownItemSelection = false,
+                ColumnAjaxDataUrl = Url.Action("GetParameterReferenceList", "ParameterTypeEditorPage", new { Area = "Configuration" }),
+                Orderable = false
+
+
+            });
+    Model.ParameterTypeGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnTitleHeader = String.Empty,
+                ColumnName = "detailCommand",
+                Visible = true,
+                ColumnType = ColumnType.Button,
+                CustomIconClass = "fa fa-ellipsis-h fa-1x",
+                ClientFunction = "DetailRowClick",
+                Orderable = false,
+                VisibleInModal = false
+            });
+    Model.ParameterTypeGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnTitleHeader = String.Empty,
+                ColumnName = "editCommand",
+                ColumnType = ColumnType.CustomModal,
+                CustomIconClass = "fas fa-edit fa-lg",
+                Orderable = false,
+                Visible = Model.UserPermissions.Write,
+                VisibleInModal = false,
+                CustomModalID = "AddEditParameterTypeModal",
+                ClientFunction = "ParameterTypeEditClick"
+
+            });
+    Model.ParameterTypeGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnTitleHeader = String.Empty,
+                ColumnName = "delCommand",
+                ColumnType = ColumnType.Delete,
+                Orderable = false,
+                VisibleInModal = false,
+                Visible = Model.UserPermissions.Delete
+            });
+
+}
+
+<!-- Persist the selected row between details -->
+<input asp-for="SelectedDetail.KeyId" id="SelectedDetail_KeyId" type="hidden" />
+<input asp-for="SelectedDetail.IdfsReferenceType" id="SelectedDetail_IdfsReferenceType" type="hidden" />
+<input asp-for="SelectedDetail.System" id="SelectedDetail_System" type="hidden" />
+<input asp-for="SelectedDetail.DefaultName" id="SelectedDetail_DefaultName" type="hidden" />
+<input asp-for="SelectedDetail.NationalName" id="SelectedDetail_NationalName" type="hidden" />
+<input asp-for="SelectedDetail.ParameterTypeName" id="SelectedDetail_ParameterTypeName" type="hidden" />
+
+<!-- Main parameter view -->
+<div class="card">
+    <div class="card-header">
+        @*card header always an h3!*@
+        <h3>@(Localizer.GetString(HeadingResourceKeyConstants.ParameterTypeEditorPageHeading))</h3>
+    </div>
+    <div class="card-body">
+        <div class="row align-items-end pb-2">
+            <div class="col-auto flex-nowrap">
+                @*add button*@
+                @if (@Model.UserPermissions != null && @Model.UserPermissions.Create)
+                {
+                    <button type="button" id="@Model.PageLevelAddButtonID" class="btn btn-primary" data-toggle='modal' data-target='#@Model.PageLevelAddButtonModal'>@Model.PageLevelAddButtonModalText</button>
+                }
+            </div>
+            <div class="col-6 flex-nowrap">
+                @*select2 drop down*@
+                @{
+                    if (@Model.ParameterSelectConfigurations != null)
+                    {
+                        if (@Model.ParameterSelectConfigurations.Count() > 0)
+                        {
+                                                        <eidss-select2DropDown id="@Model.ParameterSelectConfigurations[0].DropDownId"
+                                       control-target-id="@Model.ParameterSelectConfigurations[0].ControltargetId"
+                                       target-type="@Model.ParameterSelectConfigurations[0].ControlTargetType"
+                                       target-ajax-url="@Model.ParameterSelectConfigurations[0].ControlTargetUrl"
+                                       selectct2-default-data="@Model.ParameterSelectConfigurations[0].defaultSelect2Selection"
+                                       end-point="@Model.ParameterSelectConfigurations[0].Endpoint"
+                                       label-name="@Model.ParameterSelectConfigurations[0].Label"
+                                       is-visible="@Model.ParameterSelectConfigurations[0].isVisible"
+                                       include-add-button="@Model.ParameterSelectConfigurations[0].IncludeAddButton"
+                                       add-modal-id="@Model.ParameterSelectConfigurations[0].AddModalId"
+                                       custom-js-on-change-function="@Model.ParameterSelectConfigurations[0].CustomJsOnChangeFunction"
+                                       custom-js-on-clear-function="@Model.ParameterSelectConfigurations[0].CustomJsOnClearFunction"
+                                       disabled-controls="@Model.ParameterSelectConfigurations[0].DisabledControls"
+                                       filter-id="@Model.ParameterSelectConfigurations[0].FilteredId"
+                                       configure-for-partial="@Model.ParameterSelectConfigurations[0].ConfigureForPartial">
+                                                        </eidss-select2DropDown>
+
+                        }
+                    }
+                }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <eidss-grid id="@Model.ParameterTypeGridConfiguration.GridId" grid-configuration="@Model.ParameterTypeGridConfiguration"
+                            filtered-control-ids="@Model.ParameterTypeGridConfiguration.ControlFilterID"
+                            enable-server-side="@Model.ParameterTypeGridConfiguration.EnableServerSide"
+                            enable-processing="@Model.ParameterTypeGridConfiguration.EnableProcessingMessage"
+                            enable-search="@Model.ParameterTypeGridConfiguration.EnableSearching"
+                            enable-top-header-search-button="@Model.ParameterTypeGridConfiguration.EnableCustomSearching"
+                            end-point="@Model.ParameterTypeGridConfiguration.AjaxDataUrl"
+                            class-name="@Model.ParameterTypeGridConfiguration.GridClass"
+                            details-ajax-url="@Url.Action("EditModalData", "BaseReferencePage")"
+                            control-labels="@Model.ParameterTypeGridConfiguration.ControlLabels"
+                            configure-for-partial="@Model.ParameterTypeGridConfiguration.ConfigureForPartial">
+                </eidss-grid>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Generated Modals -->
+@{
+
+    for (int i = 0; i < @Model.ParameterTypeModalConfigurations.Count(); i++)
+    {
+    <eidss-reference-editors-modal control-labels="@Model.ParameterTypeModalConfigurations[i].ControlLabels" ajax-save-url="@Model.ParameterTypeModalConfigurations[i].PostAjaxDataUrl" modal-configuration="@Model.ParameterTypeModalConfigurations[i]" modal-id="@Model.ParameterTypeModalConfigurations[i].ModalId"></eidss-reference-editors-modal>
+    }
+}
+
+<partial name="_WarningModalPartial" />
+<partial name="_InformationalModalPartial" , model="String.Empty" />
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal"> @Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Cancel Confirmation Modal -->
+<div class="modal fade" id="cancelConfirmModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelConfirmModalTitle">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="CancelConfirm(true)"> @Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>
+                <button type="button" class="btn btn-outline-primary" data-dismiss="modal" onclick="CancelConfirm(false)">@Localizer.GetString(ButtonResourceKeyConstants.NoButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Duplicates Modal -->
+<div class="modal fade" id="duplicatesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">  @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="message"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="CorrectDuplicate()"> @Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>
+                <button type="button" class="btn btn-outline-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.NoButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Has Child Records Modal -->
+<div class="modal fade" id="hasChildrenModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.UnableToDeleteBecauseOfChildRecordsMessage)
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal"> @Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Reference Value Detail Modal -->
+<div class="modal fade" id="referenceValueDetailModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-lg modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@(Localizer.GetString(HeadingResourceKeyConstants.ParameterDetailsHeading))</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="referenceValueDetail"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="SaveDetail();"> @Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                <button type="button" class="btn btn-outline-primary" data-dismiss="modal" onclick="CloseReferenceValueModal()">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Fixed Preset Value Detail Modal -->
+<div class="modal fade" id="fixedPresetValueDetailModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-lg modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@(Localizer.GetString(HeadingResourceKeyConstants.ParameterDetailsHeading))</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="fixedValueDetail"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="SaveDetail();"> @Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                <button type="button" class="btn btn-outline-primary" data-dismiss="modal" onclick="CloseFixedPresetValueModal()">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<partial name="_ValidationScriptsPartial" />
+
+@section Scripts
+{
+
+<script>
+        var isNew = false;
+        $(document).ready(function () {
+
+            //bindings for add modal events
+            $("#AddParameterTypeButton").on('click', () => { isNew = true; });
+            $("#AddEditParameterTypeModal").on("show.bs.modal", SetParameterAddModalNewContent);
+            $(".ParameterTypeNameAddSelect").on('change.select2', ParameterTypeDropDownChangeHandler);
+
+            //bindings for add / edit modal cancel click 
+            $("#AddEditParameterTypeModal [data-dismiss='modal']").on('click', CancelParameterEdit);
+
+        });
+
+        function SetParameterAddModalNewContent() {
+           
+            if (isNew)
+            {
+                $("#AddEditParameterTypeModalctrlAdd_0").val("");
+                var option = new Option('@Model.DefaultParameterType.Value', '@Model.DefaultParameterType.Key', true, true);
+                $('#AddEditParameterTypeModalctrlAdd_3').append(option);
+                $('#div4_AddEditParameterTypeModal').hide();
+            }
+
+        }
+
+        function ParameterTypeDropDownChangeHandler() {
+
+            var data = $(".ParameterTypeNameAddSelect").select2('data');
+            if (data !== 'undefined' && data !== null && data.length > 0) {
+                if (data[0].id == "1" || data[0].id == "Reference") {
+                    $('#div4_AddEditParameterTypeModal').show();
+                }
+                else {
+                    $('#div4_AddEditParameterTypeModal').hide();
+                }
+            }
+
+        }
+
+        //Set the model for changes in the Reference Type
+        function ReferenceDDOnChange(data) {
+
+            var stringified_data = JSON.stringify(data);
+            var parsed_data = JSON.parse(stringified_data);
+            $("#SelectedDetail_IdfsReferenceType").val(parsed_data.id);
+        }
+
+        //After delete method is called
+        function DeleteHandler(data) {
+
+            var stringified_data = JSON.stringify(data);
+            var parsed_data = JSON.parse(stringified_data);
+
+            switch (parsed_data.returnMessage) {
+                case "HAS CHILD RECORDS":
+                    event.preventDefault();
+                    $("#hasChildrenModal").modal("show");
+                    break;
+                case "IN USE":
+                    var message = '@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage)';
+                    event.preventDefault();
+
+                    var model = {};
+                    model.IdfsParameterType = parsed_data.Id;
+                    model.ForceDelete = true;
+
+                    showWarningModal(message).then(response => {
+                        if (response) {
+                            //force a delete
+                            $.ajax({
+                                url: '@Url.Action("Delete", "ParameterTypeEditorPage", new { Area = "Configuration" })',
+                                type: 'POST',
+                                data: JSON.stringify(model),
+                                contentType: "application/json: charset=utf-8",
+                                done: function (resp) {
+                                    showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+                                }
+                            });
+
+                        }
+                    });
+                    break;
+                case "Success":
+                    showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+                default:
+                    console.log(parsed_data.returnMessage);
+            }
+        }
+
+         //Method called after grid edit button click
+        function ParameterTypeEditClick(data) {
+            isNew = false;
+            $("#AddEditParameterTypeModalctrlAdd_0").val(data[1]); //idfsParameterType
+            $("#AddEditParameterTypeModalctrlAdd_1").val(data[2]); //default value
+            $("#AddEditParameterTypeModalctrlAdd_2").val(data[3]); //national name
+
+            //reference type
+            if ($('#AddEditParameterTypeModalctrlAdd_4').find("option[val='" + data[4] + "']").length) {
+                $('#AddEditParameterTypeModalctrlAdd_4').val(data[4]).trigger('change');
+                alert('Found Reference Type');
+            }
+            else
+            {
+                var newOption = new Option(data[7], data[4], true, true);
+
+                $('#AddEditParameterTypeModalctrlAdd_4').append(newOption).trigger('change');
+                $('#AddEditParameterTypeModalctrlAdd_4').val(data[4]);
+                $('#AddEditParameterTypeModalctrlAdd_4').trigger('change');
+            }
+
+            //parameter type
+            if ($('#AddEditParameterTypeModalctrlAdd_3').find("option[val='" + data[5] + "']").length) {
+                $('#AddEditParameterTypeModalctrlAdd_3').val(data[5]).trigger('change');
+            }
+            else
+            {
+                var newOption = new Option(data[6], data[5], true, true);
+                $('#AddEditParameterTypeModalctrlAdd_3').append(newOption).trigger('change');
+                $('#AddEditParameterTypeModalctrlAdd_3').val(data[5]);
+                $('#AddEditParameterTypeModalctrlAdd_3').trigger('change');
+                
+            }
+
+        }
+
+        //Method called after controller save methods
+        function SaveHandler(data) {
+
+            var stringData = JSON.stringify(data);
+            var parseData = JSON.parse(stringData);
+            if (parseData.returnMessage == "SUCCESS") {
+                $("#successModal").modal("show");
+            }
+            if (parseData.returnMessage == "DOES EXIST") {
+
+                $("#duplicatesModal").find("#message").html(parseData.localizedMessage);
+                $("#duplicatesModal").modal('show');
+
+            }
+        }
+
+        //Show the currently appropriate detail
+        //modal for try again
+        function ReshowDetailModal() {
+
+            var model = GetSelectedParameter();
+
+            if (model.System == "1" ) {
+                $("#referenceValueDetailModal").modal('show');
+                $("#fixedPresetValueDetailModal").modal('hide');
+            }
+            else {
+                $("#fixedPresetValueDetailModal").modal('show');
+                $("#referenceValueDetailModal").modal('hide');
+            }
+
+        }
+
+        function CorrectDuplicate() {
+
+            $("#duplicatesModal").modal("hide");
+            $("#AddParameterTypeModal").modal('show');
+
+        }
+
+        function CloseFixedPresetValueModal() {
+
+            $("#fixedPresetValueDetailModal").modal('hide');
+            $("#fixedValueDetail").empty();
+
+        }
+
+        function CloseReferenceValueModal() {
+
+            $("#referenceValueDetailModal").modal('hide');
+            $("#referenceValueDetail").empty();
+
+        }
+
+        function CancelParameterEdit(event) {
+
+            event.preventDefault();
+            $("#cancelConfirmModal").modal('show');
+
+        }
+
+        function CancelConfirm(response) {
+            if (response) {
+                $("#ParameterTypeEditorGrideditModal").modal("hide");
+                $("#cancelConfirmModal").modal("hide");
+            }
+            else {
+                $("#cancelConfirmModal").modal("hide");
+                $("#ParameterTypeEditorGrideditModal").modal("show");
+            }
+    }
+
+        //Runs after the server side delete
+        //of a fixed value parameter
+        function FixedValueParameterDeleteHandler(data) {
+
+            var stringified_data = JSON.stringify(data);
+            var parsed_data = JSON.parse(stringified_data);
+            if (parsed_data.returnMessage == "Success") {
+                $("#fixedPresetValueDetailModal").modal('hide');
+                showInformationalModalWait('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)')
+                    .then(response => { $("#fixedPresetValueDetailModal").modal('show'); });
+            }
+            if (parsed_data.returnMessage == "IN USE") {
+                event.preventDefault();
+                $("#hasChildrenModal").modal("show");
+            }
+        }
+
+        //Show the detail modal for fixed
+        //or reference types
+        function DetailRowClick(e, row, data) {
+
+            //set the currently selected item
+            SetSeletedParameter(data);
+
+            //retrieve the current item into a model
+            var model = GetSelectedParameter();
+
+            //check which detail type it is
+            var divToReplace = "#";
+            if (model.System == "1") {
+                divToReplace = "#referenceValueDetail";
+            }
+            else {
+                divToReplace = "#fixedValueDetail";
+            }
+
+            //go get the detail partial view for the modal
+            $.ajax({
+                url: '@Url.Action("LoadDetail", "ParameterTypeEditorPage", new { Area = "Configuration" })',
+                type: 'POST',
+                data: JSON.stringify(model),
+                contentType: "application/json: charset=utf-8",
+                success: function (resp) {
+                    $(divToReplace).html(resp);
+                    if (model.System == "1") {
+                        $("#referenceValueDetail").html(resp);
+                        $("#referenceValueDetailModal").modal('show');
+                        $("#fixedPresetValueDetailModal").modal('hide');
+                        $("#fixedValueDetail").empty();
+                    }
+                    else {
+                        $("#fixedValueDetail").html(resp);
+                        $("#fixedPresetValueDetailModal").modal('show');
+                        $("#referenceValueDetailModal").modal('hide');
+                        $("#referenceValueDetail").empty();
+                    }
+                },
+                complete: function (resp) {
+                },
+                error: function (request, error) {
+                }
+            });
+
+        }
+
+        //Set property to persist the selected row
+        function SetSeletedParameter(item) {
+
+            $("#SelectedDetail_KeyId").val(item[1]);
+            $("#SelectedDetail_DefaultName").val(item[2]);
+            $("#SelectedDetail_NationalName").val(item[3]);
+            $("#SelectedDetail_IdfsReferenceType").val(item[4]);
+            $("#SelectedDetail_System").val(item[5]);
+            $("#SelectedDetail_ParameterTypeName").val(item[6]);
+        }
+
+        //Get property to retrieve the persisted row
+        function GetSelectedParameter() {
+
+            var model = {};
+            model.IdfsParameterType = parseInt($("#SelectedDetail_KeyId").val(), 10);
+            model.DefaultName = $("#SelectedDetail_DefaultName").val();
+            model.NationalName = $("#SelectedDetail_NationalName").val();
+            model.System = $("#SelectedDetail_System").val();
+            model.IdfsReferenceType = parseInt($("#SelectedDetail_IdfsReferenceType").val(), 10);
+            model.ParameterTypeName = $("#SelectedDetail_ParameterTypeName").val();
+
+            return model;
+        }
+
+        //Save the parameter type record when coming back
+        //from details
+        function SaveDetail(e) {
+
+            var model = GetSelectedParameter();
+
+            $.ajax({
+                url: '@Url.Action("SaveDetail", "ParameterTypeEditorPage", new { Area = "Configuration" })',
+                type: 'POST',
+                data: JSON.stringify(model),
+                contentType: "application/json: charset=utf-8",
+                success: function (resp) {
+                    $("#referenceValueDetailModal").modal('hide');
+                    $("#fixedPresetValueDetailModal").modal('hide');
+                    $("#ParameterTypeEditorGrid").DataTable().draw();
+                    SaveHandler(resp);
+                },
+                error: function (request, error) {
+                    $("#referenceValueDetailModal").modal('hide');
+                    $("#fixedPresetValueDetailModal").modal('hide');
+                    alert('An error occurred: ' + error);
+                }
+            });
+
+        }
+
+</script>
+}

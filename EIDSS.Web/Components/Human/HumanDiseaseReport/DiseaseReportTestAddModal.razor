@@ -1,0 +1,166 @@
+﻿@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Domain.ViewModels.Human 
+
+@inherits EIDSS.Web.Components.Human.HumanDiseaseReport.DiseaseReportTestAddModalBase
+
+<RadzenTemplateForm id="humanDiseaseReportAddTestForm" @ref="Form" TItem="DiseaseReportTestDetailForDiseasesViewModel" Data="@TestDetailModel" Context="_" Submit="@HandleValidTestSubmit" OnInvalidSubmit="@HandleInvalidTestSubmit">
+    <div class="card">
+        <div class="card-header">
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <input type="hidden" id="RowID" value="@TestDetailModel.RowID" />
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.AssignTestModalFilterTestNameByDiseaseFieldLabel" IsRow="false" CssClass="col-md-6" For="filterTestByDisease">
+                    <RadzenCheckBox @bind-Value="@TestDetailModel.filterTestByDisease" TValue="bool?" Change="@(args => LoadTestName(args))" Disabled="@(BlnEnteredByLab || IsReportClosed)"></RadzenCheckBox>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label for="LocalSampleIDDD">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportLocalSampleIDFieldLabel)</label>
+                    <RadzenDropDown AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" AllowInput="true" Name="LocalSampleIDDD" Id="LocalSampleIDDD" TValue="string"
+                                    LoadData="LoadLocalSampleIDs" Data="LocalSampleIDs" ValueProperty="LocalSampleId" TextProperty="LocalSampleId" @bind-Value="@TestDetailModel.strFieldBarcode"
+                                    Count="@localSampleIdCount" class="form-control" Change="@(args => LoadSampleType(args))" Disabled="@(BlnEnteredByLab || IsReportClosed)"></RadzenDropDown>
+                    <RadzenRequiredValidator Component="LocalSampleIDDD" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)"
+                                             Popup="false" Style="position: absolute"/>
+                </div>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportSampleTypeFieldLabel" IsRow="false" CssClass="col-md-6">
+                    <input type="hidden" id="hdnidfsSampleType" value="@TestDetailModel.idfsSampleType"/>
+                    <RadzenTextBox @bind-Value="@TestDetailModel.strSampleTypeName" class="form-control" Disabled=true></RadzenTextBox>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportLabSampleIDFieldLabel" IsRow="false" CssClass="col-md-6" For="strBarcode">
+                    <RadzenTextBox @bind-Value="@TestDetailModel.strBarcode" class="form-control" Disabled="true"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalTestDiseaseFieldLabel" IsRow="false" CssClass="col-md-6" For="TestDiseaseDD">
+                    <RadzenDropDown AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" AllowInput="true"  Name="TestDiseaseDD" TValue="long?" 
+                                    Data="@Diseases" LoadData="LoadDiseaseList" ValueProperty="DiseaseID" TextProperty="DiseaseName" @bind-Value="@TestDetailModel.idfsDiagnosis" Count="@DiseaseCount" 
+                                    class="form-control" Change="@(args => UpdateDiseaseName(args))" Disabled="@(BlnEnteredByLab || IsReportClosed)"></RadzenDropDown>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalTestNameFieldLabel" IsRow="false" CssClass="col-md-6" For="TestNameDD">
+                    <RadzenDropDown AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" AllowInput="true" Name="TestNameDD" TValue="long?" 
+                                    Data="@TestNames" ValueProperty="idfsBaseReference" TextProperty="StrDefault" @bind-Value="@TestDetailModel.idfsTestName" Count="@TestCount" class="form-control" 
+                                    Change="@(args => UpdateTestName(args))" Disabled="@(BlnEnteredByLab || IsReportClosed || !IsDiseaseSelected)"></RadzenDropDown>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalTestCategoryFieldLabel" IsRow="false" CssClass="col-md-6" For="TestCategoryDD">
+                    <RadzenDropDown AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" AllowInput="true" Name="TestCategoryDD" TValue="long?" 
+                                    LoadData="LoadTestCategoryList" Data="@TestCategory" ValueProperty="idfsBaseReference" TextProperty="StrDefault" @bind-Value="@TestDetailModel.idfsTestCategory" 
+                                    Count="@TestCount" class="form-control" Change="@(args => UpdateTestCategoryName(args))" Disabled="@(BlnEnteredByLab || IsReportClosed)"></RadzenDropDown>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalTestStatusFieldLabel" IsRow="false" CssClass="col-md-6" For="TestStatusDD">
+                    <input type="hidden" id="hdnidfsTestStatus" value="@TestDetailModel.idfsTestStatus" />
+                    <RadzenTextBox @bind-Value="@TestDetailModel.strTestStatus" Name="TestStatusDD" class="form-control" Disabled="true"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalTestResultFieldLabel" IsRow="false" CssClass="col-md-6" For="TestResultDD">
+                    <RadzenDropDown AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" AllowInput="true" Name="TestResultDD" TValue="long?"  
+                                    Data="@TestResult" ValueProperty="idfsBaseReference" TextProperty="StrDefault" @bind-Value="@TestDetailModel.idfsTestResult" Count="@TestResultCount" class="form-control" 
+                                    Change="@(args => UpdateTestResultName(args))" Disabled="@(BlnEnteredByLab || IsReportClosed)"></RadzenDropDown>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportTestsResultDateFieldLabel" IsRow="false" CssClass="col-md-6" For="Test_ResultDate">
+                    <RadzenDatePicker id="resultDate" Name="Test_ResultDate" @bind-Value="@TestDetailModel.datConcludedDate" class="form-control-range" DateFormat="d" Disabled="@(BlnEnteredByLab || IsReportClosed)"></RadzenDatePicker>
+                    <RadzenCompareValidator Value="@TestDetailModel.datFieldSentDate" Component="Test_ResultDate" Popup=false Operator="CompareOperator.GreaterThanEqual"
+                                            Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportTestsResultDateFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSentDateFieldLabel))"
+                                            Style="display: block" />
+                    <RadzenCompareValidator Value="@DateTime.Today.AddDays(1).AddMinutes(-1)" Component="Test_ResultDate" Popup="false" Operator="CompareOperator.LessThanEqual"
+                                            Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)"
+                                            Style="display: block" />
+                </InterfaceEditorResource>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            @Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportExternalOrganizationHeading)
+
+    </div>
+    <div class="card-body">
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalLaboratoryFieldLabel" IsRow="false" CssClass="col-md-6" For="TestLabDD">
+                    <RadzenDropDown AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" AllowInput="true" id="TestLabDD" Name="TestLabDD" TValue="long?" 
+                                        LoadData="LoadTestLaboratory" Data="@TestLaboratory" ValueProperty="idfOffice" TextProperty="name" @bind-Value="@TestDetailModel.idfTestedByOffice" 
+                                        Count="@TestLabCount" class="form-control" Change="@(args => UpdateTestLabName(args))" Disabled="@(BlnEnteredByLab || IsReportClosed)"></RadzenDropDown>
+                </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalEmployeeFieldLabel" IsRow="false" CssClass="col-md-6" For="TestedByPersonDD">
+                <input type="hidden" id="idfTestedByPerson" value="@TestDetailModel.idfTestedByPerson" />
+                    <RadzenTextBox @bind-Value="@TestDetailModel.strTestedByPerson" Name="TestedByPersonDD" class="form-control" Disabled="@(BlnEnteredByLab || IsReportClosed)"></RadzenTextBox>
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalDateResultsReceivedFieldLabel" IsRow="false" CssClass="col-md-6" For="Test_ResultsReceivedDate">
+                    <RadzenDatePicker id="Test_ResultsReceivedDate" Name="Test_ResultsReceivedDate" @bind-Value="@TestDetailModel.datReceivedDate" class="form-control-range" DateFormat="d" Disabled="@(BlnEnteredByLab || IsReportClosed)"></RadzenDatePicker>
+                <RadzenCompareValidator Value="@TestDetailModel.datFieldCollectionDate" Component="Test_ResultsReceivedDate" Popup="false" Operator="CompareOperator.GreaterThanEqual"
+                                        Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.TestDetailsModalDateResultsReceivedFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportCollectionDateFieldLabel))"
+                                        Style="display: block" />
+                <RadzenCompareValidator Value="@DateTime.Now" Component="Test_ResultsReceivedDate" Popup=false Operator="CompareOperator.LessThanEqual"
+                                        Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)"
+                                        Style="display: block" />
+            </InterfaceEditorResource>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header">
+        @Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportInterpretationHeading)
+
+</div>
+    <div class="card-body">
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportTestDetailsModalRuleOutRuleInFieldLabel" IsRow="false" CssClass="col-md-6" For="RuleOutRuleInDD">
+                <RadzenDropDown AllowClear="true" AllowFiltering="true"  FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowInput="true" Name="RuleOutRuleInDD" TValue="long?" 
+                                        LoadData="LoadInterpretedStatusList" Data="@RuleOutRuleIn" ValueProperty="idfsBaseReference" TextProperty="StrDefault" @bind-Value="@TestDetailModel.idfsInterpretedStatus" 
+                                        Count="@RuleOutRuleInCount" class="form-control" Change="@(args => UpdateRuleOutRuleInName(args))" Disabled="@(!CanInterpretResults || IsReportClosed)"></RadzenDropDown>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.AvianDiseaseReportInterpretationDetailsModalCommentsRuleOutRuleInFieldLabel" IsRow="false" CssClass="col-md-6" For="InterpretedComments">
+                <RadzenTextBox @bind-Value="@TestDetailModel.strInterpretedComment" Name="InterpretedComments" class="form-control" Disabled="@(!EnableInterpretedComments || IsReportClosed)"></RadzenTextBox>
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportTestsDateInterpretedFieldLabel" IsRow="false" CssClass="col-md-6" For="Test_datInterpretedDate">
+                <RadzenDatePicker id="Test_datInterpretedDate" Name="Test_datInterpretedDate" @bind-Value="@TestDetailModel.datInterpretedDate" class="form-control-range" DateFormat="d" Disabled="true"></RadzenDatePicker>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportTestsInterpretedByFieldLabel" IsRow="false" CssClass="col-md-6" For="InterpretedBy">
+                <RadzenTextBox @bind-Value="@TestDetailModel.strInterpretedBy" Name="InterpretedBy" class="form-control" Disabled="true"></RadzenTextBox>
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportTestDetailsModalValidatedFieldLabel" IsRow="false" CssClass="col-4" For="blnValidateStatus">
+                <RadzenCheckBox Name="blnValidateStatus" TValue="bool" @bind-Value="TestDetailModel.blnValidateStatus" Disabled="@(!EnableValidated || IsReportClosed)" Change="@(args => EnableValidatedComments(args))"></RadzenCheckBox>
+            </InterfaceEditorResource>         
+        </div>
+        <div class="form-row">
+
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.LivestockDiseaseReportInterpretationDetailsModalCommentsValidatedFieldLabel" IsRow="false" CssClass="col-md-6" For="InterpretedComments">
+                <RadzenTextBox @bind-Value="@TestDetailModel.strValidateComment" Name="InterpretedComments" class="form-control" Disabled="@(!BlnEnableValidatedComments || IsReportClosed)" ></RadzenTextBox>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportTestsDateValidatedFieldLabel" IsRow="false" CssClass="col-md-6" For="Test_datValidationDate">
+                <RadzenDatePicker id="Test_datValidationDate" Name="Test_datValidationDate" @bind-Value="@TestDetailModel.datValidationDate" class="form-control-range" DateFormat="d" Disabled="true">
+
+                </RadzenDatePicker>
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">         
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportTestsValidatedByFieldLabel" IsRow="false" CssClass="col-md-6" For="ValidatedBy">
+                <RadzenTextBox @bind-Value="@TestDetailModel.strValidatedBy" Name="ValidatedBy" class="form-control" Disabled="true"></RadzenTextBox>
+            </InterfaceEditorResource>
+        </div>
+    </div>
+    </div>
+<div class="card-footer">
+    <button type="button" class="btn btn-secondary"
+            @onclick="((args) => DiagService.Close(null))">
+        @Localizer.GetString(ButtonResourceKeyConstants.CancelButton)
+    </button>
+
+        <button type="submit" class="btn btn-primary" disabled="@IsReportClosed">
+        @Localizer.GetString(ButtonResourceKeyConstants.SaveButton)
+    </button>
+</div>
+
+</RadzenTemplateForm>

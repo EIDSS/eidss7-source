@@ -1,0 +1,99 @@
+﻿@model EIDSS.Web.ViewModels.ConfigurationMatrixPagesViewModel;
+
+<div class="card">
+    <div class="card-header">
+        @*card header always an h3!*@
+        <h3>@Model.PageName</h3>
+    </div>
+    <div class="card-body">
+        <div class="row align-items-end pb-2">
+            <div class="col-auto flex-nowrap">
+                @*add button*@
+                @if (Model.UserPermissions is {Create: true })
+                {
+                    <button type="button" id="@Model.PageLevelAddButtonID" class="btn btn-primary mt-3" data-toggle='modal' data-backdrop='static' data-keyboard='false' data-target='#@Model.PageLevelAddButtonModal'>@Model.PageLevelAddButtonModalText</button>
+                }
+            </div>
+            <div class="col-auto">
+                @*radio buttons*@
+                @Model.configurationListViewModel
+                @{
+                    if (Model.RadioButton2Configurations != null)
+                    {
+                        if (Model.RadioButton2Configurations.Count > 0)
+                        {
+                            <label runat="server" id="lbl_Test_Result_Relations">
+                                @Localizer.GetString(FieldLabelResourceKeyConstants.TestResultsRelationsFieldLabel)
+                            </label>
+                            <br />
+                            var isfirst = true;
+                            @foreach (var item in Model.RadioButton2Configurations)
+                            {
+                                if (isfirst)
+                                {
+                                    isfirst = false;
+                                    <input asp-for="RadioButton2Configurations" type="radio" value="@item.Key" checked="checked" /> @item.Value
+
+                                }
+                                else
+                                {
+                                    <input asp-for="RadioButton2Configurations" type="radio" value="@item.Key" /> @item.Value
+                                }
+                            }
+                        }
+                    }
+                }
+            </div>
+            <div class="col-6 flex-nowrap">
+                @*select2 drop down*@
+                @{
+                    if (Model.Select2Configurations != null)
+                    {
+                        if (Model.Select2Configurations.Count > 0)
+                        {
+                            <eidss-select2DropDown id="@Model.Select2Configurations[0].DropDownId"
+                                                   control-target-id="@Model.Select2Configurations[0].ControltargetId"
+                                                   target-type="@Model.Select2Configurations[0].ControlTargetType"
+                                                   target-ajax-url="@Model.Select2Configurations[0].ControlTargetUrl"
+                                                   selectct2-default-data="@Model.Select2Configurations[0].defaultSelect2Selection"
+                                                   end-point="@Model.Select2Configurations[0].Endpoint"
+                                                   label-name="@Model.Select2Configurations[0].Label"
+                                                   is-visible="@Model.Select2Configurations[0].isVisible"
+                                                   include-add-button="@Model.Select2Configurations[0].IncludeAddButton"
+                                                   add-modal-id="@Model.Select2Configurations[0].AddModalId"
+                                                   custom-js-on-change-function="@Model.Select2Configurations[0].CustomJsOnChangeFunction"
+                                                   custom-js-on-clear-function="@Model.Select2Configurations[0].CustomJsOnClearFunction"
+                                                   disabled-controls="@Model.Select2Configurations[0].DisabledControls"
+                                                   filter-id="@Model.Select2Configurations[0].FilteredId">
+                            </eidss-select2DropDown>
+                        }
+                    }
+                }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <eidss-grid id="@Model.eidssGridConfiguration.GridId" 
+                grid-configuration="@Model.eidssGridConfiguration"
+                            filtered-control-ids="@Model.eidssGridConfiguration.ControlFilterID"
+                            enable-server-side="@Model.eidssGridConfiguration.EnableServerSide"
+                            enable-processing="@Model.eidssGridConfiguration.EnableProcessingMessage"
+                            enable-search="@Model.eidssGridConfiguration.EnableSearching"
+                            end-point="@Model.eidssGridConfiguration.AjaxDataUrl"
+                            class-name="@Model.eidssGridConfiguration.GridClass"
+                            details-ajax-url="@Url.Action("EditModalData", "BaseReferencePage")"
+                            enable-top-header-search-button="@Model.eidssGridConfiguration.EnableCustomSearching"
+                            control-labels="@Model.eidssGridConfiguration.ControlLabels"
+                            controls-that-refresh-the-grid="@Model.eidssGridConfiguration.ControlIdThatRefreshGrid">
+                </eidss-grid>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Modal-->
+@{
+    for (int i = 0; i < @Model.eIDSSModalConfiguration.Count(); i++)
+    {
+        <eidss-reference-editors-modal control-labels="@Model.eIDSSModalConfiguration[i].ControlLabels" ajax-save-url="@Model.eIDSSModalConfiguration[i].PostAjaxDataUrl" modal-configuration="@Model.eIDSSModalConfiguration[i]" modal-id="@Model.eIDSSModalConfiguration[i].ModalId"></eidss-reference-editors-modal>
+    }
+}

@@ -1,0 +1,333 @@
+﻿@model EIDSS.Web.Areas.Human.ViewModels.Person.PersonInformationSectionViewModel
+
+<form id="PersonInformationForm">
+    <input type="hidden" asp-for="PersonDetails.HumanActualId" />
+    <input type="hidden" asp-for="PersonDetails.HumanGeoLocationID" />
+    <input type="hidden" asp-for="PersonDetails.HumanPermGeoLocationID" />
+    <input type="hidden" asp-for="PersonDetails.HumanAltGeoLocationID" />
+    <input type="hidden" asp-for="PersonDetails.HomePhone" />
+    <input type="hidden" asp-for="PersonDetails.WorkPhone" />
+    <input type="hidden" asp-for="PersonDetails.EmployerGeoLocationID" />
+    <input type="hidden" asp-for="PersonDetails.SchoolGeoLocationID" />
+
+    <div class="container-fluid">
+        <div class="row" visible-if="@Model.PersonIDVisibleIndicator">
+            <div class="form-group col-md-6">
+                <label asp-for="@Model.PersonDetails.EnteredDate" field-label-for="@FieldLabelResourceKeyConstants.HumanDiseaseReportSummaryDateEnteredFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.PersonDetails.EnteredDate" class="form-control" disabled value="@Model.PersonDetails.EnteredDate">
+            </div>
+            <div class="form-group col-md-6">
+                <label asp-for="@Model.PersonDetails.ModificationDate" field-label-for="@FieldLabelResourceKeyConstants.HumanDiseaseReportSummaryDateLastUpdatedFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.PersonDetails.ModificationDate" class="form-control" disabled value="@Model.PersonDetails.ModificationDate">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4 heading-for="@HeadingResourceKeyConstants.PersonInformationHeading"></h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editPersonInformationSectionButton" href="#personWizard-h-0" class="edit-section"><span class="fas fa-edit fa-lg"></span></a>
+            </div>
+        </div>
+        <div class="row">
+            <div id="divPersonID" class="form-group col-md-6" visible-if="@Model.PersonIDVisibleIndicator">
+                <label asp-for="@Model.PersonDetails.EIDSSPersonID" field-label-for="@FieldLabelResourceKeyConstants.PersonInformationPersonIDFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.PersonDetails.EIDSSPersonID" class="form-control" disabled value="@Model.PersonDetails.EIDSSPersonID">
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label asp-for="@Model.PersonDetails.PersonalIDType">@Localizer.GetString(FieldLabelResourceKeyConstants.PersonInformationPersonalIDTypeFieldLabel)</label>
+                <select id="PersonalIDType" asp-for="@Model.PersonDetails.PersonalIDType" asp-items="@(new SelectList(Model.PersonalIDTypeList,"IdfsBaseReference","StrDefault"))" class="form-control"></select>
+            </div>
+            <div>
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.PersonalIDTypeFieldLabel"></i>
+                <label asp-for="@Model.PersonDetails.PersonalID" field-label-for="@FieldLabelResourceKeyConstants.PersonInformationPersonalIDFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.PersonDetails.PersonalID" class="form-control" value="@Model.PersonDetails.PersonalID">
+                <span asp-validation-for="@Model.PersonDetails.PersonalID" class="text-danger"></span>
+                <div id="ValPersonalID" class="text-danger"></div>
+                <button id="btnFindInPINSystem" type="button" class="btn btn-outline-primary" onclick="findInPINSystem();" visible="@Model.FindInPINSystemInVisibledicator">Find In PIN System</button>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.PersonInformationLastNameFieldLabel"></i>
+                <label asp-for="@Model.PersonDetails.LastOrSurname" field-label-for="@FieldLabelResourceKeyConstants.PersonInformationLastNameFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.PersonDetails.LastOrSurname" class="form-control" value="@Model.PersonDetails.LastOrSurname" />
+                <span asp-validation-for="@Model.PersonDetails.LastOrSurname" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-4">
+                <label asp-for="@Model.PersonDetails.SecondName" field-label-for="@FieldLabelResourceKeyConstants.PersonInformationMiddleNameFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.PersonDetails.SecondName " class="form-control" value="@Model.PersonDetails.SecondName" />
+            </div>
+            <div class="form-group col-md-4">
+                <label asp-for="@Model.PersonDetails.FirstOrGivenName" field-label-for="@FieldLabelResourceKeyConstants.PersonInformationFirstNameFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.PersonDetails.FirstOrGivenName" class="form-control" value="@Model.PersonDetails.FirstOrGivenName" />
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label asp-for="PersonDetails.DateOfBirth" field-label-for="@FieldLabelResourceKeyConstants.PersonInformationDateOfBirthFieldLabel"></label>
+                <div class="input-group">
+                    <input type="hidden" id="hdnDateOfBirth" value="@Model.PersonDetails.DateOfBirth" />
+                    <eidss-calendar id="PersonInformationSection_PersonDetails_DateOfBirth" name="PersonInformationSection.PersonDetails.DateOfBirth" asp-for="PersonDetails.DateOfBirth" SearchFilter="true" value="@Model.PersonDetails.DateOfBirth" css-class="form-control"></eidss-calendar>
+                    <span asp-validation-for="PersonDetails.DateOfBirth" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group col-md-6">
+                <label asp-for="@Model.PersonDetails.ReportedAge" field-label-for="@FieldLabelResourceKeyConstants.PersonInformationAgeFieldLabel" class="control-label"></label>
+                <div class="input-group">
+                    <input asp-for="@Model.PersonDetails.ReportedAge" class="form-control" value="@Model.PersonDetails.ReportedAge" maxlength="3" />
+                    <div class="input-group-append">
+                        <select id="ReportedAgeUOMID" asp-for="@Model.PersonDetails.ReportedAgeUOMID" asp-items="@(new SelectList(Model.HumanAgeTypeList,"IdfsBaseReference","StrDefault"))" class="form-control"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-md-3 no-gutters">
+                
+            </div>    
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label asp-for="@Model.PersonDetails.GenderTypeName" field-label-for="@FieldLabelResourceKeyConstants.PersonInformationGenderFieldLabel" class="control-label"></label>
+                <select id="GenderType" asp-for="@Model.PersonDetails.GenderTypeID" asp-items="@(new SelectList(Model.HumanGenderList,"IdfsBaseReference","StrDefault"))" class="form-control"></select>
+            </div>
+
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label asp-for="@Model.PersonDetails.CitizenshipTypeName" field-label-for="@FieldLabelResourceKeyConstants.PersonInformationCitizenshipFieldLabel" class="control-label"></label>
+                <select id="Citizenship" asp-for="@Model.PersonDetails.CitizenshipTypeID" asp-items="@(new SelectList(Model.CitizenshipList,"IdfsBaseReference","StrDefault"))" class="form-control"></select>
+            </div>
+            <div class="form-group col-md-6">
+                <label asp-for="@Model.PersonDetails.PassportNumber" field-label-for="@FieldLabelResourceKeyConstants.PersonInformationPassportNumberFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.PersonDetails.PassportNumber" class="form-control" value="@Model.PersonDetails.PassportNumber" />
+            </div>
+        </div>
+    </div>
+</form>
+<partial name="_ValidationScriptsPartial" />
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ($("#PersonalIDType").val() == -1 || $("#PersonalIDType").val() == 51577280000000) {
+            $("#PersonInformationSection_PersonDetails_PersonalID").prop("disabled", true).val("");
+            $("#btnFindInPINSystem").hide();
+        }
+        else {
+            $("#PersonInformationSection_PersonDetails_PersonalID").prop("disabled", false);
+        }
+
+        $("#PersonalIDType").on("change", function () {
+            if ($("#PersonalIDType").val() == -1 || $("#PersonalIDType").val() == 51577280000000) {
+                $("#PersonInformationSection_PersonDetails_PersonalID").prop("disabled", true).val("");
+                $("#btnFindInPINSystem").hide();
+            }
+            else {
+                if ($("#PersonInformationSection_PersonDetails_PersonalID").val() == "") {
+                    $("#btnFindInPINSystem").hide();
+                }
+                else {
+                    if ($("#PersonalIDType").val() == 389445040002826) {
+                        $("#btnFindInPINSystem").show();
+                        if ($("#PersonInformationSection_PersonDetails_DateOfBirth").val() != '') {
+                            $("#btnFindInPINSystem").prop("disabled", false);
+                        }
+                        else {
+                            $("#btnFindInPINSystem").prop("disabled", true);
+                        }
+                    }
+                    else {
+                        $("#btnFindInPINSystem").hide();
+                    }
+                    validatePersonalID(false);
+                }
+
+                $("#PersonInformationSection_PersonDetails_PersonalID").prop("disabled", false);
+            }
+        });
+
+        $("#PersonInformationSection_PersonDetails_PersonalID").on("change", function () {
+            if ($("#PersonInformationSection_PersonDetails_PersonalID").val() == "") {
+                $("#btnFindInPINSystem").hide();
+            }
+            else {
+                if ($("#PersonalIDType").val() == 389445040002826) {
+                    $("#btnFindInPINSystem").show();
+                    if ($("#PersonInformationSection_PersonDetails_DateOfBirth").val() != '') {
+                        $("#btnFindInPINSystem").prop("disabled", false);
+                    }
+                    else {
+                        $("#btnFindInPINSystem").prop("disabled", true);
+                    }
+                }
+                else {
+                    $("#btnFindInPINSystem").hide();
+                }
+                validatePersonalID(false);
+            }
+        });
+
+        showAge();
+    });
+
+    function showAge() {
+        debugger;
+        var txtDateOfBirth = $("#PersonInformationSection_PersonDetails_DateOfBirth").val();
+
+        if (txtDateOfBirth != '') {
+            var today = new Date();
+            var dob = txtDateOfBirth;
+            var BD = new Date(dob);
+
+            var dateDiff = Math.abs((today.getTime() - BD.getTime()) / (1000 * 3600 * 24));
+            dateDiff = Math.floor(dateDiff);
+
+            if (dateDiff <= 30)
+                $("#ReportedAgeUOMID").val('10042001');   //Days
+            else if (dateDiff > 30 && dateDiff <= 365) {
+                $("#ReportedAgeUOMID").val('10042002');   //Months
+                //document.getElementById("EIDSSBodyCPH_ucAddUpdatePerson_ddlReportedAgeUOMID").value = '10042002';
+                //dateDiff = Math.floor(dateDiff / 30);
+                var age = (today.getFullYear() - BD.getFullYear()) * 12;
+                var m = today.getMonth() - BD.getMonth();
+                if (m < 0) {
+                    age = age + m;
+                    if (today.getDate() < BD.getDate()) {
+                        age--;
+                    }
+                }
+                else if (m === 0) {
+                    if (today.getDate() < BD.getDate()) {
+                        age--;
+                    }
+                }
+                else {
+                    age = m;
+                    if (today.getDate() < BD.getDate()) {
+                        age--;
+                    }
+                }
+                dateDiff = age
+            }
+            else {
+                $("#ReportedAgeUOMID").val('10042003');   //Years
+                //document.getElementById("EIDSSBodyCPH_ucAddUpdatePerson_ddlReportedAgeUOMID").value = '10042003';
+                //dateDiff = Math.floor(dateDiff / 365);
+                var age = today.getFullYear() - BD.getFullYear();
+                var m = today.getMonth() - BD.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < BD.getDate())) {
+                    age--;
+                }
+                dateDiff = age
+
+                if (age > 100 && age <= 200 && $("#ReportedAgeUOMID").val() == '10042003') {
+                    showVerifyAgeModal('Age > 100. Please verify age is correct.').then(response => {
+                        if (response) {
+                            // focus on the next field
+                            $("#ReportedAgeUOMID").focus;
+                        }
+                        else {
+                            // return to person record and focus on the Age field to edit the value
+                            $("#PersonInformationSection_PersonDetails_ReportedAge").focus;
+                        }
+                    });
+                }
+                if (age > 200 && $("#ReportedAgeUOMID").val() == '10042003') {
+                    showInformationalModalWait('The value of field Age shall not exceed 31 days, or 60 months, or 200 years.').then(response => {
+                        if (response) {
+                     }
+                    });
+                }
+            }
+
+            $("#PersonInformationSection_PersonDetails_ReportedAge").val(dateDiff);
+
+            $("#PersonInformationSection_PersonDetails_ReportedAge").prop("disabled", true);
+            $("#ReportedAgeUOMID").prop("disabled", true);
+        }
+        else {
+            $("#PersonInformationSection_PersonDetails_ReportedAge").prop("disabled", false);
+            $("#ReportedAgeUOMID").prop("disabled", false);
+        }
+    };
+
+    $("#PersonInformationSection_PersonDetails_DateOfBirth").on("change", function () {
+        var txtDateOfBirth = $("#PersonInformationSection_PersonDetails_DateOfBirth").val();
+
+        if (txtDateOfBirth != '') {
+            showAge();
+            $("#PersonInformationSection_PersonDetails_ReportedAge").prop("disabled", true);
+            $("#ReportedAgeUOMID").prop("disabled", true);
+        }
+        else {
+            $("#PersonInformationSection_PersonDetails_ReportedAge").prop("disabled", false).val("");
+            $("#ReportedAgeUOMID").prop("disabled", false).val("");
+        }
+    });
+
+    $("#PersonInformationSection_PersonDetails_ReportedAge").on("change", function () {
+        var ReportedAge = $("#PersonInformationSection_PersonDetails_ReportedAge").val();
+
+        if (ReportedAge != '') {
+            var age = parseInt(ReportedAge);
+            if (age > 100 && age <= 200 && $("#ReportedAgeUOMID").val() == '10042003') {
+                showVerifyAgeModal('Age > 100. Please verify age is correct.').then(response => {
+                    if (response) {
+                                // focus on the next field
+                        $("#ReportedAgeUOMID").focus;
+                    }
+                    else {
+                                // return to person record and focus on the Age field to edit the value
+                        $("#PersonInformationSection_PersonDetails_ReportedAge").focus;
+                    }
+                });
+            }
+            if (age > 200 && $("#ReportedAgeUOMID").val() == '10042003') {
+                 showInformationalModalWait('The value of field Age shall not exceed 31 days, or 60 months, or 200 years.').then(response => {
+                     if (response) {
+                     }
+                });
+            }
+        }
+    });
+
+    function validatePersonalID(isUserPermission) {
+        model = {};
+        var isValid = false;
+        model.PersonalIDType = $("#PersonalIDType").val();
+        model.PersonalID = $("#PersonInformationSection_PersonDetails_PersonalID").val();
+        if ((model.PersonalIDType != null && model.PersonalIDType != "" && model.PersonalID == 51577280000000) || ((model.PersonalIDType == null || model.PersonalIDType == "") && (model.PersonalID == "" || model.PersonalID == null))) {
+            isValid = true;
+        }
+        else if (model.PersonalIDType != null && model.PersonalIDType != "" && model.PersonalID != null && model.PersonalID != "" && model.PersonalID != 51577280000000) {
+            var url = '@Url.Action("ValidatePersonalID", "PersonDetails")?data=' + JSON.stringify(model);
+            $.ajax({
+                url: url,
+                type: 'GET',
+                async:false,
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data == false) {
+                        if (!isUserPermission)
+                            $("#ValPersonalID").html('@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)');
+                    }
+                    else if (data == true) {
+                        $("#ValPersonalID").html("");
+                    }
+
+                    isValid = data;
+                },
+                complete: function (data) {
+                },
+                error: function (request, error) {
+                    alert("failure" + error);
+                }
+            });
+        }
+        return isValid;
+    };
+
+
+
+</script>

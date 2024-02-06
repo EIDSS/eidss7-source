@@ -1,0 +1,306 @@
+﻿@model EIDSS.Web.ViewModels.Administration.EmployeePersonalInfoPageViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+
+@{
+
+    EIDSSModalConfiguration eIDSSModalConfiguration = new EIDSSModalConfiguration();
+    eIDSSModalConfiguration.ControlLabels.ModalTitle = @Localizer.GetString(HeadingResourceKeyConstants.EmployeePersonalInformationHeading);
+    eIDSSModalConfiguration.ModalId = "NonUserEmployeeSave";
+    eIDSSModalConfiguration.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    eIDSSModalConfiguration.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    eIDSSModalConfiguration.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    eIDSSModalConfiguration.ControlLabels.SuccessModalTitle = @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    eIDSSModalConfiguration.ControlLabels.SuccessMessage = @Localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage);
+    eIDSSModalConfiguration.ControlLabels.OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton);
+    eIDSSModalConfiguration.SaveCompleteMethod = "CheckSuccess";
+
+    // eIDSSModalConfiguration.TargetGridControlID = "GetDepartmentList"; //ID of Grid to Refresh
+    eIDSSModalConfiguration.SavingControlsCollection = "notificationSentByNameDD";
+    eIDSSModalConfiguration.PostAjaxDataUrl = @Url.Action("SaveNonUserEmployee", "AddNonUserEmployee", new { Area = "Human" });
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+            {
+                LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.PersonalIDTypeFieldLabel),
+                ControlType = ControlType.DropDown,
+                ControlName = "PersonalIdTypeDD",
+                Visible = true,
+                ControlAjaxDataUrl = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000148 }),
+                ClassName = "PersonalIdTypeDD"
+            });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+            {
+                LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.PersonalIDFieldLabel),
+                ControlType = ControlType.Default,
+                ControlName = "PersonalID",
+                Visible = true,
+                ClassName = "PersonalID"
+            });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+            {
+                LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeFirstNameFieldLabel),
+                ControlType = ControlType.Default,
+                ControlName = "FirstOrGivenName",
+                Visible = true,
+                ClassName = "FirstOrGivenName",
+                ValidationSetting = new ValidatorSettings()
+                {
+                    ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+                    ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+                },
+            });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+            {
+                LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeMiddleNameFieldLabel),
+                ControlType = ControlType.Default,
+                ControlName = "SecondName",
+                Visible = true,
+                ClassName = "SecondName"
+            });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+            {
+                LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeLastNameFieldLabel),
+                ControlType = ControlType.Default,
+                ControlName = "LastOrSurName",
+                Visible = true,
+                ClassName = "LastOrSurName",
+                ValidationSetting = new ValidatorSettings()
+                {
+                    ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+                    ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+                },
+            });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+            {
+                LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrganizationDefaultFieldLabel),
+                ControlType = ControlType.DropDown,
+                ControlName = "OrganizationDD",
+                Visible = true,
+                ControlAjaxDataUrl = @Url.Action("GetOrganizationsForLookup", "CrossCutting", new { Area = "CrossCutting", organizationSiteAssociation = (int)OrganizationSiteAssociations.OrganizationsWithOrWithoutSite, accessoryCode = EIDSSConstants.HACodeList.HumanHACode }),
+                ClassName = "OrganizationDD",
+                ValidationSetting = new ValidatorSettings()
+                {
+                    ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+                    ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+                },
+            });
+    //eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    //{
+    //    LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.SiteIDDefaultFieldLabel),
+    //    ControlType = ControlType.Default,
+    //    ControlName = "SiteName",
+    //    Visible = true,
+    //    ClassName = "SiteName"
+    //});
+    //eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    //{
+    //    LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.SiteIDDefaultFieldLabel),
+    //    ControlType = ControlType.Default,
+    //    ControlName = "SiteID",
+    //    Visible = false,
+    //    ClassName = "SiteID"
+    //});
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+            {
+                LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DepartmentFieldLabel),
+                ControlType = ControlType.DropDown,
+                ControlName = "DepartmentDD",
+                FilteredControlId = "NonUserEmployeeSavectrlAdd_5",
+                Visible = true,
+                ClientMethod = "FillSiteDetails",
+                ControlAjaxDataUrl = @Url.Action("GetDepartmentList", "AddNonUserEmployee", new { Area = "Human" }),
+                ClassName = "DepartmentDD"
+            });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+            {
+                LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.PositionFieldLabel),
+                ControlType = ControlType.DropDown,
+                ControlName = "PositionDD",
+                Visible = true,
+                ControlAjaxDataUrl = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000073 }),
+                ClassName = "PositionDD"
+            });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+            {
+                LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.SearchEmployeePhoneFieldLabel),
+                ControlType = ControlType.Default,
+                ControlName = "Phone",
+                Visible = true,
+                ClassName = "Phone",
+            });
+
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+}
+
+<partial name="_ErrorModalPartial" />
+<partial name="_WarningModalPartial" />
+<partial name="_ValidationScriptsPartial" />
+<partial name="_InformationalModalPartial" , model="String.Empty" />
+
+<script type="text/javascript">
+
+    function CheckSuccess(data) {
+
+        var stringified_data = JSON.stringify(data);
+        var parsed_data = JSON.parse(stringified_data);
+        if (parsed_data.retunMessage == "Success") {
+            showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)');
+        }
+        else if (parsed_data.retunMessage == "DOES EXIST") {
+            showErrorModal(parsed_data.duplicateMessage);
+        }
+        else if (parsed_data.retunMessage == "ERROR") {
+            //showErrorModal('@Localizer.GetString(FieldLabelResourceKeyConstants.PersonalIDFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)');
+            showErrorModal(parsed_data.validationError);
+        }
+    }
+    
+    //Personal ID Type Validation
+    $("#NonUserEmployeeSavectrlAdd_0").on('change', function () {
+        //alert(JSON.stringify(data));
+        CheckPersonalIDRequired(this.value);
+    });
+
+    function CheckPersonalIDRequired(data) {
+        if (data != null && data != "") {
+            var PersonalId = "";
+            if (data == "51577280000000" || data == null || data == "") {
+                $("#checkRequired").addClass('d-none');
+                $("#NonUserEmployeeSavectrlAdd_1").valid();
+                $("#NonUserEmployeeSavectrlAdd_1").prop('disabled', true);
+                $("#NonUserEmployeeSavectrlAdd_1").val('');
+                //$("#NonUserEmployeeSavebtnSave").prop('disabled', false);
+            }
+            else {
+                $("#checkRequired").removeClass('d-none');
+                $("#NonUserEmployeeSavectrlAdd_1").valid();
+                $("#NonUserEmployeeSavectrlAdd_1").prop('disabled', false);
+                // $("#NonUserEmployeeSavebtnSave").prop('disabled', false);
+            }
+        }
+        else {
+            $("#checkRequired").addClass('d-none');
+            $("#NonUserEmployeeSavectrlAdd_1").valid();
+            $("#NonUserEmployeeSavectrlAdd_1").prop('disabled', true);
+            //  $("#NonUserEmployeeSavebtnSave").prop('disabled', false);
+            $("#NonUserEmployeeSavectrlAdd_1").val('');
+        }
+    }
+
+    //Personal ID Validation
+    $("#NonUserEmployeeSavectrlAdd_1").on('change', function () {
+        validatePersonalID();
+    });
+
+    function validatePersonalID() {
+        model = {};
+        var isValid = false;
+        model.PersonalIDType = $("#NonUserEmployeeSavectrlAdd_0").val();
+        model.PersonalID = $("#NonUserEmployeeSavectrlAdd_1").val();
+        if ((model.PersonalIDType != null && model.PersonalIDType != "" && model.PersonalID == 51577280000000) || ((model.PersonalIDType == null || model.PersonalIDType == "") && (model.PersonalID == "" || model.PersonalID == null))) {
+            isValid = true;
+        }
+        else if (model.PersonalIDType != null && model.PersonalIDType != "" && model.PersonalID != null && model.PersonalID != "" && model.PersonalID != 51577280000000) {
+            $.ajax({
+                url: '@Url.Action("ValidatePersonalID", "EmployeePage", new { Area = "Administration"})?data=' + JSON.stringify(model),
+                //url: 'ValidatePersonalID?data=' + JSON.stringify(model),
+                type: 'GET',
+                async: false,
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data == false) {
+                        //  $("#NonUserEmployeeSavebtnSave").prop('disabled', true);
+                        showErrorModal('@Localizer.GetString(FieldLabelResourceKeyConstants.PersonalIDFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)');
+                    }
+                    else {
+                        //   $("#NonUserEmployeeSavebtnSave").prop('disabled', false);
+                    }
+                    isValid = data;
+                },
+                complete: function (data) {
+                },
+                error: function (request, error) {
+                    alert("failure" + error);
+                }
+            });
+        }
+        return isValid;
+    }
+
+    //Phone Validation
+    $("#NonUserEmployeeSavectrlAdd_8").on('change', function () {
+        validatePhone();
+    });
+
+    function validatePhone() {
+        var isValidPhone = true;
+        var a = $("#NonUserEmployeeSavectrlAdd_8").val();
+        var filter = /^[0-9]{8,15}$/;
+        //var filter = /^((\+[1-9]{1,4}[ \-]*)|(\([0-9]{2,3}\)[ \-]*)|([0-9]{2,4})[ \-]*)*?[0-9]{3,4}?[ \-]*[0-9]{3,4}?$/;
+        if (filter.test(a)) {
+            isValidPhone = true;
+            $("#ValContactPhone").html("");
+            // $("#NonUserEmployeeSavebtnSave").prop('disabled', false);
+        }
+        else {
+            if (a == null && a == "") {
+                isValidPhone = true;
+                //  $("#NonUserEmployeeSavebtnSave").prop('disabled', false);
+            }
+            else {
+                // $("#ValContactPhone").html('@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)');
+                showErrorModal('@Localizer.GetString(FieldLabelResourceKeyConstants.SearchEmployeePhoneFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)');
+                isValidPhone = false;
+                // $("#NonUserEmployeeSavebtnSave").prop('disabled', true);
+            }
+        }
+        return isValidPhone;
+    }
+    
+    //function FillSiteDetails(data) {
+    //    //LoadOrganization();
+    //   // $("#AddDepartment").prop("disabled", false);
+    //    info = [];
+    //    info.push(data)
+    //    alert(info);
+    //    $.ajax({
+    //        url: '@Url.Action("GetSiteDetails", "EmployeePage")?page=1&data=' + encodeURIComponent(JSON.stringify(info)),
+    //        type: 'GET',
+    //        contentType: "application/json; charset=utf-8",
+    //        success: function (data) {
+    //            if (data == undefined || data == null || data == "") {
+    //                $("#NonUserEmployeeSavectrlAdd_6").val("");
+    //                $("#NonUserEmployeeSavectrlAdd_7").val("");
+    //                $("#NonUserEmployeeSavectrlAdd_8").val('').trigger('change');
+    //                //$("#AddDepartment").prop("disabled", true);
+
+    //            }
+    //            else {
+    //                var siteDetail = JSON.stringify(data);
+    //                $("#NonUserEmployeeSavectrlAdd_6").val(data.strSiteName);
+    //                $("#NonUserEmployeeSavectrlAdd_7").val(data.idfsSite);
+    //                $("#NonUserEmployeeSavectrlAdd_8").val('').trigger('change');
+    //                //$("#AddDepartment").prop("disabled", false);
+    //            }
+    //        },
+    //        complete: function (data) {
+    //        },
+    //        error: function (request, error) {
+    //            alert("failure getsitelist");
+    //        }
+    //    });
+    //}
+
+    $(document).on("show.bs.modal", ".modal", function (event) {
+        var zIndex = 1040 + (10 * $(".modal:visible").length);
+        $(this).css("z-index", zIndex);
+        setTimeout(function () {
+            $(".modal-backdrop").not(".modal-stack").css("z-index", zIndex - 1).addClass("modal-stack");
+        }, 0);
+    });
+
+</script>
+
+

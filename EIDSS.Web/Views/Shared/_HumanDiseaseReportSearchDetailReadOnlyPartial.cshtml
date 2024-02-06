@@ -1,0 +1,28 @@
+﻿@model EIDSS.Domain.ViewModels.Human.HumanDiseaseReportViewModel
+<div class='row'>
+    <div class='col-lg-4 col-md-4 col-sm-4 col-xs-4'>
+        <label asp-for="PersonID">@Localizer.GetString(FieldLabelResourceKeyConstants.PersonalIDFieldLabel)</label>
+        <input type='text' class='form-control' disabled asp-for="PersonID" />
+    </div>
+    <div class='col-lg-4 col-md-4 col-sm-4 col-xs-4'>
+        <label asp-for="EmployerName">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSummaryEnteredByOrganizationFieldLabel)</label>
+        <input type='text' class='form-control' disabled asp-for="EmployerName"  />
+    </div>
+    <div class='col-lg-4 col-md-4 col-sm-4 col-xs-4'>
+        <label asp-for="EnteredByPersonName">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSummaryEnteredByFieldLabel)</label>
+        <input type='text' class='form-control' disabled asp-for="EnteredByPersonName" />
+    </div>
+</div>
+<div class='row'>
+    <div class='col-lg-4 col-md-4 col-sm-4 col-xs-4'>
+        <label asp-for="ReportTypeName">@Localizer.GetString(FieldLabelResourceKeyConstants.ReportTypeFieldLabel)</label>
+        <input type='text' class='form-control' disabled asp-for="ReportTypeName" />
+    </div>
+    <div class='col-lg-4 col-md-4 col-sm-4 col-xs-4'>
+        <label asp-for="HospitalizationStatus">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsHospitalizationFieldLabel)</label>
+        <input type='text' class='form-control' disabled asp-for="HospitalizationStatus" />
+    </div>
+</div>
+
+
+

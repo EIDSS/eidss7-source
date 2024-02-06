@@ -1,0 +1,32 @@
+﻿@model EIDSS.Web.Administration.Security.ViewModels.UserGroupPageDetailsViewModel
+<script>
+    $(function () {
+        $("#userGroupWizard").steps({
+            headerTag: "h2",
+            titleTemplate: '<span class="fas fa-check-circle fa-lg"></span> #title#',
+            bodyTag: "section",
+            transitionEffect: "none",
+            stepsOrientation: "vertical",
+            enableAllSteps: true,
+            enableCancelButton: true,
+            enableKeyNavigation: true,
+            labels: {
+                cancel: "@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)",
+                finish: "@Localizer.GetString(ButtonResourceKeyConstants.SubmitButton)",
+                next: "@Localizer.GetString(ButtonResourceKeyConstants.NextButton)",
+                previous: "@Localizer.GetString(ButtonResourceKeyConstants.PreviousButton)",
+                loading: "Loading..."
+            }
+        });
+    });
+</script>
+<div id="userGroupWizard">
+    <h2>Information</h2>
+    <section>
+        <partial name="_InformationPartial" for="@Model.InformationSection" />
+    </section>
+    <h2>Users and Groups</h2>
+    <h2 heading-for="@HeadingResourceKeyConstants.ReviewHeading"></h2>
+    <section>
+    </section>
+</div>

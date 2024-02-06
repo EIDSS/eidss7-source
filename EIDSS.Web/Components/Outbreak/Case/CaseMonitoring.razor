@@ -1,0 +1,51 @@
+﻿@using EIDSS.Domain.ViewModels.Outbreak
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.FlexForm
+
+@inherits CaseMonitoringBase
+
+<RadzenTemplateForm Data="Model" @ref="Form" Submit="OnSubmit" TItem="CaseMonitoringGetListViewModel">
+    <div class="card">
+        <div class="card-body">
+            <DataAnnotationsValidator/>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-3" For="@nameof(Model.MonitoringDate)" InterfaceEditorKey="@FieldLabelResourceKeyConstants.CaseMonitoringDetailsModalMonitoringDateFieldLabel" IsRow="false">
+                    <br/>
+                    <RadzenDatePicker AllowClear="true" @bind-Value="Model.MonitoringDate" DateFormat="d" Disabled="Case.CaseDisabledIndicator" Name="@nameof(Model.MonitoringDate)" TabIndex="1" TValue="DateTime?"/>
+                    <RadzenCompareValidator Component="@nameof(Model.MonitoringDate)" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="DateTime.Now"/>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <div class="col-12">
+                    <FlexForm FormDisabledIndicator="Case.CaseDisabledIndicator" @ref="CaseMonitoring" Request="Model.CaseMonitoringFlexFormRequest"/>
+                </div>
+            </div>
+            <InterfaceEditorResource CssClass="col-12" For="@nameof(Model.AdditionalComments)" InterfaceEditorKey="@FieldLabelResourceKeyConstants.CaseLogDetailsModalCommentFieldLabel" IsRow="true">
+                <RadzenTextBox @bind-Value="Model.AdditionalComments" class="form-control" MaxLength="500" Name="@nameof(Model.AdditionalComments)" @ref="AdditionalCommentsTextBox"/>
+            </InterfaceEditorResource>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-7" For="@nameof(Model.InvestigatedByOrganizationId)" InterfaceEditorKey="@FieldLabelResourceKeyConstants.CaseMonitoringDetailsModalInvestigatorOrganizationFieldLabel" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="Model.InvestigatedByOrganizationId" Change="@(OnInvestigatedByOrganizationChanged)" class="form-control" Data="@Organizations" Disabled="Case.CaseDisabledIndicator" LoadData="GetOrganizations" Name="@nameof(Model.InvestigatedByOrganizationId)" @ref="InvestigatedByOrganizationDropDown" TabIndex="1" TextProperty="name" TValue="long?" ValueProperty="idfOffice"/>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-5" For="@nameof(Model.InvestigatedByPersonId)" InterfaceEditorKey="@FieldLabelResourceKeyConstants.CaseMonitoringDetailsModalInvestigatorNameFieldLabel" IsRow="false">
+                    <div class="input-group mb-3">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="Model.InvestigatedByPersonId" class="form-control" Data="InvestigatedByPersons" Disabled="Case.CaseDisabledIndicator" LoadData="GetInvestigatedByPersons" Name="@nameof(Model.InvestigatedByPersonId)" @ref="InvestigatedByPersonDropDown" TabIndex="2" TextProperty="FullName" TValue="long?" ValueProperty="idfPerson"/>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary btn-sm" id="addInvestigatedByPerson" @onclick="@(AddInvestigatedByPersonClick)" type="button">
+                                <span class="fas fa-plus" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    </div>
+                </InterfaceEditorResource>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-12">
+                    <button class="btn btn-outline-primary" @onclick="OnCancel" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button class="btn btn-primary" @onsubmit="OnSubmit" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

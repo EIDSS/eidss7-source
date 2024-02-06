@@ -1,0 +1,123 @@
+﻿@model EIDSS.Web.Areas.Reports.SubAreas.GG.ViewModels.MicrobiologyResearchResultViewModel
+@using EIDSS.ReportViewer
+@{
+    ViewBag.Title = Localizer.GetString(HeadingResourceKeyConstants.MicrobiologyResearchResultPageHeading);
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@(HeadingResourceKeyConstants.MicrobiologyResearchResultPageHeading + "," + Model.LanguageId)"></h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            <div class="form-row">
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="LanguageId" field-label-for="@(FieldLabelResourceKeyConstants.LanguageFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="LanguageId"
+                                asp-items="@(new SelectList(Model.ReportLanguageModels, "LangID", "Language"))" class="form-control">
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="SampleID" field-label-for="@FieldLabelResourceKeyConstants.SampleIDFieldLabel"></label>
+                    <input id="SampleID" asp-for="SampleID" type="text" class="form-control" />
+                    <span asp-validation-for="SampleID" class="text-danger"></span>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="FirstName" field-label-for="@FieldLabelResourceKeyConstants.ReportsFirstNameFieldLabel"></label>
+                    <input id="FirstName" asp-for="FirstName" type="text" class="form-control" />
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="LastName" field-label-for="@FieldLabelResourceKeyConstants.ReportsLastNameLabel"></label>
+                    <input id="LastName" asp-for="LastName" type="text" class="form-control" />
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4 text-right">
+                    <button type="submit" id="submitReport" class="btn btn-primary" button-for="@(ButtonResourceKeyConstants.GenerateReportButton + "," + Model.LanguageId)"></button>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-2 form-check form-check-inline" style="@(Model.ShowIncludeSignature ? "display:block;" : "display:none;")">
+                    <input asp-for="IncludeSignature" class="form-check-input" type="checkbox" />
+                    <label asp-for="IncludeSignature" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.IncludeSignatureFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+                <div class="form-group col-md-4 form-check form-check-inline" style="@(Model.ShowUseArchiveData ? "display:block;" : "display:none;")">
+                    <input asp-for="UseArchiveData" class="form-check-input" type="checkbox" />
+                    <label asp-for="UseArchiveData" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.UseArchivedDataFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+            </div>
+        </form>
+        <div class="col-xs-4 col-xs-offset-4" id="divLoading"></div>
+        <div id="ReportView"></div>
+    </div>
+</div>
+@section runreport {
+    <script type="text/javascript">
+         function submitReport() {
+
+                $("#ReportView").html("");
+                onBegin();
+                $.ajax({
+                    url: '@Url.Action("GenerateReport", "MicrobiologyResearchResult", new { Area = "Reports", SubArea = "GG" })',//controller name and action
+                    type: 'POST',
+                    contentType :'application/json; charset=utf-8',
+                    data: JSON.stringify(getFormData())  //information for search
+                })
+                .done(function (result) {
+                    $('#ReportView').html(result); //write returned partial view to empty div
+                    onComplete();
+                })
+
+        };
+
+
+        function onBegin() {
+            $("#divLoading").html('<image  src="@Url.Content("~/Includes/Images/ajax-loader.gif")"  alt="Loading, please wait" />');
+        };
+
+        function onComplete() {
+            var jsonData = {
+                "strReportName": '@Model.ReportName',
+                "idfIsSignatureIncluded": $("#IncludeSignature").is(':checked') ? 'true' : 'false'
+            };
+            //Save ReportAudit
+            $.ajax({
+                url: '@Url.Action("SaveReportAudit", "MicrobiologyResearchResult", new { Area = "Reports", SubArea = "GG" })',//controller name and action
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(jsonData)  //information for search
+            })
+                .done(function (result) {
+                    $("#divLoading").html("");
+                });
+        };
+
+        function getFormData() {
+            var jsonData = {
+                "languageId": $("#LanguageId").val(),
+                "SampleID": $("#SampleID").val(),
+                "FirstName": $("#FirstName").val(),
+                "LastName": $("#LastName").val(),
+                "useArchiveData": $("#UseArchiveData").is(':checked') ? 'true' : 'false',
+                "includeSignature": $("#IncludeSignature").is(':checked') ? 'true' : 'false',
+                "PrintDateTime": localDate()
+            };
+
+            return jsonData;
+        };
+
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+
+    @if (@Model.JavascriptToRun != null)
+    {
+        <script type="text/javascript">
+            @Html.Raw(@Model.JavascriptToRun)
+        </script>
+    }
+}
+
+

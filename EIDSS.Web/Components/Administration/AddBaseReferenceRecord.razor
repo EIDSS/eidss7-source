@@ -1,0 +1,30 @@
+﻿@using EIDSS.Domain.RequestModels.Administration
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Domain.Enumerations
+
+@inherits EIDSS.Web.Components.Administration.AddBaseReferenceRecordBase
+
+<RadzenTemplateForm @ref="Form" TItem="BaseReferenceSaveRequestModel" Data="Model" Submit="OnSubmit">
+    <div class="card">
+        <div class="form-row">
+            <h4>@Localizer.GetString(BaseReferenceTypeName)</h4>
+        </div>
+        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.DefaultValueFieldLabel" IsRow="true" CssClass="col-12" For="defaultValue">
+            <RadzenTextBox Name="defaultValue" class="form-control" @bind-Value="Model.Default" MaxLength="200" />
+        </InterfaceEditorResource>
+        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.NationalValueFieldLabel" IsRow="true" CssClass="col-12" For="nationalValue">
+            <RadzenTextBox Name="nationalValue" class="form-control" @bind-Value="Model.Name" MaxLength="200" />
+        </InterfaceEditorResource>
+        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.OrderFieldLabel" IsRow="true" CssClass="col-3" For="order">
+            <RadzenNumeric Name="order" class="form-control" @bind-Value="Model.intOrder" Min="0" />
+        </InterfaceEditorResource>
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-12">
+                    <button type="button" class="btn btn-outline-primary" @onclick="OnCancel">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button type="submit" class="btn btn-primary" @onsubmit="OnSubmit">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

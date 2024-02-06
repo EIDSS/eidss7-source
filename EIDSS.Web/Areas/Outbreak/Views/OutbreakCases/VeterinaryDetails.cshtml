@@ -1,0 +1,17 @@
+﻿@model EIDSS.Web.Areas.Outbreak.ViewModels.Case.CaseDetailPageViewModel
+@using EIDSS.Web.Components.Outbreak.Case.Veterinary
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.CreateVeterinaryCaseCaseDetailsHeading);
+}
+<div id="divVeterinaryCaseView" class="card">
+    <div class="card-header">
+        <h3>@Localizer.GetString(HeadingResourceKeyConstants.OutbreakManagementListOutbreakManagementListHeading)</h3>
+    </div>
+    <div class="card-body">
+        <component type="typeof(Case)" render-mode="Server" param-Model="Model.VeterinaryCase" />
+    </div>
+</div>
+<script src="~/js/Veterinary/diseaseReport.js"></script>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

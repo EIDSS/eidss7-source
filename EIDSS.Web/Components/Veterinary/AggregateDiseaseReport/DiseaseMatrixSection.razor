@@ -1,0 +1,38 @@
+﻿@inherits EIDSS.Web.Components.Veterinary.DiseaseMatrixSectionBase
+@using EIDSS.Web.Components.FlexForm
+@using EIDSS.Web.Components.CrossCutting
+
+<div class="container-fluid">
+    <div class="form-row">
+        <div class="col-md-11">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateDiseaseReportDiseaseMatrixHeading)</h4>
+        </div>
+        <div class="col-md-1 text-right">
+            <a class="edit-section" href="#aggregateReportWizard-h-1" id="editDiseaseMatrixSectionButton">
+                <span class="fas fa-edit fa-lg"></span>
+            </a>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <!--Matrix Version Drop Down-->
+            <InterfaceEditorResource CssClass="col-6" For="idfVersion" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportDiseaseMatrixVersionFieldLabel" IsRow="false">
+                <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@Model.DiseaseMatrixSection.idfVersion" Change="@OnMatrixVersionChange" class="form-control" Data="@MatrixVersions" Disabled="Model.IsReadOnly" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="idfVersion" LoadData="@LoadMatrixVersions" Name="idfVersion" TextProperty="MatrixName" TValue="long?" ValueProperty="IdfVersion" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-6" For="idfsFormTemplate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportDiseaseMatrixTemplateFieldLabel" IsRow="false">
+                <RadzenDropDown AllowClear="true" AllowVirtualization="false" @bind-Value="@Model.DiseaseMatrixSection.idfsFormTemplate" Change="@OnTemplateChange" class="form-control" Data="@Templates" Disabled="Model.IsReadOnly" id="idfsFormTemplate" LoadData="@LoadTemplatesAsync" Name="idfsFormTemplate" TextProperty="DefaultName" TValue="long?" ValueProperty="idfsFormTemplate" />
+            </InterfaceEditorResource>
+        </div>
+        <div class="row">
+            <div class="col-md-12" id="divFlexForm">
+                @if (FlexFormRenderIndicator)
+                {
+                    <FlexFormMatrix FormDisabledIndicator="@(Model.IsReadOnly || (Model.Permissions.Write == false && Model.idfAggrCase > 0)
+                                                                                                                                             || (Model.Permissions.Create == false && Model.idfAggrCase <= 0))" @ref="DiseaseMatrixFlexForm" Request="@Model.DiseaseMatrixSection.AggregateCase" /> 
+                }
+            </div>
+        </div>
+    </div>
+</div>

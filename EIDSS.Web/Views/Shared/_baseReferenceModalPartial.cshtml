@@ -1,0 +1,146 @@
+﻿@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+
+<style>
+    .overflowy {
+        overflow-y: auto;
+    }
+</style>
+
+<input id="hdHideLoinCode" type="hidden" />
+<input id="hdHideAccessoryCode" type="hidden" />
+<input id="hdBaseReferenceCustomModalTitle" type="hidden" />
+
+@{
+    //DropDowns
+    Select2Configruation select2Configruation = new Select2Configruation();
+    select2Configruation.DropDownId = "ReferenceTypeDD";
+    // select2Configruation.ControltargetId = "BaseReferenceGrid";
+
+    select2Configruation.Label = Localizer.GetString(FieldLabelResourceKeyConstants.ReferenceTypeFieldLabel);
+    select2Configruation.ControlTargetType = DropDownTargetTypes.Table;
+    select2Configruation.Endpoint = @Url.Action("GetBaseReferenceTypesForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", intHACode = 226 });
+    select2Configruation.ControlTargetUrl = @Url.Action("GetBaseReferenceTableNew", "BaseReferencePage");
+    select2Configruation.isVisible = true;
+    select2Configruation.CustomJsOnChangeFunction = "ChangeAddButtonActiveStatus";//Create This Javascript Method Below in the Scripts tag
+    select2Configruation.CustomJsOnClearFunction = "SelectOnClear"; //Create This Javascript Method Below in the Scripts tag
+    select2Configruation.DisabledControls = "AddBaseReferenceButton";
+
+    //Display Add Button Next To DropDown
+    //select2Configruation.IncludeAddButton = false;
+    //Modal To Launch When Button is Clicked
+    // select2Configruation.AddModalId = "exampleModal";
+    //select2Configruation.defaultSelect2Selection = new Select2DataItem() { id = "19000110", text = "Assecioned Data" };
+    Model.Select2Configurations.Add(select2Configruation);
+
+    //SET UP MODAL
+    EIDSSModalConfiguration eIDSSModalConfiguration = new EIDSSModalConfiguration();
+    eIDSSModalConfiguration.ModalId = "AddBaseReference";
+    eIDSSModalConfiguration.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    eIDSSModalConfiguration.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    eIDSSModalConfiguration.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    eIDSSModalConfiguration.TargetGridControlID = "BaseReferenceGrid"; //ID of Grid to Refresh
+    eIDSSModalConfiguration.PostAjaxDataUrl = @Url.Action("AddNewReferenceType", "BaseReferencePage", new { Area = "Administration" }); //Save Endpoint
+    eIDSSModalConfiguration.ControlLabels.ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.BaseReferenceDetailsModalHeading);
+    eIDSSModalConfiguration.SavingControlsCollection = "ReferenceTypeDD";
+    eIDSSModalConfiguration.SaveCompleteMethod = "CheckSuccess";
+    eIDSSModalConfiguration.ControlLabels.SuccessModalTitle = Localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage);
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "EnglishValue",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+        },
+        ClassName = "EnglishValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ControlName = "TranslatedValue",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+        },
+        ClassName = "EnglishValueRequired2"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.LOINCCodeFieldLabel),
+        ControlType = ControlType.Default,
+        ControlName = "LIONCCODE",
+        Visible = true,
+        ClassName = "loincode"
+
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlType = ControlType.Numeric,
+        ControlName = "IntOrder",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidationRule = "[-2147483648,2147483647]",
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+            RangeValidationMessage = Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)
+        },
+        ClassName = "IntOrderRangeAndRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.AccessoryCodeFieldLabel),
+        ControlType = ControlType.DropDown,
+        ControlName = "StrHACode",
+        AllowMultipleDropDownItemSelection = true,
+        ClassName = "accessoryCode",
+        Visible = true,
+        ControlAjaxDataUrl = @Url.Action("GetHACodeListForSelect2DropDown", "CrossCutting", new { mask = 226, Area = "CrossCutting" })
+    });
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+}
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("[for='ReferenceTypeDD']").parent().hide();       
+    });
+
+    function SetReferenceType(idfs) {
+        var data = {
+            id: idfs,
+            text: 'Auto Selected'
+        };
+
+        var newOption = new Option(data.text, data.id, true, true);
+        $('#ReferenceTypeDD').append(newOption).trigger('change');
+    }
+
+    function HideFields() {
+
+        if ($("#hdHideLoinCode").val() === "1") {
+            $("#div2_AddBaseReference").hide();
+        }
+
+        if ($("#hdHideAccessoryCode").val() === "1") {
+            $("#div4_AddBaseReference").hide();
+        }
+    }
+
+    function SetCustomModalTitle() {
+
+        if ($("#hdBaseReferenceCustomModalTitle").val().trim() !== '') {            
+            $("#AddBaseReference").find('.modal-title').text($("#hdBaseReferenceCustomModalTitle").val());
+        }      
+    }
+
+
+</script>

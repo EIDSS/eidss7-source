@@ -1,0 +1,15 @@
+﻿@inherits AddGroupResultBase
+@using EIDSS.Web.Components.CrossCutting
+
+<InterfaceEditorResource CssClass="col-6" For="testResultTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalTestResultFieldLabel" IsRequiredByDefaultBusinessRule="false" IsRow="true">
+    @if (LaboratoryService.TestResultTypes is not null && LaboratoryService.TestResultTypes.Any())
+    {
+        <RadzenDropDown AllowClear="true" @bind-Value="TestResultTypeId" class="form-control" Data="LaboratoryService.TestResultTypes.Where(x => Test.TestNameTypeID != null && x.idfsTestName == Test.TestNameTypeID).AsODataEnumerable()" LoadData="args => GetTestResultTypesByTestName(args, Test.TestNameTypeID)" Name="testResultTypeID" TextProperty="strTestResultName" TValue="long?" ValueProperty="idfsTestResult"/>
+    }
+</InterfaceEditorResource>
+<div class="row mt-3">
+    <div class="col-6">
+        <button class="btn btn-outline-primary" @onclick="@OnCancelClick" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToCancelToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+        <button class="btn btn-primary" @onclick="@OnSaveClick">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+    </div>
+</div>

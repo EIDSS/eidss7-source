@@ -1,0 +1,286 @@
+﻿@model EIDSS.Web.Areas.Administration.ViewModels.Administration.InterfaceEditorPageViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+
+@*Interface Editor Main View*@
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.InterfaceEditorHeading);
+
+    //PageLevel
+    Model.PageName = Localizer.GetString(HeadingResourceKeyConstants.InterfaceEditorHeading);
+
+}
+
+
+<style>
+    /********************
+        Accordion Styles
+    ********************/
+    .accordion .card {
+        /*position: relative;*/
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        min-width: 0;
+        word-wrap: break-word;
+        background-color: #fff;
+        background-clip: border-box;
+        border: 1px solid rgba(0,0,0,.125);
+        border-radius: .25rem;
+    }
+
+    .accordion .card-header {
+        /*padding: .75rem 1.25rem;*/
+        margin-bottom: .25rem;
+        /*background-color: rgba(0,0,0,.03);*/
+        border: 1px solid #2d5b83;
+    }
+
+    /********************
+        Tab Styles
+    ********************/
+    .tab-content {
+        padding-bottom: 5px;
+        padding-top: 15px;
+        padding-left: 15px !important;
+        padding-right: 15px;
+        margin-top: 0px;
+        height: fit-content;
+        background-color: #f2f2f2;
+        border-left: 1px solid #f2f2f2;
+        border-right: 1px solid #f2f2f2;
+    }
+
+    .nav-tabs {
+        margin: 0;
+    }
+
+        .nav-tabs > a, .nav-tabs > a:hover, .nav-tabs > a:focus {
+            border-left-color: transparent;
+            border-right-color: transparent;
+            border-bottom-color: transparent;
+            border-radius: 0 0 0 0;
+            background-color: #f2f2f2;
+        }
+
+    .nav-link.active {
+        border-top: 3px solid #2d5b83 !important;
+    }
+
+    .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+        border-left-color: transparent;
+        border-top: 3px solid #336699;
+        border-right-color: transparent;
+        border-bottom-color: transparent;
+        border-radius: 0 0 0 0;
+        background-color: #f2f2f2;
+        color: #2d5b83;
+    }
+
+    .nav-tabs {
+        border-bottom: 1px solid #f2f2f2;
+        font-size: 16px;
+    }
+</style>
+
+<div class="card">
+    <div class="card-header">
+        @*card header always an h3!*@
+        <h3>@Model.PageName</h3>
+    </div>
+    <div class="card-body">
+
+        <div class="row">
+            <div id="moduleTabs" class="col-12">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    @{
+                        foreach (var module in Model.ModuleTabs)
+                        {
+                            //render the tab list
+                            <text>
+                                <li id="@module.IdfResourceHierarchy" class="nav-item">
+                                    <a class="nav-link" href="#tab-@module.IdfResourceHierarchy"
+                                       name="moduleTab" data-toggle="tab"
+                                       data-id="@module.IdfResourceHierarchy">
+                                        @module.TranslatedName
+                                    </a>
+                                </li>
+                            </text>
+                        }
+                    }
+                    <li id="searchResultsModule" class="nav-item">
+                        <a class="nav-link" id="searchResultsLink" href="#tab-searchResults" name="moduleTab" data-toggle="tab">Results</a>
+                    </li>
+                </ul>
+                <form id="searchForm" class="form-inline">
+                    <div class="form-row py-4 flex-sm-nowrap">
+                        <div class="form-group form-group-sm border-right px-2">
+                            <div class="input-group">
+                                <input type="text" class="form-control"
+                                       asp-for="SearchCriteria.SearchText"
+                                       placeholder="@Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorSearchwithinmoduleFieldLabel)" />
+                                <button class="input-group-text lighten-3" id="SearchClearButton" type="button" onclick=InterfaceEditor.clearSearchText();>
+                                    <i class="fas fa-times text-grey" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <button type="submit" id="SearchSubmitButton"
+                                    class="btn btn-outline-primary ml-2">
+                                <i class="fas fa-search" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <div class="form-group form-group-sm px-2">
+                            <input type="checkbox" class="form-check-inline"
+                                   asp-for="SearchCriteria.AllModules" />
+                            <label asp-for="SearchCriteria.AllModules">@Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorAllModulesFieldLabel)</label>
+                        </div>
+                        <div class="form-group form-group-sm border-right px-2">
+                            <ul class="nav nav-tabs">
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" data-toggle="dropdown"
+                                       href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                                        @Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorTypeFieldLabel)
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        @{
+                                            for (var i = 0; i < Model.SearchCriteria.InterfaceEditorTypes.Count; i++)
+                                            {
+                                                <text>
+                                                    <div class="form-check justify-content-start px-1">
+                                                        <input type="checkbox" class="form-check-input"
+                                                               data-id="@Model.SearchCriteria.InterfaceEditorTypes[i].Value"
+                                                               data-content="@Model.SearchCriteria.InterfaceEditorTypes[i].Text"
+                                                               asp-for="SearchCriteria.InterfaceEditorTypes[i].Selected"
+                                                               name="SearchCriteria_InterfaceEditorTypesCheckbox" />
+                                                        <label asp-for="SearchCriteria.InterfaceEditorTypes[i]" class="form-check-label">@Model.SearchCriteria.InterfaceEditorTypes[i].Text</label>
+                                                    </div>
+                                                </text>
+                                            }
+                                        }
+                                        <input type="text" hidden asp-for="SearchCriteria.InterfaceEditorSelectedTypes" aria-hidden="true" />
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="form-group form-group-sm px-2">
+                            <input type="checkbox" class="form-check-inline" asp-for="SearchCriteria.Required" />
+                            <label asp-for="SearchCriteria.Required">@Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorRequiredFieldLabel)</label>
+                        </div>
+                        <div class="form-group form-group-sm px-2">
+                            <input type="checkbox" class="form-check-inline" asp-for="SearchCriteria.Hidden" />
+                            <label asp-for="SearchCriteria.Hidden">@Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorHiddenFieldLabel)</label>
+                        </div>
+                        <div class="form-group form-group-sm px-2">
+                            <div class="alert alert-secondary hide" role="alert" id="ResultsAreFilteredAlert">
+                                <span class="text-sm-left">Results are filtered click Clear to remove filters.</span>
+                                <button class="btn btn-outline-info btn-sm" id="btnClearAllSearchCriteria">@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)</button>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </form>
+                @*tab content*@
+                <div class="tab-content">
+                    @{
+                        foreach (var module in Model.ModuleTabs)
+                        {
+                            <div id="tab-@module.IdfsResourceSet" class="tab-pane fade">
+                                @*tab sections*@
+                                @{
+
+                                    if (Model.Sections.Count > 0)
+                                    {
+                                        //get the sections for this tab
+                                        var sectionObjects = Model.Sections.Where(s => s.ParentSetNode == module.ResourceSetNode);
+                                        <div id="accordion-@module.IdfsResourceSet" class="accordion">
+                                            <div class="card">
+                                                @{
+                                                    foreach (var sectionItem in sectionObjects)
+                                                    {
+                                                        <text>
+                                                            <!--section header-->
+                                                            <div class="card-header" id="header-@sectionItem.IdfsResourceSet">
+                                                                <h5 class="mb-0">
+                                                                    <button class="btn btn-link"
+                                                                            href="#body-@sectionItem.IdfsResourceSet"
+                                                                            data-toggle="collapse"
+                                                                            aria-expanded="false"
+                                                                            aria-controls="body-@sectionItem.IdfsResourceSet"
+                                                                            data-id="@sectionItem.IdfsResourceSet">
+                                                                        @sectionItem.TranslatedName - #@sectionItem.IdfsResourceSet
+                                                                    </button>
+                                                                </h5>
+                                                            </div>
+                                                            <!--section body-->
+                                                            <div id="body-@sectionItem.IdfsResourceSet" class="collapse"
+                                                                 role="tabpanel"
+                                                                 aria-labelledby="header-@sectionItem.IdfsResourceSet"
+                                                                 data-parent="#accordion-@module.IdfsResourceSet"
+                                                                 data-id="@sectionItem.IdfsResourceSet">
+                                                                <div class="card-body h-auto">
+                                                                    <div id="resource-@sectionItem.IdfsResourceSet" data-content="resource" class="forSectionEmptying"></div>
+                                                                </div>
+                                                            </div>
+                                                        </text>
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        }
+                    }
+                    <div id="tab-searchResults" class="tab-pane fade">
+                        @*search results tab*@
+                        <div class="card">
+                            <!--section header-->
+                            <div class="card-header" id="header-searchResults">
+                                <div class="row">
+                                    <div class="col-9">
+                                        <h5 class="mb-0">
+                                            All Modules Search Results
+                                        </h5>
+                                    </div>
+                                    <div class="col-3 text-right">
+                                        <button class="btn btn-primary" id="btnCloseSearchResults">@Localizer.GetString(ButtonResourceKeyConstants.CloseButton)</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body h-auto">
+                                <div id="resource-searchResults" data-content="resource"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <div class="card-footer">
+        <div id="languagePartialDiv">
+            <partial name="_LanguagePartial" model="Model.LanguageUpload" />
+        </div>
+    </div>
+    <input hidden asp-for="SelectedModuleResourceSet" />
+    <input hidden asp-for="SelectedSectionResourceSet" />
+</div>
+
+<script src="~/js/InterfaceEditor/interfaceEditor.js"></script>
+
+<script>
+
+    $(document).ready(function() {
+        InterfaceEditor.resourcePartialUrl = '@Url.Action("GetResourceGridPartial", "InterfaceEditorPage", new { Area = "Administration" })';
+        InterfaceEditor.languageUploadTemplateUrl = '@Url.Action("UploadLanguageTranslation", "InterfaceEditorPage", new { Area = "Administration" })';
+    });
+    
+</script>
+

@@ -1,0 +1,142 @@
+﻿@model EIDSS.Web.Areas.Outbreak.ViewModels.HumanCaseViewModel;
+@using EIDSS.ClientLibrary.Enumerations;
+
+<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 embed-panel">
+    <div class="panel-heading">
+        <div class="row">
+            <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                <h4 class="heading">@Localizer.GetString(HeadingResourceKeyConstants.OutbreakSessionOutbreakSummaryHeading)</h4>
+            </div>
+            <div class="col-1 text-right">
+                <a class="fas fa-edit fa-lg" href="@Url.Action("Edit", "OutbreakSession", new { Area = "Outbreak", queryData = Model.idfOutbreak })" id="lbEditSession"></a>
+                <span aria-expanded="true" class="fas fa-2x e-dark-blue fa-caret-up" data-target="#dOutbreakCaseSummary" data-toggle="collapse" id="toggleCaseSummaryIcon" onclick="toggleCaseSummary();"></span>
+            </div>
+        </div>
+    </div>
+    <div id="dOutbreakCaseSummary" class="card-body show">
+        <div class="panel-body">
+            <div class="row">
+                <input type="hidden" id="hdnOutbreakCaseReportUID" name="hdnOutbreakCaseReportUID" asp-for="@Model.OutbreakCaseReportUID" />
+                <input type="hidden" id="idfPerson" name="idfPerson" asp-for="@Model.CaseSummaryDetails.HumanMasterID" />
+                <div class="col-md-3">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateHumanCasePersonIDFieldLabel)</label>
+                    <div class="panel panel-default">@Model.CaseSummaryDetails.EIDSSPersonID</div>
+                </div>
+                <div class="col-md-3">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateHumanCaseNameFieldLabel)</label>
+                    <div class="panel panel-default">@Model.CaseSummaryDetails.Name</div>
+                </div>
+                <div class="col-md-3">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateHumanCaseDateEnteredFieldLabel)</label>
+                    <div class="panel panel-default">@Model.CaseSummaryDetails.DateEntered</div>
+                </div>
+                <div class="col-md-3">
+                    @if (Model.SessionDetails.idfsOutbreakStatus != EIDSSConstants.OutbreakStatus.InProgress)
+                    {
+                        <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionEndDateFieldLabel)</label>
+                        <div class="panel panel-default">@Model.SessionDetails.datCloseDate</div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <input type="hidden" id="idfPerson" name="idfPerson" asp-for="@Model" />
+                <div class="col-md-3">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateHumanCaseLastUpdatedFieldLabel)</label>
+                    <div class="panel panel-default">@Model.CaseSummaryDetails.strLastUpdated</div>
+                </div>
+                <div class="col-md-3">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateHumanCaseCaseClassificationFieldLabel)</label>
+                    <div class="panel panel-default">@Model.CaseSummaryDetails.CaseClassification</div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-body">
+            @{
+                if (!string.IsNullOrEmpty(Model.RelatedToIdentifiers))
+                {
+                    if (Model.RelatedToIdentifiers.Contains(","))
+                    {
+                        var reportIdentifiers = Model.RelatedToReportIdentifiers.Split(",");
+                        var index = 0;
+
+                        <div class="row">
+                            <strong>
+                                <i class="fas fa-link fa-lg"></i> @Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakCaseSummaryRelatedToFieldLabel)&nbsp;
+
+                                @foreach (var id in Model.RelatedToIdentifiers.Split(","))
+                                {
+                                    var reportIdentifier = reportIdentifiers[index].Trim();
+                                    if (index < reportIdentifiers.Length - 1)
+                                        reportIdentifier += ", ";
+                                    <a href="@Url.Action("LoadDiseaseReport", "HumanDiseaseReport",  new { Area = "Human", caseId = id, isEdit = true})">@reportIdentifier</a>
+                                    index += 1;
+                                }
+                            </strong>
+                            <br/>
+                            <br/>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row">
+                            <a href="@Url.Action("LoadDiseaseReport", "HumanDiseaseReport", new { Area = "Human", caseId = Model.RelatedToIdentifiers, isEdit = true})">
+                                <strong>
+                                    <i class="fas fa-link fa-lg"></i> @(Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakCaseSummaryRelatedToFieldLabel) + " " + Model.RelatedToReportIdentifiers)
+                                </strong>
+                            </a>
+                            <br/>
+                            <br/>
+                        </div>
+                    }
+                }
+            }
+            <div class="row">
+                <input type="hidden" id="idfOutbreak" name="idfOutbreak" asp-for="@Model.idfOutbreak"/>
+                <input type="hidden" id="idfsDiagnosisOrDiagnosisGroup" name="idfsDiagnosisOrDiagnosisGroup" asp-for="@Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup"/>
+                <input type="hidden" id="sessionStartDate" name="sessionStartDate" value="@Model.SessionDetails.datStartDate"/>
+
+                <div class="col-md-3">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionOutbreakIDFieldLabel)</label>
+                    <div class="panel panel-default">@Model.SessionDetails.strOutbreakID</div>
+                </div>
+                <div class="col-md-3">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionStartDateFieldLabel)</label>
+                    <div class="panel panel-default">@Model.SessionDetails.StartDate</div>
+                </div>
+                <div class="col-md-3">
+                    @if (Model.SessionDetails.idfsOutbreakStatus != EIDSSConstants.OutbreakStatus.InProgress)
+                    {
+                        <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionEndDateFieldLabel)</label>
+                        <div class="panel panel-default">@Model.SessionDetails.datCloseDate</div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionTypeFieldLabel)</label>
+                    <div class="panel panel-default">@Model.SessionDetails.strOutbreakType</div>
+                </div>
+                <div class="col-md-3">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionDiseaseFieldLabel)</label>
+                    <div class="panel panel-default">@Model.SessionDetails.strDiagnosis</div>
+                </div>
+                <div class="col-md-3">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionStatusFieldLabel)</label>
+                    <div class="panel panel-default">@Model.SessionDetails.strOutbreakStatus</div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionLocationFieldLabel)</label>
+                    <div class="panel panel-default">@Model.SessionDetails.AdminLevel1Text</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

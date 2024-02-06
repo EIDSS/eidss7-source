@@ -1,0 +1,92 @@
+﻿@inherits EIDSS.Web.Components.Vector.VectorSurveillanceSession.SessionLocationBase
+@using EIDSS.Localization.Constants
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.ViewModels.Vector
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Services
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-md-11">
+                <h4>@Localizer.GetString(@HeadingResourceKeyConstants.VectorSurveillanceSessionSessionLocationHeading)</h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editSurveillanceSessionLocationSectionButton" href="#vectorWizard-h-1" class="edit-section">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body" id="locationSection">
+        <RadzenTemplateForm id="locationForm" @ref="Form" TItem="VectorSessionStateContainer" Data="@VectorSessionStateContainer">
+            <div class="form-row">
+                <InterfaceEditorResource For="locationType" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionSessionLocationTypeFieldLabel" IsRow="false" CssClass="col-md-12">
+                    <RadzenRadioButtonList id="locationType"
+                                           Name="locationType"
+                                           @bind-Value="@VectorSessionStateContainer.GeoLocationTypeID"
+                                           TValue="long?"
+                                           @ref="LocationTypeSelection"
+                                           Change="@OnLocationTypeChange"
+                                           Orientation="Orientation.Horizontal"
+                                           Data="@GeoTypes"
+                                           TextProperty="Name"
+                                           ValueProperty="IdfsBaseReference"
+                                           Disabled="VectorSessionStateContainer.ReportDisabledIndicator">
+                    </RadzenRadioButtonList>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <div class="col-md-12">
+                    <LocationView ParmLocationViewModel="@VectorSessionStateContainer.LocationViewModel" Refresh="true" LocationViewModelChanged="UpdateLocationHandlerAsync" @ref="LocationComponent" />
+                </div>
+            </div>
+            @if (VectorSessionStateContainer.LocationViewModel.ShowGroundTypes)
+            {
+                <div class="form-row">
+                    <InterfaceEditorResource For="groundType" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionSessionLocationGroundTypeFieldLabel" IsRow="false" CssClass="col-md-4">
+                        <RadzenDropDown id="groundType" Name="groundType" AllowClear="true" TValue="long?" Data="@GroundTypes"
+                                    LoadData="@LoadGroundTypes" AllowVirtualization="false" Disabled="VectorSessionStateContainer.ReportDisabledIndicator"
+                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" ValueProperty="IdfsBaseReference" TextProperty="Name" class="form-control"
+                                    @bind-Value="VectorSessionStateContainer.LocationGroundTypeID" />
+                    </InterfaceEditorResource>
+                </div>
+            }
+            <div class="form-row">
+                @if (VectorSessionStateContainer.LocationViewModel.ShowLocationDistance)
+                {
+                    <InterfaceEditorResource For="distance" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionSessionLocationDistanceFieldLabel" IsRow="false" CssClass="col-md-4">
+                        <RadzenNumeric class="form-control" id="distance" Name="distance" @bind-Value="VectorSessionStateContainer.LocationDistance" Disabled="VectorSessionStateContainer.ReportDisabledIndicator" />
+                    </InterfaceEditorResource>
+                }
+                @if (VectorSessionStateContainer.LocationViewModel.ShowLocationDirection)
+                {
+                    <InterfaceEditorResource For="direction" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionSessionLocationDirectionFieldLabel" IsRow="false" CssClass="col-md-4">
+                        <RadzenNumeric class="form-control" id="direction" Name="direction" @bind-Value="VectorSessionStateContainer.LocationDirection" Disabled="VectorSessionStateContainer.ReportDisabledIndicator"/>
+                    </InterfaceEditorResource>
+                }
+            </div>
+            @if (VectorSessionStateContainer.LocationViewModel.ShowLocationAddress)
+            {
+                <div class="form-row">
+                    <InterfaceEditorResource For="locationAddress" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionSessionLocationAddressFieldLabel" IsRow="false" CssClass="col-md-12">
+                        <RadzenTextArea Rows="10" Cols="10" class="form-control" id="locationAddress" Name="locationAddress" @bind-Value="VectorSessionStateContainer.ForeignAddress" Disabled="VectorSessionStateContainer.ReportDisabledIndicator" />
+                    </InterfaceEditorResource>
+                </div>
+            }
+            @if (VectorSessionStateContainer.LocationViewModel.ShowLocationDescription)
+            {
+                <div class="form-row">
+                    <InterfaceEditorResource For="locationDescription" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionSessionLocationDescriptionFieldLabel" IsRow="false" CssClass="col-md-12">
+                        <RadzenTextArea Rows="10" Cols="10" class="form-control" id="locationDescription" Name="locationDescription" @bind-Value="VectorSessionStateContainer.LocationDescription" Disabled="VectorSessionStateContainer.ReportDisabledIndicator" />
+                    </InterfaceEditorResource>
+                </div>
+            }
+        </RadzenTemplateForm>
+    </div>
+</div>
+
+
+
+
+

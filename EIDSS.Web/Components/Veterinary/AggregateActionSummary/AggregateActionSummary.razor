@@ -1,0 +1,195 @@
+﻿@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Components.FlexForm
+@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.CrossCutting
+@using EIDSS.Web.ViewModels.CrossCutting
+@using Microsoft.AspNetCore.Components
+
+@inherits AggregateActionSummaryBase
+
+<RadzenTemplateForm id="ReportSearchForm" @ref="_form" TItem="AggregateReportSearchViewModel" Data="@model" Submit="@HandleValidSearchSubmit" OnInvalidSubmit="@HandleInvalidSearchSubmit">
+    <!--Summary Aggregate Settings-->
+    <div class="card">
+        <div class="card-body">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-11">
+                        <h4>@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateDiseaseReportSummarySummaryAggregateSettingsHeading)</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <!--Administrative Level Drop Down-->
+                        <i class="fas fa-asterisk text-danger"></i>
+                        <label for="@model.SearchCriteria.AdministrativeUnitTypeID">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsAdministrativeLevelFieldLabel)</label>
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@model.SearchCriteria.AdministrativeUnitTypeID" Change="@EnableSearchButton" class="form-control" Data="@adminLevelUnits" disabled="@disableAdminLevelTimeIntervalDropDowns" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="AdministrativeUnitTypeID" LoadData="@GetAdminLevelUnitAsync" Name="AdministrativeUnitTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"></RadzenDropDown>
+                        <RadzenRequiredValidator Component="AdministrativeUnitTypeID" Popup="false" Style="position: absolute" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)"/>
+                    </div>
+                    <div class="col-md-3">
+                        <!--Time Interval Unit Drop Down-->
+                        <i class="fas fa-asterisk text-danger"></i>
+                        <label for="@model.SearchCriteria.TimeIntervalTypeID">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsTimeIntervalUnitFieldLabel)</label>
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@model.SearchCriteria.TimeIntervalTypeID" Change="@EnableSearchButton" class="form-control" Data="@timeIntervalUnits" disabled="@disableAdminLevelTimeIntervalDropDowns" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="TimeIntervalTypeID" LoadData="@GetTimeIntervalUnitAsync" Name="TimeIntervalTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"></RadzenDropDown>
+                        <RadzenRequiredValidator Component="TimeIntervalTypeID" Popup="false" Style="position: absolute" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--end Summary Aggregate Settings-->
+    <!--Selected Aggregate Disease Reports -->
+    @if (showSelectedReports)
+    {
+        <div id="accordion">
+            <div class="card">
+                <div class="card-header" id="SelectedReports">
+                    <button aria-controls="SelectedReportsBody" aria-expanded="false" class="btn d-inline-block" data-toggle="collapse" @onclick=@(() => AccordionClick(0)) type="button">
+                        <span class="text-left fas @(expandSelectedReports ? " fa-caret-down" : "fa-caret-right")"></span>
+                        <h4 class="mb-0 d-inline-block">@Localizer.GetString(HeadingResourceKeyConstants.SelectedAggregateActionReportsHeading)</h4>
+                    </button>
+                </div>
+                <div aria-labelledby="SelectedReports" class="@(expandSelectedReports ? " collapse show" : "collapse")" data-parent="#accordion" id="SelectedReportsBody">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <RadzenDataGrid AllowColumnResize="true" AllowPaging="true" AllowSorting="true" Data="@AggregateActionSummaryService.SelectedReports" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" ExpandMode="DataGridExpandMode.Single" id="searchResults" IsLoading="@isLoading" PageSize="10" @ref="_grid" TItem="AggregateReportGetListViewModel" Visible="@expandSelectedReports">
+                                    <Columns>
+                                        <RadzenDataGridColumn Property="ReportKey" TItem="AggregateReportGetListViewModel" Title="ReportKey" Visible="false"/>
+                                        <RadzenDataGridColumn Property="ReportID" Sortable="true" TItem="AggregateReportGetListViewModel" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsReportIDColumnHeading) Width="150px">
+                                            <Template Context="data">
+                                                <button class="btn btn-link btn-sm" @onclick=@(() => ShowReportDataLinkAsync(data.ReportKey, data.ReportID))>@data.ReportID.ToString()</button>
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                        <RadzenDataGridColumn FormatString="{0:d}" Property="StartDate" Sortable="true" TItem="AggregateReportGetListViewModel" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsStartDateColumnHeading) Width="125px"/>
+                                        <RadzenDataGridColumn Property="TimeIntervalUnitTypeName" Sortable="true" TItem="AggregateReportGetListViewModel" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsTimeIntervalColumnHeading)/>
+                                        <RadzenDataGridColumn Property="AdministrativeLevel1Name" Sortable="true" TItem="AggregateReportGetListViewModel" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsRegionColumnHeading)/>
+                                        <RadzenDataGridColumn Property="AdministrativeLevel2Name" Sortable="true" TItem="AggregateReportGetListViewModel" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsRayonColumnHeading)/>
+                                        <RadzenDataGridColumn Property="SettlementName" Sortable="true" TItem="AggregateReportGetListViewModel" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsSettlementColumnHeading) Width="150px"/>
+                                        <RadzenDataGridColumn Property="OrganizationAdministrativeName" Sortable="true" TItem="AggregateReportGetListViewModel" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsOrganizationColumnHeading) Width="150px"/>
+                                        <RadzenDataGridColumn Filterable="false" Property="" Sortable="false" TItem="AggregateReportGetListViewModel" Title="" Visible=@model.Permissions.Delete>
+                                            <Template Context="data">
+                                                <button class="btn btn-sm" disabled="@disableRemoveButton" @onclick=@(() => OnRemoveAsync(data.ReportKey)) type="button">
+                                                    <i class="fas fa-trash fa-1x"></i>
+                                                </button>
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                    </Columns>
+                                </RadzenDataGrid>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <!--end Selected Aggregate Disease Reports -->
+    <div id="SearchCriteriaCommands" class="card">
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-md-9">
+                    @if (showCancelButton)
+                    {<button class="btn btn-outline-primary" id="cancelButton" @onclick=@(() => CancelSearch()) type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>}
+                    @if (showCancelSelectedReportsButton)
+                    {<button class="btn btn-outline-primary" id="cancelSelectedReportsButton" @onclick=@(() => CancelSelectedReports()) type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>}
+                    @if (showRemoveAllButton)
+                    {<button class="btn btn-outline-primary" id="removeAllButton" @onclick=@(() => OnRemoveAll()) type="reset">@Localizer.GetString(ButtonResourceKeyConstants.SelectedAggregateActionReportsRemoveAllButtonText)</button>}
+                    @if (showSearchButton)
+                    {<button class="btn btn-primary" disabled="@disableSearchButton" id="searchButton" @onclick=@(() => OpenSearchModal()) type="button">@Localizer.GetString(ButtonResourceKeyConstants.SearchButton)</button>}
+                    @if (showSummaryDataButton)
+                    {<button class="btn btn-primary" id="showSummaryDataButton" @onclick=@(() => OnShowSummaryDataAsync()) type="button">@Localizer.GetString(ButtonResourceKeyConstants.SelectedAggregateActionReportsShowSummaryDataButtonText)</button>}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--View an Aggregate Disease Report -->
+    @if (showReportData)
+    {
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-12" id="divFlexForm">
+                </div>
+            </div>
+        </div>
+    }
+    <!--end View an Aggregate Disease Report -->
+    <!--Summary-->
+    @if (showSummaryData || showReportData)
+    {
+        <div class="card">
+            <div class="card-header" id="Summary">
+                @if (showSummaryData)
+                {
+                    <h4>@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateDiseaseReportSummarySummaryHeading)</h4>
+                }
+                @if (showReportData)
+                {
+                    <RadzenLabel class="mb-0 d-inline-block" Text="@ReportLabel"></RadzenLabel>
+                }
+            </div>
+            <div class="card-body">
+                <RadzenTabs @ref="FlexFormTabs" Change="@OnChange" RenderMode="TabRenderMode.Server" SelectedIndex="(int) Tab">
+                    <Tabs>
+                        <RadzenTabsItem @ref="DiagnosticTab" Text="@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateActionReportSummaryDiagnosticInvestigationsHeading)">
+                            @if (Tab == AggregateActionSummaryTabEnum.DiagnosticInvestigation)
+                            {
+                                <div>
+                                    @if (showSummaryData)
+                                    {
+                                        <AggregateSummary Model="DiagnosticModel"/>
+                                    }
+                                    @if (showReportData)
+                                    {
+                                        <FlexFormMatrix FormDisabledIndicator="true" @ref="DiagnosticFlexForm" Request="modelDiagnosticInvestigations"></FlexFormMatrix>
+                                    }
+                                </div>
+                            }
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateActionReportSummaryTreatmentProphylacticAndVaccinationMeasuresHeading)">
+                            @if (Tab == AggregateActionSummaryTabEnum.ProphylacticMeasure)
+                            {
+                                <div>
+                                    @if (showSummaryData)
+                                    {
+                                        <AggregateSummary Model="ProphylacticModel"/>
+                                    }
+                                    @if (showReportData)
+                                    {
+                                        <FlexFormMatrix FormDisabledIndicator="true" @ref="ProphylacticFlexForm" Request="modelProphylacticMeasure"></FlexFormMatrix>
+                                    }
+                                </div>
+                            }
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateActionReportSummaryVeterinarySanitaryMeasuresHeading)">
+                            @if (Tab == AggregateActionSummaryTabEnum.SanitaryAction)
+                            {
+                                <div>
+                                    @if (showSummaryData)
+                                    {
+                                        <AggregateSummary Model="SanitaryModel"/>
+                                    }
+                                    @if (showReportData)
+                                    {
+                                        <FlexFormMatrix FormDisabledIndicator="true" @ref="SanitaryFlexForm" Request="modelVeterinarySanitaryMeasures"></FlexFormMatrix>
+                                    }
+                                </div>
+                            }
+                        </RadzenTabsItem>
+                    </Tabs>
+                </RadzenTabs>
+            </div>
+        </div>
+        <div id="SummaryCommands" class="card">
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-md-9">
+                        <button class="btn btn-primary" id="printButton" @onclick=@(PrintReport) type="button">@Localizer.GetString(ButtonResourceKeyConstants.PrintButton) </button>
+                        <button class="btn btn-outline-primary" id="cancelSummaryButton" @onclick=@(CancelSummarySearch) type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <!--end Summary-->
+</RadzenTemplateForm>

@@ -1,0 +1,33 @@
+﻿@inherits DisplayReportBase
+
+<div class="card">
+    @if (!string.IsNullOrEmpty(ReportHeader))
+    {
+        <div class="card-header">
+            <h4>@ReportHeader</h4>
+        </div>
+    }
+    <div class="card-body">
+        @if (Parameters == null && string.IsNullOrEmpty(ParametersJson))
+        {
+            <RadzenSSRSViewer @ref="Viewer" Culture="@Culture" ReportName="@ReportName" ReportServer="@ReportServer" UseProxy="@UseProxy" Style="height: 450px; width: 100%;"></RadzenSSRSViewer>
+        }
+        else
+        {
+            <RadzenSSRSViewer @ref="Viewer" Culture="@Culture" ReportName="@ReportName" ReportServer="@ReportServer" UseProxy="@UseProxy" Style="height: 450px; width: 100%;">
+                <Parameters>
+                    @foreach (var (key, value) in Parameters)
+                    {
+                        <RadzenSSRSViewerParameter ParameterName="@key" Value="@(string.IsNullOrEmpty(value) ? string.Empty : value)"></RadzenSSRSViewerParameter>
+                    }
+                </Parameters>
+            </RadzenSSRSViewer>
+        }
+    </div>
+    @if (CancelButtonVisibleIndicator)
+    {
+        <div class="card-footer">
+            <button class="btn btn-secondary" id="displayReportCancel" @onclick="OnCancel" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+        </div>
+    }
+</div>

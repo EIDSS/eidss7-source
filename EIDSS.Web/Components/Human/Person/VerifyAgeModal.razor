@@ -1,0 +1,16 @@
+﻿@inject DialogService _dialogService;
+@inject IStringLocalizer _localizer;
+
+<div class="row my-4">
+    <div class="col-md-12">
+        <p>@_localizer.GetString(MessageResourceKeyConstants.PersonInformationDOBWarningMessage100Years)</p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 text-right">
+        <button class="btn btn-primary" @onclick="@((args) => _dialogService.Close(null))">@_localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+    </div>
+</div>
+
+@code{
+}

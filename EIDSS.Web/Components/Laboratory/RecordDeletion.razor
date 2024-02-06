@@ -1,0 +1,26 @@
+﻿@using EIDSS.Domain.ViewModels.Laboratory
+@using EIDSS.Web.Components.CrossCutting
+@inherits RecordDeletionBase
+
+<div class="card">
+    <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" Count="Count" Data="RecordDeletionRequest.RecordsToDelete" PageSize="10" @ref="LaboratoryRecordGrid" TItem="LaboratoryRecordDeletionItemViewModel">
+        <Columns>
+            <RadzenDataGridColumn Property="EIDSSLaboratorySampleID" TItem="LaboratoryRecordDeletionItemViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesLabSampleIDColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn Property="SampleTypeName" TItem="LaboratoryRecordDeletionItemViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesSampleTypeColumnHeading)" Width="250px"/>
+            <RadzenDataGridColumn Frozen="true" Property="PatientOrFarmOwnerName" TItem="LaboratoryRecordDeletionItemViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesPatientFarmOwnerColumnHeading)" Width="300px"/>
+        </Columns>
+    </RadzenDataGrid>
+    <RadzenTemplateForm Data="RecordDeletionRequest" @ref="Form" Submit="OnSubmit" TItem="LaboratoryRecordDeletionViewModel">
+        <InterfaceEditorResource CssClass="col-12" For="@nameof(RecordDeletionRequest.ReasonForDeletion)" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySamplesReasonForDeletionFieldLabel" IsRow="true">
+            <RadzenTextBox @ref="ReasonForDeletionTextBox" @bind-Value="RecordDeletionRequest.ReasonForDeletion" Change="OnRecordDeletionCommentTextBoxChange" class="form-control" MaxLength="500" Name="@nameof(RecordDeletionRequest.ReasonForDeletion)"></RadzenTextBox>
+        </InterfaceEditorResource>
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-12">
+                    <button class="btn btn-outline-primary" @onclick="OnCancelClick" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToCancelToolTip)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button class="btn btn-primary" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.DeleteButton)</button>
+                </div>
+            </div>
+        </div>
+    </RadzenTemplateForm>
+</div>

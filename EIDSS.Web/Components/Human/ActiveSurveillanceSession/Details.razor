@@ -1,0 +1,114 @@
+﻿@page "/Create"
+
+@inherits DetailsBase
+<form id="fHAS">
+    <div class="card">
+        <div class="card-header">
+            <h3 title>@Localizer.GetString(HeadingResourceKeyConstants.HumanActiveSurveillanceSessionPageHeading)</h3>
+        </div>
+
+        @if (Model.ActiveSurveillanceSessionPermissions.Read)
+        {
+            <div id="HumanActiveSurveillanceSessionWizard">
+                <div class="content content-collapsed clearfix">
+                    <section id="SessionInformation">
+                        <div class="container-fluid">
+                            <div class="form-row">
+                                <div class="col-md-11">
+                                    <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.HumanActiveSurveillanceSessionSessionInformationHeading)</h4>
+                                </div>
+                                <div class="col-md-1 text-right">
+                                    <a class="edit-section" href="#humanActiveSurveillanceSessionWizard-h-0" id="editSessionInformationSectionButton">
+                                        <span class="fas fa-edit fa-lg"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <SessionInformation Model="Model" @ref="SessionInformationComponent"></SessionInformation>
+                    </section>
+                    <section id="DetailedInformation">
+                        <SummaryHeader model="Model"></SummaryHeader>
+
+                        <div class="container-fluid">
+                            <div class="form-row">
+                                <div class="col-md-11">
+                                    <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.HumanActiveSurveillanceSessionDetailedInformationHeading)</h4>
+                                </div>
+                                <div class="col-md-1 text-right">
+                                    <a class="edit-section" href="#humanActiveSurveillanceSessionWizard-h-1" id="editDetailedInformationSectionButton">
+                                        <span class="fas fa-edit fa-lg"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-5 pt-4">
+                                <h5>@Localizer.GetString(HeadingResourceKeyConstants.HumanSessionDetailedInformationPersonsAndSamplesHeading)</h5>
+                            </div>
+                        </div>
+
+                        <DetailedInformation model="Model"></DetailedInformation>
+                    </section>
+                    <section id="Tests">
+                        <SummaryHeader model="Model"></SummaryHeader>
+
+                        <div class="container-fluid">
+                            <div class="form-row">
+                                <div class="col-md-11">
+                                    <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.HumanActiveSurveillanceSessionTestsHeading)</h4>
+                                </div>
+                                <div class="col-md-1 text-right">
+                                    <a id="editTestsSectionButton" href="#humanActiveSurveillanceSessionWizard-h-2" class="edit-section">
+                                        <span class="fas fa-edit fa-lg"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <Tests model="Model"></Tests>
+                    </section>
+                    <section id="Actions">
+                        <SummaryHeader model="Model"></SummaryHeader>
+
+                        <div class="container-fluid">
+                            <div class="form-row">
+                                <div class="col-md-11">
+                                    <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.HumanActiveSurveillanceSessionActionsHeading)</h4>
+                                </div>
+                                <div class="col-md-1 text-right">
+                                    <a class="edit-section" href="#humanActiveSurveillanceSessionWizard-h-3" id="editActionsSectionButton">
+                                        <span class="fas fa-edit fa-lg"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <Actions model="Model"></Actions>
+                    </section>
+                    <section id="DiseaseReportSections">
+                        <SummaryHeader model="Model"></SummaryHeader>
+
+                        <div class="container-fluid">
+                            <div class="form-row">
+                                <div class="col-md-11">
+                                    <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.HumanActiveSurveillanceSessionDiseaseReportsHeading)</h4>
+                                </div>
+                                <div class="col-md-1 text-right">
+                                    <a class="edit-section" href="#humanActiveSurveillanceSessionWizard-h-4" id="editDiseaseReportsSectionButton">
+                                        <span class="fas fa-edit fa-lg"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <DiseaseReports model="Model"></DiseaseReports>
+                    </section>
+                    <section>
+                        <h4 style="display: none">@Localizer.GetString(HeadingResourceKeyConstants.ReviewHeading)</h4>
+                    </section>
+                </div>
+            </div>
+        }
+    </div>
+</form>

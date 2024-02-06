@@ -1,0 +1,173 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Laboratory
+@using EIDSS.Domain.ViewModels.Laboratory.Freezers
+@using EIDSS.Web.Areas.Laboratory.ViewModels
+@using EIDSS.Web.Components.CrossCutting
+@using Newtonsoft.Json;
+@inherits SampleDetailsBase
+
+<div class="form-row">
+    <div class="form-group col-12">
+        <label>@Localizer.GetString(FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalReportSessionIDFieldLabel)</label>
+        <br/>
+        <button type="button" class="btn btn-sm btn-link" @onclick="@OnReportSessionClick">@Sample.EIDSSReportOrSessionID</button>
+    </div>
+</div>
+<InterfaceEditorResource CssClass="col-12" For="localOrFieldSampleID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalLocalFieldSampleIDFieldLabel" IsRow="true">
+    @if (WritePermissionIndicator && Sample.WritePermissionIndicator)
+    {
+        <RadzenTextBox @bind-Value="Sample.EIDSSLocalOrFieldSampleID" class="form-control" MaxLength="36" Name="localOrFieldSampleID"/>
+    }
+    else
+    {
+        <RadzenTextBox @bind-Value="Sample.EIDSSLocalOrFieldSampleID" class="form-control" Disabled="true" MaxLength="36" Name="localOrFieldSampleID"/>
+    }
+</InterfaceEditorResource>
+<InterfaceEditorResource CssClass="col-12" For="accessionConditionOrSampleStatusTypeName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalSampleStatusFieldLabel" IsRow="true">
+    <RadzenTextBox @bind-Value="Sample.AccessionConditionOrSampleStatusTypeName" class="form-control" Disabled="true" Name="accessionConditionOrSampleStatusTypeName"/>
+</InterfaceEditorResource>
+@{
+    if (Sample.SampleStatusTypeID is (long) SampleStatusTypeEnum.Deleted)
+    {
+        <InterfaceEditorResource CssClass="col-12" For="reasonForDeletion" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalReasonforDeletionFieldLabel" IsRow="true">
+            <RadzenTextBox @bind-Value="Sample.Comment" class="form-control" Disabled="true" Name="reasonForDeletion"/>
+        </InterfaceEditorResource>
+    }
+}
+<InterfaceEditorResource CssClass="col-12" For="laboratorySampleID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalLabSampleIDFieldLabel" IsRow="true">
+    <RadzenTextBox @bind-Value="Sample.EIDSSLaboratorySampleID" class="form-control" Disabled="true" Name="laboratorySampleID"/>
+</InterfaceEditorResource>
+<InterfaceEditorResource CssClass="col-12" For="sampleTypeName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalSampleTypeFieldLabel" IsRow="true">
+    <RadzenTextBox @bind-Value="Sample.SampleTypeName" class="form-control" Disabled="true" Name="sampleTypeName"/>
+</InterfaceEditorResource>
+<InterfaceEditorResource CssClass="col-12" For="accessionDate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalAccessionDateTimeFieldLabel" IsRow="true">
+    <br/>
+    <RadzenDatePicker AllowClear="false" @bind-Value="Sample.AccessionDate" DateFormat="g" Disabled="@(Sample.AccessionDate is null || !Sample.AllowDatesInThePast || Sample.AccessionConditionTypeID == (long)AccessionConditionTypeEnum.Rejected || !CanModifyAccessionDatePermissionIndicator)" Name="accessionDate" ShowTime="true" TValue="DateTime?" />
+    <RadzenCompareValidator Component="accessionDate" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="DateTime.Now"/>
+</InterfaceEditorResource>
+<InterfaceEditorResource CssClass="col-12" For="sampleStatusComment" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalSampleStatusCommentFieldLabel" IsRow="true">
+    <RadzenTextBox @bind-Value="Sample.AccessionComment" class="form-control" Disabled="true" Name="sampleStatusComment"/>
+</InterfaceEditorResource>
+<InterfaceEditorResource CssClass="col-12" For="collectionDate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalCollectionDateFieldLabel" IsRow="true">
+    <br/>
+    <RadzenDatePicker AllowClear="false" @bind-Value="Sample.CollectionDate" DateFormat="d" Disabled="true" Name="collectionDate" TValue="DateTime?"/>
+</InterfaceEditorResource>
+<InterfaceEditorResource CssClass="col-12" For="enteredDate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalEnteredDateFieldLabel" IsRow="true">
+    <br />
+    <RadzenDatePicker AllowClear="false" @bind-Value="Sample.EnteredDate" DateFormat="d" Disabled="true" Name="enteredDate" TValue="DateTime?" />
+</InterfaceEditorResource>
+<div class="form-row">
+    <div class="form-group col-12">
+        <span class="storageLocationIcon">&nbsp;</span>
+        <label id="selectedStorageLocation">
+            <strong>@Sample.StorageBoxLocation</strong>
+        </label>
+    </div>
+</div>
+<div class="form-row">
+    <div class="form-group col-6">
+        <RadzenTree Change="OnStorageLocationChange" Data="StorageLocations" Style="width: 100%; height: 300px;">
+            <RadzenTreeLevel ChildrenProperty="Children" Expanded="data => ShouldSelectThisNode(data)" HasChildren="data => ((StorageLocationViewModel)data).Children != null" TextProperty="StorageLocationName" Selected="data => ShouldSelectThisNode(data)" />
+        </RadzenTree>
+    </div>
+    <div class="form-group col-6">
+        @if (!string.IsNullOrEmpty(BoxSizeTypeName))
+        {
+            var boxSize = BoxSizeTypeName.Split("X");
+            var columns = Convert.ToInt32(boxSize[0]);
+            var rows = Convert.ToInt32(boxSize[1]);
+
+            <table border="0">
+                <tr>
+                    @for (var c = 0; c <= columns; c++)
+                    {
+                        var id = "tc_" + c + "_0";
+
+                        <td id="@id" style="padding: 15px;">
+                            @if (c > 0)
+                            {
+                                <strong>@c.ToString()</strong>
+                            }
+                        </td>
+                    }
+                </tr>
+                @for (var r = 1; r <= rows; r++)
+                {
+                    <tr>
+                        @for (var c = 0; c <= columns; c++)
+                        {
+                            var id = "tc_" + c + "_" + r;
+                            var radioId = "rad_" + GetLetter(r) + "_" + c + "_Box_" + SelectedStorageLocationId;
+                            var radioTooltip = GetLetter(r) + "-" + c;
+                            var cssClass = "";
+
+                            <td id="@id" style="padding: 15px;">
+                                @if (c == 0)
+                                {
+                                    <strong>@GetLetter(r)</strong>
+                                }
+                                else
+                                {
+                                    if (BoxLocationAvailability is not null && BoxLocationAvailability.Any(x => x.BoxLocation == radioTooltip.Replace("-", "")) && BoxLocationAvailability.First(x => x.BoxLocation == radioTooltip.Replace("-", "")).AvailabilityIndicator && Sample.StorageLocationDisabledIndicator == false)
+                                    {
+                                        <input class="@cssClass" id="@radioId" name="boxGroup" @onclick="_ => SetStorageBoxPlace(radioTooltip)" title="@radioTooltip" type="radio" />
+                                    }
+                                    else
+                                    {
+                                        cssClass = Sample.StorageBoxPlace == radioTooltip && Sample.FreezerSubdivisionID == SelectedStorageLocationId ? CssDisabledBoxLocationCurrent : CssDisabledBoxLocation;
+
+                                        <input class="@cssClass" disabled id="@radioId" name="boxGroup" title="@radioTooltip" type="radio" />
+                                    }
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+            </table>
+        }
+    </div>
+</div>
+<InterfaceEditorResource CssClass="col-12" For="functionalAreaName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalFunctionalAreaFieldLabel" IsRow="true">
+    @if (WritePermissionIndicator && Sample.WritePermissionIndicator)
+    {
+        <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="Sample.FunctionalAreaID" class="form-control" Data="@LaboratoryService.FunctionalAreas" Disabled="Sample.FunctionalAreaIDDisabledIndicator" Name="functionalAreaName" TextProperty="DepartmentNameNationalValue" TValue="long?" ValueProperty="DepartmentID"></RadzenDropDown>
+    }
+    else
+    {
+        <RadzenDropDown AllowClear="false" AllowFiltering="false" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="Sample.FunctionalAreaID" class="form-control" Data="@LaboratoryService.FunctionalAreas" Disabled="true" Name="functionalAreaName" TextProperty="DepartmentNameNationalValue" TValue="long?" ValueProperty="DepartmentID"></RadzenDropDown>
+    }
+</InterfaceEditorResource>
+<InterfaceEditorResource CssClass="col-12" For="originalSampleID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalOriginalSampleIDFieldLabel" IsRow="true">
+    <RadzenTextBox @bind-Value="Sample.ParentEIDSSLaboratorySampleID" class="form-control" Disabled="true" Name="originalSampleID"></RadzenTextBox>
+</InterfaceEditorResource>
+<InterfaceEditorResource CssClass="col-12" For="reportOrSessionTypeName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalReportSessionTypeFieldLabel" IsRow="true">
+    <RadzenTextBox @bind-Value="Sample.ReportOrSessionTypeName" class="form-control" Disabled="true" Name="reportOrSessionTypeName"></RadzenTextBox>
+</InterfaceEditorResource>
+<InterfaceEditorResource CssClass="col-12" For="patientSpeciesVectorInfo" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalPatientSpeciesVectorInfoFieldLabel" IsRow="true">
+    <RadzenTextBox @bind-Value="Sample.PatientSpeciesVectorInformation" class="form-control" Disabled="true" Name="patientSpeciesVectorInfo"></RadzenTextBox>
+</InterfaceEditorResource>
+<InterfaceEditorResource CssClass="col-12" For="testsCount" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalTestsCountFieldLabel" IsRow="true">
+    <RadzenNumeric @bind-Value="Sample.TestAssignedCount" class="form-control" Disabled="true" Name="testsCount"></RadzenNumeric>
+</InterfaceEditorResource>
+<InterfaceEditorResource CssClass="col-12" For="organizationSentTo" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalOrganizationSentToFieldLabel" IsRow="true">
+    <RadzenTextBox @bind-Value="Sample.SentToOrganizationName" class="form-control" Disabled="true" Name="organizationSentTo"></RadzenTextBox>
+</InterfaceEditorResource>
+<InterfaceEditorResource CssClass="col-12" For="collectedByInstitution" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalCollectedByInstitutionFieldLabel" IsRow="true">
+    <RadzenTextBox @bind-Value="Sample.CollectedByOrganizationName" class="form-control" Disabled="true" Name="collectedByInstitution"></RadzenTextBox>
+</InterfaceEditorResource>
+<InterfaceEditorResource CssClass="col-12" For="collectedByOfficer" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalCollectedByOfficerFieldLabel" IsRow="true">
+    <RadzenTextBox @bind-Value="Sample.CollectedByPersonName" class="form-control" Disabled="true" Name="collectedByOfficer"></RadzenTextBox>
+</InterfaceEditorResource>
+<InterfaceEditorResource CssClass="col-12" For="destructionMethodTypeName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalDestructionMethodFieldLabel" IsRow="true">
+    <RadzenTextBox @bind-Value="Sample.DestructionMethodTypeName" class="form-control" Disabled="true" Name="destructionMethodTypeName"></RadzenTextBox>
+</InterfaceEditorResource>
+<InterfaceEditorResource CssClass="col-12" For="notes" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalNotesFieldLabel" IsRow="true">
+    @if (WritePermissionIndicator && Sample.WritePermissionIndicator)
+    {
+        <RadzenTextBox @bind-Value="Sample.Comment" class="form-control" Disabled="false" Name="notes" Style="height: 200px;"></RadzenTextBox>
+    }
+    else
+    {
+        <RadzenTextBox @bind-Value="Sample.Comment" class="form-control" Disabled="true" Name="notes" Style="height: 200px;"></RadzenTextBox>
+    }
+</InterfaceEditorResource>

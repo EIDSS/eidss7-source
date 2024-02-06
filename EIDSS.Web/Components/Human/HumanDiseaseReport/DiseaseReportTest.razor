@@ -1,0 +1,165 @@
+﻿@using EIDSS.Domain.ViewModels.Human
+@using EIDSS.Web.Components.CrossCutting
+@inherits EIDSS.Web.Components.Human.HumanDiseaseReport.DiseaseReportTestBase
+
+<EditForm id="DiseaseReportTestsForm" Model="@Model">
+    <div class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-md-11">
+                    <h4>@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportTestsHeading)</h4>
+                </div>
+                <div class="col-1 pull-right mb-3">
+                    <button @onclick=@(() => OpenAddModal()) Text="@Localizer.GetString(ButtonResourceKeyConstants.AddButton)" class="btn btn-outline-primary"
+                            disabled="@(EnableAddButton)">@Localizer.GetString(@ButtonResourceKeyConstants.AddButton)</button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <!--Were samples collection?-->
+                    <label for="Test">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportTestsTestsConductedFieldLabel)</label>
+                    <div class="form-check form-check-inline ">
+                        <RadzenRadioButtonList name="TestsConducted" @bind-Value="@Model.TestsConducted" TValue="long?" Data="@Model.YesNoChoices" TextProperty="Name" ValueProperty="IdfsBaseReference" Change=@((value) => OnTestsCollectedChange(value)) Disabled="@isReportClosed"/>
+                    </div>
+                </div>
+            </div>
+
+            <RadzenPanel Visible="@ShowTestGrid">
+
+                <div class="form-row">
+                    <GridExtension OnColumnSave="GridHumanDiseaseReportTestClickHandler"></GridExtension>
+                    <div class="col-md-12">
+                        <RadzenDataGrid @ref="Grid" TItem="DiseaseReportTestDetailForDiseasesViewModel" Data=@Model.TestDetailsForGrid
+                                        AllowPaging="false" AllowSorting="true" AllowColumnResize="true" AllowColumnReorder="true"
+                                        ExpandMode="DataGridExpandMode.Single" SelectionMode="DataGridSelectionMode.Multiple" ColumnWidth="100px" Mode="EditMode.Dialog" id="TestGrid" Style="scroll-behavior:auto"
+                                        AllowColumnPicking="true" 
+                                        HeaderCellRender=@((args) => HeaderCellRender(args.Column.Property))
+                                        >
+                            <Columns>
+                                <RadzenDataGridColumn Pickable="false" Reorderable="false" TItem="DiseaseReportTestDetailForDiseasesViewModel" Width="40px" Sortable="false" Filterable="false" Property="RowID" Visible="false" />
+                                <RadzenDataGridColumn Pickable="false" Reorderable="false" TItem="DiseaseReportTestDetailForDiseasesViewModel" Width="40px" Sortable="false" Filterable="false">
+                                    <HeaderTemplate>
+                                        <RadzenCheckBox TriState="false" TValue="bool" Value="@(Model.TestDetails.Any(i => SelectedTests != null && SelectedTests.Contains(i)))"
+                                                        Change="@(args => SelectedTests = args ? Model.TestDetails.ToList() : null)" />
+                                    </HeaderTemplate>
+                                    <Template Context="data">
+                                        <RadzenCheckBox TriState="false" Value="@(SelectedTests != null && SelectedTests.Contains(data))" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("strFieldBarcode")" Visible="@GetColumnVisibility("strFieldBarcode")" TItem="DiseaseReportTestDetailForDiseasesViewModel" Property="strFieldBarcode" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportLocalSampleIDFieldLabel) Width="125px">
+                                    <Template Context="data">
+                                        @data.strFieldBarcode
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn  Reorderable="true" OrderIndex="@FindColumnOrder("strSampleTypeName")" Visible="@GetColumnVisibility("strSampleTypeName")"  TItem="DiseaseReportTestDetailForDiseasesViewModel" Property="strSampleTypeName" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanSessionSampleDetailsModalSampleTypeFieldLabel)  Width="200px">
+                                    <Template Context="data">
+                                        @data.strSampleTypeName
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("strBarcode")" Visible="@GetColumnVisibility("strBarcode")" TItem="DiseaseReportTestDetailForDiseasesViewModel" Property="strBarcode" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportLabSampleIDFieldLabel) Width="200px" />
+                                <RadzenDataGridColumn  Reorderable="true" OrderIndex="@FindColumnOrder("strDiagnosis")" Visible="@GetColumnVisibility("strDiagnosis")"  TItem="DiseaseReportTestDetailForDiseasesViewModel" Property="strDiagnosis" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.TestDetailsModalTestDiseaseFieldLabel)"  Width="200px">
+                                    <Template Context="data">
+                                        @data.strDiagnosis
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("name")" Visible="@GetColumnVisibility("name")" TItem="DiseaseReportTestDetailForDiseasesViewModel" Property="name" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.TestNameFieldLabel)" Width="200px">
+                                    <Template Context="data">
+                                        @data.name
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("strTestCategory")" Visible="@GetColumnVisibility("strTestCategory")" TItem="DiseaseReportTestDetailForDiseasesViewModel" Property="strTestCategory" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.TestCategoryFieldLabel)" Width="125px">
+                                    <Template Context="data">
+                                        @data.strTestCategory
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("strTestResult")" Visible="@GetColumnVisibility("strTestResult")" TItem="DiseaseReportTestDetailForDiseasesViewModel" Property="strTestResult" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.TestResultFieldLabel)" Width="125px">
+                                    <Template Context="data">
+                                        @data.strTestResult
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("datConcludedDate")" Visible="@GetColumnVisibility("datConcludedDate")" TItem="DiseaseReportTestDetailForDiseasesViewModel" Property="dtTestResultDate" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportTestsResultDateFieldLabel)" Width="125px">
+                                    <Template Context="data">
+                                        @data.datConcludedDate
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("strInterpretedStatus")" Visible="@GetColumnVisibility("strInterpretedStatus")" TItem="DiseaseReportTestDetailForDiseasesViewModel" Property="strInterpretedStatus" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.RuleFieldLabel)" Width="75px">
+                                    <Template Context="data">
+                                        @data.strInterpretedStatus
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("blnValidateStatus")" Visible="@GetColumnVisibility("blnValidateStatus")" TItem="DiseaseReportTestDetailForDiseasesViewModel" Property="blnValidateStatus" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalValidatedFieldLabel)" Width="125px">
+                                    <Template Context="item">
+                                        @{
+                                            var validatedString = Localizer.GetString(item.blnValidateStatus ? FieldLabelResourceKeyConstants.YesFieldLabel : FieldLabelResourceKeyConstants.NoFieldLabel);
+                                        }
+                                        <RadzenLabel Text="@validatedString" Style="font-weight: normal;" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Reorderable="false" Pickable="false" TItem="DiseaseReportTestDetailForDiseasesViewModel" Property="" Title="" Sortable="false" Filterable="false" Width="75px">
+                                    <Template Context="data">
+                                        <button @onclick="@(() => OpenEditModal(data))" class="btn btn-sm" type="button">
+                                            <i class="fas fa-edit fa-lg"></i>
+                                        </button>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Reorderable="false" Pickable="false" TItem="DiseaseReportTestDetailForDiseasesViewModel" Context="order" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="75px">
+                                    <Template Context="data">
+                                        <button @onclick="@(() => DeleteRow(data))" class="btn btn-sm" type="button" disabled="@(DisableEditDelete || Model.IsReportClosed)">
+                                            <i class="fas fa-trash fa-lg"></i>
+                                        </button>
+                                    </Template>
+                                </RadzenDataGridColumn>
+
+                            </Columns>
+                            <!--Expandable Detail Template for Grid-->
+                            <Template Context="data">
+                                <RadzenCard>
+                                    <div class="row">
+                                        <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.LaboratoryTestingTestStatusColumnHeading" IsRow="false" For="strTestStatus" CssClass="col-md-4">
+                                            <RadzenTextBox id="strTestStatus" Name="strTestStatus" class="form-control" @bind-Value="@data.strTestStatus" ReadOnly="true"></RadzenTextBox>
+                                        </InterfaceEditorResource>
+                                        <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.HumanDiseaseReportTestsResultDateColumnHeading" IsRow="false" For="datConcludedDate" CssClass="col-md-4">
+                                            <RadzenTextBox id="datSampleStatusDate" class="form-control" Name="datSampleStatusDate" Value="@(data.datConcludedDate?.ToShortDateString())" ReadOnly="true"></RadzenTextBox>
+                                        </InterfaceEditorResource>
+                                        <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.HumanDiseaseReportTestsDateInterpretedColumnHeading" IsRow="false" For="datInterpretedDate" CssClass="col-md-4">
+                                            <RadzenTextBox id="datInterpretedDate" Name="datInterpretedDate" class="form-control" ReadOnly="true" Value="@(data.datInterpretedDate?.ToShortDateString())"></RadzenTextBox>
+                                        </InterfaceEditorResource>
+                                    </div>
+                                    <div class="row">
+                                        <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.HumanDiseaseReportTestsInterpretedByColumnHeading" IsRow="false" For="strInterpretedBy" CssClass="col-md-4">
+                                            <RadzenTextBox id="strInterpretedBy" Name="strInterpretedBy" class="form-control" @bind-Value="@data.strInterpretedBy" ReadOnly="true"></RadzenTextBox>
+                                        </InterfaceEditorResource>
+                                        <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.HumanDiseaseReportTestsDateValidatedColumnHeading" CssClass="col-md-4" IsRow="false" For="datValidationDate">
+                                            @if (data.datValidationDate is null)
+                                            {
+                                                <RadzenTextBox id="datValidationDate" Name="datValidationDate" class="form-control" ReadOnly="true"></RadzenTextBox>
+                                            }
+                                            else
+                                            {
+                                                <RadzenTextBox id="datValidationDate" Name="datValidationDate" class="form-control" ReadOnly="true" Value="@(data.datValidationDate.Value.ToShortDateString())"></RadzenTextBox>
+                                            }
+                                        </InterfaceEditorResource>
+                                        <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.HumanDiseaseReportTestsValidatedByColumnHeading" IsRow="false" For="strValidatedBy" CssClass="col-md-4">
+                                            <RadzenTextBox id="strValidatedBy" Name="strValidatedBy" class="form-control" @bind-Value="@data.strValidatedBy" ReadOnly="true"></RadzenTextBox>
+                                        </InterfaceEditorResource>
+                                    </div>
+                                </RadzenCard>
+                            </Template>
+                        </RadzenDataGrid>
+                    </div>
+                </div>
+            </RadzenPanel>
+        </div>
+    </div>
+</EditForm>
+@code{
+
+        void GridHumanDiseaseReportTestClickHandler()
+        {
+        GridColumnSave("HumanDiseaseReportTest");
+        }
+
+}

@@ -1,0 +1,434 @@
+﻿@model EIDSS.Web.ViewModels.BaseReferenceEditorPagesViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@using EIDSS.Domain.ViewModels.Administration;
+@using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
+@using EIDSS.Web.Components.CrossCutting;
+
+<h2>@Localizer.GetString(HeadingResourceKeyConstants.UniqueNumberingSchemaPageHeading)</h2>
+
+@{
+    ViewData["Title"] = "Unique Numbering Schema";
+
+
+    //SET UP GRID
+    Model.eidssGridConfiguration.GridId = "gUniqueNumberingSchema";
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.EditModalAjaxUrl = @Url.Action("EditUniqueNumberingSchema", "UniqueNumberingSchemaPage");
+    Model.eidssGridConfiguration.AjaxDataUrl = @Url.Action("GetList", "UniqueNumberingSchemaPage");
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.EnableCustomSearching = true;
+    Model.eidssGridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.Inline;
+    Model.eidssGridConfiguration.SaveCompleteMethod = "CheckSuccess";
+
+
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels();
+    Model.eidssGridConfiguration.ControlLabels.DeleteExceptionTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.eidssGridConfiguration.ControlLabels.DeleteExceptionMessage = Localizer.GetString(MessageResourceKeyConstants.InUseReferenceValueAreYouSureMessage);
+    Model.eidssGridConfiguration.ControlLabels.DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage);
+    Model.eidssGridConfiguration.ControlLabels.EditModalMessage = Localizer.GetString((int)InterfaceEditorResourceSetEnum.WarningMessages + "Are you sure that you want to edit this record?" + (long)InterfaceEditorTypeEnum.Message);
+    Model.eidssGridConfiguration.ControlLabels.DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.eidssGridConfiguration.ControlLabels.EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.eidssGridConfiguration.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    Model.eidssGridConfiguration.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton);
+    Model.eidssGridConfiguration.ControlLabels.DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton);
+    Model.eidssGridConfiguration.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton);
+    Model.eidssGridConfiguration.ControlLabels.CancelInlineEditTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.eidssGridConfiguration.ControlLabels.CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage);
+    Model.eidssGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.eidssGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.eidssGridConfiguration.ControlLabels.SaveInlineEditTitle = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    Model.eidssGridConfiguration.ControlLabels.SaveInlineEditMessage = Localizer.GetString((int)InterfaceEditorResourceSetEnum.WarningMessages + "Are you sure that you want to save this record?" + (long)InterfaceEditorTypeEnum.Message);
+
+
+
+    // COLUMN DEFINITIONS
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        ColumnName = "Row",
+        Visible = true,
+        ColumnType = ColumnType.ReadOnly,
+        VisibleInModal = false,
+        Orderable = false
+    });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = "IdfsNumberName",
+        ColumnName = "IdfsNumberName",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "StrDefault",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.DefaultValueColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.ReadOnly,
+        VisibleInModal = false,
+        ClassName = "DefaultValueRequired",
+        Orderable = true
+    });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "StrName",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.NationalValueColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "StrNameRequired",
+        Orderable = true
+    });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "StrPrefix",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.UniqueNumberingSchemaPrefixColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.ReadOnly,
+        VisibleInModal = false,
+        ClassName = "StrPrefixReadOnly",
+        Orderable = true
+    });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "StrSiteID",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.UniqueNumberingSchemaSiteIDColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.ReadOnly,
+        VisibleInModal = false,
+        Orderable = false
+    });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "StrYear",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.UniqueNumberingSchemaYearColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.ReadOnly,
+        VisibleInModal = false,
+        Orderable = false
+    });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "IntLastDocumentNumber",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.UniqueNumberingSchemaLastDocumentNumberColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.ReadOnly,
+        VisibleInModal = false,
+        ClassName = "IntLastDocumentNumberReadOnly",
+        Orderable = true
+    });
+
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "IntNextNumberValue",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.UniqueNumberingSchemaNextNumberValueColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.Numeric,
+        VisibleInModal = false,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidationRule = "[1,9999]",
+            RangeValidationMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsInvalidValidRangeIsMessage)
+        },
+        ClassName = "IntNextNumberValueRange",
+        Orderable = false,
+        MaxLength = 4,
+        Max = 9999,
+        Min =1,
+        DisableIfNumericFieldHasChar = true
+    });
+
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = "",
+        ColumnName = "IntNextNumberValueBeforeChange",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false,
+        MaxLength = 4
+    });
+ 
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "StrSpecialCharacter",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.UniqueNumberingSchemaSpecialCharacterColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false,
+        MaxLength = 1,
+        ClassName = "StrSpecialCharacterRequired",
+        Orderable = false
+    });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "StrSuffix",
+        ColumnTitleHeader =  Localizer.GetString(ColumnHeadingResourceKeyConstants.UniqueNumberingSchemaSuffixColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.Numeric,
+        VisibleInModal = false,
+        ClassName = "StrSuffixRequired",
+        Orderable = false
+    });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "StrMinimumLength",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.UniqueNumberingSchemaMinimumLengthColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.ReadOnly,
+        VisibleInModal = false,
+        Orderable = false
+    });
+
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = "intNumberNextValue",
+        ColumnName = "intNumberNextValue",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = "PreviousNumber",
+        ColumnName = "PreviousNumber",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = "NextNumber",
+        ColumnName = "NextNumber",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "name",
+        ColumnTitleHeader = String.Empty,
+        ColumnType = ColumnType.Edit,
+        Visible = Model.UserPermissions.Write,
+        CallAppendedJSFunctions = true
+
+    });
+
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = String.Empty,
+        ColumnName = "printCommand",
+        Visible = true,
+        ColumnType = ColumnType.Button,
+        CustomIconClass = "fa fa-print",
+        ClientFunction = "PrintBarCodeClick",
+        Orderable = false,
+        VisibleInModal = false
+    });
+
+}
+
+<!-- Hidden fields -->
+<input  id="hfWritePermission" type="hidden" value="@Model.UserPermissions.Write.ToString()" />
+<input id="hfCreatePermission" type="hidden" value="@Model.UserPermissions.Create.ToString()" />
+
+<!-- Save success modal -->
+<div class="modal fade" id="mdSaveSuccess" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Duplicate Record Message Modal -->
+<div class="modal fade" id="invalidModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" onclick="refreshPage();" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="invalidMsg"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_BaseReferenceEditorsPartial" />
+
+<!-- Persist the selected row between details -->
+<input asp-for="UniqueNumberSchemaPrintModel.LanguageId" id="SelectedDetail_LanguageId" type="hidden" />
+<input asp-for="UniqueNumberSchemaPrintModel.Date" id="SelectedDetail_Date" type="hidden" />
+<input asp-for="UniqueNumberSchemaPrintModel.Prefix" id="SelectedDetail_Prefix" type="hidden" />
+<input asp-for="UniqueNumberSchemaPrintModel.Site" id="SelectedDetail_Site" type="hidden" />
+<input asp-for="UniqueNumberSchemaPrintModel.Year" id="SelectedDetail_Year" type="hidden" />
+<input asp-for="UniqueNumberSchemaPrintModel.NoOfLabelsToPrint" id="SelectedDetail_NoOfLabelsToPrint" type="hidden" />
+<input asp-for="UniqueNumberSchemaPrintModel.TypeOfBarCodeLabel" id="SelectedDetail_TypeOfBarCodeLabel" type="hidden" />
+
+<input asp-for="UniqueNumberSchemaPrintModel.TypeOfBarCodeLabelName" id="SelectedDetail_TypeOfBarCodeLabelName" type="hidden" />
+
+
+<!-- Barcode Print Modal -->
+<div class="modal fade" id="printModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-lg modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@(Localizer.GetString(HeadingResourceKeyConstants.PrintBarcodesPageHeading))</h5>
+                <button type="button" class="close" data-dismiss="modal" onclick="refreshPage();" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="printModalBarCode"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $(".StrSpecialCharacterRequired").attr('maxlength', '1');      
+    });
+    
+    function refreshPage()
+    {
+        window.location.href = '@Url.Action("Index", "UniqueNumberingSchemaPage", new { Area = "Configuration" })';
+    }
+
+    function CheckSuccess(data) {
+        var stringified_data = JSON.stringify(data);
+        var parsed_data = JSON.parse(stringified_data);
+
+        if (parsed_data.returnMessage == "SUCCESS") {
+            $("#mdSaveSuccess").modal("show");            
+        }
+        else if (parsed_data.returnMessage == "INVALID") {
+            $("#invalidModal").modal("show");       
+            $("#invalidMsg").html(parsed_data.strInvalidRange);
+
+        }
+    }
+
+    function AppendedJSFunctions(id) {
+        var str_id = id.replace("Edit", "IntNextNumberValue");
+        let number = $("#" + str_id).val();
+        let string = number.toString().padStart(4, '0')
+        $("#" + str_id).val(string);
+    }
+    
+    //Show the detail modal for fixed
+    //or reference types
+    function PrintBarCodeClick(e, row, data) {
+
+        //set the currently selected item
+        SetSeletedParameter(data);
+
+        //retrieve the current item into a model
+        var model = GetSelectedParameter();
+
+        //go get the detail partial view for the modal
+        $.ajax({
+            url: '@Url.Action("ShowPrintBarCodeScreen", "UniqueNumberingSchemaPage", new { Area = "Configuration" })',
+            type: 'POST',
+            data: JSON.stringify(model),
+            dataType: "HTML",
+            contentType: "application/json: charset=utf-8",
+            success: function (resp) {
+                $("#printModalBarCode").html(resp);
+                $("#printModal").modal('show');
+            },
+            complete: function (resp) {
+            },
+            error: function (request, error) {
+            }
+        });
+    }
+    
+    //Set property to persist the selected row
+    function SetSeletedParameter(item) {
+
+        $("#SelectedDetail_LanguageId").val('en-US');
+        $("#SelectedDetail_Date").val('true');
+        $("#SelectedDetail_Prefix").val(item[4]);
+        $("#SelectedDetail_Site").val(item[16]);
+        $("#SelectedDetail_Year").val(item[6]);
+        $("#SelectedDetail_NoOfLabelsToPrint").val('1');
+        $("#SelectedDetail_TypeOfBarCodeLabel").val(item[1]);
+        $("#SelectedDetail_TypeOfBarCodeLabelName").val(item[3]);
+    }
+
+    //Get property to retrieve the persisted row
+    function GetSelectedParameter() {
+
+        var model = {};
+        model.LanguageId = $("#SelectedDetail_LanguageId").val();
+        model.Date = $("#SelectedDetail_Date").val();
+        model.Prefix = $("#SelectedDetail_Prefix").val();
+        model.Site = $("#SelectedDetail_Site").val();
+        model.Year = $("#SelectedDetail_Year").val();
+        model.NoOfLabelsToPrint = $("#SelectedDetail_NoOfLabelsToPrint").val();
+        model.TypeOfBarCodeLabel = $("#SelectedDetail_TypeOfBarCodeLabel").val();
+        model.TypeOfBarCodeLabelName =$("#SelectedDetail_TypeOfBarCodeLabelName").val();
+        model.printDateTime = localDate();
+
+
+        return model;
+    }
+
+    function CloseReferenceValueModal() {
+
+        $("#printModal").modal('hide');
+        $("#printModalBarCode").empty();
+
+    }
+
+
+</script>

@@ -1,0 +1,419 @@
+﻿@model ConfigurationMatrixPagesViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using EIDSS.Web.TagHelpers.Models
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.CustomReportRowsPageHeading);
+
+    //PageLevel
+    Model.PageName = Localizer.GetString(HeadingResourceKeyConstants.CustomReportRowsPageHeading);
+    Model.PageLevelAddButtonModalText = Localizer.GetString(ButtonResourceKeyConstants.AddButton);
+    Model.PageLevelAddButtonModal = "AddCustomReportRowsMatrix";
+    Model.PageLevelAddButtonID = "PageLevelAddButton";
+
+    //DropDowns
+    var select2Configuration = new Select2Configruation
+    {
+        DropDownId = "PageLevelDD",
+        ControltargetId = "CustomReportRowsMatrixGrid",
+        Label = Localizer.GetString(FieldLabelResourceKeyConstants.CustomReportTypeFieldLabel),
+        ControlTargetType = DropDownTargetTypes.Table,
+        Endpoint = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = 19000129, intHACode = 0}),
+        ControlTargetUrl = Url.Action("GetList", "CustomReportRowsMatrixPage"),
+        isVisible = true,
+        CustomJsOnChangeFunction = "ChangeAddButtonActiveStatus", //Create This Javascript Method Below in the Scripts tag
+        CustomJsOnClearFunction = "SelectOnClear", //Create This Javascript Method Below in the Scripts tag
+        DisabledControls = "PageLevelAddButton",
+        //Display Add Button Next To DropDown
+        IncludeAddButton = false,
+        //Modal To Launch When Button is Clicked
+        AddModalId = "CustomReportTypeSave"
+    };
+
+    Model.Select2Configurations.Add(select2Configuration);
+
+    //SET UP MODAL
+    var eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.CustomReportRowsCustomReportRowDetailsHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            //success modal configs
+            SuccessModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+            SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        },
+        ModalId = "AddCustomReportRowsMatrix",
+        SavingControlsCollection = "PageLevelDD",
+        TargetGridControlID = "CustomReportRowsMatrixGrid", //ID of Grid to Refresh
+        PostAjaxDataUrl = Url.Action("Create", "CustomReportRowsMatrixPage"), //Save Endpoint
+        SaveCompleteMethod = "CheckSuccess",
+        DisplayConfirmCancelModal = true
+    };
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DiseaseOrGroupFieldLabel),
+        ControlName = "strDiseaseOrReportDiseaseGroup",
+        ControlType = ControlType.DropDown,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "ddAddDiseaseOrGroupRequired",
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("DiseaseOrGroupList", "CustomReportRowsMatrixPage")
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.AgeGroupDiseaseFieldLabel),
+        ControlName = "idfsDiagnosisOrReportDiagnosisGroup",
+         
+        ControlType = ControlType.DropDown,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "ddAddDiseaseRequired",
+        FilteredControlId = "AddCustomReportRowsMatrixctrlAdd_0",
+        Visible = true,
+                ControlAjaxDataUrl = Url.Action("GetDiseaseOrReportGroupDiseases", "CustomReportRowsMatrixPage", new { Area = "Configuration" })
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DiseaseColumnAdditionalTextFieldLabel),
+        ControlName = "idfsReportAdditionalText",
+        ControlType = ControlType.DropDown,
+        ClassName = "ddAddReportAdditionalText",
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = 19000132, intHACode = 0})
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.CustomReportRowsICD10ColumnAdditionalTextFieldLabel),
+        ControlName = "idfsICDReportAdditionalText",
+        ControlType = ControlType.DropDown,
+        ClassName = "ddAddICDReportAdditionalText",
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = 19000132, intHACode = 0})
+    });
+
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //SETUP GRID
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.GridId = "CustomReportRowsMatrixGrid";
+    Model.eidssGridConfiguration.ControlFilterID = "PageLevelDD";
+    Model.eidssGridConfiguration.AjaxDataUrl = Url.Action("GetList", "CustomReportRowsMatrixPage");
+    Model.eidssGridConfiguration.EditModalAjaxUrl = Url.Action("Edit", "CustomReportRowsMatrixPage");
+    Model.eidssGridConfiguration.DeleteModalAjaxUrl = Url.Action("Delete", "CustomReportRowsMatrixPage");
+    Model.eidssGridConfiguration.DeleteCompleteMethod = "CheckDeleteSuccess";
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.RowDataEnablesAndDisblesDelete = true;
+    Model.eidssGridConfiguration.EnableProcessingMessage = true;
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels
+    {
+        DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage),
+        EditModalMessage = "Are you sure that you want to Edit this record?",
+        DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+        SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
+        DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton),
+        CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton),
+        CancelInlineEditTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage),
+        YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton),
+        NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton),
+        SaveInlineEditTitle = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+        SaveInlineEditMessage = "Are you sure that you want to save this record?"
+    };
+    Model.eidssGridConfiguration.EditType = EditType.None;
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        ColumnName = "row",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false,
+        Orderable = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "idfReportRows",
+        ColumnName = "KeyId",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "intRowOrder",
+        ColumnName = "intRowOrder",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        Orderable = false,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "idfsCustomReportType",
+        ColumnName = "idfsCustomReportType",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.DiseaseOrGroupColumnHeading),
+        ColumnName = "strDiseaseOrReportDiseaseGroup",
+        Visible = true,
+        Orderable = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.CustomReportRowsNameColumnHeading),
+        ColumnName = "strDiagnosisOrDiagnosisGroupName",
+        Visible = true,
+        Orderable = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.UsingTypeColumnHeading),
+        ColumnName = "strUsingType",
+        Visible = true,
+        Orderable = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.DiseaseColumnAdditionalTextColumnHeading),
+        ColumnName = "strAdditionalReportText",
+        Visible = true,
+        Orderable = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.ICD10ColumnAdditionalTextColumnHeading),
+        ColumnName = "strICDReportAdditionalText",
+        Visible = true,
+        Orderable = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = string.Empty,
+        ColumnName = "name",
+        ColumnType = ColumnType.Delete,
+        Visible = Model.UserPermissions.Delete,
+        Orderable = false
+    });
+}
+<!-- Modal -->
+<div class="modal fade" id="duplicatesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsg"></span>
+            </div>
+            <div class="modal-footer">
+                <button id="createNewYesButton" onclick="GetFromLocalStorage();" class="btn btn-primary">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_ConfigurationPartial"/>
+<partial name="_InformationalModalPartial" for="InformationMessage"/>
+<partial name="_WarningModalPartial"/>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            //hook the modal cancel button clicks
+            $("#AddCustomReportRowsMatrixbtnCancel").on('click', cancelAddCustomReportRowDetails);
+
+            var table = $('#CustomReportRowsMatrixGrid').DataTable();
+            table.on('row-reorder', function (e, diff, edit) {
+                var table = $('#CustomReportRowsMatrixGrid').DataTable();
+                e.stopPropagation();
+                //var result = 'Reorder started on row: ' + edit.triggerRow.data() + '<br>';
+                var model = [];
+                
+                for (var i = 0, ien = diff.length; i < ien; i++) {
+                    var rowOrderModel = {};
+                    rowOrderModel.KeyId = table.row(diff[i].node).data()[1];
+                    rowOrderModel.NewData = diff[i].newData;
+                    rowOrderModel.OldData = diff[i].oldData;
+                    model.push(rowOrderModel);
+                    //result += rowData[5] + ' with KeyId = ' + rowData[1] + ' updated to be in position ' +
+                    //    diff[i].newData + ' (was ' + diff[i].oldData + ')<br>';
+                }
+
+                $.ajax({
+                    url: '@Url.Action("SaveRowOrder", "CustomReportRowsMatrixPage")',
+                    type: 'POST',
+                    contentType: "application/json: charset=utf-8",
+                    data: JSON.stringify(model),
+                    success: function (response) {
+                        table.ajax.reload(null, false);
+                    },
+                    error: function (response) {
+                        console.log(response);
+                    }
+                });
+
+                //$('#result').html('Event result:<br>' + result);
+                //console.log(result);
+            });
+        });
+
+        ///Method called after execution of Save Method Returns Data back from the controller
+        function CheckSuccess(data) {
+            var stringified_data = JSON.stringify(data);
+            var parsed_data = JSON.parse(stringified_data);
+            if (parsed_data.returnMessage == "SUCCESS") {
+                $("#AddCustomReportRowsMatrixSuccessModal").modal("show");
+
+                updateNotificationEnvelopeCount();
+            }
+            else if (parsed_data.returnMessage == "DOES EXIST") {
+                $("#duplicatesModal").modal("show");
+                $("#dupemsg").html(parsed_data.strClientPageMessage);
+            }
+        };
+
+        function CheckDeleteSuccess(data) {
+            var stringifiedData = JSON.stringify(data);
+            var parsedData = JSON.parse(stringifiedData);
+            if (parsedData.returnMessage === "SUCCESS") {
+                updateNotificationEnvelopeCount();
+                showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+            }
+        };
+
+        function PrepareNewRecord() {
+            $("#successModal").modal("hide");
+            $("#duplicatesModal").modal("hide");
+            $("#PageLevelAddButton").modal("show");
+        };
+
+        function ChangeAddButtonActiveStatus(data) {
+            // alert(data.id);
+            switch (parseInt(data.id)) {
+                case 19000140:
+                    $("#PageLevelAddButton").prop('disabled', true);
+                    break;
+                default:
+                    $("#PageLevelAddButton").prop('disabled', false);
+            }
+        };
+
+        ///When Drop Down Items Are Cleared
+        function SelectOnClear(data) {
+            $("#PageLevelAddButton").prop('disabled', true);
+        };
+
+        function cancelAddCustomReportRowDetails(event) {
+
+            var message = '@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)';
+            event.preventDefault();
+
+            showWarningModal(message).then(response => {
+                if (response) {
+                    $("#warningModal").modal("hide");
+                    $("#AddCustomReportRowsMatrix").modal("hide");
+                    $(".modal-backdrop").remove();
+                }
+                else {
+                    $("#AddCustomReportRowsMatrix").modal("show");
+                }
+            });
+        };
+
+        ///Gets Data from local storage and populates the controls
+        function GetFromLocalStorage() {
+            $("#duplicatesModal").modal("hide");
+            $("#AddCustomReportRowsMatrix").modal("show");
+            var d = localStorage.getItem("AddCustomReportRowsMatrix");
+            var parsedData = JSON.parse(d);
+
+            var DiseaseOrGroupArray = parsedData["strDiseaseOrReportDiseaseGroup"]
+            var finalArrayData = [];
+            if (DiseaseOrGroupArray.length > 0) {
+                for (var i = 0; i < DiseaseOrGroupArray.length; i++) {
+                    var strDropDownData = {
+                        id: parsedData["strDiseaseOrReportDiseaseGroup"][i].id,
+                        text: parsedData["strDiseaseOrReportDiseaseGroup"][i].text
+                    };
+                    var newOption = new Option(strDropDownData.text, strDropDownData.id, false, true);
+                    finalArrayData.push(newOption);                   
+                }
+                $('#AddCustomReportRowsMatrixctrlAdd_0').append(finalArrayData).trigger('change');
+            }  
+            
+            var DiagnosisArray = parsedData["idfsDiagnosisOrReportDiagnosisGroup"]
+            var finalArrayData1 = [];
+            if (DiagnosisArray.length > 0) {
+                for (var i = 0; i < DiagnosisArray.length; i++) {
+                    var strDropDownData = {
+                        id: parsedData["idfsDiagnosisOrReportDiagnosisGroup"][i].id,
+                        text: parsedData["idfsDiagnosisOrReportDiagnosisGroup"][i].text
+                    };
+                    var newOption = new Option(strDropDownData.text, strDropDownData.id, false, true);
+                    finalArrayData1.push(newOption);                   
+                }
+                $('#AddCustomReportRowsMatrixctrlAdd_1').append(finalArrayData1).trigger('change');
+            }   
+            
+            var TextArray = parsedData["idfsReportAdditionalText"]
+            var finalArrayData2 = [];
+            if (TextArray.length > 0) {
+                for (var i = 0; i < TextArray.length; i++) {
+                    var strDropDownData = {
+                        id: parsedData["idfsReportAdditionalText"][i].id,
+                        text: parsedData["idfsReportAdditionalText"][i].text
+                    };
+                    var newOption = new Option(strDropDownData.text, strDropDownData.id, false, true);
+                    finalArrayData2.push(newOption);                   
+                }
+                $('#AddCustomReportRowsMatrixctrlAdd_2').append(finalArrayData2).trigger('change');
+            }  
+            
+            var TextArray2 = parsedData["idfsICDReportAdditionalText"]
+            var finalArrayData3 = [];
+            if (TextArray2.length > 0) {
+                for (var i = 0; i < TextArray2.length; i++) {
+                    var strDropDownData = {
+                        id: parsedData["idfsICDReportAdditionalText"][i].id,
+                        text: parsedData["idfsICDReportAdditionalText"][i].text
+                    };
+                    var newOption = new Option(strDropDownData.text, strDropDownData.id, false, true);
+                    finalArrayData3.push(newOption);                   
+                }
+                $('#AddCustomReportRowsMatrixctrlAdd_3').append(finalArrayData3).trigger('change');
+            }   
+        };
+    </script>
+}

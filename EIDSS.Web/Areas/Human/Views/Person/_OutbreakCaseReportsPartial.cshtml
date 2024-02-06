@@ -1,0 +1,128 @@
+﻿@model EIDSS.Web.Areas.Human.ViewModels.Person.OutbreakCaseReportsViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+
+@{
+    Model.eidssGridConfiguration = new EIDSSGridConfiguration();
+    Model.eidssGridConfiguration.GridId = "gvOutbreakCaseReports";
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.AjaxDataUrl = @Url.Action("GetOutbreakCaseList", "PersonDetails", new { Area = "Human" });
+    Model.eidssGridConfiguration.EnableServerSide = false; ;
+    //Model.eidssGridConfiguration.EnableSearching = true;
+    Model.eidssGridConfiguration.EnableCustomSearching = false;
+    Model.eidssGridConfiguration.ControlFilterID = "PersonInformationSection_PersonDetails_HumanActualId";
+
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels();
+
+    //Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    //{
+    //    ColumnName = "idfOutbreak",
+    //    ColumnTitleHeader = String.Empty,
+    //    Visible = false,
+    //    ClassName = "idfOutbreak"
+    //});
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "OutbreakID",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakManagementListOutbreakIDColumnHeading),
+        Visible = true,
+        ClassName = "OutbreakID",
+        ColumnType = Model.PermissionsAccessToOutbreakHumanCaseData.Read == true ? ColumnType.HyperLink : ColumnType.Default,
+        //ColumnType = ColumnType.HyperLink,
+        HyperLinkDataField = "idfOutbreak",
+        ColumnHyperlinkURL = "OutbreakCases",
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "OutbreakTypeName",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakManagementListTypeColumnHeading),
+        Visible = true,
+        ClassName = "OutbreakTypeName",
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "CaseClassification",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCasesCaseClassificationColumnHeading),
+        Visible = true,
+        ClassName = "CaseClassification",
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "OutbreakStatusTypeName",
+        //ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakManagementListStatusColumnHeading),
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCasesStatusColumnHeading),
+        Visible = true,
+        ClassName = "OutbreakStatusTypeName",
+        Orderable = true
+    });
+    //Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    //{
+    //    ColumnName = "AdministrativeLevel1Name",
+    //    ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakManagementListAdministrativeLevel1ColumnHeading),
+    //    Visible = true,
+    //    ClassName = "AdministrativeLevel1Name",
+    //    Orderable = true
+    //});
+    //Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    //{
+    //    ColumnName = "AdministrativeLevel2Name",
+    //    ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakManagementListAdministrativeLevel2ColumnHeading),
+    //    Visible = true,
+    //    ClassName = "AdministrativeLevel2Name",
+    //    Orderable = true
+    //});
+    //Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    //{
+    //    ColumnName = "DiseaseName",
+    //    ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakManagementListDiseaseColumnHeading),
+    //    Visible = true,
+    //    ClassName = "DiseaseName",
+    //    Orderable = true
+    //});
+    //Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    //{
+    //    ColumnName = "StartDate",
+    //    ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakManagementListStartDateColumnHeading),
+    //    Visible = true,
+    //    ClassName = "StartDate",
+    //    Orderable = true
+    //});
+    //Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    //{
+    //    ColumnName = "editOutbreak",
+    //    ColumnTitleHeader = String.Empty,
+    //    Visible = true,
+    //    ColumnType = ColumnType.HyperLink,
+    //    ColumnHyperlinkURL = "OutbreakSession/Edit",
+    //    HyperLinkDataFieldCSSImage = "fa fa-edit",
+    //    HyperLinkDataField = "idfOutbreak",
+    //    ClassName = "editOutbreak"
+    //});
+}
+
+<div id="OutbreakCaseReportsForm">
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4>Outbreak Case Reports</h4>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-12">
+                <eidss-grid id="@Model.eidssGridConfiguration.GridId"
+                            grid-configuration="@Model.eidssGridConfiguration"
+                            filtered-control-ids="@Model.eidssGridConfiguration.ControlFilterID"
+                            enable-server-side="@Model.eidssGridConfiguration.EnableServerSide"
+                            enable-processing="@Model.eidssGridConfiguration.EnableProcessingMessage"
+                            enable-search="@Model.eidssGridConfiguration.EnableSearching"
+                            end-point="@Model.eidssGridConfiguration.AjaxDataUrl"
+                            class-name="@Model.eidssGridConfiguration.GridClass"
+                            details-ajax-url="@Model.eidssGridConfiguration.AjaxDataUrl"
+                            enable-top-header-search-button="@Model.eidssGridConfiguration.EnableCustomSearching"
+                            control-labels="@Model.eidssGridConfiguration.ControlLabels"
+                            controls-that-refresh-the-grid="@Model.eidssGridConfiguration.ControlIdThatRefreshGrid">
+                </eidss-grid>
+            </div>
+        </div>
+</div>

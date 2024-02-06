@@ -1,0 +1,95 @@
+﻿@using EIDSS.Domain.ViewModels.Laboratory
+@inherits AssignTestBase
+
+<div class="row my-4">
+    <div class="col-12">
+        <RadzenCheckBox @bind-Value="Model.FilterTestNameByDisease" id="chkFilterTestNameByDisease" Change="OnFilterTestNameByDiseaseChanged" Name="chkFilterTestNameByDisease" TValue="bool" />
+        <label for="chkFilterTestNameByDisease">@Localizer.GetString(FieldLabelResourceKeyConstants.AssignTestModalFilterTestNameByDiseaseFieldLabel)</label>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 text-right">
+        @if (TestToInsert is not null)
+        {
+            <button class="btn btn-link disabled" disabled id="addNewTest" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToAddARecordToolTip)" type="button">
+                <span class="fas fa-plus fa-lg"></span>
+            </button>
+        }
+        else
+        {
+            <button class="btn btn-link" id="addNewTest" @onclick="OnInsertRowClick" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToAddARecordToolTip)" type="button">
+                <span class="fas fa-plus fa-lg"></span>
+            </button>
+        }
+        <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="false" AllowSorting="true" Data="Model.Tests" EditMode="DataGridEditMode.Single" @ref="TestsGrid" RowCreate="OnRowCreate" RowUpdate="OnRowUpdate" TItem="TestingGetListViewModel">
+            <Columns>
+                <RadzenDataGridColumn Property="DiseaseName" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesDiseaseColumnHeading)" Width="225px">
+                    <EditTemplate Context="item">
+                        <RadzenDropDown AllowClear="true" @bind-Value="item.DiseaseID" class="form-control" Data="Model.Diseases" Name="diseaseID" TextProperty="DiseaseName" ValueProperty="DiseaseID" />
+                        <RadzenRequiredValidator Component="diseaseID" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)" />
+                    </EditTemplate>
+                    <Template Context="item">
+                        @item.DiseaseName
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="TestNameTypeName" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTestingTestNameColumnHeading)" Width="225px">
+                    <EditTemplate Context="item">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="item.TestNameTypeID" class="form-control" Change="_ => OnTestNameTypeChange(item)" Data="Model.TestNameTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetTestNameTypesByFilter" Name="testNameTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+                        <RadzenRequiredValidator Component="testNameTypeID" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)" />
+                    </EditTemplate>
+                    <Template Context="item">
+                        @item.TestNameTypeName
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="TestResultTypeName" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTestingTestResultColumnHeading)" Width="225px">
+                    <EditTemplate Context="item">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="item.TestResultTypeID" class="form-control" Data="TestResultTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="args => GetTestResultTypesByFilter(args, item.TestNameTypeID)" Name="testResultTypeID" TextProperty="strTestResultName" ValueProperty="idfsTestResult" />
+                    </EditTemplate>
+                    <Template Context="item">
+                        @item.TestResultTypeName
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="TestingGetListViewModel" Context="sampleBlazorModelsSampleOrder" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="120px">
+                    <Template Context="item">
+                        <button class="btn btn-sm" @onclick="_ => OnEditRowClick(item)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToEditTheRecordToolTip)" type="button">
+                            <i class="fas fa-edit fa-lg"></i>
+                        </button>
+                    </Template>
+                    <EditTemplate Context="item">
+                        <button class="btn btn-sm" @onclick="_ => OnSaveRowClick(item)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToUpdateToolTip)" type="button">
+                            <i class="fas fa-save fa-lg"></i>
+                        </button>
+                        <button class="btn btn-sm" @onclick="_ => OnCancelEditClick(item)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToCancelToolTip)" type="button">
+                            <i class="fas fa-ban fa-lg"></i>
+                        </button>
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="TestingGetListViewModel" Context="order" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="60px">
+                    <Template Context="item">
+                        <button class="btn btn-sm" @onclick="_ => OnDeleteRowClick(item)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToDeleteToolTip)" type="button">
+                            <i class="fas fa-trash fa-lg"></i>
+                        </button>
+                    </Template>
+                    <EditTemplate Context="item">
+                        <button class="btn btn-sm" @onclick="_ => OnDeleteRowClick(item)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToDeleteToolTip)" type="button">
+                            <i class="fas fa-trash fa-lg"></i>
+                        </button>
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>
+<div class="row mt-5">
+    <div class="col-12 text-center">
+        <button class="btn btn-outline-primary" @onclick="OnCancel" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToCancelToolTip)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+        @if (Model.IsSaveDisabled)
+        {
+            <button class="btn btn-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.AssignTestModalClickToAssignTheListedTestsToTheCorrespondingSamplesToolTip)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+        }
+        else
+        {
+            <button class="btn btn-primary" @onclick="Save" title="@Localizer.GetString(TooltipResourceKeyConstants.AssignTestModalClickToAssignTheListedTestsToTheCorrespondingSamplesToolTip)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+        }
+    </div>
+</div>

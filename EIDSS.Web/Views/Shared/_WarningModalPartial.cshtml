@@ -1,0 +1,57 @@
+﻿<div class="modal fade" id="warningModal" tabindex="-1" role="dialog" aria-labelledby="warningModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="warningModalHeader">EIDSS</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 text-right">
+                        <span class="fas fa-info-circle fa-2x modal-icon"></span>
+                    </div>
+                    <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                        <p id="warningMessage"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="warningYesBtn" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.YesButton"></button>
+                <button id="warningNoBtn" type="button" class="btn btn-outline-primary" data-dismiss="modal" button-for="@ButtonResourceKeyConstants.NoButton"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function showWarningModal(message, title = "", size = "medium") {
+        $("#warningModal").find("#warningMessage").text(message.replace(/&quot;/g, '\"')).end(); // replace HTML &quot to show actual double quotes.
+        var localizedString = $("#warningModal").find("#warningMessage").text();
+        var decodedLocalizedMessage = $("#warningModal").find("#warningMessage").html(localizedString).text();
+
+        const modal = new Promise(function (resolve, reject) {
+            $("#warningModal").find(".modal-header > h5").text(title).end();
+            $("#warningModal").find("#warningMessage").text(decodedLocalizedMessage);
+            $("#warningModal").modal("show");
+
+            $("#warningModal .btn-primary").click(function () {
+                $("#warningModal").modal("hide");
+                resolve(true);
+            });
+            $("#warningModal .btn-outline-primary").click(function () {
+                resolve(false);
+            });
+        }).then(response => {
+            return response;
+        });
+        return modal;
+    };
+    $(document).on("show.bs.modal", ".modal", function (event) {
+        var zIndex = 1040 + (10 * $(".modal:visible").length);
+        $(this).css("z-index", zIndex);
+        setTimeout(function () {
+            $(".modal-backdrop").not(".modal-stack").css("z-index", zIndex - 1).addClass("modal-stack");
+        }, 0);
+    });
+</script>

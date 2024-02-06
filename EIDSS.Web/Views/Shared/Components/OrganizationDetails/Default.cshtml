@@ -1,0 +1,206 @@
+﻿@model EIDSS.Web.Areas.Administration.ViewModels.Organization.OrganizationDetailsViewModel
+<div id="organizationWizard">
+    <h4 heading-for="@HeadingResourceKeyConstants.OrganizationInfoHeading"></h4>
+    <section>
+        <partial name="_OrganizationInfoPartial" for="OrganizationInfoSection" />
+    </section>
+    <h4 heading-for="@HeadingResourceKeyConstants.DepartmentsHeading"></h4>
+    <section>
+        <partial name="_DepartmentsPartial" for="DepartmentsSection" />
+    </section>
+    <h4 heading-for="@HeadingResourceKeyConstants.ReviewHeading"></h4>
+    <section>
+    </section>
+</div>
+<script type="text/javascript">
+    function initializeOrganizationComponent() {
+        $("#organizationWizard").steps({
+            headerTag: "h4",
+            titleTemplate: '<span id="erroredStep" class="fa-stack text-danger" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-times fa-stack-1x fa-inverse"></i></span><span id="step" class="fa-stack text-muted" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span><span id="completedStep" class="fa-stack text-success" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span><span id="reviewStep" class="fa-stack text-muted" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-clipboard-list fa-stack-1x fa-inverse"></i></span> <span class="stepTitleText">#title#</span>',
+            bodyTag: "section",
+            transitionEffect: "none",
+            stepsOrientation: "vertical",
+            enableAllSteps: true,
+            enableCancelButton: true,
+            enableKeyNavigation: true,
+            enableContentCache: true,
+            labels: {
+                cancel: "@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)",
+                finish: "@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)",
+                next: "@Localizer.GetString(ButtonResourceKeyConstants.NextButton)",
+                previous: "@Localizer.GetString(ButtonResourceKeyConstants.PreviousButton)",
+                loading: "@Localizer.GetString(MessageResourceKeyConstants.PleaseWaitWhileWeProcessYourRequestMessage)"
+            },
+            onInit: function (event) { initializeOrganizationInfoSection(); initializeDepartmentsSection(); },
+            onCanceled: function (event) { cancelOrganizationDetails('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)', event); },
+            onStepChanging: function (event, currentIndex, newIndex) {
+                switch (currentIndex) {
+                    case 0:
+                        $("#organizationInfoForm").validate({
+                            ignore: null
+                        });
+
+                        if ($("#organizationInfoForm").valid()) {
+                            return true;
+                        }
+                        //else
+                        //    return; //just return; do not send false to allow the navigation to move forward.
+                        break;
+                    case 1:
+                        return true;
+                        break;
+                    default:
+                        return true;
+                        break;
+                }
+            },
+            onFinished: function (event) {
+                $("#saveButton").removeAttr("href");
+                $("#processing").addClass("fas fa-sync fa-spin");
+
+                var valid = $("#organizationWizard").steps("validateStep", $("#organizationInfoForm"));
+                if (valid) {
+                    submitOrganizationDetails(event);
+                } else {
+                    $("#saveButton").attr("href", "#finish");
+                    $("#processing").removeClass("fas fa-sync fa-spin");
+                    $("#organizationWizard").steps("setStep", 0);
+                }
+            }
+        });
+    };
+
+    function cancelOrganizationDetails(message, event) {
+        event.preventDefault();
+
+        showWarningModal(message).then(response => {
+            if (response) {
+                if ('@Model.ShowInModalIndicator' == "True") {
+                    $("#warningModal").modal("hide");
+                    $("#addOrganizationModal").modal("hide");
+                    $(".modal-backdrop").remove();
+                    return true;
+                }
+                else
+                    location.href = '@Url.Action("List", "Organization")';
+            }
+        });
+    };
+
+    function submitOrganizationDetails(event) {
+        var request = {};
+        request.OrganizationKey = $("#OrganizationInfoSection_OrganizationDetails_OrganizationKey").val();
+        request.OrganizationID = $("#OrganizationInfoSection_OrganizationDetails_OrganizationID").val();
+        request.OrganizationTypeID = ($("#OrganizationTypeDropDown").val() == "" ? "" : $("#OrganizationTypeDropDown").val());
+        request.AbbreviatedNameDefaultValue = $("#OrganizationInfoSection_OrganizationDetails_AbbreviatedNameDefaultValue").val();
+        request.AbbreviatedNameNationalValue = $("#OrganizationInfoSection_OrganizationDetails_AbbreviatedNameNationalValue").val();
+        request.FullNameDefaultValue = $("#OrganizationInfoSection_OrganizationDetails_FullNameDefaultValue").val();
+        request.FullNameNationalValue = $("#OrganizationInfoSection_OrganizationDetails_FullNameNationalValue").val();
+        request.AddressID = $("#OrganizationInfoSection_OrganizationDetails_AddressID").val();
+        request.CountryID = $("#OrganizationInfoSection_OrganizationDetails_ForeignAddressIndicator").is(':checked') ? $("#OrganizationInfoSection_OrganizationDetails_CountryID").val() : $("#OrganizationInfoSection_AdminLevel0Value").val();
+        request.AdministrativeLevel1ID = $("#OrganizationInfoSection_OrganizationDetails_ForeignAddressIndicator").is(':checked') ? "" : $("#OrganizationInfoSection_AdminLevel1Value").val();
+        request.AdministrativeLevel2ID = $("#OrganizationInfoSection_OrganizationDetails_ForeignAddressIndicator").is(':checked') ? "" : $("#OrganizationInfoSection_AdminLevel2Value").val();
+        request.AdministrativeLevel3ID = $("#OrganizationInfoSection_OrganizationDetails_ForeignAddressIndicator").is(':checked') ? "" : $("#OrganizationInfoSection_AdminLevel3Value").val();
+        request.AdministrativeLevel4ID = $("#OrganizationInfoSection_OrganizationDetails_ForeignAddressIndicator").is(':checked') ? "" : $("#OrganizationInfoSection_AdminLevel4Value").val();
+
+        if ($("#OrganizationInfoSection_OrganizationDetails_ForeignAddressIndicator").is(':checked'))
+            request.StreetName = "";
+        else {
+            if ($("#OrganizationInfoSection_NewStreet").val() != "")
+                request.StreetName = $("#OrganizationInfoSection_NewStreet").val();
+            else
+                request.StreetName = $("#OrganizationInfoSection_Street option:selected").text();
+        }
+
+        request.House = $("#OrganizationInfoSection_OrganizationDetails_ForeignAddressIndicator").is(':checked') ? "" : $("#OrganizationInfoSection_House").val();
+        request.Building = $("#OrganizationInfoSection_OrganizationDetails_ForeignAddressIndicator").is(':checked') ? "" : $("#OrganizationInfoSection_Building").val();
+        request.Apartment = $("#OrganizationInfoSection_OrganizationDetails_ForeignAddressIndicator").is(':checked') ? "" : $("#OrganizationInfoSection_Apartment").val();
+
+        if ($("#OrganizationInfoSection_OrganizationDetails_ForeignAddressIndicator").is(':checked'))
+            request.PostalCode = "";
+        else {
+            if ($("#OrganizationInfoSection_NewPostalCode").val() != "")
+                request.PostalCode = $("#OrganizationInfoSection_NewPostalCode").val();
+            else
+                request.PostalCode = $("#OrganizationInfoSection_PostalCode option:selected").text();
+        }
+
+        request.ForeignAddressIndicator = $("#OrganizationInfoSection_OrganizationDetails_ForeignAddressIndicator").is(':checked') ? 'true' : 'false';
+        request.ForeignAddressString = $("#OrganizationInfoSection_OrganizationDetails_ForeignAddressIndicator").is(':checked') ? $("#OrganizationInfoSection_OrganizationDetails_ForeignAddressString").val(): "";
+        request.ContactPhone = $("#OrganizationInfoSection_OrganizationDetails_ContactPhone").val();
+        request.OwnershipFormTypeID = ($("#OwnershipFormTypeDropDown").val() == "" ? "" : $("#OwnershipFormTypeDropDown").val());
+        request.LegalFormTypeID = ($("#LegalFormTypeDropDown").val() == "" ? "" : $("#LegalFormTypeDropDown").val());
+        request.MainFormOfActivityTypeID = ($("#MainFormOfActivityTypeDropDown").val() == "" ? "" : $("#MainFormOfActivityTypeDropDown").val());
+        request.AccessoryCodeIDsString = $.trim($("#OrganizationInfoSection_OrganizationDetails_AccessoryCode").val());
+        request.Order = $("#OrganizationInfoSection_OrganizationDetails_Order").val();
+
+        var departments = [];
+        var departmentsTable = $("#departmentsTable").DataTable().rows().data().toArray();
+        var department;
+        $.each(departmentsTable, function (index, value) {
+            department = new Object();
+            department.DepartmentID = value[0].toString();
+            department.DepartmentNameDefaultValue = value[1].toString();
+            department.DepartmentNameNationalValue = value[2].toString();
+            department.OrderNumber = value[3].toString();
+            department.RowStatus = value[4].toString();
+            department.RowAction = value[5].toString();
+
+            departments.push(department);
+        });
+        request.Departments = JSON.stringify(departments);
+
+        $.ajax({
+            url: '@Url.Action("SaveOrganization", "OrganizationDetails", new { Area = "Administration" })',
+            data: JSON.stringify(request),
+            contentType: "application/json",
+            dataType: "json",
+            type: "POST",
+            success: function (response) {
+                if (response.errorMessage != null) {
+                    showErrorModal(response.errorMessage);
+
+                    $("#saveButton").attr("href", "#finish");
+                    $("#processing").removeClass("fas fa-sync fa-spin");
+                }
+                else {
+                    $("#OrganizationInfoSection_OrganizationDetails_OrganizationKey").val(response.organizationInfoSection.organizationDetails.organizationKey);
+                    $("#OrganizationInfoSection_OrganizationDetails_AddressID").val(response.organizationInfoSection.organizationDetails.addressID);
+                    $("#OrganizationInfoSection_OrganizationDetails_AbbreviatedNameReferenceID").val(response.organizationInfoSection.organizationDetails.AbbreviatedNameReferenceID);
+                    $("#OrganizationInfoSection_OrganizationDetails_FullNameReferenceID").val(response.organizationInfoSection.organizationDetails.FullNameReferenceID);
+
+                    if ('@Model.ShowInModalIndicator' == "True") {
+                        $("#addOrganizationModal").hide();
+
+                        const organization = '["' + response.organizationInfoSection.organizationDetails.organizationKey + '", "' + response.organizationInfoSection.organizationDetails.organizationKey + '", "' + $("#OrganizationInfoSection_OrganizationDetails_AbbreviatedNameNationalValue").val() + '"]';
+
+                        selectOrganizationRecord(JSON.parse(organization));
+
+                        $("#saveButton").attr("href", "#finish");
+                        $("#processing").removeClass("fas fa-sync fa-spin");
+
+                        $(".modal-backdrop").remove();
+                    }
+                    else {
+                        $("#departmentsTable").DataTable().destroy();
+                        initializeDepartmentsSection();
+
+                        showInformationalModalWait(response.informationalMessage).then(response => {
+                            if (response)
+                                location.href = '@Url.Action("List", "Organization")';
+                        });
+
+                        $("#saveButton").attr("href", "#finish");
+                        $("#processing").removeClass("fas fa-sync fa-spin");
+                    }
+                }
+            },
+            error: function (response) 
+            {
+                $("#saveButton").attr("href", "#finish");
+                $("#processing").removeClass("fas fa-sync fa-spin");
+                alert("An error occurred: " + response); 
+            }
+        });
+    };
+</script>

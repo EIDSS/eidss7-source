@@ -1,0 +1,41 @@
+﻿@inherits AddSampleToBatchBase
+@using EIDSS.Domain.ViewModels.Laboratory
+
+<div class="card">
+    <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" Count="Count" Data="Testing" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="LoadTestingData" PageSizeOptions="pageSizeOptions" @ref="TestingGrid" ShowPagingSummary="true" TItem="TestingGetListViewModel">
+        <Columns>
+            <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Sortable="false" TItem="TestingGetListViewModel" Width="40px">
+                <HeaderTemplate>
+                    <RadzenCheckBox Change="args => OnHeaderRecordSelectionChange(args)" TriState="false" TValue="bool" Value="IsHeaderRecordSelected()"/>
+                </HeaderTemplate>
+                <Template Context="item">
+                    <RadzenCheckBox Change="args => OnRecordSelectionChange(args, item)" Disabled="item.TestResultTypeDisabledIndicator" TriState="false" TValue="bool" Value="IsRecordSelected(item)"/>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="EIDSSLaboratorySampleID" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTestingLabSampleIDColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="EIDSSLocalOrFieldSampleID" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTestingLocalFieldSampleIDColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="SampleTypeName" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTestingSampleTypeColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="DiseaseName" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTestingDiseaseColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="TestNameTypeName" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTestingTestNameColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="TestStatusTypeName" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTestingTestStatusColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="TestResultTypeName" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTestingTestResultColumnHeading)" Width="150px"/>
+        </Columns>
+    </RadzenDataGrid>
+    <div class="card-footer">
+        <div class="form-row">
+            <div class="col-12">
+                <button class="btn btn-outline-primary" @onclick="OnCancelClick" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToCancelToolTip)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                
+                @if (AllowAddSampleToBatchIndicator)
+                {
+                    <button class="btn btn-primary" @onclick="OnAddClick" type="button">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                }
+                else
+                {
+                    <button class="btn btn-primary disabled" disabled type="submit">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,260 @@
+﻿@model EIDSS.Web.Areas.Administration.ViewModels.Organization.OrganizationInfoSectionViewModel;
+@{
+    Model.AccessoryCodes.DropDownId = "OrganizationInfoSection_OrganizationDetails_AccessoryCode";
+    Model.AccessoryCodes.defaultSelect2Selection = null;
+    Model.AccessoryCodes.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.AccessoryCodes.Label = Localizer.GetString(FieldLabelResourceKeyConstants.AccessoryCodeFieldLabel);
+    Model.AccessoryCodes.Endpoint = Url.Action("GetHACodeListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", SubArea = "", mask = (int)AccessoryCodes.AllHACode });
+    Model.AccessoryCodes.isVisible = true;
+    Model.AccessoryCodes.SelectMultiple = true;
+
+    var defaultData = new Select2DataItem { id = Model.OrganizationDetails.OrganizationTypeID.ToString(), text = Model.OrganizationDetails.OrganizationTypeName };
+    Model.OrganizationTypes.DropDownId = "OrganizationTypeDropDown";
+    Model.OrganizationTypes.defaultSelect2Selection = defaultData;
+    Model.OrganizationTypes.Label = Localizer.GetString(FieldLabelResourceKeyConstants.OrganizationTypeFieldLabel);
+    Model.OrganizationTypes.Endpoint = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", SubArea = "", referenceTypeID = (long)ReferenceTypes.OrganizationType });
+    Model.OrganizationTypes.isVisible = true;
+
+    defaultData = new Select2DataItem { id = Model.OrganizationDetails.OwnershipFormTypeID.ToString(), text = Model.OrganizationDetails.OwnershipFormTypeName };
+    Model.OwnershipFormTypes.DropDownId = "OwnershipFormTypeDropDown";
+    Model.OwnershipFormTypes.defaultSelect2Selection = defaultData;
+    Model.OwnershipFormTypes.Label = Localizer.GetString(FieldLabelResourceKeyConstants.OwnershipFormFieldLabel);
+    Model.OwnershipFormTypes.Endpoint = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", SubArea = "", referenceTypeID = (long)ReferenceTypes.OwnershipType });
+    Model.OwnershipFormTypes.isVisible = true;
+
+    defaultData = new Select2DataItem { id = Model.OrganizationDetails.LegalFormTypeID.ToString(), text = Model.OrganizationDetails.LegalFormTypeName };
+    Model.LegalFormTypes.DropDownId = "LegalFormTypeDropDown";
+    Model.LegalFormTypes.defaultSelect2Selection = defaultData;
+    Model.LegalFormTypes.Label = Localizer.GetString(FieldLabelResourceKeyConstants.LegalFormFieldLabel);
+    Model.LegalFormTypes.Endpoint = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", SubArea = "", referenceTypeID = (long)ReferenceTypes.LegalForm });
+    Model.LegalFormTypes.isVisible = true;
+
+    defaultData = new Select2DataItem { id = Model.OrganizationDetails.MainFormOfActivityTypeID.ToString(), text = Model.OrganizationDetails.MainFormOfActivityTypeName };
+    Model.MainFormOfActivityTypes.DropDownId = "MainFormOfActivityTypeDropDown";
+    Model.MainFormOfActivityTypes.defaultSelect2Selection = defaultData;
+    Model.MainFormOfActivityTypes.Label = Localizer.GetString(FieldLabelResourceKeyConstants.MainFormOfActivityFieldLabel);
+    Model.MainFormOfActivityTypes.Endpoint = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", SubArea = "", referenceTypeID = (long)ReferenceTypes.MainFormOfActivity });
+    Model.MainFormOfActivityTypes.isVisible = true;
+}
+<form id="organizationInfoForm">
+    <input type="hidden" asp-for="OrganizationDetails.OrganizationKey" />
+    <input type="hidden" asp-for="OrganizationDetails.AddressID" />
+    <input type="hidden" asp-for="OrganizationDetails.AbbreviatedNameReferenceID" />
+    <input type="hidden" asp-for="OrganizationDetails.FullNameReferenceID" />
+    <input type="hidden" asp-for="OrganizationDetails.AccessoryCodeIDsString" />
+    <input type="hidden" asp-for="OrganizationDetails.AccessoryCodeNamesString" />
+    <div class="container-fluid">
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4 heading-for="@HeadingResourceKeyConstants.OrganizationInfoHeading"></h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editOrganizationInfoSectionButton" href="#organizationWizard-h-0" class="edit-section"><span class="fas fa-edit fa-lg"></span></a>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.UniqueOrganizationIDFieldLabel"></i>
+                <label asp-for="OrganizationDetails.OrganizationID" field-label-for="@FieldLabelResourceKeyConstants.UniqueOrganizationIDFieldLabel"></label>
+                <input asp-for="OrganizationDetails.OrganizationID" class="form-control" />
+                <span asp-validation-for="OrganizationDetails.OrganizationID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-12">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.AbbreviationDefaultValueFieldLabel"></i>
+                <label asp-for="OrganizationDetails.AbbreviatedNameDefaultValue" field-label-for="@FieldLabelResourceKeyConstants.AbbreviationDefaultValueFieldLabel"></label>
+                <input asp-for="OrganizationDetails.AbbreviatedNameDefaultValue" class="form-control" />
+                <span asp-validation-for="OrganizationDetails.AbbreviatedNameDefaultValue" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-12">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.AbbreviationNationalValueFieldLabel"></i>
+                <label asp-for="OrganizationDetails.AbbreviatedNameNationalValue" field-label-for="@FieldLabelResourceKeyConstants.AbbreviationNationalValueFieldLabel"></label>
+                <input asp-for="OrganizationDetails.AbbreviatedNameNationalValue" class="form-control" />
+                <span asp-validation-for="OrganizationDetails.AbbreviatedNameNationalValue" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-12">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OrganizationFullNameDefaultValueFieldLabel"></i>
+                <label asp-for="OrganizationDetails.FullNameDefaultValue" field-label-for="@FieldLabelResourceKeyConstants.OrganizationFullNameDefaultValueFieldLabel"></label>
+                <input asp-for="OrganizationDetails.FullNameDefaultValue" class="form-control" />
+                <span asp-validation-for="OrganizationDetails.FullNameDefaultValue" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-12">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OrganizationFullNameNationalValueFieldLabel"></i>
+                <label asp-for="OrganizationDetails.FullNameNationalValue" field-label-for="@FieldLabelResourceKeyConstants.OrganizationFullNameNationalValueFieldLabel"></label>
+                <input asp-for="OrganizationDetails.FullNameNationalValue" class="form-control" />
+                <span asp-validation-for="OrganizationDetails.FullNameNationalValue" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-12">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OrganizationInfoAccessoryCodeFieldLabel"></i>
+                <eidss-select2DropDown id="@Model.AccessoryCodes.DropDownId"
+                                       name="@Model.AccessoryCodes.DropDownId"
+                                       target-ajax-url="@Model.AccessoryCodes.ControlTargetUrl"
+                                       target-type="@Model.AccessoryCodes.ControlTargetType"
+                                       selectct2-default-data="@Model.AccessoryCodes.defaultSelect2Selection"
+                                       end-point="@Model.AccessoryCodes.Endpoint"
+                                       label-name="@Model.AccessoryCodes.Label"
+                                       class-name="form-control"
+                                       multiple="@Model.AccessoryCodes.SelectMultiple"
+                                       is-visible="@Model.AccessoryCodes.isVisible"
+                                       asp-for="@Model.OrganizationDetails.AccessoryCode">
+                </eidss-select2DropDown>
+                <span asp-validation-for="OrganizationDetails.AccessoryCode" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OrganizationTypeFieldLabel"></i>
+                <eidss-select2DropDown id="@Model.OrganizationTypes.DropDownId"
+                                       name="@Model.OrganizationTypes.DropDownId"
+                                       target-ajax-url="@Model.OrganizationTypes.ControlTargetUrl"
+                                       selectct2-default-data="@Model.OrganizationTypes.defaultSelect2Selection"
+                                       end-point="@Model.OrganizationTypes.Endpoint"
+                                       label-name="@Model.OrganizationTypes.Label"
+                                       class-name="form-control"
+                                       is-visible="@Model.OrganizationTypes.isVisible"
+                                       asp-for="@Model.OrganizationDetails.OrganizationTypeID">
+                </eidss-select2DropDown>
+                <span asp-validation-for="OrganizationDetails.OrganizationTypeID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4" hidden-if="@FieldLabelResourceKeyConstants.OwnershipFormFieldLabel">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OwnershipFormFieldLabel"></i>
+                <eidss-select2DropDown id="@Model.OwnershipFormTypes.DropDownId"
+                                       name="@Model.OwnershipFormTypes.DropDownId"
+                                       target-ajax-url="@Model.OwnershipFormTypes.ControlTargetUrl"
+                                       selectct2-default-data="@Model.OwnershipFormTypes.defaultSelect2Selection"
+                                       end-point="@Model.OwnershipFormTypes.Endpoint"
+                                       label-name="@Model.OwnershipFormTypes.Label"
+                                       class-name="form-control"
+                                       is-visible="@Model.OwnershipFormTypes.isVisible"
+                                       asp-for="@Model.OrganizationDetails.OwnershipFormTypeID">
+                </eidss-select2DropDown>
+                <span asp-validation-for="OrganizationDetails.OwnershipFormTypeID" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-4" hidden-if="@FieldLabelResourceKeyConstants.LegalFormFieldLabel">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.LegalFormFieldLabel"></i>
+                <eidss-select2DropDown id="@Model.LegalFormTypes.DropDownId"
+                                       name="@Model.LegalFormTypes.DropDownId"
+                                       target-ajax-url="@Model.LegalFormTypes.ControlTargetUrl"
+                                       selectct2-default-data="@Model.LegalFormTypes.defaultSelect2Selection"
+                                       end-point="@Model.LegalFormTypes.Endpoint"
+                                       label-name="@Model.LegalFormTypes.Label"
+                                       class-name="form-control"
+                                       is-visible="@Model.LegalFormTypes.isVisible"
+                                       asp-for="@Model.OrganizationDetails.LegalFormTypeID">
+                </eidss-select2DropDown>
+                <span asp-validation-for="OrganizationDetails.LegalFormTypeID" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-4" hidden-if="@FieldLabelResourceKeyConstants.MainFormOfActivityFieldLabel">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.MainFormOfActivityFieldLabel"></i>
+                <eidss-select2DropDown id="@Model.MainFormOfActivityTypes.DropDownId"
+                                       name="@Model.MainFormOfActivityTypes.DropDownId"
+                                       target-ajax-url="@Model.MainFormOfActivityTypes.ControlTargetUrl"
+                                       selectct2-default-data="@Model.MainFormOfActivityTypes.defaultSelect2Selection"
+                                       end-point="@Model.MainFormOfActivityTypes.Endpoint"
+                                       label-name="@Model.MainFormOfActivityTypes.Label"
+                                       class-name="form-control"
+                                       is-visible="@Model.MainFormOfActivityTypes.isVisible"
+                                       asp-for="@Model.OrganizationDetails.MainFormOfActivityTypeID">
+                </eidss-select2DropDown>
+                <span asp-validation-for="OrganizationDetails.MainFormOfActivityTypeID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4" hidden-if="@FieldLabelResourceKeyConstants.OrderFieldLabel">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OrderFieldLabel"></i>
+                <label asp-for="OrganizationDetails.Order" field-label-for="@FieldLabelResourceKeyConstants.OrderFieldLabel"></label>
+                <input asp-for="OrganizationDetails.Order" class="form-control" type="number" step="1" />
+                <span asp-validation-for="OrganizationDetails.Order" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.ForeignAddressLabel">
+                <input asp-for="OrganizationDetails.ForeignAddressIndicator" type="checkbox" class="form-check-input" />
+                <label asp-for="OrganizationDetails.ForeignAddressIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.ForeignAddressLabel"></label>
+                <span asp-validation-for="OrganizationDetails.ForeignAddressIndicator" class="text-danger"></span>
+            </div>
+        </div>
+        <div id="divDomesticLocation">
+            @await Component.InvokeAsync("LocationView", Model.DetailsLocationViewModel)
+        </div>
+        <div id="divForeignLocation" class="form-row">
+            <div class="form-group col-md-4">
+                <i class="fas fa-asterisk" required-if="@FieldLabelResourceKeyConstants.CountryFieldLabel"></i>
+                <label asp-for="OrganizationDetails.CountryID" field-label-for="@FieldLabelResourceKeyConstants.CountryFieldLabel" class="control-label"></label>
+                <select disabled asp-for="OrganizationDetails.CountryID"
+                        asp-items="@(new SelectList(Model.CountryList,"idfsCountry","strCountryName"))" class="form-control">
+                </select>
+                <span asp-validation-for="OrganizationDetails.CountryID" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-12">
+                <i class="fas fa-asterisk" required-if="@FieldLabelResourceKeyConstants.ForeignAddressLabel"></i>
+                <label asp-for="OrganizationDetails.ForeignAddressString" field-label-for="@FieldLabelResourceKeyConstants.ForeignAddressLabel" class="control-label"></label>
+                <input asp-for="OrganizationDetails.ForeignAddressString" class="form-control" />
+                <span asp-validation-for="OrganizationDetails.ForeignAddressString" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.PhoneFieldLabel"></i>
+                <label asp-for="OrganizationDetails.ContactPhone" field-label-for="@FieldLabelResourceKeyConstants.PhoneFieldLabel"></label>
+                <input asp-for="OrganizationDetails.ContactPhone" class="form-control" />
+                <span asp-validation-for="OrganizationDetails.ContactPhone" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    function initializeOrganizationInfoSection() {
+        var accessoryCodeSelect = $("#OrganizationInfoSection_OrganizationDetails_AccessoryCode");
+        accessoryCodeSelect.empty();
+        var accessoryCodeIDs = $("#OrganizationInfoSection_OrganizationDetails_AccessoryCodeIDsString").val().split(",");
+        var accessoryCodeNames = $("#OrganizationInfoSection_OrganizationDetails_AccessoryCodeNamesString").val().split(",");
+        accessoryCodeSelect.prop("multiple", "multiple");
+
+        $.each(accessoryCodeIDs, function (i) {
+            if(accessoryCodeIDs[i] != "")
+                accessoryCodeSelect.append(new Option(accessoryCodeNames[i].trim(), accessoryCodeIDs[i], true, true));
+        });
+        
+        var foreignAddressIndicator = $("#OrganizationInfoSection_OrganizationDetails_ForeignAddressIndicator");
+        if (foreignAddressIndicator != undefined) {
+            if (foreignAddressIndicator.is(':checked')) {
+                $("#divDomesticLocation").hide();
+                $("#divForeignLocation").show();
+                $("#OrganizationInfoSection_OrganizationDetails_CountryID").prop("disabled", false);
+            }
+            else {
+                $("#divDomesticLocation").show();
+                $("#divForeignLocation").hide();
+            }
+        }
+        else {
+            $("#divDomesticLocation").show();
+            $("#divForeignLocation").hide();
+        }
+    };
+
+    ///
+    /// Show only the list of countries and foreign address string when the foreign address indicator is checked.
+    ///
+    $("#OrganizationInfoSection_OrganizationDetails_ForeignAddressIndicator").click(function () {
+        if ($(this).is(':checked')) {
+            $("#divDomesticLocation").hide();
+            $("#divForeignLocation").show();
+            $("#OrganizationInfoSection_OrganizationDetails_CountryID").prop("disabled", false);
+        }
+        else {
+            $("#divDomesticLocation").show();
+            $("#divForeignLocation").hide();
+        }
+    });
+</script>

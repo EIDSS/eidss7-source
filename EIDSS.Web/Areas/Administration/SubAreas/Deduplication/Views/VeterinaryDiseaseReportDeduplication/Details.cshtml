@@ -1,0 +1,26 @@
+﻿
+@model EIDSS.Web.Areas.Administration.SubAreas.Deduplication.ViewModels.VeterinaryDiseaseReportDeduplication.VeterinaryDiseaseReportDeduplicationDetailsViewModel
+@using EIDSS.Web.Enumerations
+@using EIDSS.Web.Components.Administration.Deduplication.VeterinaryDiseaseReport
+
+@{
+    if (Model.ReportType == VeterinaryReportTypeEnum.Avian)
+    { ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.AvianDiseaseReportDeduplicationAvianDiseaseReportDeduplicationDetailsHeading); }
+    else
+    { ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.DeduplicationLivestockReportLivestockDiseaseReportDeduplicationDetailsHeading); }
+}
+
+<div class="card">
+    <div class="card-header">
+        @if (Model.ReportType == VeterinaryReportTypeEnum.Avian)
+            {<h3>@Localizer.GetString(HeadingResourceKeyConstants.AvianDiseaseReportDeduplicationAvianDiseaseReportDeduplicationDetailsHeading)</h3> }
+        else
+            { <h3>@Localizer.GetString(HeadingResourceKeyConstants.DeduplicationLivestockReportLivestockDiseaseReportDeduplicationDetailsHeading)</h3>}
+    </div>
+    <div class="card-body">
+        @if (Model.ReportType == VeterinaryReportTypeEnum.Avian)
+            {<component type="typeof(AvianDiseaseReportDeduplicationDetails)" render-mode="Server" param-Model="Model" />}
+        else
+            {<component type="typeof(VeterinaryDiseaseReportDeduplicationDetails)" render-mode="Server" param-Model="Model" />}
+    </div>
+</div>

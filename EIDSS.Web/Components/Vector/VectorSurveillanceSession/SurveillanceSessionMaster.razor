@@ -1,0 +1,38 @@
+﻿@inherits EIDSS.Web.Components.Vector.VectorSurveillanceSession.SurveillanceSessionMasterBase
+@using EIDSS.Web.Components.Vector.VectorDetailedCollections
+@using EIDSS.Web.Components.Vector.VectorAggregateCollections
+
+@if (VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Read)
+{
+    <RadzenTabs @ref="VectorSurveillanceTabs" RenderMode="TabRenderMode.Client" Change="@OnTabChange" @bind-SelectedIndex="@VectorSessionStateContainer.SelectedVectorTab">
+        <Tabs>
+            <RadzenTabsItem Text="@Localizer.GetString(HeadingResourceKeyConstants.VectorPageHeading)">
+                <div id="vectorWizard">
+                    <div class="content content-collapsed clearfix">
+                        <section>
+                            <SessionSummary/>
+                        </section>
+                        <section>
+                            <SessionLocation @ref="SessionLocationComponent"/>
+                        </section>
+                        <section>
+                            <DetailedCollectionsList/>
+                        </section>
+                        <section>
+                            <AggregateCollectionsList/>
+                        </section>
+                        <section>
+                            <h4 style="display: none">@Localizer.GetString(@HeadingResourceKeyConstants.ReviewHeading)</h4>
+                        </section>
+                    </div>
+                </div>
+            </RadzenTabsItem>
+            <RadzenTabsItem Text="@Localizer.GetString(HeadingResourceKeyConstants.VectorDetailedCollectionHeading)" Disabled="@VectorSessionStateContainer.DetailedCollectionTabDisabled">
+                <DetailedCollectionMaster/>
+            </RadzenTabsItem>
+            <RadzenTabsItem Text="@Localizer.GetString(HeadingResourceKeyConstants.VectorAggregateCollectionHeading)" Disabled="@VectorSessionStateContainer.AggregateCollectionTabDisabled">
+                <AggregateCollectionMaster/>
+            </RadzenTabsItem>
+        </Tabs>
+    </RadzenTabs>
+}

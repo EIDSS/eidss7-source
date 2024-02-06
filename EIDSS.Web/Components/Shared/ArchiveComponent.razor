@@ -1,0 +1,10 @@
+﻿
+@inherits EIDSS.Web.Components.Shared.ArchiveComponentBase
+
+<a href="#" class="dropdown-item" @onclick="@ToggleArchiveAsync" @onclick:preventDefault>
+    @GetArchiveMenuName()
+</a>
+
+<component type="typeof(SessionManager)" render-mode="Server" />
+
+

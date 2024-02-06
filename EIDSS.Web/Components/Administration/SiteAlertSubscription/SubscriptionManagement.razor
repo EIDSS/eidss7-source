@@ -1,0 +1,40 @@
+﻿@using EIDSS.Domain.ViewModels.Administration
+
+@inherits SubscriptionManagementBase
+
+<div class="card-body">
+    <div class="form-inline">
+        <div class="form-row py-4">
+            <div class="form-row">
+                <div class="col float-right form-group">
+                    <div class="input-group">
+                        <RadzenTextBox autofocus @bind-Value="SearchTerm" class="form-control" Name="simpleSearchString"/>
+                        <button class="input-group-text lighten-3" id="clearSearch" @onclick="OnClearSearchButtonClick" type="button">
+                            <i class="fas fa-times text-grey" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <button class="btn btn-outline-primary ml-2" id="simpleSearch" @onclick="OnSearchButtonClick" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="false" AllowSorting="true" ColumnWidth="300px" Count="Count" Data="Subscriptions" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="args => LoadSubscriptionData(args)" PageSizeOptions="pageSizeOptions" PageSizeText="@Localizer.GetString(FieldLabelResourceKeyConstants.CommonLabelsItemsPerPageFieldLabel)" @ref="SubscriptionsGrid" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="true" TItem="EventSubscriptionTypeModel">
+            <Columns>
+                <RadzenDataGridColumn Property="RowId" TItem="EventSubscriptionTypeModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading)" Width="150px"/>
+                <RadzenDataGridColumn Property="EventTypeName" TItem="EventSubscriptionTypeModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SiteAlertsSubscriptionEventNameColumnHeading)" Width="150px"/>
+                <RadzenDataGridColumn TItem="EventSubscriptionTypeModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SiteAlertsSubscriptionReceiveEventAlertColumnHeading)" Width="175px">
+                    <Template Context="item">
+                        <RadzenCheckBox @bind-Value="item.ReceiveAlertIndicator" TriState="false" TValue="bool" />
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>
+<div class="card-footer">
+    <button type="button" id="btnSelectAll" class="btn btn-outline-primary" @onclick="_ => OnToggleReceiveAlertIndicatorClick(true)">@Localizer.GetString(ButtonResourceKeyConstants.SelectAllButton)</button>
+    <button type="button" id="btnUnSelectAll" class="btn btn-outline-primary" @onclick="_ => OnToggleReceiveAlertIndicatorClick(false)">@Localizer.GetString(ButtonResourceKeyConstants.SiteAlertSubscriptionsUnselectAllButtonText)</button>
+    <button type="button" id="btnSubmit" class="btn btn-primary" @onclick="OnSaveButtonClick">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+    <button type="button" id="btnCancel" class="btn btn-outline-primary">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+</div>

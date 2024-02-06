@@ -1,0 +1,116 @@
+﻿@using EIDSS.Web.ViewModels.Vector
+@using EIDSS.Domain.ResponseModels.Vector;
+@using EIDSS.Web.Enumerations
+
+@inherits AggregateCollectionsListBase
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-md-11">
+                <h4>@Localizer.GetString(HeadingResourceKeyConstants.VectorAggregateCollectionHeading)</h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editSurveillanceSessionAggregateListSectionButton" href="#vectorWizard-h-4" class="edit-section">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div id="aggregateDetails" class="card-body">
+        <div class="form-row justify-content-end mb-2">
+            <div class="col-md-1">
+                <div class="pull-right">
+                @if (VectorSessionStateContainer.AggregateCollectionDisabledIndicator || (VectorSessionStateContainer.VectorSessionKey <= 0 && !VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Create)
+                     || (VectorSessionStateContainer.VectorSessionKey > 0 && !VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Write))
+                {
+                    <button @onclick="@OnAddNewCollectionClick" class="btn btn-sm btn-default" disabled>@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                }
+                else
+                {
+                    <button @onclick="@OnAddNewCollectionClick" class="btn btn-sm btn-default">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                }
+                </div>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-12">
+                <RadzenDataGrid ExpandMode="DataGridExpandMode.Single"
+                                Count="@VectorSessionStateContainer.AggregateCollectionsCount"
+                                AllowPaging="true"
+                                PageSize="10"
+                                AllowSorting="true"
+                                AllowColumnResize="true"
+                                @ref="Grid"
+                                TItem="VectorSessionDetailResponseModel"
+                                Data="VectorSessionStateContainer.AggregateCollectionList"
+                                LoadData="@LoadAggregateCollectionsGrid"
+                                ShowPagingSummary="true">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="VectorSessionDetailResponseModel" Property="strVSSessionSummaryID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorAggregateCollectionRecordIDColumnHeading)" Width="150px">
+                            <Template Context="data">
+                                <button class="btn btn-link btn-sm sidebar-do-not-disable" @onclick="@(() => OnCollectionViewOnlyClick(data))">@data.strVSSessionSummaryID</button>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="VectorSessionDetailResponseModel" Property="strVectorType" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorAggregateCollectionVectorTypeColumnHeading)" Width="200px" />
+                        <RadzenDataGridColumn TItem="VectorSessionDetailResponseModel" Property="datCollectionDateTime" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorAggregateCollectionCollectionDateColumnHeading)" FormatString="{0:d}" Width="150px" />
+                        <RadzenDataGridColumn TItem="VectorSessionDetailResponseModel" Property="intQuantity" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorAggregateCollectionNumberOfPoolsVectorsCollectedColumnHeading)" Width="175px" />
+                        <RadzenDataGridColumn TItem="VectorSessionDetailResponseModel" Property="PositiveDiseasesList" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorAggregateCollectionNumberOfPositivePoolsVectorsColumnHeading)" Width="275px" />
+                        <RadzenDataGridColumn TItem="VectorSessionDetailResponseModel" Property="" Width="100px">
+                            <Template Context="dataItem">
+                                @if (VectorSessionStateContainer.AggregateCollectionDisabledIndicator || (VectorSessionStateContainer.VectorSessionKey <= 0 && !VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Create)
+                                     || (VectorSessionStateContainer.VectorSessionKey > 0 && !VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Write))
+                                {
+                                    <button @onclick="@((args) => OnCollectionEditClick(dataItem))" role="button" class="btn btn-link btn-sm pull-left" disabled><i class="fas fa-edit fa-lg"></i></button>
+                                }
+                                else
+                                {
+                                    <button @onclick="@((args) => OnCollectionEditClick(dataItem))" role="button" class="btn btn-link btn-sm pull-left"><i class="fas fa-edit fa-lg"></i></button>
+                                }
+                                
+                                @if (VectorSessionStateContainer.AggregateCollectionDisabledIndicator || !VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Delete)
+                                {
+                                    <button @onclick="((args) => OnCollectionDeleteClick(dataItem))" role="button" class="btn btn-link btn-sm pull-right" disabled><i class="fas fa-trash fa-lg"></i></button>   
+                                }
+                                else
+                                {
+                                    <button @onclick="((args) => OnCollectionDeleteClick(dataItem))" role="button" class="btn btn-link btn-sm pull-right"><i class="fas fa-trash fa-lg"></i></button>   
+                                }
+                                
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                    <!--Expandable Detail Template for Grid-->
+                    <Template Context="data">
+                        <RadzenCard>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.VeterinarySessionAggregateInformationDetailsModalSexFieldLabel)</label>
+                                    <p>@data.strSex</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.VeterinarySessionAggregateInformationDetailsModalSpeciesFieldLabel)</label>
+                                    <p>@data.strVectorSubType</p>
+                                </div>
+                                <div class="col-md-4">
+                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.RegionFieldLabel)</label>
+                                    <p>@data.AdminLevel1Text</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.RayonFieldLabel)</label>
+                                    <p>@data.AdminLevel2Text</p>
+                                </div>
+                            </div>
+                        </RadzenCard>
+                    </Template>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+

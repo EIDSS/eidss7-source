@@ -1,0 +1,140 @@
+﻿@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Localization.Helpers
+@using EIDSS.Localization.Providers
+@inherits LocationViewBase
+@inject LocalizationMemoryCacheProvider CacheProvider
+
+<div class="form-row @(LocationViewModel.DivAdminLevel0 ? "show-element" : "hide-element")">
+    <div class="form-group col-md-6">
+        <InterfaceEditorResource CssClass="form-group" For="AdminLevel0Value" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LocationAdministrativeLevel0FieldLabel" IsRequiredByDefaultBusinessRule="@LocationViewModel.IsDbRequiredAdminLevel0" IsRow="false">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@LocationViewModel.AdminLevel0Value" Change="@RefreshAtAdminLevel0" class="form-control" Data="@LocationViewModel.AdminLevel0List" Disabled="@(!LocationViewModel.EnableAdminLevel0)" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" Name="AdminLevel0Value" TextProperty="Name" TValue="long?" ValueProperty="idfsReference" />
+        </InterfaceEditorResource>
+    </div>
+</div>
+<div class="form-row">
+    <div class="form-group col-md-6 @(LocationViewModel.ShowAdminLevel1 ? "show-element" : "hide-element")">
+        <InterfaceEditorResource CssClass="form-group" For="AdminLevel1Value" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LocationAdministrativeLevel1FieldLabel" IsRequiredByDefaultBusinessRule="@LocationViewModel.IsDbRequiredAdminLevel1" IsRow="false">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@LocationViewModel.AdminLevel1Value" Change="@RefreshAtAdminLevel1" class="form-control" Data="@LocationViewModel.AdminLevel1List" Disabled="@(!LocationViewModel.EnableAdminLevel1)" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" Name="AdminLevel1Value" TextProperty="Name" TValue="long?" ValueProperty="idfsReference" />
+        </InterfaceEditorResource>
+    </div>
+    <div class="form-group col-md-6 @(LocationViewModel.ShowAdminLevel2 ? "show-element" : "hide-element")">
+        <InterfaceEditorResource CssClass="form-group" For="AdminLevel2Value" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LocationAdministrativeLevel2FieldLabel" IsRequiredByDefaultBusinessRule="@LocationViewModel.IsDbRequiredAdminLevel2" IsRow="false">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@LocationViewModel.AdminLevel2Value" Change="@RefreshAtAdminLevel2" class="form-control" Data="@LocationViewModel.AdminLevel2List" Disabled="@(!LocationViewModel.EnableAdminLevel2)" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" Name="AdminLevel2Value" TextProperty="Name" TValue="long?" ValueProperty="idfsReference" />
+        </InterfaceEditorResource>
+    </div>
+</div>
+<div class="@(LocationViewModel.DivSettlementGroup ? "show-element" : "hide-element")" id="divSettlementGroup">
+    <div class="form-row">
+        <div class="form-group col-md-6 @(LocationViewModel.DivSettlementType ? "show-element" : "hide-element")">
+            <InterfaceEditorResource CssClass="form-group" For="SettlementType" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SettlementTypeFieldLabel" IsRequiredByDefaultBusinessRule="@LocationViewModel.IsDbRequiredSettlementType" IsRow="false">
+                <RadzenDropDown AllowClear="false" AllowFiltering="true" @bind-Value="@LocationViewModel.SettlementType" Change="@RefreshSettlementType" class="form-control" Data="@LocationViewModel.SettlementTypeList" Disabled="@(!LocationViewModel.EnableSettlementType)" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" Name="SettlementType" TextProperty="name" TValue="long?" ValueProperty="idfsReference" />
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-group col-md-6 @(LocationViewModel.ShowAdminLevel3 ? "show-element" : "hide-element")">
+            <InterfaceEditorResource CssClass="form-group" For="AdminLevel3Value" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LocationAdministrativeLevel3FieldLabel" IsRequiredByDefaultBusinessRule="@LocationViewModel.IsDbRequiredAdminLevel3" IsRow="false">
+                <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@LocationViewModel.AdminLevel3Value" Change="@RefreshAtAdminLevel3" class="form-control" Data="@LocationViewModel.AdminLevel3List" Disabled="@(!LocationViewModel.EnableAdminLevel3)" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" Name="AdminLevel3Value" TextProperty="Name" TValue="long?" ValueProperty="idfsReference" />
+            </InterfaceEditorResource>
+        </div>
+    </div>
+</div>
+<div class="form-row">
+    <div class="form-group col-md-6 @(LocationViewModel.ShowAdminLevel4 ? "show-element" : "hide-element")">
+        <label for="@LocationViewModel.AdminLevel4Value">@Localizer.GetString(FieldLabelResourceKeyConstants.LocationAdministrativeLevel4FieldLabel)</label>
+        <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@LocationViewModel.AdminLevel4Value" Change="@RefreshAtAdminLevel4" class="form-control" Data="@LocationViewModel.AdminLevel4List" Disabled="@(!LocationViewModel.EnableAdminLevel4)" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" Name="AdminLevel4Value" TextProperty="Name" TValue="long?" ValueProperty="idfsReference" />
+    </div>
+    <div class="form-group col-md-6 @(LocationViewModel.ShowAdminLevel5 ? "show-element" : "hide-element")">
+        <label for="@LocationViewModel.AdminLevel5Value">@Localizer.GetString(FieldLabelResourceKeyConstants.LocationAdministrativeLevel5FieldLabel)</label>
+        <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@LocationViewModel.AdminLevel5Value" Change="@RefreshAtAdminLevel5" class="form-control" Data="@LocationViewModel.AdminLevel5List" Disabled="@(!LocationViewModel.EnableAdminLevel5)" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" Name="AdminLevel5Value" TextProperty="Name" TValue="long?" ValueProperty="idfsReference" />
+    </div>
+</div>
+<div class="form-row">
+    <div class="form-group col-md-6 @(LocationViewModel.ShowAdminLevel6 ? "show-element" : "hide-element")">
+        <label for="@LocationViewModel.AdminLevel6Value">@Localizer.GetString(FieldLabelResourceKeyConstants.LocationAdministrativeLevel6FieldLabel)</label>
+        <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@LocationViewModel.AdminLevel6Value" Change="@RefreshAtAdminLevel6" class="form-control" Data="@LocationViewModel.AdminLevel6List" Disabled="@(!LocationViewModel.EnableAdminLevel6)" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" Name="AdminLevel6Value" TextProperty="Name" TValue="long?" ValueProperty="idfsReference" />
+    </div>
+</div>
+<div class="form-row @(LocationViewModel.DivStreet ? "show-element" : "hide-element")">
+    <label for="@LocationViewModel.Street">@Localizer.GetString(FieldLabelResourceKeyConstants.StreetFieldLabel)</label>
+    <div class="input-group col-md-12">
+        <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@LocationViewModel.StreetText" Change="@(args => RefreshAtStreet(args))" class="form-control" Data="@LocationViewModel.StreetList" Disabled="@(!LocationViewModel.EnableStreet)" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" id="@($"{Id}StreetText")" LoadData="@LoadStreet" Name="StreetText" @onblur="OnFocusOut" TextProperty="StreetName" TValue="string" ValueProperty="StreetName" />
+        <div class="input-group-append">
+            @if (LocationViewModel.EnableStreet  && LocationViewModel.BottomAdminLevel != null)
+            {
+                <button class="btn btn-outline-primary btn-sm" id="AddStreet" @onclick="@AddStreet" type="button">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+            }
+            else
+            {
+                <button class="btn btn-outline-primary btn-sm disabled" disabled id="AddStreet" @onclick="@AddStreet" type="button">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+            }
+        </div>
+    </div>
+</div>
+<div class="form-row  @(LocationViewModel.DivBuildingHouseApartmentGroup ? "show-element" : "hide-element")" id="divBuildingHouseApartment">
+    <div class="form-group col-md-4" id="divHouse">
+        <label for="@LocationViewModel.House">@Localizer.GetString(FieldLabelResourceKeyConstants.HouseFieldLabel)</label>
+        <RadzenTextBox @bind-Value="@LocationViewModel.House" Change="@(args => RefreshAtHouse(args))" class="form-control" disabled="@(!LocationViewModel.EnableHouse)"></RadzenTextBox>
+    </div>
+    <div class="form-group col-md-4" id="divBuilding">
+        <label for="@LocationViewModel.Building">@Localizer.GetString(FieldLabelResourceKeyConstants.BuildingFieldLabel)</label>
+        <RadzenTextBox @bind-Value="@LocationViewModel.Building" Change="@(args => RefreshAtBuilding(args))" class="form-control" disabled="@(!LocationViewModel.EnableBuilding)"></RadzenTextBox>
+    </div>
+    <div class="form-group col-md-4" id="divApartment">
+        <label for="@LocationViewModel.Apartment">@Localizer.GetString(FieldLabelResourceKeyConstants.ApartmentUnitFieldLabel)</label>
+        <RadzenTextBox @bind-Value="@LocationViewModel.Apartment" Change="@(args => RefreshAtApartment(args))" class="form-control" disabled="@(!LocationViewModel.EnableApartment)"></RadzenTextBox>
+    </div>
+</div>
+<div class="form-row @(LocationViewModel.DivPostalCode ? "show-element" : "hide-element")">
+    <label for="@LocationViewModel.PostalCode">@Localizer.GetString(FieldLabelResourceKeyConstants.PostalCodeFieldLabel)</label>
+    <div class="input-group col-md-12">
+        <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@LocationViewModel.PostalCodeText" Change="@(args => RefreshAtPostalCode(args))" class="form-control" Data="@LocationViewModel.PostalCodeList" Disabled="@(!LocationViewModel.EnableStreet)" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" id="@($"{Id}PostalCode")" LoadData="@LoadPostalCode" Name="PostalCode" TextProperty="PostalCodeString" TValue="string" ValueProperty="PostalCodeString" />
+        <div class="input-group-append">
+            @if (LocationViewModel.EnableStreet && LocationViewModel.BottomAdminLevel != null)
+            {
+                <button class="btn btn-outline-primary btn-sm" id="AddPostalCode" @onclick="@AddPostalCode" type="button">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+            }
+            else
+            {
+                <button class="btn btn-outline-primary btn-sm disabled" disabled id="AddPostalCode" @onclick="@AddPostalCode" type="button">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+            }
+        </div>
+    </div>
+</div>
+<div class="form-row @(LocationViewModel.DivCoordinates ? "show-element" : "hide-element")" id="divCoordinates">
+    <div id="DivLongitude" class="form-group col-md-3  @(LocationViewModel.DivLongitude ? "show-element" : "hide-element")">
+        <InterfaceEditorResource CssClass="form-group" For="Longitude" InterfaceEditorKey="@FieldLabelResourceKeyConstants.AdministrativeUnitDetailsLongitudeFieldLabel" IsRequiredByDefaultBusinessRule="@LocationViewModel.IsDbRequiredLongitude" IsRow="false">
+            <RadzenNumeric @bind-Value="@LocationViewModel.Longitude" class="form-control" Disabled="@(!LocationViewModel.EnabledLongitude)" Format="###.####" id="Longitude" Name="Longitude" TValue="double?"></RadzenNumeric>
+            <RadzenNumericRangeValidator Component="Longitude" Max="180.0000" Min="-180.0000" Text="@string.Format(@Localizer.GetString(MessageResourceKeyConstants.FieldIsInvalidValidRangeIsMessage),-180.0000,180.0000)" Visible="@((LocationViewModel.IsDbRequiredLongitude || LocationViewModel.Longitude != null))" />
+        </InterfaceEditorResource>
+    </div>
+    <div class="form-group col-md-3  @(LocationViewModel.DivLatitude ? "show-element" : "hide-element")" id="divLatitude">
+        <InterfaceEditorResource CssClass="form-group" For="Latitude" InterfaceEditorKey="@FieldLabelResourceKeyConstants.AdministrativeUnitDetailsLatitudeFieldLabel" IsRequiredByDefaultBusinessRule="@LocationViewModel.IsDbRequiredLatitude" IsRow="false">
+            <RadzenNumeric @bind-Value="@LocationViewModel.Latitude" class="form-control" Disabled="@(!LocationViewModel.EnabledLatitude)" Format="##.####" id="Latitude" Name="Latitude" TValue="double?"></RadzenNumeric>
+            <RadzenNumericRangeValidator Component="Latitude" Max="85.0000" Min="-85.0000" Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.FieldIsInvalidValidRangeIsMessage),-85.0000,85.0000)" Visible="@((LocationViewModel.IsDbRequiredLatitude || LocationViewModel.Latitude != null))" />
+        </InterfaceEditorResource>
+    </div>
+    <div class="form-group col-md-3  @(LocationViewModel.DivElevation ? "show-element" : "hide-element")" id="divElevation">
+        <InterfaceEditorResource CssClass="form-group" For="Elevation" InterfaceEditorKey="@FieldLabelResourceKeyConstants.AdministrativeUnitDetailsElevationFieldLabel" IsRequiredByDefaultBusinessRule="@LocationViewModel.IsDbRequiredElevation" IsRow="false">
+            <RadzenNumeric @bind-Value=@LocationViewModel.Elevation class="form-control" Disabled="@(!LocationViewModel.EnabledElevation)" Format="#####" id="Elevation" Name="Elevation" TValue="int?" />
+            <RadzenNumericRangeValidator Component="Elevation" Max="11000" Min="-1000" Text="@string.Format(@Localizer.GetString(MessageResourceKeyConstants.FieldIsInvalidValidRangeIsMessage), -1000, 11000)" Visible="@((LocationViewModel.IsDbRequiredElevation || LocationViewModel.Elevation != null))" />
+        </InterfaceEditorResource>
+    </div>
+    <div class="form-group col-md-1  @(LocationViewModel.DivMap ? "show-element" : "hide-element")" id="divMap">
+        <label asp-for="ShowMap" field-label-for="@FieldLabelResourceKeyConstants.LocationMapFieldLabel" id="lblMap"></label>
+        @{
+            var mapId = LocationViewModel.CallingObjectID + "ShowMap";
+        }
+        
+        @if (LocationViewModel.OperationType == Domain.ViewModels.CrossCutting.LocationViewOperationType.ReadOnly)
+        {
+            <a class="form-control btn btn-default disabled" disabled id="@mapId">
+                <i class="fas fa-map-marker"></i>
+            </a>
+        }
+        else
+        {
+            <a class="form-control btn btn-default" id="@mapId" @onclick="@ShowMapAsync">
+                <i class="fas fa-map-marker"></i>
+            </a>
+        }
+    </div>
+</div>

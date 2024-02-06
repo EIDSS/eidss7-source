@@ -1,0 +1,19 @@
+﻿@using EIDSS.Web.Components.Human.WeeklyReporting
+@model EIDSS.Web.Areas.Human.ViewModels.WeeklyReportingForm.WeeklyReportingFormDetailsViewModel
+
+@using EIDSS.Domain.Enumerations
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.WeeklyReportingFormDetailsPageHeading); }
+
+<div id="divWeeklyReportView" class="card">
+    <div class="card-header">
+       <h3>@Localizer.GetString(HeadingResourceKeyConstants.WeeklyReportingFormDetailsPageHeading)</h3> 
+    </div>
+    <div class="card-body">
+        <component type="typeof(WeeklyReportingForm)" render-mode="Server" 
+            param-SessionID="@Model.FormID" 
+            param-IsReadOnly="@Model.IsReadonly" />
+            
+    </div>
+</div>

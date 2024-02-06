@@ -1,0 +1,18 @@
+﻿@using EIDSS.Domain.ViewModels.Laboratory
+@using EIDSS.Domain.Enumerations
+@inherits AccessionInDialogBase
+<RadzenTemplateForm Data="AccessionInAction" @ref="Form" TItem="AccessionInViewModel">
+    <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="AccessionInAction.AccessionConditionTypeID" Change="OnAccessionConditionTypeChange" class="form-control" Data="LaboratoryService.AccessionConditionTypesWithoutUnaccessioned" LoadData="GetAccessionConditionTypes" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+    
+    <RadzenCheckBox @bind-Value="AccessionInAction.PrintBarcodesIndicator" Disabled="AccessionInAction.DisablePrintBarcodeIndicator" Name="chkPrintBarcode" TValue="bool" />
+    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.GroupAccessionInModalPrintBarcodeFieldLabel)</label>
+
+    <div class="card-footer">
+        <div class="form-row">
+            <div class="col-12">
+                <button class="btn btn-outline-primary" id="accessionInCancel" @onclick="OnCancelClick" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToCancelToolTip)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                <button class="btn btn-primary" @onclick="OnOKClick" id="accessionInOK" type="button">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

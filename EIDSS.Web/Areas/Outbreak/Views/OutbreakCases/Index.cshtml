@@ -1,0 +1,224 @@
+﻿@model EIDSS.Web.Areas.Outbreak.ViewModels.OutbreakCasesViewModel;
+@using EIDSS.Web.Components.Outbreak.Session;
+@using EIDSS.Web.Components.CrossCutting;
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.OutbreakSessionOutbreakSessionHeading);
+}
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-lg-11">
+                <div class="panel-heading">
+                    <h2>@Localizer.GetString(HeadingResourceKeyConstants.OutbreakSessionOutbreakSessionHeading)</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="upper-left OutbreakHome-txt col-2">
+        <img src=@Url.Content("~/Includes/Images/back.png") onclick="location.href=@Url.Action("Index", "OutbreakPage", new { Area = "Outbreak" })" />
+        <a href="@Url.Action("Index", "OutbreakPage", new { Area = "Outbreak" })">@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionOutbreakManagementFieldLabel)</a>
+    </div>
+    <fieldset>
+        <form>
+            <input type="hidden" id="idfOutbreak" asp-for="@Model.SessionDetails.idfOutbreak" />
+            <partial name="_sessionSummary" />
+        </form>
+    </fieldset>
+    <div class="row">
+        <div class="col-12">
+            <ul class="nav nav-tabs nav-fill">
+                <li id="liCases" class="nav-item">
+                    <a class="@Model.CasesTabClass" id="nav-cases-tab" href="#nav-cases" onclick="outbreakCreate.setCurrentSummaryTab(this.id)" data-toggle="tab">
+                        <label id="lblCases">@Localizer.GetString(ButtonResourceKeyConstants.OutbreakCasesCasesButtonText)</label>
+                        <label id="lblCasesCount"></label>
+                    </a>
+                </li>
+                <li id="liContacts" class="nav-item">
+                    <a class="@Model.ContactsTabClass" id="nav-contacts-tab" href="#nav-contacts" onclick="//javascript:setCurrentSummaryTab(this.id)" data-toggle="tab">
+                        <label id="lblContacts">@Localizer.GetString(ButtonResourceKeyConstants.OutbreakCasesContactsButtonText)</label>
+                        <label id="lblContactsCounts"></label>
+                    </a>
+                </li>
+                @if(Model.SessionDetails.bVector)
+                {
+                    <li id="liVector" class="nav-item">
+                        <a class="@Model.VectorTabClass" id="nav-vector-tab" href="#nav-vector" onclick="//javascript:setCurrentSummaryTab(this.id)" data-toggle="tab">
+                            <label id="lblVector">@Localizer.GetString(ButtonResourceKeyConstants.OutbreakCasesVECTORButtonText)</label>
+                            <label id="lblVectorCount"></label>
+                        </a>
+                    </li>
+                }
+                <li id="liUpdates" class="@Model.UpdatesTabClass" onclick="outbreakCreate.getSessionNotes(@Model.idfOutbreak);">
+                    <a class="nav-link" id="nav-updates-tab" href="#nav-updates" onclick="//javascript:setCurrentSummaryTab(this.id)" data-toggle="tab">
+                        <label id="lblUpdates">@Localizer.GetString(ButtonResourceKeyConstants.OutbreakCasesUPDATESButtonText)</label>
+                        <label id="lblUpdatesCount"></label>
+                    </a>
+                </li>
+                <li id="liAnalysis" class="@Model.AnalysisTabClass">
+                    <a class="nav-link" id="nav-analysis-tab" href="#nav-analysis" onclick="outbreakAnalysis.showHeatMap();outbreakAnalysis.showEpiCurve();" data-toggle="tab">
+                        <label id="lblAnalysis">@Localizer.GetString(ButtonResourceKeyConstants.OutbreakCasesAnalysisButtonText)</label>
+                        <label id="lblAnalysisCount"></label>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="tab-content col-12">
+            <div id="nav-cases" class="@Model.CasesPaneClass" role="tabpanel" aria-labelledby="nav-cases-tab">
+                <component type="typeof(CasesTab)" render-mode="ServerPrerendered" param-OutbreakId="Model.idfOutbreak" param-CaseType=@Model.OutbreakType />
+            </div>
+            @if (Model.ReadAccessToOutbreakHumanContactsDataPermissionIndicator || Model.ReadAccessToOutbreakVeterinaryContactsDataPermissionIndicator)
+            {
+                <div id="nav-contacts" class="@Model.ContactsPaneClass" role="tabpanel" aria-labelledby="nav-contacts-tab">
+                    <component type="typeof(ContactsTab)" render-mode="Server" param-OutbreakId="Model.idfOutbreak"/>
+                </div>
+            }
+            @if (Model.ReadAccessToVectorSurveillanceSessionDataPermissionIndicator)
+            {
+                <div id="nav-vector" class="@Model.VectorPaneClass" role="tabpanel" aria-labelledby="nav-vector-tab">
+                    <component type="typeof(VectorsTab)" render-mode="Server" param-OutbreakId="Model.idfOutbreak" param-EIDSSOutbreakID="Model.SessionDetails.strOutbreakID"/>
+                </div>
+            }
+            <partial name="_sessionUpdates" />
+            <div id="nav-analysis" class="@Model.AnalysisPaneClass" role="tabpanel" aria-labelledby="nav-analysis-tab">
+                <div class="row pb-4">
+                    <div class="form-inline col-lg-10">
+                        <div class="form-check pr-3">
+                            <input type="checkbox" class="form-check-input" id="chkHeatMapHuman" onclick="redrawHeatMap();" />
+                            <label class="form-check-label" >@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakCasesHumanFieldLabel)</label>
+                        </div>
+                        <div class="form-check px-3">
+                            <input type="checkbox" class="form-check-input" id="chkHeatMapAvian" onclick="redrawHeatMap();" />
+                            <label class="form-check-label" >@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakCasesAvianFieldLabel)</label>
+                        </div>
+                        <div class="form-check px-3">
+                            <input type="checkbox" class="form-check-input" id="chkHeatMapLivestock" onclick="redrawHeatMap();" />
+                            <label class="form-check-label" >@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakCasesLivestockFieldLabel)</label>
+                        </div>
+                        <div class="form-check px-3">
+                            <input type="checkbox" class="form-check-input" id="chkHeatMapVector" onclick="redrawHeatMap();" />
+                            <label class="form-check-label" >@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakCasesVectorFieldLabel)</label>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 text-right">
+                        <a ID="lnbAnalysisPrint" class="btn btn-primary btn-sm">
+                            <span class="fa fa-print" aria-hidden="true"></span>
+                        </a>
+                    </div>
+                </div>
+                <div class="row col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="heat-map">
+                        <label ID="lblHeatMapTitle"></label>
+                    </div>
+                    <div class="row col-lg-6" id="dAnalysis" style="height:593px">
+                        <input type="hidden" value="0" id="hdnHeatMap_Lat" />
+                        <input type="hidden" value="0" id="hdnHeatMap_Long" />
+                        <input type="hidden" value="12" id="hdnHeatMap_Zoom" />
+                        <input type="hidden" value="@Model.HeatMapData.First().HeatData" id="hdnHeatMap_Data" />
+
+                        <div id="map" class="col-12" style="width:100%;"></div>
+                    </div>
+                    <div id="dEpiCurve" class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pull-right" style="left:-15px;">
+                        <component type="typeof(DisplayReport)" render-mode="Server" param-ReportHeader="@Model.ReportName" param-ReportName="@Model.ReportName" param-Parameters="@Model.EpiCurveParameters" param-CancelButtonVisibleIndicator="true" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    <!-- Print Report Modal -->
+    <div class="modal fade" id="printFreezerModal" tabindex="-1" role="dialog" aria-labelledby="printFreezerModal">
+        <div class="modal-dialog" style="top: 150px; left: 150px; max-width: 1050px; max-height: 600px; resize: both">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportCaseInvestigationDetailsHeading)</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+                </div>
+                <div class="modal-body" style="width: 1050px; height: 600px;">
+                    <component type="typeof(DisplayReport)" param-ReportHeader="@Model.OutbreakReportPrintViewModel.ReportHeader" param-ReportName="@Model.OutbreakReportPrintViewModel.ReportName" param-Parameters="@Model.OutbreakReportPrintViewModel.Parameters" render-mode="Server"/>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="DiseaseReportAssociatedWarningModal" tabindex="-1" role="dialog" aria-labelledby="warningModal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+				    <h4 class="modal-title" heading-for="@HeadingResourceKeyConstants.EIDSSWarningModalHeading"></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 text-right">
+                            <span class="fas fa-triangle-exclamation fa-2x modal-icon"></span>
+                        </div>
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <p id="successMessage">@Localizer.GetString(MessageResourceKeyConstants.ImportHumanCaseSelectedDiseaseReportIsAlreadyAssociatedWithAnOutbreakSessionMessage)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btnOkAssociatedWarning" type="button" class="btn btn-primary" onclick="$('#DiseaseReportAssociatedWarningModal').modal('hide');">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>           
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<partial name="_importCase" />
+<partial name="_updateEntry" />
+<script src="@Url.Content("~/js/Outbreak/casesTab.js")"></script>
+<script src="@Url.Content("~/js/Outbreak/SessionCreate.js")"></script>
+<script src="@Url.Content("~/lib/leaflet/leaflet.js")"></script>
+<script src="@Url.Content("~/lib/leaflet/leaflet-heat.js")"></script>
+<script src="@Url.Content("~/js/Outbreak/analysis.js")"></script>
+<script type="text/javascript">
+    outbreakCreate.diseaseEnableURL = "@Url.Action("DiseaseListForSelect2DropDownAdvanced", "CrossCutting", new { Area = "CrossCutting" })";
+    outbreakCreate.saveUpdateURL = "@Url.Action("SaveUpdate", "OutbreakCases", new { Area = "Outbreak" })";
+    outbreakCreate.getUpdateURL = "@Url.Action("GetUpdate", "OutbreakCases", new { Area = "Outbreak" })";
+    outbreakCreate.getUpdatesURL = "@Url.Action("GetUpdates", "OutbreakCases", new { Area = "Outbreak" })";
+    outbreakCreate.humanCaseUrl = "@Url.Action("Index","HumanCase", new { Area = "Outbreak", queryData = @Model.idfOutbreak })";
+    $(document).ready(function(){
+        if ("@Model.ReturnMessage" == "EXISTING_OUTBREAK_CASE") {
+            $("#DiseaseReportAssociatedWarningModal").modal("show");
+        }
+    });
+
+    function printSessionUpdates() {
+        var model = {};
+
+        model.OutbreakID = $("#OutbreakId").val();
+
+        //go get the detail partial view for the modal
+        $.ajax({
+            url: '@Url.Action("PrintOutbreakUpdates", "OutbreakCases", new { Area = "Outbreak" })',
+            type: 'POST',
+            data: JSON.stringify(model),
+            dataType: "HTML",
+            contentType: "application/json: charset=utf-8",
+            success: function (resp) {
+                $("#printModalBarCode").html(resp);
+                $("#printOutbreakUpdatesModal").modal('show');
+            },
+            complete: function (resp) {
+                $("#printModalBarCode").html(resp);
+                $("#printOutbreakUpdatesModal").modal('show');
+            },
+            error: function (request, error) {
+
+            }
+        });
+    }
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+
+}

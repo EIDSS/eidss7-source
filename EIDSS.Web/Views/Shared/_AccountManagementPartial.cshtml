@@ -1,0 +1,527 @@
+﻿@model EIDSS.Web.ViewModels.Administration.EmployeeAccountManagementPageViewModel;
+
+
+
+
+<form id="AccountManagementForm">
+    <div class="container-fluid">
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4 heading-for="@HeadingResourceKeyConstants.AccountManagementHeading"></h4>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6 form-check form-check-inline">
+                <input type="hidden" id="AccMhdfEmployeeID" />
+                @if (Model.blnLocked)
+                {
+                    <input asp-for="@Model.blnLocked" type="checkbox" class="form-check-input" onclick="LockUnlockEmployeeAccount('@Model.EmployeeID');"/>
+                }
+                else
+                {
+                    <input asp-for="@Model.blnLocked" type="checkbox" class="form-check-input" onclick="LockUnlockEmployeeAccount('@Model.EmployeeID');" disabled />
+                }
+
+                <label asp-for="@Model.blnLocked" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.EmployeeLockedFieldLabel"></label>
+                @if (Model.blnLocked)
+                {
+                    <div id="LockedOrExpiredText" class="col-md-6">
+                        <input asp-for="@Model.strLockoutReason" class="form-control" style="color: #9b1010" disabled />
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6 form-check form-check-inline">
+                @if (Model.EmployeeID != 0)
+                {
+                    if (Model.Disabled == true)
+                    {
+                        <input asp-for="@Model.Disabled" id="blnDisabled" name="blnDisabled" type="checkbox" checked class="form-check-input" onclick="EnableDisableEmployeeAccount('@Model.EmployeeID');" />
+                    }
+                    else
+                    {
+                        <input asp-for="@Model.Disabled" id="blnDisabled" name="blnDisabled" type="checkbox" class="form-check-input" onclick="EnableDisableEmployeeAccount('@Model.EmployeeID');" />
+                    }
+                }
+                else
+                {
+                    <input asp-for="@Model.Disabled" id="blnDisabled" name="blnDisabled" type="checkbox" class="form-check-input" disabled />
+                }
+                <label asp-for="@Model.Disabled" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.AccountIsDisabledFieldLabel"></label>
+                @if (Model.Disabled == true)
+                {
+                    <div id="disabledText" class="col-md-6">
+                        <input asp-for="@Model.strAccountDisabled" class="form-control" style="color: #9b1010" disabled />
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label asp-for="@Model.Reason" field-label-for="@FieldLabelResourceKeyConstants.ReasonFieldLabel"></label>
+                <input asp-for="@Model.Reason" class="form-control" />
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-6">
+                <h4 heading-for="@HeadingResourceKeyConstants.UserGroupsAndPermissionsHeading"></h4>
+            </div>
+            @if (Model.UserPermissions.Write)
+            {
+                <div class="col-md-6">
+                    <button type="button" id="btnOpenAddModalRole" class="btn btn-primary mt-3" button-for="@ButtonResourceKeyConstants.AddButton" onclick="OpenAddEditModalRole('@Model.EmployeeID',false,0);"></button>
+                </div>
+            }
+        </div>
+    </div>
+
+
+    @*DataTable*@
+    <div class="row pb-5">
+        <div class="col-12">
+            <table id="tblUserPermission" class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            @Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading)
+                        </th>
+                        <th>
+                            @Localizer.GetString(ColumnHeadingResourceKeyConstants.EmployeeSiteIDColumnHeading)
+                        </th>
+                        <th>
+                            @Localizer.GetString(ColumnHeadingResourceKeyConstants.EmployeeOrganizationColumnHeading)
+                        </th>
+                        <th>
+                            @Localizer.GetString(ColumnHeadingResourceKeyConstants.EmployeeUserGroupColumnHeading)
+                        </th>
+                        <th>
+                            @Localizer.GetString(ColumnHeadingResourceKeyConstants.EmployeesActiveHeading)
+                        </th>
+                        <th>
+                            @Localizer.GetString(ColumnHeadingResourceKeyConstants.EmployeeDefaultColumnHeading)
+                        </th>
+                        <th>
+                            
+                        </th>
+                        <th>
+                            
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>                
+                    @if (Model != null && Model.UserGroupsAndPermissions != null)
+                    {
+                            foreach (var item in Model.UserGroupsAndPermissions)
+                            {
+                                <tr>
+                                    <td>
+
+                                        <label id="@(String.Format(" intNumRow_{0}", item.Row))"
+                                               class="intNumRow">
+                                            @item.Row
+
+                                        </label>
+                                    </td>
+
+                                    <td>
+                                        <input type="hidden" id="hdfSiteID" class="hdfSiteID" value="@item.idfsSite" />
+                                        <label id="@(String.Format("SiteName_{0}", item.Row))"
+                                               class="SiteName">
+                                            @Html.DisplayFor(modelItem => item.SiteID)
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <input type="hidden" id="hdfOrganizationID" class="hdfOrganizationID" value="@item.OrganizationID" />
+                                        <label id="@(String.Format("OrganizationFullName_{0}", item.Row))"
+                                               class="OrganizationFullName">
+                                            @Html.DisplayFor(modelItem => item.Organization)
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <input type="hidden" id="hdfUserGroupID" class="hdfUserGroupID" value="@item.UserGroupID" />
+                                        <label id="@(String.Format(" UserGroup_{0}", item.Row))"
+                                               class="UserGroup">
+                                            @Html.DisplayFor(modelItem => item.UserGroup)
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <div style="display:inline-flex">
+                                            @if (Model.EmployeeID == 0)
+                                            {
+                                                <label><input id="@(String.Format(" Active_{0}", item.Row))" type="checkbox" class="Active" disabled value="true" onchange="confirmActivateDeacivate('@item.idfEmployee','@item.Row');" /></label><br />
+                                            }
+                                            else
+                                            {
+                                                @if (item.Active == true)
+                                                {
+                                                    <label><input id="@(String.Format(" Active_{0}", item.Row))" type="checkbox" class="Active" checked value="true" onchange="confirmActivateDeacivate('@item.idfEmployee','@item.Row');" /></label><br />
+                                                }
+                                                else if (item.SiteID == null)
+                                                {
+                                                    <label><input id="@(String.Format(" Active_{0}", item.Row))" type="checkbox" class="Active" value="false" disabled/></label><br />
+                                                }
+                                                else
+                                                {
+                                                    <label><input id="@(String.Format(" Active_{0}", item.Row))" type="checkbox" class="Active" value="false" onchange="confirmActivateDeacivate('@item.idfEmployee','@item.Row');" /></label><br />
+                                                }
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="display:inline-flex">
+                                            @if (item.IsDefault.Value)
+                                            {
+                                            <input id="@(String.Format(" Default_{0}", item.Row))" type="radio" class="Default" value="@item.IsDefault" checked onchange="UpdateDefaultOrg('@item.idfEmployee',true,'@item.Row');" />
+                                            }
+                                            else
+                                            {
+                                            <input id="@(String.Format(" Default_{0}", item.Row))" type="radio" class="Default" value="@item.IsDefault" onchange="UpdateDefaultOrg('@item.idfEmployee',true,'@item.Row');" />
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="display:inline-flex">
+                                            @if (Model.UserPermissions.Write)
+                                            {
+                                                <a class="fas fa-edit fa-lg" onclick="OpenAddEditModalRole('@item.idfEmployee',true,'@item.Row');"></a>
+                                            }
+                                            else
+                                            {
+                                                <a class="disabled" onclick="OpenAddEditModalRole('@item.idfEmployee',true,'@item.Row');"></a>
+                                            }
+
+                                        </div>
+                                    </td>
+                                    <td class="dt-center editor-delete">
+                                        @if (!item.IsDefault.Value && Model.UserPermissions.Write)
+                                        {
+                                            <a class="fas fa-trash fa-1x" onclick="confirmDelete('@item.idfEmployee', '@item.Row');"></a>
+                                        }
+                                        else if (!item.IsDefault.Value)
+                                        {
+                                            <a class="disabled" onclick="confirmDelete('@item.idfEmployee', '@item.Row');"></a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="mdUserPermissions" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mdUserPermissions" aria-hidden="true" data-backdrop='static' data-keyboard='false'>
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">
+                        @Localizer.GetString(HeadingResourceKeyConstants.EmployeeRoleAndPermissionsModalHeading)
+                    </h5>
+                    <button type="button" onclick="CloseModal();" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="userPermissionsDetail">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="successModalDetails" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                    <button type="button" id="btnClose" class="close" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="CloseModalDetails();">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="cancelModalDetails" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)
+                </div>
+                <div class="modal-footer">
+                    <button id="successBtnNo" type="button" class="btn btn-secondary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.NoButton)</button>
+                    <button id="successBtnYes" type="button" class="btn btn-primary" onclick="CancelCloseModalDetails();"> @Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+        <partial name="_ErrorModalPartial" />
+        <partial name="_WarningModalPartial" />
+        <script type="text/javascript">
+
+
+    //################################
+    // Initialize datatable
+    //################################
+
+    var tableUserPerm = $('#tblUserPermission').DataTable({
+        searching: false,
+        lengthChange: false,
+        paging: false,
+        rowReorder: true,
+        columnDefs: [
+            { orderable: true, className: 'reorder', targets: 0 },
+            { orderable: false, targets: '_all' }
+        ]
+    });
+            function OpenAddEditModalRole(employeeID, isEdit, rowId) {
+        var model = {};
+                if (isEdit) {
+                    model.idfPerson = employeeID;
+                    if (employeeID == 0) {
+                        model.idfPerson = $("#hdfEmployeeIDDetail").val();
+                        model.isAddEmployee = true;
+                    }
+                }
+                if ($("#hdfEmployeeIDDetail").val() == 0) {
+                    model.isAddEmployee = true;
+                }
+        model.idfsStaffPosition = $("#PositionDD").val();
+        model.idfsStaffPositionText = $("#PositionDD").find("option:selected").text();
+        if (isEdit)
+        {
+                var row = tableUserPerm.row(rowId-1);
+                model.IntNumRow = row.nodes().to$().find('.intNumRow').val();
+                model.idfsSiteText = row.nodes().to$().find('.SiteName').text().trim();;
+                model.idfsSite = row.nodes().to$().find('.hdfSiteID').val();
+                model.idfInstitutionText = row.nodes().to$().find('.OrganizationFullName').text().trim();;
+                model.idfInstitution = row.nodes().to$().find('.hdfOrganizationID').val();
+                model.UserGroupID = row.nodes().to$().find('.hdfUserGroupID').val();
+                model.UserGroup = row.nodes().to$().find('.UserGroup').text().trim();
+                model.isDefault = row.nodes().to$().find('.Default').prop('checked');
+        }
+        model.idfDepartment = $("#DepartmentDD").val();
+        model.idfDepartmentText = $("#DepartmentDD").find("option:selected").text();
+        model.idfPersonalIDType = $("#PersonalIdTypeDD").val();
+        model.idfPersonalIDTypeText = $("#PersonalIdTypeDD").find("option:selected").text();
+        model.strPersonalID = $("#PersonalInfoSection_PersonalID").val();
+        model.isEdit = isEdit;
+        if ($("#hdfCategory").val() != null && $("#hdfCategory").val()!="" ) {
+            model.idfsEmployeeCategory = $("#hdfCategory").val();
+        }
+        else {
+            model.idfsEmployeeCategory = $("input[name='PersonalInfoSection.EmployeeCategoryList']:checked").val();
+        }
+        model.strFamilyName = $("#PersonalInfoSection_LastOrSurName").val();
+        model.strFirstName = $("#PersonalInfoSection_FirstOrGivenName").val();
+        model.strSecondName = $("#PersonalInfoSection_SecondName").val();
+        model.strContactPhone = $("#PersonalInfoSection_ContactPhone").val();
+        model.Username = $("#LoginSection_Login").val();
+        model.Password = $("#LoginSection_Password").val();
+        model.IsPasswordResetRequired = $("input[name='LoginSection.MustChangePassword']:checked").val();
+        model.blnLocked = $("input[name='AccountManagementSection.blnLocked']:checked").val();
+        model.Disabled = $("input[name='AccountManagementSection.Disabled']:checked").val();
+        model.Reason = $("#AccountManagementSection_Reason").val();
+
+
+         $.ajax({
+                url: '@Url.Action("LoadUserPermissions", "EmployeePage", new { Area = "Administration" })',
+                type: 'POST',
+                data: JSON.stringify(model),
+                contentType: "application/json: charset=utf-8",
+             success: function (resp) {
+                        $("#userPermissionsDetail").html(resp);
+                        $("#mdUserPermissions").modal('show');
+
+                },
+                complete: function (resp) {
+                },
+                error: function (request, error) {
+                }
+            });
+    }
+
+
+
+    function confirmDelete(employeeID, rowId) {
+        showWarningModal('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage)').then(response => {
+            if (response) {
+                $("#warningModal").modal("hide");
+                DeleteOrg(employeeID, rowId);
+            }
+        });
+    }
+
+
+
+    function DeleteOrg(employeeID, rowId) {
+        var model = {};
+        model.idfPerson = employeeID;
+        model.Username = $("#LoginSection_Login").val();
+        var row = tableUserPerm.row(rowId - 1);
+        $.ajax({
+            url: '@Url.Action("DeleteEmployeeOrganization", "EmployeePage", new { Area = "Administration" })',
+            type: 'POST',
+            data: JSON.stringify(model),
+            contentType: "application/json: charset=utf-8"
+        })
+            .done(function (data) {
+                $.ajax({
+                    url: '@Url.Action("ReloadAccountManagement", "EmployeePage", new { Area = "Administration" })' + "?data=" + model.idfPerson,
+                    type: 'GET',
+                    contentType: "text/html; charset=utf-8"
+                })
+                    .done(function (data) {
+                        $("#DivAccountMgtSection").html(data);
+                       showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+                    })
+                    .fail(function (error) {
+                        alert("Failure here " + error);
+                    });
+            })
+            .fail(function (error) {
+                alert("Failure here " + error);
+            });
+    }
+
+
+    function confirmActivateDeacivate(employeeID, rowId) {
+        var row = tableUserPerm.row(rowId - 1);
+        if (row.nodes().to$().find('.Active').is(":checked")) {
+            showWarningModal('@Localizer.GetString(MessageResourceKeyConstants.ActivateEmployeeAccessForOrganizationConfirmationMessage)').then(response => {
+            if (response) {
+                $("#warningModal").modal("hide");
+                ActivateDeactivateOrg(employeeID, rowId);
+            }
+                else
+                    {
+                row.nodes().to$().find('.Active').prop('checked', false);
+            }
+        });
+        }
+        else {
+              showWarningModal('@Localizer.GetString(MessageResourceKeyConstants.DeactivateEmployeeAccessForOrganizationConfirmationMessage)').then(response => {
+            if (response) {
+                $("#warningModal").modal("hide");
+                ActivateDeactivateOrg(employeeID, rowId);
+                  }
+            else {
+                row.nodes().to$().find('.Active').prop('checked', true);
+            }
+        });
+        }
+    }
+
+
+    function ActivateDeactivateOrg(employeeID, rowId) {
+        var model = {};
+        model.idfPerson = employeeID;
+        var row = tableUserPerm.row(rowId - 1);
+        model.Active = row.nodes().to$().find('.Active').prop('checked');
+        $.ajax({
+            url: '@Url.Action("ActivateDeactivateOrg", "EmployeePage")',
+            type: 'POST',
+            data: JSON.stringify(model),
+            contentType: "application/json: charset=utf-8"
+        })
+            .done(function (data) {
+                $.ajax({
+                    url: '@Url.Action("ReloadAccountManagement", "EmployeePage", new { Area = "Administration" })' + "?data=" + model.idfPerson,
+                    type: 'GET',
+                    contentType: "text/html; charset=utf-8"
+                })
+                    .done(function (data) {
+                        $("#DivAccountMgtSection").html(data);
+                       // showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)');
+                    })
+                    .fail(function (error) {
+                        alert("Failure here " + error);
+                    });
+            })
+            .fail(function (error) {
+                alert("Failure here " + error);
+            });
+    }
+
+
+    function EnableDisableEmployeeAccount(employeeID) {
+        var model = {};
+        if (employeeID == 0)
+            employeeID = $("#hdfEmployeeIDDetail").val();
+        model.Username = $("#LoginSection_Login").val();
+        model.Disabled = $("input[name='blnDisabled']:checked").val();
+        if (model.Disabled == undefined)
+            model.Disabled = false;
+        model.Reason = $("#Reason").val();
+        $.ajax({
+            url: '@Url.Action("EnableDisableEmployeeAccount", "EmployeePage", new { Area = "Administration" })',
+            type: 'POST',
+            data: JSON.stringify(model),
+            contentType: "application/json: charset=utf-8"
+        })
+            .done(function (data) {
+                $.ajax({
+                    url:'@Url.Action("ReloadAccountManagement", "EmployeePage", new { Area = "Administration" })' + "?data=" + employeeID,
+                    type: 'GET',
+                    contentType: "text/html; charset=utf-8"
+                })
+                    .done(function (data) {
+                        $("#DivAccountMgtSection").html(data);
+                        //showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)');
+                    })
+                    .fail(function (error) {
+                        alert("Failure here " + error);
+                    });
+            })
+            .fail(function (error) {
+                alert("Failure here " + error);
+            });
+    }
+
+    function LockUnlockEmployeeAccount(employeeID) {
+        var model = {};
+        if (employeeID == 0)
+            employeeID = $("#hdfEmployeeIDDetail").val();
+        model.Username = $("#LoginSection_Login").val();
+        model.Locked = $("input[name='blnLocked']:checked").val();
+
+        $.ajax({
+            url: '@Url.Action("LockUnlockEmployeeAccount", "EmployeePage", new { Area = "Administration" })',
+            type: 'POST',
+            data: JSON.stringify(model),
+            contentType: "application/json: charset=utf-8"
+        })
+            .done(function (data) {
+                $.ajax({
+                    url:'@Url.Action("ReloadAccountManagement", "EmployeePage", new { Area = "Administration" })' + "?data=" + employeeID,
+                    type: 'GET',
+                    contentType: "text/html; charset=utf-8"
+                })
+                    .done(function (data) {
+                        $("#DivAccountMgtSection").html(data);
+                        //showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)');
+                    })
+                    .fail(function (error) {
+                        alert("Failure here " + error);
+                    });
+            })
+            .fail(function (error) {
+                alert("Failure here " + error);
+            });
+    }
+        </script>
+
+
+

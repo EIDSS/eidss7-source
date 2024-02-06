@@ -1,0 +1,110 @@
+﻿@using EIDSS.Web.Areas.Shared.ViewModels
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared.ActiveSurveillanceCampaign
+
+@inherits EIDSS.Web.Components.Shared.ActiveSurveillanceCampaignBase
+
+@if (Permissions.Read)
+{
+    <RadzenTemplateForm id="activeSurveillanceCampaignForm" @ref=Form TItem="ActiveSurveillanceCampaignViewModel" Data=@Model Submit=@HandleValidSubmit InvalidSubmit=@ValidateSubmit>
+        <div class="card-body">
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.CampaignInformationCampaignIDFieldLabel" IsRow="false" CssClass="col-md-6" For="campaignID">
+                    <RadzenTextBox id="CampaignID" Name="campaignID" @bind-Value="@Model.ActiveSurveillanceCampaignDetail.EIDSSCampaignID" class="form-control" Disabled="true"/>
+                </InterfaceEditorResource>
+                @if (Model.ActiveSurveillanceCampaignDetail.LegacyCampaignID != null)
+                {
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchVeterinaryActiveSurveillanceCampaignsLegacyIDFieldLabel" IsRow="false" CssClass="col-md-6" For="CampaignLegacyIdID">
+                        <RadzenTextBox id="CampaignLegacyIdID" Name="CampaignLegacyIdID" @bind-Value="@Model.ActiveSurveillanceCampaignDetail.LegacyCampaignID" class="form-control" Disabled="Model.ActiveSurveillanceCampaignDetail.DisableLegacyCampaignID"/>
+                    </InterfaceEditorResource>
+                }
+            </div>
+            <div class="form-row">
+                <!--Campaign Name-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.CampaignInformationCampaignNameFieldLabel" IsRow="false" CssClass="col-md-4" For="campaignName">
+                    <RadzenTextBox id="campaignName" Name="campaignName" @bind-Value="@Model.ActiveSurveillanceCampaignDetail.CampaignName" class="form-control" Disabled="Model.ActiveSurveillanceCampaignDetail.DisableCampaignTypeName"/>
+                </InterfaceEditorResource>
+                <!--Campaign Type Drop Down-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.CampaignInformationCampaignTypeFieldLabel" IsRow="false" CssClass="col-md-4" For="CampaignTypeID">
+                    <RadzenDropDown id="CampaignTypeID" AllowClear="true" TValue="long?" Data="@CampaignTypes" LoadData="@GetCampaignTypesAsync" ValueProperty="IdfsBaseReference" TextProperty="Name"
+                                    Name="CampaignTypeID" @bind-Value="@Model.ActiveSurveillanceCampaignDetail.CampaignTypeID" class="form-control" Disabled="Model.ActiveSurveillanceCampaignDetail.DisableCampaignTypeID"/>
+                </InterfaceEditorResource>
+                <!--Campaign Status Type Drop Down-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.CampaignInformationCampaignStatusFieldLabel" IsRow="false" CssClass="col-md-4" For="StatusTypeID">
+                    <RadzenDropDown id="StatusTypeID" AllowClear="true" TValue="long?" Data="@CampaignStatuses" LoadData="@GetStatusTypesAsync" ValueProperty="IdfsBaseReference" TextProperty="Name" Change=@(args => OnChangeStatusAsync(args))
+                                    Name="StatusTypeID" @bind-Value="@Model.ActiveSurveillanceCampaignDetail.CampaignStatusTypeID" class="form-control" Disabled="Model.IsReadonly"/>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <div class="row">
+                    <!--Date Entered Range -->
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.CampaignInformationCampaignStartDateFieldLabel" IsRow="false" CssClass="col-md-4" For="SearchCriteria_DateEnteredFrom">
+                        <RadzenDatePicker id="dateEnteredFrom" Name="SearchCriteria_DateEnteredFrom" AllowClear="true" AllowInput="true" class="form-control-range" TValue="DateTime?" @bind-Value="@Model.ActiveSurveillanceCampaignDetail.CampaignStartDate"
+                                          DateFormat="d" Disabled="Model.ActiveSurveillanceCampaignDetail.DisableCampaignStartDate" Change=@(args => IsValidOnChangeStartDateAsync(args))/>
+                        <RadzenCompareValidator Value="@Model.ActiveSurveillanceCampaignDetail.CampaignEndDate" Component="SearchCriteria_DateEnteredFrom" Popup=false Operator="CompareOperator.LessThanEqual"
+                                                Text=@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), Localizer.GetString(FieldLabelResourceKeyConstants.DateFromFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.DateToFieldLabel))
+                                                Style="display: block" Visible=@(!string.IsNullOrEmpty(Model.ActiveSurveillanceCampaignDetail.CampaignEndDate.ToString()))/>
+                        <RadzenCompareValidator Value="@MaxDate" Component="SearchCriteria_DateEnteredFrom" Popup=false Operator="CompareOperator.LessThanEqual"
+                                                Text=@Localizer.GetString(StartDateMaxValidMessage)
+                                                Style="display: block"/>
+                    </InterfaceEditorResource>
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.CampaignInformationCampaignEndDateFieldLabel" IsRow="false" CssClass="col-md-4" For="SearchCriteria_DateEnteredTo">
+                        <RadzenDatePicker id="dateEnteredTo" class="form-control-range" TValue="DateTime?" AllowInput="true" @bind-Value="@Model.ActiveSurveillanceCampaignDetail.CampaignEndDate" Name="SearchCriteria_DateEnteredTo" AllowClear="true"
+                                          DateFormat="d" Disabled="Model.ActiveSurveillanceCampaignDetail.DisableCampaignEndDate" Change=@(args => IsValidOnChangeEndDateAsync(args))/>
+                        <RadzenCompareValidator Value="@Model.ActiveSurveillanceCampaignDetail.CampaignStartDate" Component="SearchCriteria_DateEnteredTo" Popup=false Operator="CompareOperator.GreaterThanEqual"
+                                                Text=@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.DateToFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.DateFromFieldLabel))
+                                                Style="display: block" Visible=@(!string.IsNullOrEmpty(Model.ActiveSurveillanceCampaignDetail.CampaignStartDate.ToString()))/>
+                        <RadzenCompareValidator Value="@DateTime.MaxValue" Component="SearchCriteria_DateEnteredTo" Popup=false Operator="CompareOperator.LessThanEqual"
+                                                Text=@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)
+                                                Style="display: block"/>
+                    </InterfaceEditorResource>
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.CampaignInformationCampaignAdministratorFieldLabel" IsRow="false" CssClass="col-md-4" For="campaignAdmin">
+                        <RadzenTextBox id="campaignAdmin" Name="campaignAdmin" @bind-Value="@Model.ActiveSurveillanceCampaignDetail.CampaignAdministrator" class="form-control" Disabled="Model.ActiveSurveillanceCampaignDetail.DisableCampaignAdministrator"/>
+                    </InterfaceEditorResource>
+                </div>
+            </div>
+            <DiseaseSpeciesSampleList
+                CampaignId=@CampaignID
+                AccessoryCode=@AccessoryCode
+                IsReadOnly=Model.IsReadonly
+                permissions=@Permissions
+                CampaignCategoryId=@CampaignCategoryId
+                VasCampaignSessionList=Model.VetCampaignSessionList
+                CampaignDiseaseSpeciesSampleChanged="UpdateCampaignDiseaseSpeciesSample"/>
+
+            @if (CampaignID != null && Model.ActiveSurveillanceCampaignDetail.CampaignStatusTypeID != (long?) CampaignStatusTypes.NewStatus)
+            {
+                if (CampaignCategoryId == Convert.ToInt64(EIDSSConstants.CampaignCategory.Veterinary))
+                {
+                    <EIDSS.Web.Components.Veterinary.ActiveSurveillanceCampaign.ActiveSurveillanceSessionList
+                        AccessoryCode=@AccessoryCode CampaignId=@CampaignID CampaignCategoryId=@CampaignCategoryId permissions=@Permissions
+                        CampaignName="@Model.ActiveSurveillanceCampaignDetail.CampaignName"
+                        CampaignTypeID="Model.ActiveSurveillanceCampaignDetail.CampaignTypeID"
+                        CampaignAdministrator="@Model.ActiveSurveillanceCampaignDetail.CampaignAdministrator"
+                        EIDSSCampaignID="@Model.ActiveSurveillanceCampaignDetail.EIDSSCampaignID"
+                        Conclusion="@Model.ActiveSurveillanceCampaignDetail.Conclusion"
+                        IsReadOnly=Model.IsReadonly
+                        CampaignSessionListChanged="UpdateVetCampaignSessionList" CampaignStatusId="Model.ActiveSurveillanceCampaignDetail.CampaignStatusTypeID"
+                        DiseaseSpeciesSamples=Model.DiseaseSpeciesSampleList CampaignStartDate=Model.ActiveSurveillanceCampaignDetail.CampaignStartDate
+                        CampaignEndDate=Model.ActiveSurveillanceCampaignDetail.CampaignEndDate>
+                    </EIDSS.Web.Components.Veterinary.ActiveSurveillanceCampaign.ActiveSurveillanceSessionList>
+                }
+            }
+            <div class="row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryActiveSurveillanceCampaignConclusionFieldLabel" IsRow="false" CssClass="col-md-12" For="conclusion">
+                    <RadzenTextArea id="conclusion" Name="conclusion" @bind-Value="@Model.ActiveSurveillanceCampaignDetail.Conclusion" class="form-control"
+                                    Cols="80" Rows="5" MaxLength="400" Disabled="Model.IsReadonly || Model.ActiveSurveillanceCampaignDetail.CampaignStatusTypeID == (long?) CampaignStatusTypes.Closed"/>
+                </InterfaceEditorResource>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-md-12">
+                    <button id="clearButton" type="reset" class="btn btn-outline-primary" @onclick="@(CancelClicked)">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button id="saveButton" type="button" class="btn btn-primary" disabled="@(DisableSave())" @onclick="@(SaveAll)"> @Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                    <button id="deleteButton" type="button" class="btn btn-outline-primary" hidden="@(DisableDelete())" @onclick="@(onDelete)" autofocus>@Localizer.GetString(ButtonResourceKeyConstants.DeleteButton)</button>
+                </div>
+            </div>
+        </div>
+    </RadzenTemplateForm>
+}

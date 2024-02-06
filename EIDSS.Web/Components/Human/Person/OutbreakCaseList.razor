@@ -1,0 +1,79 @@
+﻿@using EIDSS.Domain.ViewModels.Outbreak
+@using EIDSS.Domain.ViewModels.Human
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits EIDSS.Web.Components.Human.Person.OutbreakCaseListBase
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-6">
+                <h5>@Localizer.GetString(HeadingResourceKeyConstants.FarmDetailsOutbreakCasesHeading)</h5>
+            </div>
+            <div class="col-6 text-right mb-2">
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <RadzenDataGrid @ref="OutbreakCaseGrid"
+                        Name="outbreakCaseResults"
+                        TItem="CaseGetListViewModel"
+                        Count="@OutbreakCaseCount"
+                        IsLoading="@IsLoading"
+                        LoadData=@(args => LoadOutbreakGridView(args))
+                        Data="@StateContainer.OutbreakCases"
+                        AllowPaging="true"
+                        PageSize="10"
+                        AllowSorting="true"
+                        AllowColumnResize="true"
+                        ExpandMode="DataGridExpandMode.Single"
+                        AllowColumnReorder="true">
+            <Columns>
+
+                <RadzenDataGridColumn Width="150px"
+                                      TItem="CaseGetListViewModel"
+                                      Property="EIDSSCaseID"
+                                      Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCasesOutbreakCaseIDColumnHeading)"
+                                      Sortable="true">
+                    <Template Context="item">
+                        <button class="btn btn-link btn-sm sidebar-do-not-disable" @onclick=@(() => OnCaseClick(item))>@item.EIDSSCaseID.ToString()</button>
+                    </Template>
+                </RadzenDataGridColumn>
+
+                <RadzenDataGridColumn Width="175px"
+                                      TItem="CaseGetListViewModel"
+                                      Property="CaseTypeName"
+                                      Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCasesTypeColumnHeading)"
+                                      Sortable="true" />
+
+                <RadzenDataGridColumn Width="175px"
+                                      TItem="CaseGetListViewModel"
+                                      Property="ClassificationTypeName"
+                                      Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCasesCaseClassificationColumnHeading)"
+                                      Sortable="true" />
+
+                <RadzenDataGridColumn Property="StatusTypeName"
+                                      TItem="CaseGetListViewModel"
+                                      Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCasesStatusColumnHeading)"
+                                      Width="175px"
+                                      Sortable="false" />
+
+                <RadzenDataGridColumn Width="55px"
+                                      TextAlign="TextAlign.Center"
+                                      TItem="CaseGetListViewModel"
+                                      Property="CaseID"
+                                      Title=""
+                                      Sortable="false"
+                                      Filterable="false">
+                    <Template Context="item">
+                        <button @onclick="_ => OnEditCaseClick(item)" class="btn btn-sm sidebar-do-not-disable" type="button">
+                            <i class="fas fa-edit fa-lg"></i>
+                        </button>
+                    </Template>
+                </RadzenDataGridColumn>
+
+            </Columns>
+            <!--Expandable Detail Template for Grid for Avian -->
+        </RadzenDataGrid>
+    </div>
+</div>

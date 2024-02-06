@@ -1,0 +1,206 @@
+﻿@model EIDSS.Web.Areas.Administration.SubAreas.Security.ViewModels.Site.SiteInformationSectionViewModel;
+@{
+    var defaultData = new Select2DataItem();
+
+    defaultData = new Select2DataItem() { id = Model.SiteDetails.SiteTypeID.ToString(), text = Model.SiteDetails.SiteTypeName };
+    Model.SiteTypeSelect.DropDownId = "SiteTypeSelect";
+    Model.SiteTypeSelect.defaultSelect2Selection = defaultData;
+    Model.SiteTypeSelect.Label = Localizer.GetString(FieldLabelResourceKeyConstants.SiteDetailsSiteTypeFieldLabel);
+    Model.SiteTypeSelect.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.SiteTypeSelect.AddModalId = "addSiteTypeModal";
+    Model.SiteTypeSelect.Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = (long)ReferenceTypes.SiteType });
+    Model.SiteTypeSelect.isVisible = true;
+    Model.SiteTypeSelect.IncludeAddButton = Model.LoggedInUserPermissions.Create;
+
+    defaultData = new Select2DataItem() { id = Model.SiteDetails.ParentSiteID.ToString(), text = Model.SiteDetails.ParentSiteName };
+    Model.ParentSiteSelect.DropDownId = "ParentSiteSelect";
+    Model.ParentSiteSelect.defaultSelect2Selection = defaultData;
+    Model.ParentSiteSelect.Label = Localizer.GetString(FieldLabelResourceKeyConstants.SiteDetailsParentSiteFieldLabel);
+    Model.ParentSiteSelect.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.ParentSiteSelect.Endpoint = @Url.Action("GetSiteList", "CrossCutting", new { Area = "CrossCutting" });
+    Model.ParentSiteSelect.isVisible = true;
+
+    Model.SiteTypeModal.ModalId = "addSiteTypeModal";
+    Model.SiteTypeModal.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    Model.SiteTypeModal.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    Model.SiteTypeModal.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    Model.SiteTypeModal.ControlLabels.ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.SiteTypeDetailsModalHeading);
+    Model.SiteTypeModal.PostAjaxDataUrl = @Url.Action("AddSiteType", "Site", new { Area = "Administration", SubArea = "Security" });
+    Model.SiteTypeModal.ControlLabels.SuccessModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.SiteTypeModal.ControlLabels.SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage);
+    Model.SiteTypeModal.ControlLabels.OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton);
+    Model.SiteTypeModal.SaveCompleteMethod = "CheckAddSiteType";
+    Model.SiteTypeModal.ControlNames.Add(new EIDSSControlNames() { ControlName = "strDefault", LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel), Visible = true, ValidationSetting = new ValidatorSettings() { ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED, ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage) }, ClassName = "form-control DefaultValueRequired" });
+    Model.SiteTypeModal.ControlNames.Add(new EIDSSControlNames() { ControlName = "strName", LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel), Visible = true, ValidationSetting = new ValidatorSettings() { ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED, ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage) }, ClassName = "form-control NationalValueRequired" });
+    Model.SiteTypeModal.ControlNames.Add(new EIDSSControlNames() { ControlName = "intOrder", LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel), Visible = true, ControlType = ControlType.Numeric, DefaultContent = "0", ValidationSetting = new ValidatorSettings() { ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE, ValidationRule = "[0,2147483647]", RangeValidationMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsInvalidValidRangeIsMessage) }, ClassName = "form-control IntOrderRange" });
+
+    defaultData = new Select2DataItem() { id = Model.SiteDetails.SiteOrganizationID.ToString(), text = Model.SiteDetails.SiteOrganizationName };
+    Model.OrganizationSelect.DropDownId = "OrganizationSelect";
+    Model.OrganizationSelect.defaultSelect2Selection = defaultData;
+    Model.OrganizationSelect.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.OrganizationSelect.Endpoint = @Url.Action("GetOrganizations", "CrossCutting", new { Area = "CrossCutting" });
+    Model.OrganizationSelect.IncludeSearchButton = true;
+    Model.OrganizationSelect.SearchModalId = "searchOrganizationModal";
+    Model.OrganizationSelect.IncludeAddButton = true;
+    Model.OrganizationSelect.AddModalId = "addOrganizationModal";
+    Model.OrganizationSelect.isVisible = true;
+}
+<form id="siteInformationForm">
+    <input type="hidden" asp-for="SiteDetails.CustomizationPackageID" />
+    <div class="container-fluid">
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4 heading-for="@HeadingResourceKeyConstants.SiteDetailsSiteInformationHeading"></h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editSiteInformationSectionButton" href="#siteWizard-h-0" class="edit-section"><span class="fas fa-edit fa-lg"></span></a>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <i class="fas fa-asterisk text-danger"></i>
+                <label asp-for="SiteDetails.SiteID" field-label-for="@FieldLabelResourceKeyConstants.SiteDetailsSiteIDFieldLabel"></label>
+                <input asp-for="SiteDetails.SiteID" class="form-control" readonly />
+                <span asp-validation-for="SiteDetails.SiteID" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-6">
+                <i class="fas fa-asterisk text-danger"></i>
+                <label asp-for="SiteDetails.EIDSSSiteID" field-label-for="@FieldLabelResourceKeyConstants.SiteDetailsSiteCodeFieldLabel"></label>
+                <input asp-for="SiteDetails.EIDSSSiteID" class="form-control" />
+                <span asp-validation-for="SiteDetails.EIDSSSiteID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <eidss-select2DropDown id="@Model.ParentSiteSelect.DropDownId"
+                                       name="@Model.ParentSiteSelect.DropDownId"
+                                       target-ajax-url="@Model.ParentSiteSelect.ControlTargetUrl"
+                                       selectct2-default-data="@Model.ParentSiteSelect.defaultSelect2Selection"
+                                       end-point="@Model.ParentSiteSelect.Endpoint"
+                                       label-name="@Model.ParentSiteSelect.Label"
+                                       is-visible="@Model.ParentSiteSelect.isVisible"
+                                       asp-for="@Model.SiteDetails.ParentSiteID">
+                </eidss-select2DropDown>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <i class="fas fa-asterisk text-danger"></i>
+                <label asp-for="SiteDetails.SiteName" field-label-for="@FieldLabelResourceKeyConstants.SiteDetailsSiteNameFieldLabel"></label>
+                <input asp-for="SiteDetails.SiteName" class="form-control" />
+                <span asp-validation-for="SiteDetails.SiteName" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-6">
+                <i class="fas fa-asterisk text-danger"></i>
+                <eidss-select2DropDown id="@Model.SiteTypeSelect.DropDownId"
+                                       name="@Model.SiteTypeSelect.DropDownId"
+                                       control-target-id="@Model.SiteTypeSelect.ControltargetId"
+                                       target-type="@Model.SiteTypeSelect.ControlTargetType"
+                                       target-ajax-url="@Model.SiteTypeSelect.ControlTargetUrl"
+                                       selectct2-default-data="@Model.SiteTypeSelect.defaultSelect2Selection"
+                                       end-point="@Model.SiteTypeSelect.Endpoint"
+                                       label-name="@Model.SiteTypeSelect.Label"
+                                       is-visible="@Model.SiteTypeSelect.isVisible"
+                                       asp-for="@Model.SiteDetails.SiteTypeID"
+                                       add-modal-id="@Model.SiteTypeSelect.AddModalId"
+                                       include-add-button="@Model.SiteTypeSelect.IncludeAddButton"
+                                       class-name="form-control">
+                </eidss-select2DropDown>
+                <span asp-validation-for="SiteDetails.SiteTypeID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.SiteDetailsHASCSiteIDFieldLabel">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.SiteDetailsHASCSiteIDFieldLabel"></i>
+                <label asp-for="SiteDetails.HASCSiteID" field-label-for="@FieldLabelResourceKeyConstants.SiteDetailsHASCSiteIDFieldLabel"></label>
+                @if (string.IsNullOrEmpty(Model.SiteDetails.SiteID.ToString())) 
+                {
+                    <input asp-for="SiteDetails.HASCSiteID" class="form-control" />
+                } 
+                else 
+                {
+                    <input asp-for="SiteDetails.HASCSiteID" class="form-control" readonly />
+                }
+                <span asp-validation-for="SiteDetails.HASCSiteID" class="text-danger"></span>
+            </div>
+            <div class="form-group col-6">
+                <i class="fas fa-asterisk text-danger"></i>
+                <label asp-for="SiteDetails.SiteOrganizationID" field-label-for="@FieldLabelResourceKeyConstants.SiteDetailsOrganizationFieldLabel"></label>
+                <eidss-select2DropDown id="@Model.OrganizationSelect.DropDownId"
+                                           name="SiteDetails.OrganizationID"
+                                           target-ajax-url="@Model.OrganizationSelect.ControlTargetUrl"
+                                           selectct2-default-data="@Model.OrganizationSelect.defaultSelect2Selection"
+                                           end-point="@Model.OrganizationSelect.Endpoint"
+                                           label-name="@Model.OrganizationSelect.Label"
+                                           include-add-button="@Model.OrganizationSelect.IncludeAddButton"
+                                           add-modal-id="@Model.OrganizationSelect.AddModalId"
+                                           include-search-button="@Model.OrganizationSelect.IncludeSearchButton"
+                                           search-modal-id="@Model.OrganizationSelect.SearchModalId"
+                                           is-visible="@Model.OrganizationSelect.isVisible"
+                                           asp-for="@Model.SiteDetails.SiteOrganizationID">
+                </eidss-select2DropDown>
+                <span asp-validation-for="SiteDetails.SiteOrganizationID" class="text-danger"></span>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-12 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.SiteDetailsSiteActiveFieldLabel">
+                    <input asp-for="SiteDetails.ActiveStatusIndicator" type="checkbox" class="form-check-input" />
+                    <label asp-for="SiteDetails.ActiveStatusIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.SiteDetailsSiteActiveFieldLabel"></label>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="modal fade" id="duplicateSiteTypeModal" tabindex="-1" role="dialog" aria-labelledby="duplicateSiteTypeModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="duplicateSiteTypeModalHeader"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="duplicateSiteTypeMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" button-for="@ButtonResourceKeyConstants.NoButton"></button>
+                <button type="button" class="btn btn-primary" onclick="editDuplicateRecord();" button-for="@ButtonResourceKeyConstants.YesButton"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    ///
+    /// Called by the site side bar to initialize any needed items on the site information
+    /// section.
+    ///
+    function initializeSiteInformationSection() {
+    };
+
+    ///
+    /// Selects on the organization drop down the organization record selected on the search
+    /// organization component.
+    ///
+    function selectOrganizationRecord(organizationRow) {
+        $("#OrganizationSelect").append(new Option(organizationRow[2].trim(), organizationRow[0], true, true));
+
+        $("#siteWizard").steps("setStep", 0);
+    };
+
+    ///
+    /// Checks the response of the add site type reference data operation.
+    ///
+    function CheckAddSiteType(response) {
+        if (response.returnMessage == '@EIDSSConstants.DatabaseResponses.Success') {
+            $("#addSiteTypeModalSuccessModal").modal("show");
+        } else if (response.returnMessage == '@EIDSSConstants.DatabaseResponses.DoesExist') {
+            $("#duplicateSiteTypeModal").modal("show");
+            $("#duplicateSiteTypeMessage").html(response.strClientPageMessage);
+        }
+    };
+
+    function editDuplicateRecord(modelType) {
+        $("#duplicateSiteTypeModal").modal("hide");
+        $("#addSiteTypeModal").modal("show");
+    };
+</script>

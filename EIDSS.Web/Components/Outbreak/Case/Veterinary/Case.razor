@@ -1,0 +1,14 @@
+﻿@using EIDSS.Web.Components.Veterinary.DiseaseReport
+@using EIDSS.Web.Components.Veterinary.SearchFarm
+@using EIDSS.Web.Enumerations
+
+@inherits CaseBase
+
+@if (Model.VeterinaryDiseaseReport.FarmMasterID == 0)
+{
+    <SearchFarm CancelUrl="@Model.CancelURL" Mode="SearchModeEnum.SelectEvent" @ref="SearchFarmComponent" SelectFarmEvent="OnSelectFarm" DisableAvian="!Model.Session.bAvian" DisableLivestock="!Model.Session.bLivestock" SessionAdministrativeLevel2Id="Model.Session.AdminLevel1Value" SessionAdministrativeLevel3Id="Model.Session.AdminLevel2Value" />
+}
+else
+{
+    <DiseaseReport Case="Model" Model="Model.VeterinaryDiseaseReport" />
+}

@@ -1,0 +1,13 @@
+﻿@using EIDSS.Web.Components.Outbreak.Case.Veterinary
+
+@inherits DiseaseReportBase
+
+@if (Model.OutbreakCaseIndicator)
+{
+    <CaseSummary Model="Case"/>
+}
+else
+{
+    <DiseaseReportSummary Model="Model"/>
+}
+<DiseaseReportSections Case="Case" Model="Model" />

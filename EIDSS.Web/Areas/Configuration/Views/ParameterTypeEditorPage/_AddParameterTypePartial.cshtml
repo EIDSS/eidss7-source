@@ -1,0 +1,74 @@
+﻿@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+
+@{
+    //Modal to Add Parameter Type
+    EIDSSModalConfiguration parameterTypeModal = new EIDSSModalConfiguration();
+    parameterTypeModal.ControlLabels.ModalTitle = Localizer.GetString(FieldLabelResourceKeyConstants.ParameterTypeFieldLabel);
+    parameterTypeModal.ModalId = "AddParameterTypeModal";
+    parameterTypeModal.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SubmitButton);
+    parameterTypeModal.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    parameterTypeModal.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    parameterTypeModal.TargetGridControlID = "ParameterTypeEditorGrid"; //ID of Grid to Refresh
+    parameterTypeModal.PostAjaxDataUrl = @Url.Action("CreateOrSave", "ParameterTypeEditorPage", new { Area = "Configuration" });
+    parameterTypeModal.SaveCompleteMethod = "CheckSuccess";
+    parameterTypeModal.SuccessConfirmationMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage);
+    parameterTypeModal.ControlNames.Add(new EIDSSControlNames()
+    {
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+        },
+        ClassName = "ptDefaultName",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "DefaultName",
+        Visible = true
+    });
+    parameterTypeModal.ControlNames.Add(new EIDSSControlNames()
+    {
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+        },
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ClassName = "ptNationalName",
+        ControlName = "NationalName",
+        Visible = true
+    });
+    parameterTypeModal.ControlNames.Add(new EIDSSControlNames()
+    {
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString((int)InterfaceEditorResourceSetEnum.WarningMessages + "RequiredField" + (long)InterfaceEditorTypeEnum.Message)
+        },
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.ParameterTypeFieldLabel),
+        ControlName = "ReferenceTypeName",
+        ControlType = ControlType.DropDown,
+        AllowMultipleDropDownItemSelection = false,
+        ClassName = "ptReferenceTypeFlag",
+        //ClientFunction = "ReferenceTypeNameOnChange",
+        //ClientMethod = "ReferenceTypeNameOnChange",
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("GetParameterReferenceTypes", "ParameterTypeEditorPage", new { Area = "Configuration" })
+    });
+    parameterTypeModal.ControlNames.Add(new EIDSSControlNames()
+    {
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString((int)InterfaceEditorResourceSetEnum.WarningMessages + "RequiredField" + (long)InterfaceEditorTypeEnum.Message)
+        },
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.ReferenceTypeFieldLabel),
+        ControlName = "BaseReferenceDD",
+        ControlType = ControlType.DropDown,
+        AllowMultipleDropDownItemSelection = false,
+        ClassName = "ptBaseReferenceDD",
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("GetParameterReferenceList", "ParameterTypeEditorPage", new { Area = "Configuration" })
+    });
+
+    Model.ParameterTypeModalConfigurations.Add(parameterTypeModal);
+
+}

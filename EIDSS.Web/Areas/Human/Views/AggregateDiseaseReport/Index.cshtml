@@ -1,0 +1,160 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model EIDSS.Web.ViewModels.CrossCutting.AggregateReportSearchViewModel
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.HumanAggregateDiseaseReportPageHeading);
+}
+
+<style type="text/css">
+    button.dt-button, button.buttons-print { display: none; }
+</style>
+
+<partial name="_InformationalModalPartial" for="InformationalMessage"/>
+<partial name="_WarningModalPartial"/>
+<partial name="_ErrorModalPartial"/>
+
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@HeadingResourceKeyConstants.HumanAggregateDiseaseReportPageHeading"></h3>
+    </div>
+    <div class="card-body">
+        @if (Model.Permissions is {Read: true })
+        {
+            @await Component.InvokeAsync("AggregateDiseaseReportSearch", new {humanIndicator = true, recordSelectionIndicator = true, showInModalIndicator = false})
+        }
+    </div>
+</div>
+<div class="modal fade" id="printModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-lg modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@(Localizer.GetString(HeadingResourceKeyConstants.HumanAggregateDiseaseReportPageHeading))</h5>
+                <button type="button" class="close" data-dismiss="modal" onclick="refreshPage();" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="printModalBarCode"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+@if (ViewBag.JavaScriptFunction != null)
+{
+    <script type="text/javascript">
+        @Html.Raw(ViewBag.JavaScriptFunction)
+    </script>
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ('@Model.Permissions.Read' == "False") {
+            insufficientPermissions('@Localizer.GetString(MessageResourceKeyConstants.WarningMessagesYourPermissionsAreInsufficientToPerformThisFunctionMessage)');
+        }
+
+        $("#SearchAdministrativeUnitTypeID").on("change", function () {
+            selectedDataList = [];
+            var selectedData = new Object();
+            selectedData.administrativeUnitTypeId = $("#SearchAdministrativeUnitTypeID").val();
+            selectedDataList.push(selectedData);
+            $.ajax({
+                url: "AggregateDiseaseReport/ReloadLocationControl",
+
+                type: 'post',
+                data: JSON.stringify(selectedDataList),
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+             })
+            .done(function (data) {
+                $("#adminAreaSearch").html(data);
+            });
+        });
+    });
+    
+    function insufficientPermissions(message) {
+        showErrorModal(message).then(response => {
+            if (response) {
+                    $("#errorModal").modal("hide");
+                    $(".modal-backdrop").remove();
+                    window.location.replace('@Url.Action("Index", "Dashboard", new { Area = "Administration" })');
+            }
+        });
+    };
+
+    // Show the detail modal for fixed or reference types
+    $("#btnPrint2").on('click', function() {
+        //retrieve the current item into a model
+        var model = GetSelectedParameter();
+
+       // go get the detail partial view for the modal
+        $.ajax({
+            url: '@Url.Action("PrintSearchResults", "AggregateDiseaseReportSearch", new {Area = "Human"})',
+            type: 'POST',
+            data: JSON.stringify(model),
+            dataType: "HTML",
+            contentType: "application/json: charset=utf-8",
+            success: function (resp) {
+                $("#printModalBarCode").html(resp);
+                $("#printModal").modal('show');
+            },
+            complete: function (resp) {
+            },
+            error: function (request, error) {
+            }
+        });
+    });
+
+    //Get properties to retrieve
+    function GetSelectedParameter() {
+        var table = $('#reportsTable').DataTable();
+        var rowCount = table.rows().count();
+        var pageNo = table.page() + 1;
+       SearchCriteria_LegacyReportID
+        var model = {};
+        model.LangID = $("#SelectedDetail_LanguageId").val();
+        model.ReportTitle = 'SearchForHumanAggregateDiseaseReport';
+        model.pageNo = pageNo;
+        model.pageSize = 10;
+        model.SortColumn = 'FormID';
+        model.SortOrder = 'desc';
+        model.PersonId = '';
+        model.ReportID = $('#SearchCriteria_ReportID').val(); 
+        model.AggregateReportTypeID = '';
+        model.AdministrativeUnitTypeID = $("#AdministrativeLevelSelect").select2().val();
+        model.TimeIntervalTypeID = $("#TimeIntervalUnitSelect").select2().val();
+        model.StartDate = $('#StartDate').val();
+        model.EndDate =$('#EndDate').val();
+        var aminlevelValue = '';
+        if ($("#AdminLevel3Value").val() != '' && $("#AdminLevel3Value").val() != null) {
+            aminlevelValue = $("#AdminLevel3Value").val();
+        }
+        else if ($("#AdminLevel2Value").val() != '' &&  $("#AdminLevel2Value").val() != null) {
+            aminlevelValue = $("#AdminLevel2Value").val();
+        } 
+        else if ($("#AdminLevel1Value").val() != '' && $("#AdminLevel1Value").val() != null) {
+            aminlevelValue = $("#AdminLevel1Value").val()
+        }; 
+        model.AdministrativeUnitID = aminlevelValue;
+        if ($("#OrganizationSelect").val() != '' && $("#OrganizationSelect").val() != null) {
+            model.OrganizationID = $("#OrganizationSelect").val();
+            if (model.OrganizationID == null) {
+                model.OrganizationID = '';
+            }
+        }
+        else {
+            model.OrganizationID='';
+        }
+
+        model.SelectAllIndicator = false;
+        model.UserSiteID = '';
+        model.UserOrganizationID = '';
+        model.UserEmployeeID = '';
+        model.ApplySiteFiltrationIndicator = false;
+        model.FormID = '';
+        model.LegacyFormID =$('#txtLegacyFormID').val();
+        model.AggregateHeaderId = '';
+        model.printDateTime= localDate();
+        return model;
+    };
+</script>

@@ -1,0 +1,334 @@
+﻿@using EIDSS.Web.TagHelpers.Models
+@model BaseReferenceEditorPagesViewModel;
+
+<h2 heading-for="@HeadingResourceKeyConstants.CaseClassificationsReferenceEditorPageHeading"></h2>
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.CaseClassificationsReferenceEditorPageHeading);
+
+    //PageLevel
+    Model.PageLevelAddButtonModalText = Localizer.GetString(ButtonResourceKeyConstants.AddButton);
+    Model.PageLevelAddButtonModal = "AddCaseClassification";
+
+    //SET UP MODAL
+    var eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.CaseClassificationDetailsModalHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            //success modal configs
+            SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        },
+        ModalId = "AddCaseClassification",
+        TargetGridControlID = "CaseClassificationList", //ID of Grid to Refresh
+        PostAjaxDataUrl = Url.Action("Create", "CaseClassificationPage", new {Area = "Administration"}),
+        SaveCompleteMethod = "CheckSuccess",
+        DisplayConfirmCancelModal = true
+    };
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "StrDefault",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "DefaultValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ControlName = "StrName",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "NationalValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.AccessoryCodeFieldLabel),
+        ControlName = "IntHACode",
+        ControlType = ControlType.DropDown,
+        AllowMultipleDropDownItemSelection = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "modalDropDown",
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = (long) ReferenceTypes.AccessoryCode, intHACode = 226})
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlName = "IntOrder",
+        ControlType = ControlType.Numeric,
+        Visible = true
+    });
+
+    var yesNoOptions = new List<RadionCheckBoxOptions>
+    {
+        new() {Value = "1", Key = string.Empty, IsChecked = false}
+    };
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        ControlName = "blnInitialHumanCaseClassification",
+        ControlType = ControlType.CheckBox,
+        RadioCheckBoxOptions = yesNoOptions,
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.InitialCaseClassificationFieldLabel)
+    });
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        ControlName = "blnFinalHumanCaseClassification",
+        ControlType = ControlType.CheckBox,
+        RadioCheckBoxOptions = yesNoOptions,
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.FinalCaseClassificationFieldLabel)
+    });
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //SETUP GRID
+    Model.eidssGridConfiguration.GridId = "CaseClassificationList";
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.ControlFilterID = "ReferenceTypeDD";
+    Model.eidssGridConfiguration.AjaxDataUrl = Url.Action("GetList", "CaseClassificationPage", new {Area = "Administration"});
+    Model.eidssGridConfiguration.EditModalAjaxUrl = Url.Action("Edit", "CaseClassificationPage", new {Area = "Administration"});
+    Model.eidssGridConfiguration.DeleteModalAjaxUrl = Url.Action("Delete", "CaseClassificationPage", new {Area = "Administration"});
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.EditType = EditType.Inline;
+    Model.eidssGridConfiguration.SaveCompleteMethod = "CheckSuccess";
+    Model.eidssGridConfiguration.DeleteCompleteMethod = "CheckDeleteSuccess";
+    Model.eidssGridConfiguration.ControlLabels.DeleteExceptionMessage = Localizer.GetString(MessageResourceKeyConstants.InUseReferenceValueAreYouSureMessage);
+    Model.eidssGridConfiguration.ControlLabels.DeleteExceptionTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels
+    {
+        DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage),
+        DeleteExceptionTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        DeleteExceptionMessage = Localizer.GetString(MessageResourceKeyConstants.InUseReferenceValueAreYouSureMessage),
+        EditModalMessage = "Are you sure that you want to Edit this record?",
+        DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+        SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
+        DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton),
+        CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton),
+        CancelInlineEditTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage),
+        YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton),
+        NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton),
+        SaveInlineEditTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        SaveInlineEditMessage = "Are you sure that you want to save this record?"
+    };
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        ColumnName = "row",
+        Visible = true,
+        ColumnType = ColumnType.ReadOnly,
+        Orderable = false,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "KeyId",
+        ColumnName = "KeyId",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.DefaultValueColumnHeading),
+        ColumnName = "StrDefault",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true,
+        Orderable = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "EditDefaultValueRequired"
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.NationalValueColumnHeading),
+        ColumnName = "StrName",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true,
+        Orderable = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "EditNationalValueRequired"
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.AccessoryCodeColumnHeading),
+        ColumnName = "StrHACodeNames",
+        ColumnType = ColumnType.DropDown,
+        AllowMultipleDropDownItemSelection = true,
+        DisplayDropDownInModalOnly = true,
+        Visible = true,
+        VisibleInModal = true,
+        Orderable = true,
+        AssociatedFieldId = "StrHACode",
+        SplitCsvValues = true,
+        ColumnAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = (long) ReferenceTypes.AccessoryCode, intHACode = 226}),
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "EditDropDown"
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.InitialCaseClassificationColumnHeading),
+        ColumnName = "blnInitialHumanCaseClassification",
+        ColumnType = ColumnType.CheckBox,
+        Visible = true,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.FinalCaseClassificationColumnHeading),
+        ColumnName = "blnFinalHumanCaseClassification",
+        ColumnType = ColumnType.CheckBox,
+        Visible = true,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OrderColumnHeading),
+        ColumnName = "IntOrder",
+        Visible = true,
+        ColumnType = ColumnType.Numeric,
+        Orderable = true,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "StrHACode",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.AccessoryCodeColumnHeading),
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = string.Empty,
+        ColumnName = "name",
+        ColumnType = ColumnType.Edit,
+        Orderable = false,
+        Visible = Model.UserPermissions.Write
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = string.Empty,
+        ColumnName = "name",
+        Orderable = false,
+        ColumnType = ColumnType.Delete,
+        Visible = Model.UserPermissions.Delete
+    });
+}
+
+<partial name="_InformationalModalPartial" for="InformationMessage" />
+
+<!-- Modal -->
+<div class="modal fade" id="duplicatesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsg"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_BaseReferenceEditorsPartial"/>
+<partial name="_WarningModalPartial"/>
+
+<style>
+    .table td { vertical-align: top; }
+</style>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function() {
+            $("#AddCaseClassificationbtnCancel").on('click', cancelAddCaseClassification);
+        });
+
+        ///Method called after execution of Save Method Returns Data back from the controller
+        function CheckSuccess(data) {
+            var stringified_data = JSON.stringify(data);
+            var parsed_data = JSON.parse(stringified_data);
+            if (parsed_data.returnMessage == "SUCCESS") {
+                $("#AddCaseClassificationSuccessModal").modal("show");
+
+                updateNotificationEnvelopeCount();
+            } else if (parsed_data.returnMessage == "DOES EXIST") {
+                $("#duplicatesModal").modal("show");
+                $("#dupemsg").html(parsed_data.strClientPageMessage);
+            }
+        };
+
+        function CheckDeleteSuccess(data) {
+            var stringifiedData = JSON.stringify(data);
+            var parsedData = JSON.parse(stringifiedData);
+            if (parsedData.returnMessage === "SUCCESS") {
+                updateNotificationEnvelopeCount();
+                showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+            }
+        };
+
+        function PrepareNewRecord() {
+            $("#successModal").modal("hide");
+            $("#duplicatesModal").modal("hide");
+            $("#AddCaseClassification").modal("show");
+        }
+
+        function cancelAddCaseClassification(event) {
+
+            var message = '@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)';
+            event.preventDefault();
+
+            showWarningModal(message).then(response => {
+                if (response) {
+                    $("#AddCaseClassification").modal("hide");
+                    $("#warningModal").modal("hide");
+                } else {
+                    $("#AddCaseClassification").modal("show");
+                }
+
+            });
+        }
+    </script>
+}

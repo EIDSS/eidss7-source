@@ -1,0 +1,129 @@
+﻿@using EIDSS.Web.ViewModels.Human
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits EIDSS.Web.Components.Human.HumanDiseaseReport.DiseaseReportSampleBase
+
+<EditForm id="DiseaseReportSamplesForm" Model="@Model">
+    <div class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-md-11">
+                    <h4>@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportSamplesHeading)</h4>
+                </div>
+                <div class="col-1 pull-right mb-3">
+                    <button @onclick="@(() => OpenAddModal())" Text="@Localizer.GetString(ButtonResourceKeyConstants.AddButton)" class="btn btn-outline-primary" disabled="@enableAddButton">@Localizer.GetString(@ButtonResourceKeyConstants.AddButton)</button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group col-12">
+                    <!--Were samples collection?-->
+                    <label for="SamplesCollectedYN">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSamplesSamplesCollectedFieldLabel)</label>
+                    <div class="form-check form-check-inline ">
+                        <RadzenRadioButtonList Name="SamplesCollectedYN" @bind-Value="@Model.SamplesCollectedYN" TValue="long?" Data="@Model.YesNoChoices" TextProperty="Name" ValueProperty="IdfsBaseReference" Change="@((value) => OnSamplesCollectedChange(value))" disabled="@isReportClosed" />
+                    </div>
+                </div>
+            </div>
+            <RadzenPanel Visible="@showReason">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="ReasonID">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSamplesReasonFieldLabel)</label>
+                        <div class="input-group flex-nowrap">
+                            <!--Were samples collection?-->
+                            <RadzenDropDown AllowClear="true" TValue="long?" Data="@getReasonForSampleNonCollection" LoadData="@GetReasonForSampleNonCollection" ValueProperty="IdfsBaseReference" TextProperty="Name" @bind-Value="@Model.ReasonID" class="form-control" disabled="@isReportClosed"></RadzenDropDown>
+                            <button @onclick="@(() => OpenAddReasonModal())" class="btn btn-sm" type="button" disabled="@isReportClosed">
+                                <i class="fas fa-plus fa-lg"></i>
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+            </RadzenPanel>
+            <RadzenPanel Visible="@showSampleGrid">
+                <div class="form-row">
+                    <GridExtension OnColumnSave="GridHumanDiseaseReportSamplesClickHandler"></GridExtension>
+                    <div class="col-12">
+                        <RadzenDataGrid @ref="_grid" 
+                                        TItem="DiseaseReportSamplePageSampleDetailViewModel" 
+                                        Data="@Model.SamplesDetails"
+                                        AllowPaging="false" 
+                                        AllowSorting="true" 
+                                        AllowColumnResize="true" 
+                                        AllowColumnReorder="true"
+                                        ExpandMode="DataGridExpandMode.Single" 
+                                        SelectionMode="DataGridSelectionMode.Multiple" 
+                                        id="SamplesGrid"
+                                        AllowColumnPicking="true"
+                                        HeaderCellRender="@((args) => HeaderCellRender(args.Column.Property))">
+                            <Columns>
+                                <RadzenDataGridColumn Reorderable="true" TItem="DiseaseReportSamplePageSampleDetailViewModel" Width="40px" Pickable="false" Sortable="false" Filterable="false">
+                                    <Template Context="data">
+                                        <RadzenCheckBox TriState="false" Value="@(selectedSamples != null && selectedSamples.Contains(data))" Disabled="Model.IsReportClosed" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("SampleType")" Visible="@GetColumnVisibility("SampleType")" TItem="DiseaseReportSamplePageSampleDetailViewModel" Property="SampleType" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSampleTypeFieldLabel)" Width="150px" />
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("LocalSampleId")" Visible="@GetColumnVisibility("LocalSampleId")" TItem="DiseaseReportSamplePageSampleDetailViewModel" Property="LocalSampleId" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportLocalSampleIDFieldLabel)" Width="175px" />
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("CollectionDate")" Visible="@GetColumnVisibility("CollectionDate")" TItem="DiseaseReportSamplePageSampleDetailViewModel" Property="CollectionDate" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportCollectionDateFieldLabel)" Width="175px" FormatString="{0:d}" />
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("CollectedByOrganization")" Visible="@GetColumnVisibility("CollectedByOrganization")" TItem="DiseaseReportSamplePageSampleDetailViewModel" Property="CollectedByOrganization" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportCollectedByInstitutionFieldLabel)" Width="225px" />
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("CollectedByOfficer")" Visible="@GetColumnVisibility("CollectedByOfficer")" TItem="DiseaseReportSamplePageSampleDetailViewModel" Property="CollectedByOfficer" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportCollectedByOfficerFieldLabel)" Width="175px" />
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("SentDate")" Visible="@GetColumnVisibility("SentDate")" TItem="DiseaseReportSamplePageSampleDetailViewModel" Property="SentDate" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSentDateFieldLabel)" Width="175px" FormatString="{0:d}" />
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("SentToOrganization")" Visible="@GetColumnVisibility("SentToOrganization")" TItem="DiseaseReportSamplePageSampleDetailViewModel" Property="SentToOrganization" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSentToOrganizationFieldLabel)" Width="175px" />
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("AccessionDate")" Visible="@GetColumnVisibility("AccessionDate")" TItem="DiseaseReportSamplePageSampleDetailViewModel" Property="AccessionDate" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportAccessionDateFieldLabel)" Width="175px" FormatString="{0:d}" />
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("SampleConditionReceived")" Visible="@GetColumnVisibility("SampleConditionReceived")" TItem="DiseaseReportSamplePageSampleDetailViewModel" Property="SampleConditionRecieved" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSampleConditionReceivedFieldLabel)" Width="225px" />
+                                <RadzenDataGridColumn Pickable="false" Reorderable="false" TItem="DiseaseReportSamplePageSampleDetailViewModel" Property="" Title="" Sortable="false" Filterable="false" Width="50px">
+                                    <Template Context="data">
+                                        <button @onclick="@(() => OpenEditModal(data))" class="btn btn-sm" type="button">
+                                            <i class="fas fa-edit fa-lg"></i>
+                                        </button>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Pickable="false" Reorderable="false" TItem="DiseaseReportSamplePageSampleDetailViewModel" Context="order" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="50px">
+                                    <Template Context="data">
+                                        <button @onclick="@(() => DeleteRow(data))" class="btn btn-sm" type="button" disabled="@(disableEditDelete || Model.IsReportClosed)">
+                                            <i class="fas fa-trash fa-lg"></i>
+                                        </button>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                            <!--Expandable Detail Template for Grid-->
+                            <Template Context="data">
+                                <RadzenCard>
+                                    <div class="row">
+                                        <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.HumanDiseaseReportSamplesLabSampleIDColumnHeading" IsRow="false" For="LabSampleID" CssClass="col-md-3">
+                                            <RadzenTextBox id="LabSampleID" Name="LabSampleID" class="form-control" @bind-Value="@data.LabSampleID" ReadOnly="true"></RadzenTextBox>
+                                        </InterfaceEditorResource>
+
+                                        <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.HumanDiseaseReportSamplesSampleTypeColumnHeading" CssClass="col-md-3" IsRow="false" For="SampleType">
+                                            <RadzenTextBox id="SampleType" Name="SampleType" class="form-control" @bind-Value="@data.SampleType" ReadOnly="true"></RadzenTextBox>
+                                        </InterfaceEditorResource>
+
+                                        <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.HumanDiseaseReportSamplesStatusColumnHeading" IsRow="false" For="SampleStatus" CssClass="col-md-3">
+                                            <RadzenTextBox id="SampleStatus" Name="SampleStatus" class="form-control" @bind-Value="@data.SampleStatus" ReadOnly="true"></RadzenTextBox>
+                                        </InterfaceEditorResource>
+                                        <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.HumanDiseaseReportSamplesFunctionalAreaColumnHeading" IsRow="false" For="FunctionalLab" CssClass="col-md-3">
+                                            <RadzenTextBox id="FunctionalLab" Name="FunctionalLab" class="form-control" @bind-Value="@data.FunctionalAreaName" ReadOnly="true"></RadzenTextBox>
+                                        </InterfaceEditorResource>
+
+                                        <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.HumanDiseaseReportSamplesAdditionalTestRequestedAndSampleNotesColumnHeading" CssClass="col-md-3" IsRow="false" For="StrNote">
+                                            <RadzenTextBox id="AdditionalTestNotes" Name="AdditionalTestNotes" class="form-control" @bind-Value="@data.strNote"
+                                                           Change="@(args => UpdateNotes(args, Model.SamplesDetails.IndexOf(data)))"></RadzenTextBox>
+                                        </InterfaceEditorResource>
+                                    </div>
+                                </RadzenCard>
+                            </Template>
+                        </RadzenDataGrid>
+                    </div>
+                </div>
+            </RadzenPanel>
+        </div>
+    </div>
+</EditForm>
+@code {
+
+    void GridHumanDiseaseReportSamplesClickHandler()
+    {
+        GridColumnSave("HumanDiseaseReportSamples");
+    }
+
+ }

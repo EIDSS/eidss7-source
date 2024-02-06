@@ -1,0 +1,63 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Administration
+
+@inherits OrganizationsSectionBase
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-9">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.OrganizationsPageHeading)</h4>
+        </div>
+        <div class="col-3 text-right">
+            @if (Model.WritePermissionIndicator == false)
+            {
+                <button class="btn btn-link add-section disabled" disabled id="addOrganiation" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-link add-section" id="addOrganization" data-toggle="modal" data-target="#searchOrganizationModal" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+            }
+                <a class="edit-section" href="#siteWizard-h-1" id="editOrganizationsSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header">
+        <h3>@Localizer.GetString(HeadingResourceKeyConstants.OrganizationsPageHeading)</h3>
+    </div>
+    <div id="divPermissionsSection" class="card-body">
+        <div class="form-row">
+            <div class="form-group col-12">
+                <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" Count="Count" Data="Model.OrganizationsSection.Organizations" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="(args => LoadOrganizationData(args))" PageSizeOptions="pageSizeOptions" @ref="OrganizationsGrid" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="true" TItem="OrganizationGetListViewModel">
+                    <Columns>
+                        <RadzenDataGridColumn Property="AbbreviatedName" TItem="OrganizationGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.AbbreviationColumnHeading)"/>
+                        <RadzenDataGridColumn Property="OrganizationID" TItem="OrganizationGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.UniqueOrganizationIDColumnHeading)" Width="125px"/>
+                        <RadzenDataGridColumn Property="AddressString" TItem="OrganizationGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OrganizationAddressColumnHeading)" Width="200px"/>
+                        <RadzenDataGridColumn TItem="OrganizationGetListViewModel" Property="OrganizationKey" Frozen="true" Reorderable="false" Sortable="false" Title="" TextAlign="TextAlign.Center" Width="40px">
+                            <Template Context="item">
+                                @if (Model.WritePermissionIndicator)
+                                {
+                                    <button class="btn btn-link" @onclick="_ => OnDeleteOrganizationClick(item)">
+                                        <span class="fas fa-trash"></span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-link disabled" disabled>
+                                        <span class="fas fa-trash disabled"></span>
+                                    </button>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+</div>

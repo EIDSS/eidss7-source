@@ -1,0 +1,21 @@
+﻿@model EIDSS.Web.Areas.Administration.ViewModels.Administration.DashboardPageViewModel;
+
+@using EIDSS.Web.Components.Dashboard
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+
+<div class="container-fluid">
+    <div class="row my-5">
+        <div class="col-8 mx-auto">
+            <p class="db-title">@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageELECTRONICINTEGRATEDDISEASESURVEILLANCESYSTEMHeading)</p>
+        </div>
+    </div>
+    @if (!Model.isConnectToArchive)
+    {
+        <component type="typeof(Dashboard)" render-mode="Server" param-GridType="5"/>
+    }
+</div>
+

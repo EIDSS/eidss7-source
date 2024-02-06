@@ -1,0 +1,94 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.RequestModels.FlexForm
+@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.FlexForm
+@using static ClientLibrary.Enumerations.EIDSSConstants
+
+@inherits ClinicalInvestigationSectionBase
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-9">
+            <h4 class="header">@HeadingResourceKey</h4>
+        </div>
+        <div class="col-3 text-right">
+            @if (Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0 || (Model.WritePermissionIndicator && Model.DiseaseReportID > 0 && Model.ReportStatusTypeID == (long)DiseaseReportStatusTypeEnum.InProcess && Model.ReportCurrentlyClosedIndicator == false))
+            {
+                <a class="edit-section" href="#caseDiseaseReportWizard-h-4" id="editClinicalSpeciesSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            }
+        </div>
+    </div>
+    <div class="form-row">
+        @if (Model.FarmInventory is not null && IsReview == false)
+        {
+            <InterfaceEditorResource CssClass="col-6" For="species" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LivestockDiseaseReportAnimalDetailsModalSpeciesFieldLabel" IsRow="false">
+                <RadzenRadioButtonList @bind-Value="SpeciesId" Change="args => OnSpeciesChange(args)" Data="Model.FarmInventory.Where(x => x.RecordType == RecordTypeConstants.Species)" Name="species" Orientation="Orientation.Vertical" TextProperty="Species" TValue="long?" ValueProperty="SpeciesID"/>
+            </InterfaceEditorResource>
+        }
+        <div class="col-6">
+            @if (IsReview || SpeciesId is null || Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)
+            {
+                <button class="btn btn-link disabled" disabled>
+                    <span class="fas fa-copy fa-lg"></span>
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-link" @onclick="OnCopyClick">
+                    <span class="fas fa-copy fa-lg"></span>
+                </button>
+            }
+            @if (IsReview || CopiedAnswers is null || Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)
+            {
+                <button class="btn btn-link disabled" disabled>
+                    <span class="fas fa-paste fa-lg"></span>
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-link" @onclick="OnPasteClick">
+                    <span class="fas fa-paste fa-lg"></span>
+                </button>
+            }
+            @if (IsReview || SpeciesId is null || Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)
+            {
+                <button class="btn btn-link disabled" disabled>
+                    <span class="fas fa-eraser fa-lg"></span>
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-link" @onclick="OnClearClick">
+                    <span class="fas fa-eraser fa-lg"></span>
+                </button>
+            }
+        </div>
+    </div>
+
+    @if (Model.FarmInventory is not null && Model.FarmInventory.Count(x => x.RecordType == RecordTypeConstants.Species) > 0)
+    {
+        if (IsReview)
+        {
+            if (ReviewClinicalInvestigations is not null)
+            {
+                foreach (var flexForm in ReviewClinicalInvestigations)
+                {
+                    var reviewFlexForm = flexForm;
+                    reviewFlexForm.FlexFormClient = FlexFormClient;
+                    <div class="card">
+                        <div class="card-body">
+                            <FlexForm @ref="reviewFlexForm" FormDisabledIndicator="true" Request="flexForm.Request"/>
+                        </div>
+                    </div>
+                }
+            }
+        }
+        else
+        {
+            <FlexForm @ref="ClinicalInvestigation" FormDisabledIndicator="@(Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)" Request="Model.FarmInventory.First(x => x.SpeciesID == SpeciesId).SpeciesClinicalInvestigationFlexFormRequest"/>
+        }
+    }
+</div>

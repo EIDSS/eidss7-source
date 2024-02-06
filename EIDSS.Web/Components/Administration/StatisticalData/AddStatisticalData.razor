@@ -1,0 +1,140 @@
+﻿@using EIDSS.Web.ViewModels.Administration
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@inherits AddStatisticalDataBase
+
+<RadzenTemplateForm id="statisticalDataSearchForm" @ref="_form" TItem="AddStatisticalDataViewModel" Data="@model" Submit="@HandleValidSearchSubmit">
+    <div class="card">
+        <div class="card-header">
+            <h3>@Localizer.GetString(HeadingResourceKeyConstants.StatisticalDataDetailsPageHeading)</h3>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.StatisticalDataDetailsStatisticalDataTypeFieldLabel" IsRow="false" CssClass="col-md-6" For="StatisticalDataType" IsRequiredByDefaultBusinessRule="true">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="true" @bind-Value="@model.selectedStatisticalDataItem" Change="SetStatisticalData" class="form-control" Count="@statisticalDataTypesListCount" Data="@statisticalDataTypesList" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="StatisticalDataType" LoadData="@GetStatisticalDataItems" Name="StatisticalDataType" @ref="_StatisticalDataTypeDD" TextProperty="Name" TValue="long?" ValueProperty="BaseReferenceId">
+                        </RadzenDropDown>
+                    </InterfaceEditorResource>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.StatisticalDataDetailsStatisticalPeriodTypeFieldLabel" IsRow="false" CssClass="col-md-6" For="StatisticalPeriodType" IsRequiredByDefaultBusinessRule="false">
+                        <RadzenTextBox id="StatisticalPeriodType" Name="StatisticalPeriodType" @bind-Value="@model.StatisticalPeriodType" MaxLength="100" class="form-control" ReadOnly="true"></RadzenTextBox>
+                    </InterfaceEditorResource>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.StatisticalDataDetailsStartDateForPeriodFieldLabel" IsRow="false" For="FromDate" IsRequiredByDefaultBusinessRule="true">
+                        <RadzenDatePicker Name="FromDate" Change="DateChanged" AllowClear="false" AllowInput="true" class="form-control-range" TValue="DateTime?" @bind-Value="@model.FromDate" DateFormat="d"/>
+                    </InterfaceEditorResource>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <fieldset>
+                        <legend>Area </legend>
+                        <LocationView @ref="LocationComponent" ParmLocationViewModel="@model.LocationViewModel" LocationViewModelChanged="@ChangeLocationSettings"/>
+                    </fieldset>
+                </div>
+
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.StatisticalDataStatisticalAreaTypeFieldLabel" IsRow="false" CssClass="col-md-6" For="StatisticalPeriodType" IsRequiredByDefaultBusinessRule="false">
+                        <RadzenTextBox id="StatisticalAreaType" Name="StatisticalAreaType" @bind-Value="@model.StatisticalAreaType" MaxLength="100" class="form-control" ReadOnly="true"></RadzenTextBox>
+                    </InterfaceEditorResource>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.StatisticalDataDetailsValueFieldLabel" IsRow="false" CssClass="col-md-6" For="varValue" IsRequiredByDefaultBusinessRule="true">
+                        <RadzenNumeric Min="0" id="varValue" Name="varValue" @bind-Value="@model.varValue"></RadzenNumeric>
+                    </InterfaceEditorResource>
+                </div>
+            </div>
+            <div class="form-row @(showAgeGroups ? "d-block" : "d-none")">
+                <div class="form-group col-md-6">
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.StatisticalAgeGroupFieldLabel" IsRow="false" CssClass="col-md-6" For="AgeGroup" IsRequiredByDefaultBusinessRule="showAgeGroups">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="true" @bind-Value="@model.selectedAgeGroup" Change="SetAgeGroups" class="form-control" Count="@ageGroupsCount" Data="@agegroupsList" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="AgeGroup" LoadData="@GetAgeGroups" Name="AgeGroup" @ref="_AgeGroupDD" TextProperty="Name" TValue="long?" ValueProperty="BaseReferenceId">
+                        </RadzenDropDown>
+                    </InterfaceEditorResource>
+                </div>
+            </div>
+            <div class="form-row  @(isHumanGenderSelected ? "d-block" : "d-none")">
+                <div class="form-group col-md-6">
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ParameterTypeFieldLabel" IsRow="false" CssClass="col-md-6" For="ParameterType" IsRequiredByDefaultBusinessRule="isHumanGenderSelected">
+                        <RadzenTextBox id="ParameterType" Name="ParameterType" @bind-Value="@model.ParameterType" MaxLength="100" class="form-control" ReadOnly="true"></RadzenTextBox>
+                    </InterfaceEditorResource>
+                </div>
+            </div>
+            <div class="form-row @(isHumanGenderSelected ? "d-block" : "d-none")">
+                <div class="form-group col-md-6">
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ParameterFieldLabel" IsRow="false" CssClass="col-md-6" For="Parameter" IsRequiredByDefaultBusinessRule="isHumanGenderSelected">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="true" @bind-Value="@model.selectedParameter" Change="SetParameter" class="form-control" Count="@parametersCount" Data="@parametersList" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="Parameter" LoadData="@GetParameterItems" Name="Parameter" @ref="_ParameterDD" TextProperty="Name" TValue="long?" ValueProperty="BaseReferenceId">
+                        </RadzenDropDown>
+                    </InterfaceEditorResource>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button id="cancelSearchCriteria" type="button" class="btn btn-outline-primary" onclick="cancelAddEdit();">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+            <button id="SaveStatisticalDataDetails" type="submit" class="btn btn-primary">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+        </div>
+    </div>
+</RadzenTemplateForm>
+<!-- Modal -->
+<div class="modal fade" id="saveSuccessModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @ModalHeading</h5>
+            </div>
+            <div class="modal-body">
+                @SuccessMsg
+            </div>
+            <div class="modal-footer">
+                @if (IsDuplicate)
+                {
+                    <button id="OKSuccess" type="button" class="btn btn-primary" onclick="HideSaveComplete();">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+                }
+                else
+                {
+                    <button id="OKSuccess" type="button" class="btn btn-primary" @onclick=@(() => RedirectToSearch())>@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="cancelAddEditModal" tabindex="-1" role="dialog" aria-labelledby="cancelAddEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelAddEditModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)
+            </div>
+            <div class="modal-footer">
+                <button id="CancelYes" type="button" class="btn btn-primary" @onclick="@(() => RedirectToSearch())">@Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>
+                <button id="CancelNo" type="button" class="btn btn-primary" onclick="closeCancelAddEdit();">@Localizer.GetString(ButtonResourceKeyConstants.NoButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="permissionsModal" tabindex="-1" role="dialog" aria-labelledby="permissionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="permissionsModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSWarningModalHeading)</h5>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.WarningMessagesYourPermissionsAreInsufficientToPerformThisFunctionMessage)
+            </div>
+            <div class="modal-footer">
+                <button id="OK" type="button" class="btn btn-primary" onclick="hidePermissionsWarning();">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>

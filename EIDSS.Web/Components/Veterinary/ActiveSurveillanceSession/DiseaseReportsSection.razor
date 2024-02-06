@@ -1,0 +1,16 @@
+﻿@inherits EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession.DiseaseReportsSectionBase
+
+<SurveillanceSessionHeader />
+<div class="container-fluid">
+    <div class="form-row">
+        <div class="col-md-11">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.VeterinarySessionSessionDiseaseReportsHeading)</h4>
+        </div>
+        <div class="col-md-1 text-right">
+            <a id="editDiseaseReportsSectionButton" href="#veterinaryActiveSurveillanceSessionWizard-h-5" class="edit-section">
+                <span class="fas fa-edit fa-lg"></span>
+            </a>
+        </div>
+    </div>
+</div>
+<DiseaseReportList />

@@ -1,0 +1,31 @@
+﻿@using EIDSS.Web
+@using EIDSS.Web.TagHelpers
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal 
+@using EIDSS.Web.ViewModels
+@using EIDSS.ClientLibrary.Enumerations
+@using Microsoft.Extensions.Localization
+@using EIDSS.Localization.Constants
+@using EIDSS.Localization.Enumerations
+@using EIDSS.Localization.Helpers
+@using EIDSS.Localization
+@using DataTables.AspNetCore.Mvc
+@using EIDSS.Web.Services; 
+
+@*Blazor*@
+@using Radzen
+@using Radzen.Blazor    
+
+@inject IStringLocalizer Localizer
+@inject IAppVersionService AppVersionService
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, EIDSS.Web
+@addTagHelper *, AuthoringTagHelpers
+@addTagHelper *, EIDSS.Localization
+@addTagHelper *, ReferenceEditorModalTagHelpers
+@addTagHelper *, EIDSSGridTagHelper
+@addTagHelper *, EIDSSCalendarTagHelper
+@addTagHelper *, EIDSSSelectTagHelper
+@addTagHelper *, EIDSSNumericSpinnerTagHelper
+

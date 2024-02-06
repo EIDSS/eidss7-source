@@ -1,0 +1,144 @@
+﻿@using EIDSS.Domain.ViewModels.Outbreak
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Components.FlexForm
+@using EIDSS.Domain.Enumerations
+
+@inherits ContactBase
+
+<RadzenTemplateForm Data="Model" @ref="Form" Submit="OnSaveClick" TItem="ContactGetListViewModel">
+    <div class="card">
+        <div class="card-body">
+            <DataAnnotationsValidator/>
+
+            @if (ContactsTabIndicator || AddContactPremiseIndicator)
+            {
+                <h4>@Localizer.GetString(HeadingResourceKeyConstants.OutbreakContactsDemographicsHeading)</h4>
+                <div class="form-row">
+                    <InterfaceEditorResource CssClass="col-4" For="lastName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsLastNameFieldLabel" IsRow="false">
+                        <RadzenTextBox @bind-Value="Model.LastName" class="form-control" Disabled="!AddContactPremiseIndicator || !CanEditIndicator" MaxLength="200" Name="lastName"/>
+                    </InterfaceEditorResource>
+                    <InterfaceEditorResource CssClass="col-4" For="firstName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsFirstNameFieldLabel" IsRow="false">
+                        <RadzenTextBox @bind-Value="Model.FirstName" class="form-control" Disabled="!AddContactPremiseIndicator" MaxLength="200" Name="firstName"/>
+                    </InterfaceEditorResource>
+                    <InterfaceEditorResource CssClass="col-4" For="middleName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsMiddleNameFieldLabel" IsRow="false">
+                        <RadzenTextBox @bind-Value="Model.SecondName" class="form-control" Disabled="!AddContactPremiseIndicator" MaxLength="200" Name="middleName"/>
+                    </InterfaceEditorResource>
+                </div>
+                @switch (Case.Session.OutbreakTypeId)
+                {
+                    case (long) OutbreakTypeEnum.Human:
+                        <div class="form-row">
+                            <div class="form-group col-4">
+                                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakContactsDateOfBirthFieldLabel)</label>
+                                <br/>
+                                @Model.DateOfBirth
+                            </div>
+                            <div class="form-group col-4">
+                                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakContactsAgeFieldLabel)</label>
+                                <br/>
+                                @Model.Age
+                            </div>
+                            <div class="form-group col-4">
+                                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakContactsGenderFieldLabel)</label>
+                                <br/>
+                                @Model.GenderTypeName
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-6">
+                                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakContactsCitizenshipFieldLabel)</label>
+                                <br/>
+                                @Model.CitizenshipTypeName
+                            </div>
+                        </div>
+                        break;
+                    case (long) OutbreakTypeEnum.Veterinary:
+                        <div class="form-row">
+                            <InterfaceEditorResource CssClass="col-6" For="farmName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsFarmNameFieldLabel" IsRow="false">
+                                <RadzenTextBox @bind-Value="Case.FarmName" class="form-control" Disabled="!AddContactPremiseIndicator" MaxLength="200" Name="farmName"/>
+                            </InterfaceEditorResource>
+                        </div>
+                        break;
+                }
+                <h4>@Localizer.GetString(HeadingResourceKeyConstants.OutbreakContactsCurrentAddressHeading)</h4>
+                <div class="form-row">
+                    <InterfaceEditorResource CssClass="col-6" For="foreignAddressIndicator" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsForeignAddressFieldLabel" IsRow="false">
+                        <RadzenCheckBox @bind-Value="Model.ForeignAddressIndicator" Change="_ => OnForeignAddressIndicatorChange()" class="form-check-inline" Disabled="!CanEditIndicator" Name="foreignAddressIndicator" TriState="false" TValue="bool"/>
+                    </InterfaceEditorResource>
+                </div>
+                @if (Model.ForeignAddressIndicator)
+                {
+                    <InterfaceEditorResource CssClass="col-6" For="foreignAddressCountry" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsCountryFieldLabel" IsRow="true">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" class="form-control" Data="Countries" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetCountries" Name="country" @ref="CountryDropDown" TextProperty="strCountryName" TValue="long?" Value="@Model.ContactLocation.AdministrativeLevelId" ValueProperty="idfsCountry"/>
+                    </InterfaceEditorResource>
+                    <InterfaceEditorResource CssClass="col-12" For="foreignAddressString" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsForeignAddressFieldLabel" IsRow="true">
+                        <RadzenTextArea @bind-Value="Model.ForeignAddressString" class="form-control" Disabled="!CanEditIndicator" MaxLength="500" Name="foreignAddressString" @ref="ForeignAddressStringTextArea"/>
+                    </InterfaceEditorResource>
+                }
+                else
+                {
+                    <div class="form-row">
+                        <div class="col-12">
+                            <LocationView ParmLocationViewModel="@Model.ContactLocation"/>
+                        </div>
+                    </div>
+                }
+                <div class="form-row">
+                    <InterfaceEditorResource CssClass="col-6" For="contactPhone" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsPhoneFieldLabel" IsRow="false">
+                        <RadzenTextBox @bind-Value="Model.ContactPhone" class="form-control" Disabled="!CanEditIndicator" MaxLength="200" Name="contactPhone"/>
+                    </InterfaceEditorResource>
+                </div>
+            }
+            <h4>@Localizer.GetString(HeadingResourceKeyConstants.OutbreakContactsContactTracingHeading)</h4>
+            <div class="form-row">
+                @if (!ContactsTabIndicator && !AddContactPremiseIndicator)
+                {
+                    <InterfaceEditorResource CssClass="col-6" For="contactName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsNameFieldLabel" IsRow="false">
+                        <div class="input-group mb-3">
+                            <RadzenTextBox @bind-Value="Model.ContactName" class="form-control" Disabled="true" MaxLength="200" Name="contactName"/>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary btn-sm" id="addContactPremise" @onclick="@(OnAddContactPremiseButtonClick)" type="button">
+                                    <span aria-hidden="true" class="fas fa-plus"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </InterfaceEditorResource>
+                }
+                <InterfaceEditorResource CssClass="col-6" For="contactRelationshipTypeDropDown" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsRelationFieldLabel" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" class="form-control" Data="ContactRelationshipTypes" Disabled="!CanEditIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetContactRelationshipTypes" Name="contactRelationshipTypeDropDown" @ref="ContactRelationshipTypeDropDown" TextProperty="Name" TValue="long?" Value="@Model.ContactRelationshipTypeID" ValueProperty="IdfsBaseReference"/>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-4" For="dateOfLastContact" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsDateOfLastContactFieldLabel" IsRow="false">
+                    <br/>
+                    <RadzenDatePicker AllowClear="true" @bind-Value="Model.DateOfLastContact" DateFormat="d" Name="dateOfLastContact" @ref="DateOfLastContactDatePicker" TValue="DateTime?"/>
+                    <br/>
+                    <RadzenCompareValidator Component="dateOfLastContact" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="@DateTime.Now"/>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-8" For="placeOfLastContact" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsPlaceOfLastContactFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="Model.PlaceOfLastContact" class="form-control" Disabled="!CanEditIndicator" MaxLength="200" Name="placeOfLastContact" @ref="PlaceOfLastContactTextBox"/>
+                </InterfaceEditorResource>
+            </div>
+            <InterfaceEditorResource CssClass="col-12" For="contactStatusTypeDropDown" InterfaceEditorKey="@FieldLabelResourceKeyConstants.OutbreakContactsContactStatusFieldLabel" IsRow="true">
+                <RadzenDropDown AllowClear="true" AllowFiltering="true" class="form-control" Data="ContactStatusTypes" Disabled="!CanEditIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetContactStatusTypes" Name="contactStatusTypeDropDown" @ref="ContactStatusTypeDropDown" TextProperty="Name" TValue="long?" Value="@Model.ContactStatusID" ValueProperty="IdfsBaseReference"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-12" For="contactComments" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ContactInformationModalCommentsFieldLabel" IsRow="true">
+                <RadzenTextArea @bind-Value="Model.Comment" class="form-control" Disabled="!CanEditIndicator" MaxLength="500" Name="contactComments" @ref="ContactCommentsTextArea"/>
+            </InterfaceEditorResource>
+            <div class="form-row">
+                <div class="col-12">
+                    <FlexForm FormDisabledIndicator="Case.CaseDisabledIndicator" @ref="ContactTracing" Request="Model.ContactTracingFlexFormRequest"/>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-12">
+                    <button class="btn btn-outline-primary" @onclick="OnCancelClick" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button class="btn btn-primary" @onsubmit="OnSaveClick" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

@@ -1,0 +1,79 @@
+﻿using EIDSS.Domain.Abstracts;
+using System;
+
+namespace EIDSS.Domain.ViewModels.Vector
+{
+    public class FieldTestGetListViewModel : BaseModel
+    {
+        public FieldTestGetListViewModel ShallowCopy()
+        {
+            return (FieldTestGetListViewModel)MemberwiseClone();
+        }
+
+        public long TestID { get; set; }
+        public long? TestNameTypeID { get; set; }
+        public string TestNameTypeName { get; set; }
+        public long? TestCategoryTypeID { get; set; }
+        public string TestCategoryTypeName { get; set; }
+        public long? TestResultTypeID { get; set; }
+        /// <summary>
+        /// Used to determine which notification to log for the site and/or user.
+        /// If brand new result; then log a result was register.
+        /// If changed result; then log a result was amended.
+        /// </summary>
+        public long? OriginalTestResultTypeID { get; set; }
+        public string TestResultTypeName { get; set; }
+        public long TestStatusTypeID { get; set; }
+        public string TestStatusTypeName { get; set; }
+        public long? DiseaseID { get; set; }
+        public string DiseaseName { get; set; }
+        public long? SampleID { get; set; }
+        public long? RootSampleID { get; set; }
+        public string EIDSSLocalOrFieldSampleID { get; set; }
+        public string EIDSSLaboratorySampleID { get; set; }
+        public long? SampleTypeID { get; set; }
+        public string SampleTypeName { get; set; }
+        public long? SpeciesID { get; set; }
+        public string SpeciesTypeName { get; set; }
+        public long? AnimalID { get; set; }
+        public string EIDSSAnimalID { get; set; }
+        public long? BatchTestID { get; set; }
+        public long? ObservationID { get; set; }
+        public int? TestNumber { get; set; }
+        public string Comments { get; set; }
+        public DateTime? StartedDate { get; set; }
+        public DateTime? ResultDate { get; set; }
+        public DateTime? SentDate { get; set; }
+        public DateTime? CollectionDate { get; set; }
+        public DateTime? AccessionDate { get; set; }
+        public DateTime? IdentifiedDate { get; set; }
+        public DateTime? ConcludedDate { get; set; }
+        public long? TestedByOrganizationID { get; set; }
+        public string TestedByOrganizationName { get; set; }
+        public long? TestedByPersonID { get; set; }
+        public string TestedByPersonName { get; set; }
+        public long? ResultEnteredByOrganizationID { get; set; }
+        public long? ResultEnteredByPersonID { get; set; }
+        public string ResultEnteredByPersonName { get; set; }
+        public long? ValidatedByOrganizationID { get; set; }
+        public long? ValidatedByPersonID { get; set; }
+        public string ValidatedByPersonName { get; set; }
+        public bool ReadOnlyIndicator { get; set; }
+        public bool NonLaboratoryTestIndicator { get; set; }
+        public bool? ExternalTestIndicator { get; set; }
+        public long? PerformedByOrganizationID { get; set; }
+        public DateTime? ReceivedDate { get; set; }
+        public string ContactPersonName { get; set; }
+        public long? FarmID { get; set; }
+        public string EIDSSFarmID { get; set; }
+        public int RowStatus { get; set; }
+        public string Species { get; set; }
+        public bool? IsTestResultIndicative { get; set; }
+        public long? MonitoringSessionID { get; set; }
+        public long? HumanDiseaseReportID { get; set; }
+        public long? VeterinaryDiseaseReportID { get; set; }
+        public long? VectorSessionID { get; set; }
+        public long? VectorID { get; set; }
+        public int RowAction { get; set; }
+    }
+}

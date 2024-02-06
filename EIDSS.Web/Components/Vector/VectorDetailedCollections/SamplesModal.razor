@@ -1,0 +1,69 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Vector
+@using EIDSS.Domain.ViewModels.Administration
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Services
+
+@inherits EIDSS.Web.Components.Vector.VectorDetailedCollections.SamplesModalBase
+
+
+<RadzenTemplateForm @ref="Form" TItem="VectorSampleGetListViewModel" Data="VectorSessionStateContainer.SampleDetail" Submit="OnSaveClick">
+    <div class="card">
+        <DataAnnotationsValidator />
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionSampleDetailsModalFieldSampleIDFieldLabel" IsRow="false" CssClass="col-6" For="modalFieldSampleID">
+                <RadzenTextBox Name="modalFieldSampleID" class="form-control" @bind-Value="VectorSessionStateContainer.SampleDetail.EIDSSLocalOrFieldSampleID" MaxLength="200" Disabled="@HasAssociatedFieldTest" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionSampleDetailsModalSampleTypeFieldLabel" IsRow="false" CssClass="col-6" For="modalSampleType">
+                <RadzenDropDown Name="modalSampleType" class="form-control" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" TValue="long?"
+                                @bind-Value="VectorSessionStateContainer.SampleDetail.SampleTypeID" LoadData="GetSampleTypes" Data="SampleTypes" TextProperty="strSampleTypeName" 
+                    ValueProperty="idfsSampleType" Disabled="@HasAssociatedFieldTest" />
+            </InterfaceEditorResource>
+          </div>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionSampleDetailsModalDiseaseFieldLabel" IsRow="false" CssClass="col-6" For="diseases">
+                <RadzenDropDown Name="diseases" class="form-control" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" TValue="long?" @bind-Value="VectorSessionStateContainer.SampleDetail.DiseaseID" LoadData="GetDiseases" Data="Diseases" TextProperty="DiseaseName" ValueProperty="DiseaseID" 
+                    Disabled="@HasAssociatedFieldTest" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionSampleDetailsModalCollectionDateFieldLabel" IsRow="false" CssClass="col-6" For="collectionDate">
+                <RadzenDatePicker Name="collectionDate" TValue="DateTime?" @bind-Value="VectorSessionStateContainer.SampleDetail.CollectionDate" 
+                                        AllowClear="true" DateFormat="d" Disabled="@HasAssociatedFieldTest" class="form-control-range" />
+                <RadzenCompareValidator Value="DateTime.Now" Component="collectionDate" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Popup="false" Operator="CompareOperator.LessThanEqual" />
+                <RadzenCompareValidator Value=@VectorSessionStateContainer.StartDate.GetValueOrDefault().Date Component="collectionDate" Popup=false Operator="CompareOperator.GreaterThanEqual"
+                                        Text=@(string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.VectorDetailedCollectionSampleDetailsModalCollectionDateFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.VectorSurveillanceSessionStartDateFieldLabel)))
+                                        Style="display: block" Visible=@(!string.IsNullOrEmpty(VectorSessionStateContainer.SampleDetail.CollectionDate.ToString())) />
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionSampleDetailsModalSentToOrganizationFieldLabel" IsRow="false" CssClass="col-6" For="sentToOrganization">
+                <RadzenDropDown Name="sentToOrganization" class="form-control" AllowClear="true" AllowColumnResize="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    TValue="long?" @bind-Value="VectorSessionStateContainer.SampleDetail.SentToOrganizationID" Data="@SentToOrganizations" 
+                    TextProperty="FullName" ValueProperty="idfOffice" Disabled="@HasAssociatedFieldTest" LoadData=@GetSentToOrganizations />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionSampleDetailsModalCollectedByInstitutionFieldLabel" IsRow="false" CssClass="col-6" For="collectedByInstitution">
+                <RadzenTextBox Name="collectedByInstitution" class="form-control" @bind-Value="VectorSessionStateContainer.SampleDetail.CollectedByOrganizationName" ReadOnly=true />
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionSampleDetailsModalCommentFieldLabel" IsRow="false" CssClass="col-12" For="accessionComment">
+                <RadzenTextBox Name="accessionComment" class="form-control" @bind-Value="VectorSessionStateContainer.SampleDetail.AccessionComment" MaxLength="200" ReadOnly=true />
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionSampleDetailsModalAccessionDateFieldLabel" IsRow="false" CssClass="col-6" For="accessionDate">
+                <RadzenDatePicker Name="accessionDate" TValue="DateTime?" @bind-Value="VectorSessionStateContainer.SampleDetail.AccessionDate" AllowClear="true" DateFormat="d" ReadOnly=true class="form-control-range"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionSampleDetailsModalSampleConditionReceivedFieldLabel" IsRow="false" CssClass="col-6" For="sampleConditionReceived">
+                <RadzenTextBox Name="sampleConditionReceived" class="form-control" @bind-Value="VectorSessionStateContainer.SampleDetail.AccessionConditionTypeName" ReadOnly="true"></RadzenTextBox>
+            </InterfaceEditorResource>
+        </div>
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-12">
+                    <button type="button" class="btn btn-outline-primary" @onclick="OnCancelClick">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button type="submit" class="btn btn-primary">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

@@ -1,0 +1,83 @@
+﻿@model EIDSS.Web.ViewModels.CrossCutting.DiseaseMatrixSectionViewModel
+@using EIDSS.ClientLibrary.Enumerations;
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    Model.MatrixVersions.DropDownId = "MatrixVersionsDropDown";
+    Model.MatrixVersions.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportMatrixVersionFieldLabel);
+    Model.MatrixVersions.Endpoint = @Url.Action("GetMatrixVersionsByType", "CrossCutting", new { Area = "CrossCutting", matrixType = EIDSSConstants.MatrixTypes.HumanAggregateCase });
+    Model.MatrixVersions.isVisible = true;
+    Model.MatrixVersions.CustomJsOnChangeFunction = "ChangeMatrixVersion";
+
+    Model.Templates.DropDownId = "TemplatesDropDown";
+    Model.Templates.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportTemplateFieldLabel);
+    Model.Templates.Endpoint = @Url.Action("GetTemplateList", "CrossCutting", new { Area = "CrossCutting", idfsFormType = (long)FlexibleFormTypes.HumanAggregate });
+    Model.Templates.isVisible = true;
+}
+
+<form id="diseaseMatrixForm">
+    <div class="container-fluid">
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4 heading-for="@HeadingResourceKeyConstants.HumanAggregateDiseaseReportDiseaseMatrixHeading"></h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editDiseaseMatrixSectionButton" href="#reportWizard-h-1" class="edit-section"><span class="far fa-edit fa-lg"></span></a>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4" hidden-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportMatrixVersionFieldLabel">
+                <eidss-select2DropDown id="@Model.MatrixVersions.DropDownId"
+                                       name="@Model.MatrixVersions.DropDownId"
+                                       target-ajax-url="@Model.MatrixVersions.ControlTargetUrl"
+                                       selectct2-default-data="@Model.MatrixVersions.defaultSelect2Selection"
+                                       end-point="@Model.MatrixVersions.Endpoint"
+                                       label-name="@Model.MatrixVersions.Label"
+                                       class-name="form-control"
+                                       is-visible="@Model.MatrixVersions.isVisible"
+                                       custom-js-on-change-function="@Model.MatrixVersions.CustomJsOnChangeFunction"
+                                       set-default-data="true">
+                </eidss-select2DropDown>
+            </div>
+            <div class="form-group col-md-4" hidden-if="@FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportTemplateFieldLabel">
+                <eidss-select2DropDown id="@Model.Templates.DropDownId"
+                                       name="@Model.Templates.DropDownId"
+                                       target-ajax-url="@Model.Templates.ControlTargetUrl"
+                                       selectct2-default-data="@Model.Templates.defaultSelect2Selection"
+                                       end-point="@Model.Templates.Endpoint"
+                                       label-name="@Model.Templates.Label"
+                                       class-name="form-control"
+                                       is-visible="@Model.Templates.isVisible"
+                                       set-default-data="true">
+                </eidss-select2DropDown>
+            </div>
+        </div>
+        <div id="divFlexFormMatrixView">
+            <partial name="_HumanAggregateCaseFlexFormMatrixViewPartial" for="@Model.AggregateCase" />
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    function initializeDiseaseMatrixSection() {
+    };
+
+    function ChangeMatrixVersion(data) {
+            var request = {};
+            request.idfCaseObservation = $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfCaseObservation").val();
+            request.VersionID = ($("#MatrixVersionsDropDown").val() == "" ? "" : $("#MatrixVersionsDropDown").val());
+            request.TemplateID = ($("#TemplatesDropDown").val() == "" ? "" : $("#TemplatesDropDown").val());
+
+            var matrixDiv = $('#divFlexFormMatrixView');
+            $.ajax({
+                url: '@Url.Action("ReLoadFlexForms", "AggregateDiseaseReport", new { Area = "Human" })',
+                data: JSON.stringify(request),
+                contentType: "application/json; charset=utf-8",
+                dataType: "html",
+                type: "POST",
+                success: function (response) {
+                    matrixDiv.html(response);
+                },
+                error: function (response) { alert("An error occurred: " + response); }
+            });
+    };
+</script>

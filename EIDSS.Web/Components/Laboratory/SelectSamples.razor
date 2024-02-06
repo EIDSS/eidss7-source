@@ -1,0 +1,33 @@
+﻿@using EIDSS.Domain.ViewModels.Laboratory
+@inherits EIDSS.Web.Components.Laboratory.SelectSamplesBase
+
+<RadzenCard Style="margin-bottom: 20px;">
+    <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" Count="Count" Data="Samples" LoadData="LoadSamplesData" PageSizeOptions="pageSizeOptions" @ref="SamplesGrid" SelectionMode="DataGridSelectionMode.Multiple" ShowPagingSummary="true" TItem="SamplesGetListViewModel">
+        <Columns>
+            <RadzenDataGridColumn TItem="SamplesGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                <HeaderTemplate>
+                    <RadzenCheckBox TriState="false" TValue="bool" Value="IsHeaderRecordSelected()" Change="args => OnHeaderRecordSelectionChange(args)"/>
+                </HeaderTemplate>
+                <Template Context="item">
+                    <RadzenCheckBox TriState="false" TValue="bool" Value="IsRecordSelected(item)" Change="args => OnRecordSelectionChange(args, item)"/>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="SampleTypeName" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.GroupAccessionInModalSampleTypeColumnHeading)" Width="225px" />
+            <RadzenDataGridColumn FormatString="{0:d}" Property="CollectionDate" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.GroupAccessionInModalCollectionDateColumnHeading)" Width="150px" />
+            <RadzenDataGridColumn Property="EIDSSReportOrSessionID" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.GroupAccessionInModalReportSessionIDColumnHeading)" Width="150px" />
+            <RadzenDataGridColumn Property="SentToOrganizationName" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.GroupAccessionInModalSentToOrganizationColumnHeading)" Width="300px" />
+            <RadzenDataGridColumn Property="PatientOrFarmOwnerName" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.GroupAccessionInModalPatientFarmOwnerColumnHeading)" Width="300px" />
+        </Columns>
+    </RadzenDataGrid>
+</RadzenCard>
+<div class="form-row">
+    <button class="btn btn-secondary" @onclick="_ => DiagService.Close()" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+    @if (AllowAccessionIndicator)
+    {
+        <button class="btn btn-primary" @onclick="OnSubmit" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SelectButton)</button>
+    }
+    else
+    {
+        <button class="btn btn-primary disabled" disabled type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SelectButton)</button>
+    }
+</div>

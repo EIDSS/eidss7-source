@@ -1,0 +1,25 @@
+﻿CREATE TABLE [dbo].[AccessRuleActor] (
+    [AccessRuleActorID]      BIGINT           NOT NULL,
+    [AccessRuleID]           BIGINT           NOT NULL,
+    [ActorSiteGroupID]       BIGINT           NULL,
+    [ActorSiteID]            BIGINT           NULL,
+    [ActorEmployeeGroupID]   BIGINT           NULL,
+    [ActorUserID]            BIGINT           NULL,
+    [intRowStatus]           INT              CONSTRAINT [DF_AccessRuleActor_intRowStatus] DEFAULT ((0)) NOT NULL,
+    [AuditCreateUser]        VARCHAR (100)    CONSTRAINT [DF_AccessRuleActor__Audit__21C31603] DEFAULT (user_name()) NOT NULL,
+    [AuditCreateDTM]         DATETIME         CONSTRAINT [DF_AccessRuleActor__Audit__22B73A3C] DEFAULT (getdate()) NOT NULL,
+    [AuditUpdateUser]        VARCHAR (100)    CONSTRAINT [DF_AccessRuleActor__Audit__23AB5E75] DEFAULT (user_name()) NOT NULL,
+    [AuditUpdateDTM]         DATETIME         CONSTRAINT [DF_AccessRuleActor__Audit__249F82AE] DEFAULT (getdate()) NOT NULL,
+    [rowguid]                UNIQUEIDENTIFIER CONSTRAINT [DF_AccessRuleActor_rowguid] DEFAULT (newsequentialid()) ROWGUIDCOL NOT NULL,
+    [SourceSystemNameID]     BIGINT           NULL,
+    [SourceSystemKeyValue]   NVARCHAR (MAX)   NULL,
+    [GrantingActorIndicator] BIT              CONSTRAINT [DF__tmp_ms_xx__Grant__12B61AF4] DEFAULT ((0)) NOT NULL,
+    CONSTRAINT [PK__tmp_ms_x__E7B450F608D79D7E] PRIMARY KEY CLUSTERED ([AccessRuleActorID] ASC),
+    CONSTRAINT [FK_AccessRuleActor_AccessRule_AccessRuleID] FOREIGN KEY ([AccessRuleID]) REFERENCES [dbo].[AccessRule] ([AccessRuleID]),
+    CONSTRAINT [FK_AccessRuleActor_tflSiteGroup_ActorSiteGroupID] FOREIGN KEY ([ActorSiteGroupID]) REFERENCES [dbo].[tflSiteGroup] ([idfSiteGroup]),
+    CONSTRAINT [FK_AccessRuleActor_tlbEmployeGroup_ActorEmployeeGroupID] FOREIGN KEY ([ActorEmployeeGroupID]) REFERENCES [dbo].[tlbEmployeeGroup] ([idfEmployeeGroup]),
+    CONSTRAINT [FK_AccessRuleActor_trtBaseReference_SourceSystemNameID] FOREIGN KEY ([SourceSystemNameID]) REFERENCES [dbo].[trtBaseReference] ([idfsBaseReference]),
+    CONSTRAINT [FK_AccessRuleActor_tstSite_ActorSiteID] FOREIGN KEY ([ActorSiteID]) REFERENCES [dbo].[tstSite] ([idfsSite]),
+    CONSTRAINT [FK_AccessRuleActor_tstUserTable_ActorUserID] FOREIGN KEY ([ActorUserID]) REFERENCES [dbo].[tstUserTable] ([idfUserID])
+);
+

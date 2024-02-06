@@ -1,0 +1,761 @@
+﻿@model EIDSS.Web.ViewModels.BaseReferenceEditorPagesViewModel;
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.DiseasesReferenceEditorPageHeading);
+}
+
+<div class="card">
+    @{
+        Model.PageName = Localizer.GetString(HeadingResourceKeyConstants.DiseasesReferenceEditorPageHeading);
+            @if (@Model.UserPermissions.Create)
+        {
+            Model.PageLevelAddButtonModalText = Localizer.GetString(ButtonResourceKeyConstants.AddButton);
+            Model.PageLevelAddButtonModal = "bAddDisease";
+        }
+
+            <partial name="_DiseaseModalPartial" />
+            <partial name="_SuccessDuplicateModalPartial" />
+
+        //Set up Grid
+        Model.PageName = Localizer.GetString(HeadingResourceKeyConstants.DiseasesReferenceEditorPageHeading);
+        Model.eidssGridConfiguration.GridId = "gDiseases";
+        Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+        Model.eidssGridConfiguration.AjaxDataUrl = @Url.Action("GetList", "DiseasePage", new { Area = "Administration" });
+        Model.eidssGridConfiguration.EditModalAjaxUrl = @Url.Action("AddEditDisease", "DiseasePage", new { Area = "Administration" });
+        Model.eidssGridConfiguration.DeleteModalAjaxUrl = @Url.Action("DeleteDisease", "DiseasePage", new { Area = "Administration" });
+        Model.eidssGridConfiguration.EnableServerSide = true;
+        Model.eidssGridConfiguration.EnableCustomSearching = true;
+        Model.eidssGridConfiguration.EnableProcessingMessage = true;
+        Model.eidssGridConfiguration.EditCustomMethod = "showSaveSuccess";
+        Model.eidssGridConfiguration.SaveCompleteMethod = "CheckSuccess";
+        Model.eidssGridConfiguration.DeleteCompleteMethod = "CheckDeleteSuccess";
+        Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels
+        {
+            DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage),
+            EditModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage),
+            DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+            EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
+            DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton)
+        };
+        Model.eidssGridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.Inline;
+        Model.eidssGridConfiguration.ControlLabels.CancelInlineEditTitle = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+        Model.eidssGridConfiguration.ControlLabels.CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage);
+        Model.eidssGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+        Model.eidssGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+        Model.eidssGridConfiguration.ControlLabels.SaveInlineEditTitle = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+        Model.eidssGridConfiguration.ControlLabels.SaveInlineEditMessage = "Are you sure that you want to save this record?";
+        Model.eidssGridConfiguration.ControlLabels.DeleteExceptionMessage = "You are attempting to delete a reference value which is currently used in the system.";
+        Model.eidssGridConfiguration.ControlLabels.DeleteExceptionTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+
+        {
+            ColumnName = "row",
+            ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+            Visible = true,
+            ColumnType = ColumnType.ReadOnly,
+            VisibleInModal = false
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "IdfsDiagnosis",
+            ColumnTitleHeader = String.Empty,
+            Visible = false,
+            VisibleInModal = false
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "strDefault",
+            ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.DefaultValueColumnHeading),
+            Visible = true,
+            VisibleInModal = true,
+            ValidationSetting = new ValidatorSettings()
+            {
+                ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+                ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+            },
+            ClassName = "DefaultValueRequired",
+            Orderable = true
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "strName",
+            ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.NationalValueColumnHeading),
+            Visible = true,
+            VisibleInModal = true,
+            ValidationSetting = new ValidatorSettings()
+            {
+                ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+                ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+            },
+            ClassName = "NationalValueRequired",
+            Orderable = true
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "strIDC10",
+            ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.ICD10ColumnHeading),
+            Visible = true,
+            VisibleInModal = true,
+            Orderable = true
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "strOIECode",
+            ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OIECodeColumnHeading),
+            Visible = true,
+            VisibleInModal = true,
+            Orderable = true
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "strSampleType",
+            ColumnTitleHeader = string.Empty,
+            Visible = false,
+            VisibleInModal = false
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "strSampleTypeName",
+            ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SampleTypeColumnHeading),
+            Visible = true,
+            VisibleInModal = true,
+            ColumnType = ColumnType.DropDown,
+            DisplayDropDownInModalOnly = true,
+            AllowMultipleDropDownItemSelection = true,
+            SplitCsvValues = true,
+            AssociatedFieldId = "strSampleType",
+            ColumnAjaxDataUrl = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new
+            {
+                Area = "CrossCutting",
+                referenceTypeID = "19000087"
+            })
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "strLabTest",
+            ColumnTitleHeader = string.Empty,
+            Visible = false,
+            VisibleInModal = false
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "strLabTestName",
+            ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.LabTestColumnHeading),
+            Visible = true,
+            VisibleInModal = true,
+            ColumnType = ColumnType.DropDown,
+            DisplayDropDownInModalOnly = true,
+            AllowMultipleDropDownItemSelection = true,
+            SplitCsvValues = true,
+            AssociatedFieldId = "strLabTest",
+            ColumnAjaxDataUrl = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new
+            {
+                Area = "CrossCutting",
+                referenceTypeID = "19000097"
+            })
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "strPensideTest",
+            ColumnTitleHeader = string.Empty,
+            Visible = false,
+            VisibleInModal = false
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "strPensideTestName",
+            ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.PensideTestColumnHeading),
+            Visible = true,
+            VisibleInModal = true,
+            ColumnType = ColumnType.DropDown,
+            DisplayDropDownInModalOnly = true,
+            AllowMultipleDropDownItemSelection = true,
+            SplitCsvValues = true,
+            AssociatedFieldId = "strPensideTest",
+            ColumnAjaxDataUrl = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new
+            {
+                Area = "CrossCutting",
+                referenceTypeID = "19000104"
+            }),
+            ClassName = "PensideTest"
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "idfsUsingType",
+            ColumnTitleHeader = string.Empty,
+            Visible = false,
+            VisibleInModal = false
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "StrUsingType",
+            ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.UsingTypeColumnHeading),
+            Visible = true,
+            VisibleInModal = true,
+            ColumnType = ColumnType.DropDown,
+            DisplayDropDownInModalOnly = true,
+            AllowMultipleDropDownItemSelection = false,
+            AssociatedFieldId = "idfsUsingType",
+            ColumnAjaxDataUrl = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new
+            {
+                Area = "CrossCutting",
+                referenceTypeID = "19000020"
+            }),
+            ValidationSetting = new ValidatorSettings()
+            {
+                ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+                ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+            },
+            ClassName = "UsingTypeRequired",
+            Orderable = true
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "intHACode",
+            ColumnTitleHeader = string.Empty,
+            Visible = false,
+            VisibleInModal = false
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "strHACodeNames",
+            ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.AccessoryCodeColumnHeading),
+            Visible = true,
+            VisibleInModal = true,
+            ColumnType = ColumnType.DropDown,
+            DisplayDropDownInModalOnly = true,
+            AllowMultipleDropDownItemSelection = true,
+            SplitCsvValues = true,
+            AssociatedFieldId = "intHACode",
+            ColumnAjaxDataUrl = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = (long) ReferenceTypes.AccessoryCode, intHACode = 226 }),
+            ValidationSetting = new ValidatorSettings()
+            {
+                ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+                ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+            },
+            ClassName = "AccessoryCodeRequired",
+            Orderable = true
+        });
+        List<RadionCheckBoxOptions> trueFalseOptionsGrid = new List<RadionCheckBoxOptions>() { (new RadionCheckBoxOptions() {
+            Value = "false",
+            Key = string.Empty,
+            IsChecked = false
+        }) };
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "blnZoonotic",
+            ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.ZoonoticDiseaseColumnHeading),
+            Visible = true,
+            VisibleInModal = true,
+            ColumnType = ColumnType.CheckBox,
+            RadioCheckBoxOptions = trueFalseOptionsGrid,
+            Orderable = true
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "blnSyndrome",
+            ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SyndromicSurveillanceColumnHeading),
+            Visible = true,
+            VisibleInModal = true,
+            ColumnType = ColumnType.CheckBox,
+            RadioCheckBoxOptions = trueFalseOptionsGrid,
+            Orderable = true
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "intOrder",
+            ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OrderColumnHeading),
+            Visible = true,
+            VisibleInModal = true,
+            ColumnType = ColumnType.Numeric,
+            Orderable = true,
+            ValidationSetting = new ValidatorSettings()
+            {
+                ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+                ValidatorMessage = "[0 - 2147483647]",
+                ValidationRule = "[0,2147483647]",
+                RangeValidationMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsInvalidValidRangeIsMessage)
+
+            },
+            ClassName = "IntOrderRange"
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "name",
+            ColumnTitleHeader = string.Empty,
+            Visible = Model.UserPermissions.Create,
+            ColumnType = ColumnType.Edit
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "name2",
+            ColumnTitleHeader = string.Empty,
+            Visible = Model.UserPermissions.Delete,
+            ColumnType = ColumnType.Delete,
+            ClassName = "DeleteDisease"
+        });
+        Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+        {
+            ColumnName = "IdfsDiagnosis",
+            ColumnTitleHeader = string.Empty,
+            Visible = (Model.DiseaseAccessRightsUserPermissions.Read || Model.DiseaseAccessRightsUserPermissions.Write),
+            ColumnType = ColumnType.CustomModal,
+            ClientFunction = "setRowIdentifier",
+            CustomModalID = "dDiseasePermissions",
+            CustomIconClass = "fa fa-lock",
+            CustomToolTip = Localizer.GetString(TooltipResourceKeyConstants.GridPermissions),
+        }); ;
+    }
+</div>
+
+<partial name="_BaseReferenceEditorsPartial" />
+<partial name="_InformationalModalPartial" for="InformationMessage" />
+<partial name="_ErrorModalPartial" />
+<partial name="_WarningModalPartial" />
+<partial name="_SearchActorModalPartial" for="SearchActorViewModel" />
+
+<form>
+    <input type="hidden" id="dataPermissionsDiseaseID" />
+    <input type="hidden" id="objectAccess" />
+</form>
+
+<div id="dDiseasePermissions" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dDiseasePermissions" aria-hidden="true" style="overflow-y: auto;">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dataAccessModalHeader" heading-for="@HeadingResourceKeyConstants.DataAccessDetailsModalHeading"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+                            <h3 id="actorsHeading" class="header" heading-for="@HeadingResourceKeyConstants.ActorsHeading"></h3>
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 text-right">
+                            <button id="btnAddActor" class="btn btn-primary btn-sm" button-for="@ButtonResourceKeyConstants.AddButton" data-toggle="modal" data-target="#searchActorModal" visible="@Model.DiseaseAccessRightsUserPermissions.Write"></button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="diseaseActorsTable" class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th>@Localizer.GetString(ColumnHeadingResourceKeyConstants.ActorTypeNameColumnHeading)</th>
+                                    <th>@Localizer.GetString(ColumnHeadingResourceKeyConstants.NameColumnHeading)</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <h3 id="permissionsHeading" class="header" heading-for="@HeadingResourceKeyConstants.PermissionsHeading"></h3>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="permissionsTable" class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>@Localizer.GetString(ColumnHeadingResourceKeyConstants.ReadColumnHeading)</th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" data-dismiss="modal" button-for="@ButtonResourceKeyConstants.CancelButton">Cancel</button>
+                <button id="dataAccessDetailsSubmitButton" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.SaveButton"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dSuccessModal" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="successHeading">Success</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                            <span class="glyphicon glyphicon-alert modal-icon"></span>
+                        </div>
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <strong id="successSubTitle"></strong>
+                            <br />
+                            <div id="successBody">
+                                @Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group text-center">
+                <input type="button" id="btnOk" class="btn-primary" data-dismiss="modal" value="@Localizer.GetString(ButtonResourceKeyConstants.OKButton)" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="dDuplicatesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="sDupeMsg"></span> 
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnOk" onclick="reloadModal();" class="btn-primary" data-dismiss="modal" value="@Localizer.GetString(ButtonResourceKeyConstants.OKButton)" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var diseaseActorsTable;
+    var permissionsTable = $("#permissionsTable").DataTable({
+        paging: false,
+        info: false,
+        orderable: false,
+        searching: true,
+        sDom: "t",
+        columnDefs: [
+            {
+            className: "dt-body-center", targets: [0],
+                render: function (data, type, full, meta) {
+                    var checkbox = $("<input/>", { "type": "checkbox" });
+                    if (data === "True") {
+                        checkbox.attr("checked", "checked");
+                        checkbox.addClass("checkbox_checked");
+                    } else {
+                        checkbox.addClass("checkbox_unchecked");
+                    }
+
+                    return checkbox.prop("outerHTML");
+                }
+            },
+            { orderable: false, targets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] },
+            { searchable: true, targets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] },
+            { visible: false, targets: [1, 2, 3, 3, 4, 5, 6, 7, 8, 9] },
+        ],
+        select: { style: "os", selector: "td:first-child" }
+        });
+
+    ///
+    /// Per business rule, aggregate diseases do not have permissios assigned outside of human and veterinary.
+    ///
+    function DiseasesRowCallback(row, data) {
+        
+    };
+
+    function showSaveSuccess(data) {
+      //Removed content to keep the Gridview call happy, with the javascript method provided for "EditCustomMethod".
+    }
+
+    // Filters the permissions table to only show the permissions for the selected actor.
+    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+        return permissionsTable.row(dataIndex).nodes().to$().attr("excluded") != "true"
+    });
+
+    ///
+    /// Sets the disease ID to load the corresponding actors and permissions for the selected disease record.
+    ///
+    function setRowIdentifier(identifier) {
+        $("#dataPermissionsDiseaseID").val(identifier[1]);
+    };
+
+    ///
+    /// Loads the actors and permissions for the selected disease record when the "lock" icon is clicked and
+    /// the data access details modal is shown.
+    ///
+    $("#dDiseasePermissions").on("shown.bs.modal", function (e) {
+        $("#searchActorDataPermissionsDiseaseID").val($("#dataPermissionsDiseaseID").val());
+
+        if (diseaseActorsTable != null) {
+            if ($.fn.dataTable.isDataTable(diseaseActorsTable)) {
+                diseaseActorsTable.clear();
+                diseaseActorsTable.destroy();
+            }
+        }
+
+        $.ajax({
+            url: '@Url.Action("GetActorList", "DiseasePage", new { Area = "Administration" })',
+            data: $("#dataPermissionsDiseaseID").val(),
+            contentType: "application/json",
+            type: "POST",
+            success: function (result) {
+                initializeActorsTable(result.data);
+
+                $.ajax({
+                    url: '@Url.Action("GetPermissions", "DiseasePage", new { Area = "Administration" })',
+                    data: $("#dataPermissionsDiseaseID").val(),
+                    contentType: "application/json",
+                    type: "POST",
+                    success: function (result) { initializePermissionsTable(result.data); },
+                    error: function (reponse) { alert("An error occurred: " + reponse); }
+                });
+            },
+            error: function (reponse) { alert("An error occurred: " + reponse); }
+        });
+    });
+
+    ///
+    /// Styling to handle stacked modals for the disease permissions modals.
+    ///
+    $(document).on("show.bs.modal", ".modal", function (event) {
+        var zIndex = 1040 + (10 * $(".modal:visible").length);
+        $(this).css("z-index", zIndex);
+        setTimeout(function () {
+            $(".modal-backdrop").not(".modal-stack").css("z-index", zIndex - 1).addClass("modal-stack");
+        }, 0);
+    });
+
+    ///
+    /// Loads the actor records for the selected disease record, and initializes the corresponding
+    /// dataTables object that displays the records.
+    ///
+    function initializeActorsTable(data) {
+        diseaseActorsTable = $("#diseaseActorsTable").DataTable({
+            paging: false,
+            info: false,
+            searching: true,
+            sDom: "t",
+            select: true,
+            "rowCallback": function (row, data, index) {
+                if (data[0] == '@Convert.ToInt64(RoleEnum.DefaultRole)') {
+                    $("td:eq(2)", row).attr("style", "display: none;");
+                }
+            },
+            columnDefs: [
+                { searchable: true, targets: [0, 1, 2, 3, 4] },
+                { visible: false, targets: [0, 1, 2] },
+                {
+                    targets: [5],
+                    visible: @Model.DiseaseAccessRightsUserPermissions.Write.ToString().ToLower(),
+                    className: "dt-center editor-delete",
+                    defaultContent: '<a href="" title=""><span class="fas fa-trash fa-1x"></span></a>',
+                    orderable: false
+                }
+            ]
+        });
+
+        diseaseActorsTable.rows.add(data).draw();
+        diseaseActorsTable.row(":eq(0)", { page: "current" }).select();
+    };
+
+    $("body").on("click", "#diseaseActorsTable tbody tr", function () {
+        $("#diseaseActorsTable").DataTable().$("tr.selected").removeClass("selected");
+        $(this).addClass("selected");
+        $(this).select();
+
+        var actorID;
+        var data = diseaseActorsTable.rows(".selected").data();
+        actorID = data[0];
+        permissionsTable.search(actorID[0]).rows().nodes().to$().attr("excluded", "false");
+        permissionsTable.draw();
+    });
+
+    ///
+    /// Loads the read permission records for all actors of the selected disease record.
+    ///
+    function initializePermissionsTable(data) {
+        permissionsTable.clear().rows.add(data).draw();
+
+        if ($("#diseaseActorsTable").DataTable().rows().count() > 1) {
+            permissionsTable.rows().every(function (rowIdx, tableLoop, rowLoop) { this.nodes().to$().attr("excluded", "true"); });
+        }
+
+        var actorID;
+        var data = diseaseActorsTable.rows(".selected").data();
+        actorID = data[0];
+        if (actorID != undefined) {
+            permissionsTable.search(actorID[0]).rows().nodes().to$().attr("excluded", "false");
+            permissionsTable.draw();
+        }
+    };
+
+    // Handle click on checkbox
+    $("#permissionsTable tbody").on("click", 'input[type="checkbox"]', function (e) {
+        var row = permissionsTable.row($(this).closest("tr")).data();
+
+        if (this.checked) {
+            row[0] = "true";
+            //row[8] = '@DiseaseAccessPermissionTypes.Allow';
+            // Allow
+            row[8] = '2';
+        } else {
+            row[0] = "false";
+            //row[8] = '@DiseaseAccessPermissionTypes.Deny';
+            // Deny
+            row[8] = '1';
+        }
+
+        row[10] = "U";
+    });
+
+    ///
+    /// Saves the actors and permissions for the selected disease record.
+    ///
+    $("#dataAccessDetailsSubmitButton").on("click", function (e) {
+        var permissionsArray = permissionsTable.rows().data().toArray();
+        var data = [];
+        var actors = [];
+        var permission;
+        $.each(permissionsArray, function (index, value) {
+            permission = new Object();
+            permission.ObjectAccessID = value[2];
+            permission.ObjectOperationTypeID = value[3];
+            permission.ObjectTypeID = value[4];
+            permission.ObjectID = value[5];
+            permission.ActorID = value[6];
+            permission.SiteID = value[7];
+            permission.PermissionTypeID = value[8];
+            permission.RowStatus = value[9];
+            permission.RowAction = value[10];
+
+            if(permission.RowStatus == 0)
+                actors.push(permission.ActorID);
+
+            data.push(permission);
+        });
+
+        if (validateDuplicateActors(actors) == false) {
+            showErrorModal('@Localizer.GetString(MessageResourceKeyConstants.DuplicateRecordsAreNotAllowedMessage)');
+        }
+        else {
+            $.ajax({
+                url: '@Url.Action("SaveDataAccessDetails", "DiseasePage", new { Area = "Administration" })',
+                data: JSON.stringify(data),
+                dataType: "json",
+                contentType: "application/json",
+                type: "POST",
+                success: function (data) { 
+                    $("#diseaseActorsTable").DataTable().draw();
+                    $("#dDiseasePermissions").modal("hide"); 
+                  
+                },
+                error: function (reponse) { alert("An error occurred: " + reponse); }
+            });
+
+        }
+    });
+
+    ///
+    /// Validates there are no duplicate actors for the same disease record.
+    ///
+    function validateDuplicateActors(actors) {
+        var actorsArray = actors.sort();
+        for (var i = 0; i < actorsArray.length - 1; i++) {
+            if (actorsArray[i + 1] == actorsArray[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    ///
+    /// Deletes an actor record from the list of disease permissions.
+    ///
+    $("#diseaseActorsTable").on("click", "td.editor-delete", function (e) {
+        e.preventDefault();
+
+        confirmDelete(diseaseActorsTable.row($(this).closest("tr")));
+    });
+
+    function confirmDelete(row) {
+        showWarningModal('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage)').then(response => {
+            if (response) {
+                $("#warningModal").modal("hide");
+
+                if (row.data()[1] < 0) {
+                    diseaseActorsTable.row().remove();
+                    diseaseActorsTable.draw();
+                }
+                else {
+                    row.nodes().to$().attr("excluded", "true");
+                    diseaseActorsTable.draw();
+
+                    var rowIndex;
+                    permissionsTable.rows(function (idx, data, node) {
+                        if (data[2] === row.data()[1]) {
+                            rowIndex = idx;
+                        }
+
+                        return false;
+                    });
+
+                    var permissionRow = permissionsTable.rows(rowIndex);
+                    permissionRow.data()[0][9] = '@Convert.ToInt64(RowStatusTypes.Inactive)';
+                    permissionRow.data()[0][10] = 'D';
+                    permissionsTable.row(permissionRow).invalidate().draw();
+                }
+
+                diseaseActorsTable.row(":eq(0)", { page: 'current' }).select();
+                var actorID;
+                var data = diseaseActorsTable.rows(".selected").data();
+                actorID = data[0];
+                permissionsTable.search(actorID[0]).rows().nodes().to$().attr("excluded", "false");
+                permissionsTable.draw();
+            }
+       });
+    };
+
+    // Filters the actors table to only show the actors for active records, in the event the user
+    // confirmed a record deletion that is pending save to the database.
+    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+        return diseaseActorsTable.row(dataIndex).nodes().to$().attr("excluded") != "true"
+    });
+
+    //Added this to prevent errors, because the partial view is calling this javacript to a local module.
+    //function CheckSuccess(response) {
+    //    if (response.value.returnMessage == "") {
+    //        $("#dSuccessModal").modal("show");
+    //    }
+
+    //    if (response.value.returnMessage == "DOES EXIST") {
+    //        $("#dDuplicatesModal").modal("show");
+    //        $("#sDupeMsg").html(response.value.duplicationMessage);
+    //    }
+    //}
+
+    function CheckDeleteSuccess(data) {
+        var stringifiedData = JSON.stringify(data);
+        var parsedData = JSON.parse(stringifiedData);
+        if (parsedData.returnMessage === "SUCCESS") {
+            updateNotificationEnvelopeCount();
+            showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+        }
+    };
+
+    $("#bAddDiseasebtnSave").click(function () {
+        storeAnswers("bAddDisease");
+    });
+</script>
+
+<partial name="_SuccessDuplicateModalPartial" />

@@ -1,0 +1,223 @@
+﻿@model EIDSS.Domain.ViewModels.DashboardViewModel
+@using EIDSS.Web.Components.Notification
+@using EIDSS.Web.Components.HelpFiles
+@using EIDSS.Web.Components.Shared
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!-- navigation container -->
+<div class="container-fluid">
+    <!-- branding -->
+    <a id="ucPageHeader_lnkHome" class="eidsslogo navbar-brand" onclick="navigate('Administration', '', 'Dashboard', 'Index');"></a>
+
+    <!-- toggle button -->
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#eidssCollapsibleMenu" aria-controls="eidssCollapsibleMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- collapsible nav bar -->
+    <div class="collapse navbar-collapse flex-column align-items-end" id="eidssCollapsibleMenu">
+
+        <!-- user profile and help menu -->
+        <ul class="navbar-nav flex-row ml-auto small">
+            @if (!Model.IsInArchiveMode)
+            {
+                <li class="messages nav-item">
+                    <component type="typeof(NotificationEnvelopeComponent)" render-mode="Server" />
+                </li>
+            }
+            <li class="nav-item dropdown">
+                <span class="user">
+                    @if (Model.UserOrganizations.Count == 1)
+                    {
+                        <i class="fa fa-user" aria-hidden="true"></i>
+                        @($"{Model.UserName.ToUpper()} | {Model.OrganizationName.ToUpper()}")
+                    }
+                    else
+                    {
+                        <i class="fa fa-user" aria-hidden="true"></i>
+                        @($"{Model.UserName.ToUpper()}")
+                        <span>
+                            @await Html.PartialAsync("_MenuUserOrganizationsPartial", Model)
+                        </span>
+                    }
+                </span>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li class="dropdown">
+                        <a class="dropdown-item" onclick="navigate('Administration', '', 'Admin', 'Logout');" role="button">@Localizer.GetString(FieldLabelResourceKeyConstants.SecurityLogoutFieldLabel)</a>
+                    </li>
+                    @if (!Model.IsInArchiveMode)
+                    {
+                        <li class="dropdown">
+                            <a class="dropdown-item" id="userPref" onclick="navigate('Administration', '', 'Preferences', 'UserPreferenceSettings');" role="button">@Localizer.GetString(FieldLabelResourceKeyConstants.SecurityUserPreferencesFieldLabel)</a>
+                        </li>
+                    }
+                    <li class="dropdown" style="@(Model.CanReadArchivedData ? "display:block" : "display:none")">
+                        <component render-mode="Server" type="typeof(ArchiveComponent)" />
+                    </li>
+                    <li style="padding-left: 23px;">
+                        @await Html.PartialAsync("_LanguageListPartial")
+                    </li>
+                </ul>
+            </li>
+            <li class="nav-item dropdown">
+                <component render-mode="Server" type="typeof(HelpFileComponent)" />
+            </li>
+        </ul>
+
+        <!-- main menu -->
+        @if (Model.menuList.Count > 0)
+        {
+            <ul class="navbar-nav flex-row">
+                @foreach (var firstLevelMenu in Model.parentMenuList.Where(m => Model.MenuIdExclusionList.Split(",").All(e => e != m.EIDSSMenuId.ToString())))
+                {
+                    if (Model.menuList.Any(m => m.EIDSSMenuId != m.EIDSSParentMenuId && m.EIDSSParentMenuId == firstLevelMenu.EIDSSMenuId))
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link text-dark dropdown-toggle pl-4" data-toggle="dropdown" asp-area="" asp-route-subarea="" asp-controller="" asp-action="">@firstLevelMenu.MenuName</a>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                @foreach (var secondLevelMenu in Model.menuList.Where(m => m.EIDSSMenuId != m.EIDSSParentMenuId && m.EIDSSParentMenuId == firstLevelMenu.EIDSSMenuId))
+                                {
+                                    @if (Model.menuList.Any(m => m.EIDSSMenuId != m.EIDSSParentMenuId && m.EIDSSParentMenuId == secondLevelMenu.EIDSSMenuId))
+                                    {
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link text-dark dropdown-toggle pl-4" data-toggle="dropdown" asp-area="" asp-route-subarea="" asp-controller="" asp-action="">@secondLevelMenu.MenuName</a>
+                                            @{
+                                                bool showMenu;
+                                            }
+
+                                            @if (secondLevelMenu.EIDSSMenuId == EIDSSConstants.PaperFormsMenu.PaperFormsParentMenuId)
+                                            {
+                                                if (Model.ReadAccessToReports && (Model.ReadAccessToHDRData || Model.ReadAccessToVDRData))
+                                                {
+                                                    showMenu = true;
+                                                }
+                                                else
+                                                {
+                                                    showMenu = false;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                showMenu = true;
+                                            }
+
+                                            @if (showMenu)
+                                            {
+                                                <ul class="dropdown-menu dropdown-menu-right">
+                                                    @foreach (var thirdLevelMenu in Model.menuList.Where(m => m.EIDSSMenuId != m.EIDSSParentMenuId && m.EIDSSParentMenuId == secondLevelMenu.EIDSSMenuId))
+                                                    {
+                                                        if (Model.menuList.Count(m => m.EIDSSMenuId != m.EIDSSParentMenuId && m.EIDSSParentMenuId == thirdLevelMenu.EIDSSMenuId) > 1)
+                                                        {
+                                                            <li class="nav-item dropdown">
+                                                                <a asp-action="" asp-area="" asp-controller="" asp-route-subarea="" class="nav-link text-dark dropdown-item dropdown-toggle pl-4" data-toggle="dropdown">@thirdLevelMenu.MenuName</a>
+                                                                <ul class="dropdown-menu dropdown-menu-right">
+                                                                    @foreach (var item in Model.menuList.Where(m => m.EIDSSMenuId != m.EIDSSParentMenuId && m.EIDSSParentMenuId == thirdLevelMenu.EIDSSMenuId))
+                                                                    {
+                                                                        <li>
+                                                                            <a class="dropdown-item" asp-route-area="@item.Area" asp-route-subarea="@item.SubArea" asp-controller="@item.Controller" asp-action="@item.strAction">@item.MenuName</a>
+                                                                        </li>
+                                                                    }
+                                                                </ul>
+                                                            </li>
+                                                        }
+                                                        else
+                                                        {
+                                                            var showMenuItem = false;
+                                                            if (Model.PaperFormMenuFileNames.ContainsKey(thirdLevelMenu.Controller))
+                                                            {
+                                                                switch (thirdLevelMenu.Controller)
+                                                                {
+                                                                    case EIDSSConstants.PaperFormsMenu.HumanDiseaseInvestigationForm:
+                                                                        if (Model.ReadAccessToReports && Model.ReadAccessToHDRData)
+                                                                        {
+                                                                            showMenuItem = true;
+                                                                        }
+                                                                        break;
+                                                                    case EIDSSConstants.PaperFormsMenu.AvianDiseaseInvestigationForm:
+                                                                    case EIDSSConstants.PaperFormsMenu.LivestockDiseaseInvestigationForm:
+                                                                        if (Model.ReadAccessToReports && Model.ReadAccessToVDRData)
+                                                                        {
+                                                                            showMenuItem = true;
+                                                                        }
+                                                                        break;
+                                                                }
+
+                                                                if (showMenuItem)
+                                                                {
+                                                                    <li>
+                                                                        <a asp-route-area="@thirdLevelMenu.Area" asp-route-subarea="@thirdLevelMenu.SubArea" asp-controller="Download" asp-action="DownloadFile"
+                                                                           asp-route-filename="@Url.Content(Model.PaperFormMenuFileNames[thirdLevelMenu.Controller])">
+                                                                            @thirdLevelMenu.MenuName
+                                                                        </a>
+
+                                                                    </li>
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                <li>
+                                                                    <a class="dropdown-item" onclick="navigate('@thirdLevelMenu.Area', '@thirdLevelMenu.SubArea', '@thirdLevelMenu.Controller', '@thirdLevelMenu.strAction');" role="button">@thirdLevelMenu.MenuName</a>
+                                                                </li>
+                                                            }
+                                                        }
+                                                    }
+                                                </ul>
+                                            }
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li>
+                                            <a class="dropdown-item" onclick="navigate('@secondLevelMenu.Area', '', '@secondLevelMenu.Controller', '@secondLevelMenu.strAction');" role="button">@secondLevelMenu.MenuName</a>
+                                        </li>
+                                    }
+                                }
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <li>
+                            <a asp-action="" asp-area="" asp-controller="" class="dropdown-item">@firstLevelMenu.MenuName</a>
+                        </li>
+                    }
+                }
+            </ul>
+        }
+    </div>
+</div>
+<script>
+    function navigate(area, subArea, controller, action) {
+        var model = {};
+        model.Area = area;
+        model.SubArea = subArea;
+        model.Controller = controller;
+        model.Action = action;
+
+        $.ajax({
+            url: '@Url.Action("Navigate", "MenuView", new { area = ""})',
+            type: "POST",
+            data: JSON.stringify(model),
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (response) {
+                if (response.changesPendingSave == true)
+                {
+                    showWarningModal('@Localizer.GetString(MessageResourceKeyConstants.ChangesMadeToTheRecordWillBeLostIfYouLeaveThePageDoYouWantToContinueMessage)').then(userResponse => {
+                        if (userResponse) {
+                            $.ajax({
+                                url: '@Url.Action("ClearChangesPendingSave", "MenuView", new { area = ""})',
+                                type: "GET",
+                                success: function () {
+                                    window.location.href = response.redirectToUrl;
+                                }
+                            });
+                        }
+                    });
+                }
+                else
+                    window.location.href = response.redirectToUrl;
+            }
+        });
+    };
+</script>

@@ -1,0 +1,258 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.CrossCutting
+@using EIDSS.Domain.ViewModels.Outbreak
+@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+@using static ClientLibrary.Enumerations.EIDSSConstants
+
+@inherits FarmInventorySectionBase
+
+<div class="container-fluid">
+<div class="row">
+    <div class="col-11">
+        <h4 class="header">@SectionHeadingResourceKey</h4>
+    </div>
+    <div class="col-1 text-right">
+        @if ((Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0) || (Model.WritePermissionIndicator && Model.DiseaseReportID > 0 && Model.ReportStatusTypeID == (long) DiseaseReportStatusTypeEnum.InProcess && Model.ReportCurrentlyClosedIndicator == false))
+        {
+            <a class="edit-section" href="#caseDiseaseReportWizard-h-2" id="editFarmInventorySectionButton">
+                <span class="fas fa-edit fa-lg"></span>
+            </a>
+        }
+    </div>
+</div>
+<div class="card">
+<div class="card-header">
+    <h3>@SectionHeadingResourceKey</h3>
+</div>
+<div id="divFarmInventorySection" class="card-body">
+@if (Model.OutbreakCaseIndicator)
+{
+    <RadzenTemplateForm @ref="Form" Data="Case" TItem="CaseGetDetailViewModel">
+        <DataAnnotationsValidator/>
+        <InterfaceEditorResource CssClass="col-12" For="@nameof(Case.FarmTypeID)" InterfaceEditorKey="@FieldLabelResourceKeyConstants.CreateVeterinaryCaseTypeOfCaseFieldLabel" IsRow="true">
+            <RadzenRadioButtonList @bind-Value="@Case.FarmTypeID" Change="@OnFarmTypeChange" class="form-control" Disabled="Case.CaseDisabledIndicator" Name="@nameof(Case.FarmTypeID)" Orientation="Orientation.Horizontal" @ref="TypeOfCaseRadioButtonList" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"/>
+            @if (Case.FarmTypeID is null && ShowTypeOfCaseIsRequiredMessage)
+            {
+                <label>
+                    <span style="color: #ff0000; font-weight: normal">@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)</span>
+                </label>
+            }
+        </InterfaceEditorResource>
+    </RadzenTemplateForm>
+}
+<div class="row">
+<div class="col-12">
+<RadzenDataGrid AllowColumnReorder="false" AllowColumnResize="true" AllowFiltering="false" AllowPaging="false" AllowSorting="false" ColumnWidth="300px" Count="Count" Data="Model.FarmInventory" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" ExpandMode="DataGridExpandMode.Multiple" IsLoading="IsLoading" LoadData="LoadFarmInventoryData" PageSize="int.MaxValue - 1" @ref="FarmInventoryGrid" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="false" TItem="FarmInventoryGetListViewModel">
+<Columns>
+<RadzenDataGridColumn Frozen="true" Property="SpeciesTypeID" TItem="FarmInventoryGetListViewModel" Title="@SpeciesColumnHeadingResourceKey" Width="225px">
+    <Template Context="item">
+        @switch (item.RecordType)
+        {
+            case RecordTypeConstants.Species:
+            {
+                <div class="input-group mb-3">
+                    <RadzenDropDown AllowClear="@true" AllowFiltering="@true" @bind-Value="@item.SpeciesTypeID" Change="@(_ => OnSpeciesTypeChange(item))" class="form-control" Data="@SpeciesTypes" Disabled="@(Model.ReportDisabledIndicator || (Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0) || (Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0))" FilterCaseSensitivity="@FilterCaseSensitivity.CaseInsensitive" Name="farmInventorySectionSpeciesType" TextProperty="Name" ValueProperty="IdfsBaseReference"/>
+                    <RadzenRequiredValidator Component="farmInventorySectionSpeciesType" Popup="@false" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)"/>
+                    @if (Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0)
+                    {
+                        if (Model.CreateBaseReferencePermissionIndicator && Model.ReportStatusTypeID == (long) DiseaseReportStatusTypeEnum.InProcess && Model.ReportCurrentlyClosedIndicator == false)
+                        {
+                            <div class="input-group-append">
+                                <button class="btn btn-link" id="addSpeciesType" @onclick="@AddSpeciesTypeClick" type="button">
+                                    <span class="fas fa-plus" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="input-group-append">
+                                <button class="btn btn-link disabled" disabled id="addSpeciesType" type="button">
+                                    <span class="fas fa-plus" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        }
+                    } else if (!Model.WritePermissionIndicator || Model.ReportDisabledIndicator)
+                    {
+                        <div class="input-group-append">
+                            <button class="btn btn-link disabled" disabled id="addSpeciesType" type="button">
+                                <span class="fas fa-plus" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        if (Model.CreateBaseReferencePermissionIndicator && Model.ReportStatusTypeID == (long) DiseaseReportStatusTypeEnum.InProcess && Model.ReportCurrentlyClosedIndicator == false)
+                        {
+                            <div class="input-group-append">
+                                <button class="btn btn-link" id="addSpeciesType" @onclick="@AddSpeciesTypeClick" type="button">
+                                    <span class="fas fa-plus" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="input-group-append">
+                                <button class="btn btn-link disabled" disabled id="addSpeciesType" type="button">
+                                    <span class="fas fa-plus" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        }
+                    }
+                </div>
+                break;
+            }
+            case RecordTypeConstants.Herd:
+            {
+                string eidssFlockOrHerdId;
+                if (Model.ReportCategoryTypeID == (long) CaseTypeEnum.Avian)
+                {
+                    eidssFlockOrHerdId = Localizer.GetString(FieldLabelResourceKeyConstants.AvianDiseaseReportFarmFlockSpeciesFlockFieldLabel) + " " + item.EIDSSFlockOrHerdID;
+                }
+                else
+                {
+                    eidssFlockOrHerdId = Localizer.GetString(FieldLabelResourceKeyConstants.LivestockDiseaseReportFarmHerdSpeciesHerdFieldLabel) + " " + item.EIDSSFlockOrHerdID;
+                }
+                <RadzenLabel Text="@eidssFlockOrHerdId"/>
+                break;
+            }
+            default:
+            {
+                string eidssFarmId;
+                if (Model.ReportCategoryTypeID == (long) CaseTypeEnum.Avian)
+                {
+                    eidssFarmId = Localizer.GetString(FieldLabelResourceKeyConstants.AvianDiseaseReportFarmFlockSpeciesFarmFieldLabel) + " " + item.EIDSSFarmID;
+                }
+                else
+                {
+                    eidssFarmId = Localizer.GetString(FieldLabelResourceKeyConstants.LivestockDiseaseReportFarmHerdSpeciesFarmFieldLabel) + " " + item.EIDSSFarmID;
+                }
+                <RadzenLabel Text="@eidssFarmId"/>
+                break;
+            }
+        }
+    </Template>
+</RadzenDataGridColumn>
+<RadzenDataGridColumn Property="TotalAnimalQuantity" TItem="FarmInventoryGetListViewModel" Title="@TotalColumnHeadingResourceKey" Width="115px">
+    <Template Context="item">
+        @if (item.RecordType == RecordTypeConstants.Species)
+        {
+            <RadzenNumeric Name="totalAnimalQuantity" Min="0" ShowUpDown="true" TValue="int?" @bind-Value="item.TotalAnimalQuantity" Change="_ => ValidateDiseaseReportFarmInventory(Model)" Disabled="@(Model.ReportDisabledIndicator || (Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0) || (Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0))"/>
+        }
+        else
+        {
+            <RadzenNumeric Name="totalAnimalQuantity" Min="0" ShowUpDown="false" TValue="int?" @bind-Value="item.TotalAnimalQuantity" Disabled="true"/>
+        }
+    </Template>
+</RadzenDataGridColumn>
+<RadzenDataGridColumn Property="SickAnimalQuantity" TItem="FarmInventoryGetListViewModel" Title="@SickColumnHeadingResourceKey" Width="115px">
+    <Template Context="item">
+        @if (item.RecordType == RecordTypeConstants.Species)
+        {
+            <RadzenNumeric @bind-Value="item.SickAnimalQuantity" Change="_ => ValidateDiseaseReportFarmInventory(Model)" Disabled="@(Model.ReportDisabledIndicator || (Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0) || (Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0))" Min="0" Name="sickAnimalQuantity" ShowUpDown="true" TValue="int?"/>
+        }
+        else
+        {
+            <RadzenNumeric @bind-Value="item.SickAnimalQuantity" Disabled="true" Min="0" Name="sickAnimalQuantity" ShowUpDown="false" TValue="int?"/>
+        }
+    </Template>
+</RadzenDataGridColumn>
+<RadzenDataGridColumn Property="DeadAnimalQuantity" TItem="FarmInventoryGetListViewModel" Title="@DeadColumnHeadingResourceKey" Width="115px">
+    <Template Context="item">
+        @if (item.RecordType == RecordTypeConstants.Species)
+        {
+            <RadzenNumeric @bind-Value="item.DeadAnimalQuantity" Change="_ => ValidateDiseaseReportFarmInventory(Model)" Disabled="@(Model.ReportDisabledIndicator || (Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0) || (Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0))" Min="0" Name="deadAnimalQuantity" ShowUpDown="true" TValue="int?"/>
+        }
+        else
+        {
+            <RadzenNumeric @bind-Value="item.DeadAnimalQuantity" Disabled="true" Min="0" Name="deadAnimalQuantity" ShowUpDown="false" TValue="int?"/>
+        }
+    </Template>
+</RadzenDataGridColumn>
+<RadzenDataGridColumn Property="StartOfSignsDate" TItem="FarmInventoryGetListViewModel" Title="@StartOfSignsDateColumnHeadingResourceKey" Width="150px">
+    <Template Context="item">
+        @if (item.RecordType == RecordTypeConstants.Species)
+        {
+            <RadzenDatePicker AllowClear="true" @bind-Value="item.StartOfSignsDate" Change="_ => ValidateDiseaseReportFarmInventory(Model)" DateFormat="d" Disabled="@(Model.ReportDisabledIndicator || (Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0) || (Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0))" Name="startOfSignsDate" TValue="DateTime?"/>
+            <RadzenCompareValidator Component="startOfSignsDate" Operator="CompareOperator.LessThanEqual" Popup="false" Style="position: absolute" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="DateTime.Now"/>
+        }
+    </Template>
+</RadzenDataGridColumn>
+<RadzenDataGridColumn Property="AverageAge" TItem="FarmInventoryGetListViewModel" Title="@AverageAgeColumnHeadingResourceKey" Visible="@(Model.ReportCategoryTypeID == (long) CaseTypeEnum.Avian)" Width="100px">
+    <Template Context="item">
+        @if (item.RecordType == RecordTypeConstants.Species)
+        {
+            <RadzenTextBox @bind-Value="item.AverageAge" Disabled="@(Model.ReportDisabledIndicator || (Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0) || (Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0))" MaxLength="200" Name="averageAge"/>
+        }
+    </Template>
+</RadzenDataGridColumn>
+<RadzenDataGridColumn Property="Note" TItem="FarmInventoryGetListViewModel" Title="@NoteColumnHeadingResourceKey" Visible="@(Model.ReportCategoryTypeID == (long) CaseTypeEnum.Livestock)" Width="175px">
+    <Template Context="item">
+        @if (item.RecordType == RecordTypeConstants.Species)
+        {
+            <RadzenTextBox @bind-Value="item.Note" Disabled="@(Model.ReportDisabledIndicator || (Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0) || (Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0))" MaxLength="2000" Name="note"/>
+        }
+    </Template>
+</RadzenDataGridColumn>
+<RadzenDataGridColumn Filterable="false" Frozen="true" Property="RecordID" Sortable="false" TextAlign="TextAlign.Center" TItem="FarmInventoryGetListViewModel" Title="" Width="100px">
+    <Template Context="item">
+        @if (item.RecordType == RecordTypeConstants.Farm)
+        {
+            if (Model.ReportDisabledIndicator || (Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0) || (Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0))
+            {
+                <button class="btn btn-link disabled" disabled>
+                    <span class="fas fa-plus"></span>
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-link" @onclick="_ => OnAddFlockOrHerdClick()">
+                    <span class="fas fa-plus"></span>
+                </button>
+            }
+        }
+        else if (item.RecordType == RecordTypeConstants.Herd)
+        {
+            if (Model.ReportDisabledIndicator || (Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0) || (Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0))
+            {
+                <button class="btn btn-link disabled" disabled>
+                    <span class="fas fa-plus"></span>
+                </button>
+                <button class="btn btn-link disabled" disabled>
+                    <span class="fas fa-trash"></span>
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-link" @onclick="_ => OnAddSpeciesClick(item)">
+                    <span class="fas fa-plus"></span>
+                </button>
+                <button class="btn btn-link" @onclick="_ => OnDeleteFarmInventoryClick(item)">
+                    <span class="fas fa-trash"></span>
+                </button>
+            }
+        }
+        else
+        {
+            if (Model.ReportDisabledIndicator || (Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0) || (Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0))
+            {
+                <button class="btn btn-link disabled" disabled>
+                    <span class="fas fa-trash"></span>
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-link" @onclick="_ => OnDeleteFarmInventoryClick(item)">
+                    <span class="fas fa-trash"></span>
+                </button>
+            }
+        }
+    </Template>
+</RadzenDataGridColumn>
+</Columns>
+</RadzenDataGrid>
+</div>
+</div>
+</div>
+</div>
+</div>

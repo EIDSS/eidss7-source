@@ -1,0 +1,21 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Web.Components.FlexForm
+
+@inherits FarmEpidemiologicalInformationSectionBase
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-11">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.LivestockDiseaseReportFarmEpiInformationHeading)</h4>
+        </div>
+        <div class="col-1 text-right">
+            @if ((Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0) || (Model.WritePermissionIndicator && Model.DiseaseReportID > 0 && Model.ReportStatusTypeID == (long) DiseaseReportStatusTypeEnum.InProcess && Model.ReportCurrentlyClosedIndicator == false))
+            {
+                <a class="edit-section" href="#caseDiseaseReportWizard-h-3" id="editFarmEpidemiologicalInfoSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            }
+        </div>
+    </div>
+    <FlexForm FormDisabledIndicator="@(Model.ReportDisabledIndicator || (Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0) || (Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0))" @ref="FarmEpidemiologicalInfo" Request="Model.FarmEpidemiologicalInfoFlexForm"/>
+</div>

@@ -1,0 +1,188 @@
+﻿@using EIDSS.Domain.ViewModels.Outbreak
+
+@inherits CasesTabBase
+
+<div class="card">
+    <div class="card-body">
+        <div class="row pb-4">
+            <div class="form-inline col-10">
+                <div class="form-inline pr-3">
+                    <div class="form-group form-group-sm border-right px-4">
+                        <div class="dropdown">
+                            <button aria-expanded="false" aria-haspopup="true" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" id="outbreakCaseMenu" type="button">
+                                <i aria-hidden="true" class="fa fa-bars"></i>
+                            </button>
+                            <div aria-labelledby="outbreakCaseMenu" class="dropdown-menu">
+                                <a class="dropdown-item" tabindex="-1">
+                                    <b>@Localizer.GetString(FieldLabelResourceKeyConstants.StatusFieldLabel)</b>
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                @if (CaseStatusTypes is not null)
+                                {
+                                    foreach (var baseReference in CaseStatusTypes)
+                                    {
+                                        <text>
+                                            <a class="dropdown-item" id="@baseReference.IdfsBaseReference" @onclick="_ => OnCaseStatusTypeClick(baseReference.IdfsBaseReference)" role="button" data-dismiss="dropdown" onblur="$('#bDataDismissClose').click()'">@baseReference.Name</a>
+                                        </text>
+                                    }
+                                }
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" tabindex="-1">
+                                    <b>@Localizer.GetString(FieldLabelResourceKeyConstants.CaseClassificationFieldLabel)</b>
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                @if (ClassificationTypes is not null)
+                                {
+                                    foreach (var baseReference in ClassificationTypes)
+                                    {
+                                        <text>
+                                            <a class="dropdown-item" id="@baseReference.IdfsBaseReference" @onclick="_ => OnCaseClassificationTypeClick(baseReference.IdfsBaseReference)" role="button" data-dismiss="dropdown" onblur="$('#bDataDismissClose').click()'">@baseReference.Name</a>
+                                        </text>
+                                    }
+                                }
+                                <button id="bDataDismissClose" style="visibility:hidden" data-dismiss="dropdown" />
+                            </div>
+                        </div>
+                        <input action="Import" class="btn btn-primary" id="bImportCase" onclick="outbreakCreate.showDecision('bImportCase', '@CaseType');"
+                               type="button" value="@Localizer.GetString(ButtonResourceKeyConstants.OutbreakCasesImportButtonText)" disabled="@IsImportDisabled" />
+                        <input action="Create" class="btn btn-primary" id="bCreateCase" onclick="outbreakCreate.showDecision('bCreateCase', '@CaseType');"
+                               type="button" value="@Localizer.GetString(ButtonResourceKeyConstants.OutbreakCasesCreateButtonText)" disabled="@IsCreateDisabled"/>
+                        @if (SaveDisabledIndicator)
+                        {
+                            <input class="btn btn-primary disabled" id="saveCasesButton" disabled type="button" value="@Localizer.GetString(ButtonResourceKeyConstants.OutbreakContactsSaveButtonText)"/>
+                        }
+                        else
+                        {
+                            <input class="btn btn-primary" id="saveCasesButton" @onclick="OnSaveCasesButtonClick" type="button" value="@Localizer.GetString(ButtonResourceKeyConstants.OutbreakContactsSaveButtonText)"/>
+                        }
+                    </div>
+                </div>
+                <div class="form-group form-group-sm form-check pr-3 px-4">
+                    <RadzenCheckBox @bind-Value="TodaysFollowupsIndicator" Change="_ => OnTodaysFollowupsIndicatorChanged()" class="form-check-inline" Name="todaysFollowupsIndicator" TriState="false" TValue="bool"/>
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakContactsTodaysFollowupsFieldLabel)</label>
+                </div>
+                <div class="input-group">
+                    <RadzenTextBox @bind-Value="SearchTerm" class="form-control" Name="searchString"/>
+                    <button class="input-group-text lighten-3 disabled" id="clearSearch" @onclick="OnClearButtonClick" type="button">
+                        <i aria-hidden="true" class="fas fa-times text-grey"></i>
+                    </button>
+                </div>
+                <button class="btn btn-outline-primary ml-2 disabled" id="simpleSearch" @onclick="OnSearchButtonClick" type="button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <div class="col-2 text-right">
+                <button class="btn btn-outline-primary ml-2" id="casesTabPrintButton" @onclick="OnPrintButtonClick" type="button">
+                    <i aria-hidden="true" class="fas fa-print"></i>
+                </button>
+            </div>
+        </div>
+        <div class="row pb-4">
+            <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" Count="Count" Data="Cases" 
+                        EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" LoadData="args => LoadCaseData(args)" RowExpand="OnCasesRowExpand"
+                        PageSizeOptions="pageSizeOptions" PageSizeText="@Localizer.GetString(FieldLabelResourceKeyConstants.CommonLabelsItemsPerPageFieldLabel)" @ref="CasesGrid" 
+                        RowRender="OnRowRender" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="true" TItem="CaseGetListViewModel">
+                <Columns>
+                    <RadzenDataGridColumn Filterable="false" Frozen="true" Sortable="false" TItem="CaseGetListViewModel" Width="40px">
+                        <HeaderTemplate>
+                            <RadzenCheckBox Change="args => HeaderRecordSelectionChange(args)" TriState="false" TValue="bool" Value="IsHeaderRecordSelected()"/>
+                        </HeaderTemplate>
+                        <Template Context="item">
+                            <RadzenCheckBox Change="args => RecordSelectionChange(args, item)" TriState="false" TValue="bool" Value="IsRecordSelected(item)"/>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Property="PrimaryCaseIndicator" TItem="CaseGetListViewModel" Width="33px">
+                        <Template Context="item">
+                            @if (item.PrimaryCaseIndicator == 1)
+                            {
+                                <span class="fas fa-star">&nbsp;</span>
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Property="EIDSSCaseID" TItem="CaseGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCasesOutbreakCaseIDColumnHeading)" Width="150px">
+                        <Template Context="item">
+                            <button class="btn btn-link btn-sm" @onclick=@(() => OnCaseClick(item))>@item.EIDSSCaseID.ToString()</button>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Property="PatientOrFarmOwnerName" TItem="CaseGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCasesTPatientFarmOwnerColumnHeading)" Width="158px"/>
+                    <RadzenDataGridColumn FormatString="{0:d}" Property="DateEntered" TItem="CaseGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCasesDateEnteredColumnHeading)" Width="150px"/>
+                    <RadzenDataGridColumn Property="CaseTypeName" TItem="CaseGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCasesTypeColumnHeading)" Width="175px"/>
+                    <RadzenDataGridColumn Property="StatusTypeName" TItem="CaseGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCasesStatusColumnHeading)" Width="175px"/>
+                    <RadzenDataGridColumn FormatString="{0:d}" Property="DateOfSymptomOnset" TItem="CaseGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCasesDateSymptonOnsetColumnHeading)" Width="150px"/>
+                    <RadzenDataGridColumn Property="ClassificationTypeName" TItem="CaseGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCasesCaseClassificationColumnHeading)" Width="175px"/>
+                    <RadzenDataGridColumn Property="CaseLocation" TItem="CaseGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCasesLocationColumnHeading)" Width="175px"/>
+                    <RadzenDataGridColumn Filterable="false" Frozen="true" Property="CaseID" Sortable="false" TextAlign="TextAlign.Center" TItem="CaseGetListViewModel" Title="" Width="55px">
+                        <Template Context="item">
+                            @if (WritePermissionIndicator)
+                            {
+                                <button class="btn btn-link" @onclick="_ => OnEditCaseClick(item)">
+                                    <span class="fas fa-edit"></span>
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-link disabled" disabled>
+                                    <span class="fas fa-edit disabled"></span>
+                                </button>
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+                <!-- Expandable Detail Template -->
+                <Template Context="_">
+                    <div class="row">
+                        <div class="col-9"></div>
+                        <div class="col-3 text-right">
+                            <button class="btn btn-link add-section" id="addCaseMonitoring" @onclick="OnAddCaseMonitoringClick" type="button">
+                                <span class="fas fa-plus fa-lg"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <RadzenDataGrid AllowFiltering="false" AllowPaging="true" AllowSorting="true" Data="CaseMonitorings" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsCaseMonitoringsLoading" @ref="CaseMonitoringsGrid" RowRender="OnCaseMonitoringRowRender" TItem="CaseMonitoringGetListViewModel">
+                        <Columns>
+                            <RadzenDataGridColumn FormatString="{0:d}" Property="MonitoringDate" TItem="CaseMonitoringGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCaseMonitoringMonitoringDateColumnHeading)" Width="125px"/>
+                            <RadzenDataGridColumn Filterable="false" Frozen="true" Property="CaseMonitoringID" Sortable="false" TextAlign="TextAlign.Center" TItem="CaseMonitoringGetListViewModel" Title="" Width="55px">
+                                <Template Context="item">
+                                    @if (WritePermissionIndicator)
+                                    {
+                                        <button class="btn btn-link" @onclick="_ => OnEditCaseMonitoringClick(item)">
+                                            <span class="fas fa-edit"></span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-link disabled" disabled>
+                                            <span class="fas fa-edit disabled"></span>
+                                        </button>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="CaseMonitoringGetListViewModel" Property="CaseMonitoringId" Frozen="true" Reorderable="false" Sortable="false" Title="" TextAlign="TextAlign.Center" Width="40px">
+                                <Template Context="item">
+                                    @if (WritePermissionIndicator)
+                                    {
+                                        <button class="btn btn-link" @onclick="_ => OnDeleteCaseMonitoringClick(item)">
+                                            <span class="fas fa-trash"></span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-link disabled" disabled>
+                                            <span class="fas fa-trash disabled"></span>
+                                        </button>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                </Template>
+            </RadzenDataGrid>
+        </div>
+        <div class="row pb-4">
+            <b>
+                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakCasesTotalCasesFieldLabel)</label>
+                &nbsp;@Count
+            </b>
+        </div>
+    </div>
+</div>

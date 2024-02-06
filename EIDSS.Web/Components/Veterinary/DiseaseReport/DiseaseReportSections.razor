@@ -1,0 +1,93 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Web.Components.Veterinary
+@using EIDSS.Web.Components.Outbreak.Case
+@using EIDSS.Web.Components.Outbreak.Case.Veterinary
+@using EIDSS.Web.Enumerations
+
+@inherits DiseaseReportSectionsBase
+
+<div id="caseDiseaseReportWizard">
+    <div class="content content-collapsed clearfix">
+        @if (Model.OutbreakCaseIndicator)
+        {
+            <section>
+                <OutbreakNotificationSection Model="Case"/>
+            </section>
+            <section>
+                <CaseLocationSection Model="Case"/>
+            </section>
+            <section>
+                <FarmInventorySection Case="Case" Model="Model"/>
+            </section>
+            <section>
+                <ClinicalInformationSection Case="Case" Model="Model"/>
+            </section>
+            <section>
+                <VaccinationsSection Model="Model"/>
+            </section>
+            <section>
+                <OutbreakInvestigationSection Model="Case"/>
+            </section>
+            <section>
+                <CaseMonitoringSection Model="Case" DiseaseReportId="Model.DiseaseReportID" VeterinaryDiseaseReport="Model"/>
+            </section>
+            <section>
+                <ContactsSection Model="Case" VeterinaryDiseaseReport="Model"/>
+            </section>
+            <section>
+                <SamplesSection Model="Model"/>
+            </section>
+            <section>
+                <PensideTestsSection Model="Model"/>
+            </section>
+            <section>
+                <LaboratoryTestsAndResultsSummaryAndInterpretationSection Model="Model"/>
+            </section>
+        }
+        else
+        {
+            <section>
+                <FarmDetailsSection Model="Model"/>
+            </section>
+            <section>
+                <NotificationSection Model="Model"/>
+            </section>
+            <section>
+                <FarmInventorySection Model="Model"/>
+            </section>
+            <section>
+                <FarmEpidemiologicalInformationSection Model="Model"/>
+            </section>
+            <section>
+                <ClinicalInvestigationSection Model="Model"/>
+            </section>
+            <section>
+                <VaccinationsSection Model="Model"/>
+            </section>
+            @if (Model.ReportCategoryTypeID == (long) CaseTypeEnum.Livestock)
+            {
+                <section>
+                    <ControlMeasuresSection Model="Model"/>
+                </section>
+                <section>
+                    <AnimalsSection Model="Model"/>
+                </section>
+            }
+            <section>
+                <SamplesSection Model="Model"/>
+            </section>
+            <section>
+                <PensideTestsSection Model="Model"/>
+            </section>
+            <section>
+                <LaboratoryTestsAndResultsSummaryAndInterpretationSection Model="Model"/>
+            </section>
+            <section>
+                <CaseLogsSection Model="Model"/>
+            </section>
+        }
+        <section>
+            <h4 style="display: none">@Localizer.GetString(HeadingResourceKeyConstants.ReviewHeading)</h4>
+        </section>
+    </div>
+</div>

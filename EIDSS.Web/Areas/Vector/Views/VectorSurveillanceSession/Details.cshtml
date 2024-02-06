@@ -1,0 +1,35 @@
+﻿@model EIDSS.Web.ViewModels.Vector.VectorSurveillancePageViewModel;
+@using EIDSS.Web.Components.Vector.VectorSurveillanceSession
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.VectorPageHeading);
+}
+
+<partial name="_ErrorModalNoTitlePartial" />
+
+<div class="card">
+    <div class="card-header">
+        <h3>@Localizer.GetString(@HeadingResourceKeyConstants.VectorPageHeading)</h3>
+    </div>
+    <div class="card-body">
+        <component type="typeof(SurveillanceSessionMaster)" render-mode="Server" param-Model="Model" />
+    </div>
+
+</div>
+<script src="~/js/Vector/vectorSurveillanceSession.js"></script>
+<script src="~/js/Vector/aggregateCollections.js"></script>
+<script src="~/js/Vector/detailedCollectionMaster.js"></script>
+@section Scripts {
+    <script type="text/javascript">  
+        function insufficientPermissions() {
+            showErrorModalNoTitle('@Localizer.GetString(MessageResourceKeyConstants.WarningMessagesYourPermissionsAreInsufficientToPerformThisFunctionMessage)').then(response => {
+                if (response) {
+                    $("#errorModal").modal("hide");
+                    $(".modal-backdrop").remove();
+                    window.location.replace('@Url.Action("Index", "Dashboard", new {Area = "Administration"})');
+                }
+            });
+        };
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+}

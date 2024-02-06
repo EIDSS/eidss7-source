@@ -1,0 +1,53 @@
+﻿@model EIDSS.Domain.ViewModels.DashboardViewModel
+
+@if (Model.menuList.Count > 0)
+{
+    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+        <div class="dropdown">
+            <ul class="navbar-nav flex-grow-1">
+                @foreach (var firstLevelMenu in Model.parentMenuList)
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link text-dark dropdown-toggle" data-toggle="dropdown" asp-area="" asp-controller="" asp-action="">@firstLevelMenu.MenuName</a>
+
+                        @if (Model.menuList.Where(m => m.EIDSSMenuId != m.EIDSSParentMenuId
+                                       && m.EIDSSParentMenuId == firstLevelMenu.EIDSSMenuId).Count() > 0)
+                        {
+                            <ul class="dropdown-menu">
+                                @foreach (var secondLevelMenu in Model.menuList.Where(m => m.EIDSSMenuId != m.EIDSSParentMenuId
+                                                                   && m.EIDSSParentMenuId == firstLevelMenu.EIDSSMenuId))
+                                {
+                                    <li class="dropdown-item">
+                                        <a class="dropdown-item" asp-area="" asp- asp-controller="@secondLevelMenu.Controller" asp-action="@secondLevelMenu.DecodedStrAction">@secondLevelMenu.MenuName</a>
+                                        @if (Model.menuList.Where(m => m.EIDSSMenuId != m.EIDSSParentMenuId
+                                                                            && m.EIDSSParentMenuId == secondLevelMenu.EIDSSMenuId).Count() > 0)
+                                        {
+                                            <ul class="nav-item dropdown-menu">
+                                                @foreach (var thridLevelMenu in Model.menuList.Where(m => m.EIDSSMenuId != m.EIDSSParentMenuId
+                                                                                            && m.EIDSSParentMenuId == secondLevelMenu.EIDSSMenuId))
+                                                {
+                                                    <li class="dropdown-item">
+                                                        <a class="dropdown-item" asp-area="" asp-controller="@thridLevelMenu.Controller" asp-action="@thridLevelMenu.DecodedStrAction">@thridLevelMenu.MenuName</a>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+}
+@if (Model.LanguageModels.Count > 0)
+{
+        <div class="col-lg-1 col-md-1 col-sm-2 col-xs-2">
+            <label asp-for="languageId" class="control-label"></label>
+            <select asp-for="languageId"
+                    asp-items="@(new SelectList(Model.LanguageModels, "LanguageID", "DisplayName"))" class="form-control">
+            </select>
+        </div>
+}

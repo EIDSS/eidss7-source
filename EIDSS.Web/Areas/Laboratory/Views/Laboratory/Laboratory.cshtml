@@ -1,0 +1,31 @@
+﻿@model EIDSS.Web.Areas.Laboratory.ViewModels.LaboratoryViewModel
+@using EIDSS.Web.Components.Laboratory
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.LaboratoryPageHeading);
+}
+<style type="text/css">
+    .rz-grid-table td
+    {
+        padding-top: 1px;
+        padding-bottom: 1px;
+    }
+</style>
+
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@HeadingResourceKeyConstants.LaboratoryPageHeading"></h3>
+    </div>
+    <div class="laboratory-card-body">
+        <div class="row">
+            <div class="col-12">
+                <component type="typeof(Tabs)" render-mode="Server" param-Tab="@Model.Tab" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_WarningModalPartial" />
+
+<script src="~/js/Laboratory/laboratory.js"></script>
+<script src="~/js/Veterinary/farm.js"></script>
+<script src="~/js/Human/person.js"></script>

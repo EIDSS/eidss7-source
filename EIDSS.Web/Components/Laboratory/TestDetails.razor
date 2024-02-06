@@ -1,0 +1,139 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Configuration
+@using EIDSS.Domain.ViewModels.Laboratory
+@using EIDSS.Web.Components.CrossCutting
+@inherits TestDetailsBase
+
+<InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalDiseaseFieldLabel" IsRow="true" CssClass="col-12" For="diseaseName">
+    <RadzenTextBox @bind-Value="Test.DiseaseName" class="form-control" Disabled="true" Name="diseaseName" />
+</InterfaceEditorResource>
+<InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalTestNameFieldLabel" IsRow="true" CssClass="col-12" For="testNameTypeID">
+    @if (WritePermissionIndicator && Test.WritePermissionIndicator)
+    {
+        <RadzenDropDown AllowClear="Test.TestID > 0 && Test.ExternalTestIndicator == false && !Test.TestNameTypeDisabledIndicator" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="Test.TestNameTypeID" Change="OnTestNameDropDownChange" class="form-control" Data="LaboratoryService.TestNameTypes" Disabled="(Test.TestID <= 0 && Test.ExternalTestIndicator == false) || Test.TestNameTypeDisabledIndicator" LoadData="GetTestNameTypes" Name="testNameTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+    }
+    else
+    {
+        <RadzenDropDown AllowClear="false" AllowFiltering="false" @bind-Value="Test.TestNameTypeID" class="form-control" Data="LaboratoryService.TestNameTypes" Disabled="true" LoadData="GetTestNameTypes" Name="testNameTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+    }
+</InterfaceEditorResource>
+<InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalTestStatusFieldLabel" IsRow="true" CssClass="col-12" For="testStatusTypeID">
+    @if (WritePermissionIndicator && Test.WritePermissionIndicator)
+    {
+        <RadzenDropDown AllowClear="Test.TestID > 0 && !Test.TestStatusTypeSelectDisabledIndicator" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="Test.TestStatusTypeID" Change="OnTestStatusDropDownChange" class="form-control" Data="LaboratoryService.TestStatusTypes" Disabled="Test.TestID is <= 0 or long.MaxValue || Test.TestStatusTypeSelectDisabledIndicator" Name="testStatusTypeID" TextProperty="Name" TValue="long" ValueProperty="IdfsBaseReference" />
+    }
+    else
+    {
+        <RadzenDropDown AllowClear="false" AllowFiltering="false" @bind-Value="Test.TestStatusTypeID" class="form-control" Data="LaboratoryService.TestStatusTypes" Disabled="true" Name="testStatusTypeID" TextProperty="Name" TValue="long" ValueProperty="IdfsBaseReference" />
+    }
+</InterfaceEditorResource>
+<InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalTestResultFieldLabel" IsRow="true" CssClass="col-12" For="testResultTypeID">
+    @if (WritePermissionIndicator && Test.WritePermissionIndicator)
+    {
+        <RadzenDropDown AllowClear="Test.TestID > 0 && Test.ExternalTestIndicator == false && !Test.TestResultTypeDisabledIndicator" @bind-Value="Test.TestResultTypeID" Change="OnTestResultDropDownChange" class="form-control" Data="(LaboratoryService.TestResultTypes ?? new List<TestNameTestResultsMatrixViewModel>()).Where(x => Test.TestNameTypeID is not null && x.idfsTestName == (long) Test.TestNameTypeID).AsODataEnumerable()" Disabled="(Test.TestID <= 0 && Test.ExternalTestIndicator == false) || Test.TestResultTypeDisabledIndicator" Name="testResultTypeID" TextProperty="strTestResultName" TValue="long?" ValueProperty="idfsTestResult" />
+    }
+    else
+    {
+        <RadzenDropDown AllowClear="false" @bind-Value="Test.TestResultTypeID" class="form-control" Data="(LaboratoryService.TestResultTypes ?? new List<TestNameTestResultsMatrixViewModel>()).Where(x => Test.TestNameTypeID is not null && x.idfsTestName == (long) Test.TestNameTypeID).AsODataEnumerable()" Disabled="true" Name="testResultTypeID" TextProperty="strTestResultName" TValue="long?" ValueProperty="idfsTestResult" />
+    }
+</InterfaceEditorResource>
+<InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalTestStartedDateFieldLabel" IsRow="true" CssClass="col-12" For="testStartedDate">
+    <br />
+    <RadzenDatePicker AllowClear="false" @bind-Value="Test.StartedDate" DateFormat="d" Disabled="true" Name="testStartedDate" TValue="DateTime?" />
+    <RadzenCompareValidator Component="testStartedDate" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="DateTime.Now" />
+    @if (Sample.AccessionDate != null)
+    {
+        <RadzenCompareValidator Component="testStartedDate" Operator="@CompareOperator.GreaterThanEqual" Popup="@false" Text="@Localizer.GetString(MessageResourceKeyConstants.LaboratorySampleTestDetailsModalTestStartedDateMustBeOnOrAfterSampleAccessionDateMessage)" Value="@Sample.AccessionDate.Value.Date" />
+    }
+</InterfaceEditorResource>
+<InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalResultDateFieldLabel" IsRow="true" CssClass="col-12" For="resultDate">
+    <br />
+    @if (WritePermissionIndicator && Test.WritePermissionIndicator)
+    {
+        <RadzenDatePicker AllowClear="false" @bind-Value="Test.ResultDate" DateFormat="d" Disabled="(Test.TestID <= 0 && Test.ExternalTestIndicator == false) || Test.ResultDateDisabledIndicator" Name="resultDate" TValue="DateTime?" />
+        <RadzenCompareValidator Component="resultDate" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="DateTime.Now" />
+        @if (Test.StartedDate != null)
+        {
+            <RadzenCompareValidator Component="resultDate" Operator="@CompareOperator.GreaterThanEqual" Popup="@false" Text="@Localizer.GetString(MessageResourceKeyConstants.LaboratorySampleTestDetailsModalResultDateMustBeOnOrAfterTestStartedDateMessage)" Value="@Test.StartedDate.Value.Date" />
+        }
+    }
+    else
+    {
+        <RadzenDatePicker AllowClear="false" @bind-Value="Test.ResultDate" DateFormat="d" Disabled="true" Name="resultDate" TValue="DateTime?" />
+    }
+</InterfaceEditorResource>
+<InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalTestCategoryFieldLabel" IsRow="true" CssClass="col-12" For="testCategoryTypeID">
+    @if (WritePermissionIndicator && Test.WritePermissionIndicator)
+    {
+        <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="Test.TestCategoryTypeID" class="form-control" Data="LaboratoryService.TestCategoryTypes" Disabled="(Test.TestID <= 0 && Test.ExternalTestIndicator == false) || Test.TestCategoryTypeDisabledIndicator" Name="testCategoryTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+    }
+    else
+    {
+        <RadzenDropDown AllowClear="false" AllowFiltering="false" @bind-Value="Test.TestCategoryTypeID" class="form-control" Data="LaboratoryService.TestCategoryTypes" Disabled="true" Name="testCategoryTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+    }
+</InterfaceEditorResource>
+
+<InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalTestedByFieldLabel" IsRow="true" CssClass="col-12" For="testedBy">
+    @if (WritePermissionIndicator && Test.WritePermissionIndicator)
+    {
+        <div class="input-group mb-3">
+            <RadzenDropDown AllowClear="Test.TestID > 0 && !Test.TestedByDisabledIndicator" AllowFiltering="true" @bind-Value="Test.TestedByPersonID" Change="OnTestedByDropDownChange" class="form-control" Data="EmployeeList" Disabled="(Test.TestID <= 0 && Test.ExternalTestIndicator == false) || Test.TestedByDisabledIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" Name="testedBy" TextProperty="FullName" TValue="long?" ValueProperty="idfPerson" />
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary btn-sm" id="AddEmployee" @onclick="@(OpenEmployeeAddModal)" type="button">
+                    <span class="fas fa-plus" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="input-group mb-3">
+            <RadzenDropDown AllowClear="false" AllowFiltering="false" @bind-Value="Test.TestedByPersonID" class="form-control" Data="EmployeeList" Disabled="true" Name="testedBy" TextProperty="FullName" TValue="long?" ValueProperty="idfPerson" />
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary btn-sm" id="AddEmployee" disabled type="button">
+                    <span class="fas fa-plus" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+    }
+</InterfaceEditorResource>
+<InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalResultsEnteredByFieldLabel" IsRow="true" CssClass="col-12" For="resultEnteredByPersonName">
+    <RadzenTextBox @bind-Value="Test.ResultEnteredByPersonName" class="form-control" Disabled="true" Name="resultEnteredByPersonName" />
+</InterfaceEditorResource>
+<InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalValidatedByFieldLabel" IsRow="true" CssClass="col-12" For="validatedByPersonName">
+    <RadzenTextBox @bind-Value="Test.ValidatedByPersonName" class="form-control" Disabled="true" Name="validatedByPersonName" />
+</InterfaceEditorResource>
+<InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalExternalResultsFieldLabel" IsRow="true" CssClass="col-12" For="externalResultsIndicator">
+    <RadzenCheckBox @bind-Value="Test.ExternalTestIndicator" class="form-check-inline" Disabled="true" Name="externalResultsIndicator" TriState="false" TValue="bool" />
+</InterfaceEditorResource>
+<InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalResultsReceivedFromFieldLabel" IsRow="true" CssClass="col-12" For="resultsReceivedFromOrganizationName">
+    @if (WritePermissionIndicator && Test.WritePermissionIndicator)
+    {
+        <RadzenTextBox @bind-Value="Test.PerformedByOrganizationName" class="form-control" Change="OnResultsReceivedFromTextBoxChange" Disabled="!Test.ExternalTestIndicator" Name="resultsReceivedFromOrganizationName" />
+    }
+    else
+    {
+        <RadzenTextBox @bind-Value="Test.PerformedByOrganizationName" class="form-control" Disabled="true" Name="resultsReceivedFromOrganizationName" />
+    }
+</InterfaceEditorResource>
+<InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalDateResultReceivedFieldLabel" IsRow="true" CssClass="col-12" For="dateResultReceived">
+    <br />
+    @if (WritePermissionIndicator && Test.WritePermissionIndicator)
+    {
+        <RadzenDatePicker AllowClear="false" @bind-Value="Test.ReceivedDate" DateFormat="d" Disabled="!Test.ExternalTestIndicator" Name="dateResultReceived" TValue="DateTime?" />
+    }
+    else
+    {
+        <RadzenDatePicker AllowClear="false" @bind-Value="Test.ReceivedDate" DateFormat="d" Disabled="true" Name="dateResultReceived" TValue="DateTime?" />
+    }
+</InterfaceEditorResource>
+<InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.LaboratorySampleTestDetailsModalPointofContactFieldLabel" IsRow="true" CssClass="col-12" For="pointOfContactName">
+    @if (WritePermissionIndicator && Test.WritePermissionIndicator)
+    {
+        <RadzenTextBox @bind-Value="Test.ContactPersonName" class="form-control" Disabled="!Test.ExternalTestIndicator" Name="pointOfContactName" />
+    }
+    else
+    {
+        <RadzenTextBox @bind-Value="Test.ContactPersonName" class="form-control" Disabled="true" Name="pointOfContactName" />
+    }
+</InterfaceEditorResource>

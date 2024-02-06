@@ -1,0 +1,39 @@
+﻿@model EIDSS.Web.ViewModels.CrossCutting.AggregateReportDetailsViewModel
+@addTagHelper *, EIDSS.Web.Components
+@using EIDSS.Web.Components.Veterinary.AggregateDiseaseReport
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateDiseaseReportPageHeading);
+}
+
+<partial name="_ErrorModalNoTitlePartial" />
+
+<div id="divAggregateDiseaseReportView" class="card">
+    <div class="card">
+        <div class="card-header">
+            <h3>@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateDiseaseReportPageHeading)</h3>
+        </div>
+        <div class="card-body">
+            <component type="typeof(AggregateDiseaseReportSections)" render-mode="ServerPrerendered" param-Model="Model"/>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/Veterinary/aggregateDiseaseReport.js"></script>
+
+@section Scripts {
+    <script type="text/javascript">  
+        function insufficientPermissions() {
+            showErrorModalNoTitle('@Localizer.GetString(MessageResourceKeyConstants.WarningMessagesYourPermissionsAreInsufficientToPerformThisFunctionMessage)').then(response => {
+                if (response) {
+                    $("#errorModal").modal("hide");
+                    $(".modal-backdrop").remove();
+                    window.location.replace('@Url.Action("Index", "Dashboard", new {Area = "Administration"})');
+                }
+            });
+        };
+    </script>
+
+    <partial name="_ValidationScriptsPartial"/>
+    <partial name="_WarningModalPartial"/>
+}

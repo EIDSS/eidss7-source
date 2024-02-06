@@ -1,0 +1,2 @@
+﻿insert into tauTable (idfTable, strName, strDescription, rowguid, SourceSystemNameID, SourceSystemKeyValue, AuditCreateUser, AuditCreateDTM, AuditUpdateUser, AuditUpdateDTM)
+values (52577590000000, 'HumanActualAddlInfo', null, '9F3B3980-7D91-4465-BD40-2A3293FA0748', 10519002, null, null, getdate(), null, null)

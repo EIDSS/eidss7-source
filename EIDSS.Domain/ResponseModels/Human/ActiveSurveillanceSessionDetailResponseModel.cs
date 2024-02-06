@@ -1,0 +1,45 @@
+﻿using System;
+
+namespace EIDSS.Domain.ResponseModels.Human
+{
+    public class ActiveSurveillanceSessionDetailResponseModel
+    {
+        public long HumanMonitoringSessionID { get; set; }
+        public string EIDSSSessionID { get; set; }
+        public long? SessionStatusTypeID { get; set; }
+        public string SessionStatusTypeName { get; set; }
+        public long DiseaseID { get; set; }
+        public string DiseaseName { get; set; }
+        public DateTime? EnteredDate { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public string AdminLevel1Name { get; set; }
+        public long? AdminLevel1ID { get; set; }
+        public string AdminLevel2Name { get; set; }
+        public long? AdminLevel2ID { get; set; }
+        public string AdminLevel3Name { get; set; }
+        public long? AdminLevel3ID { get; set; }
+        public string AdminLevel4Name { get; set; }
+        public long? AdminLevel4ID { get; set; }
+        public string AdminLevel5Name { get; set; }
+        public long? AdminLevel5ID { get; set; }
+        public string AdminLevel6Name { get; set; }
+        public long? AdminLevel6ID { get; set; }
+        public string AdminLevel7Name { get; set; }
+        public long? AdminLevel7ID { get; set; }
+        public long? EnteredByPersonID { get; set; }
+        public string EnteredByPersonName { get; set; }
+        public long SiteID { get; set; }
+        public string SiteName { get; set; }
+        public long? CampaignID { get; set; }
+        public string CampaignName { get; set; }
+        public long? CampaignTypeID { get; set; }
+        public string CampaignTypeName { get; set; }
+        public string strCampaignID { get; set; }
+        public bool ReadPermissionIndicator { get; set; }
+        public bool AccessToPersonalDataPermissionIndicator { get; set; }
+        public bool AccessToGenderAndAgeDataPermissionIndicator { get; set; }
+        public bool WritePermissionIndicator { get; set; }
+        public bool DeletePermissionIndicator { get; set; }
+    }
+}

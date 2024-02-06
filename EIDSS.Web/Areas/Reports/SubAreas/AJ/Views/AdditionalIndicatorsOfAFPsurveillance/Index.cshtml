@@ -1,0 +1,208 @@
+﻿@model EIDSS.Web.Areas.Reports.SubAreas.AJ.ViewModels.AdditionalIndicatorsOfAFPsurveillanceViewModel
+@using EIDSS.ReportViewer
+@{
+    ViewBag.Title = Localizer.GetString(HeadingResourceKeyConstants.AdditionalIndicatorsOfAFPSurveillancePageHeading);
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for='@(HeadingResourceKeyConstants.AdditionalIndicatorsOfAFPSurveillancePageHeading + "," + Model.LanguageId)'></h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            <div class="form-row">
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="LanguageId" field-label-for='@(FieldLabelResourceKeyConstants.LanguageFieldLabel + "," + Model.LanguageId)'></label>
+                    <select asp-for="LanguageId"
+                            asp-items="@(new SelectList(Model.ReportLanguageModels, "LangID", "Language"))" class="form-control">
+                    </select>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="Year" field-label-for='@(FieldLabelResourceKeyConstants.YearFieldLabel + "," + Model.LanguageId)'></label>
+                    <select asp-for="Year"
+                            asp-items="@(new SelectList(Model.ReportYearModels, "Year", "Year"))" class="form-control">
+                    </select>
+                    <span asp-validation-for="Year" class="text-danger"></span>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="ReportingPeriodTypeId" field-label-for='@(FieldLabelResourceKeyConstants.ReportingPeriodTypeFieldLabel + "," + Model.LanguageId)'></label>
+                    <div class="input-group">
+                        <select asp-for="ReportingPeriodTypeId" style="width: 150px;"
+                                asp-items="@(new SelectList(Model.ReportingPeriodTypeList, "StrValue", "StrLabel"))" class="form-control">
+                        </select>
+                        <span class="input-group-append">
+                            <button type="button" id="btnReportingPeriodType" class="btn btn-outline-secondary btn-sm border-left-0 border"><i class="fa fa-times fa-sm"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <input asp-for="ShowReportingPeriodId" type="hidden" />
+                <div id="divReportingPeriod" class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="ReportingPeriodId" field-label-for='@(FieldLabelResourceKeyConstants.ReportingPeriodFieldLabel + "," + Model.LanguageId)'></label>
+                    <div class="input-group">
+                        <select asp-for="ReportingPeriodId" style="width: 150px;"
+                                asp-items="@(new SelectList(Model.ReportingPeriodList, "ID", "TextValue"))" class="form-control">
+                        </select>
+                        <span class="input-group-append">
+                            <button type="button" id="btnReportingPeriod" class="btn btn-outline-secondary btn-sm border-left-0 border"><i class="fa fa-times fa-sm"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4 text-right">
+                    <button type="submit" id="submitReport" class="btn btn-primary" button-for='@(ButtonResourceKeyConstants.GenerateReportButton + "," + Model.LanguageId)'></button>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-2 form-check form-check-inline" style="@(Model.ShowIncludeSignature ? "display:block;" : "display:none;")">
+                    <input asp-for="IncludeSignature" class="form-check-input" type="checkbox" />
+                    <label asp-for="IncludeSignature" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.IncludeSignatureFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+                <div class="form-group col-md-4 form-check form-check-inline" style="@(Model.ShowUseArchiveData ? "display:block;" : "display:none;")">
+                    <input asp-for="UseArchiveData" class="form-check-input" type="checkbox" />
+                    <label asp-for="UseArchiveData" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.UseArchivedDataFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+            </div>
+        </form>
+        <div class="col-xs-4 col-xs-offset-4" id="divLoading"></div>
+        <div id="ReportView"></div>
+    </div>
+</div>
+
+@section runreport {
+    <script type="text/javascript">
+
+        function submitReport() {
+                $("#ReportView").html("");
+                onBegin();
+                $.ajax({
+                    url: '@Url.Action("GenerateReport", "AdditionalIndicatorsOfAFPsurveillance", new { Area = "Reports", SubArea = "AJ" })',//controller name and action
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(getFormData())  //information for search
+                })
+                    .done(function (result) {
+                        $('#ReportView').html(result); //write returned partial view to empty div
+                        onComplete();
+                    })
+
+         };
+
+         function onBegin() {
+                $("#divLoading").html('<image  src="@Url.Content("~/Includes/Images/ajax-loader.gif")"  alt="Loading, please wait" />');
+            };
+
+            function onComplete() {
+                var jsonData = {
+                    "strReportName": '@Model.ReportName',
+                    "idfIsSignatureIncluded": $("#IncludeSignature").is(':checked') ? 'true' : 'false'
+                };
+                //Save ReportAudit
+                $.ajax({
+                    url: '@Url.Action("SaveReportAudit", "AdditionalIndicatorsOfAFPsurveillance", new { Area = "Reports", SubArea = "AJ" })',//controller name and action
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(jsonData)  //information for search
+                })
+                    .done(function (result) {
+                        $("#divLoading").html("");
+                    })
+            };
+
+            function getFormData() {
+                var jsonData = {
+                    "LanguageId": $("#LanguageId").val(),
+                    "Year": $("#Year").val(),
+                    "ReportingPeriodTypeId": $("#ReportingPeriodTypeId").val(),
+                    "ReportingPeriodId": $("#ReportingPeriodId").val(),
+                    "UseArchiveData": $("#UseArchiveData").is(":checked") ? "true" : "false",
+                    "IncludeSignature": $("#IncludeSignature").is(":checked") ? "true" : "false",
+                    "PrintDateTime": localDate()
+                };
+
+                return jsonData;
+            };
+
+
+        $(document).ready(function () {
+            //To clear dropdown texts
+            $("#btnReportingPeriod").click(function () {
+                $("#ReportingPeriodId").val("0").change();
+            });
+
+            var ClearReportingPeriodType = function () {
+                $("#ReportingPeriodTypeId").val("0").change();
+                $("#ReportingPeriodId").val("0").change();
+            };
+
+            var reportPeriodType = $("#ReportingPeriodTypeId").val();
+            if (reportPeriodType == "Year") {
+                $("#ShowReportingPeriodId").val(false);
+                $("#divReportingPeriod").hide();
+            };
+
+            $("#btnReportingPeriodType").on("click", ClearReportingPeriodType);
+
+            $("#ReportingPeriodTypeId").on("change", function () {
+                var reportPeriodType = $("#ReportingPeriodTypeId").val();
+
+                if (reportPeriodType == "Year") {
+                    $("#ShowReportingPeriodId").val(false);
+                    $("#divReportingPeriod").hide();
+                }
+                else {
+                    $("#ShowReportingPeriodId").val(true);
+                    RefreshReportingPeriod();
+                    $("#divReportingPeriod").show();
+                }
+            });
+        });
+
+        function RefreshReportingPeriodType() {
+            var langId = $("#LanguageId").val();
+            var selectedReportingPeriodType = $('#ReportingPeriodTypeId').val();
+            $.ajax({
+                url: '@Url.Action("ReportingPeriodTypeList", "AdditionalIndicatorsOfAFPsurveillance", new { Area = "Reports", SubArea = "AJ" })' +"?langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#ReportingPeriodTypeId').empty();
+                    var items = '';
+                    $.each(data, function (i, ReportingPeriodType) {
+                        items += "<option value='" + ReportingPeriodType.strValue + "' > " + ReportingPeriodType.strLabel + "</option > ";
+                    });
+                    $('#ReportingPeriodTypeId').html(items);
+                    $('#ReportingPeriodTypeId').val(selectedReportingPeriodType);
+                    RefreshReportingPeriod();
+                });
+        };
+
+        function RefreshReportingPeriod() {
+            var reportPeriodType = $("#ReportingPeriodTypeId").val();
+            var year = $("#Year").val();
+            var langId = $("#LanguageId").val();
+            var selectedReportingPeriodId = $("#ReportingPeriodId").val();
+            $.ajax({
+                url: '@Url.Action("ReportingPeriodList", "AdditionalIndicatorsOfAFPsurveillance", new { Area = "Reports", SubArea = "AJ" })' + "?langId=" + langId + "&year=" + year + "&reportPeriodType=" + reportPeriodType,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#ReportingPeriodId').empty();
+                    var items = '';
+                    $.each(data, function (i, ReportingPeriod) {
+                        items += "<option value='" + ReportingPeriod.id + "' > " + ReportingPeriod.textValue + "</option > ";
+                    });
+                    $('#ReportingPeriodId').html(items);
+                    $("#ReportingPeriodId").val(selectedReportingPeriodId);
+                });
+        };
+    </script>
+    @if (@Model.JavascriptToRun != null)
+    {
+        <script type="text/javascript">
+            @Html.Raw(@Model.JavascriptToRun)
+        </script>
+    }
+}

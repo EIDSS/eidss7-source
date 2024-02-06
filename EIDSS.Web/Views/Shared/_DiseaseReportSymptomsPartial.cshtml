@@ -1,0 +1,109 @@
+﻿@model EIDSS.Web.ViewModels.Human.DiseaseReportSymptomsPageViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@using EIDSS.Domain.Enumerations;
+
+@{
+    @functions{
+        string FormatNullableDate(DateTime? value) => value.HasValue ? value.Value.ToString("d") : "";
+    }
+    var defaultReference = new Select2DataItem();
+
+    if (Model.idfCaseClassfication!=null && Model.idfCaseClassfication != 0 && !string.IsNullOrEmpty(Model.strCaseClassification))
+        defaultReference = new Select2DataItem() { id = Model.idfCaseClassfication.ToString(), text = Model.strCaseClassification };
+    Model.caseClassficationDD = new Select2Configruation
+    {
+        DropDownId = "caseClassficationDD",
+        ControlTargetType = DropDownTargetTypes.DropDown,
+        Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSymptomsInitialCaseClassificationFieldLabel),
+        Endpoint = @Url.Action("LoadInitialCaseClassification", "HumanDiseaseReport", new { Area = "Human" }),
+        isVisible = true,
+        defaultSelect2Selection = defaultReference,
+        CustomJsOnChangeFunction = "GetSiteAlertForInitialCaseClassification",
+        ConfigureForPartial = false
+    };
+}
+
+
+<form id="SymptomsForm">
+    <div class="card">
+        <div class="card-header"><h4 heading-for="@HeadingResourceKeyConstants.HumanDiseaseReportClinicalInformationSymptomsHeading"></h4></div>
+        <div class="card-body">
+            <div class="row">
+                <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportSymptomsDateOfSymptomsOnsetFieldLabel">
+                    <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportSymptomsDateOfSymptomsOnsetFieldLabel"></i>
+                    <label asp-for="@Model.SymptomsOnsetDate">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSymptomsDateOfSymptomsOnsetFieldLabel)</label>
+                    <eidss-calendar id="SymptomsSection_SymptomsOnsetDate" name="SymptomsSection.SymptomsOnsetDate"
+                                    asp-for="@Model.SymptomsOnsetDate"
+                            SearchFilter="true"
+                            value="@FormatNullableDate(Model.SymptomsOnsetDate)"
+                            disabled="@Model.IsReportClosed" dates-ids-to_validate="NotificationSection_dateOfDiagnosis">
+                    </eidss-calendar>
+                    <span asp-validation-for="@Model.SymptomsOnsetDate" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportSymptomsInitialCaseClassificationFieldLabel">
+                    @if ((Model.blnFinalSSD == null || (Model.blnFinalSSD != null && Model.blnFinalSSD.Value == false))
+                        && (Model.blnInitialSSD == null || (Model.blnInitialSSD != null && Model.blnInitialSSD.Value == false)))
+                    {
+                        <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportSymptomsInitialCaseClassificationFieldLabel"></i>
+                        <eidss-select2DropDown id="@Model.caseClassficationDD.DropDownId"
+                                name="@Model.caseClassficationDD.DropDownId"
+                                control-target-id="@Model.caseClassficationDD.ControltargetId"
+                                target-type="@Model.caseClassficationDD.ControlTargetType"
+                                target-ajax-url="@Model.caseClassficationDD.ControlTargetUrl"
+                                selectct2-default-data="@Model.caseClassficationDD.defaultSelect2Selection"
+                                end-point="@Model.caseClassficationDD.Endpoint"
+                                label-name="@Model.caseClassficationDD.Label"
+                                is-visible="@Model.caseClassficationDD.isVisible"
+                                custom-js-on-change-function="@Model.caseClassficationDD.CustomJsOnChangeFunction"
+                                is-disabled="@Model.IsReportClosed"
+                                class-name="form-control"
+                                configure-for-partial="Model.caseClassficationDD.ConfigureForPartial"
+                                partial-dynamic-load="true"
+                                asp-for="@Model.caseClassficationDD">
+                        </eidss-select2DropDown>
+                        <span asp-validation-for="caseClassficationDD" class="text-danger"></span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div id="divSymptomsList">
+            @await Component.InvokeAsync("FlexFormView", Model.HumanDiseaseSymptoms)
+        </div>
+    </div>
+
+</form>
+
+<partial name="_ValidationScriptsPartial" />
+
+
+<script>
+function GetSiteAlertForInitialCaseClassification(data)
+{
+        var model={};
+        model.idfCaseClassfication='@Model.idfCaseClassfication';
+        model.idfHumanCase='@Model.idfHumanCase';
+        model.idfHuman='@Model.idfHuman';
+        model.idfsSite='@Model.idfsSite';
+        model.DiseaseID = '@Model.DiseaseID';
+          $.ajax({
+                url: '@Url.Action("GetSiteAlertForInitialCaseClassification", "DiseaseReport", new { Area = "Human"})?data=' + JSON.stringify(model),
+                type: 'GET',
+                async:false,
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    
+                },
+                complete: function (data) {
+                },
+                error: function (request, error) {
+                    alert("failure" + error);
+                }
+            });
+    }
+</script>

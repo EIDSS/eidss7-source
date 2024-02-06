@@ -1,0 +1,272 @@
+﻿@using EIDSS.Web.Areas.Human.Person.ViewModels
+@using EIDSS.Domain.ViewModels.Human;
+@using EIDSS.Localization.Constants
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits EIDSS.Web.Components.Administration.Deduplication.Person.SearchPersonDeduplicationBase;
+
+<RadzenTemplateForm id="personSearchForm" @ref="form" TItem="PersonSearchPageViewModel" Data="@model" Submit="@HandleValidSearchSubmit">
+    <!--Selected Records -->
+    <div class="card">
+        <div class="card-header" id="SelectedRecords">
+            <h4>@Localizer.GetString(HeadingResourceKeyConstants.DeduplicationPersonPersonListHeading)</h4>
+        </div>
+        @if (showDeduplicateButton)
+        {
+            <div id="SelectedReportsBody" aria-labelledby="SelectedReports">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <RadzenDataGrid @ref="gridSelectedRecords" id="gridSelectedRecords" TItem="PersonViewModel" IsLoading="@IsSelectedRecordsLoading"
+                                            Data="@SelectedRecords"
+                                            AllowPaging="true" PageSize="10" AllowSorting="true" AllowColumnResize="true"
+                                            ExpandMode="DataGridExpandMode.Single">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="HumanMasterID" Title="HumanMasterID" Visible="false" />
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="EIDSSPersonID" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonPersonIDColumnHeading) Width="150px" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="LastOrSurname" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonLastNameColumnHeading) Sortable="true" Width="100px" />
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="FirstOrGivenName" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonFirstNameColumnHeading) Sortable="true" Width="100px" />
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="PersonalID" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonPersonalIDColumnHeading) Width="100px" Sortable="true">
+                                        <Template Context="data">
+                                            @if (model.HumanDiseaseReportDataPermissions.AccessToPersonalData)
+                                            {
+                                                <span>@data.PersonalID</span>
+                                            }
+                                            else
+                                            {
+                                                <span>********</span>
+                                            }
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="PersonIDTypeName" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.PersonalIDTypeColumnHeading) Width="125px" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="DateOfBirth" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonDateOfBirthColumnHeading) FormatString="{0:d}" Width="100px" Sortable="true">
+                                        <Template Context="data">
+                                            @if (model.HumanDiseaseReportDataPermissions.AccessToPersonalData)
+                                            {
+                                                <span>@(data.DateOfBirth.HasValue ? data.DateOfBirth.GetValueOrDefault().ToShortDateString() : string.Empty)</span>
+                                            }
+                                            else
+                                            {
+                                                <span>********</span>
+                                            }
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="GenderTypeName" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.GenderColumnHeading) Width="75px" Sortable="true">
+                                        <Template Context="data">
+                                            @if (model.HumanDiseaseReportDataPermissions.AccessToGenderAndAgeData)
+                                            {
+                                                <span>@data.GenderTypeName</span>
+                                            }
+                                            else
+                                            {
+                                                <span>********</span>
+                                            }
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="RegionName" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonModalAdministrativeLevel1ColumnHeading) Width="125px" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="RayonName" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonModalAdministrativeLevel2ColumnHeading) Width="125px" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="" Title="" Sortable="false" Filterable="false">
+                                        <Template Context="data">
+                                            <button @onclick=@(() =>OnRemoveAsync(data.HumanMasterID)) class="btn btn-sm" type="button">
+                                                <i class="fas fa-trash fa-1x"></i>
+                                            </button>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="deduplicateButtonResults" class="btn btn-outline-primary" type="button" disabled="@disableDeduplicateButton" @onclick=@(() => DeduplicateClickedAsync())>@Localizer.GetString(ButtonResourceKeyConstants.DeduplicationDeduplicateButtonText)</button>
+                    </div>
+                </div>
+            </div>
+        }
+        </div>
+    <!--end Selected Records -->
+    <div id="accordion">
+        <!--search criteria-->
+        <div class="card">
+            <div class="card-header" id="personSearchCriteria">
+                <button class="btn d-inline-block"
+                        type="button"
+                        data-toggle="collapse"
+                        aria-expanded="false"
+                        aria-controls="personSearchCriteriaBody"
+                        @onclick="@(() => AccordionClick(0))">
+                    <span class="text-left fas @(expandSearchCriteria ? "fa-caret-down" : "fa-caret-right")" />
+                    <h4 class="mb-0 d-inline-block"> @Localizer.GetString(HeadingResourceKeyConstants.SearchCriteriaHeading)</h4>
+                </button>
+            </div>
+            <div id="personSearchCriteriaBody" class="@(expandSearchCriteria ?  "collapse show" : "collapse" )" aria-labelledby="personSearchCriteria" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="form-row">
+                        <!--Person ID-->
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchPersonPersonIDLabel" IsRow="false" CssClass="col-md-3" For="personID">
+                            <RadzenTextBox id="personID" Name="personID" @bind-Value="@model.SearchCriteria.EIDSSPersonID" AutoComplete="true" class="form-control" />
+                        </InterfaceEditorResource>
+                        <div class="col-md-3">
+                            <label>@Localizer.GetString(FieldLabelResourceKeyConstants.SearchPersonOrLabel)</label>
+                        </div>
+                        <!--Personal ID Type Drop Down-->
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchPersonPersonalIDTypeLabel" IsRow="false" CssClass="col-md-3" For="personalIDType">
+                            <RadzenDropDown id="personalIDType" Name="personalIDType" AllowClear="true" TValue="long?" Data="@personnelIDTypes" LoadData="@GetPersonalIDTypesAsync" ValueProperty="IdfsBaseReference" TextProperty="Name" @bind-Value="@model.SearchCriteria.PersonalIDType"
+                                            class="form-control" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="PersonalIDTypeChangedAsync" />
+                        </InterfaceEditorResource>
+                        <!--Personal ID -->
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchPersonPersonalIDLabel" IsRow="false" CssClass="col-md-3" For="personalID">
+                            <RadzenTextBox id="personalID" Name="personalID" Disabled="@personalIDDisabled" @bind-Value="@model.SearchCriteria.PersonalID" class="form-control" />
+                        </InterfaceEditorResource>
+                    </div>
+                    <div class="form-row">
+                        <!--Person Name Fields-->
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchPersonFirstNameLabel" IsRow="false" CssClass="col-md-3" For="personFirstName">
+                            <RadzenTextBox id="personFirstName" Name="personFirstName" @bind-Value="@model.SearchCriteria.FirstOrGivenName" class="form-control" />
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchPersonMiddleNameLabel" IsRow="false" CssClass="col-md-3" For="personMiddleName">
+                            <RadzenTextBox id="personMiddleName" @bind-Value="@model.SearchCriteria.SecondName" class="form-control"></RadzenTextBox>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchPersonLastNameLabel" IsRow="false" CssClass="col-md-6" For="personLastName">
+                            <RadzenTextBox id="personLastName" Name="personLastName" @bind-Value="@model.SearchCriteria.LastOrSurname" class="form-control"></RadzenTextBox>
+                        </InterfaceEditorResource>
+                    </div>
+                    <div class="form-row">
+                        <!--Date of Birth -->
+                        <fieldset class="col-md-12">
+                            <legend>@Localizer.GetString(FieldLabelResourceKeyConstants.PersonInformationDateOfBirthFieldLabel)</legend>
+                            <div class="row">
+                                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.FromFieldLabel" IsRow="false" CssClass="col-md-4" For="SearchCriteria_DOBFrom">
+                                    <RadzenDatePicker id="dobFrom" Name="SearchCriteria_DOBFrom" AllowClear="true" AllowInput="true" class="form-control-range" TValue="DateTime?" @bind-Value="@model.SearchCriteria.DateOfBirthFrom" DateFormat="d" />
+                                    <RadzenCompareValidator Value="@model.SearchCriteria.DateOfBirthTo" Component="SearchCriteria_DOBFrom" Popup="false" Operator="CompareOperator.LessThanEqual"
+                                                            Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), Localizer.GetString(FieldLabelResourceKeyConstants.DateFromFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.DateToFieldLabel))"
+                                                            Style="display: block" Visible="@(!string.IsNullOrEmpty(model.SearchCriteria.DateOfBirthTo.ToString()))" />
+                                    <RadzenCompareValidator Value="@DateTime.Now" Component="SearchCriteria_DOBFrom" Popup="false" Operator="CompareOperator.LessThanEqual"
+                                                            Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)"
+                                                            Style="display: block" />
+                                </InterfaceEditorResource>
+                                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ToFieldLabel" IsRow="false" CssClass="col-md-4" For="SearchCriteria_DOBTo">
+                                    <RadzenDatePicker id="dobTo" class="form-control-range" TValue="DateTime?" AllowInput="true" @bind-Value="@model.SearchCriteria.DateOfBirthTo" Name="SearchCriteria_DOBTo" AllowClear="true" DateFormat="d" />
+                                    <RadzenCompareValidator Value="@model.SearchCriteria.DateOfBirthFrom" Component="SearchCriteria_DOBTo" Popup="false" Operator="CompareOperator.GreaterThanEqual"
+                                                            Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.DateToFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.DateFromFieldLabel))"
+                                                            Style="display: block" Visible="@(!string.IsNullOrEmpty(model.SearchCriteria.DateOfBirthFrom.ToString()))" />
+                                    <RadzenCompareValidator Value="@DateTime.Now" Component="SearchCriteria_DOBTo" Popup="false" Operator="CompareOperator.LessThanEqual"
+                                                            Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)"
+                                                            Style="display: block" />
+                                </InterfaceEditorResource>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="form-row">
+                        <!--Gender Drop Down-->
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchPersonGenderLabel" IsRow="false" CssClass="col-md-6" For="genderTypeID">
+                            <RadzenDropDown id="genderTypeID" Name="genderTypeID" AllowClear="true" TValue="long?" Data="@genderIDTypes" LoadData="@GetGenderTypesAsync"
+                                            ValueProperty="IdfsBaseReference" TextProperty="Name" @bind-Value="@model.SearchCriteria.GenderTypeID" class="form-control"
+                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
+                        </InterfaceEditorResource>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-12">
+                            <LocationView ParmLocationViewModel="@model.SearchLocationViewModel" LocationViewModelChanged="@LocationChanged" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end search criteria-->
+        <!--search criteria buttons-->
+        <div class="card-footer @(showSearchCriteriaButtons ?  " d-block" : "d-none" )">
+            <div class="row">
+                <div class="col-md-12">
+                    <button id="cancelButton" class="btn btn-outline-primary" type="button" @onclick="@(() => CancelSearchClicked())">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button id="clearButton" class="btn btn-outline-primary" type="reset" @onclick="@(() => ResetSearch())">@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)</button>
+                    <button id="searchButton" type="submit" class="btn btn-primary" autofocus disabled="@disableSearchButton">@Localizer.GetString(@ButtonResourceKeyConstants.SearchButton)</button>
+                </div>
+            </div>
+        </div>
+        <!--search criteria buttons-->
+        <!--search results-->
+        <div class="card @(showSearchResults ?  " d-block" : "d-none" )">
+            <div class="card-header" id="personSearchResults">
+                <h4 class="d-inline-block" style="line-height: 1.5rem; padding: 0.375rem 0.75rem;">@Localizer.GetString(HeadingResourceKeyConstants.SearchResultsHeading)</h4>
+            </div>
+            <div id="personSearchResultsBody" class="collapse show" aria-labelledby="personSearchResults" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <RadzenDataGrid @ref="grid"   id="searchResults" TItem="PersonViewModel" IsLoading="@isLoading" LoadData="@((args) =>
+                                LoadData(args))" Data="@model.SearchResults" AllowPaging="true" AllowSorting="true" Count="@count" AllowColumnResize="true" ExpandMode="DataGridExpandMode.Single"
+                                            AllowColumnReorder="true" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)"
+                                            SelectionMode="DataGridSelectionMode.Multiple"  @bind-Value="@PersonDeduplicationService.SelectedRecords"
+                                            Visible="@showSearchResults" PageSizeOptions="@pageSizeOptions" ShowPagingSummary="true"  RowSelect="@RowSelectAsync" RowDeselect="@RowDeSelect" >
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="HumanMasterID" Title="HumanMasterID" Visible="false" />
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                                        <Template Context="item">
+                                            <RadzenCheckBox TriState="false" TValue="bool" Value="item.Selected"  />
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="EIDSSPersonID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonPersonIDColumnHeading)" Width="150px" Sortable="true">
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="LastOrSurname" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonLastNameColumnHeading)" Sortable="true" Width="100px" />
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="FirstOrGivenName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonFirstNameColumnHeading)" Sortable="true" Width="100px" />
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="PersonalID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonPersonalIDColumnHeading)" Width="100px" Sortable="true">
+                                        <Template Context="data">
+                                            @if (model.HumanDiseaseReportDataPermissions.AccessToPersonalData)
+                                            {
+                                                <span>@data.PersonalID</span>
+                                            }
+                                            else
+                                            {
+                                                <span>********</span>
+                                            }
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="PersonIDTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.PersonalIDTypeColumnHeading)" Width="125px" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="DateOfBirth" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonDateOfBirthColumnHeading)" FormatString="{0:d}" Width="100px" Sortable="true">
+                                        <Template Context="data">
+                                            @if (model.HumanDiseaseReportDataPermissions.AccessToPersonalData)
+                                            {
+                                                <span>@(data.DateOfBirth.HasValue ? data.DateOfBirth.GetValueOrDefault().ToShortDateString() : string.Empty)</span>
+                                            }
+                                            else
+                                            {
+                                                <span>********</span>
+                                            }
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="GenderTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.GenderColumnHeading)" Width="75px" Sortable="true">
+                                        <Template Context="data">
+                                            @if (model.HumanDiseaseReportDataPermissions.AccessToGenderAndAgeData)
+                                            {
+                                                <span>@data.GenderTypeName</span>
+                                            }
+                                            else
+                                            {
+                                                <span>********</span>
+                                            }
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="RegionName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonModalAdministrativeLevel1ColumnHeading)" Width="125px" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="PersonViewModel" Property="RayonName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonModalAdministrativeLevel2ColumnHeading)" Width="125px" Sortable="true" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="cancelButtonResults" class="btn btn-outline-primary" type="button" @onclick="@(() => CancelSearchClicked())">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end search results-->
+    </div>
+</RadzenTemplateForm>

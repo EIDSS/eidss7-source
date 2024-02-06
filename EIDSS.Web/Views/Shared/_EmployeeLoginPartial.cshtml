@@ -1,0 +1,78 @@
+﻿
+@model EIDSS.Web.ViewModels.Administration.EmployeeLoginViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+
+<form method="post" id="LoginForm">
+    <div class="container-fluid">
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4 heading-for="@HeadingResourceKeyConstants.LoginHeading"></h4>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-12">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.UserNameFieldLabel"></i>
+                <label asp-for="@Model.Login" field-label-for="@FieldLabelResourceKeyConstants.UserNameFieldLabel"></label>
+                <input asp-for="@Model.Login" class="form-control" onchange="validateUser();" />
+                <span asp-validation-for="@Model.Login" class="text-danger"></span>
+                <div class="text-danger" id="ValLogin"></div>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-12">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.PasswordFieldLabel"></i>
+                <label asp-for="@Model.Password" field-label-for="@FieldLabelResourceKeyConstants.PasswordFieldLabel"></label>
+                <input asp-for="@Model.Password" type="password" class="form-control" onchange="validatePassword();" AutoCompleteType="None" value="@Model.Password"/>
+                <span asp-validation-for="@Model.Password" class="text-danger"></span>
+                <div class="text-danger" id="ValPassword"></div>
+            </div>
+        </div>
+        <div class="form-row">
+        <div class="form-group col-md-12">
+            <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.ConfirmPasswordFieldLabel"></i>
+            <label asp-for="@Model.ConfirmPassword" field-label-for="@FieldLabelResourceKeyConstants.ConfirmPasswordFieldLabel"></label>
+            <input asp-for="@Model.ConfirmPassword" type="password" class="form-control" onchange="comparePassword();"   AutoCompleteType="None" value="@Model.ConfirmPassword"/>
+            <span asp-validation-for="@Model.ConfirmPassword" class="text-danger"></span>
+            <div class="text-danger" id="ValConfirmPassword"></div>
+        </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-12 form-check form-check-inline">
+                @if (Model.MustChangePassword)
+                {
+                    <input asp-for="@Model.MustChangePassword" type="checkbox" class="form-check-input" checked />
+                }
+                else
+                {
+                <input asp-for="@Model.MustChangePassword" type="checkbox" class="form-check-input"/>
+                }
+                <label asp-for="@Model.MustChangePassword" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.UserMustChangePasswordAtNextLoginFieldLabel"></label>
+            </div>
+        </div>
+        @*Missing required fields*@
+        <div class="modal fade" id="mdUserExists" tabindex="-1" aria-labelledby="mdUserExistsLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">
+                            @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btnRequiredFieldsMissingOk" type="button" class="btn-sm btn-primary" data-dismiss="modal">
+                            @Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

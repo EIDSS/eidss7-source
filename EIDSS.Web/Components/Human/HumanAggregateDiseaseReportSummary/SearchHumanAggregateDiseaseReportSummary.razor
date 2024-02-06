@@ -1,0 +1,125 @@
+﻿@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.ViewModels.CrossCutting
+@using Microsoft.AspNetCore.Components
+@using EIDSS.Domain.ViewModels.CrossCutting
+@inherits SearchHumanAggregateDiseaseReportSummaryBase
+
+<RadzenTemplateForm id="ReportSearchForm" @ref="Form" TItem="AggregateReportSearchViewModel" Data="@Model" Submit="@HandleValidSearchSubmit" OnInvalidSubmit="@HandleInvalidSearchSubmit">
+    <div id="accordion">
+        <!--search criteria-->
+        <div class="card">
+            <div class="card-header" id="SearchCriteria">
+                <button aria-controls="SearchCriteriaBody" aria-expanded="false" class="btn d-inline-block" data-toggle="collapse" @onclick="@(() => AccordionClick(0))" type="button">
+                    <span class="text-left fas @(ExpandSearchCriteria ? "fa-caret-down" : "fa-caret-right")"></span>
+                    <h4 class="mb-0 d-inline-block"> @Localizer.GetString(HeadingResourceKeyConstants.SearchCriteriaHeading)</h4>
+                </button>
+            </div>
+            <div id="SearchCriteriaBody" class="@(ExpandSearchCriteria ? "collapse show" : "collapse")" aria-labelledby="SearchCriteria" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="@Model.SearchCriteria.ReportID">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsReportIDFieldLabel)</label>
+                            <RadzenTextBox @bind-Value="@Model.SearchCriteria.ReportID" class="form-control" id="reportID"></RadzenTextBox>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="SearchCriteria.StartDate">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsStartDateFieldLabel)</label>
+                            <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="@Model.SearchCriteria.StartDate" class="form-control-range" DateFormat="d" id="dateStartDate" Name="SearchCriteria_StartDate" TValue="DateTime?"/>
+                            <RadzenCompareValidator Component="SearchCriteria_StartDate" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsStartDateFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsEndDateFieldLabel))" Value="@Model.SearchCriteria.EndDate" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.EndDate.ToString()))"/>
+                            <RadzenCompareValidator Component="SearchCriteria_StartDate" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="@DateTime.Now"/>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="SearchCriteria.EndDate">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsEndDateFieldLabel)</label>
+                            <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="@Model.SearchCriteria.EndDate" class="form-control-range" DateFormat="d" id="dateEndDate" Name="SearchCriteria_EndDate" TValue="DateTime?"/>
+                            <RadzenCompareValidator Component="SearchCriteria_EndDate" Operator="CompareOperator.GreaterThanEqual" Popup="false" Style="display: block" Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsEndDateFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsStartDateFieldLabel))" Value="@Model.SearchCriteria.StartDate" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.StartDate.ToString()))"/>
+                            <RadzenCompareValidator Component="SearchCriteria_EndDate" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="@DateTime.Now"/>
+                        </div>
+                    </div>
+                    <div class="form-row mb-3">
+                        <div class="col-md-12" id="divLocation">
+                            <label></label>
+                            <LocationView LocationViewModelChanged="RefreshLocationViewModelHandlerAsync" ParmLocationViewModel="@Model.SearchLocationViewModel"/>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <!--Organization Drop Down-->
+                            <label for="@Model.SearchCriteria.OrganizationID">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchSitesOrganizationFieldLabel)</label>
+                            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@Model.SearchCriteria.OrganizationID" class="form-control" Data="@Organizations" Disabled="Model.SearchCriteria.OrganizationIDDisabledIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="organizationID" TextProperty="AbbreviatedName" TValue="long?" ValueProperty="OrganizationKey"></RadzenDropDown>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end search criteria-->
+        <!--search results-->
+        <div class="card">
+            <div class="card-header" id="SearchResults">
+                <button aria-controls="SearchResultsBody" aria-expanded="false" class="btn d-inline-block" data-toggle="collapse" @onclick="@(() => AccordionClick(1))" type="button">
+                    <span class="text-left fas @(ExpandSearchResults ? "fa-caret-down" : "fa-caret-right")"></span>
+                    <h4 class="mb-0 d-inline-block">@Localizer.GetString(HeadingResourceKeyConstants.SearchResultsHeading)</h4>
+                </button>
+            </div>
+            <div id="SearchResultsBody" class="@(ExpandSearchResults ? "collapse show" : "collapse")" aria-labelledby="SearchResults" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <RadzenDataGrid AllowColumnResize="true" AllowPaging="true" AllowSorting="true" @bind-Value="@AggregateDiseaseReportSummaryService.SelectedReports" Count="@Count" Data="@SearchResults" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" ExpandMode="DataGridExpandMode.Single" id="searchResults" IsLoading="@IsLoading" LoadData="@(args => LoadData(args))" PageSize="10" @ref="Grid" SelectionMode="DataGridSelectionMode.Multiple" TItem="AggregateReportGetListViewModel" Visible="@ExpandSearchResults">
+                                <Columns>
+                                    <RadzenDataGridColumn Property="ReportKey" TItem="AggregateReportGetListViewModel" Title="ReportKey" Visible="false"/>
+                                    <RadzenDataGridColumn Filterable="false" Frozen="true" Sortable="false" TItem="AggregateReportGetListViewModel" Width="40px">
+                                        <Template Context="data">
+                                            <RadzenCheckBox TriState="false" Value="@(AggregateDiseaseReportSummaryService.SelectedReports != null && AggregateDiseaseReportSummaryService.SelectedReports.Contains(data))"/>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn Property="ReportID" Sortable="true" TItem="AggregateReportGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsReportIDColumnHeading)" Width="150px">
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn FormatString="{0:d}" Property="StartDate" Sortable="true" TItem="AggregateReportGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsStartDateColumnHeading)" Width="125px"/>
+                                    <RadzenDataGridColumn Property="TimeIntervalUnitTypeName" Sortable="true" TItem="AggregateReportGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsTimeIntervalColumnHeading)" Width="125px"/>
+                                    <RadzenDataGridColumn Property="AdministrativeLevel1Name" Sortable="true" TItem="AggregateReportGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsRegionColumnHeading)" Width="150px"/>
+                                    <RadzenDataGridColumn Property="AdministrativeLevel2Name" Sortable="true" TItem="AggregateReportGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsRayonColumnHeading)" Width="150px"/>
+                                    <RadzenDataGridColumn Property="SettlementName" Sortable="true" TItem="AggregateReportGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsSettlementColumnHeading)" Width="150px"/>
+                                    <RadzenDataGridColumn Property="OrganizationAdministrativeName" Sortable="true" TItem="AggregateReportGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsOrganizationColumnHeading)" Width="150px"/>
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end search results-->
+    </div>
+    <div id="SearchCriteriaCommands" class="card">
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-12">
+                    @if (ShowPrintButton)
+                    {
+                        <button class="btn btn-outline-primary" id="printButton" @onclick=@(PrintSearchResults) type="button">@Localizer.GetString(ButtonResourceKeyConstants.PrintButton)</button>
+                    }
+                    @if (ShowCancelButton)
+                    {
+                        <button class="btn btn-outline-primary" id="cancelButton" @onclick=@(CancelSearch) type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    }
+                    @if (ShowSelectButton)
+                    {
+                        <button class="btn btn-outline-primary" id="selectButton" @onclick=@(OnSelectReports) type="button">@Localizer.GetString(ButtonResourceKeyConstants.SelectButton)</button>
+                    }
+                    @if (ShowSelectAllButton)
+                    {
+                        <button class="btn btn-outline-primary" id="selectAllButton" @onclick=@(OnSelectAll) type="button">@Localizer.GetString(ButtonResourceKeyConstants.SelectAllButton)</button>
+                    }
+                    @if (ShowClearButton)
+                    {
+                        <button class="btn btn-outline-primary" id="clearButton" @onclick=@(ResetSearch) type="reset">@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)</button>
+                    }
+                    @if (ShowSearchButton)
+                    {
+                        <button class="btn btn-primary" id="searchButton" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SearchButton)</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

@@ -1,0 +1,107 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Veterinary
+
+@inherits PensideTestsSectionBase
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-9">
+            <h4 class="header">@SectionHeadingResourceKey</h4>
+        </div>
+        <div class="col-3 text-right">
+            @if (Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0)
+            {
+                <button class="btn btn-link add-section" id="addPensideTest" @onclick="OnAddPensideTestClick" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+            }
+            else if (!Model.WritePermissionIndicator || Model.ReportDisabledIndicator)
+            {
+                <button class="btn btn-link add-section disabled" disabled id="addPensideTest" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-link add-section" id="addPensideTest" @onclick="OnAddPensideTestClick" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+            }
+            
+        @if (Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0 || (Model.WritePermissionIndicator && Model.DiseaseReportID > 0 && Model.ReportStatusTypeID == (long) DiseaseReportStatusTypeEnum.InProcess && Model.ReportCurrentlyClosedIndicator == false))
+        {
+            if (Model.OutbreakCaseIndicator)
+            {
+                <a class="edit-section" href="#caseDiseaseReportWizard-h-9" id="editPensideTestsSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            }
+            else if (Model.ReportCategoryTypeID == (long) CaseTypeEnum.Avian)
+            {
+                <a class="edit-section" href="#caseDiseaseReportWizard-h-7" id="editPensideTestsSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            }
+            else
+            {
+                <a class="edit-section" href="#caseDiseaseReportWizard-h-9" id="editPensideTestsSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            }
+        }
+        </div>
+    </div>
+<div class="card">
+    <div class="card-header">
+        <h3>@SectionHeadingResourceKey</h3>
+    </div>
+    <div id="divPensideTestsSection" class="card-body">
+        <div class="row">
+            <div class="col-12">
+                <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" Count="Count" Data="Model.PensideTests" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="@(args => LoadPensideTestData(args))" PageSizeOptions="pageSizeOptions" PageSizeText="@Localizer.GetString(FieldLabelResourceKeyConstants.CommonLabelsItemsPerPageFieldLabel)" @ref="PensideTestsGrid" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="true" TItem="PensideTestGetListViewModel">
+                    <Columns>
+                        <RadzenDataGridColumn Property="PensideTestNameTypeName" TItem="PensideTestGetListViewModel" Title="@TestNameColumnHeadingResourceKey"/>
+                        <RadzenDataGridColumn Property="EIDSSLocalOrFieldSampleID" TItem="PensideTestGetListViewModel" Title="@FieldSampleIdColumnHeadingResourceKey"/>
+                        <RadzenDataGridColumn Property="SampleTypeName" TItem="PensideTestGetListViewModel" Title="@SampleTypeColumnHeadingResourceKey"/>
+                        <RadzenDataGridColumn Property="Species" TItem="PensideTestGetListViewModel" Title="@SpeciesColumnHeadingResourceKey" Visible="Model.ReportCategoryTypeID == (long) CaseTypeEnum.Avian"/>
+                        <RadzenDataGridColumn Property="EIDSSAnimalID" TItem="PensideTestGetListViewModel" Title="@AnimalIdColumnHeadingResourceKey" Visible="Model.ReportCategoryTypeID == (long) CaseTypeEnum.Livestock"/>
+                        <RadzenDataGridColumn Property="PensideTestResultTypeName" TItem="PensideTestGetListViewModel" Title="@ResultColumnHeadingResourceKey"/>
+                        <RadzenDataGridColumn Filterable="false" Frozen="true" Property="PensideTestID" Sortable="false" TextAlign="TextAlign.Center" TItem="PensideTestGetListViewModel" Title="" Width="55px">
+                            <Template Context="item">
+                                @if (Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)
+                                {
+                                    <button class="btn btn-link disabled" disabled>
+                                        <span class="fas fa-edit disabled"></span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-link" @onclick="_ => OnEditPensideTestClick(item)">
+                                        <span class="fas fa-edit"></span>
+                                    </button>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn Filterable="false" Frozen="true" Property="PensideTestID" Sortable="false" TextAlign="TextAlign.Center" TItem="PensideTestGetListViewModel" Title="" Width="55px">
+                            <Template Context="item">
+                                @if (Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)
+                                {
+                                    <button class="btn btn-link disabled" disabled>
+                                        <span class="fas fa-trash disabled"></span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-link" @onclick="_ => OnDeletePensideTestClick(item)">
+                                        <span class="fas fa-trash"></span>
+                                    </button>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+</div>
+</div>

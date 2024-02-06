@@ -1,0 +1,181 @@
+﻿<input type="hidden" id="dModalFormId" />
+<div id="dSuccessModal" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                            <span class="glyphicon glyphicon-alert modal-icon"></span>
+                        </div>
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <strong id="successSubTitle"></strong>
+                            <br />
+                            <div id="successBody">
+                                @Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group text-center">
+                <input type="button" id="btnOk" class="btn btn-primary" data-dismiss="modal" value="@Localizer.GetString(ButtonResourceKeyConstants.OKButton)" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="dDuplicatesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="sDupeMsg"></span>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnOk" onclick="reloadModal();" class="btn-primary" data-dismiss="modal" value="@Localizer.GetString(ButtonResourceKeyConstants.OKButton)" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function CheckSuccess(response) {
+        if (response.value.returnMessage == "SUCCESS") {
+            $("#dSuccessModal").modal("show");
+
+            updateNotificationEnvelopeCount();
+        }
+
+        if (response.value.returnMessage == "DOES EXIST") {
+            $("#dDuplicatesModal").modal("show");
+            $("#sDupeMsg").html(response.value.duplicationMessage);
+        }
+    }
+
+     function showSuccessModal(message, title = "@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)", size = "medium") {
+        const modal = new Promise(function (resolve, reject) {
+            //$("#dSuccessModal").find(".modal-header > h4").text(title).end();
+            //$("#dSuccessModal").find("#warningMessage").text(message.replace(/&quot;/g, '\"')).end(); // replace HTML &quot to show actual double quotes.
+            $("#dSuccessModal").modal("show");
+
+            $("#dSuccessModal .btn-primary").click(function () {
+                $("#dSuccessModal").modal("hide");
+                resolve(true);
+            });
+    
+        }).then(response => {
+            return response;
+        });
+
+        return modal;
+    };
+
+    function showDuplicateModal(message, title = "@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)", size = "medium") {
+        const modal = new Promise(function (resolve, reject) {
+            $("#dDuplicatesModal").find(".modal-header > h4").text(title).end();
+            $("#dDuplicatesModal").find("#sDupeMsg").text(message.replace(/&quot;/g, '\"')).end(); // replace HTML &quot to show actual double quotes.
+            $("#dDuplicatesModal").modal("show");
+
+            $("#dDuplicatesModal .btn-primary").click(function () {
+                $("#dDuplicatesModal").modal("hide");
+                resolve(true);
+            });
+
+        }).then(response => {
+            return response;
+        });
+
+        return modal;
+    };
+
+    //Storage of modal answers for retrieval on "Ok" of warning popup message
+    var inputAnswers;
+    var selectAnswers;
+    var checkAnswers;
+
+    function storeAnswers(formId) {
+        $("#dModalFormId").val(formId);
+
+        inputAnswers = "";
+        selectAnswers = "";
+        checkAnswers = "";
+
+        $("#" + formId + " input:text").each(function (i, j) {
+            if (j.id != "" && j.id != undefined) {
+                inputAnswers += j.id + "↕" + $(j).val() + "‼";
+            }
+        });
+
+        inputAnswers = (inputAnswers + ".").replace("‼.", "");
+
+        $("#" + formId + " select").each(function (i, j) {
+            if (j.id != "" && j.id != undefined) {
+                if (j.length > 0) {
+                    selectAnswers += j.id + "↕" + $(j).val() + "↕";
+                    for (i = 0; i < j.length; i++) {
+                        selectAnswers += $(j[i]).text() + ",";
+                    }
+                    selectAnswers = (selectAnswers + ".").replace(",.", "");
+                    selectAnswers += "‼";
+                }
+            }
+        });
+
+        selectAnswers = (selectAnswers + ".").replace("‼.", "");
+
+        $("#" + formId + " input:checkbox").each(function (i, j) {
+            if (j.id != "" && j.id != undefined) {
+                checkAnswers += j.id + "↕" + $(j).prop("checked") + "‼";
+            }
+        });
+
+        checkAnswers = (checkAnswers + ".").replace("‼.", "");
+    }
+
+    function reloadModal() {
+        var controlId;
+        var controlValue;
+        var controlText;
+
+        $(inputAnswers.split("‼")).each(function (i, j) {
+            controlId = j.split("↕")[0];
+            controlValue = j.split("↕")[1];
+
+            $("#" + controlId).val(controlValue);
+        });
+
+        $(selectAnswers.split("‼")).each(function (i, j) {
+            controlId = j.split("↕")[0];
+            controlValue = j.split("↕")[1];
+            controlText = j.split("↕")[2];
+
+            if (controlId != "") {
+                setSelect2(controlId, { id: controlValue, text: controlText });
+            }
+        });
+
+        $(checkAnswers.split("‼")).each(function (i, j) {
+            controlId = j.split("↕")[0];
+            controlValue = j.split("↕")[1];
+
+            $("#" + controlId).prop("checked", controlValue === 'true')
+        });
+
+        var modalId = $("#dModalFormId").val();
+        $("#" + modalId).modal("show");
+    }
+
+    function setSelect2(controlId, controlValue) {
+        for (i = 0; i < controlValue.text.split(',').length; i++) {
+
+            var newOption = new Option(controlValue.text.split(',')[i], controlValue.id.split(',')[i], true, true);
+            $('#' + controlId).append(newOption).trigger('change');
+        }
+    }
+</script>

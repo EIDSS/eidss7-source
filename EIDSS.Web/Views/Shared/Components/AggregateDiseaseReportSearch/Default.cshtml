@@ -1,0 +1,436 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using EIDSS.Web.Components.CrossCutting
+@model EIDSS.Web.ViewModels.CrossCutting.AggregateReportSearchViewModel
+@{
+    Model.TimeIntervalUnitSelect.DropDownId = "TimeIntervalUnitSelect";
+    Model.TimeIntervalUnitSelect.Label = Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsTimeIntervalUnitFieldLabel);
+    Model.TimeIntervalUnitSelect.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.TimeIntervalUnitSelect.Endpoint = @Url.Action("GetBaseReferenceListForSelect2DropDownWithSorting", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000091, sortColumn = "intOrder" });
+    Model.TimeIntervalUnitSelect.isVisible = true;
+
+    Model.AdministrativeLevelSelect.DropDownId = "AdministrativeLevelSelect";
+    Model.AdministrativeLevelSelect.Label = Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsAdministrativeLevelFieldLabel);
+    Model.AdministrativeLevelSelect.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.AdministrativeLevelSelect.Endpoint = @Url.Action("GetBaseReferenceListForSelect2DropDownWithSorting", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000089, sortColumn = "intOrder" });
+    Model.AdministrativeLevelSelect.isVisible = true;
+    Model.AdministrativeLevelSelect.CustomJsOnChangeFunction = "refreshLocation";
+
+    Model.OrganizationSelect.DropDownId = "OrganizationSelect";
+    Model.OrganizationSelect.Label = Localizer.GetString(FieldLabelResourceKeyConstants.SearchSitesOrganizationFieldLabel);
+    Model.OrganizationSelect.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.OrganizationSelect.Endpoint = @Url.Action("GetOrganizationsByAdministrativeLevelID", "AggregateDiseaseReport", new { Area = "Human", data = Model.SearchCriteria.AdministrativeUnitID });
+    Model.OrganizationSelect.isVisible = true;
+    Model.OrganizationSelect.ConfigureForPartial = true;
+    
+    Model.AggregateDiseaseReportGridConfiguration = new();
+    Model.AggregateDiseaseReportGridConfiguration.GridId = "reportsTable";
+    Model.AggregateDiseaseReportGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.AggregateDiseaseReportGridConfiguration.ControlFilterID = "SearchCriteria_ReportID,SearchCriteria_LegacyReportID,TimeIntervalUnitSelect,StartDate,EndDate,AdministrativeLevelSelect,AdminLevel1Value,AdminLevel2Value,AdminLevel3Value,OrganizationSelect,HumanIndicator,IsFirstLoadIndicator";
+    Model.AggregateDiseaseReportGridConfiguration.AjaxDataUrl = Url.Action("GetReportList", "AggregateDiseaseReportSearch", new { Area = "Human" });
+    Model.AggregateDiseaseReportGridConfiguration.EnableServerSide = true;
+    Model.AggregateDiseaseReportGridConfiguration.EnableCustomSearching = false;
+    Model.AggregateDiseaseReportGridConfiguration.EnableProcessingMessage = true;
+    Model.AggregateDiseaseReportGridConfiguration.DefaultSortDirection = "desc";
+    Model.AggregateDiseaseReportGridConfiguration.EnablePrintButton = true;
+    Model.AggregateDiseaseReportGridConfiguration.DefaultSortDirection = "desc";
+    Model.AggregateDiseaseReportGridConfiguration.IsSSRSReportEnabled = true;
+
+    Model.AggregateDiseaseReportGridConfiguration.ShowChildRow = true;
+    Model.AggregateDiseaseReportGridConfiguration.ChildRowAjaxUrl = @Url.Action("BuildDetailRowContent", "AggregateDiseaseReportSearch", new { Area = "Human" });
+
+
+    Model.AggregateDiseaseReportGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.AggregateDiseaseReportGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.AggregateDiseaseReportGridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.PageRedirect;
+    Model.AggregateDiseaseReportGridConfiguration.EditPageRedirectLink = Url.Action("Details", "AggregateDiseaseReport", new { Area = "Human" });
+    Model.AggregateDiseaseReportGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ReportKey", ColumnTitleHeader = String.Empty, ColumnType = ColumnType.Default, Visible = false });
+    Model.AggregateDiseaseReportGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnName = "ReportID",
+                ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsReportIDColumnHeading),
+                ColumnType = ColumnType.HyperLinkToReview,
+                HyperLinkDataField = "ReportKey",
+                ColumnHyperlinkURL = @Url.Action("DetailsReviewPage", "AggregateDiseaseReport", new { Area = "Human" }),
+                Orderable = true,
+                Visible = true,
+                ReviewPageNo = 2
+            });
+    Model.AggregateDiseaseReportGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "StartDate", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsStartDateColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.AggregateDiseaseReportGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "TimeIntervalUnitTypeName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsTimeIntervalColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.AggregateDiseaseReportGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "AdministrativeLevel1Name", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsRegionColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.AggregateDiseaseReportGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "AdministrativeLevel2Name", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsRayonColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.AggregateDiseaseReportGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "SettlementName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsSettlementColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.AggregateDiseaseReportGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "OrganizationAdministrativeName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsOrganizationColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.AggregateDiseaseReportGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ReportKey", ColumnTitleHeader = "", ColumnType = ColumnType.Edit, Visible = Model.Permissions.Write });
+
+    Model.AggregateDiseaseReportGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnName = "",
+                ColumnTitleHeader = string.Empty,
+                Visible = true,
+                ColumnType = ColumnType.ChildRow,
+                ChildRowDataField = "ReportID",
+                Orderable = false
+            });
+}
+
+<form id="AggregateDiseaseReportSearchForm">
+    <input type="hidden" asp-for="SearchCriteria.AdministrativeUnitTypeID" />
+    <input type="hidden" asp-for="SearchCriteria.TimeIntervalTypeID" />
+    <input type="hidden" asp-for="SearchLocationViewModel.AdminLevel1Value" />
+    <input type="hidden" asp-for="SearchLocationViewModel.AdminLevel2Value" />
+    <input type="hidden" asp-for="IsFirstLoadIndicator"/>
+    <input type="hidden" asp-for="LangId"/>
+    <input type="hidden" id="PrintParametersJSON" />
+
+    <div id="AggregateDiseaseReportSearchCriteria" class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-lg-11">
+                    <h4 id="searchCriteriaHeader" heading-for="@HeadingResourceKeyConstants.SearchCriteriaHeading"></h4>
+                </div>
+                <div class="col-lg-1">
+                    <span id="toggleAggregateDiseaseReportSearchIcon" class="fas fa-caret-down align-bottom fa-2x e-dark-blue" data-toggle="collapse" data-target="#AggregateDiseaseReportSearchCriteriaForm" aria-expanded="true" onclick="toggleAggregateDiseaseReportSearchCriteria(event);">&nbsp;</span>
+                </div>
+            </div>
+        </div>
+        <div id="AggregateDiseaseReportSearchCriteriaForm" class="card-body show">
+            <div class="row">
+                <div class="col-6">
+                    <label asp-for="SearchCriteria.ReportID" field-label-for="@FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsReportIDFieldLabel"></label>
+                    <input asp-for="SearchCriteria.ReportID" type="text" class="form-control" />
+                </div>
+                <div class="col-6">
+                    <label asp-for="SearchCriteria.LegacyReportID" field-label-for="@FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsLegacyIDFieldLabel"></label>
+                    <input asp-for="SearchCriteria.LegacyReportID" type="text" class="form-control" />
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-6">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <eidss-select2DropDown id="@Model.TimeIntervalUnitSelect.DropDownId"
+                                           control-target-id="@Model.TimeIntervalUnitSelect.ControltargetId"
+                                           target-type="@Model.TimeIntervalUnitSelect.ControlTargetType"
+                                           target-ajax-url="@Model.TimeIntervalUnitSelect.ControlTargetUrl"
+                                           selectct2-default-data="@Model.TimeIntervalUnitSelect.defaultSelect2Selection"
+                                           end-point="@Model.TimeIntervalUnitSelect.Endpoint"
+                                           label-name="@Model.TimeIntervalUnitSelect.Label"
+                                           is-visible="@Model.TimeIntervalUnitSelect.isVisible">
+                    </eidss-select2DropDown>
+                    <span asp-validation-for="SearchCriteria.TimeIntervalTypeID" class="col-md-10 text-danger"></span>
+                </div>
+                <div class="col-6">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <eidss-select2DropDown id="@Model.AdministrativeLevelSelect.DropDownId"
+                                           control-target-id="@Model.AdministrativeLevelSelect.ControltargetId"
+                                           target-type="@Model.AdministrativeLevelSelect.ControlTargetType"
+                                           target-ajax-url="@Model.AdministrativeLevelSelect.ControlTargetUrl"
+                                           selectct2-default-data="@Model.AdministrativeLevelSelect.defaultSelect2Selection"
+                                           end-point="@Model.AdministrativeLevelSelect.Endpoint"
+                                           label-name="@Model.AdministrativeLevelSelect.Label"
+                                           custom-js-on-change-function="@Model.AdministrativeLevelSelect.CustomJsOnChangeFunction"
+                                           custom-js-on-clear-function="@Model.AdministrativeLevelSelect.CustomJsOnClearFunction"
+                                           is-visible="@Model.AdministrativeLevelSelect.isVisible">
+                    </eidss-select2DropDown>
+                    <span asp-validation-for="SearchCriteria.AdministrativeUnitTypeID" class="col-md-10 text-danger"></span>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-4">
+                    <label asp-for="StartDate">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsStartDateFieldLabel)</label>
+                    <eidss-calendar id="StartDate" name="StartDate" asp-for="StartDate" class="form-control" SearchFilter="true"></eidss-calendar>
+                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                </div>
+                <div class="col-4">
+                    <label asp-for="EndDate">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsEndDateFieldLabel)</label>
+                    <eidss-calendar id="EndDate" name="EndDate" asp-for="EndDate" class="form-control" SearchFilter="true"></eidss-calendar>
+                    <span asp-validation-for="EndDate" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-12" id="divLocation">
+                    @await Component.InvokeAsync("LocationView", Model.SearchLocationViewModel)
+                    <input type="hidden" asp-for="SearchCriteria.AdministrativeUnitID" />
+                </div>
+            </div>
+            <div class="row">
+                <div id="divOrganization" class="col-4 @(Model.SearchCriteria.OrganizationIDDisabledIndicator ? "hide-element" : "show-element")">
+                    <eidss-select2DropDown id="@Model.OrganizationSelect.DropDownId"
+                                           control-target-id="@Model.OrganizationSelect.ControltargetId"
+                                           configure-for-partial="@Model.OrganizationSelect.ConfigureForPartial"
+                                           target-type="@Model.OrganizationSelect.ControlTargetType"
+                                           target-ajax-url="@Model.OrganizationSelect.ControlTargetUrl"
+                                           end-point="@Model.OrganizationSelect.Endpoint"
+                                           label-name="@Model.OrganizationSelect.Label"
+                                           is-visible="@Model.OrganizationSelect.isVisible"
+                                           is-disabled="@Model.SearchCriteria.OrganizationIDDisabledIndicator">
+                    </eidss-select2DropDown>
+                </div>
+            </div>
+        </div>
+        <div id="AggregateDiseaseReportSearchCriteriaCommands" class="card-footer">
+            <button id="cancelSearchCriteria" type="button" class="btn btn-outline-primary" onclick="cancelAggregateDiseaseReportSearch('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)', event)" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+            <button id="clear" type="reset" onclick="clearSelect2Controls();" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.ClearButton"></button>
+            <button id="search" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.SearchButton"></button>
+            <button id="addAggregateDiseaseReportSearchCriteria" type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.AddButton" onclick="addAggregateDiseaseReport();" visible="@Model.Permissions.Create"></button>
+        </div>
+    </div>
+    <br />
+    <div id="AggregateDiseaseReportSearchResults" class="card">
+        <div class="card-header">
+            <h4 id="searchResultsHeader" heading-for="@HeadingResourceKeyConstants.SearchResultsHeading"></h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12">
+                    <eidss-grid id="@Model.AggregateDiseaseReportGridConfiguration.GridId"
+                                grid-configuration="@Model.AggregateDiseaseReportGridConfiguration"
+                                enable-server-side="true"
+                                enable-processing="@Model.AggregateDiseaseReportGridConfiguration.EnableProcessingMessage"
+                                enable-search="false"
+                                class-name="@Model.AggregateDiseaseReportGridConfiguration.GridClass"
+                                end-point="@Model.AggregateDiseaseReportGridConfiguration.AjaxDataUrl"
+                                filtered-control-ids="@Model.AggregateDiseaseReportGridConfiguration.ControlFilterID"
+                                control-labels="@Model.AggregateDiseaseReportGridConfiguration.ControlLabels">
+                    </eidss-grid>
+                </div>
+            </div>
+        </div>
+        <div id="AggregateDiseaseReportSearchResultsCommands" class="card-footer">
+                 <button id="btnPrint2" type="button" class="btn btn-default" button-for="@ButtonResourceKeyConstants.PrintButton"></button>
+            <button id="cancelSearchResults" type="button" class="btn btn-outline-primary" onclick="cancelReportSearchResults('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)', event)" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+            <button id="addAggregateDiseaseReportSearchResults" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.AddButton" onclick="addAggregateDiseaseReport();"></button>
+        </div>
+    </div>
+   
+</form>
+
+<partial name="_ValidationScriptsPartial" />
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        showAggregateDiseaseReportSearchCriteria();
+
+        //$("AdministrativeLevelSelect").change(function() {
+        //    refreshLocation();
+        //});
+
+        //$("SelectedAdminLevel").change(function() {
+
+        //        if ($("#SelectedAdminLevel").val() != null && $("#SelectedAdminLevel").val() !== '') {
+        //            var orgControl = "OrganizationSelect";
+        //            refreshOrgByLocationAdminSelection(orgControl, $("#SelectedAdminLevel").val());
+        //        };
+
+        //        if ($("#AdministrativeLevelSelect").val() === 10089005) {
+        //            $("#OrganizationSelect").prop("disabled", false);
+        //        }
+        //        else {
+        //            $("#OrganizationSelect").prop("disabled", true);
+        //        };
+        //    });
+
+    });
+    
+    function toggleAggregateDiseaseReportSearchCriteria(e) {
+        if ($("#AggregateDiseaseReportSearchCriteriaForm").hasClass("show")) {
+            $("#toggleAggregateDiseaseReportSearchIcon").removeClass("fa-caret-up").addClass("fa-caret-down");
+            $("#cancelSearchCriteria").hide();
+            $("#clear").hide();
+            $("#search").hide();
+            $("#AggregateDiseaseReportSearchCriteriaForm").collapse("show");
+            $("#AggregateDiseaseReportSearchCriteriaCommands").hide();
+            $("#cancelSearchResults").show();
+        }
+        else {
+            $("#toggleAggregateDiseaseReportSearchIcon").removeClass("fa-caret-down").addClass("fa-caret-up");
+            $("#cancelSearchCriteria").hide();
+            $("#clear").show();
+            $("#search").show();
+            $("#addAggregateDiseaseReportSearchCriteria").hide();
+            $("#AggregateDiseaseReportSearchCriteriaForm").collapse("hide");
+            $("#AggregateDiseaseReportSearchCriteriaCommands").show();
+            $("#AggregateDiseaseReportSearchResults").show();
+        }
+    };
+
+    function hideAggregateDiseaseReportSearchCriteria() {
+        $("#toggleAggregateDiseaseReportSearchIcon").show();
+        $("#AggregateDiseaseReportSearchCriteriaForm").collapse("hide");
+        $("#AggregateDiseaseReportSearchCriteriaCommands").hide();
+        $("#AggregateDiseaseReportSearchResultsCommands").show();
+        $("#AggregateDiseaseReportSearchResults").show();
+    };
+
+    function showAggregateDiseaseReportSearchCriteria() {
+        $("#toggleAggregateDiseaseReportSearchIcon").hide();
+        $("#AggregateDiseaseReportSearchCriteriaForm").collapse("show");
+        $("#AggregateDiseaseReportSearchCriteriaCommands").show();
+        $("#AggregateDiseaseReportSearchResults").hide();
+    };
+
+    function clearSelect2Controls() {
+        refreshLocation();
+    };
+
+    function cancelAggregateDiseaseReportSearch(message, event) {
+        event.preventDefault();
+
+        showWarningModal(message).then(response => {
+            if (response) {
+                HistoryRedirect();
+            }
+        });
+    };
+
+    function cancelReportSearchResults(message, event) {
+        event.preventDefault();
+
+        showWarningModal(message).then(response => {
+            if (response) {
+                 window.location.href = '@Url.Action("Index", "AggregateDiseaseReport", new { Area = "Human" })';
+            }
+        });
+    };
+
+    function HistoryRedirect() {
+        var referrer = document.referrer;
+        //If the referrer is the same page or view in the same controller
+        //we redirect to dashboard else we redirect to the referrer
+        if (referrer.search("AggregateDiseaseReport") > -1) {
+            window.location.replace('@Url.Action("Index", "Dashboard", new { Area = "Administration" })');
+        }
+        if (referrer.search("AggregateDiseaseReport/Details") > -1) {
+            window.location.replace('@Url.Action("Index", "Dashboard", new { Area = "Administration" })');
+        }
+        else {
+            window.location.replace(referrer);
+        }
+    }
+
+    $("#search").on("click", function (e) {
+        var isValid = false;
+    //    if ($("#AdminLevel1Value").val() == '' || $("#AdminLevel1Value").val() == null) {
+    //        $("#AdminLevel2Value").val('');
+    //        $("#AdminLevel3Value").val('');
+    //} else  if ($("#AdminLevel2Value").val() == '' || $("#AdminLevel2Value").val() == null) {
+    //        $("#AdminLevel3Value").val('');
+    //    }
+
+
+        $("#AggregateDiseaseReportSearchForm *").filter(":input:visible").each(function () {
+            if ($(this).attr("type") != undefined) {
+                if ($(this).attr("type") == "checkbox") {
+                    if ($(this).is(":checked"))
+                        isValid = true;
+                }
+                else {
+                    if ($.trim($(this).val()) != "") {
+                        isValid = true;
+                    }
+                }
+            }
+            else {
+                if ($.trim($(this).val()) != "") {
+                    isValid = true;
+                }
+            }
+        });
+        
+
+        if (isValid == false)
+            showErrorModal('@Localizer.GetString(MessageResourceKeyConstants.EnterAtLeastOneParameterMessage)');
+        else {
+            $("#AggregateDiseaseReportSearchForm").validate({
+                ignore: null
+            });
+            if ($("#AggregateDiseaseReportSearchForm").valid()) {
+                $("#IsFirstLoadIndicator").val("false");
+                $("#reportsTable").DataTable().draw();
+                hideAggregateDiseaseReportSearchCriteria()
+            }
+        }
+    });
+
+    function refreshOrgByLocationAdminSelection(orgControl,selectedAdminLevelControl) {
+       // check the cotrols
+       //Call the controller method
+        //Load the orgcontrol with data.
+        var administrativeUnitID = $(selectedAdminLevelControl).val();
+
+        console.log(administrativeUnitID);
+        $("#SearchCriteria_AdministrativeUnitID").val(administrativeUnitID);
+
+        $("#SearchCriteria_AdministrativeUnitID").val(administrativeUnitID);
+        var url = '@Url.Action("GetOrganizationsByAdministrativeLevelID", "AggregateDiseaseReport")?data=' + administrativeUnitID+"&page=1";
+        $.ajax({
+            url: url,
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+        })
+            .done(function (data) {
+                if (data.results.length > 0) {
+                    $('#OrganizationSelect').empty();
+
+                    $('#OrganizationSelect').select2({
+                        data: data.results,
+                        parms: data.parms,
+                        width: '75%',
+                        theme: 'bootstrap',
+                        tags: false,
+                        closeOnSelect: true,
+                        allowClear: true,
+                        minimumInputLength: 0,
+                        multiple: false,
+                        placeholder: ' '
+                    });
+                } else {
+                    $('#OrganizationSelect').empty();
+                }
+         });
+
+    };
+
+    function addAggregateDiseaseReport() {
+        if ('@Model.ShowInModalIndicator'.toLowerCase() == "true") {
+            $("#searchAggregateDiseaseReportModal").modal("hide");
+            $("#addAggregateDiseaseReportModal").modal("show");
+        } else {
+            location.href = '@Url.Action("Details", "AggregateDiseaseReport")';
+        }
+    };
+
+    function refreshLocation() {
+        var request = {};
+        request.administrativeUnitTypeID = $('#AdministrativeLevelSelect').val(); 
+        if (request.administrativeUnitTypeID == 10089005) {
+            $("#OrganizationSelect").prop("disabled", false);
+            $("#divOrganization").removeClass("hide-element");
+            $("#divOrganization").addClass("show-element");
+            var orgControl = "OrganizationSelect";
+            refreshOrgByLocationAdminSelection(orgControl, $("#SelectedAdminLevel").val());
+        }
+        else {
+            $("#OrganizationSelect").prop("disabled", true);
+            $("#divOrganization").removeClass("show-element");
+            $("#divOrganization").addClass("hide-element");
+        };
+        var addressDiv = $('#divLocation');
+
+        $.ajax({
+                url: '@Url.Action("ReloadLocationControl", "AggregateDiseaseReportSearch", new { Area = "Human" })',
+                data: JSON.stringify(request),
+                contentType: "application/json; charset=utf-8",
+                dataType: "html",
+                type: "POST",
+                success: function (response) {
+                    addressDiv.html(response);
+                }
+            });
+    };
+
+   
+
+</script>
+
+   

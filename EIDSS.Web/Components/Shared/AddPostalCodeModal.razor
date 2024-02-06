@@ -1,0 +1,27 @@
+﻿@inject DialogService DialogService
+@inject IStringLocalizer Localizer
+@inherits EIDSS.Web.Components.Shared.AddPostalCodeModalBase
+
+<div class="card">
+    <div class="card-body">
+        <label for="PostalCode">@Localizer.GetString(FieldLabelResourceKeyConstants.PostalCodeFieldLabel)</label>
+
+        <div class="input-group" id="divPostalCodeList">
+            <RadzenTextBox @bind-Value="PostalCodeName" class="form-control" id="PostalCode" @oninput="@(args => OnChange(args.Value.ToString()))" />
+            <div class="input-group-append">
+                @if (DisableAddButton)
+                {
+                    <button id="AddPostalCode" disabled class="btn btn-outline-primary btn-sm disabled">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                }
+                else
+                {
+                    <button id="AddPostalCode" class="btn btn-outline-primary btn-sm" @onclick="@(args => OnClick())">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                }
+            </div>
+        </div>
+        <label>@Message</label>
+    </div>
+    <div class="card-footer">
+        <button class="btn btn-primary" @onclick="@(args => DialogService.Close(true))">@Localizer.GetString(ButtonResourceKeyConstants.CloseButton)</button>
+    </div>
+</div>

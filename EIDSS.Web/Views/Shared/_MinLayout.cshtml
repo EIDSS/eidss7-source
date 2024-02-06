@@ -1,0 +1,101 @@
+﻿@using EIDSS.Web.Services;
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - EIDSS.Web</title>
+    <link href="~/lib/twitter-bootstrap/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/lib/font-awesome/css/all.css" rel="stylesheet" />
+    <link href="~/lib/jqueryui/jquery-ui.css" rel="stylesheet" />
+    <link href="~/css/EIDSS7Styles-1.0.0.css" media="screen" rel="stylesheet" /> <!-- media="screen" to avoid css conflicts in print media -->
+    <link rel="stylesheet" href="~/css/site.css" />
+
+    <base href="~/" />
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/twitter-bootstrap/js/bootstrap.bundle.js"></script>
+    <script src="~/lib/font-awesome/js/all.js"></script>
+    <script src="~/lib/jqueryui/jquery-ui.js"></script>
+    <script src="~/lib/jquery-validate/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validate/additional-methods.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+    <script src="~/lib/jquery.AreYouSure/jquery.are-you-sure.js"></script>
+    <script src="~/js/History/FunctionHistory.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+</head>
+<body lang="en">
+    <div class="container-fluid">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <footer class="border-top container-fluid m-auto py-3">
+        <div class="row">
+            <div class="col-6 text-left">
+                <span>
+                    Disclaimer | @AppVersionService.GetYears() © Black & Veatch. All Rights Reserved.
+                </span>
+            </div>
+            <div class="col-6 text-right">
+                <span>
+                    Build: @AppVersionService.Version | Environment:
+                    <environment names="Release">
+                        <strong>Production</strong>
+                    </environment>
+                    <environment names="BV">
+                        <strong>Production-like Testbed</strong>
+                    </environment>
+                    <environment names="DemoAM">
+                        <strong>Demo (Armenia)</strong>
+                    </environment>
+                    <environment names="DemoGE">
+                        <strong>Demo (Georgia)</strong>
+                    </environment>
+                    <environment names="DemoAZ">
+                        <strong>Demo (Azerbaijan)</strong>
+                    </environment>
+                    <environment names="UAT">
+                        <strong>UAT</strong>
+                    </environment>
+                    <environment names="BVAzure">
+                        <strong>Cloud-based Testbed</strong>
+                    </environment>
+                    <environment exclude="Production,BV,UAT,DemoAM,DemoGE,DemoAZ,BVAzure">
+                        <strong>Test</strong>
+                    </environment>
+                </span>
+            </div>
+        </div>
+    </footer>
+
+@*Blazor*@
+<script src="_framework/blazor.server.js" autostart="false"></script>
+<script>
+    
+    Blazor.start({
+        configureSignalR: function (builder) {
+            var b = builder.build();
+                b.serverTimeoutInMilliseconds = 6000000;
+                b.keepAliveIntervalInMillisecons = 6000000;
+            builder.build = () => {
+                return b;
+            };
+        },
+
+
+        }).then(() => {
+            Blazor.defaultReconnectionHandler._reconnectCallback = function (d) {
+                document.location.reload();
+            }
+        });;
+</script>
+
+<script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
+   
+    @RenderSection("Scripts", required: false)
+    @RenderSection("AdditionalHeadContent", required: false)
+    @RenderSection("Content", false)
+    @RenderSection("runreport", required: false)
+</body>
+</html>

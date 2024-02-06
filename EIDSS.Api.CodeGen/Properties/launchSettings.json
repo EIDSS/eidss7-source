@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "EIDSS.CodeGenerator": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

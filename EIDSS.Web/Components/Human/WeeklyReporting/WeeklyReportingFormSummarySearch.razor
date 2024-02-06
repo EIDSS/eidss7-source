@@ -1,0 +1,49 @@
+﻿@using EIDSS.Web.Areas.Human.ViewModels.WeeklyReportingSummary
+@using EIDSS.Domain.ViewModels.Human
+@using EIDSS.Localization.Constants
+@using EIDSS.Web.Components.Shared
+
+@using EIDSS.ReportViewer
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Areas.Reports.ViewModels
+
+@inherits EIDSS.Web.Components.Human.WeeklyReporting.WeeklyReportingFormSummarySearchBase
+
+@* Add Body here *@
+<RadzenTemplateForm id="weeklyReportingSearchForm" @ref="form" TItem="WeeklyReportingFormSummarySearchViewModel" Data="@model" Submit="@HandleValidSearchSubmit">
+    <!-- main card body -->
+    <div class="card">
+        <div class="card-header" id="weeklyReportingSearchCriteria">
+            <h4 class="mb-0 d-inline-block"> @Localizer.GetString(HeadingResourceKeyConstants.WeeklyReportingFormSummaryNotifiableDiseaseAcuteFlaccidParalysisHeading)</h4>
+        </div>
+
+        <!-- Location View -->
+        <div class="form-row">
+            <div class="col-md-12">
+                <LocationView ParmLocationViewModel="@model.SearchLocationViewModel" LocationViewModelChanged="@LocationChanged" />
+            </div>
+        </div>
+        <div class="form-row">
+            <!-- since I only have two controls. Formatting this way -->
+            <!-- Year Dropdown -->
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.WeeklyReportingFormSummaryYearFieldLabel" IsRow="false" CssClass="col-md-4" For="yearIDType">
+                <RadzenDropDown AllowClear="false" AllowFiltering="true" @bind-Value="@model.Year" Change="YearIDTypeChangedAsync" Class="form-control" Data="@reportYears" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="yearIDType" LoadData="@GetYearNameQueryAsync" Name="yearIDType" Placeholder="@model.CurrentYear.ToString()" TextProperty="Year" TValue="int?" ValueProperty="Year" />
+            </InterfaceEditorResource>
+            <!-- Month Dropdown -->
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.WeeklyReportingFormSummaryMonthFieldLabel" IsRow="false" CssClass="col-md-4" For="monthIDType">
+                <RadzenDropDown AllowClear="false" AllowFiltering="true" @bind-Value="@model.Month" Change="MonthIDTypeChangedAsync" Class="form-control" Data="@reportMonths" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="monthIDType" LoadData="@GetMonthNameQueryAsync" Name="monthIDType" Placeholder="@model.CurrentMonth.ToString()" TextProperty="strDefault" TValue="string" ValueProperty="strDefault" />
+            </InterfaceEditorResource>
+        </div>
+    </div>
+    
+                       
+
+    <div class="card-footer">
+        <div class="row">
+            <div class="col-md-12">
+                <button id="summaryButton" class="btn btn-primary" type="button" @onclick="@(() => DisplaySearchResults(@model))">@Localizer.GetString(ButtonResourceKeyConstants.WeeklyReportingFormSummaryShowSummaryDataButton)</button>
+                <button id="printButton" class="btn btn-primary" type="button" @onclick="@(() => HandleValidSearchSubmit(@model))">@Localizer.GetString(ButtonResourceKeyConstants.PrintButton)</button>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

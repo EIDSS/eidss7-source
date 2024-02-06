@@ -1,0 +1,66 @@
+﻿@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Areas.Human.ViewModels.ActiveSurveillanceSession;
+
+@inherits DetailedPersonsSamplesModalBase
+
+<RadzenTemplateForm Data="model" OnInvalidSubmit="@HandleInvalidEmployeeSubmit" @ref="_form" Submit="@HandleValidEmployeeSubmit" TItem="ActiveSurveillanceSessionViewModel">
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-6" For="SampleTypes" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationSampleTypeFieldLabel" IsRow="false">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@model.DetailedInformation.idfsSampleType" Change="@(value => GetFilteredDiseases(value))" class="form-control" Data="@model.SessionInformation.MonitoringSessionToSampleTypes" Disabled="@model.RecordReadOnly" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="SampleTypes" TextProperty="SampleTypeName" TValue="long?" ValueProperty="SampleTypeID">
+            </RadzenDropDown>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-6" For="FieldSampleID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationFieldSampleIDFieldLabel" IsRow="false">
+            <RadzenTextBox @bind-Value="model.DetailedInformation.FieldSampleID" class="form-control" Disabled="@model.RecordReadOnly" Name="FieldSampleID"></RadzenTextBox>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-6" For="diseaseID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationDiseaseFieldLabel" IsRow="false">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="model.DetailedInformation.DiseaseIDs" class="form-control" Data="@model.DetailedInformation.SampleTypeDiseases" Disabled="@model.RecordReadOnly" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Multiple="true" Name="diseaseID" TextProperty="DiseaseName" TValue="IEnumerable<long>" ValueProperty="DiseaseID"/>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-6" For="PersonID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationPersonIDFieldLabel" IsRow="false">
+            <div class="input-group mb-3">
+                <RadzenTextBox @bind-Value="model.DetailedInformation.EIDSSPersonID" class="form-control" Disabled="@model.RecordReadOnly" Name="PersonID" ReadOnly="true"></RadzenTextBox>
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary btn-sm" disabled="@model.RecordReadOnly" id="personSearch" @onclick="PersonSearchClicked" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-6" For="PersonAddress" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationPersonAddressFieldLabel" IsRow="false">
+            <RadzenTextBox @bind-Value="model.DetailedInformation.PersonAddress" class="form-control" Disabled="@model.RecordReadOnly" Name="PersonAddress" ReadOnly="true"></RadzenTextBox>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-6" For="CollectionDate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationCollectionDateFieldLabel" IsRow="false">
+            <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="model.DetailedInformation.CollectionDate" class="form-control-range" DateFormat="d" Disabled="@model.RecordReadOnly" Name="CollectionDate" TValue="DateTime?">
+            </RadzenDatePicker>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-12" For="Comments" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationCommentsFieldLabel" IsRow="false">
+            <RadzenTextArea @bind-Value="model.DetailedInformation.Comments" class="form-control" Disabled="@model.RecordReadOnly" Name="Comments"></RadzenTextArea>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-6" For="SentToOrganization" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationSentToOrganizationFieldLabel" IsRow="false">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="model.DetailedInformation.SentToOrganization" class="form-control" Data="@model.DetailedInformation.SentToOrganizations" Disabled="@model.RecordReadOnly" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="@GetSentToOrganizations" Name="SentToOrganization" TextProperty="FullName" TValue="long?" ValueProperty="idfOffice">
+            </RadzenDropDown>
+        </InterfaceEditorResource>
+    </div>
+    <div class="card-footer">
+        <div class="form-row">
+            <div class="col-12">
+                <button class="btn btn-outline-primary" @onclick="_ => DiagService.Close()" type="button">
+                    @Localizer.GetString(ButtonResourceKeyConstants.CancelButton)
+                </button>
+
+                <button class="btn btn-primary" disabled="@model.RecordReadOnly" type="submit">
+                    @Localizer.GetString(ButtonResourceKeyConstants.SaveButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

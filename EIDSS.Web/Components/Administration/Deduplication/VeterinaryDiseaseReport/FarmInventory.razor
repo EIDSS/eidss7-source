@@ -1,0 +1,135 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.CrossCutting
+@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+@using static ClientLibrary.Enumerations.EIDSSConstants
+@using EIDSS.Web.Enumerations
+
+@inherits EIDSS.Web.Components.Administration.Deduplication.VeterinaryDiseaseReport.FarmInventoryBase
+
+<div class="form-row">
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord" TValue="int" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.RecordSelection
+                                       Change="@((args) => OnRecordSelectionChangeAsync(Model.ReportType, args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="FarmInventory"></div>
+    </div>
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord2" TValue="int" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.Record2Selection
+                                       Change="@((args) => OnRecord2SelectionChangeAsync(Model.ReportType, args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="FarmInventory2"></div>
+    </div>
+</div>
+<div class="form-row">
+    <div class="col-6">
+                <RadzenDataGrid AllowColumnReorder="false" AllowColumnResize="true" AllowFiltering="false" AllowPaging="false" AllowSorting="false" 
+                    Data="@VeterinaryDiseaseReportDeduplicationService.FarmInventory" 
+                    EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+                    ExpandMode="DataGridExpandMode.Single" 
+                    PageSize="10" 
+                    @ref="FarmInventoryGrid" TItem="FarmInventoryGetListViewModel">
+                    <Columns>
+                        <RadzenDataGridColumn Frozen="true" Property="SpeciesTypeID" TItem="FarmInventoryGetListViewModel" Title="@SpeciesColumnHeadingResourceKey" Width="225px">
+                            <Template Context="item">
+                                @if (item.RecordType == RecordTypeConstants.Species)
+                                {
+                                    <RadzenLabel Text="@item.SpeciesTypeName"/>
+                                }
+                                else if (item.RecordType == RecordTypeConstants.Herd)
+                                {
+                                    var eidssFlockOrHerdId = "";
+                                    if (Model.ReportType == VeterinaryReportTypeEnum.Avian)
+                                    {
+                                        eidssFlockOrHerdId = Localizer.GetString(FieldLabelResourceKeyConstants.AvianDiseaseReportFarmFlockSpeciesFlockFieldLabel) + " " + item.EIDSSFlockOrHerdID;
+                                    }
+                                    else
+                                    {
+                                        eidssFlockOrHerdId = Localizer.GetString(FieldLabelResourceKeyConstants.LivestockDiseaseReportFarmHerdSpeciesHerdFieldLabel) + " " + item.EIDSSFlockOrHerdID;
+                                    }
+                                    <RadzenLabel Text="@eidssFlockOrHerdId"/>
+                                }
+                                else
+                                {
+                                    var eidssFarmID = "";
+                                    if (Model.ReportType == VeterinaryReportTypeEnum.Avian)
+                                    {
+                                        eidssFarmID = Localizer.GetString(FieldLabelResourceKeyConstants.AvianDiseaseReportFarmFlockSpeciesFarmFieldLabel) + " " + item.EIDSSFarmID;
+                                    }
+                                    else
+                                    {
+                                        eidssFarmID = Localizer.GetString(FieldLabelResourceKeyConstants.LivestockDiseaseReportFarmHerdSpeciesFarmFieldLabel) + " " + item.EIDSSFarmID;
+                                    }
+                                    <RadzenLabel Text="@eidssFarmID"/>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn Property="TotalAnimalQuantity" TItem="FarmInventoryGetListViewModel" Title="@TotalColumnHeadingResourceKey" Width="65px"/>
+                        <RadzenDataGridColumn Property="SickAnimalQuantity" TItem="FarmInventoryGetListViewModel" Title="@SickColumnHeadingResourceKey" Width="65px"/>
+                        <RadzenDataGridColumn Property="DeadAnimalQuantity" TItem="FarmInventoryGetListViewModel" Title="@DeadColumnHeadingResourceKey" Width="65px"/>
+                        <RadzenDataGridColumn Property="StartOfSignsDate" TItem="FarmInventoryGetListViewModel" Title="@StartOfSignsDateColumnHeadingResourceKey" Width="120px"/>
+                        <RadzenDataGridColumn Property="AverageAge" TItem="FarmInventoryGetListViewModel" Title="@AverageAgeColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Avian)" Width="100px"/>
+                        <RadzenDataGridColumn Property="Note" TItem="FarmInventoryGetListViewModel" Title="@NoteColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Livestock)" Width="160px"/>
+                    </Columns>
+                </RadzenDataGrid>
+    </div>
+    <div class="col-6">
+                <RadzenDataGrid AllowColumnReorder="false" AllowColumnResize="true" AllowFiltering="false" AllowPaging="false" AllowSorting="false" 
+                    Data="@VeterinaryDiseaseReportDeduplicationService.FarmInventory2" 
+                    EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+                    ExpandMode="DataGridExpandMode.Single" 
+                    PageSize="10" 
+                    @ref="FarmInventoryGrid2" TItem="FarmInventoryGetListViewModel">
+                    <Columns>
+                        <RadzenDataGridColumn Frozen="true" Property="SpeciesTypeID" TItem="FarmInventoryGetListViewModel" Title="@SpeciesColumnHeadingResourceKey" Width="225px">
+                            <Template Context="item">
+                                @if (item.RecordType == RecordTypeConstants.Species)
+                                {
+                                    <RadzenLabel Text="@item.SpeciesTypeName"/>
+                                }
+                                else if (item.RecordType == RecordTypeConstants.Herd)
+                                {
+                                    var eidssFlockOrHerdId = "";
+                                    if (Model.ReportType == VeterinaryReportTypeEnum.Avian)
+                                    {
+                                        eidssFlockOrHerdId = Localizer.GetString(FieldLabelResourceKeyConstants.AvianDiseaseReportFarmFlockSpeciesFlockFieldLabel) + " " + item.EIDSSFlockOrHerdID;
+                                    }
+                                    else
+                                    {
+                                        eidssFlockOrHerdId = Localizer.GetString(FieldLabelResourceKeyConstants.LivestockDiseaseReportFarmHerdSpeciesHerdFieldLabel) + " " + item.EIDSSFlockOrHerdID;
+                                    }
+                                    <RadzenLabel Text="@eidssFlockOrHerdId"/>
+                                }
+                                else
+                                {
+                                    var eidssFarmID = "";
+                                    if (Model.ReportType == VeterinaryReportTypeEnum.Avian)
+                                    {
+                                        eidssFarmID = Localizer.GetString(FieldLabelResourceKeyConstants.AvianDiseaseReportFarmFlockSpeciesFarmFieldLabel) + " " + item.EIDSSFarmID;
+                                    }
+                                    else
+                                    {
+                                        eidssFarmID = Localizer.GetString(FieldLabelResourceKeyConstants.LivestockDiseaseReportFarmHerdSpeciesFarmFieldLabel) + " " + item.EIDSSFarmID;
+                                    }
+                                    <RadzenLabel Text="@eidssFarmID"/>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn Property="TotalAnimalQuantity" TItem="FarmInventoryGetListViewModel" Title="@TotalColumnHeadingResourceKey" Width="65px"/>
+                        <RadzenDataGridColumn Property="SickAnimalQuantity" TItem="FarmInventoryGetListViewModel" Title="@SickColumnHeadingResourceKey" Width="65px"/>
+                        <RadzenDataGridColumn Property="DeadAnimalQuantity" TItem="FarmInventoryGetListViewModel" Title="@DeadColumnHeadingResourceKey" Width="65px"/>
+                        <RadzenDataGridColumn Property="StartOfSignsDate" TItem="FarmInventoryGetListViewModel" Title="@StartOfSignsDateColumnHeadingResourceKey" Width="120px"/>
+                        <RadzenDataGridColumn Property="AverageAge" TItem="FarmInventoryGetListViewModel" Title="@AverageAgeColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Avian)" Width="100px"/>
+                        <RadzenDataGridColumn Property="Note" TItem="FarmInventoryGetListViewModel" Title="@NoteColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Livestock)" Width="160px"/>
+                    </Columns>
+                </RadzenDataGrid>
+    </div>
+</div>

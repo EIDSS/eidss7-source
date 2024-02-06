@@ -1,0 +1,356 @@
+﻿@model EIDSS.Web.Areas.Administration.ViewModels.Organization.OrganizationSearchViewModel
+@{
+    Model.AccessoryCodeSelect.DropDownId = "AccessoryCodeSelect";
+    Model.AccessoryCodeSelect.Label = Localizer.GetString(FieldLabelResourceKeyConstants.SearchOrganizationSpecializationFieldLabel);
+    Model.AccessoryCodeSelect.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.AccessoryCodeSelect.Endpoint = @Url.Action("GetHACodeListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", SubArea = "", mask = (int)AccessoryCodes.AllHACode });
+    Model.AccessoryCodeSelect.isVisible = true;
+
+    Model.OrganizationTypeSelect.DropDownId = "OrganizationTypeSelect";
+    Model.OrganizationTypeSelect.Label = Localizer.GetString(FieldLabelResourceKeyConstants.SearchOrganizationOrganizationTypeFieldLabel);
+    Model.OrganizationTypeSelect.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.OrganizationTypeSelect.Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = (long)ReferenceTypes.OrganizationType });
+    Model.OrganizationTypeSelect.isVisible = true;
+
+    Model.OrganizationGridConfiguration = new();
+    Model.OrganizationGridConfiguration.GridId = "organizationTable";
+    Model.OrganizationGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.OrganizationGridConfiguration.ControlFilterID = "SearchCriteria_OrganizationID,SearchCriteria_AbbreviatedName,SearchCriteria_FullName,AccessoryCodeSelect,SiteID,AdminLevel1Value,AdminLevel2Value,AdminLevel3Value,SearchCriteria_ShowForeignOrganizationsIndicator,OrganizationTypeSelect";
+    Model.OrganizationGridConfiguration.AjaxDataUrl = Url.Action("GetOrganizationList", "OrganizationSearch", new { Area = "Administration" });
+    Model.OrganizationGridConfiguration.EnableServerSide = true;
+    Model.OrganizationGridConfiguration.EnableSearching = false;
+    Model.OrganizationGridConfiguration.EnableCustomSearching = false;
+    Model.OrganizationGridConfiguration.EnableProcessingMessage = true;
+    Model.OrganizationGridConfiguration.DeleteCompleteMethod = "checkOrganizationDeleteSuccess";
+    Model.OrganizationGridConfiguration.DeleteModalAjaxUrl = @Url.Action("DeleteOrganization", "Organization", new { Area = "Administration" });
+    Model.OrganizationGridConfiguration.ControlLabels.DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage);
+    Model.OrganizationGridConfiguration.ControlLabels.DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.OrganizationGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.OrganizationGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.OrganizationGridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.PageRedirect;
+    Model.OrganizationGridConfiguration.EditPageRedirectLink = @Url.Action("Details", "Organization", new { Area = "Administration" });
+    Model.OrganizationGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "OrganizationKey", ColumnTitleHeader = String.Empty, ColumnType = ColumnType.Default, Orderable = true, Visible = false });
+    Model.OrganizationGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "OrganizationKey", ColumnTitleHeader = String.Empty, ColumnType = Model.RecordSelectionIndicator == true ? ColumnType.Link : ColumnType.Default, ColumnHyperlinkURL = Model.RecordSelectionIndicator == true ? "#" : null, CustomLinkText = "Select", ColumnHyperlinkJSFunction = Model.RecordSelectionIndicator == true ? "selectOrganizationRecord" : null, Visible = Model.RecordSelectionIndicator == true ? true : false });
+    Model.OrganizationGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "AbbreviatedName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.AbbreviationColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.OrganizationGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "FullName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OrganizationFullNameColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.OrganizationGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "OrganizationID", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.UniqueOrganizationIDColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.OrganizationGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "AddressString", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OrganizationAddressColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.OrganizationGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "Order", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OrderColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.OrganizationGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "OrganizationKey", ColumnTitleHeader = "", ColumnType = ColumnType.Edit, Visible = Model.OrganizationPermissions.Write });
+    Model.OrganizationGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "OrganizationKey", ColumnTitleHeader = "", ColumnType = ColumnType.Delete, Visible = Model.OrganizationPermissions.Delete });
+}
+<form id="organizationSearchForm">
+    <div id="organizationSearchCriteria" class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-11">
+                    <h4 id="searchCriteriaHeader" heading-for="@HeadingResourceKeyConstants.SearchCriteriaHeading"></h4>
+                </div>
+                <div class="col-1 right">
+                    <span id="toggleOrganizationSearchIcon" class="fas fa-caret-down align-bottom fa-2x" data-toggle="collapse" data-target="#organizationSearchCriteriaForm" aria-expanded="true" onclick="toggleOrganizationSearchCriteria(event);">&nbsp;</span>
+                </div>
+            </div>
+        </div>
+        <div id="organizationSearchCriteriaForm" class="card-body show">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label asp-for="SearchCriteria.OrganizationID" field-label-for="@FieldLabelResourceKeyConstants.UniqueOrganizationIDFieldLabel"></label>
+                    <input asp-for="SearchCriteria.OrganizationID" type="text" class="form-control" />
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="SearchCriteria.AbbreviatedName" field-label-for="@FieldLabelResourceKeyConstants.AbbreviationFieldLabel"></label>
+                    <input asp-for="SearchCriteria.AbbreviatedName" type="text" class="form-control" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label asp-for="SearchCriteria.FullName" field-label-for="@FieldLabelResourceKeyConstants.OrganizationFullNameFieldLabel"></label>
+                    <input asp-for="SearchCriteria.FullName" type="text" class="form-control" />
+                </div>
+                <div class="form-group col-md-6">
+                    <eidss-select2DropDown id="@Model.AccessoryCodeSelect.DropDownId"
+                                           control-target-id="@Model.AccessoryCodeSelect.ControltargetId"
+                                           target-type="@Model.AccessoryCodeSelect.ControlTargetType"
+                                           target-ajax-url="@Model.AccessoryCodeSelect.ControlTargetUrl"
+                                           selectct2-default-data="@Model.AccessoryCodeSelect.defaultSelect2Selection"
+                                           end-point="@Model.AccessoryCodeSelect.Endpoint"
+                                           label-name="@Model.AccessoryCodeSelect.Label"
+                                           is-visible="@Model.AccessoryCodeSelect.isVisible">
+                    </eidss-select2DropDown>
+                </div>
+            </div>
+            <div id="divLocation">
+                @await Component.InvokeAsync("LocationView", Model.SearchLocationViewModel)
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <div class="form-check form-check-inline">
+                        <input asp-for="SearchCriteria.ShowForeignOrganizationsIndicator" type="checkbox" class="form-check-input" />
+                        <label asp-for="SearchCriteria.ShowForeignOrganizationsIndicator" class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.ShowForeignOrganizationsFieldLabel"></label>
+                    </div>
+                </div>
+                <div class="form-group col-md-6">
+                    <eidss-select2DropDown id="@Model.OrganizationTypeSelect.DropDownId"
+                                           control-target-id="@Model.OrganizationTypeSelect.ControltargetId"
+                                           target-type="@Model.OrganizationTypeSelect.ControlTargetType"
+                                           target-ajax-url="@Model.OrganizationTypeSelect.ControlTargetUrl"
+                                           end-point="@Model.OrganizationTypeSelect.Endpoint"
+                                           label-name="@Model.OrganizationTypeSelect.Label"
+                                           is-visible="@Model.OrganizationTypeSelect.isVisible">
+                    </eidss-select2DropDown>
+                </div>
+            </div>
+        </div>
+        <div id="organizationSearchCriteriaCommands" class="card-footer">
+            <button id="cancelSearchCriteria" type="button" class="btn btn-outline-primary" onclick="cancelOrganizationSearch('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)', event)" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+            <button id="clear" type="button" onclick="resetForm();" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.ClearButton"></button>
+            <button id="search" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.SearchButton"></button>
+            <button id="addOrganizationSearchCriteria" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.AddButton" onclick="addOrganization();" visible="@Model.OrganizationPermissions.Create"></button>
+        </div>
+    </div>
+    <br />
+    <div id="organizationSearchResults" class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-12">
+                    <h4 id="searchResultsHeader" heading-for="@HeadingResourceKeyConstants.SearchResultsHeading"></h4>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <eidss-grid id="@Model.OrganizationGridConfiguration.GridId"
+                            grid-configuration="@Model.OrganizationGridConfiguration"
+                            enable-server-side="@Model.OrganizationGridConfiguration.EnableServerSide"
+                            enable-processing="@Model.OrganizationGridConfiguration.EnableProcessingMessage"
+                            enable-search="@Model.OrganizationGridConfiguration.EnableSearching"
+                            class-name="@Model.OrganizationGridConfiguration.GridClass"
+                            end-point="@Model.OrganizationGridConfiguration.AjaxDataUrl"
+                            filtered-control-ids="@Model.OrganizationGridConfiguration.ControlFilterID"
+                            control-labels="@Model.OrganizationGridConfiguration.ControlLabels">
+                </eidss-grid>
+            </div>
+        </div>
+        <div id="organizationSearchResultsCommands" class="card-footer">
+            <button id="cancelSearchResults" type="button" class="btn btn-outline-primary" onclick="cancelOrganizationSearch('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)', event)" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+            <button id="addOrganizationSearchResults" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.AddButton" onclick="addOrganization();"></button>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ('@Model.ShowSearchResults' == "True") {
+            if ('@Model.SearchCriteria.AccessoryCode') {
+                $.ajax({
+                    url: '@Url.Action("GetHACodeListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", mask = Model.SearchCriteria.AccessoryCode })',
+                    contentType: "application/json",
+                    type: "POST",
+                    success: function (response) {
+                        $("#AccessoryCodeSelect").append(new Option(response.results[0].text, response.results[0].id, true, true));
+                    },
+                    error: function (reponse) { alert("An error occurred: " + reponse); }
+                });
+            }
+
+            if ('@Model.SearchCriteria.OrganizationTypeID') {
+                $.ajax({
+                    url: '@Url.Action("BaseReferenceForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", identifiers = (long)ReferenceTypes.OrganizationType + "," + Model.SearchCriteria.OrganizationTypeID })',
+                    contentType: "application/json",
+                    type: "POST",
+                    success: function (response) {
+                        $("#OrganizationTypeSelect").append(new Option(response.results[0].text, response.results[0].id, true, true));
+                    },
+                    error: function (reponse) { alert("An error occurred: " + reponse); }
+                });
+            }
+
+            $("#SearchCriteria_OrganizationID").val('@Model.SearchCriteria.OrganizationID');
+            $("#SearchCriteria_FullName").val('@Model.SearchCriteria.FullName');
+            $("#SearchCriteria_AbbreviatedName").val('@Model.SearchCriteria.AbbreviatedName');
+
+            if ('@Model.SearchCriteria.ShowForeignOrganizationsIndicator' == "True") {
+                $("#SearchCriteria_ShowForeignOrganizationsIndicator").prop("checked", true);
+                $("#SearchCriteria_ShowForeignOrganizationsIndicator").trigger("change");
+            }
+            else {
+                $("#SearchCriteria_ShowForeignOrganizationsIndicator").prop("checked", false);
+                $("#SearchCriteria_ShowForeignOrganizationsIndicator").trigger("change");
+
+                $("#AdminLevel1Value").val('@Model.SearchLocationViewModel.AdminLevel1Value');
+                $("#AdminLevel1Value").change();
+                $("#AdminLevel2Value").val('@Model.SearchLocationViewModel.AdminLevel2Value');
+                $("#AdminLevel2Value").change();
+                $("#AdminLevel3Value").val('@Model.SearchLocationViewModel.Settlement');
+                $("#AdminLevel3Value").change();
+            }
+
+            hideOrganizationSearchCriteria();
+        }
+        else
+            showOrganizationSearchCriteria();
+    });
+
+    function toggleOrganizationSearchCriteria(e) {
+        if ($("#organizationSearchCriteriaForm").hasClass("show")) {
+            $("#toggleOrganizationSearchIcon").removeClass("fa-caret-up").addClass("fa-caret-down");
+            $("#cancelSearchCriteria").hide();
+            $("#clear").hide();
+            $("#search").hide();
+            $("#organizationSearchCriteriaForm").collapse("show");
+            $("#organizationSearchCriteriaCommands").hide();
+            $("#cancelSearchResults").show();
+        }
+        else {
+            $("#toggleOrganizationSearchIcon").removeClass("fa-caret-down").addClass("fa-caret-up");
+            $("#cancelSearchCriteria").hide();
+            $("#clear").show();
+            $("#search").show();
+            $("#addOrganizationSearchCriteria").hide();
+            $("#organizationSearchCriteriaForm").collapse("show");
+            $("#organizationSearchResults").show();
+            $("#organizationSearchCriteriaCommands").show();
+        }
+    };
+
+    function hideOrganizationSearchCriteria() {
+        $("#toggleOrganizationSearchIcon").show();
+        $("#organizationSearchCriteriaForm").collapse("hide");
+        $("#organizationSearchCriteriaCommands").hide();
+        $("#organizationSearchResultsCommands").show();
+        $("#organizationSearchResults").show();
+    };
+
+    function showOrganizationSearchCriteria() {
+        $("#toggleOrganizationSearchIcon").hide();
+        $("#organizationSearchCriteriaForm").collapse("show");
+        $("#organizationSearchCriteriaCommands").show();
+        $("#organizationSearchResults").hide();
+    };
+
+    function resetForm() {
+        $("#organizationSearchForm").find(":input").each(function () {
+            switch (this.type) {
+                case "password":
+                case "select-multiple":
+                case "select-one":
+                case "text":
+                case "textarea":
+                    $(this).val("");
+                    break;
+                case "checkbox":
+                case "radio":
+                    this.checked = false;
+            }
+        });
+
+        $("#AccessoryCodeSelect").val("").trigger("change");
+        $("#OrganizationTypeSelect").val("").trigger("change");
+        $("#SearchCriteria_ShowForeignOrganizationsIndicator").trigger("change");
+
+        // Reset location component.
+        $("#AdminLevel1Value").prop("disabled", false);
+        $("#AdminLevel1Value")[0].selectedIndex = 0;
+    };
+
+    function cancelOrganizationSearch(message, event) {
+        event.preventDefault();
+
+        showWarningModal(message).then(response => {
+            if (response) {
+                if ('@Model.ShowInModalIndicator'.toLowerCase() == "true") {
+                    $("#warningModal").modal("hide");
+                    $("#searchOrganizationModal").modal("hide");
+                    $(".modal-backdrop").remove();
+                }
+                else
+                    window.location.replace('@Url.Action("Index", "Dashboard", new { Area = "Administration" })');
+            }
+        });
+    };
+
+    $("#search").on("click", function (e) {
+        var isValid = false;
+        $("#organizationSearchCriteria *").filter(":input:visible").each(function () {
+            if ($(this).attr("type") != undefined) {
+                if ($(this).attr("type") == "checkbox") {
+                    if ($(this).is(":checked")) {
+                        isValid = true;
+                    }
+                }
+                else {
+                    if ($.trim($(this).val()) != "") {
+                        isValid = true;
+                    }
+                }
+            }
+            else {
+                if ($.trim($(this).val()) != "") {
+                    isValid = true;
+                }
+            }
+        });
+
+        if (isValid == false)
+            showErrorModal('@Localizer.GetString(MessageResourceKeyConstants.EnterAtLeastOneParameterMessage)');
+        else {
+            $("#organizationTable").DataTable().draw();
+            hideOrganizationSearchCriteria();
+        }
+    });
+
+    function checkOrganizationDeleteSuccess(response) {
+        if (response == "SUCCESS") {
+            showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+        }
+        else if(response == "IN USE") {
+            showErrorModal('@Localizer.GetString(MessageResourceKeyConstants.CannotDeleteOrganizationConnectedToSiteMessage)');
+        }
+    };
+
+    function addOrganization() {
+        if ('@Model.ShowInModalIndicator'.toLowerCase() == "true") {
+            $("#searchOrganizationModal").modal("hide");
+            $("#addOrganizationModal").modal("show");
+        } else {
+            if ($("#organizationSearchResults").is(":visible")) {
+                $.ajax({
+                    url: '@Url.Action("SetOrganizationSearchPerformedIndicator", "OrganizationSearch", new { Area = "Administration" })',
+                    contentType: "application/json",
+                    type: "POST",
+                    success: function () {
+                        location.href = '@Url.Action("Details", "Organization")'
+                    },
+                    error: function (reponse) { alert("An error occurred: " + reponse); }
+                });
+            }
+            else
+                location.href = '@Url.Action("Details", "Organization")'
+        }
+    };
+
+    ///
+    /// Set the settlement type to ALL and disable the field when show is checked.
+    ///
+    $("#SearchCriteria_ShowForeignOrganizationsIndicator").change(function () {
+        if ($(this).is(":checked")) {
+            $("#AdminLevel1Value").prop("disabled", true);
+            $("#AdminLevel1Value")[0].selectedIndex = 0;
+            $("#AdminLevel2Value").prop("disabled", true);
+            $("#AdminLevel2Value").empty();
+            $("#SettlementType").prop("disabled", true);
+            $("#SettlementType").empty();
+            $("#AdminLevel3Value").prop("disabled", true);
+            $("#AdminLevel3Value").empty();
+
+            if ($("#SettlementType option:contains(' + opt + ')").length) {
+                $("#SettlementType").prepend("<option value=''>" + '@Localizer.GetString(FieldLabelResourceKeyConstants.LocationAllFieldLabel)' + "</option>");
+            }
+            $("#SettlementType")[0].selectedIndex = 0;
+        }
+        else {
+            $("#AdminLevel1Value").prop("disabled", false);
+            $("#AdminLevel1Value")[0].selectedIndex = 0;
+            $("#SettlementType").empty();
+        }
+    });
+</script>

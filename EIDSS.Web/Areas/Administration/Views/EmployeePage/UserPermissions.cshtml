@@ -1,0 +1,456 @@
+﻿@model EIDSS.Web.ViewModels.EmployeePageViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+
+@{
+    //DropDowns
+    Select2Configruation select2Configruation = new Select2Configruation();
+
+
+
+    select2Configruation = new Select2Configruation();
+    select2Configruation.DropDownId = "OrganizationDD";
+    select2Configruation.Label = "Organization";
+    select2Configruation.Endpoint = @Url.Action("GetOrganizationList", "EmployeePage", new { Area = "Administration" });
+    select2Configruation.isVisible = true;
+    select2Configruation.CustomJsOnChangeFunction = "GetSiteList";
+    Model.Select2Configurations.Add(select2Configruation);
+
+    select2Configruation = new Select2Configruation();
+    select2Configruation.DropDownId = "SiteDD";
+    select2Configruation.FilteredId = "OrganizationDD";
+    select2Configruation.Label = "Site ID";
+    select2Configruation.Endpoint = @Url.Action("GetSiteList", "EmployeePage", new { Area = "Administration" });
+    select2Configruation.isVisible = true;
+
+    Model.Select2Configurations.Add(select2Configruation);
+
+
+    select2Configruation = new Select2Configruation();
+    select2Configruation.DropDownId = "DepartmentDD";
+    select2Configruation.FilteredId = "OrganizationDD";
+    select2Configruation.Label = "Department";
+    select2Configruation.Endpoint = @Url.Action("GetDepartmentList", "EmployeePage", new { Area = "Administration" });
+    select2Configruation.isVisible = true;
+    select2Configruation.IncludeAddButton = true;
+    select2Configruation.AddModalId = "DepartmentSave";
+    Model.Select2Configurations.Add(select2Configruation);
+
+
+
+    select2Configruation = new Select2Configruation();
+    select2Configruation.DropDownId = "PositionDD";
+    select2Configruation.Label = "Position";
+    select2Configruation.Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000073 });
+    select2Configruation.isVisible = true;
+    select2Configruation.IncludeAddButton = true;
+    select2Configruation.AddModalId = "PositionSave";
+    Model.Select2Configurations.Add(select2Configruation);
+
+    select2Configruation = new Select2Configruation();
+    select2Configruation.DropDownId = "UserGroupDD";
+    select2Configruation.Label = "User Group";
+    select2Configruation.Endpoint = @Url.Action("GetUserGroupList", "EmployeePage", new { Area = "Administration" });
+    select2Configruation.isVisible = true;
+    select2Configruation.CustomJsOnChangeFunction = "RenderSystemFunctionsComponent";
+    select2Configruation.SelectMultiple = true;
+    Model.Select2Configurations.Add(select2Configruation);
+
+
+    //SET UP MODAL1     AddDepartment
+    EIDSSModalConfiguration eIDSSModalConfiguration = new EIDSSModalConfiguration();
+    eIDSSModalConfiguration.ControlLabels.ModalTitle = @Localizer.GetString(HeadingResourceKeyConstants.BaseReferenceEditorPageHeading);
+    eIDSSModalConfiguration.ModalId = "DepartmentSave";
+    eIDSSModalConfiguration.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    eIDSSModalConfiguration.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    eIDSSModalConfiguration.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    eIDSSModalConfiguration.ControlLabels.SuccessModalTitle = @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    eIDSSModalConfiguration.ControlLabels.SuccessMessage = @Localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage);
+    eIDSSModalConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    eIDSSModalConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    eIDSSModalConfiguration.TargetGridControlID = "GetDepartmentList"; //ID of Grid to Refresh
+    eIDSSModalConfiguration.SavingControlsCollection = "OrganizationDD";
+    eIDSSModalConfiguration.PostAjaxDataUrl = @Url.Action("SaveDepartment", "EmployeePage");
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "Name",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.DefaultValueMandatoryMessage)
+        },
+        ClassName = "DefaultValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ControlName = "Default",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.NationalValueMandatoryMessage)
+        },
+        ClassName = "NationalValueRequired"
+    });
+
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+
+    //SET UP MODAL2     AddPosition
+    eIDSSModalConfiguration = new EIDSSModalConfiguration();
+    eIDSSModalConfiguration.ControlLabels.ModalTitle = @Localizer.GetString(HeadingResourceKeyConstants.BaseReferenceEditorPageHeading);
+    eIDSSModalConfiguration.ModalId = "PositionSave";
+    eIDSSModalConfiguration.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    eIDSSModalConfiguration.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    eIDSSModalConfiguration.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    eIDSSModalConfiguration.ControlLabels.SuccessModalTitle = @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    eIDSSModalConfiguration.ControlLabels.SuccessMessage = @Localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage);
+    eIDSSModalConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    eIDSSModalConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    eIDSSModalConfiguration.TargetGridControlID = "GePositionList"; //ID of Grid to Refresh
+    eIDSSModalConfiguration.PostAjaxDataUrl = @Url.Action("SavePosition", "EmployeePage");
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "Name",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.DefaultValueMandatoryMessage)
+        },
+        ClassName = "DefaultValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ControlName = "Default",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.NationalValueMandatoryMessage)
+        },
+        ClassName = "NationalValueRequired"
+    });
+
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlName = "Order",
+        ControlType = ControlType.Numeric,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidatorMessage = "Number is Out Of Range",
+            ValidationRule = "[-2147483648,2147483647]"
+        },
+        ClassName = "IntOrderRange",
+        Visible = true
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        VaildationProperty = VaildationRuleType.ValidationRuleType.REQUIRED,
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.AccessoryCodeFieldLabel),
+        ControlName = "IntHACode",
+        ControlType = ControlType.DropDown,
+        AllowMultipleDropDownItemSelection = true,
+        ClassName = "modalDropDown",
+        Visible = true,
+        ControlAjaxDataUrl = @Url.Action("GetHACodeListForSelect2DropDown", "CrossCutting", new { mask = 226, Area = "CrossCutting" }),
+    });
+
+
+    <h1>Test page</h1>
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+    <form id="SearchForm" method="post">
+        <div class="card">
+            <div class="card-header"><h3>Employee Role and Permissions</h3></div>
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-md-6">
+
+
+                        <eidss-select2DropDown id="@Model.Select2Configurations[0].DropDownId"
+                                               control-target-id="@Model.Select2Configurations[0].ControltargetId"
+                                               target-type="@Model.Select2Configurations[0].ControlTargetType"
+                                               target-ajax-url="@Model.Select2Configurations[0].ControlTargetUrl"
+                                               selectct2-default-data="@Model.Select2Configurations[0].defaultSelect2Selection"
+                                               end-point="@Model.Select2Configurations[0].Endpoint"
+                                               label-name="@Model.Select2Configurations[0].Label"
+                                               custom-js-on-change-function="@Model.Select2Configurations[0].CustomJsOnChangeFunction"
+                                               is-visible="@Model.Select2Configurations[0].isVisible">
+                        </eidss-select2DropDown>
+
+
+
+
+                    </div>
+                    <div class="col-md-6">
+
+                        <eidss-select2DropDown id="@Model.Select2Configurations[1].DropDownId"
+                                               control-target-id="@Model.Select2Configurations[1].ControltargetId"
+                                               target-type="@Model.Select2Configurations[1].ControlTargetType"
+                                               target-ajax-url="@Model.Select2Configurations[1].ControlTargetUrl"
+                                               selectct2-default-data="@Model.Select2Configurations[1].defaultSelect2Selection"
+                                               end-point="@Model.Select2Configurations[1].Endpoint"
+                                               label-name="@Model.Select2Configurations[1].Label"
+                                               is-visible="@Model.Select2Configurations[1].isVisible"
+                                               filter-id="@Model.Select2Configurations[1].FilteredId">
+                        </eidss-select2DropDown>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+
+                        <eidss-select2DropDown id="@Model.Select2Configurations[2].DropDownId"
+                                               control-target-id="@Model.Select2Configurations[2].ControltargetId"
+                                               target-type="@Model.Select2Configurations[2].ControlTargetType"
+                                               target-ajax-url="@Model.Select2Configurations[2].ControlTargetUrl"
+                                               selectct2-default-data="@Model.Select2Configurations[2].defaultSelect2Selection"
+                                               end-point="@Model.Select2Configurations[2].Endpoint"
+                                               label-name="@Model.Select2Configurations[2].Label"
+                                               is-visible="@Model.Select2Configurations[2].isVisible"
+                                               filter-id="@Model.Select2Configurations[2].FilteredId"
+                                               include-add-button="@Model.Select2Configurations[2].IncludeAddButton"
+                                               add-modal-id="@Model.Select2Configurations[2].AddModalId">
+                        </eidss-select2DropDown>
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <eidss-select2DropDown id="@Model.Select2Configurations[3].DropDownId"
+                                               control-target-id="@Model.Select2Configurations[3].ControltargetId"
+                                               target-type="@Model.Select2Configurations[3].ControlTargetType"
+                                               target-ajax-url="@Model.Select2Configurations[3].ControlTargetUrl"
+                                               selectct2-default-data="@Model.Select2Configurations[3].defaultSelect2Selection"
+                                               end-point="@Model.Select2Configurations[3].Endpoint"
+                                               label-name="@Model.Select2Configurations[3].Label"
+                                               is-visible="@Model.Select2Configurations[3].isVisible"
+                                               include-add-button="@Model.Select2Configurations[3].IncludeAddButton"
+                                               add-modal-id="@Model.Select2Configurations[3].AddModalId">
+
+                        </eidss-select2DropDown>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+
+                        <label>Phone</label>
+                        <br />
+                        <input type="text" id="phonetxt" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <eidss-select2DropDown id="@Model.Select2Configurations[4].DropDownId"
+                                               control-target-id="@Model.Select2Configurations[4].ControltargetId"
+                                               target-type="@Model.Select2Configurations[4].ControlTargetType"
+                                               target-ajax-url="@Model.Select2Configurations[4].ControlTargetUrl"
+                                               selectct2-default-data="@Model.Select2Configurations[4].defaultSelect2Selection"
+                                               end-point="@Model.Select2Configurations[4].Endpoint"
+                                               label-name="@Model.Select2Configurations[4].Label"
+                                               is-visible="@Model.Select2Configurations[4].isVisible"
+                                               custom-js-on-change-function="@Model.Select2Configurations[4].CustomJsOnChangeFunction"
+                                               multiple="@Model.Select2Configurations[4].SelectMultiple">
+                        </eidss-select2DropDown>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="SystemFunctionsPermissions" class="card">
+
+
+            <div class="card-header"><h1>System Functions</h1></div>
+            <div class="card-body">
+            </div>
+        </div>
+        <div class="card-footer">
+            <button type="button" id="submitbtn">Save</button>
+            <button>Cancel</button>
+        </div>
+    </form>
+        <!-- Missing required fields-->
+        <div class="modal fade" id="mdInvalidFields" tabindex="-1" aria-labelledby="mdRequiredFieldsMissingLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">
+                            @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btnRequiredFieldsMissingOk" type="button" class="btn-sm btn-primary" data-dismiss="modal">
+                            @Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+        <!--Modal-->
+        {
+
+        for (int i = 0; i < @Model.eIDSSModalConfiguration.Count(); i++)
+        {
+        <eidss-reference-editors-modal control-labels="@Model.eIDSSModalConfiguration[i].ControlLabels" ajax-save-url="@Model.eIDSSModalConfiguration[i].PostAjaxDataUrl" modal-configuration="@Model.eIDSSModalConfiguration[i]" modal-id="@Model.eIDSSModalConfiguration[i].ModalId"></eidss-reference-editors-modal>
+        }
+        }
+        }
+        @section Scripts
+{
+
+            <script>
+                $(document).ready(function () {
+                  
+                });
+                function validatePhone() {
+                    var a = $("#phonetxt").val();
+                    var filter = /^((\+[1-9]{1,4}[ \-]*)|(\([0-9]{2,3}\)[ \-]*)|([0-9]{2,4})[ \-]*)*?[0-9]{3,4}?[ \-]*[0-9]{3,4}?$/;
+                    if (filter.test(a)) {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+                $("#phonetxt").on('change', function () {
+                    if (!validatePhone()) {
+                        $('#mdInvalidFields').modal('show');
+                    }
+                });
+
+                //Set the model for changes in the Reference Type
+                function GetSiteList(data) {
+                    info = [];
+                    info.push(data)
+                    $.ajax({
+                        url: 'GetSiteList?page=1&data=' + JSON.stringify(info),
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            if (data != undefined) {
+                                if (data.results == "") {
+                                    $("#SiteDD").prop('disabled', true);
+                                    $("#UserGroupDD").prop('disabled', true);
+                                    $("#SystemFunctionsPermissions").hide()
+
+                                }
+                                else {
+                                    $("#SiteDD").prop('disabled', false);
+                                    $("#UserGroupDD").prop('disabled', false);
+                                    $("#SystemFunctionsPermissions").show();
+                                }
+                            }
+                        },
+                        complete: function (data) {
+                        },
+                        error: function (request, error) {
+
+                        }
+                    });
+                    RenderSystemFunctionsComponent();
+
+                }
+                function RenderSystemFunctionsComponent() {
+                    // Render System Functions Component
+                    selectedDataList = [];
+                    var selectedData = new Object();
+                    if ($("#UserGroupDD").val() != null && $("#UserGroupDD").val() != "" && $("#UserGroupDD").val() != undefined)
+                        selectedData.UserGroupDD = $("#UserGroupDD").val();
+                    selectedData.EmployeeID = 420664190000901;
+                    selectedDataList.push(selectedData);
+                    $.ajax({
+                        url: "ReloadSystemFunctionsControl?data=" + JSON.stringify(selectedDataList),
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                    })
+                        .done(function (data) {
+                            $("#SystemFunctionsPermissions").show();
+                            $("#SystemFunctionsPermissions").html(data);
+                        });
+                }
+                function SaveEmployeeOrganizationRoleData() {
+                    selectedDataList = [];
+                    var selectedData = new Object();
+                    if ($("#UserGroupDD").val() != null && $("#UserGroupDD").val() != "" && $("#UserGroupDD").val() != undefined)
+                        selectedData.UserGroupDD = $("#UserGroupDD").val();
+                    selectedData.OrganizationDD = $("#OrganizationDD").val();
+                    selectedData.SiteDD = $("#SiteDD").val();
+                    selectedData.DepartmentDD = $("#DepartmentDD").val();
+                    selectedData.PositionDD = $("#PositionDD").val();
+                    selectedData.phonetxt = $("#phonetxt").val();
+                    selectedData.EmployeeID = 420664190000901;
+                    selectedDataList.push(selectedData);
+                    $.ajax({
+                        url: "SaveAdminEmployeeDetails",
+                        type: 'POST',
+                        data: JSON.stringify(selectedDataList),
+                        dataType: 'json',
+                        contentType: "application/json; charset=utf-8",
+                    })
+                        .done(function (data) {
+                        });
+
+                }
+                function SaveSystemFunctions() {
+                    PermissionObjectList = [];
+                    var table = $('#tblPermission').DataTable({
+                        searching: false,
+                        lengthChange: false,
+                        paging: false,
+                        orderable: false,
+                        rowReorder: false
+                    });
+                    if (table.rows().eq(0) != null) {
+                        var intNumRow = 1;
+                        table.rows().eq(0).each(function (index) {
+                            var row = table.row(index);
+                            permissionItem = new Object();
+                            permissionItem.IsEmpty = false;
+                            permissionItem.IntNumRow = intNumRow;
+                            permissionItem.RoleID = 420664190000901;
+                            permissionItem.SystemFunctionID = row.nodes().to$().find('input:hidden').val();
+                            permissionItem.Permission = row.nodes().to$().find('.functions').val();
+                            permissionItem.CreatePermission = row.nodes().to$().find('.Create').prop('checked');
+                            permissionItem.ReadPermission = row.nodes().to$().find('.Read').prop('checked');
+                            permissionItem.WritePermission = row.nodes().to$().find('.Write').prop('checked');
+                            permissionItem.ExecutePermission = row.nodes().to$().find('.Execute').prop('checked');
+                            permissionItem.DeletePermission = row.nodes().to$().find('.DeletePer').prop('checked');
+                            permissionItem.AccessToPersonalDataPermission = row.nodes().to$().find('.PersonalData').prop('checked');
+                            permissionItem.AccessToGenderAndAgeDataPermission = row.nodes().to$().find('.GenderData').prop('checked');
+                            PermissionObjectList.push(permissionItem);
+                        });
+                    }
+                    $.ajax({
+                        url: "SaveSystemFunctions",
+                        type: 'POST',
+                        data: JSON.stringify(PermissionObjectList),
+                        dataType: 'json',
+                        contentType: "application/json; charset=utf-8",
+                    })
+                        .done(function (data) {
+                            RenderSystemFunctionsComponent();
+                        });
+                }
+                $("#submitbtn").on('click', function () {
+                    debugger;
+                    alert($("#submitbtn"));
+                    SaveEmployeeOrganizationRoleData();
+                });
+            </script>
+        }

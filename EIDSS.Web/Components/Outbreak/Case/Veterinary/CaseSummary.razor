@@ -1,0 +1,155 @@
+﻿@using EIDSS.Domain.ViewModels.Outbreak
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Enumerations
+@using System
+@using System.Security.Policy
+@using EIDSS.Domain.Enumerations
+
+@inherits CaseSummaryBase
+
+<RadzenTemplateForm @ref="Form" TItem="CaseGetDetailViewModel" Data="Model">
+    <DataAnnotationsValidator/>
+    <div class="card">
+        <div class="card-body">
+            <div class="form-row">
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <div class="form-row">
+                    <div class="col-11">
+                        <h4>@Localizer.GetString(HeadingResourceKeyConstants.OutbreakSessionOutbreakSummaryHeading)</h4>
+                    </div>
+                    <div class="col-1 text-right">
+                        <a class="fas fa-edit fa-lg" @onclick="_ => OnRelatedToDiseaseReportClick(null, Model.OutbreakId.ToString())" role="button" id="lbEditSession"></a>
+                        <span aria-expanded="false" class="fas fa-caret-up align-bottom fa-2x e-dark-blue" data-target="#divCaseReportSummary" data-toggle="collapse" id="sCaseReportSummaryToggle" onclick="toggleCaseReportSummary();">&nbsp;</span>
+                    </div>
+                </div>
+            </div>
+            <div id="divCaseReportSummary" class="card-body show">
+                <div class="form-row">
+                    <div class="form-group col-12">
+                        <h4>@Localizer.GetString(HeadingResourceKeyConstants.CreateVeterinaryCaseCaseDetailsHeading)</h4>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-3">
+                        <label for="@nameof(Model.VeterinaryDiseaseReport.EIDSSFarmID)">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateVeterinaryCaseFarmIDFieldLabel)</label>
+                        <br/>
+                        @Model.VeterinaryDiseaseReport.EIDSSFarmID
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="@nameof(Model.VeterinaryDiseaseReport.FarmOwnerName)">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateVeterinaryCaseNameFieldLabel)</label>
+                        <br/>
+                        @Model.VeterinaryDiseaseReport.FarmOwnerName
+                    </div>
+                    <div class="form-group col-3">
+                        <label for="@nameof(Model.DateEntered)">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateVeterinaryCaseDateEnteredFieldLabel)</label>
+                        <br/>
+                        @Model.DateEntered
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-3">
+                        <label for="@nameof(Model.DateLastUpdated)">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateVeterinaryCaseDateLastUpdatedFieldLabel)</label>
+                        <br/>
+                        @Model.DateLastUpdated
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="@nameof(Model.ClassificationTypeName)">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateVeterinaryCaseCaseClassificationFieldLabel)</label>
+                        <br/>
+                        @Model.ClassificationTypeName
+                    </div>
+                </div>
+                @{
+                    if (Model.CaseTypeId is (long) OutbreakSpeciesTypeEnum.Avian or (long) OutbreakSpeciesTypeEnum.Livestock)
+                    {
+                        if (!string.IsNullOrEmpty(Model.VeterinaryDiseaseReport.RelatedToIdentifiers))
+                        {
+                            if (Model.VeterinaryDiseaseReport.RelatedToIdentifiers.Contains(","))
+                            {
+                                var reportIdentifiers = Model.VeterinaryDiseaseReport.RelatedToReportIdentifiers.Split(",");
+                                var index = 0;
+
+                                <div class="form-row">
+                                    <strong>
+                                        <span class="e-dark-blue"><i class="fas fa-link fa-lg"></i> @RelatedToResourceKey&nbsp;
+                                        @foreach (var id in Model.VeterinaryDiseaseReport.RelatedToIdentifiers.Split(","))
+                                        {
+                                            var reportIdentifier = reportIdentifiers[index].Trim();
+                                            if (index < reportIdentifiers.Length - 1)
+                                                reportIdentifier += ", ";
+                                                <button @onclick="_ => OnRelatedToDiseaseReportClick(id, null)" class="btn btn-link btn-sm p-0"><strong>@reportIdentifier</strong></button>
+                                            index += 1;
+                                        }
+                                        </span>
+                                    </strong>
+                                    <br/>
+                                    <br/>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="form-row">
+                                    <button @onclick="_ => OnRelatedToDiseaseReportClick(Model.VeterinaryDiseaseReport.RelatedToIdentifiers, null)" class="btn btn-link btn-sm p-0">
+                                        <strong>
+                                            <i class="fas fa-link fa-lg"></i> @(RelatedToResourceKey + " " + Model.VeterinaryDiseaseReport.RelatedToReportIdentifiers)
+                                        </strong>
+                                    </button>
+                                    <br/>
+                                    <br/>
+                                </div>
+                            }
+                        }
+                    }
+                }
+                <div class="form-row">
+                    <div class="form-group col-12">
+                        <h4>@Localizer.GetString(HeadingResourceKeyConstants.CreateVeterinaryCaseOutbreakDetailsHeading)</h4>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-3">
+                        <label for="@nameof(Model.Session.strOutbreakID)">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateVeterinaryCaseOutbreakIDFieldLabel)</label>
+                        <br/>
+                        @Model.Session.strOutbreakID
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="@nameof(Model.Session.datStartDate)">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateVeterinaryCaseStartDateFieldLabel)</label>
+                        <br/>
+                        @if (Model.Session.datStartDate is not null)
+                        {
+                            @Convert.ToDateTime(Model.Session.datStartDate).ToShortDateString()
+                        }
+                    </div>
+                    <div class="form-group col-3">
+                        <label for="@nameof(Model.Session.datCloseDate)">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateVeterinaryCaseEndDateFieldLabel)</label>
+                        <br/>
+                        @if (Model.Session.datCloseDate is not null)
+                        {
+                            @Convert.ToDateTime(Model.Session.datCloseDate).ToShortDateString()
+                        }
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-3">
+                        <label for="@nameof(Model.VeterinaryDiseaseReport.DiseaseName)">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateVeterinaryCaseDiseaseFieldLabel)</label>
+                        <br/>
+                        @Model.VeterinaryDiseaseReport.DiseaseName
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="@nameof(Model.Session.strOutbreakStatus)">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateVeterinaryCaseCaseStatusFieldLabel)</label>
+                        <br/>
+                        @Model.Session.strOutbreakStatus
+                    </div>
+                    <div class="form-group col-3">
+                        <label for="@nameof(Model.Session.strOutbreakType)">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateHumanCaseTypeOfCaseFieldLabel)</label>
+                        <br/>
+                        @Model.Session.strOutbreakType
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

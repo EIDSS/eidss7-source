@@ -1,0 +1,52 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+@using Microsoft.AspNetCore.Components.Forms;
+@using EIDSS.Web.Areas.Human.ViewModels.ActiveSurveillanceSession;
+
+@inherits EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession.ActionModalBase
+
+<RadzenTemplateForm @ref="Form" Data="StateContainer.ActionDetail" TItem="VeterinaryActiveSurveillanceSessionActionsViewModel" Submit="@OnSubmit" >
+    <div class="row">
+        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ActionDetailsModalActionRequiredFieldLabel" IsRow="false" CssClass="col-6" For="actionRequiredID">
+            <RadzenDropDown Name="actionRequiredID" class="form-control" AllowClear="true" TValue="long?" Data=@ActionRequiredTypes
+                            LoadData=@GetActionRequiredTypes @bind-value=@StateContainer.ActionDetail.MonitoringSessionActionTypeID
+                            TextProperty="Name" ValueProperty="IdfsBaseReference"></RadzenDropDown>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ActionDetailsModalDateFieldLabel" IsRow="false" CssClass="col-6" For="actionDate">
+            <RadzenDatePicker Name="actionDate" class="form-control-range" @bind-Value=@StateContainer.ActionDetail.ActionDate DateFormat="d"></RadzenDatePicker>
+            <RadzenCompareValidator Value="DateTime.Now" Component="actionDate" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Popup="false" Operator="CompareOperator.LessThanEqual" />
+            <RadzenCompareValidator Value="@StateContainer.SessionStartDate" Component="actionDate" Popup=false Operator="CompareOperator.GreaterThanEqual"
+                                    Text=@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.ActionDetailsModalDateofActionFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.SessionInformationSesionStartDateFieldLabel))
+                                    Style="display: block" Visible=@(!string.IsNullOrEmpty(StateContainer.ActionDetail.ActionDate.ToString())) />
+            <RadzenCompareValidator Value="@StateContainer.SessionEndDate" Component="actionDate" Popup=false Operator="CompareOperator.LessThanEqual"
+                                    Text=@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), Localizer.GetString(FieldLabelResourceKeyConstants.ActionDetailsModalDateofActionFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.SessionInformationSesionEndDateFieldLabel))
+                                    Style="display: block" Visible=@(!string.IsNullOrEmpty(StateContainer.SessionEndDate.ToString())) />
+        </InterfaceEditorResource>
+        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ActionDetailsModalEnteredByFieldLabel" IsRow="false" CssClass="col-6" For="enteredBy">
+            <RadzenTextBox Name="enteredBy" class="form-control" @bind-Value=@StateContainer.ActionDetail.EnteredByPersonName Disabled="true"></RadzenTextBox>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ActionDetailsModalCommentFieldLabel" IsRow="false" CssClass="col-12" For="comment">
+            <RadzenTextArea Name="comment" class="form-control" @bind-Value=@StateContainer.ActionDetail.Comments ></RadzenTextArea>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ActionDetailsModalStatusFieldLabel" IsRow="false" CssClass="col-6" For="status">
+            <RadzenDropDown Name="status" class="form-control" AllowClear="true" TValue="long?" Data="@MonitoringStatusTypes" 
+                            LoadData=@GetMonitoringStatusTypes 
+                            @bind-value=@StateContainer.ActionDetail.MonitoringSessionActionStatusTypeID TextProperty="Name" ValueProperty="IdfsBaseReference"></RadzenDropDown>
+        </InterfaceEditorResource>
+    </div>
+    <div style="padding-top:20px;">
+        <button type="button" class="btn btn-secondary"
+                @onclick="((args) => DiagService.Close(null))">
+            @Localizer.GetString(ButtonResourceKeyConstants.CloseButton)
+        </button>
+        <button type="submit" class="btn btn-primary">
+            @Localizer.GetString(ButtonResourceKeyConstants.SaveButton)
+        </button>
+    </div>
+</RadzenTemplateForm>

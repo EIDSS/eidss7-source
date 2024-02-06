@@ -1,0 +1,18 @@
+﻿@inherits EIDSS.Web.Components.Administration.Site.SiteSectionsBase
+
+<div id="siteWizard">
+    <div class="content content-collapsed clearfix">
+        <section>
+            <SiteInformationSection Model="Model" />
+        </section>
+        <section>
+            <OrganizationsSection Model="Model" />
+        </section>
+        <section>
+            <PermissionsSection Model="Model" />
+        </section>
+        <section>
+            <h4 style="display: none">@Localizer.GetString(HeadingResourceKeyConstants.ReviewHeading)</h4>
+        </section>
+    </div>
+</div>

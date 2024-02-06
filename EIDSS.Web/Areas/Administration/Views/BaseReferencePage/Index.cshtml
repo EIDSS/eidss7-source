@@ -1,0 +1,532 @@
+﻿@model EIDSS.Web.ViewModels.BaseReferenceEditorPagesViewModel;
+
+<input type="hidden" id="hOrderByReadOnly" value="@Model.Case_OrderByReadOnly" />
+<input type="hidden" id="hDefaultReadOnly" value="@Model.Case_DefaultReadOnly" />
+<input type="hidden" id="hLOINCSystemTypesToHide" value="@Model.Case_LOINCSystemTypesToHide" />
+<input type="hidden" id="hHACodeSystemTypesToHide" value="@Model.Case_HACodeSystemTypesToHide" />
+
+@{
+    //Page Level
+    Model.PageName = Localizer.GetString(HeadingResourceKeyConstants.BaseReferenceEditorPageHeading);
+    Model.PageLevelAddButtonModalText = Localizer.GetString(ButtonResourceKeyConstants.AddButton);
+    Model.PageLevelAddButtonModal = "AddBaseReference";
+    Model.PageLevelAddButtonID = "AddBaseReferenceButton";
+
+    //DropDowns
+    var select2Configuration = new Select2Configruation
+    {
+        DropDownId = "ReferenceTypeDD",
+        Label = Localizer.GetString(FieldLabelResourceKeyConstants.ReferenceTypeFieldLabel),
+        ControlTargetType = DropDownTargetTypes.Table,
+        Endpoint = @Url.Action("GetBaseReferenceTypesForSelect2DropDownBaseReferenceEditor", "CrossCutting", new { Area = "CrossCutting" }),
+        ControlTargetUrl = @Url.Action("GetBaseReferenceTableNew", "BaseReferencePage", new { Area = "Administration" }),
+        isVisible = true,
+        CustomJsOnChangeFunction = "ChangeAddButtonActiveStatus", //Create This Javascript Method Below in the Scripts tag
+        CustomJsOnClearFunction = "SelectOnClear", //Create This Javascript Method Below in the Scripts tag
+        DisabledControls = "AddBaseReferenceButton"
+    };
+
+    Model.Select2Configurations.Add(select2Configuration);
+
+    //SET UP MODAL
+    var eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ModalId = "AddBaseReference",
+        ControlLabels =
+        {
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.BaseReferenceDetailsModalHeading),
+            SuccessModalTitle = Localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage)
+        },
+        TargetGridControlID = "BaseReferenceGrid", //ID of Grid to Refresh
+        PostAjaxDataUrl = @Url.Action("AddNewReferenceType", "BaseReferencePage", new { Area = "Administration" }), //Save Endpoint
+        SavingControlsCollection = "ReferenceTypeDD",
+        SaveCompleteMethod = "CheckSuccess"
+    };
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "EnglishValue",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+        },
+        ClassName = "EnglishValueRequired"
+    });
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ControlName = "TranslatedValue",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+        },
+        ClassName = "EnglishValueRequired2"
+    });
+
+    
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.LOINCCodeFieldLabel),
+        ControlType = ControlType.Default,
+        ControlName = "LIONCCODE",
+        Visible = true,
+
+    });
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlType = ControlType.Numeric,
+        ControlName = "IntOrder",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidationRule = "[-2147483648,2147483647]",
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+            RangeValidationMessage = Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)
+        },
+        ClassName = "IntOrderRangeAndRequired"
+    });
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.AccessoryCodeFieldLabel),
+        ControlName = "StrHACode",
+        ControlType = ControlType.DropDown,
+        AllowMultipleDropDownItemSelection = true,
+        ClassName = "modalDropDown",
+        Visible = true,
+        ControlAjaxDataUrl = @Url.Action("GetHACodeListForSelect2DropDown", "CrossCutting", new { mask = 226, Area = "CrossCutting" }),
+    });
+
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //SETUP GRID
+    Model.eidssGridConfiguration.SaveCompleteMethod = "SaveGridSuccess";
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.SaveCompleteMethod = "CheckSuccess";
+    Model.eidssGridConfiguration.GridId = "BaseReferenceGrid";
+    Model.eidssGridConfiguration.ControlIdThatRefreshGrid = "ReferenceTypeDD";
+    Model.eidssGridConfiguration.ControlFilterID = "ReferenceTypeDD";
+    Model.eidssGridConfiguration.EditModalAjaxUrl = @Url.Action("EditReferenceType", "BaseReferencePage", new { Area = "Administration" });
+    Model.eidssGridConfiguration.DeleteModalAjaxUrl = @Url.Action("DeleteModalData", "BaseReferencePage", new { Area = "Administration" });
+    Model.eidssGridConfiguration.AjaxDataUrl = @Url.Action("GetBaseReferenceTableNew", "BaseReferencePage", new { Area = "Administration" });
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.RowDataEnablesAndDisblesDelete = true;
+    Model.eidssGridConfiguration.EnableProcessingMessage = true;
+    Model.eidssGridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.Inline;
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels
+    {
+        DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage),
+        EditModalMessage = Localizer.GetString((int)InterfaceEditorResourceSetEnum.WarningMessages + "Are you sure that you want to Edit this record?" + (long)InterfaceEditorTypeEnum.Message),
+        DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+        SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+        DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton),
+        CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton),
+        CancelInlineEditTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)
+    };
+    Model.eidssGridConfiguration.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.eidssGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.eidssGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.eidssGridConfiguration.EditPassThrough = "HideColumnsOnEdit();";
+    Model.eidssGridConfiguration.CancelInlineEditCallBack = "RefreshGrid();";
+    
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "Row",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.ReadOnly,
+        VisibleInModal = false,
+        Orderable = false,
+    });
+    
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "BaseReferenceId",
+        ColumnTitleHeader = "BaseReferenceId",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "ReferenceTypeId",
+        ColumnTitleHeader = "ReferenceTypeId",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "StrDefault",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.DefaultValueColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.DefaultLocked,
+        VisibleInModal = true,
+        Orderable = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "DefaultValueRequired",
+        EnabledEditingControledByReferenceTypes = true,
+        ReverenceTypesToControlEnabledEditing = Model.basereferenceTypes
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "StrName",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.NationalValueColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true,
+        Orderable = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "DefaultValueRequired"
+    });
+    
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "LOINC",
+        ColumnTitleHeader = "LOINC Code", //Localizer.GetString(ColumnHeadingResourceKeyConstants.IONC),
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "StrHACodeNames",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.AccessoryCodeColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.DropDown,
+        DisplayDropDownInModalOnly = true,
+        AllowMultipleDropDownItemSelection = true,
+        VisibleInModal = true,
+        ColumnAjaxDataUrl = @Url.Action("GetHACodeListForSelect2DropDown", "CrossCutting", new { mask = 226, Area = "CrossCutting" }),
+        AssociatedFieldId = "StrHACode",
+        SplitCsvValues = true,
+        Orderable = true
+    });
+    
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "StrHACode",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.AccessoryCodeColumnHeading),
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "IntOrder",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OrderColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.Numeric,
+        VisibleInModal = true,
+        Orderable = true,
+        EnabledEditingControledByReferenceTypes = true,
+        ReverenceTypesToControlEnabledEditing = Model.basereferenceTypes
+    });
+    
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "name",
+        ColumnTitleHeader = string.Empty,
+        ColumnType = ColumnType.Edit,
+        Visible = Model.UserPermissions.Create,
+        Orderable = false,
+    });
+    
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "name",
+        ColumnTitleHeader = string.Empty,
+        ColumnType = ColumnType.Delete,
+        Visible = Model.UserPermissions.Delete,
+        Orderable = false,
+    });
+}
+
+<!-- Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="successMsg"></span>
+            </div>
+            <div class="modal-footer">
+                <button id="successBtnOK" type="button" class="btn btn-primary" data-dismiss="modal"> @Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="duplicatesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsg"></span>
+            </div>
+            <div class="modal-footer">
+                <button id="editDupRecordButton" class="btn btn-primary" onclick="ReserveRowState('BaseReferenceGrid','duplicatesModal');"> @Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+                <button id="createNewYesButton" onclick ="GetFromLocalStorage();" class="btn btn-primary" >@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="saveGridSuccessModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_BaseReferenceEditorsPartial" />
+
+@section Scripts
+{
+    <script>
+        ///Load Default Data
+        $(document).ready(function () {
+            $("#AddBaseReferencectrlAdd_2").val(0);
+            $("#successBtnOK").hide();
+        });
+         var hData;
+        ///Method called after execution of Save Method Returns Data back from the controller
+        function CheckSuccess(data) {
+            var stringified_data = JSON.stringify(data);
+            var parsed_data = JSON.parse(stringified_data);
+            if (parsed_data.returnMessage == "SUCCESS") {
+                updateNotificationEnvelopeCount();
+
+                $("#successModal").modal("show");
+                $("#successMsg").html(parsed_data.strClientPageMessage);
+                if (parsed_data.pageAction == 1) {
+                    $("#successBtnOK").show();
+                } else if (parsed_data.pageAction == 2) {
+                    $("#successBtnOK").show();
+                }
+            }
+            else if (parsed_data.returnMessage == "DOES EXIST") {
+                $("#duplicatesModal").modal("show");
+                $("#dupemsg").html(parsed_data.strDuplicatedField);
+                //Determine which button to select
+                if (parsed_data.pageAction == 1) {
+                    $("#createNewYesButton").show();
+                    $("#editDupRecordButton").hide();
+
+                } else if (parsed_data.pageAction == 2) {
+                    $("#createNewYesButton").hide();
+                    $("#editDupRecordButton").show();
+                }
+            }
+        }
+
+        //Gets Data from local storage and populates the controls
+        function GetFromLocalStorage() {
+            PrepareNewRecord();
+            var d = localStorage.getItem("AddBaseReference");
+            var parsedData = JSON.parse(d);
+            $("#AddBaseReferencectrlAdd_0").val(parsedData["EnglishValue"]);
+            $("#AddBaseReferencectrlAdd_1").val(parsedData["TranslatedValue"]);
+            $("#AddBaseReferencectrlAdd_3").val(parsedData["IntOrder"]);
+
+            $("#AddBaseReferencectrlAdd_4").select2();
+            var StrHACodeDataArray = parsedData["StrHACode"]
+            var finalArrayData = [];
+            if (StrHACodeDataArray.length > 0) {
+                for (var i = 0; i < StrHACodeDataArray.length; i++) {
+                    var strHaCodeDropDownData = {
+                        id: parsedData["StrHACode"][i].id,
+                        text: parsedData["StrHACode"][i].text
+                    };
+                    var newOption = new Option(strHaCodeDropDownData.text, strHaCodeDropDownData.id, false, true);
+                    finalArrayData.push(newOption);
+                   
+                }
+                $('#AddBaseReferencectrlAdd_4').append(finalArrayData).trigger('change');
+            }
+          
+            
+        }
+        function PrepareNewRecord() {
+            $("#successModal").modal("hide");
+            $("#duplicatesModal").modal("hide");
+            $("#AddBaseReference").modal("show");
+        }
+
+        var _selectedReferenceTypeId;
+        function ChangeAddButtonActiveStatus(data) {
+            _selectedReferenceTypeId = data;
+            ShowHideAccessoryCode(data);
+            ShowHideIONCCode(data);
+            switch(parseInt(data.id)){
+                @Model.Case_AddSystemTypesToDisable
+                    $("#AddBaseReferenceButton").prop('disabled', true);
+                    break;
+                default:
+                    $("#AddBaseReferenceButton").prop('disabled', false);
+                    break;
+            }
+        }
+
+        function ShowHideAccessoryCode(data) {
+            var dt = $("#BaseReferenceGrid").DataTable();
+            var column = dt.column([6]);
+            hData = data;
+            
+            switch (parseInt(data.id)) {
+                @Model.Case_HACodeSystemTypesToHide
+                    column.visible(false, true);
+                    $("#StrHACodeNames_0").parent().html("");
+                    $("#AddBaseReferencectrlAdd_5").next().hide();
+                    $("#AddBaseReferencelblAdd_5").hide();  
+                    break;
+                default:
+                    column.visible(true, true);
+                    $("#AddBaseReferencectrlAdd_5").next().show();
+                    $("#AddBaseReferencelblAdd_5").show();
+                    break;
+            }
+        }
+        
+        function ShowHideIONCCode(data) {
+            var dt = $("#BaseReferenceGrid").DataTable();
+            var column = dt.column([5]);
+            hData = data;
+
+            switch (parseInt(data.id)) {
+                @Model.Case_LOINCSystemTypesToHide
+                    column.visible(false, true);
+                    break;
+                default:
+                    column.visible(true, true);
+                    break;
+                
+            }
+        }
+       
+        function  HideColumnsOnEdit(){
+           ShowHideIONCCode(hData);
+           ShowHideAccessoryCode(hData);
+        }
+
+        ///When Drop Down Items Are Cleared
+        function SelectOnClear(data) {
+            $("#AddBaseReferenceButton").prop('disabled', true);
+        }
+
+        ///HIDES THE LOINCCODE
+        function hideLOINCCODE() {
+            $("#AddBaseReferencelblAdd_4").hide();
+            $("#AddBaseReferencectrlAdd_4").hide();
+        }
+
+        ///DISPLAYS THE LOINCCODE
+        function showLOINCCODE() {
+            $("#AddBaseReferencelblAdd_4").show();
+            $("#AddBaseReferencectrlAdd_4").show();
+        }
+
+        //Used to rebuild the columns, that go hiding after a cancel. 
+        function RefreshGrid(){
+            BaseReferenceGridLaunchModal(3);
+        }
+
+        function SaveGridSuccess(data) {
+            var stringified_data = JSON.stringify(data);
+            var parsed_data = JSON.parse(stringified_data);
+            if (parsed_data.returnMessage == "SUCCESS") {
+                $("#saveGridSuccessModal").modal("show");
+
+                updateNotificationEnvelopeCount();
+            }
+            if (parsed_data.returnMessage == "DOES EXIST") {
+                $("#duplicatesModal").modal("show");
+                //Display Message
+                $("#dupemsg").html(parsed_data.strDuplicatedField);
+
+                //Determine which button to select
+                if (parsed_data.pageAction == 1) {
+                    $("#createNewYesButton").show();
+                    $("#editDupRecordButton").hide();
+
+                } else if (parsed_data.pageAction == 2) {
+                    $("#createNewYesButton").hide();
+                    $("#editDupRecordButton").show();
+                }
+
+                ChangeAddButtonActiveStatus(_selectedReferenceTypeId);
+            }
+        }
+
+        $('#BaseReferenceGridinLineEditCancel').on('hidden.bs.modal',
+            function(e) {
+                ChangeAddButtonActiveStatus(_selectedReferenceTypeId);
+            });
+        $('#BaseReferenceGridinLineEditCancel').on('show.bs.modal',
+            function(e) {
+                ChangeAddButtonActiveStatus(_selectedReferenceTypeId);
+            });
+        $('#successModal').on('hidden.bs.modal',
+            function(e) {
+                ChangeAddButtonActiveStatus(_selectedReferenceTypeId);
+            });
+        $('#successModal').on('show.bs.modal',
+            function(e) {
+                ChangeAddButtonActiveStatus(_selectedReferenceTypeId);
+            });
+        
+    </script>
+}

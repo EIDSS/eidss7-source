@@ -1,0 +1,98 @@
+﻿@using EIDSS.Domain.ViewModels.Administration
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits EIDSS.Web.Components.Administration.ReferenceEditors.SettlementTypesBase;
+
+<div class="row mb-3">
+    <div class="col-6">
+     
+        <button id="btnAdd"
+                type="button"
+                class="btn btn-primary"
+                @onclick="AddSettlementType"
+                disabled="@(!CanAddSettlementType)">
+            @Localizer.GetString(ButtonResourceKeyConstants.AddButton)
+        </button>
+
+    </div>
+
+    <div class="col-6 align-items-end">
+
+        <button id="btnClear"
+                type="button"
+                class="btn btn-secondary float-right"
+                @onclick="ClearSearch">
+            @Localizer.GetString(ButtonResourceKeyConstants.ClearButton)
+        </button>
+
+        <button id="btnSearch"
+                type="button"
+                class="btn btn-primary float-right"
+                @onclick="Search">
+            @Localizer.GetString(ButtonResourceKeyConstants.SearchButton)
+        </button>
+
+        <RadzenTextBox class="float-right" MaxLength="100" @bind-Value="SearchTerm"></RadzenTextBox>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <RadzenDataGrid @ref="SettlementTypesGrid"
+                        AllowFiltering="false"
+                        AllowColumnResize="true"
+                        AllowPaging="true"
+                        Count="Count"
+                        ShowPagingSummary="true"
+                        PageSizeOptions="pageSizeOptions"
+                        AllowSorting="true"
+                        EditMode="DataGridEditMode.Single"
+                        Data="@SettlementTypes"
+                        TItem="SettlementTypeModel"
+                        ColumnWidth="300px"
+                        RowUpdate="@OnUpdateRow"
+                        RowCreate="@OnCreateRow">
+            <Columns>
+                <RadzenDataGridColumn TItem="SettlementTypeModel" Property="RowCount" Title="Row" Width="40px" />
+                <RadzenDataGridColumn TItem="SettlementTypeModel" Property="strDefault" Title="Default" Width="140px">
+                    <EditTemplate Context="settlementType">
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.DefaultValueFieldLabel" IsLabelHidden="true" IsRow="false" CssClass="col-4" For="@nameof(settlementType.strDefault)">
+                            <RadzenTextBox @bind-Value="settlementType.strDefault" Name="strDefault" />
+                        </InterfaceEditorResource>
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="SettlementTypeModel" Property="name" Title="National" Width="140px">
+                    <EditTemplate Context="settlementType">
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.NationalValueFieldLabel" IsLabelHidden="true" IsRow="false" CssClass="col-4" For="@nameof(settlementType.name)">
+                            <RadzenTextBox @bind-Value="settlementType.name" Name="name" />
+                        </InterfaceEditorResource>
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="SettlementTypeModel" Property="intOrder" Title="Order" Width="40px">
+                    <EditTemplate Context="settlementType">
+                        <RadzenNumeric @bind-Value="settlementType.intOrder" Name="intOrder" Min="0" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="SettlementTypeModel" Filterable="false" Context="sampleBlazorModelsSampleOrder" Sortable="false" TextAlign="TextAlign.Center" Width="40px">
+                    <Template Context="settlementType">
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Class="m-1" Disabled=@(!CanEditSettlementType) Click="@(args => EditRow(settlementType))" @onclick:stopPropagation="true">
+                        </RadzenButton>
+                    </Template>
+                    <EditTemplate Context="settlementType">
+                        <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Primary" Class="m-1" Click="@((args) => SaveRow(settlementType))"></RadzenButton>
+                        <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Class="m-1" Click="@((args) => CancelEdit(settlementType))"></RadzenButton>
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="SettlementTypeModel" Context="settlementType" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="40px">
+                    <Template Context="settlementType">
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Small" Class="m-1" Disabled=@(!CanDeleteSettlementType) Click="@(args => DeleteRow(settlementType))" @onclick:stopPropagation="true"></RadzenButton>
+                    </Template>
+                    <EditTemplate Context="settlementType">
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Small" Class="m-1" Click="@(args => DeleteRow(settlementType))"></RadzenButton>
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>
+

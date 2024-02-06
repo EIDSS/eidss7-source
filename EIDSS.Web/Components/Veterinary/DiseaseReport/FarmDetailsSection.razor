@@ -1,0 +1,89 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using static ClientLibrary.Enumerations.EIDSSConstants
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Enumerations
+@using EIDSS.Domain.Enumerations
+
+@inherits FarmDetailsSectionBase
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-11">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.LivestockDiseaseReportFarmDetailsHeading)</h4>
+        </div>
+        <div class="col-1 text-right">
+            @if (Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0 || (Model.WritePermissionIndicator && Model.DiseaseReportID > 0 && Model.ReportStatusTypeID == (long)DiseaseReportStatusTypeEnum.InProcess && Model.ReportCurrentlyClosedIndicator == false))
+            {
+                <a class="edit-section" href="#caseDiseaseReportWizard-h-0" id="editFarmDetailsSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            }
+        </div>
+    </div>
+    <RadzenTemplateForm Data="Model" @ref="Form" TItem="DiseaseReportGetDetailViewModel">
+        <div class="card">
+            <div class="card-body">
+                <div class="form-row">
+                    <InterfaceEditorResource CssClass="col-4" For="farmID" InterfaceEditorKey="@FarmIdFieldLabelResourceKey" IsRow="false">
+                        <RadzenTextBox @bind-Value="Model.EIDSSFarmID" class="form-control" Disabled="true" MaxLength="36" Name="farmID"/>
+                    </InterfaceEditorResource>
+                    <InterfaceEditorResource CssClass="col-8" For="farmName" InterfaceEditorKey="@FarmNameFieldLabelResourceKey" IsRow="false">
+                        <RadzenTextBox @bind-Value="Model.FarmName" class="form-control" Disabled="true" MaxLength="200" Name="farmName"/>
+                    </InterfaceEditorResource>
+                </div>
+                @if (Model.AccessToPersonalDataPermissionIndicator)
+                {
+                    <div class="form-row">
+                        <InterfaceEditorResource CssClass="col-3" For="farmOwnerID" InterfaceEditorKey="@FarmOwnerIdFieldLabelResourceKey" IsRow="false">
+                            <RadzenTextBox @bind-Value="Model.EIDSSFarmOwnerID" class="form-control" Disabled="true" MaxLength="36" Name="farmOwnerID"/>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource CssClass="col-3" For="farmOwnerLastName" InterfaceEditorKey="@FarmOwnerLastNameFieldLabelResourceKey" IsRow="false">
+                            <RadzenTextBox @bind-Value="Model.FarmOwnerLastName" class="form-control" Disabled="true" MaxLength="200" Name="farmOwnerLastName"/>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource CssClass="col-3" For="farmOwnerFirstName" InterfaceEditorKey="@FarmOwnerFirstNameFieldLabelResourceKey" IsRow="false">
+                            <RadzenTextBox @bind-Value="Model.FarmOwnerFirstName" class="form-control" Disabled="true" MaxLength="200" Name="farmOwnerFirstName"/>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource CssClass="col-3" For="farmOwnerSecondName" InterfaceEditorKey="@FarmOwnerSecondNameFieldLabelResourceKey" IsRow="false">
+                            <RadzenTextBox @bind-Value="Model.FarmOwnerSecondName" class="form-control" Disabled="true" MaxLength="200" Name="farmOwnerSecondName"/>
+                        </InterfaceEditorResource>
+                    </div>
+                    <div class="form-row">
+                        <InterfaceEditorResource CssClass="col-4" For="phone" InterfaceEditorKey="@PhoneFieldLabelResourceKey" IsRow="false">
+                            <RadzenTextBox @bind-Value="Model.Phone" class="form-control" Disabled="true" MaxLength="200" Name="phone"/>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource CssClass="col-8" For="email" InterfaceEditorKey="@EmailFieldLabelResourceKey" IsRow="false">
+                            <RadzenTextBox @bind-Value="Model.Email" class="form-control" Disabled="true" MaxLength="200" Name="email"/>
+                        </InterfaceEditorResource>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-row">
+                        <InterfaceEditorResource CssClass="col-3" For="farmOwnerID" InterfaceEditorKey="@FarmOwnerIdFieldLabelResourceKey" IsRow="false">
+                            <RadzenTextBox class="form-control" Disabled="true" MaxLength="36" Name="farmOwnerID" Value="@GlobalConstants.MaskValue"/>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource CssClass="col-3" For="farmOwnerLastName" InterfaceEditorKey="@FarmOwnerLastNameFieldLabelResourceKey" IsRow="false">
+                            <RadzenTextBox class="form-control" Disabled="true" MaxLength="200" Name="farmOwnerLastName" Value="@GlobalConstants.MaskValue"/>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource CssClass="col-3" For="farmOwnerFirstName" InterfaceEditorKey="@FarmOwnerFirstNameFieldLabelResourceKey" IsRow="false">
+                            <RadzenTextBox class="form-control" Disabled="true" MaxLength="200" Name="farmOwnerFirstName" Value="@GlobalConstants.MaskValue"/>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource CssClass="col-3" For="farmOwnerSecondName" InterfaceEditorKey="@FarmOwnerSecondNameFieldLabelResourceKey" IsRow="false">
+                            <RadzenTextBox class="form-control" Disabled="true" MaxLength="200" Name="farmOwnerSecondName" Value="@GlobalConstants.MaskValue"/>
+                        </InterfaceEditorResource>
+                    </div>
+                    <div class="form-row">
+                        <InterfaceEditorResource CssClass="col-4" For="phone" InterfaceEditorKey="@PhoneFieldLabelResourceKey" IsRow="false">
+                            <RadzenTextBox class="form-control" Disabled="true" MaxLength="200" Name="phone" Value="@GlobalConstants.MaskValue"/>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource CssClass="col-8" For="email" InterfaceEditorKey="@EmailFieldLabelResourceKey" IsRow="false">
+                            <RadzenTextBox class="form-control" Disabled="true" MaxLength="200" Name="email" Value="@GlobalConstants.MaskValue"/>
+                        </InterfaceEditorResource>
+                    </div>
+                }
+                <LocationView @ref="FarmLocation" Id="FarmLocation" ParmLocationViewModel="Model.FarmLocation" />
+            </div>
+        </div>
+    </RadzenTemplateForm>
+</div>

@@ -1,0 +1,72 @@
+﻿@inherits EIDSS.Web.Components.Administration.InterfaceEditor.ResourceSearchBase
+
+@*<RadzenTemplateForm id="searchForm" class="form-inline">
+    <div class="form-row py-4 flex-sm-nowrap">
+        <div class="form-group form-group-sm border-right px-2">
+            <div class="input-group">
+                <input type="text" class="form-control"
+                       asp-for="SearchCriteria.SearchText"
+                       placeholder="@Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorSearchwithinmoduleFieldLabel)" />
+                <button class="input-group-text lighten-3" id="SearchClearButton" type="button" onclick=InterfaceEditor.clearSearchText();>
+                    <i class="fas fa-times text-grey" aria-hidden="true"></i>
+                </button>
+            </div>
+            <button type="submit" id="SearchSubmitButton"
+                    class="btn btn-outline-primary ml-2">
+                <i class="fas fa-search" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="form-group form-group-sm px-2">
+            <input type="checkbox" class="form-check-inline"
+                   asp-for="SearchCriteria.AllModules" />
+            <label asp-for="SearchCriteria.AllModules">@Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorAllModulesFieldLabel)</label>
+        </div>
+        <div class="form-group form-group-sm border-right px-2">
+            <ul class="nav nav-tabs">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown"
+                       href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                        @Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorTypeFieldLabel)
+                    </a>
+                    <div class="dropdown-menu">
+                        @{
+                            for (var i = 0; i < Model.SearchCriteria.InterfaceEditorTypes.Count; i++)
+                            {
+                                <text>
+                                    <div class="form-check justify-content-start px-1">
+                                        <input type="checkbox" class="form-check-input"
+                                               data-id="@Model.SearchCriteria.InterfaceEditorTypes[i].Value"
+                                               data-content="@Model.SearchCriteria.InterfaceEditorTypes[i].Text"
+                                               asp-for="SearchCriteria.InterfaceEditorTypes[i].Selected"
+                                               name="SearchCriteria_InterfaceEditorTypesCheckbox" />
+                                        <label asp-for="SearchCriteria.InterfaceEditorTypes[i]" class="form-check-label">@Model.SearchCriteria.InterfaceEditorTypes[i].Text</label>
+                                    </div>
+                                </text>
+                            }
+                        }
+                        <input type="text" hidden asp-for="SearchCriteria.InterfaceEditorSelectedTypes" aria-hidden="true" />
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="form-group form-group-sm px-2">
+            <input type="checkbox" class="form-check-inline" asp-for="SearchCriteria.Required" />
+            <label asp-for="SearchCriteria.Required">@Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorRequiredFieldLabel)</label>
+        </div>
+        <div class="form-group form-group-sm px-2">
+            <input type="checkbox" class="form-check-inline" asp-for="SearchCriteria.Hidden" />
+            <label asp-for="SearchCriteria.Hidden">@Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorHiddenFieldLabel)</label>
+        </div>
+        <div class="form-group form-group-sm px-2">
+            <div class="alert alert-secondary hide" role="alert" id="ResultsAreFilteredAlert">
+                <span class="text-sm-left">Results are filtered click Clear to remove filters.</span>
+                <button class="btn btn-outline-info btn-sm" id="btnClearAllSearchCriteria">@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)</button>
+            </div>
+                            
+        </div>
+    </div>
+</RadzenTemplateForm>*@
+
+@code {
+
+}

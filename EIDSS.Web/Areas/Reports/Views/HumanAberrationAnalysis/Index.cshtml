@@ -1,0 +1,582 @@
+﻿@model EIDSS.Web.Areas.Reports.ViewModels.HumanAberrationAnalysisViewModel
+@using EIDSS.ReportViewer
+
+@{
+    ViewBag.Title = Localizer.GetString(HeadingResourceKeyConstants.HumanAberrationAnalysisReportPageHeading);
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<form method="post" asp-action="Index" asp-controller="HumanAberrationAnalysis" asp-area="Reports">
+    <div class="card">
+        <div class="card-header">
+            <h3 heading-for="@(HeadingResourceKeyConstants.HumanAberrationAnalysisReportPageHeading + "," + Model.LanguageId)"></h3>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="LanguageId" field-label-for="@(FieldLabelResourceKeyConstants.LanguageFieldLabel + "," + Model.LanguageId)"></label>
+                        <div class="input-group">
+                            <select asp-for="LanguageId"
+                                    asp-items="@(new SelectList(Model.ReportLanguageModels, "LangID", "Language"))" class="form-control">
+                            </select>
+                            <input type="hidden" asp-for="PriorLanguageId" />
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                        <i class="fas fa-asterisk text-danger"></i>
+                        <label asp-for="DiagnosisId" field-label-for="@(FieldLabelResourceKeyConstants.DiagnosisFieldLabel + "," + Model.LanguageId)"></label>
+                        <div class="input-group">
+                            <select asp-for="DiagnosisId" multiple
+                                    asp-items="@(new SelectList(Model.DiagnosisList, "IdfsBaseReference", "Name"))" class="form-control">
+                            </select>
+                            <span asp-validation-for="DiagnosisId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                        <i class="fas fa-asterisk text-danger"></i>
+                        <label asp-for="ReportTypeId" field-label-for="@(FieldLabelResourceKeyConstants.ReportTypeFieldLabel + "," + Model.LanguageId)"></label>
+                            <div class="input-group">
+                                <select asp-for="ReportTypeId" style="width: 100%;"
+                                        asp-items="@(new SelectList(Model.ReportTypeList, "IdfsBaseReference", "Name"))" class="form-control">
+                                    <option></option>
+                                </select>
+                                <span asp-validation-for="ReportTypeId" class="text-danger"></span>
+                            </div>
+                    </div>
+                    <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4 text-right">
+                        <button type="submit" id="submitReport" class="btn btn-primary" button-for="@(ButtonResourceKeyConstants.GenerateReportButton + "," + Model.LanguageId)"></button>
+                    </div>
+                </div>
+            <div class="form-row">
+                @{
+                    var maxDate = DateTime.Now.ToString("MM/dd/yyyy");
+                }
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="StartIssueDate" field-label-for="@(FieldLabelResourceKeyConstants.DateFromFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <eidss-calendar id="StartIssueDate" name="StartIssueDate" class="form-control" asp-for="StartIssueDate" style="width: 100%;" max-date=@maxDate></eidss-calendar>
+                        <span asp-validation-for="StartIssueDate" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="EndIssueDate" field-label-for="@(FieldLabelResourceKeyConstants.DateToFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <eidss-calendar id="EndIssueDate" name="EndIssueDate" class="form-control" asp-for="EndIssueDate" style="width: 100%;" max-date=@maxDate></eidss-calendar>
+                        <span asp-validation-for="EndIssueDate" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="DateFieldSourceId" field-label-for="@(FieldLabelResourceKeyConstants.DateFieldSourceFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="DateFieldSourceId" multiple
+                                asp-items="@(new SelectList(Model.DateFieldSourceList, "intDateFieldSource", "strDateFieldSource"))" class="form-control">
+                            <option value="0"></option>
+                        </select>
+                        <span asp-validation-for="DateFieldSourceId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="CaseClassificationId" field-label-for="@(FieldLabelResourceKeyConstants.CaseClassificationFieldLabel + "," + Model.LanguageId)"></label>
+                        <div class="input-group">
+                            <select asp-for="CaseClassificationId" multiple
+                                    asp-items="@(new SelectList(Model.CaseClassificationList, "IdfsBaseReference", "Name"))" class="form-control">
+                                <option value="0"></option>
+                            </select>
+                            <span asp-validation-for="CaseClassificationId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                        <label asp-for="OrganizationId" field-label-for="@(FieldLabelResourceKeyConstants.ReportsNotificationReceivedFromFacilityFieldLabel + "," + Model.LanguageId)"></label>
+                            <div class="input-group">
+                                <select asp-for="OrganizationId"
+                                        asp-items="@(new SelectList(Model.OrganizationList, "IdfsBaseReference", "Name"))" class="form-control">
+                                    <option value="0"></option>
+                                </select>
+                            </div>
+                    </div>
+                </div>
+            <div class="form-row">
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="RegionId" field-label-for="@(FieldLabelResourceKeyConstants.RegionFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="RegionId" style="width: 150px;"
+                                asp-items="@(new SelectList(Model.GisRegionList, "idfsReference", "Name"))" class="form-control">
+                            <option value="0"></option>
+                        </select>
+                        <span class="input-group-append">
+                            <button id="btnRegion" class="btn btn-outline-secondary btn-sm border-left-0 border" type="button"><i class="fa fa-times fa-sm"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="RayonId" field-label-for="@(FieldLabelResourceKeyConstants.RayonFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="RayonId" style="width: 150px;"
+                                asp-items="@(new SelectList(Model.GisRayonList, "idfsReference", "Name"))" class="form-control">
+                            <option value="0"></option>
+                        </select>
+                        <span class="input-group-append">
+                            <button type="button" id="btnRayon" class="btn btn-outline-secondary btn-sm border-left-0 border"><i class="fa fa-times fa-sm"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="SettlementId" field-label-for="@(FieldLabelResourceKeyConstants.SettlementFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="SettlementId" style="width: 150px;"
+                                asp-items="@(new SelectList(Model.GisSettlementList, "idfsReference", "Name"))" class="form-control">
+                            <option value="0"></option>
+                        </select>
+                        <span class="input-group-append">
+                            <button type="button" id="btnSettlement" class="btn btn-outline-secondary btn-sm border-left-0 border"><i class="fa fa-times fa-sm"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="GenderId" field-label-for="@(FieldLabelResourceKeyConstants.GenderFieldLabel + "," + Model.LanguageId)"></label>
+                        <div class="input-group">
+                            <select asp-for="GenderId"
+                                    asp-items="@(new SelectList(Model.GenderList, "IdfsBaseReference", "Name"))" class="form-control" style="width:100%">
+                                <option value="0"></option>
+                            </select>
+                        </div>
+                    </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="AgeFromId" field-label-for="@(FieldLabelResourceKeyConstants.AgeFromYearsFieldLabel + "," + Model.LanguageId)"></label>
+                        <div class="input-group">
+                            <select asp-for="AgeFromId"
+                                    asp-items="@(new SelectList(Model.AgeFromList, "Id", "Value"))" class="form-control" style="width:100%">
+                            </select>
+                        </div>
+                    </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="AgeToId" field-label-for="@(FieldLabelResourceKeyConstants.AgeToYearsFieldLabel + "," + Model.LanguageId)"></label>
+                        <div class="input-group">
+                            <select asp-for="AgeToId"
+                                    asp-items="@(new SelectList(Model.AgeToList, "Id", "Value"))" class="form-control" style="width:100%">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            <div class="form-row">
+                <fieldset class="form-group col-lg-10 col-md-10 col-sm-4 col-xs-4">
+                    <legend>@Localizer.GetString(HeadingResourceKeyConstants.AnalysisParametersHeading)</legend>
+                    <div class="form-row">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                            <label asp-for="AnalysisMethodId" field-label-for="@(FieldLabelResourceKeyConstants.AnalysisMethodFieldLabel + "," + Model.LanguageId)"></label>
+                            @foreach (var item in Model.AnalysisMethods)
+                            {
+                                <input asp-for="AnalysisMethodId" type="radio" value="@item.Id" checked /> @item.Value
+
+                            }
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                            <i class="fas fa-asterisk text-danger"></i>
+                            <label asp-for="ThresholdId" field-label-for="@(FieldLabelResourceKeyConstants.ThresholdFieldLabel + "," + Model.LanguageId)"></label>
+                                <div class="input-group">
+                                    <select asp-for="ThresholdId" style="width: 100%;"
+                                            asp-items="@(new SelectList(Model.ThresholdList, "Id", "Value"))" class="form-control">
+                                    </select>
+                                    <span asp-validation-for="ThresholdId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                            <i class="fas fa-asterisk text-danger"></i>
+                            <label asp-for="TimeUnitId" field-label-for="@(FieldLabelResourceKeyConstants.TimeUnitFieldLabel + "," + Model.LanguageId)"></label>
+                                <div class="input-group">
+                                    <select asp-for="TimeUnitId" style="width: 100%;"
+                                            asp-items="@(new SelectList(Model.TimeUnitList, "IdfsBaseReference", "Name"))" class="form-control">
+                                            <option></option>
+                                    </select>
+                                    <span asp-validation-for="TimeUnitId" class="ext-danger"></span>
+                                </div>
+                            </div>
+                        <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                            <i class="fas fa-asterisk text-danger"></i>
+                            <label asp-for="BaselineId" field-label-for="@(FieldLabelResourceKeyConstants.BaselineFieldLabel + "," + Model.LanguageId)"></label>
+                                <div class="input-group">
+                                    <select asp-for="BaselineId" style="width: 100%;"
+                                            asp-items="@(new SelectList(Model.BaselineList, "Id", "Value"))" class="form-control">
+                                    </select>
+                                    <span asp-validation-for="BaselineId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                            <i class="fas fa-asterisk text-danger"></i>
+                            <label asp-for="LagId" field-label-for="@(FieldLabelResourceKeyConstants.LagFieldLabel + "," + Model.LanguageId)"></label>
+                                <div class="input-group">
+                                    <select asp-for="LagId" style="width: 100%;"
+                                            asp-items="@(new SelectList(Model.LagList, "Id", "Value"))" class="form-control">
+                                    </select>
+                                    <span asp-validation-for="LagId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                </fieldset>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-2 form-check form-check-inline" style="@(Model.ShowIncludeSignature ? "display:block;" : "display:none;")">
+                    <input asp-for="IncludeSignature" class="form-check-input" type="checkbox" />
+                    <label asp-for="IncludeSignature" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.IncludeSignatureFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+                <div class="form-group col-md-4 form-check form-check-inline" style="@(Model.ShowUseArchiveData ? "display:block;" : "display:none;")">
+                    <input asp-for="UseArchiveData" class="form-check-input" type="checkbox" />
+                    <label asp-for="UseArchiveData" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.UseArchivedDataFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+            </div>
+
+            <div class="col-xs-4 col-xs-offset-4" id="divLoading"></div>
+            <div id="ReportView"></div>
+        </div>
+    </div>
+</form>
+@section runreport {
+    <script type="text/javascript">
+        function submitReport() {
+            $("#ReportView").html("");
+            onBegin();
+            $.ajax({
+                url: '@Url.Action("GenerateReport", "HumanAberrationAnalysis", new { Area = "Reports", SubArea = "" })',//controller name and action
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(getFormData())  //information for search
+            })
+                .done(function (result) {
+                    $('#ReportView').html(result); //write returned partial view to empty div
+                    onComplete();
+                })
+        };
+
+        function onBegin() {
+            $("#divLoading").html('<image  src="@Url.Content("~/Includes/Images/ajax-loader.gif")"  alt="Loading, please wait" />');
+         };
+
+        function onComplete() {
+            var jsonData = {
+                "strReportName":'@Model.ReportName',
+                "idfIsSignatureIncluded": $("#IncludeSignature").is(':checked') ? 'true' : 'false'
+            };
+            //Save ReportAudit
+                $.ajax({
+                url: '@Url.Action("SaveReportAudit", "HumanAberrationAnalysis", new { Area = "Reports", SubArea = "" })',//controller name and action
+                type: 'POST',
+                contentType :'application/json; charset=utf-8',
+                data: JSON.stringify(jsonData)  //information for search
+            })
+            .done(function (result) {
+                $("#divLoading").html("");
+                $('#DiagnosisId').select2MultiCheckboxes('remove');
+                $('#DiagnosisId').select2MultiCheckboxes({
+                    placeholder: "Choose multiple elements",
+                    width: "100%"
+                })
+            })
+        };
+
+        function getFormData() {
+            var jsonData = {
+                "LanguageId": $("#LanguageId").val(),
+                "PriorLanguageId": $("#PriorLanguageId").val(),
+                "StartIssueDate": $("#StartIssueDate").val(),
+                "EndIssueDate": $("#EndIssueDate").val(),
+                "DateFieldSourceId": $("#DateFieldSourceId").val(),
+                "DiagnosisId": $("#DiagnosisId").val(),
+                "ReportTypeId": $("#ReportTypeId").val(),
+                "CaseClassificationId": $("#CaseClassificationId").val(),
+                "OrganizationId": $("#OrganizationId").val(),
+                "RegionId": $("#RegionId").val(),
+                "RayonId": $("#RayonId").val(),
+                "SettlementId": $("#SettlementId").val(),
+                "GenderId": $("#GenderId").val(),
+                "AgeFromId": $("#AgeFromId").val(),
+                "AgeToId": $("#AgeToId").val(),
+                "AnalysisMethodId": $("#AnalysisMethodId").val(),
+                "ThresholdId": $("#ThresholdId").val(),
+                "TimeUnitId": $("#TimeUnitId").val(),
+                "BaselineId": $("#BaselineId").val(),
+                "LagId": $("#LagId").val(),
+                "UseArchiveData": $("#UseArchiveData").is(':checked') ? 'true' : 'false',
+                "IncludeSignature": $("#IncludeSignature").is(':checked') ? 'true' : 'false',
+                "PrintDateTime": localDate()
+            };
+
+            return jsonData;
+        };
+
+        $(document).ready(function () {
+            //To clear dropdown texts
+            $("#btnSettlement").click(function () {
+                $("#SettlementId").val("0").change();
+            });
+
+
+            $("#btnRayon").click(function () {
+                $("#RayonId").val("0").change();
+                $("#SettlementId").val("0").change();
+            });
+
+            var ClearRegion = function () {
+                $("#RegionId").val("0").change();
+                $("#RayonId").val("0").change();
+                $("#SettlementId").val("0").change();
+                //$("#EnterByOrganizationId").prop("disabled", false)
+            };
+            $("#btnRegion").on("click", ClearRegion);
+
+            $('#DiagnosisId').select2MultiCheckboxes({
+                placeholder: "Choose multiple elements",
+                width: "100%"
+            });
+
+            $('#DateFieldSourceId').select2MultiCheckboxes({
+                placeholder: "Choose multiple elements",
+                width: "100%"
+            });
+
+            $('#CaseClassificationId').select2MultiCheckboxes({
+                placeholder: "Choose multiple elements",
+                width: "100%"
+            });
+
+            $("#LanguageId").on("change", function () {
+                $.ajax({
+                    url: '@Url.Action("ChangeLanguage", "HumanAberrationAnalysis", new { Area = "Reports", SubArea = "" })',
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(getFormData())  //information for search
+                })
+                    .done(function (response) {
+                        $("body").html(response);
+                    });
+            });
+        });
+
+        $("#RegionId").on("change", function () {
+            RefreshRayon()
+        });
+
+        $("#RayonId").on("change", function () {
+            RefreshSettlement()
+        });
+
+        function RefreshDiagnosisList() {
+            var langId = $("#LanguageId").val();
+            var selectedValue = $('#DiagnosisId').val();
+
+            $.ajax({
+                url: '@Url.Action("GetDiagnosisList", "HumanAberrationAnalysis", new { Area = "Reports", SubArea = "" })' + "?langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+            .done(function (data) {
+                $('#DiagnosisId').empty();
+                var items = '<option value="0"></option>';
+                $.each(data, function (i, diagnosis) {
+                    items += "<option value='" + diagnosis.idfsBaseReference + "' > " + diagnosis.name + "</option > ";
+                });
+                $('#DiagnosisId').html(items);
+                $('#DiagnosisId').val(selectedValue);
+            });
+        };
+
+        function RefreshReportTypeList() {
+            var langId = $("#LanguageId").val();
+            var selectedValue = $('#ReportTypeId').val();
+
+            $.ajax({
+                url: '@Url.Action("GetReportTypeList", "HumanAberrationAnalysis", new { Area = "Reports", SubArea = "" })' + "?langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#ReportTypeId').empty();
+                    var items = '<option value="0"></option>';
+                    $.each(data, function (i, reportType) {
+                        items += "<option value='" + reportType.idfsBaseReference + "' > " + reportType.name + "</option > ";
+                    });
+                    $('#ReportTypeId').html(items);
+                    $('#ReportTypeId').val(selectedValue);
+                });
+        };
+
+        function RefreshDateFieldSourceList() {
+            var langId = $("#LanguageId").val();
+            var selectedValue = $('#DateFieldSourceId').val();
+
+            $.ajax({
+                url: '@Url.Action("GetHumDateFieldSourceList", "HumanAberrationAnalysis", new { Area = "Reports", SubArea = "" })' + "?langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#DateFieldSourceId').empty();
+                    var items = '<option value="0"></option>';
+                    $.each(data, function (i, dateFieldSource) {
+                        items += "<option value='" + dateFieldSource.intDateFieldSource + "' > " + dateFieldSource.strDateFieldSource + "</option > ";
+                    });
+                    $('#DateFieldSourceId').html(items);
+                    $('#DateFieldSourceId').val(selectedValue);
+                });
+        };
+
+        function RefreshCaseClassificationList() {
+            var langId = $("#LanguageId").val();
+            var selectedValue = $('#CaseClassificationId').val();
+
+            $.ajax({
+                url: '@Url.Action("GetCaseClassificationList", "HumanAberrationAnalysis", new { Area = "Reports", SubArea = "" })' + "?langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#CaseClassificationId').empty();
+                    var items = '<option value="0"></option>';
+                    $.each(data, function (i, caseClassification) {
+                        items += "<option value='" + caseClassification.idfsBaseReference + "' > " + caseClassification.name + "</option > ";
+                    });
+                    $('#CaseClassificationId').html(items);
+                    $('#CaseClassificationId').val(selectedValue);
+                });
+        };
+
+        function RefreshOrganizationList() {
+            var langId = $("#LanguageId").val();
+            var selectedValue = $('#OrganizationId').val();
+
+            $.ajax({
+                url: '@Url.Action("GetOrganizationList", "HumanAberrationAnalysis", new { Area = "Reports", SubArea = "" })' + "?langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#OrganizationId').empty();
+                    var items = '<option value="0"></option>';
+                    $.each(data, function (i, organization) {
+                        items += "<option value='" + organization.idfsBaseReference + "' > " + organization.name + "</option > ";
+                    });
+                    $('#OrganizationId').html(items);
+                    $('#OrganizationId').val(selectedValue);
+                });
+        };
+
+        function RefreshRegion() {
+            var langId = $("#LanguageId").val();
+            var selectedRegion = $('#RegionId').val();
+            $.ajax({
+                url: '@Url.Action("GetRegionList", "HumanAberrationAnalysis", new { Area = "Reports", SubArea = "" })' + "?langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#RegionId').empty();
+                    var items = '<option value="0"></option>';
+                    $.each(data, function (i, region) {
+                        items += "<option value='" + region.idfsReference + "' > " + region.name + "</option > ";
+                    });
+                    $('#RegionId').html(items);
+                    $('#RegionId').val(selectedRegion);
+                    RefreshRayon();
+                });
+        };
+
+        function RefreshRayon() {
+            var nodeValue = $("#RegionId").val();
+            var langId = $("#LanguageId").val();
+            var selectedRayonId = $("#RayonId").val();
+            $.ajax({
+                url: '@Url.Action("GetRayonList", "HumanAberrationAnalysis", new { Area = "Reports", SubArea = "" })' +"?node=" + nodeValue + "&langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#RayonId').empty();
+                    var items = '<option value="0"></option>';
+                    $.each(data, function (i, rayon) {
+                        items += "<option value='" + rayon.idfsReference + "' > " + rayon.name + "</option > ";
+                    });
+                    $('#RayonId').html(items);
+                    $("#RayonId").val(selectedRayonId);
+                    RefreshSettlement();
+                });
+        };
+
+        function RefreshSettlement() {
+            var nodeValue = $("#RayonId").val();
+            var langId = $("#LanguageId").val();
+            var selectedSettlementId = $("#SettlementId").val();
+            $.ajax({
+                url: '@Url.Action("GetSettlementList", "HumanAberrationAnalysis", new { Area = "Reports", SubArea = "" })' +"?node=" + nodeValue + "&langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#SettlementId').empty();
+                    var items = '<option value="0"></option>';
+                    $.each(data, function (i, settlement) {
+                        items += "<option value='" + settlement.idfsReference + "' > " + settlement.name + "</option > ";
+                    });
+                    $('#SettlementId').html(items);
+                    $("#SettlementId").val(selectedSettlementId);
+                });
+        };
+
+        function RefreshGenderList() {
+            var langId = $("#LanguageId").val();
+            var selectedValue = $('#GenderId').val();
+
+            $.ajax({
+                url: '@Url.Action("GetGenderList", "HumanAberrationAnalysis", new { Area = "Reports", SubArea = "" })' +"?node=" + nodeValue + "&langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#GenderId').empty();
+                    var items = '<option value="0"></option>';
+                    $.each(data, function (i, gender) {
+                        items += "<option value='" + gender.idfsBaseReference + "' > " + gender.name + "</option > ";
+                    });
+                    $('#GenderId').html(items);
+                    $('#GenderId').val(selectedValue);
+                });
+        };
+
+        function RefreshTimeUnitList() {
+            var langId = $("#LanguageId").val();
+            var selectedValue = $('#TimeUnitId').val();
+
+            $.ajax({
+                url: '@Url.Action("GetTimeUnitList", "HumanAberrationAnalysis", new { Area = "Reports", SubArea = "" })' +"?langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#TimeUnitId').empty();
+                    var items = '<option value="0"></option>';
+                    $.each(data, function (i, timeUnit) {
+                        items += "<option value='" + timeUnit.idfsBaseReference + "' > " + timeUnit.name + "</option > ";
+                    });
+                    $('#TimeUnitId').html(items);
+                    $('#TimeUnitId').val(selectedValue);
+                });
+        };
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+
+    @if (@Model.JavascriptToRun != null)
+    {
+        <script type="text/javascript">
+            @Html.Raw(@Model.JavascriptToRun)
+        </script>
+    }
+}

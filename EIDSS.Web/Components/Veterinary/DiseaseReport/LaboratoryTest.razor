@@ -1,0 +1,103 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits LaboratoryTestBase
+
+<RadzenTemplateForm @ref="Form" TItem="LaboratoryTestGetListViewModel" Data="Model" Submit="OnSubmit">
+    <div class="card">
+        <DataAnnotationsValidator/>
+        <div class="form-row">
+            <InterfaceEditorResource CssClass="col-3" For="fieldSampleID" InterfaceEditorKey="@FieldSampleIdFieldLabelResourceKey" IsRow="false">
+                <RadzenDropDown @bind-Value="Model.SampleID" AllowClear="true" AllowFiltering="true" Change="args => OnSampleChange(args)" class="form-control" Data="DiseaseReport.Samples.Where(x => x.RowStatus == (int) RowStatusTypeEnum.Active)" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="fieldSampleID" TextProperty="EIDSSLocalOrFieldSampleID" TValue="long?" ValueProperty="SampleID"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-3" For="labSampleID" InterfaceEditorKey="@LabSampleIdFieldLabelResourceKey" IsRow="false">
+                <RadzenTextBox @bind-Value="Model.EIDSSLaboratorySampleID" class="form-control" Disabled="true" Name="labSampleID"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-6" For="sampleType" InterfaceEditorKey="@SampleTypeFieldLabelResourceKey" IsRow="false">
+                <RadzenTextBox @bind-Value="Model.SampleTypeName" class="form-control" Disabled="true" Name="sampleType"/>
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            @if (DiseaseReport.ReportCategoryTypeID == (long) CaseTypeEnum.Avian)
+            {
+                <InterfaceEditorResource CssClass="col-6" For="species" InterfaceEditorKey="@SpeciesFieldLabelResourceKey" IsRow="false">
+                    <RadzenTextBox @bind-Value="Model.Species" class="form-control" Disabled="true" Name="species"/>
+                </InterfaceEditorResource>
+            }
+            else
+            {
+                <InterfaceEditorResource CssClass="col-6" For="animalID" InterfaceEditorKey="@AnimalIdFieldLabelResourceKey" IsRow="false">
+                    <RadzenTextBox @bind-Value="Model.EIDSSAnimalID" class="form-control" Disabled="true" Name="animalID"/>
+                </InterfaceEditorResource>
+            }
+        </div>
+        <InterfaceEditorResource CssClass="col-12" For="testDisease" InterfaceEditorKey="@TestDiseaseFieldLabelResourceKey" IsRow="true">
+            <RadzenDropDownDataGrid AllowClear="true" AllowFiltering="true" @bind-Value="Model.DiseaseID" class="form-control" Data="Diseases" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="testDisease" TextProperty="DiseaseName" TValue="long?" ValueProperty="DiseaseID">
+                <Columns>
+                    <RadzenDropDownDataGridColumn Property="DiseaseName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.DiagnosisColumnHeading)" Width="300px"/>
+                    <RadzenDropDownDataGridColumn Property="ICD10" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.ICD10ColumnHeading)" Width="70px"/>
+                    <RadzenDropDownDataGridColumn Property="OIECode" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OIECodeColumnHeading)" Width="100px"/>
+                </Columns>
+            </RadzenDropDownDataGrid>
+        </InterfaceEditorResource>
+        <div class="form-row">
+            <InterfaceEditorResource CssClass="col-4" For="testName" InterfaceEditorKey="@TestNameFieldLabelResourceKey" IsRow="false">
+                <div class="input-group mb-3">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.TestNameTypeID" Change="@(OnTestNameTypeChange)" class="form-control" Data="TestNameTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetTestNameTypes" Name="testName" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"/>
+                    @if (DiseaseReport.CreateBaseReferencePermissionIndicator)
+                    {
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary btn-sm" id="addTestNameType" @onclick="@AddTestNameTypeClick" type="button">
+                                <span aria-hidden="true" class="fas fa-plus"></span>
+                            </button>
+                        </div>
+                    }
+                </div>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-4" For="testCategory" InterfaceEditorKey="@TestCategoryFieldLabelResourceKey" IsRow="false">
+                <div class="input-group mb-3">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.TestCategoryTypeID" class="form-control" Data="TestCategoryTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetTestCategoryTypes" Name="testCategory" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"/>
+                    @if (DiseaseReport.CreateBaseReferencePermissionIndicator)
+                    {
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary btn-sm" id="addTestCategoryType" @onclick="@AddTestCategoryTypeClick" type="button">
+                                <span aria-hidden="true" class="fas fa-plus"></span>
+                            </button>
+                        </div>
+                    }
+                </div>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-4" For="testStatus" InterfaceEditorKey="@TestStatusFieldLabelResourceKey" IsRow="false">
+                <RadzenDropDown AllowClear="false" AllowFiltering="false" @bind-Value="Model.TestStatusTypeID" class="form-control" Data="TestStatusTypes" Disabled="true" LoadData="GetTestStatusTypes" Name="testStatus" TextProperty="Name" TValue="long" ValueProperty="IdfsBaseReference"/>
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource CssClass="col-3" For="resultDate" InterfaceEditorKey="@ResultDateFieldLabelResourceKey" IsRow="false">
+                <br/>
+                <RadzenDatePicker AllowClear="true" @bind-Value="Model.ResultDate" DateFormat="d" Name="resultDate" TValue="DateTime?"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-4" For="resultObservation" InterfaceEditorKey="@ResultObservationFieldLabelResourceKey" IsRow="false">
+                <div class="input-group mb-3">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.TestResultTypeID" class="form-control" Data="TestResultTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetTestResultTypes" Name="resultObservation" TextProperty="strTestResultName" TValue="long?" ValueProperty="idfsTestResult"/>
+                    @if (DiseaseReport.CreateBaseReferencePermissionIndicator)
+                    {
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary btn-sm" id="addTestResultType" @onclick="@AddTestResultTypeClick" type="button">
+                                <span aria-hidden="true" class="fas fa-plus"></span>
+                            </button>
+                        </div>
+                    }
+                </div>
+            </InterfaceEditorResource>
+        </div>
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-12">
+                    <button class="btn btn-outline-primary" @onclick="OnCancel" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button class="btn btn-primary" @onsubmit="OnSubmit" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

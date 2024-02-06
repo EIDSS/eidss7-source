@@ -1,0 +1,850 @@
+﻿@model EIDSS.Web.Areas.Outbreak.ViewModels.OutbreakSessionViewModel
+@using EIDSS.ClientLibrary.Enumerations
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.OutbreakSessionOutbreakSessionHeading);
+}
+<div class="card">
+<div class="card-header">
+    <div class="row">
+        <div class="col-lg-11">
+            <div class="panel-heading">
+                <h2>@Localizer.GetString(HeadingResourceKeyConstants.OutbreakSessionOutbreakSessionHeading)</h2>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card-body">
+<form asp-action="Edit" asp-controller="OutbreakSession">
+<input asp-for="SessionDetails.Today" id="hdnToday" style="display: none" type="date" value="@DateTime.Today.ToShortDateString()"/>
+<input asp-for="SessionDetails.idfOutbreak" id="idfOutbreak" type="hidden"/>
+<input asp-for="SessionDetails.OriginalOutbreakStatusTypeId" id="originalOutbreakStatusTypeId" type="hidden"/>
+<div class="card-body show" id="dSessionDetails">
+    <div class="card">
+        <div class="card-header" id="humanDiseaseReportSearchCriteria">
+            <h4 class="mb-0 d-inline-block">@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakSessionOutbreakInformationColumnHeading)</h4>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="row">
+            <div class="col-4">
+                <label asp-for="SessionDetails.strOutbreakID">@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionOutbreakIDFieldLabel)</label>
+                <input asp-for="SessionDetails.strOutbreakID" class="form-control" disabled id="idfOutbreak" SearchFilter="true" type="text"/>
+            </div>
+            <div class="col-4" hidden-if="@FieldLabelResourceKeyConstants.OutbreakSessionOutbreakIDFieldLabel">
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OutbreakSessionStartDateFieldLabel"></i>
+                <label asp-for="SessionDetails.datStartDate">@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionStartDateFieldLabel)</label>
+                <eidss-calendar asp-for="SessionDetails.datStartDate" class="form-control" disabled="@Model.IsSessionClosed" id="SessionDetails_datStartDate" name="SessionDetails.datStartDate" SearchFilter="true" shortdate="true"></eidss-calendar>
+                <span asp-validation-for="SessionDetails.datStartDate" class="text-danger"></span>
+            </div>
+            <div id="dDatCloseDate" class="col-4" style="display: none">
+                <label asp-for="SessionDetails.datCloseDate">@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionEndDateFieldLabel)</label>
+                <eidss-calendar asp-for="SessionDetails.datCloseDate" class="form-control" disabled="@Model.IsSessionClosed" id="SessionDetails_datCloseDate" name="SessionDetails.datCloseDate" SearchFilter="true" shortdate="true"></eidss-calendar>
+                <span asp-validation-for="SessionDetails.datCloseDate" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4">
+                @{
+                    var outbreakType = new Select2Configruation
+                    {
+                        DropDownId = "OutbreakTypeId",
+                        Label = Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionTypeFieldLabel),
+                        ControlTargetType = DropDownTargetTypes.DropDown,
+                        Endpoint = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = 19000513}),
+                        isVisible = true,
+                        isRequired = true,
+                        defaultSelect2Selection = new Select2DataItem {id = Model.SessionDetails.OutbreakTypeId.ToString(), text = Model.SessionDetails.strOutbreakType},
+                        CustomJsOnChangeFunction = "outbreakCreate.DiseaseEnable",
+                        CustomJsOnLoadFunction = "outbreakCreate.DiseaseEnable"
+                    };
+                }
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OutbreakSessionTypeFieldLabel"></i>
+                <eidss-select2DropDown asp-for="@Model.SessionDetails.OutbreakTypeId" control-target-id="" custom-js-on-change-function="@outbreakType.CustomJsOnChangeFunction" end-point="@outbreakType.Endpoint" filter-sort-enable="false" id="@outbreakType.DropDownId" is-disabled="@Model.IsSessionClosed" is-visible="@outbreakType.isVisible" label-name="@outbreakType.Label" name="@outbreakType.DropDownId" selectct2-default-data="@outbreakType.defaultSelect2Selection" target-ajax-url="@outbreakType.Endpoint" target-type="@outbreakType.ControlTargetType">
+                </eidss-select2DropDown>
+                <span asp-validation-for="SessionDetails.OutbreakTypeId" class="text-danger"></span>
+            </div>
+            <div class="col-4">
+                @{
+                    var outbreakStatus = new Select2Configruation
+                    {
+                        DropDownId = "idfsOutbreakStatus",
+                        Label = Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionStatusFieldLabel),
+                        ControlTargetType = DropDownTargetTypes.DropDown,
+                        Endpoint = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = 19000063}),
+                        isVisible = true,
+                        defaultSelect2Selection = new Select2DataItem {id = Model.SessionDetails.idfsOutbreakStatus.ToString(), text = Model.SessionDetails.strOutbreakStatus},
+                        CustomJsOnChangeFunction = "outbreakCreate.EndDateEnable"
+                    };
+
+                    var intHACode = Model.SessionDetails.OutbreakTypeId switch
+                    {
+                        10513001 => 2,
+                        10513002 => 96,
+                        10513003 => 98,
+                        _ => 0
+                        };
+                }
+
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OutbreakSessionStatusFieldLabel"></i>
+                <eidss-select2DropDown asp-for="@Model.SessionDetails.idfsOutbreakStatus" control-target-id="" custom-js-on-change-function="@outbreakStatus.CustomJsOnChangeFunction" end-point="@outbreakStatus.Endpoint" id="@outbreakStatus.DropDownId" is-visible="@outbreakStatus.isVisible" label-name="@outbreakStatus.Label" name="@outbreakStatus.DropDownId" selectct2-default-data="@outbreakStatus.defaultSelect2Selection" target-ajax-url="@outbreakStatus.Endpoint" target-type="@outbreakStatus.ControlTargetType">
+                </eidss-select2DropDown>
+                <span asp-validation-for="SessionDetails.idfsOutbreakStatus" class="text-danger"></span>
+            </div>
+            <div class="col-4">
+                @{
+                    var outbreakDisease = new Select2Configruation
+                    {
+                        DropDownId = "idfsDiagnosisOrDiagnosisGroup",
+                        Label = Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionDiseaseFieldLabel),
+                        ControlTargetType = DropDownTargetTypes.DropDown,
+                        Endpoint = Url.Action("DiseaseListForSelect2DropDownAdvanced", "CrossCutting", new {Area = "CrossCutting", intHACode, idfsUsingType = EIDSSConstants.UsingType.StandardCaseType}),
+                        isVisible = true,
+                        DisabledControls = "idfsDiagnosisOrDiagnosisGroup",
+                        defaultSelect2Selection = new Select2DataItem {id = Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup.ToString(), text = Model.SessionDetails.strDiagnosis}
+                    };
+
+                    if (outbreakDisease.defaultSelect2Selection.text.Contains("'"))
+                    {
+                        var replacementText = outbreakDisease.defaultSelect2Selection.text.Replace("'", @"\'");
+                        outbreakDisease.defaultSelect2Selection.text = replacementText;
+                    }
+                }
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OutbreakSessionDiseaseFieldLabel"></i>
+                <eidss-select2DropDown asp-for="@Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup" control-target-id="" end-point="@outbreakDisease.Endpoint" id="@outbreakDisease.DropDownId" is-disabled="@Model.IsSessionClosed" is-visible="@outbreakDisease.isVisible" label-name="@outbreakDisease.Label" name="@outbreakDisease.DropDownId" selectct2-default-data="@outbreakDisease.defaultSelect2Selection" target-ajax-url="@outbreakDisease.Endpoint" target-type="@outbreakDisease.ControlTargetType">
+                </eidss-select2DropDown>
+                <span asp-validation-for="SessionDetails.idfsDiagnosisOrDiagnosisGroup" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row form-group">
+        <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionLocationFieldLabel)</label>
+    </div>
+    <div class="row" id="adminAreaSearch">
+        <div class="col-12">
+            <input type="hidden" id="idfsCountry" asp-for="SessionDetails.AdminLevel0Value"/>
+            @await Component.InvokeAsync("LocationView", Model.SessionLocationViewModel)
+        </div>
+    </div>
+</div>
+<div class="form-group" id="dSpeciesAffected">
+    <div class="row">
+        <div class="col-6">
+            <label>Species Affected</label>
+            <div class="input-group continue-checkbox-set-right">
+                <div class="checkbox-inline">
+                    <input asp-for="SessionDetails.bHuman" id="bHuman" type="hidden" value="false"/>
+                    @Html.Raw(Model.HumanSpecies)
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakHumanFieldLabel)</label>
+                </div>
+                <div class="checkbox-inline">
+                    <input asp-for="SessionDetails.bAvian" id="bAvian" type="hidden" value="false"/>
+                    @Html.Raw(Model.AvianSpecies)
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakAvianFieldLabel)</label>
+                </div>
+                <div class="checkbox-inline">
+                    <input asp-for="SessionDetails.bLivestock" id="bLivestock" type="hidden" value="false"/>
+                    @Html.Raw(Model.LivestockSpecies)
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakLivestockFieldLabel)</label>
+                </div>
+                <div class="checkbox-inline">
+                    <input asp-for="SessionDetails.bVector" id="bVector" type="hidden" value="false"/>
+                    @Html.Raw(Model.VectorSepceis)
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakVectorFieldLabel)</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" id="dSpeciesAffectedError" style="display: none">
+        <label class="text-danger" style="color: red">Vector Selection</label>
+    </div>
+</div>
+<div class="panel-body" id="dParameters">
+<div class="panel-heading">
+    <h3 class="heading" runat="server">@Localizer.GetString(HeadingResourceKeyConstants.CreateOutbreakOutbreakParametersHeading)</h3>
+</div>
+<div id="dParametersidfscbHuman" style="display: none">
+<input type="hidden" asp-for="SessionDetails.HumanOutbreakSpeciesParameterUID"/>
+<fieldset>
+<legend>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakHumanFieldLabel)</legend>
+<div class="row col-12">
+    <div class="row HumanFFOffset">
+        @if (Model.IsSessionClosed)
+        {
+            <div style="color: lightgray">
+                @if (Model.SessionDetails.idfOutbreak != null && Model.SessionDetails.HumanOutbreakSpeciesParameterUID != 0)
+                {
+                    @if (Model.SessionDetails.HumanCaseQuestionaireTemplateID == null)
+                    {
+                        <i class="fas fa-list fa-2x"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    }
+                }
+                else
+                {
+                    <i class="fas fa-list fa-2x"></i>
+                }
+            </div>
+        }
+        else
+        {
+            @if (Model.SessionDetails.idfOutbreak != null && Model.SessionDetails.HumanOutbreakSpeciesParameterUID != 0)
+            {
+                <a asp-area="Configuration"
+                   asp-controller="FlexFormDesignerPage"
+                   asp-action="Index"
+                   asp-route-idfOutbreak="@Model.SessionDetails.idfOutbreak"
+                   asp-route-strOutbreakID="@Model.SessionDetails.strOutbreakID"
+                   asp-route-flexFormType="10034501"
+                   asp-route-outbreakSpeciesParameterUID="@Model.SessionDetails.HumanOutbreakSpeciesParameterUID"
+                   asp-route-idfsDiagnosisOrDiagnosisGroup="@Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup"
+                   asp-route-idfsFormTemplate="@Model.SessionDetails.HumanCaseQuestionaireTemplateID"
+                   asp-method="post">
+
+                    @if (Model.SessionDetails.HumanCaseQuestionaireTemplateID == null)
+                    {
+                        <i class="fas fa-list fa-2x"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    }
+                </a>
+            }
+            else
+            {
+                <div style="color: lightgray">
+                    <i class="fas fa-list fa-2x"></i>
+                </div>
+            }
+        }
+    </div>
+</div>
+<div class="row col-12">
+    <div class="col-6">
+        <label class="param-title-label">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakCaseMonitoringFieldLabel)</label>
+        @if (Model.IsSessionClosed)
+        {
+            <div style="color: lightgray">
+                @if (Model.SessionDetails.txtHumanCaseMonitoringDuration > 0)
+                {
+                    @if (Model.SessionDetails.HumanCaseMonitoringTemplateID == null)
+                    {
+                        <i class="fas fa-list fa-2x"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    }
+                }
+                else
+                {
+                    <i class="fas fa-list fa-2x"></i>
+                }
+            </div>
+        }
+        else
+        {
+            @if (Model.SessionDetails.txtHumanCaseMonitoringDuration > 0)
+            {
+                <a asp-area="Configuration"
+                   asp-controller="FlexFormDesignerPage"
+                   asp-action="Index"
+                   asp-route-idfOutbreak="@Model.SessionDetails.idfOutbreak"
+                   asp-route-strOutbreakID="@Model.SessionDetails.strOutbreakID"
+                   asp-route-flexFormType="10034504"
+                   asp-route-outbreakSpeciesParameterUID="@Model.SessionDetails.HumanOutbreakSpeciesParameterUID"
+                   asp-route-idfsDiagnosisOrDiagnosisGroup="@Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup"
+                   asp-route-idfsFormTemplate="@Model.SessionDetails.HumanCaseMonitoringTemplateID"
+                   asp-method="post">
+
+                    @if (Model.SessionDetails.HumanCaseMonitoringTemplateID == null)
+                    {
+                        <i class="fas fa-list fa-2x"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    }
+
+                </a>
+            }
+            else
+            {
+                <div style="color: lightgray">
+                    <i class="fas fa-list fa-2x"></i>
+                </div>
+            }
+        }
+        <div class="form-group">
+            <div class="row">
+                <div class="col-5">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakDurationFieldLabel)</label>
+                </div>
+                <div class="col-2">
+                    <input asp-for="SessionDetails.txtHumanCaseMonitoringDuration" disabled="@Model.IsSessionClosed" id="txtHumanCaseMonitoringDuration" max="365" min="0" onchange="outbreakCreate.setFrequency(this);" onkeydown="return event.keyCode != 69" parameter="CaseMonitoring" species="Human" type="number"></input>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-5">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakFrequencyFieldLabel)</label>
+                </div>
+                <div class="col-2">
+                    <input asp-for="SessionDetails.txtHumanCaseMonitoringFrequency" disabled="@Model.IsSessionClosed" id="txtHumanCaseMonitoringFrequency" max="365" min="0" onchange="outbreakCreate.checkFrequency(this);" onkeydown="return event.keyCode != 69" parameter="CaseMonitoring" species="Human" type="number"></input>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        <label class="param-title-label">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakContactTracingFieldLabel)</label>
+        @if (Model.IsSessionClosed)
+        {
+            <div style="color: lightgray">
+                @if (Model.SessionDetails.txtHumanContactTracingDuration > 0)
+                {
+                    @if (Model.SessionDetails.HumanContactTracingTemplateID == null)
+                    {
+                        <i class="fas fa-list fa-2x"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    }
+                }
+                else
+                {
+                    <i class="fas fa-list fa-2x"></i>
+                }
+            </div>
+        }
+        else
+        {
+            @if (Model.SessionDetails.txtHumanContactTracingDuration > 0)
+            {
+                <a asp-area="Configuration"
+                   asp-controller="FlexFormDesignerPage"
+                   asp-action="Index"
+                   asp-route-idfOutbreak="@Model.SessionDetails.idfOutbreak"
+                   asp-route-strOutbreakID="@Model.SessionDetails.strOutbreakID"
+                   asp-route-flexFormType="10034507"
+                   asp-route-outbreakSpeciesParameterUID="@Model.SessionDetails.HumanOutbreakSpeciesParameterUID"
+                   asp-route-idfsDiagnosisOrDiagnosisGroup="@Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup"
+                   asp-route-idfsFormTemplate="@Model.SessionDetails.HumanContactTracingTemplateID"
+                   asp-method="post">
+
+                    @if (Model.SessionDetails.HumanContactTracingTemplateID == null)
+                    {
+                        <i class="fas fa-list fa-2x"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    }
+                </a>
+            }
+            else
+            {
+                <div style="color: lightgray">
+                    <i class="fas fa-list fa-2x"></i>
+                </div>
+            }
+        }
+        <div class="form-group">
+            <div class="row">
+                <div class="col-5">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakDurationFieldLabel)</label>
+                </div>
+                <div class="col-2">
+                    <input asp-for="SessionDetails.txtHumanContactTracingDuration" disabled="@Model.IsSessionClosed" id="txtHumanContactTracingDuration" max="365" min="0" onchange="outbreakCreate.setFrequency(this);" onkeydown="return event.keyCode != 69" parameter="ContactTracing" species="Human" type="number"></input>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-5">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakFrequencyFieldLabel)</label>
+                </div>
+                <div class="col-2">
+                    <input asp-for="SessionDetails.txtHumanContactTracingFrequency" disabled="@Model.IsSessionClosed" id="txtHumanContactTracingFrequency" max="365" min="0" onchange="outbreakCreate.checkFrequency(this);" onkeydown="return event.keyCode != 69" parameter="ContactTracing" species="Human" type="number"></input>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</fieldset>
+</div>
+<div id="dParametersidfscbAvian" style="display: none">
+<input asp-for="SessionDetails.AvianOutbreakSpeciesParameterUID" type="hidden"/>
+<fieldset>
+<legend>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakAvianFieldLabel)</legend>
+<div class="row col-12">
+    <div class="row AvianFFOffset">
+        @if (Model.IsSessionClosed)
+        {
+            <div style="color: lightgray">
+                @if (Model.SessionDetails.idfOutbreak != null && Model.SessionDetails.AvianOutbreakSpeciesParameterUID != 0)
+                {
+                    @if (Model.SessionDetails.AvianCaseQuestionaireTemplateID == null)
+                    {
+                        <i class="fas fa-list fa-2x"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    }
+                }
+                else
+                {
+                    <i class="fas fa-list fa-2x"></i>
+                }
+            </div>
+        }
+        else
+        {
+            @if (Model.SessionDetails.idfOutbreak != null && Model.SessionDetails.AvianOutbreakSpeciesParameterUID != 0)
+            {
+                <a asp-area="Configuration"
+                   asp-controller="FlexFormDesignerPage"
+                   asp-action="Index"
+                   asp-route-idfOutbreak="@Model.SessionDetails.idfOutbreak"
+                   asp-route-strOutbreakID="@Model.SessionDetails.strOutbreakID"
+                   asp-route-flexFormType="10034503"
+                   asp-route-outbreakSpeciesParameterUID="@Model.SessionDetails.AvianOutbreakSpeciesParameterUID"
+                   asp-route-idfsDiagnosisOrDiagnosisGroup="@Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup"
+                   asp-route-idfsFormTemplate="@Model.SessionDetails.AvianCaseQuestionaireTemplateID"
+                   asp-method="post">
+
+                    @if (Model.SessionDetails.AvianCaseQuestionaireTemplateID == null)
+                    {
+                        <i class="fas fa-list fa-2x"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    }
+                </a>
+            }
+            else
+            {
+                <div style="color: lightgray">
+                    <i class="fas fa-list fa-2x"></i>
+                </div>
+            }
+        }
+    </div>
+</div>
+<div class="row col-12">
+    <div class="col-6">
+        <label class="param-title-label">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakCaseMonitoringFieldLabel)</label>
+        @if (Model.IsSessionClosed)
+        {
+            <div style="color: lightgray">
+                @if (Model.SessionDetails.txtAvianCaseMonitoringDuration > 0)
+                {
+                    @if (Model.SessionDetails.AvianCaseMonitoringTemplateID == null)
+                    {
+                        <i class="fas fa-list fa-2x"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    }
+                }
+                else
+                {
+                    <i class="fas fa-list fa-2x"></i>
+                }
+            </div>
+        }
+        else
+        {
+            @if (Model.SessionDetails.txtAvianCaseMonitoringDuration > 0)
+            {
+                <a asp-area="Configuration"
+                   asp-controller="FlexFormDesignerPage"
+                   asp-action="Index"
+                   asp-route-idfOutbreak="@Model.SessionDetails.idfOutbreak"
+                   asp-route-strOutbreakID="@Model.SessionDetails.strOutbreakID"
+                   asp-route-flexFormType="10034506"
+                   asp-route-outbreakSpeciesParameterUID="@Model.SessionDetails.AvianOutbreakSpeciesParameterUID"
+                   asp-route-idfsDiagnosisOrDiagnosisGroup="@Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup"
+                   asp-route-idfsFormTemplate="@Model.SessionDetails.AvianCaseMonitoringTemplateID"
+                   asp-method="post">
+
+                    @if (Model.SessionDetails.AvianCaseMonitoringTemplateID == null)
+                    {
+                        <i class="fas fa-list fa-2x"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    }
+                </a>
+            }
+            else
+            {
+                <div style="color: lightgray">
+                    <i class="fas fa-list fa-2x"></i>
+                </div>
+            }
+        }
+        <div class="form-group">
+            <div class="row">
+                <div class="col-5">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakDurationFieldLabel)</label>
+                </div>
+                <div class="col-2">
+                    <input asp-for="SessionDetails.txtAvianCaseMonitoringDuration" disabled="@Model.IsSessionClosed" id="txtAvianCaseMonitoringDuration" max="365" min="0" onchange="outbreakCreate.setFrequency(this);" onkeydown="return event.keyCode != 69" parameter="CaseMonitoring" species="Avian" type="number"></input>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-5">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakFrequencyFieldLabel)</label>
+                </div>
+                <div class="col-2">
+                    <input asp-for="SessionDetails.txtAvianCaseMonitoringFrequency" disabled="@Model.IsSessionClosed" id="txtAvianCaseMonitoringFrequency" max="365" min="0" onchange="outbreakCreate.checkFrequency(this);" onkeydown="return event.keyCode != 69" parameter="CaseMonitoring" species="Avian" type="number"></input>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        <label class="param-title-label">Contact Tracing</label>
+        @if (Model.IsSessionClosed)
+        {
+            <div style="color: lightgray">
+                @if (Model.SessionDetails.txtAvianContactTracingDuration > 0)
+                {
+                    @if (Model.SessionDetails.AvianContactTracingTemplateID == null)
+                    {
+                        <i class="fas fa-list fa-2x"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    }
+                }
+                else
+                {
+                    <i class="fas fa-list fa-2x"></i>
+                }
+            </div>
+        }
+        else
+        {
+            @if (Model.SessionDetails.txtAvianContactTracingDuration > 0)
+            {
+                <a asp-area="Configuration"
+                   asp-controller="FlexFormDesignerPage"
+                   asp-action="Index"
+                   asp-route-idfOutbreak="@Model.SessionDetails.idfOutbreak"
+                   asp-route-strOutbreakID="@Model.SessionDetails.strOutbreakID"
+                   asp-route-flexFormType="10034509"
+                   asp-route-outbreakSpeciesParameterUID="@Model.SessionDetails.AvianOutbreakSpeciesParameterUID"
+                   asp-route-idfsDiagnosisOrDiagnosisGroup="@Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup"
+                   asp-route-idfsFormTemplate="@Model.SessionDetails.AvianContactTracingTemplateID"
+                   asp-method="post">
+
+                    @if (Model.SessionDetails.AvianContactTracingTemplateID == null)
+                    {
+                        <i class="fas fa-list fa-2x"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    }
+                </a>
+            }
+            else
+            {
+                <div style="color: lightgray">
+                    <i class="fas fa-list fa-2x"></i>
+                </div>
+            }
+        }
+        <div class="form-group">
+            <div class="row">
+                <div class="col-5">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakDurationFieldLabel)</label>
+                </div>
+                <div class="col-2">
+                    <input asp-for="SessionDetails.txtAvianContactTracingDuration" disabled="@Model.IsSessionClosed" id="txtAvianContactTracingDuration" max="365" min="0" onchange="outbreakCreate.setFrequency(this);" onkeydown="return event.keyCode != 69" parameter="ContactTracing" species="Avian" type="number"></input>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-5">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakFrequencyFieldLabel)</label>
+                </div>
+                <div class="col-2">
+                    <input asp-for="SessionDetails.txtAvianContactTracingFrequency" disabled="@Model.IsSessionClosed" id="txtAvianContactTracingFrequency" max="365" min="0" onchange="outbreakCreate.checkFrequency(this);" onkeydown="return event.keyCode != 69" parameter="ContactTracing" species="Avian" type="number"></input>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</fieldset>
+</div>
+<div id="dParametersidfscbLivestock" style="display: none">
+<input asp-for="SessionDetails.LivestockOutbreakSpeciesParameterUID" type="hidden"/>
+<fieldset>
+<legend>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakLivestockFieldLabel)</legend>
+<div class="row col-12">
+    <div class="row LivestockFFOffset">
+        @if (Model.IsSessionClosed)
+        {
+            <div style="color: lightgray">
+                @if (Model.SessionDetails.idfOutbreak != null && Model.SessionDetails.LivestockOutbreakSpeciesParameterUID != 0)
+                {
+                    @if (Model.SessionDetails.LivestockCaseQuestionaireTemplateID == null)
+                    {
+                        <i class="fas fa-list fa-2x"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    }
+                }
+                else
+                {
+                    <i class="fas fa-list fa-2x"></i>
+                }
+            </div>
+        }
+        else
+        {
+            @if (Model.SessionDetails.idfOutbreak != null && Model.SessionDetails.LivestockOutbreakSpeciesParameterUID != 0)
+            {
+                <a asp-area="Configuration"
+                   asp-controller="FlexFormDesignerPage"
+                   asp-action="Index"
+                   asp-route-idfOutbreak="@Model.SessionDetails.idfOutbreak"
+                   asp-route-strOutbreakID="@Model.SessionDetails.strOutbreakID"
+                   asp-route-flexFormType="10034502"
+                   asp-route-outbreakSpeciesParameterUID="@Model.SessionDetails.LivestockOutbreakSpeciesParameterUID"
+                   asp-route-idfsDiagnosisOrDiagnosisGroup="@Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup"
+                   asp-route-idfsFormTemplate="@Model.SessionDetails.LivestockCaseQuestionaireTemplateID"
+                   asp-method="post">
+
+                    @if (Model.SessionDetails.LivestockCaseQuestionaireTemplateID == null)
+                    {
+                        <i class="fas fa-list fa-2x"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    }
+                </a>
+            }
+            else
+            {
+                <div style="color: lightgray">
+                    <i class="fas fa-list fa-2x"></i>
+                </div>
+            }
+        }
+    </div>
+</div>
+<div class="row col-12">
+    <div class="col-6">
+        <label class="param-title-label">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakCaseMonitoringFieldLabel)</label>
+        @if (Model.IsSessionClosed)
+        {
+            <div style="color: lightgray">
+                @if (Model.SessionDetails.txtLivestockCaseMonitoringDuration > 0)
+                {
+                    @if (Model.SessionDetails.LivestockCaseMonitoringTemplateID == null)
+                    {
+                        <i class="fas fa-list fa-2x"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    }
+                }
+                else
+                {
+                    <i class="fas fa-list fa-2x"></i>
+                }
+            </div>
+        }
+        else
+        {
+            @if (Model.SessionDetails.txtLivestockCaseMonitoringDuration > 0)
+            {
+                <a asp-area="Configuration"
+                   asp-controller="FlexFormDesignerPage"
+                   asp-action="Index"
+                   asp-route-idfOutbreak="@Model.SessionDetails.idfOutbreak"
+                   asp-route-strOutbreakID="@Model.SessionDetails.strOutbreakID"
+                   asp-route-flexFormType="10034505"
+                   asp-route-outbreakSpeciesParameterUID="@Model.SessionDetails.LivestockOutbreakSpeciesParameterUID"
+                   asp-route-idfsDiagnosisOrDiagnosisGroup="@Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup"
+                   asp-route-idfsFormTemplate="@Model.SessionDetails.LivestockCaseMonitoringTemplateID"
+                   asp-method="post">
+
+                    @if (Model.SessionDetails.LivestockCaseMonitoringTemplateID == null)
+                    {
+                        <i class="fas fa-list fa-2x"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    }
+                </a>
+            }
+            else
+            {
+                <div style="color: lightgray">
+                    <i class="fas fa-list fa-2x"></i>
+                </div>
+            }
+        }
+        <div class="form-group">
+            <div class="row">
+                <div class="col-5">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakDurationFieldLabel)</label>
+                </div>
+                <div class="col-2">
+                    <input asp-for="SessionDetails.txtLivestockCaseMonitoringDuration" disabled="@Model.IsSessionClosed" id="txtLivestockCaseMonitoringDuration" max="365" min="0" onchange="outbreakCreate.setFrequency(this);" onkeydown="return event.keyCode != 69" parameter="CaseMonitoring" species="Livestock" type="number"></input>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-5">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakFrequencyFieldLabel)</label>
+                </div>
+                <div class="col-2">
+                    <input asp-for="SessionDetails.txtLivestockCaseMonitoringFrequency" disabled="@Model.IsSessionClosed" id="txtLivestockCaseMonitoringFrequency" max="365" min="0" onchange="outbreakCreate.checkFrequency(this);" onkeydown="return event.keyCode != 69" parameter="CaseMonitoring" species="Livestock" type="number"></input>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        <label class="param-title-label">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakContactTracingFieldLabel)</label>
+        @if (Model.IsSessionClosed)
+        {
+            <div style="color: lightgray">
+                @if (Model.SessionDetails.txtLivestockContactTracingDuration > 0)
+                {
+                    @if (Model.SessionDetails.LivestockContactTracingTemplateID == null)
+                    {
+                        <i class="fas fa-list fa-2x"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    }
+                }
+                else
+                {
+                    <i class="fas fa-list fa-2x"></i>
+                }
+            </div>
+        }
+        else
+        {
+            @if (Model.SessionDetails.txtLivestockContactTracingDuration > 0)
+            {
+                <a asp-area="Configuration"
+                   asp-controller="FlexFormDesignerPage"
+                   asp-action="Index"
+                   asp-route-idfOutbreak="@Model.SessionDetails.idfOutbreak"
+                   asp-route-strOutbreakID="@Model.SessionDetails.strOutbreakID"
+                   asp-route-flexFormType="10034508"
+                   asp-route-outbreakSpeciesParameterUID="@Model.SessionDetails.LivestockOutbreakSpeciesParameterUID"
+                   asp-route-idfsDiagnosisOrDiagnosisGroup="@Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup"
+                   asp-route-idfsFormTemplate="@Model.SessionDetails.LivestockContactTracingTemplateID"
+                   asp-method="post">
+
+                    @if (Model.SessionDetails.LivestockContactTracingTemplateID == null)
+                    {
+                        <i class="fas fa-list fa-2x"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    }
+                </a>
+            }
+            else
+            {
+                <div style="color: lightgray">
+                    <i class="fas fa-list fa-2x"></i>
+                </div>
+            }
+        }
+        <div class="form-group">
+            <div class="row">
+                <div class="col-5">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakDurationFieldLabel)</label>
+                </div>
+                <div class="col-2">
+                    <input asp-for="SessionDetails.txtLivestockContactTracingDuration" disabled="@Model.IsSessionClosed" id="txtLivestockContactTracingDuration" max="365" min="0" onchange="outbreakCreate.setFrequency(this);" onkeydown="return event.keyCode != 69" parameter="ContactTracing" species="Livestock" type="number"></input>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-5">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakFrequencyFieldLabel)</label>
+                </div>
+                <div class="col-2">
+                    <input asp-for="SessionDetails.txtLivestockContactTracingFrequency" disabled="@Model.IsSessionClosed" id="txtLivestockContactTracingFrequency" max="365" min="0" onchange="outbreakCreate.checkFrequency(this);" onkeydown="return event.keyCode != 69" parameter="ContactTracing" species="Livestock" type="number"></input>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</fieldset>
+</div>
+</div>
+<div class="card-footer">
+    <input class="btn btn-outline-primary" onclick="showCancel();" type="button" value="@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)"/>
+    <input class="btn btn-primary" disabled="@Model.IsSessionClosed" id="bSessionSaveButton" type="submit" value="@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)"/>
+</div>
+</form>
+</div>
+</div>
+
+<partial name="_sessionWarningModals"/>
+
+<script src="~/js/Outbreak/SessionCreate.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        confirmPageLoad();
+
+        @if (Model.SessionDetails.bShowSuccessMessage)
+        {
+            <text>
+                showSuccess("@Model.SessionDetails.strOutbreakID", @Model.SessionDetails.bShowOutbreakID.ToString().ToLower(), @Model.SessionDetails.idfOutbreak.ToString());
+            </text>
+        }
+        outbreakCreate.diseaseEnableURL = "@Url.Action("DiseaseListForSelect2DropDownAdvanced", "CrossCutting", new {Area = "CrossCutting"})";
+    });
+
+    function confirmPageLoad() {
+        setTimeout(function() {
+                if ($("#OutbreakTypeId").val() != undefined) {
+                    postLoad();
+                } else {
+                    confirmPageLoad();
+                }
+            },
+            1);
+    };
+
+    function postLoad() {
+        outbreakCreate.EndDateEnable();
+        outbreakCreate.showParameters();
+    };
+</script>
+<script src="~/js/Outbreak/SessionCreate.js"></script>
+<partial name="_ValidationScriptsPartial"/>

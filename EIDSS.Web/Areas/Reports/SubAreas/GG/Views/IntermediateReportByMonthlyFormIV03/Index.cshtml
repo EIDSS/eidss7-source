@@ -1,0 +1,180 @@
+﻿@model EIDSS.Web.Areas.Reports.SubAreas.GG.ViewModels.IntermediateReportByMonthlyFormIV03ViewModel
+@using EIDSS.ReportViewer
+@{
+    ViewBag.Title = Localizer.GetString(HeadingResourceKeyConstants.IntermediateReportByMonthlyFormIV03PageHeading);
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@(HeadingResourceKeyConstants.IntermediateReportByMonthlyFormIV03PageHeading + "," + Model.LanguageId)"></h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            <div class="form-row">
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="LanguageId" field-label-for="@(FieldLabelResourceKeyConstants.LanguageFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="LanguageId"
+                                asp-items="@(new SelectList(Model.ReportLanguageModels, "LangID", "Language"))" class="form-control">
+                        </select>
+                        <input type="hidden" asp-for="PriorLanguageId" />
+                    </div>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="StartIssueDate" field-label-for="@(FieldLabelResourceKeyConstants.StartDateFieldLabel + "," + Model.LanguageId)"></label>
+                    <eidss-calendar id="StartIssueDate" name="StartIssueDate" asp-for="StartIssueDate" language="LanguageId" class="form-control" min-date="@Model.MinimumStartIssueDate" max-date="@Model.MaximumStartIssueDate"></eidss-calendar>
+                    <span asp-validation-for="StartIssueDate" class="text-danger"></span>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="EndIssueDate" field-label-for="@(FieldLabelResourceKeyConstants.EndDateFieldLabel + "," + Model.LanguageId)"></label>
+                    <eidss-calendar id="EndIssueDate" name="EndIssueDate" asp-for="EndIssueDate" language="LanguageId" class="form-control" min-date="@Model.MinimumEndIssueDate" max-date="@Model.MaximumEndIssueDate"></eidss-calendar>
+                    <span asp-validation-for="EndIssueDate" class="text-danger"></span>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4 text-right">
+                    <button type="submit" id="submitReport" class="btn btn-primary" button-for="@(ButtonResourceKeyConstants.GenerateReportButton + "," + Model.LanguageId)"></button>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="RegionId" field-label-for="@(FieldLabelResourceKeyConstants.RegionFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="RegionId" style="width: 150px;"
+                                asp-items="@(new SelectList(Model.GisRegionList, "idfsReference", "Name"))" class="form-control">
+                            <option value="0"></option>
+                        </select>
+                        <span class="input-group-append">
+                            <button type="button" id="btnRegion" class="btn btn-outline-secondary btn-sm border-left-0 border"><i class="fa fa-times fa-sm"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="RayonId" field-label-for="@(FieldLabelResourceKeyConstants.RayonFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="RayonId" style="width: 150px;"
+                                asp-items="@(new SelectList(Model.GisRayonList, "idfsReference", "Name"))" class="form-control">
+                            <option value="0"></option>
+                        </select>
+                        <span class="input-group-append">
+                            <button type="button" id="btnRayon" class="btn btn-outline-secondary btn-sm border-left-0 border"><i class="fa fa-times fa-sm"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group col-md-2 form-check form-check-inline" style="@(Model.ShowIncludeSignature ? "display:block;" : "display:none;")padding-top: 25px;">
+                    <input asp-for="IncludeSignature" class="form-check-input" type="checkbox" />
+                    <label asp-for="IncludeSignature" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.IncludeSignatureFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+                <div class="form-group col-md-4 form-check form-check-inline" style="@(Model.ShowUseArchiveData ? "display:block;" : "display:none;")padding-top: 25px;">
+                    <input asp-for="UseArchiveData" class="form-check-input" type="checkbox" />
+                    <label asp-for="UseArchiveData" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.UseArchivedDataFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+            </div>
+        </form>
+        <div class="col-xs-4 col-xs-offset-4" id="divLoading"></div>
+        <div id="ReportView"></div>
+    </div>
+</div>
+@section runreport {
+    <script type="text/javascript">
+        function submitReport() {
+            $("#ReportView").html("");
+            onBegin();
+            $.ajax({
+                url: '@Url.Action("GenerateReport", "IntermediateReportByMonthlyFormIV03", new { Area = "Reports", SubArea = "GG" })',//controller name and action
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(getFormData())  //information for search
+            })
+                .done(function (result) {
+                    $('#ReportView').html(result); //write returned partial view to empty div
+                    onComplete();
+                });
+        };
+
+        function onBegin() {
+            $("#divLoading").html('<image  src="@Url.Content("~/Includes/Images/ajax-loader.gif")"  alt="Loading, please wait" />');
+        };
+
+        function onComplete() {
+            var jsonData = {
+                "strReportName": '@Model.ReportName',
+                "idfIsSignatureIncluded": $("#IncludeSignature").is(':checked') ? 'true' : 'false'
+            };
+            //Save ReportAudit
+            $.ajax({
+                url: '@Url.Action("SaveReportAudit", "IntermediateReportByMonthlyFormIV03", new { Area = "Reports", SubArea = "GG" })',//controller name and action
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(jsonData)  //information for search
+            })
+                .done(function (result) {
+                    $("#divLoading").html("");
+                });
+        };
+
+        function getFormData() {
+            var jsonData = {
+                "LanguageId": $("#LanguageId").val(),
+                "PriorLanguageId": $("#PriorLanguageId").val(),
+                "StartIssueDate": $("#StartIssueDate").val(),
+                "EndIssueDate": $("#EndIssueDate").val(),
+                "RegionId": $("#RegionId").val(),
+                "RayonId": $("#RayonId").val(),
+                "UseArchiveData": $("#UseArchiveData").is(':checked') ? 'true' : 'false',
+                "IncludeSignature": $("#IncludeSignature").is(':checked') ? 'true' : 'false',
+                "PrintDateTime": localDate()
+
+            };
+
+            return jsonData;
+        };
+
+        $(document).ready(function () {
+            $("#btnRayon").click(function () {
+                $("#RayonId").val("0").change();
+            });
+
+            var ClearRegion = function () {
+                $("#RegionId").val("0").change();
+                $("#RayonId").val("0").change();
+            };
+
+            $("#btnRegion").on("click", ClearRegion);
+        });
+
+        $("#RegionId").on("change", function () {
+            RefreshRayon()
+        });
+
+        function RefreshRayon() {
+            var nodeValue = $("#RegionId").val();
+            var langId = $("#LanguageId").val();
+            var selectedRayonId = $("#RayonId").val();
+            $.ajax({
+                url: '@Url.Action("GetRayonList", "IntermediateReportByMonthlyFormIV03", new { Area = "Reports", SubArea = "GG" })' +"?node=" + nodeValue + "&langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#RayonId').empty();
+                    var items = '<option value="0"></option>';
+                    $.each(data, function (i, rayon) {
+                        items += "<option value='" + rayon.idfsReference + "' > " + rayon.name + "</option > ";
+                    });
+                    $('#RayonId').html(items);
+                    $("#RayonId").val(selectedRayonId);
+                });
+        };
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+
+    @if (@Model.JavascriptToRun != null)
+    {
+        <script type="text/javascript">
+            @Html.Raw(@Model.JavascriptToRun)
+        </script>
+    }
+}

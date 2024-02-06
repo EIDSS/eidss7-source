@@ -1,0 +1,183 @@
+﻿@using EIDSS.Web.Areas.Administration.ViewModels.Administration
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Domain.ViewModels
+@using EIDSS.Domain.ViewModels.Administration
+@using EIDSS.Localization.Constants
+@inject NavigationManager UriHelper
+
+@inherits EIDSS.Web.Components.Administration.AdministrativeUnits.SearchAdministrativeUnitsBase
+
+<RadzenTemplateForm id="SearchForm" @ref="Form" TItem="AdministrativeUnitsPageViewModel" Data="@Model" Submit="@HandleValidSearchSubmit" OnInvalidSubmit="@HandleInvalidSearchSubmit">
+    <div id="accordion">
+        <!--search criteria-->
+        <div class="card">
+            <div class="card-header" id="administrativeUnitsSearchCriteria">
+                <button class="btn d-inline-block"
+                        type="button"
+                        data-toggle="collapse"
+                        aria-expanded="false"
+                        aria-controls="administrativeUnitsSearchCriteriaBody"
+                        @onclick="@(() => AccordionClick(0))">
+                    <span class="text-left fas @(ExpandSearchCriteria ? "fa-caret-down" : "fa-caret-right")" />
+                    <h4 class="mb-0 d-inline-block"> @Localizer.GetString(HeadingResourceKeyConstants.SearchCriteriaHeading)</h4>
+                </button>
+            </div>
+            <div id="administrativeUnitsSearchCriteriaBody" class="@(ExpandSearchCriteria ?  "collapse show" : "collapse" )" aria-labelledby="humanDiseaseReportSearchCriteria" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="form-row">
+                        <!--Report ID-->
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchAdministrativeUnitsDefaultNameFieldLabel" IsRow="false" CssClass="col-md-6" For="defaultNameId">
+                            <RadzenTextBox id="defaultNameId" Name="defaultNameId" @bind-Value="@Model.SearchCriteria.DefaultName" AutoComplete="true" class="form-control"></RadzenTextBox>
+                        </InterfaceEditorResource>
+                        <!--Legacy Report ID-->
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchAdministrativeUnitsNationalNameFieldLabel" IsRow="false" CssClass="col-md-6" For="nationaNameId">
+                            <RadzenTextBox id="nationaNameId" Name="nationaNameId" @bind-Value="@Model.SearchCriteria.NationalName" class="form-control"></RadzenTextBox>
+                        </InterfaceEditorResource>
+                    </div>
+                    <div class="form-row">
+                        <!--Disease Drop Down-->
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchAdministrativeUnitsAdministrativeLevelFieldLabel" IsRow="false" CssClass="col-md-6" For="administrativeLevelId">
+                            <RadzenDropDown id="administrativeLevelId" Name="administrativeLevelId" AllowClear="true" TValue="long?" Data="@AdminLevelUnits" data-id="Test" 
+                                            LoadData="@GetAdminLevelUnitsAsync" ValueProperty="IdfsBaseReference" TextProperty="Name" @bind-Value="@Model.SearchCriteria.idfsAdminLevel"
+                                            class="form-control" Count="@AdminLevelCount"
+                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@(args => RefreshAdminUnits(args))" />
+                        </InterfaceEditorResource>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-md-12">
+                            <LocationView ParmLocationViewModel="@Model.SearchLocationViewModel" LocationViewModelChanged="RefreshLocationViewModelHandlerAsync" @ref="LocationViewComponent" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <!--Latitude Entered Range -->
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchAdministrativeUnitsLatitudeFromFieldLabel" IsRow="false" CssClass="col-md-6" For="SearchCriteria_FromLatitude">
+                            <RadzenNumeric id="fromLatitudeId" Name="SearchCriteria_FromLatitude" AllowClear="true" AllowInput="true" class="form-control-range" TValue="Double?" @bind-Value="@Model.SearchCriteria.LatitudeFrom" Min="-85" Max="85" Format="##.#####" />
+                            <RadzenCompareValidator Value="@Model.SearchCriteria.LatitudeTo" Component="SearchCriteria_FromLatitude" Popup="false" Operator="CompareOperator.LessThanEqual"
+                                                    Text=@string.Concat(Localizer.GetString(FieldLabelResourceKeyConstants.SearchAdministrativeUnitsLatitudeFromFieldLabel), " must be earlier than ",  Localizer.GetString(FieldLabelResourceKeyConstants.SearchAdministrativeUnitsLatitudeToFieldLabel))
+                                                    Style="display: block" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.LatitudeTo.ToString()))" />
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchAdministrativeUnitsLatitudeToFieldLabel" IsRow="false" CssClass="col-md-6" For="SearchCriteria_ToLatitude">
+                            <RadzenNumeric id="toLatitudeId" Name="SearchCriteria_ToLatitude" AllowClear="true" AllowInput="true" class="form-control-range" TValue="Double?" @bind-Value="@Model.SearchCriteria.LatitudeTo" Min="-85" Max="85" Format="##.#####" />
+                            <RadzenCompareValidator Value="@Model.SearchCriteria.LatitudeFrom" Component="SearchCriteria_ToLatitude" Popup="false" Operator="CompareOperator.GreaterThanEqual"
+                                                    Text=@string.Concat( Localizer.GetString(FieldLabelResourceKeyConstants.SearchAdministrativeUnitsLatitudeToFieldLabel)," must be greater than ", Localizer.GetString(FieldLabelResourceKeyConstants.SearchAdministrativeUnitsLatitudeFromFieldLabel))
+                                                    Style="display: block" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.LatitudeFrom.ToString()))" />
+                        </InterfaceEditorResource>
+                    </div>
+                    <div class="form-row">
+                        <!--Longitude Entered Range -->
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchAdministrativeUnitsLongitudeFromFieldLabel" IsRow="false" CssClass="col-md-6" For="SearchCriteria_FromLongitude">
+                            <RadzenNumeric id="fromLongitudeId" Name="SearchCriteria_FromLongitude" AllowClear="true" AllowInput="true" class="form-control-range" TValue="Double?" @bind-Value="@Model.SearchCriteria.LongitudeFrom" Min="-180" Max="180" Format="###.#####" />
+                            <RadzenCompareValidator Value="@Model.SearchCriteria.LongitudeTo" Component="SearchCriteria_FromLongitude" Popup="false" Operator="CompareOperator.LessThanEqual"
+                                                    Text=@string.Concat( Localizer.GetString(FieldLabelResourceKeyConstants.SearchAdministrativeUnitsLongitudeFromFieldLabel)," must be earlier than ", Localizer.GetString(FieldLabelResourceKeyConstants.SearchAdministrativeUnitsLongitudeToFieldLabel))
+                                                    Style="display: block" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.LongitudeTo.ToString()))" />
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchAdministrativeUnitsLongitudeToFieldLabel" IsRow="false" CssClass="col-md-6" For="SearchCriteria_ToLongitude">
+                            <RadzenNumeric id="toLongitudeId" Name="SearchCriteria_ToLongitude" AllowClear="true" AllowInput="true" class="form-control-range" TValue="Double?" @bind-Value="@Model.SearchCriteria.LongitudeTo" Min="-180" Max="180" Format="###.#####" />
+                            <RadzenCompareValidator Value="@Model.SearchCriteria.LongitudeFrom" Component="SearchCriteria_ToLongitude" Popup="false" Operator="CompareOperator.GreaterThanEqual"
+                                                    Text=@string.Concat( Localizer.GetString(FieldLabelResourceKeyConstants.SearchAdministrativeUnitsLongitudeToFieldLabel)," must be greater than ", Localizer.GetString(FieldLabelResourceKeyConstants.SearchAdministrativeUnitsLongitudeFromFieldLabel))
+                                                    Style="display: block" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.LongitudeFrom.ToString()))" />
+                        </InterfaceEditorResource>
+                    </div>
+                    <div class="form-row">
+
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchAdministrativeUnitsElevationFromFieldLabel" IsRow="false" CssClass="col-md-6" For="SearchCriteria_FromElevation">
+                            <RadzenNumeric id="fromElevationId" Name="SearchCriteria_FromElevation" AllowClear="true" AllowInput="true" class="form-control-range" TValue="Double?" @bind-Value="@Model.SearchCriteria.ElevationFrom" Min="-1000" Max="11000" Format="#####" />
+                            <RadzenCompareValidator Value="@Model.SearchCriteria.ElevationTo" Component="SearchCriteria_FromElevation" Popup="false" Operator="CompareOperator.LessThanEqual"
+                                                    Text=@string.Concat( Localizer.GetString(FieldLabelResourceKeyConstants.SearchAdministrativeUnitsElevationFromFieldLabel)," must be earlier than ", Localizer.GetString(FieldLabelResourceKeyConstants.SearchAdministrativeUnitsElevationToFieldLabel))
+                                                    Style="display: block" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.ElevationTo.ToString()))" />
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchAdministrativeUnitsElevationToFieldLabel" IsRow="false" CssClass="col-md-6" For="SearchCriteria_ToElevation">
+                            <RadzenNumeric id="toElevationId" Name="SearchCriteria_ToElevation" AllowClear="true" AllowInput="true" class="form-control-range" TValue="Double?" @bind-Value="@Model.SearchCriteria.ElevationTo" Min="-1000" Max="11000" Format="#####" />
+                            <RadzenCompareValidator Value="@Model.SearchCriteria.ElevationFrom" Component="SearchCriteria_ToElevation" Popup="false" Operator="CompareOperator.GreaterThanEqual"
+                                                    Text=@string.Concat( Localizer.GetString(FieldLabelResourceKeyConstants.SearchAdministrativeUnitsElevationToFieldLabel)," must be greater than ", Localizer.GetString(FieldLabelResourceKeyConstants.SearchAdministrativeUnitsElevationFromFieldLabel))
+                                                    Style="display: block" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.ElevationFrom.ToString()))" />
+                        </InterfaceEditorResource>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end search criteria-->
+        <!--search results-->
+        <div class="card @(showSearchResults ?  "d-block" : "d-none" )">
+
+            <div class="card-header" id="administrativeUnitesSearchResults">
+                <button class="btn d-inline-block"
+                        type="button"
+                        data-toggle="collapse"
+                        aria-expanded="false"
+                        aria-controls="administrativeUnitesSearchResultsBody"
+                        @onclick="@(() => AccordionClick(2))">
+                    <span class="text-left fas @(ExpandSearchResults ? "fa-caret-down" : "fa-caret-right")" />
+                    <h4 class="mb-0 d-inline-block">@Localizer.GetString(HeadingResourceKeyConstants.SearchResultsHeading)</h4>
+                </button>
+            </div>
+            <div id="administrativeUnitesSearchResultsBody" class="@(ExpandSearchResults ?  "collapse show" : "collapse" )" aria-labelledby="administrativeUnitesSearchResults" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <RadzenDataGrid @ref="Grid" id="searchResults" TItem="AdministrativeUnitsGetListViewModel" IsLoading="@IsLoading" LoadData="@(LoadData)" Data="@SearchResults"
+                                            AllowPaging="true" AllowSorting="true" Count="@SearchResultCount" AllowColumnResize="true" ExpandMode="DataGridExpandMode.Single"
+                                            AllowColumnReorder="true" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)"
+                                            Visible="@showSearchResults" PageSizeOptions="@pageSizeOptions">
+                                <Columns>
+
+                                    <RadzenDataGridColumn TItem="AdministrativeUnitsGetListViewModel" Property="DefaultName" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.AdministrativeUnitDetailsDefaultNameFieldLabel)" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="AdministrativeUnitsGetListViewModel" Property="NationalName" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.AdministrativeUnitDetailsNationalNameFieldLabel)" Sortable="true" />
+
+                                    <RadzenDataGridColumn TItem="AdministrativeUnitsGetListViewModel" Property="AdministrativeLevelValue" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.AdministrativeUnitDetailsAdministrativeLevelFieldLabel)" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="AdministrativeUnitsGetListViewModel" Property="SettlementTypeNationalName" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.SettlementTypeFieldLabel)" Sortable="true" />
+
+                                    <RadzenDataGridColumn TItem="AdministrativeUnitsGetListViewModel" Property="NationalCountryName" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.CountryFieldLabel)" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="AdministrativeUnitsGetListViewModel" Property="NationalRegionName" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.AdministrativeLevel1FieldLabel)" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="AdministrativeUnitsGetListViewModel" Property="NationalRayonName" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.AdministrativeLevel2FieldLabel)" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="AdministrativeUnitsGetListViewModel" Property="Latitude" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.AdministrativeUnitDetailsLatitudeFieldLabel)" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="AdministrativeUnitsGetListViewModel" Property="Longitude" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.AdministrativeUnitDetailsLongitudeFieldLabel)" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="AdministrativeUnitsGetListViewModel" Property="Elevation" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.AdministrativeUnitDetailsElevationFieldLabel)" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="AdministrativeUnitsGetListViewModel" Property="" Title="" Sortable="false" Filterable="false"  Width="50px">
+                                        <Template Context="data">
+                                            <button @onclick="@(() => OpenEdit(data))" class="btn btn-sm" type="button" disabled="@DisableEditButton">
+                                                <i class="fas fa-edit fa-lg"></i>
+                                            </button>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="AdministrativeUnitsGetListViewModel" Property="" Title="" Sortable="false" Filterable="false"  Width="50px">
+                                        <Template Context="data">
+                                            <button @onclick="@(() => DeleteAdminUnitAsync(data))" class="btn btn-sm" type="button" disabled="@DisableDeleteButton">
+                                                <i class="fas fa-trash fa-lg"></i>
+                                            </button>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+
+
+                                </Columns>
+
+                            </RadzenDataGrid>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end search results-->
+    </div>
+    <div id="administrativeUnitesSearchCriteriaCommands" class="card">
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-md-12">
+
+                    @if (ShowAddButton)
+                    {<button id="addButton" class="btn btn-outline-primary" type="button" disabled="@DisableAddButton" @onclick=@(() => AddAdminstrativUnit())>@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>}
+                    @if (ShowSearchButton)
+                    {<button id="searchButton" type="submit" class="btn btn-primary">@Localizer.GetString(@ButtonResourceKeyConstants.SearchButton)</button>}
+                    @if (ShowCancelButton)
+                    {<button id="cancelButton" class="btn btn-outline-primary" type="button" @onclick=@(() => CancelSearch())>@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>}
+                    @if (ShowClearButton)
+                    {<button id="clearButton" class="btn btn-outline-primary" type="reset" @onclick=@(() => ResetSearch())>@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)</button>}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

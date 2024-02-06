@@ -1,0 +1,309 @@
+﻿@model ConfigurationMatrixPagesViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@using EIDSS.Web.TagHelpers.Models;
+@using EIDSS.ClientLibrary.Enumerations;
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.DiseaseGroupDiseaseMatrixPageHeading);
+
+    //PageLevel
+    Model.PageName = Localizer.GetString(HeadingResourceKeyConstants.DiseaseGroupDiseaseMatrixPageHeading);
+    Model.PageLevelAddButtonModalText = Localizer.GetString(ButtonResourceKeyConstants.AddButton);
+    Model.PageLevelAddButtonModal = "AddDiseaseGroupDiseaseMatrix";
+    Model.PageLevelAddButtonID = "PageLevelAddButton";
+
+    //DropDowns
+    var select2Configuration = new Select2Configruation
+    {
+        DropDownId = "PageLevelDD",
+        ControltargetId = "DiseaseGroupDiseaseMatrixGrid",
+        Label = Localizer.GetString(FieldLabelResourceKeyConstants.DiseaseGroupFieldLabel),
+        ControlTargetType = DropDownTargetTypes.Table,
+        Endpoint = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = 19000156, intHACode = 0}),
+        ControlTargetUrl = Url.Action("GetList", "DiseaseGroupDiseaseMatrixPage"),
+        isVisible = true,
+        CustomJsOnChangeFunction = "ChangeAddButtonActiveStatus", //Create This Javascript Method Below in the Scripts tag
+        CustomJsOnClearFunction = "SelectOnClear", //Create This Javascript Method Below in the Scripts tag
+        DisabledControls = "PageLevelAddButton"
+    };
+
+    //Display Add Button Next To DropDown
+    if (Model.UserPermissions.Create)
+        select2Configuration.IncludeAddButton = true;
+    //Modal To Launch When Button is Clicked
+    select2Configuration.AddModalId = "AddDiseaseGroup";
+    Model.Select2Configurations.Add(select2Configuration);
+
+    //SET UP MODAL
+    var eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.DiseaseGroupDiseaseDetailsModalHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            //success modal configs
+            SuccessModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+            SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        },
+        ModalId = "AddDiseaseGroupDiseaseMatrix",
+        SavingControlsCollection = "PageLevelDD",
+        TargetGridControlID = "DiseaseGroupDiseaseMatrixGrid", //ID of Grid to Refresh
+        PostAjaxDataUrl = Url.Action("Create", "DiseaseGroupDiseaseMatrixPage"), //Save Endpoint
+        SaveCompleteMethod = "CheckSuccess"
+    };
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.ConfigureDieaseGroupDiseaseMatrixDiseaseFieldLabel),
+        ControlName = "idfsDiagnosis",
+        ControlType = ControlType.DropDownAddButtonOpenModal,
+        OpenModalName = "bAddDisease",
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "ddAddDisease",
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = 19000019, intHACode = 226})
+    });
+
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //SET UP MODAL 2 Add Disease Group
+    eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ModalId = "AddDiseaseGroup",
+        ControlLabels =
+        {
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            ModalTitle = "Disease Group Details",
+            //success modal configs
+            SuccessModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+            SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        },
+        TargetGridControlID = "BaseReferenceGrid", //ID of Grid to Refresh
+        PostAjaxDataUrl = Url.Action("AddDiseaseGroup", "DiseaseGroupDiseaseMatrixPage"), //Save Endpoint
+        SavingControlsCollection = "RefereceTypeDD",
+        SaveCompleteMethod = "CheckSuccess"
+    };
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "strDefault",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "GroupDefaultValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ControlName = "strName",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "GroupNationalValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.AccessoryCodeFieldLabel),
+        ControlName = "StrHACode",
+        ControlType = ControlType.DropDown,
+        AllowMultipleDropDownItemSelection = true,
+        ClassName = "modalDropDown",
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = (long) ReferenceTypes.AccessoryCode, intHACode = 226})
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlType = ControlType.Numeric,
+        ControlName = "IntOrder",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidatorMessage = "Number is Out Of Range",
+            ValidationRule = "[-2147483648,2147483647]"
+        },
+        ClassName = "IntOrderRange"
+    });
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //SET UP MODAL 3 Add Disease
+    <partial name="_DiseaseModalPartial"/>
+
+    //SETUP GRID   
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.GridId = "DiseaseGroupDiseaseMatrixGrid";
+    Model.eidssGridConfiguration.ControlFilterID = "PageLevelDD";
+    Model.eidssGridConfiguration.AjaxDataUrl = Url.Action("GetList", "DiseaseGroupDiseaseMatrixPage");
+    Model.eidssGridConfiguration.EditModalAjaxUrl = Url.Action("Edit", "DiseaseGroupDiseaseMatrixPage");
+    Model.eidssGridConfiguration.DeleteModalAjaxUrl = Url.Action("Delete", "DiseaseGroupDiseaseMatrixPage");
+    Model.eidssGridConfiguration.DeleteCompleteMethod = "CheckDeleteSuccess";
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.EnableProcessingMessage = true;
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels
+    {
+        DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage),
+        EditModalMessage = "Are you sure that you want to Edit this record?",
+        DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+        SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
+        DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton),
+        CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton)
+    };
+    Model.eidssGridConfiguration.EditType = EditType.None;
+    Model.eidssGridConfiguration.ControlLabels.CancelInlineEditTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    ;
+    Model.eidssGridConfiguration.ControlLabels.CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage);
+    Model.eidssGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.eidssGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.eidssGridConfiguration.ControlLabels.SaveInlineEditTitle = "Save Record";
+    Model.eidssGridConfiguration.ControlLabels.SaveInlineEditMessage = "Are you sure that you want to save this record?";
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        ColumnName = "row",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "idfDiagnosisToDiagnosisGroup",
+        ColumnName = "KeyId",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "idfsDiagnosisGroup",
+        ColumnName = "idfsDiagnosisGroup",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "Disease",
+        ColumnName = "strDiseaseName",
+        Visible = true,
+        Orderable = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.UsingTypeColumnHeading),
+        ColumnName = "strUsingType",
+        Visible = true,
+        Orderable = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.AccessoryCodeColumnHeading),
+        ColumnName = "strHACodeNames",
+        Visible = true,
+        Orderable = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OrderColumnHeading),
+        ColumnName = "intOrder",
+        Visible = true,
+        Orderable = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = string.Empty,
+        ColumnName = "name",
+        ColumnType = ColumnType.Delete,
+        Visible = Model.UserPermissions.Delete
+    });
+}
+
+<!-- Modal -->
+<div class="modal fade" id="duplicatesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsg"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_ConfigurationPartial"/>
+<partial name="_InformationalModalPartial" for="InformationMessage"/>
+
+@section Scripts
+{
+    <script>
+        ///Method called after execution of Save Method Returns Data back from the controller
+        function CheckSuccess(data) {
+            var stringifiedData = JSON.stringify(data);
+            var parsedData = JSON.parse(stringifiedData);
+            if (parsedData.returnMessage == "SUCCESS") {
+                $("#AddDiseaseGroupDiseaseMatrixSuccessModal").modal("show");
+                updateNotificationEnvelopeCount();
+            } else if (parsedData.returnMessage == "DOES EXIST") {
+                $("#duplicatesModal").modal("show");
+                $("#dupemsg").html(parsedData.strClientPageMessage);
+            }
+        };
+
+        function ChangeAddButtonActiveStatus(data) {
+            switch (parseInt(data.id)) {
+            case 19000140:
+                $("#PageLevelAddButton").prop('disabled', true);
+                break;
+            default:
+                $("#PageLevelAddButton").prop('disabled', false);
+            }
+        };
+
+        // When Drop Down Items Are Cleared
+        function SelectOnClear(data) {
+            $("#PageLevelAddButton").prop('disabled', true);
+        };
+
+        function CheckDeleteSuccess(data) {
+            var stringifiedData = JSON.stringify(data);
+            var parsedData = JSON.parse(stringifiedData);
+            if (parsedData.returnMessage === "SUCCESS") {
+                updateNotificationEnvelopeCount();
+                showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+            }
+        };
+    </script>
+}

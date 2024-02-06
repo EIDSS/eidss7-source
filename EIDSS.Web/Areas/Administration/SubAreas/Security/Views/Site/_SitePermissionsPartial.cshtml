@@ -1,0 +1,251 @@
+﻿@model EIDSS.Web.Areas.Administration.SubAreas.Security.ViewModels.Site.PermissionsSectionViewModel;
+@{
+    Model.ReceivingActorsGridConfiguration = new();
+    Model.ReceivingActorsGridConfiguration.GridId = "receivingActorsTable";
+    Model.ReceivingActorsGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.ReceivingActorsGridConfiguration.EnableServerSide = false;
+    Model.ReceivingActorsGridConfiguration.EnableCustomSearching = false;
+    Model.ReceivingActorsGridConfiguration.EnableSearching = true;
+    Model.ReceivingActorsGridConfiguration.EnableProcessingMessage = true;
+    Model.ReceivingActorsGridConfiguration.sDom = "t";
+    Model.ReceivingActorsGridConfiguration.ControlLabels.DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage);
+    Model.ReceivingActorsGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.ReceivingActorsGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.ReceivingActorsGridConfiguration.ControlLabels.DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.ReceivingActorsGridConfiguration.DeleteModalAjaxUrl = @Url.Action("DeleteReceivingActor", "Site", new { Area = "Administration", SubArea = "Security" });
+    Model.ReceivingActorsGridConfiguration.DeleteCompleteMethod = "deleteReceivingActor";
+    Model.ReceivingActorsGridConfiguration.RowCallbackFunction = "ReceivingActorsRowCallback(row, data)";
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "AccessRuleActorID", ColumnTitleHeader = "Access Rule Actor ID", ColumnType = ColumnType.Default, Searchable = true, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "AccessRuleID", ColumnTitleHeader = "Access Rule ID", ColumnType = ColumnType.Default, Searchable = true, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ActorTypeName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.ActorTypeNameColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ActorName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.NameColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "SiteName", ColumnTitleHeader = "Site Name", ColumnType = ColumnType.Default, Orderable = false, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "SiteGroupID", ColumnTitleHeader = "Site Group ID", ColumnType = ColumnType.Default, Orderable = false, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "SiteID", ColumnTitleHeader = "Site ID", ColumnType = ColumnType.Default, Orderable = false, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "EmployeeGroupID", ColumnTitleHeader = "Employee Group ID", ColumnType = ColumnType.Default, Orderable = false, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "EmployeeID", ColumnTitleHeader = "Employee ID", ColumnType = ColumnType.Default, Orderable = false, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "AccessToGenderAndAgeDataPermissionIndicator", ColumnTitleHeader = "Access to Gender and Age Data", ColumnType = ColumnType.Default, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "AccessToPersonalDataPermissionIndicator", ColumnTitleHeader = "Access to Personal Data", ColumnType = ColumnType.Default, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "CreatePermissionIndicator", ColumnTitleHeader = "Create", ColumnType = ColumnType.Default, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "DeletePermissionIndicator", ColumnTitleHeader = "Delete", ColumnType = ColumnType.Default, Orderable = false, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ReadPermissionIndicator", ColumnTitleHeader = "Read", ColumnType = ColumnType.Default, Orderable = false, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "WritePermissionIndicator", ColumnTitleHeader = "Write", ColumnType = ColumnType.Default, Orderable = false, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "RowStatus", ColumnTitleHeader = "Row Status", ColumnType = ColumnType.Default, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "RowAction", ColumnTitleHeader = "Row Action", ColumnType = ColumnType.Default, Visible = false });
+    Model.ReceivingActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "AccessRuleActorID", ColumnTitleHeader = "", ColumnType = ColumnType.Remove, Visible = true });
+ }
+<div id="sitePermissionsForm">
+    <div class="container-fluid">
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4 heading-for="@HeadingResourceKeyConstants.ActorsHeading"></h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editPermissionsSectionButton" href="#siteWizard-h-1" class="edit-section"><span class="fas fa-edit fa-lg"></span></a>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-12 text-right">
+                <button id="addActor" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#searchActorModal" button-for="@ButtonResourceKeyConstants.AddButton"></button>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-12">
+                <eidss-grid id="@Model.ReceivingActorsGridConfiguration.GridId"
+                            grid-configuration="@Model.ReceivingActorsGridConfiguration"
+                            enable-server-side="@Model.ReceivingActorsGridConfiguration.EnableServerSide"
+                            enable-processing="@Model.ReceivingActorsGridConfiguration.EnableProcessingMessage"
+                            enable-top-header-search-button="@Model.ReceivingActorsGridConfiguration.EnableCustomSearching"
+                            enable-search="@Model.ReceivingActorsGridConfiguration.EnableSearching"
+                            class-name="@Model.ReceivingActorsGridConfiguration.GridClass"
+                            end-point="@Model.ReceivingActorsGridConfiguration.AjaxDataUrl"
+                            filtered-control-ids="@Model.ReceivingActorsGridConfiguration.ControlFilterID"
+                            control-labels="@Model.ReceivingActorsGridConfiguration.ControlLabels">
+                </eidss-grid>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-12">
+                <h4 heading-for="@HeadingResourceKeyConstants.SiteDetailsPermissionsHeading"></h4>
+            </div>
+        </div>
+        <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.AccessRuleDetailsAccessToGenderAndAgeDataPermissionIndicatorFieldLabel">
+            <input id="accessToGenderAndAgeDataPermissionIndicator" type="checkbox" class="form-check-input" onclick="togglePermission(9, this.checked);" />
+            <label class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.AccessRuleDetailsAccessToGenderAndAgeDataPermissionIndicatorFieldLabel"></label>
+        </div>
+        <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.AccessRuleDetailsAccessToPersonalDataPermissionIndicatorFieldLabel">
+            <input id="accessToPersonalDataPermissionIndicator" type="checkbox" class="form-check-input" onclick="togglePermission(10, this.checked);" />
+            <label class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.AccessRuleDetailsAccessToPersonalDataPermissionIndicatorFieldLabel"></label>
+        </div>
+        <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.AccessRuleDetailsCreatePermissionIndicatorFieldLabel">
+            <input id="createPermissionIndicator" type="checkbox" class="form-check-input" onclick="togglePermission(11, this.checked);" />
+            <label class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.AccessRuleDetailsCreatePermissionIndicatorFieldLabel"></label>
+        </div>
+        <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.AccessRuleDetailsDeletePermissionIndicatorFieldLabel">
+            <input id="deletePermissionIndicator" type="checkbox" class="form-check-input" onclick="togglePermission(12, this.checked);" />
+            <label class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.AccessRuleDetailsDeletePermissionIndicatorFieldLabel"></label>
+        </div>
+        <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.AccessRuleDetailsReadPermissionIndicatorFieldLabel">
+            <input id="readPermissionIndicator" type="checkbox" class="form-check-input" onclick="togglePermission(13, this.checked);" />
+            <label class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.AccessRuleDetailsReadPermissionIndicatorFieldLabel"></label>
+        </div>
+        <div class="form-group col-md-6 form-check form-check-inline" hidden-if="@FieldLabelResourceKeyConstants.AccessRuleDetailsWritePermissionIndicatorFieldLabel">
+            <input id="writePermissionIndicator" type="checkbox" class="form-check-input" onclick="togglePermission(14, this.checked);" />
+            <label class="form-check-label" field-label-for="@FieldLabelResourceKeyConstants.AccessRuleDetailsWritePermissionIndicatorFieldLabel"></label>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function initializeSitePermissionsSection() {
+        $.ajax({
+            url: '@Url.Action("GetActorAndPermissionList", "Site", new { Area = "Administration", SubArea = "Security" })',
+            data: $("#SiteInformationSection_SiteDetails_SiteID").val(),
+            contentType: "application/json",
+            type: "POST",
+            success: function (response)
+            {
+                // Add the data retrieved from the database, if any.
+                $("#receivingActorsTable").DataTable().rows.add(response.data).draw();
+
+                // Per business rule, the system shall provide the first record with “Employee
+                // Group – Default Group”.  If this is a new site record, then add the actor
+                // with read permission.
+                if ($("#SiteInformationSection_SiteDetails_SiteID").val() == "") {
+                    var actors = [];
+                    actor = new Object();
+                    actor.ActorID = '@Convert.ToInt64(RoleEnum.DefaultRole)';
+                    actor.ObjectAccessID = null;
+                    actor.ActorTypeID = 10023001;
+                    actor.ActorTypeName = "Employee Group";
+                    actor.ActorName = "Default Role";
+                    actor.OrganizationName = null;
+                    actor.EmployeeUserID = null;
+                    actor.EmployeeSiteID = null;
+                    actor.EmployeeSiteName = null;
+                    actor.UserGroupSiteID = null;
+                    actor.UserGroupSiteName = null;
+                    actor.AccessToGenderAndAgeDataPermissionIndicator = false;
+                    actor.AccessToPersonalDataPermissionIndicator = false;
+                    actor.CreatePermissionIndicator = false;
+                    actor.DeletePermissionIndicator = false;
+                    actor.ReadPermissionIndicator = true;
+                    actor.WritePermissionIndicator = false;
+                    actors.push(actor.ActorID);
+
+                    var rowAdded = $("#receivingActorsTable").DataTable().row.add([(($("#receivingActorsTable").DataTable().rows().count() + 1) * -1), actor.ObjectAccessID, actor.ActorTypeName, actor.ActorName, actor.OrganizationName, null, null, actor.ActorID, null, actor.AccessToGenderAndAgeDataPermissionIndicator, actor.AccessToPersonalDataPermissionIndicator, actor.CreatePermissionIndicator, actor.DeletePermissionIndicator, actor.ReadPermissionIndicator, actor.WritePermissionIndicator, '@Convert.ToInt64(RowStatusTypes.Active)', 'I', null]).draw();
+                    $("#receivingActorsTable").DataTable().$("tr.selected").removeClass("selected");
+                }
+            },
+            error: function (reponse) { alert("An error occurred: " + reponse); }
+        });
+    };
+
+    ///
+    /// Per business rule, employee group default can not be deleted.
+    ///
+    function ReceivingActorsRowCallback(row, data) {
+        if (data != null) {
+            if (data[7] != null) {
+                if (data[7].toString() == '@Convert.ToInt64(RoleEnum.DefaultRole)') {
+                    $("td:eq(2)", row).prop("style", "display: none;");
+                }
+            }
+        }
+    };
+
+    ///
+    /// User selected actor record, display permissions.
+    ///
+    $("body").on("click", "#receivingActorsTable tbody tr", function () {
+        $("#receivingActorsTable").DataTable().$("tr.selected").removeClass("selected");
+        $(this).addClass("selected");
+        $(this).select();
+
+        var row = $("#receivingActorsTable").DataTable().row($(this).closest("tr"));
+
+        (row.data()[9].toString() == "true" ? $("#accessToGenderAndAgeDataPermissionIndicator").prop("checked", true) : $("#accessToGenderAndAgeDataPermissionIndicator").prop("checked", false));
+        (row.data()[10].toString() == "true" ? $("#accessToPersonalDataPermissionIndicator").prop("checked", true) : $("#accessToPersonalDataPermissionIndicator").prop("checked", false));
+        (row.data()[11].toString() == "true" ? $("#createPermissionIndicator").prop("checked", true) : $("#createPermissionIndicator").prop("checked", false));
+        (row.data()[12].toString() == "true" ? $("#deletePermissionIndicator").prop("checked", true) : $("#deletePermissionIndicator").prop("checked", false));
+        (row.data()[13].toString() == "true" ? $("#readPermissionIndicator").prop("checked", true) : $("#readPermissionIndicator").prop("checked", false));
+        (row.data()[14].toString() == "true" ? $("#writePermissionIndicator").prop("checked", true) : $("#writePermissionIndicator").prop("checked", false));
+
+        // Is the review section being shown?
+        if ($("#accessToGenderAndAgeDataPermissionIndicator").hasClass("wizard-disabled") == false)
+        {
+            // Default employee group permissions are not editable.
+            if (row.data()[7] == '@Convert.ToInt64(RoleEnum.DefaultRole)') {
+                $("#accessToGenderAndAgeDataPermissionIndicator").prop("disabled", true);
+                $("#accessToPersonalDataPermissionIndicator").prop("disabled", true);
+                $("#createPermissionIndicator").prop("disabled", true);
+                $("#deletePermissionIndicator").prop("disabled", true);
+                $("#readPermissionIndicator").prop("disabled", true);
+                $("#writePermissionIndicator").prop("disabled", true);
+            } else {
+                $("#accessToGenderAndAgeDataPermissionIndicator").prop("disabled", false);
+                $("#accessToPersonalDataPermissionIndicator").prop("disabled", false);
+                $("#createPermissionIndicator").prop("disabled", false);
+                $("#deletePermissionIndicator").prop("disabled", false);
+                $("#readPermissionIndicator").prop("disabled", false);
+                $("#writePermissionIndicator").prop("disabled", false);
+            }
+        }
+    });
+
+    ///
+    /// Validates there are no duplicate actors for the same site record.
+    ///
+    function validateDuplicateActors(actors) {
+        var actorsArray = actors.sort();
+        for (var i = 0; i < actorsArray.length - 1; i++) {
+            if (actorsArray[i + 1] == actorsArray[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    ///
+    /// Response from ajax call for delete.
+    ///
+    function deleteReceivingActor(response) {
+        var rowIndex;
+        $("#receivingActorsTable").DataTable().rows(function (idx, data, node) {
+            if (data[0] == response.AccessRuleActorID) {
+                rowIndex = idx;
+            }
+
+            return false;
+        });
+
+        var row = $("#receivingActorsTable").DataTable().rows(rowIndex);
+        if (response.AccessRuleActorID < 0) {
+            $("#receivingActorsTable").DataTable().row(rowIndex).remove().draw();
+        }
+        else {
+            row.data()[0][15] = '@Convert.ToInt64(RowStatusTypes.Inactive)';
+            row.data()[0][16] = "D";
+            row.nodes().to$().attr("excluded", "true");
+            $("#receivingActorsTable").DataTable().row(row).invalidate().draw();
+        }
+    };
+
+    // Filters the actors table to only show the actors for active records, in the event the user
+    // confirmed a record deletion that is pending save to the database.
+    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+        return $("#receivingActorsTable").DataTable().row(dataIndex).nodes().to$().attr("excluded") != "true"
+    });
+
+    function togglePermission(permissionType, permission) {
+        var row = $("#receivingActorsTable").DataTable().rows(".selected");
+        row.data()[0][permissionType] = permission;
+
+        // Access rule actor ID has been saved to the database, so set the row action to update.
+        if (row.data()[0][0] > 0) {
+            row.data()[0][16] = "U";
+        }
+
+        $("#receivingActorsTable").DataTable().row(row).invalidate().draw();
+    };
+</script>

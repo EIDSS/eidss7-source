@@ -1,0 +1,931 @@
+﻿@model EIDSS.Web.ViewModels.Configuration.FlexFormDesignerPageViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<style>
+    /********************
+        Tab Styles
+    ********************/
+    .tab-content {
+        padding-bottom: 5px;
+        padding-top: 15px;
+        padding-left: 15px !important;
+        padding-right: 15px;
+        margin-top: 0px;
+        height: fit-content;
+        background-color: #f2f2f2;
+        border-left: 1px solid #f2f2f2;
+        border-right: 1px solid #f2f2f2;
+    }
+
+    .nav-tabs {
+        margin: 0;
+    }
+
+        .nav-tabs > a, .nav-tabs > a:hover, .nav-tabs > a:focus {
+            border-left-color: transparent;
+            border-right-color: transparent;
+            border-bottom-color: transparent;
+            border-radius: 0 0 0 0;
+            background-color: #f2f2f2;
+        }
+
+    .nav-link.active {
+        border-top: 3px solid #2d5b83 !important;
+    }
+
+    .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+        border-left-color: transparent;
+        border-top: 3px solid #336699;
+        border-right-color: transparent;
+        border-bottom-color: transparent;
+        border-radius: 0 0 0 0;
+        background-color: #f2f2f2;
+        color: #2d5b83;
+    }
+
+    .nav-tabs {
+        border-bottom: 1px solid #f2f2f2;
+        font-size: 16px;
+    }
+</style>
+
+<div class="container-fluid">
+    <div id="d1" class="card">
+        <input type="hidden" id="hdnCurrentidfsFormType" />
+        <input type="hidden" id="hdnCurrentidfsFormTemplate" />
+        <input type="hidden" id="hdnCurrentidfsSection" />
+        <input type="hidden" id="hdnCurrentidfsParameter" />
+        <input type="hidden" id="hdnidfsParameterCopy" />
+        <input type="hidden" id="hdnidfsSectionCopy" />
+        <input type="hidden" id="hdnCurrentItemType" />
+        <input type="hidden" id="hdnEditingMode" />
+        <input type="hidden" id="hdnidfsFunctionParameter" />
+        <input type="hidden" id="hdnSetDeterminant" />
+
+        <div class="card-header">
+            <h3 id="hHeaderTitle">@Localizer.GetString(HeadingResourceKeyConstants.FlexibleFormDesigner_FlexibleFormDesigner_Heading)</h3>
+        </div>
+        <div id="divParameterEditorDetails" class="card-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <fieldset>
+                        <div class="embed-panel">
+                            <div class="card-header">
+                                <div class="row">
+                                    <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+                                        <h4 class="heading">@Localizer.GetString(HeadingResourceKeyConstants.ParameterTypeEditorPageHeading)</h4>
+                                    </div>
+                                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 text-right">
+                                        <a href="#divParameterEditor" data-toggle="collapse" style="height: 24px;" data-parent="#divParameterEditorDetails" onclick="toggleParameterEditor(event);">
+                                            <span id="toggleIcon" role="button" class="toggle-icon glyphicon glyphicon-triangle-bottom header-button"></span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <div id="divParameterEditor" class="panel-collapse collapse in">
+                                    <div class="row">
+                                        <div class="col-md-5">
+                                            <div class="div-table">
+                                                <fieldset>
+                                                    <legend>@Localizer.GetString(HeadingResourceKeyConstants.SearchParametersHeading)</legend>
+                                                    <div class="flex-form">
+                                                        <input id="txtSection" type="text" class="form-control" maxlength="50" placeholder="@Localizer.GetString(FieldLabelResourceKeyConstants.SectionFieldLabel)">
+                                                        <input id="btnClearSectionParameter" type="button" class="btn btn-default btn-sm" onclick="flexForm.clearSectionParameter();" value="@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)" />
+                                                        <input id="txtParameter" type="text" class="form-control" maxlength="50" placeholder="@Localizer.GetString(FieldLabelResourceKeyConstants.ParameterFieldLabel)">
+                                                        <input id="btnSearchSectionParameter" type="submit" class="btn btn-default btn-sm" onclick="flexForm.searchSectionParameter();" value="@Localizer.GetString(ButtonResourceKeyConstants.SearchButton)">
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                            <div class="flex-designer">
+                                                <table id="t1" class="table table-striped" role="grid" aria-describedby="">
+                                                    <thead>
+                                                        <tr role="row" class="table-striped-header">
+                                                            <th>@Localizer.GetString(HeadingResourceKeyConstants.TemplatesWhichUseThisParameterHeading)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="dTemplatesUsedByParameter">
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <div class="div-table" id="dParameterForm" style="display:none">
+                                                <fieldset id="fsParameterContainer">
+                                                    <legend>@Localizer.GetString(HeadingResourceKeyConstants.ParameterDetailsHeading)</legend>
+                                                    <table id="t2" class="display dataTable no-footer" style="width: 100%;" role="grid" aria-describedby="">
+                                                        <tbody class="flex-form">
+                                                            <tr role="row" class="odd">
+                                                                <td><label>@Localizer.GetString(FieldLabelResourceKeyConstants.FullPathLabel)</label></td>
+                                                                <td><input id="txtFullPath" type="text" class="form-control" maxlength="200" /></td>
+                                                            </tr>
+                                                            <tr role="row" class="odd">
+                                                                <td><label>@Localizer.GetString(FieldLabelResourceKeyConstants.DefaultLongNameFieldLabel)</label></td>
+                                                                <td><input id="txtDefaultLongName" type="text" class="form-control" maxlength="200"></td>
+                                                            </tr>
+                                                            <tr role="row" class="odd">
+                                                                <td><label>@Localizer.GetString(FieldLabelResourceKeyConstants.DefaultNameFieldLabel)</label></td>
+                                                                <td><input id="txtDefaultName" type="text" class="form-control" maxlength="200"></td>
+                                                            </tr>
+                                                            <tr role="row" class="odd">
+                                                                <td><label>@Localizer.GetString(FieldLabelResourceKeyConstants.ParameterTypeFieldLabel)</label></td>
+                                                                <td><select id="ddlidfsParameterType" onchange="flexForm.getEditorList();" class="form-control"></select></td>
+                                                            </tr>
+                                                            <tr role="row" class="odd">
+                                                                <td><label>@Localizer.GetString(FieldLabelResourceKeyConstants.EditorFieldLabel)</label></td>
+                                                                <td><select id="ddlidfsEditor" class="form-control"></select></td>
+                                                            </tr>
+                                                            <tr role="row" class="odd">
+                                                                <td><label>@Localizer.GetString(FieldLabelResourceKeyConstants.NationalLongNameFieldLabel)</label></td>
+                                                                <td><input id="txtNationalLongName" type="text" class="form-control" maxlength="200"></td>
+                                                            </tr>
+                                                            <tr role="row" class="odd">
+                                                                <td><label>@Localizer.GetString(FieldLabelResourceKeyConstants.NationalNameFieldLabel)</label></td>
+                                                                <td><input id="txtNationalName" type="text" class="form-control" maxlength="200"></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </fieldset>
+                                            </div>
+                                            <div class="div-table" id="dSectionForm" style="display:none">
+                                                <fieldset id="fsSectionContainer">
+                                                    <legend>@Localizer.GetString(HeadingResourceKeyConstants.FlexibleFormDesigner_SectionDetails_Heading)</legend>
+                                                    <table id="t2" class="display dataTable no-footer" style="width: 100%;" role="grid" aria-describedby="">
+                                                        <tbody class="flex-form">
+                                                            <tr role="row" class="odd">
+                                                                <td>
+                                                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.FullPathLabel)</label>
+                                                                </td>
+                                                                <td>
+                                                                    <input id="txtFullPathSection" type="text" class="form-control" maxlength="200" />
+                                                                </td>
+                                                            </tr>
+                                                            <tr role="row" class="odd" style="display:none">
+                                                                <td>
+                                                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.DefaultLongNameFieldLabel)</label>
+                                                                </td>
+                                                                <td>
+                                                                    <input id="txtDefaultLongNameSection" type="text" class="form-control" maxlength="200">
+                                                                </td>
+                                                            </tr>
+                                                            <tr role="row" class="odd">
+                                                                <td>
+                                                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.DefaultNameFieldLabel)</label>
+                                                                </td>
+                                                                <td>
+                                                                    <input id="txtDefaultNameSection" type="text" class="form-control" maxlength="200">
+                                                                </td>
+                                                            </tr>
+                                                            <tr role="row" class="odd" style="display:none">
+                                                                <td>
+                                                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.NationalLongNameFieldLabel)</label>
+                                                                </td>
+                                                                <td>
+                                                                    <input id="txtNationalLongNameSection" type="text" class="form-control" maxlength="200">
+                                                                </td>
+                                                            </tr>
+                                                            <tr role="row" class="odd">
+                                                                <td>
+                                                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.NationalNameFieldLabel)</label>
+                                                                </td>
+                                                                <td>
+                                                                    <input id="txtNationalNameSection" type="text" class="form-control" maxlength="200">
+                                                                </td>
+                                                            </tr>
+                                                            <tr role="row" class="odd">
+                                                                <td>
+                                                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.DisplayTypeFieldLabel)</label>
+                                                                </td>
+                                                                <td>
+                                                                    <select id="sDisplayType" onchange="flexForm.setDisplayType(this);" class="form-control"></select>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <input type="hidden" id="idfsSectionParentSection" />
+                                                    <input type="hidden" id="idfsSectionFormType" />
+                                                    <input type="hidden" id="intSectionOrder" />
+                                                    <input type="hidden" id="blnSectionGrid" />
+                                                    <input type="hidden" id="blnSectionFixedRowset" />
+                                                    <input type="hidden" id="idfsSectionMatrixType" />
+                                                </fieldset>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="row">
+                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center">
+                                                <input ID="btnCancel" type="button" class="btn btn-default" value="@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)" onclick="flexForm.restoreOriginalDetails();" />
+                                                <input ID="btnSubmit" type="button" class="btn btn-primary" value="@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)" onclick="flexForm.updateItem();" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="upper-left">
+                @if (Model.Outbreak.idfOutbreak != null)
+                {
+                    <input type="button" class="btn btn-default" value="@Localizer.GetString(ButtonResourceKeyConstants.ReturnToOutbreakButton)" onclick="location.href='@Url.Action("Edit", "OutbreakSession", new { area = "Outbreak", queryData = @Model.Outbreak.idfOutbreak })'" />
+                    <input type="button" class="btn btn-primary" value="@Localizer.GetString(ButtonResourceKeyConstants.AddToOutbreakButton)" onclick="flexForm.addToOutbreak(@Model.Outbreak.outbreakSpeciesParameterUID);" />
+                }
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <fieldset>
+                        <div>
+                            <ul class="nav nav-tabs nav-fill" role="tablist">
+                                <li id="liParameters" class="nav-item">
+                                    <a id="aParameterTab" class="nav-link active" href="#nav-parameters" editMode="Parameter" data-toggle="tab" onclick="flexForm.enableContainer('Parameter');">
+                                        @Localizer.GetString(HeadingResourceKeyConstants.ParametersHeading)
+                                    </a>
+                                </li>
+                                <li id="liTemplates" class="nav-item">
+                                    <a id="aTemplateTab" class="nav-link" href="#nav-templates" editMode="Template" data-toggle="tab" onclick="flexForm.enableContainer('Template');">
+                                        @Localizer.GetString(HeadingResourceKeyConstants.TemplatesHeading)
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                            <div class="tab-content">
+                                <div id="nav-parameters" class="tab-pane active" role="tabpanel" aria-labelledby="">
+                                    <div class="row">
+                                        <div class="flex-form-icon">
+                                            <a id="aAddSection" href="#" onclick="flexForm.showAddSection(); return false;">
+                                                <img id="iAddSection" src="@Url.Content("~/Includes/Images/treeViewSectionrAdd.png")" class="disabled" title="@Localizer.GetString(TooltipResourceKeyConstants.FlexibleFormDesigner_AddSection_Tooltip)" />
+                                            </a>
+                                            <a id="aDeleteSection" href="#" onclick="flexForm.showDeleteSection(); return false;">
+                                                <img id="iDeleteSection" src="@Url.Content("~/Includes/Images/treeViewSectionrDelete.png")" class="disabled" title="@Localizer.GetString(TooltipResourceKeyConstants.FlexibleFormDesigner_DeleteSection_Tooltip)" />
+                                            </a>
+                                            <span class="divider-panel">&nbsp;</span>
+                                            <a id="aAddParameter" href="#" onclick="flexForm.showAddParameter(); return false;">
+                                                <img id="iAddParameter" src="@Url.Content("~/Includes/Images/treeViewParameterAdd.png")" class="disabled" title="@Localizer.GetString(TooltipResourceKeyConstants.FlexibleFormDesigner_AddParameter_Tooltip)" />
+                                            </a>
+                                            <a id="aDeleteParameter" href="#" onclick="flexForm.showDeleteParameter(); return false;">
+                                                <img id="iDeleteParameter" src="@Url.Content("~/Includes/Images/treeViewParameterDelete.png")" class="disabled" title="@Localizer.GetString(TooltipResourceKeyConstants.FlexibleFormDesigner_DeleteParameter_Tooltip)" />
+                                            </a>
+                                            <span class="divider-panel">&nbsp;</span>
+                                            <a id="aCopy" href="#" onclick="flexForm.copyTreeviewNode(); return false;">
+                                                <img id="iCopyTreeviewNode" src="@Url.Content("~/Includes/Images/treeViewCopy.png")" class="disabled" title="@Localizer.GetString(TooltipResourceKeyConstants.FlexibleFormDesigner_CopyTreeviewNode_Tooltip)" />
+                                            </a>
+                                            <a id="aPaste" href="#" onclick="flexForm.pasteTreeviewNode(); return false;">
+                                                <img id="iPasteTreeviewNode" src="@Url.Content("~/Includes/Images/treeViewPaste.png")" class="disabled" title="@Localizer.GetString(TooltipResourceKeyConstants.FlexibleFormDesigner_PasteTreeviewNode_Tooltip)" />
+                                            </a>
+                                            <div style="visibility:hidden">
+                                                <input type="button" ID="btnPasteTreeViewNode" value="@Localizer.GetString(ButtonResourceKeyConstants.AddToParameterTreeViewButton)" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row" id="ParametersTree">
+                                        <div class="table-responsive" style="margin-top: 10px; margin-left: 0px;">
+                                            <div id="dParameters">
+                                                <ul>
+                                                    @foreach (var item in Model.FormTypes)
+                                                    {
+                                                        <li>
+                                                            <img name="@item.idfsFormType" src="@Url.Content("~/Includes/Images/treeViewForm-plus.png")" loaded=false onclick="flexForm.getSectionParameterTreeContent(@item.idfsFormType , undefined, $(this).attr('loaded'));" />
+                                                            <span class="parameterTreeViewItem" idfs="@item.idfsFormType" type="Form" onclick="flexForm.selectTreeViewItem(this);">@item.Name</span>
+                                                            <ul name="@item.idfsFormType"></ul>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="dParametersBackup" style="display:none"></div>
+                                </div>
+                                <div id="nav-templates" class="tab-pane" role="tabpanel" aria-labelledby="">
+                                    <div class="row">
+                                        <div class="flex-form-icon">
+                                            <button id="aShowTemplates" class="btn btn-link" style="padding:0px;" onclick="flexForm.showTemplates();">
+                                                <img id="iShowTemplates" src="@Url.Content("~/Includes/Images/treeViewTemplate.png")" class="disabled" title="@Localizer.GetString(TooltipResourceKeyConstants.FlexibleFormDesigner_ShowTemplates_Tooltip)" />
+                                            </button>
+                                            <button id="aShowTemplateParameters" class="btn btn-link" style="padding:0px;" onclick="flexForm.showTemplateParameters();">
+                                                <img id="iShowTemplateParameters" src="@Url.Content("~/Includes/Images/treeViewParameter.png")" class="disabled" title="@Localizer.GetString(TooltipResourceKeyConstants.FlexibleFormDesigner_ShowTemplateParameters_Tooltip)" />
+                                            </button>
+                                            <button id="sShowTemplateRules" class="btn btn-link" style="padding:0px;" onclick="">
+                                                <img src="@Url.Content("~/Includes/Images/treeViewRules.png")" class="disabled" title="@Localizer.GetString(TooltipResourceKeyConstants.FlexibleFormDesigner_ShowTemplateRules_Tooltip)" />
+                                            </button>
+                                            <button id="aAddTemplate" class="btn btn-link" style="padding:0px;" onclick="flexForm.showAddTemplate();">
+                                                <img id="iAddTemplate" src="@Url.Content("~/Includes/Images/treeViewTemplateAdd.png")" class="disabled" title="@Localizer.GetString(TooltipResourceKeyConstants.FlexibleFormDesigner_AddTemplate_Tooltip)" />
+                                            </button>
+                                            <button id="aDeleteTemplate" class="btn btn-link" style="padding:0px;" onclick="flexForm.deleteTemplate();">
+                                                <img id="iDeleteTemplate" src="@Url.Content("~/Includes/Images/treeViewTemplateDelete.png")" class="disabled" title="@Localizer.GetString(TooltipResourceKeyConstants.FlexibleFormDesigner_DeleteTemplate_Tooltip)" />
+                                            </button>
+                                            <button id="aAddTemplateParameter" class="btn btn-link" style="padding:0px;" onclick="flexForm.addTemplateParameter();">
+                                                <img id="iAddTemplateParameter" src="@Url.Content("~/Includes/Images/treeViewParameterAdd.png")" class="disabled" title="@Localizer.GetString(TooltipResourceKeyConstants.FlexibleFormDesigner_AddTemplateParameter_Tooltip)" />
+                                            </button>
+                                            <button id="aCopy" class="btn btn-link" style="padding:0px;" onclick="flexForm.copyTemplate();">
+                                                <img id="iCopyTemplate" src="@Url.Content("~/Includes/Images/treeViewPaste.png")" title="@Localizer.GetString(TooltipResourceKeyConstants.FlexibleFormDesigner_CopyTemplate_Tooltip)" />
+                                            </button>
+                                        </div>
+                                        <div class="row" id="dTemplates">
+                                            <div class="table-responsive" style="margin-top: 10px; margin-left: 0px;">
+                                                <div id="dFormTemplates">
+                                                    <ul>
+                                                        @foreach (var item in Model.FormTypes)
+                                                        {
+                                                            <li>
+                                                                <img name="@item.idfsFormType" src="@Url.Content("~/Includes/Images/treeViewForm-plus.png")" loaded=false onclick="flexForm.getTemplateTreeContent(@item.idfsFormType , $(this).attr('loaded'));" />
+                                                                <span class="templateTreeViewItem" idfs="@item.idfsFormType" type="Form" onclick="flexForm.selectTreeViewItem(this);">@item.Name</span>
+                                                                <ul name="@item.idfsFormType"></ul>
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="dTemplateParameters" style="display:none;overflow-x:auto">
+                                            <div class="table-responsive" style="margin-top: 10px; margin-left: 0px;">
+                                                <ul>
+                                                    <li id="liTemplateParameters"></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div id="dTemplateRules" style="display:none">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </fieldset>
+                </div>
+                <div class="col-md-8">
+                    <fieldset id="fsTemplateContainer" style="display:none">
+                        <div class="templateEditor" id="dTemplateEditor">
+                            <div class="panel-heading">
+                                <h3 class="heading">@Localizer.GetString(HeadingResourceKeyConstants.TemplateEditorHeading)</h3>
+                            </div>
+                        </div>
+                        <div class="panel-body templateEditor">
+                            <div class="div-table">
+                                <fieldset>
+                                    <legend>@Localizer.GetString(HeadingResourceKeyConstants.TemplateDetailsHeading)</legend>
+                                    <table id="t3" class="display dataTable no-footer" style="width: 80%;" role="grid" aria-describedby="">
+                                        <tbody class="flex-form">
+                                            <tr role="row" class="odd">
+                                                <td>
+                                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.DefaultNameFieldLabel)</label>
+                                                </td>
+                                                <td>
+                                                    <input id="txtTemplateDefaultName" type="text" class="form-control" maxlength="100">
+                                                </td>
+                                            </tr>
+                                            <tr role="row" class="odd">
+                                                <td>
+                                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.IsUNITemplateFieldLabel)</label>
+                                                </td>
+                                                <td>
+                                                    <input id="txtTemplateIsUNITemplate" type="checkbox" onclick="" onchange="flexForm.toggleAddDeterminant();">
+                                                </td>
+                                            </tr>
+                                            <tr role="row" class="odd">
+                                                <td>
+                                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.NationalNameFieldLabel)</label>
+                                                </td>
+                                                <td>
+                                                    <input id="txtTemplateNationalName" type="text" class="form-control" maxlength="100">
+                                                </td>
+                                            </tr>
+                                            <tr role="row" class="odd">
+                                                <td>
+                                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.NoteFieldLabel)</label>
+                                                </td>
+                                                <td>
+                                                    <input id="txtTemplateNote" type="text" class="form-control" maxlength="100">
+                                                </td>
+                                            </tr>
+                                    </table>
+                                </fieldset>
+                            </div>
+                            <div class="row flex-designer" style="display:none" id="dDeterminants">
+                                <table id="t4" class="display table table-striped" role="grid" aria-describedby="">
+                                    <thead>
+                                        <tr role="row" class="table-striped-header">
+                                            <th>@Localizer.GetString(HeadingResourceKeyConstants.DeterminantsHeading)</th>
+                                            <th>
+                                                <input id="btnAddDeterminant" type="button" class="btn btn-primary btn-xs" value="@Localizer.GetString(ButtonResourceKeyConstants.AddButton)" title="@Localizer.GetString(TooltipResourceKeyConstants.FlexibleFormDesigner_AddaDeterminant_Tooltip)" onclick="flexForm.addDeterminant();">
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                                <table id="t4" class="display table table-striped" role="grid" aria-describedby="">
+                                    <tbody>
+                                    </tbody>
+                                    <caption>
+                                        <fieldset>
+                                            <div id="dDeterminantList">
+                                            </div>
+                                        </fieldset>
+                                    </caption>
+                                </table>
+                            </div>
+                            <div id="dTemplateDesign" class="templateDesign"></div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center">
+                        <input type="button" id="btnCancelTemplate" class="btn btn-default" value="@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)" />
+                        <input type="button" id="btnSaveTemplate" class="btn btn-primary" onclick="flexForm.addTemplate();" value="@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dWarningModalContainer" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="warningHeading">@Localizer.GetString(HeadingResourceKeyConstants.FlexibleFormDesignerFlexibleFormsDesignerHeading)</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                            <span class="glyphicon glyphicon-alert modal-icon"></span>
+                        </div>
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <strong id="warningSubTitle"></strong>
+                            <br />
+                            <div id="deleteSectionWarning">@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage)</div>
+                            <div id="deleteParameterWarning">@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage)</div>
+                            <br />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div id="dWarningYesNoContainer">
+                    <input type="button" ID="btnDeleteSection" class="btn btn-primary" Value='@Localizer.GetString(ButtonResourceKeyConstants.YesButton)' style="display:none" onclick="flexForm.deleteSection();" />
+                    <input type="button" ID="btnDeleteParameter" class="btn btn-primary" Value='@Localizer.GetString(ButtonResourceKeyConstants.YesButton)' style="display:none" onclick="flexForm.deleteParameter();" />
+                    <input type="button" ID="btnWarningModalNo" class="btn btn-default" Value='@Localizer.GetString(ButtonResourceKeyConstants.NoButton)' onclick="flexForm.closeWarning('dWarningModalContainer');" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="dWarningDeleteTemplateParameter" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog">
+    <input type="hidden" id="m_idfsParameter" />
+    <input type="hidden" id="m_idfsFormTemplate" />
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="warningHeading">@Localizer.GetString(HeadingResourceKeyConstants.FlexibleFormDesignerFlexibleFormsDesignerHeading)</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                            <span class="glyphicon glyphicon-alert modal-icon"></span>
+                        </div>
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <strong id="warningSubTitle"></strong>
+                            <br />
+                            <div id="deleteTemplateParameterWarning">@Localizer.GetString(MessageResourceKeyConstants.FlexibleFormDesignerDoyouwanttodeletethisparameterMessage)</div>
+                            <br />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div id="dWarningYesNoContainer">
+                    <input type="button" ID="btnDeleteTemplateParameter" class="btn btn-primary" Value='@Localizer.GetString(ButtonResourceKeyConstants.YesButton)' onclick="flexForm.deleteTemplateParameterConfirmed();" />
+                    <input type="button" ID="btnWarningModalNo" class="btn btn-default" Value='@Localizer.GetString(ButtonResourceKeyConstants.NoButton)' onclick="flexForm.closeWarning('dWarningDeleteTemplateParameter');" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dAddSection" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="H1"></h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <strong id="Strong1"></strong>
+                            <br />
+                            <label id="lblParentSection">@Localizer.GetString(FieldLabelResourceKeyConstants.ParentSectionFieldLabel)</label><br />
+                            <input type="text" class="form-control" id="txtParentSection" disabled="disabled" readonly="readonly" placeholder="@Localizer.GetString(FieldLabelResourceKeyConstants.ParentSectionFieldLabel)" /><br />
+                            <label id="lblSectionDefaultName">@Localizer.GetString(FieldLabelResourceKeyConstants.FlexibleFormDesignerDefaultNameFieldLabel)</label><br />
+                            <input type="text" class="form-control" id="txtSectionDefaultName" placeholder="@Localizer.GetString(FieldLabelResourceKeyConstants.FlexibleFormDesignerDefaultNameFieldLabel)" /><br />
+                            <label id="lblSectionNationalName">@Localizer.GetString(FieldLabelResourceKeyConstants.FlexibleFormDesignerNationalNameFieldLabel)</label><br />
+                            <input type="text" class="form-control" id="txtSectionNationalName" placeholder="@Localizer.GetString(FieldLabelResourceKeyConstants.FlexibleFormDesignerNationalNameFieldLabel)" /><br />
+                            <label id="lblDisplayType">@Localizer.GetString(FieldLabelResourceKeyConstants.DisplayTypeFieldLabel)</label><br />
+                            <select id="sSectionDisplayType" onchange="flexForm.setDisplayType(this);" class="form-control"></select>
+                            <br />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div id="Div4">
+                    <input type="button" ID="btnAddSection" class="btn btn-primary" onclick="flexForm.addSection();" value="@Localizer.GetString(ButtonResourceKeyConstants.AddButton)" />
+                    <input type="button" id="btnCancelSection" class="btn btn-default" onclick="flexForm.closeAddSection();" value="@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="dDeterminantsEditor" modal="DeterminantsEditotr" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">@Localizer.GetString(HeadingResourceKeyConstants.DeterminantEditorHeading)</h3>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="" id="d21">
+                            <div>
+                                <label class="control-label">@Localizer.GetString(HeadingResourceKeyConstants.DeterminantsHeading)</label>
+                            </div>
+                            <div class="table-responsive" style="margin-top: 10px; margin-left: 0px;overflow:scroll;max-height:300px;display:none">
+                                <div id="dDiseaseList"></div>
+                            </div>
+                            <select id="sDiseaseList" multiple="multiple" style="max-height:300px;width:100%" size="25"></select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="">
+                            <fieldset>
+                                <legend metaresourcekey="lg_Search_Parameters">@Localizer.GetString(HeadingResourceKeyConstants.SearchParametersHeading)</legend>
+                                <div class="flex-form">
+                                    <div>
+                                        <label class="control-label">Criteria</label>
+                                        <input id="tCriteria" type="text" class="form-control" placeholder="" maxlength="100">
+                                    </div>
+                                    <div class="text-right">
+                                        <input type="button" id="bResetDeterminants" onclick="flexForm.SearchDeterminants(true);" class="btn btn-default btn-sm" value='@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)' />
+                                        <input type="button" id="bSearchDeterminants" onclick="flexForm.SearchDeterminants();" class="btn btn-primary btn-sm" value='@Localizer.GetString(ButtonResourceKeyConstants.SearchButton)' />
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnCancelDeterminantsEditor" class="btn btn-default" value='@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)' data-toggle="modal" data-target="#dDeterminantsEditor" />
+                <input type="button" id="btnAddDeterminantEditor" onclick="flexForm.setDeterminant(0);" class="btn btn-primary" value='@Localizer.GetString(ButtonResourceKeyConstants.AddButton)' />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dRulesEditor" modal="RulesEditor" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="h01"></h3>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="div-table" id="d02">
+                            <table id="t2" class="display dataTable no-footer" style="width: 100%; border-collapse:collapse !important;" role="grid" aria-describedby="">
+                                <tbody class="flex-form">
+                                    <tr role="row" class="odd row-separator">
+                                        <td><label id="lblRule">@Localizer.GetString(FieldLabelResourceKeyConstants.RuleFieldLabel)</label></td>
+                                        <td>
+                                            <select id="ddlidfsRule" class="form-control" onchange="flexForm.showRuleDetails();" />
+                                        </td>
+                                    </tr>
+                                    <tr role="row" class="odd">
+                                        <td style="padding-top:10px !important;"><label id="lblRuleActions">@Localizer.GetString(FieldLabelResourceKeyConstants.ActionFieldLabel)</label></td>
+                                        <td style="padding-top:10px !important;">
+                                            <select id="ddlidfsRuleAction" class="form-control" maxlength="200" onchange="flexForm.setActionFields(this.value);" />
+                                        </td>
+                                    </tr>
+                                    <tr id="trFillWithValue" role="row" class="odd" style="display:none">
+                                        <td style="padding-top:10px !important;"><label id="lblFillWithValue">@Localizer.GetString(FieldLabelResourceKeyConstants.FillWithValueTextFieldLabel)</label></td>
+                                        <td style="padding-top:10px !important;">
+                                            <input type="text" id="txtstrFillValue" class="form-control" maxlength="200" />
+                                        </td>
+                                    </tr>
+                                    <tr role="row" class="odd">
+                                        <td><label id="lblRuleCheckPoint">@Localizer.GetString(FieldLabelResourceKeyConstants.CheckPointFieldLabel)</label></td>
+                                        <td>
+                                            <select id="ddlidfsCheckPoint" class="form-control" maxlength="200" />
+                                        </td>
+                                    </tr>
+                                    <tr role="row" class="odd">
+                                        <td><label id="lblRuleFunction">@Localizer.GetString(FieldLabelResourceKeyConstants.FunctionFieldLabel)</label></td>
+                                        <td>
+                                            <select id="ddlidfsRuleFunction" class="form-control"></select>
+                                        </td>
+                                    </tr>
+                                    <tr role="row" class="odd">
+                                        <td><label id="lblDefaultName">@Localizer.GetString(FieldLabelResourceKeyConstants.DefaultNameFieldLabel)</label></td>
+                                        <td>
+                                            <input id="txtRuleDefaultName" type="text" class="form-control" maxlength="200">
+                                        </td>
+                                    </tr>
+                                    <tr role="row" class="odd">
+                                        <td><label id="lblNationalName">@Localizer.GetString(FieldLabelResourceKeyConstants.NationalNameFieldLabel)</label></td>
+                                        <td>
+                                            <input id="txtRuleNationalName" type="text" class="form-control" maxlength="200">
+                                        </td>
+                                    </tr>
+
+                                    <tr role="row" class="odd">
+                                        <td><label id="lblMessageText">@Localizer.GetString(FieldLabelResourceKeyConstants.MessageTextFieldLabel)</label></td>
+                                        <td>
+                                            <input id="txtRuleMessageText" type="text" class="form-control" maxlength="200">
+                                        </td>
+                                    </tr>
+                                    <tr role="row" class="odd">
+                                        <td><label id="lblMessageNationalText">@Localizer.GetString(FieldLabelResourceKeyConstants.MessageNationalTextFieldLabel)</label></td>
+                                        <td>
+                                            <input id="txtRuleMessageNationalText" type="text" class="form-control" maxlength="200">
+                                        </td>
+                                    </tr>
+                                    <tr role="row" class="odd">
+                                        <td><label id="lblNot">@Localizer.GetString(FieldLabelResourceKeyConstants.NotFieldLabel)</label></td>
+                                        <td>
+                                            <input id="cbRuleNot" type="checkbox">
+                                        </td>
+                                    </tr>
+                                    <tr role="row" class="odd">
+                                        <td><label id="lblSectionParameters">@Localizer.GetString(FieldLabelResourceKeyConstants.SectionParametersFieldLabel)</label></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table>
+                                <tbody>
+                                    <tr role="row" class="odd">
+                                        <td><label id="lblActionParameters">@Localizer.GetString(FieldLabelResourceKeyConstants.ActionParametersFieldLabel)</label></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div style="overflow-y:scroll;height:200px" id="dSectionParameters">
+
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnRuleCancel" class="btn btn-default" value='@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)' data-toggle="modal" data-target="#dRulesEditor" />
+                <input type="button" id="btnRuleAdd" class="btn btn-primary" value='@Localizer.GetString(ButtonResourceKeyConstants.AddButton)' onclick="flexForm.saveRule();" />
+                <input type="button" id="btnRuleDelete" style="display:none" class="btn btn-primary" value='@Localizer.GetString(ButtonResourceKeyConstants.DeleteButton)' onclick="$('#divConfirmRuleDeletion').modal('show');" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="divConfirmRuleDeletion" class="modal fade" tabindex="-1" data-backdrop="static" role="dialog" aria-labelledby="divConfirm" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@Localizer.GetString(FieldLabelResourceKeyConstants.FlexibleFormDesignerFieldLabel)</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2">
+                        <span class="glyphicon glyphicon-alert modal-icon"></span>
+                    </div>
+                    <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                        <strong id="sConfirmMessage"></strong>
+                        <br />
+                        <div id="dConfirmMessage">@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" id="hdnConfirmation" />
+                <input type="button" ID="btnCancelRuleDeletion" class="btn btn-default" onclick="javascript:$('#divConfirmRuleDeletion').modal('hide');" Value='@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)' ToolTip='@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)' />
+                <input type="button" ID="btnConfirmRuleDeletion" class="btn btn-primary" onclick="javascript:flexForm.saveRule(1);" Value='@Localizer.GetString(ButtonResourceKeyConstants.OKButton)' ToolTip='@Localizer.GetString(ButtonResourceKeyConstants.OKButton)' />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="divConfirm" class="modal fade" tabindex="-1" data-backdrop="static" role="dialog" aria-labelledby="divConfirm" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@Localizer.GetString(FieldLabelResourceKeyConstants.FlexibleFormDesignerFieldLabel)</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-2">
+                        <span class="glyphicon glyphicon-alert modal-icon"></span>
+                    </div>
+                    <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                        <strong id="sConfirmMessage"></strong>
+                        <br />
+                        <div id="dConfirmMessage"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" id="hdnConfirmation" />
+                <input type="button" ID="btnCancel" onclick="javascript:$('#divConfirm').modal('hide');" class="btn btn-default" Value='@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)' ToolTip='@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)' />
+                <input type="button" ID="btnConfirm" class="btn btn-primary" Value='@Localizer.GetString(ButtonResourceKeyConstants.OKButton)' ToolTip='@Localizer.GetString(ButtonResourceKeyConstants.OKButton)' />
+            </div>
+        </div>
+    </div>
+</div>
+<div id="dSuccessModal" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="successHeading">@Localizer.GetString(HeadingResourceKeyConstants.FlexibleFormDesignerFlexibleFormsDesignerHeading)</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                            <span class="glyphicon glyphicon-alert modal-icon"></span>
+                        </div>
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <strong id="successSubTitle"></strong>
+                            <br />
+                            <div id="successBody">@Localizer.GetString(MessageResourceKeyConstants.FlexibleFormDesignerFlexFormAssignedToOutbreakSessionMessage)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group text-center">
+                <input type="button" id="btnOk" class="btn btn-primary" data-dismiss="modal" value="@Localizer.GetString(ButtonResourceKeyConstants.OKButton)" />
+            </div>
+        </div>
+    </div>
+</div>
+<div id="dSuccessModalTemplateSaved" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="successHeading">@Localizer.GetString(HeadingResourceKeyConstants.FlexibleFormDesignerFlexibleFormsDesignerHeading)</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                            <span class="glyphicon glyphicon-alert modal-icon"></span>
+                        </div>
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <strong id="successSubTitle"></strong>
+                            <br />
+                            <div id="successBody">@Localizer.GetString(MessageResourceKeyConstants.FlexibleFormDesignerTherecordissavedsuccessfullyMessage)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group text-center">
+                <input type="button" id="btnOk" class="btn btn-primary" onclick="flexForm.loadTemplate();" data-dismiss="modal" value="@Localizer.GetString(ButtonResourceKeyConstants.OKButton)" />
+            </div>
+        </div>
+    </div>
+</div>
+<div id="dSuccessModalTemplateSaved" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="successHeading">@Localizer.GetString(HeadingResourceKeyConstants.FlexibleFormDesignerFlexibleFormsDesignerHeading)</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                            <span class="glyphicon glyphicon-alert modal-icon"></span>
+                        </div>
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <strong id="successSubTitle"></strong>
+                            <br />
+                            <div id="successBody">@Localizer.GetString(MessageResourceKeyConstants.FlexibleFormDesignerTherecordissavedsuccessfullyMessage)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group text-center">
+                <input type="button" id="btnOk" class="btn btn-primary" onclick="flexForm.loadTemplate();" data-dismiss="modal" value="@Localizer.GetString(ButtonResourceKeyConstants.OKButton)" />
+            </div>
+        </div>
+    </div>
+</div>
+<div id="dDeleteError" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="errorHeading">@Localizer.GetString(HeadingResourceKeyConstants.FlexibleFormDesignerFlexibleFormsDesignerHeading)</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                            <span class="glyphicon glyphicon-alert modal-icon"></span>
+                        </div>
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <strong id="errorSubTitle">Parameter can not be deleted. It is used in Templates:</strong>
+                            <br />
+                            <div id="errorBody"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group text-center">
+                <input type="button" id="btnOk" class="btn btn-primary" onclick="flexForm.loadTemplate();" data-dismiss="modal" value="@Localizer.GetString(ButtonResourceKeyConstants.OKButton)" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dParameterTypes" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        </div>
+    </div>
+</div>
+
+<div id="dFlexFormDecision" class="outbreakDecision" style="position:absolute;padding-left:24;visibility:hidden;border:solid 1px black">
+    <div id="dFlexFormDecisions" class="flex-form-icon" style="top:-50px;position:relative;left:25px;""></div>
+</div>
+
+<style>
+    li {
+        white-space: nowrap;
+        list-style: none;
+    }
+
+    .parameterType {
+        list-style-image: url(@Url.Content("~/Includes/Images/treeViewParameter.png"));
+        margin-left: 37px;
+    }
+</style>
+
+<script src="@Url.Content("~/js/FlexForm/flexFormDesigner-7.0.333.js")"></script>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        flexForm.flexFormDesignerPageBaseUrl = "@Url.Action("GetSectionParameterTreeContent", "FlexFormDesignerPage")";
+        flexForm.GetSectionParameterTreeContentUrl = "@Url.Action("GetSectionParameterTreeContent","FlexFormDesignerPage")";
+        flexForm.GetSectionParameterTreeContentUrl = "@Url.Action("GetSectionParameterTreeContent","FlexFormDesignerPage")";
+        flexForm.GetTemplateTreeContentUrl = "@Url.Action("GetTemplateTreeContent","FlexFormDesignerPage")";
+        flexForm.GetParameterDetailsUrl = "@Url.Action("GetParameterDetails","FlexFormDesignerPage")";
+        flexForm.GetSectionDetailsUrl = "@Url.Action("GetSectionDetails","FlexFormDesignerPage")";
+        flexForm.GetFormDetailsUrl = "@Url.Action("GetFormDetails","FlexFormDesignerPage")";
+        flexForm.CopyTemplateUrl = "@Url.Action("CopyTemplate","FlexFormDesignerPage")";
+        flexForm.PasteTreeViewNodeUrl = "@Url.Action("PasteTreeViewNode","FlexFormDesignerPage")";
+        flexForm.SetTemplateUrl = "@Url.Action("SetTemplate","FlexFormDesignerPage")";
+        flexForm.DeleteTemplateUrl = "@Url.Action("DeleteTemplate","FlexFormDesignerPage")";
+        flexForm.GetTemplateDetailsUrl = "@Url.Action("GetTemplateDetails","FlexFormDesignerPage")";
+        flexForm.GetTemplateDesignUrl = "@Url.Action("GetTemplateDesign","FlexFormDesignerPage")";
+        flexForm.GetTemplateSectionParameterListUrl = "@Url.Action("GetTemplateSectionParameterList","FlexFormDesignerPage")";
+        flexForm.GetTemplateDeterminantsUrl = "@Url.Action("GetTemplateDeterminants","FlexFormDesignerPage")";
+        flexForm.GetTemplatesByParameterUrl = "@Url.Action("GetTemplatesByParameter","FlexFormDesignerPage")";
+        flexForm.DeleteParameterUrl = "@Url.Action("DeleteParameter","FlexFormDesignerPage")";
+        flexForm.DeleteSectionUrl = "@Url.Action("DeleteSection","FlexFormDesignerPage")";
+        flexForm.SetDeterminantUrl = "@Url.Action("SetDeterminant","FlexFormDesignerPage")";
+        flexForm.SetSectionUrl = "@Url.Action("SetSection","FlexFormDesignerPage")";
+        flexForm.SetParameterUrl = "@Url.Action("SetParameter","FlexFormDesignerPage")";
+        flexForm.DeleteTemplateParameterUrl = "@Url.Action("DeleteTemplateParameter","FlexFormDesignerPage")";
+        flexForm.SetTemplateParameterUrl = "@Url.Action("SetTemplateParameter","FlexFormDesignerPage")";
+        flexForm.IsParameterAnsweredUrl = "@Url.Action("IsParameterAnswered","FlexFormDesignerPage")";
+        flexForm.GetDeterminantsUrl = "@Url.Action("GetDeterminants","FlexFormDesignerPage")";
+        flexForm.MoveTemplateParameterUrl = "@Url.Action("MoveTemplateParameter","FlexFormDesignerPage")";
+        flexForm.MoveTemplateSectionUrl = "@Url.Action("MoveTemplateSection","FlexFormDesignerPage")";
+        flexForm.AddToOutbreakUrl = "@Url.Action("AddToOutbreak","FlexFormDesignerPage")";
+        flexForm.SetRequiredParameterUrl = "@Url.Action("SetRequiredParameter","FlexFormDesignerPage")";
+        flexForm.GetRulesForParameterUrl = "@Url.Action("GetRulesForParameter","FlexFormDesignerPage")";
+        flexForm.GetRuleDetailsUrl = "@Url.Action("GetRuleDetails","FlexFormDesignerPage")";
+        flexForm.SaveRuleUrl = "@Url.Action("SaveRule","FlexFormDesignerPage")";
+        flexForm.GetDeterminantDiseaseListUrl = "@Url.Action("GetDeterminantDiseaseList","FlexFormDesignerPage")";
+        flexForm.GetSectionsParametersForSearchUrl = "@Url.Action("GetSectionsParametersForSearch","FlexFormDesignerPage")";
+        flexForm.BaseReferenceListUrl = "@Url.Action("BaseReferenceList", "BaseReference", new { Area = "CrossCutting" })";
+        flexForm.CrossCuttingBaseReferenceListUrl = "@Url.Action("BaseReferenceList", "CrossCutting", new { Area = "CrossCutting" })";
+        flexForm.GetParameterTypeEditorMappingUrl = "@Url.Action("GetParameterTypeEditorMapping", "FlexFormDesignerPage")";
+
+        flexForm.ImageURL = "@Url.Content("~/Includes/Images")";
+        flexForm.init();
+    });
+</script>
+
+
+@if (Model.Outbreak.idfOutbreak != null)
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#aTemplateTab").click();
+        });
+    </script>
+}
+

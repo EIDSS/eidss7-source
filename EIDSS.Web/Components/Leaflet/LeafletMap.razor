@@ -1,0 +1,148 @@
+﻿
+@inherits BaseComponent
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Components.Leaflet;
+@using Microsoft.AspNetCore.Components;
+@using Microsoft.JSInterop;
+@using System;
+@using System.Collections.Generic;
+@using System.Linq;
+@using System.Threading.Tasks;
+@using EIDSS.Web.Components.Leaflet.Models;
+@using EIDSS.Web.Components.Leaflet.Data;
+@using EIDSS.Web.Components.Leaflet.Model.Events;
+@using EIDSS.Web.Components.Leaflet.Models.Events;
+
+@inject DialogService _dialogSerivce
+
+<div>
+    <input type="button" id="okMap" class="btn-primary" value="@Localizer.GetString(ButtonResourceKeyConstants.OKButton)" @onclick="@(UpdateMapCoordinate)" />
+    <input type="button" id="cancelMap" class="btn-primary" value="@Localizer.GetString(ButtonResourceKeyConstants.CloseButton)" @onclick="@(CloseMap)" />
+</div>
+
+<div id="@Map.Id" style="width: 600px; height:550px;">
+    
+
+</div>
+
+@code {
+    [Parameter]
+    public string _photonUrl { get; set; }
+
+    [Parameter]
+    public string Zoom { get; set; }
+
+    [Parameter]
+    public long Lat { get; set; }
+
+    [Parameter]
+    public long Lon { get; set; }
+
+    [Parameter]
+    public LatLong LatLong { get; set; }
+
+    [Parameter]
+    public EventCallback UpdateLatLong { get; set; }
+
+    [Inject] private IJSRuntime JSRuntime { get; set; }
+
+    public Map Map { get; set; }
+
+    private DrawHandler _drawHandler;
+
+    private LatLng _markerLatLng = new LatLng { Lat = 47.5574007f, Lng = 16.3918687f };
+
+    LatLong model = new LatLong();
+
+    protected override void OnInitialized()
+    {
+        _markerLatLng.Lat = LatLong.lat;
+        _markerLatLng.Lng = LatLong.lon;
+
+        var marker = new Marker(_markerLatLng)
+        {
+            Draggable = true,
+            Title = "Marker",
+            Popup = new Popup { Content = string.Format("I am at {0:0.00}° lat, {1:0.00}° lng", LatLong.lat, LatLong.lon) },
+            Tooltip = new EIDSS.Web.Components.Leaflet.Models.Tooltip { Content = "Click and drag to move me" }
+        };
+
+        Map = new Map(JSRuntime)
+        {
+            Center = _markerLatLng,
+            Zoom = 4.8f
+        };
+
+        Map.OnInitialized += () =>
+        {
+            Map.AddLayer(new TileLayer
+            {
+                UrlTemplate = "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                Attribution = "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
+            });
+
+            Map.AddLayer(marker);
+        };
+
+        _drawHandler = new DrawHandler(Map, JSRuntime);
+
+        marker.OnMove += OnDrag;
+        marker.OnMoveEnd += OnDragEnd;
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LeafletInterops.Create(JSRuntime, Map);
+            Map.RaiseOnInitialized();
+        }
+    }
+
+    private void OnDrag(Marker marker, DragEvent evt)
+    {
+        _markerLatLng = evt.LatLng;
+        //StateHasChanged();
+    }
+
+    private async void OnDragEnd(Marker marker, Event e)
+    {
+        marker.Position = _markerLatLng;
+        marker.Popup.Content = string.Format("I am now at {0:0.00}° lat, {1:0.00}° lng", _markerLatLng.Lat, _markerLatLng.Lng);
+        await LeafletInterops.UpdatePopupContent(JSRuntime, Map.Id, marker);
+        var updatedLatLong = new LatLong()
+        {
+            lat = _markerLatLng.Lat,
+            lon = _markerLatLng.Lng
+        };
+        LatLong = updatedLatLong;
+
+        //await UpdateLatLong.InvokeAsync(updatedLatLong);
+    }
+
+    async Task OnManageSubscriptionSubmit()
+    {
+
+        await UpdateLatLong.InvokeAsync(model);
+    }
+
+    protected async Task UpdateMapCoordinate()
+    {
+        var updatedLatLong = new LatLong()
+            {
+                lat = LatLong.lat,
+                lon = LatLong.lon
+            };
+        await UpdateLatLong.InvokeAsync(updatedLatLong);
+
+        DiagService.Close(null);
+    }
+
+
+    protected async Task CloseMap()
+    {
+        DiagService.Close(null);
+    }
+
+}

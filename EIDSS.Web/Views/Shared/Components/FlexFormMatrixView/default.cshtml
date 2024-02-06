@@ -1,0 +1,20 @@
+﻿@model EIDSS.Web.ViewModels.CrossCutting.FlexFormQuestionnaireViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+
+<style type="text/css">
+
+    td, th {
+        white-space:nowrap;
+    }
+
+    input {
+        border-radius: 0 rem;
+
+    }
+</style>
+<div class="row col-12" style="overflow-x:scroll; padding-left:0; margin-left:15px;">
+    @Html.Raw(Model.QuestionnaireHTML)
+</div>
+<script type="text/javascript">
+    @Html.Raw(Model.FlexFormScript)
+</script>

@@ -1,0 +1,48 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Areas.Veterinary.ViewModels.ActiveSurveillanceSession
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Components.FlexForm
+@using EIDSS.Web.Services
+
+@inherits DiagnosticSectionBase
+
+<div class="container-fluid">
+    <div class="form-row">
+        <div class="col-md-11">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryDiagnosticInvestigationMatrixPageHeading)</h4>
+        </div>
+        <div class="col-md-1 text-right">
+            <a id="editSessionInformationSectionButton" href="#veterinaryAggregateActionsReportWizard-h-1" class="edit-section">
+                <span class="fas fa-edit fa-lg"></span>
+            </a>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <!--Matrix Version Drop Down-->
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportMatrixVersionFieldLabel" IsRow="false" CssClass="col-4" For="diseaseMatrixVersion">
+                <RadzenDropDown id="diseaseMatrixVersion" Name="diseaseMatrixVersion" AllowClear="true" TValue="long?" Data="@StateContainer.DiagnosticMatrixList"
+                                ValueProperty="IdfVersion" TextProperty="MatrixName"
+                                @bind-Value="@StateContainer.DiagnosticMatrixVersionID" Change="@OnMatrixVersionChange"
+                                class="form-control" AllowVirtualization="false" Disabled="@StateContainer.DiagnosticReportDisabledIndicator" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportTemplateVersionFieldLabel" IsRow="false" CssClass="col-4" For="diseaseTemplateVersion">
+                <RadzenDropDown id="diseaseTemplateVersion" AllowClear="true" TValue="long?" Data="@StateContainer.DiagnosticTemplatesList" ValueProperty="idfsFormTemplate" TextProperty="DefaultName"
+                                @bind-Value="@StateContainer.DiagnosticFlexFormRequest.idfsFormTemplate" Change="@OnTemplateChange"
+                                class="form-control" AllowVirtualization="false" Disabled="@StateContainer.DiagnosticReportDisabledIndicator" />
+            </InterfaceEditorResource>
+        </div>
+        <div class="row">
+            <div class="col-12" id="divFlexForm">
+                @if (StateContainer.DiagnosticFlexFormRenderIndicator)
+                {
+                    <FlexFormMatrix @ref="DiagnosticMatrixFlexForm" Request=@StateContainer.DiagnosticFlexFormRequest FormDisabledIndicator="@(StateContainer.DiagnosticReportDisabledIndicator || (StateContainer.WritePermissionIndicator == false && StateContainer.ReportKey > 0)
+                                                                                                                                               || (StateContainer.CreatePermissionIndicator == false && StateContainer.ReportKey <= 0))" /> 
+                }
+            </div>
+        </div>
+    </div>
+</div>

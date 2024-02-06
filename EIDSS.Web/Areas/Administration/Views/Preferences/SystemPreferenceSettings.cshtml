@@ -1,0 +1,174 @@
+﻿@model EIDSS.Web.Areas.Administration.ViewModels.SystemPreferencePageViewModel
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.SystemPreferencesPageHeading);
+}
+
+<partial name="_InformationalModalPartial" model="Model.InformationalMessage" />
+<partial name="_WarningModalPartial" />
+<partial name="_ErrorModalPartial" />
+
+<form id="systemPreferences" method="post">
+
+    <div class="card">
+        <div class="card-header">
+            <h3 heading-for="@HeadingResourceKeyConstants.SystemPreferencesPageHeading"></h3>
+        </div>
+        <div class="card-body">
+            <input asp-for="@Model.systemPreferences.SystemPreferencesId" />
+            <fieldset class="border p-2">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <i class="fas fa-asterisk text-danger"></i>
+                            <label asp-for="@Model.systemPreferences.StartupLanguage" class="control-label" field-label-for="@FieldLabelResourceKeyConstants.StartupLanguageFieldLabel"></label>
+                            <select asp-for="@Model.systemPreferences.StartupLanguage"
+                                    asp-items="@(new SelectList(Model.systemPreferences.LanguageList,"CultureName","DisplayName"))" class="form-control">
+                                <option value="">Select Startup Language</option>
+                            </select>
+                            <span asp-validation-for="@Model.systemPreferences.StartupLanguage" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <i class="fas fa-asterisk text-danger"></i>
+                            <label asp-for="@Model.systemPreferences.Country" field-label-for="@FieldLabelResourceKeyConstants.CountryFieldLabel" class="control-label"></label>
+                            <select disabled asp-for="@Model.systemPreferences.Country"
+                                    asp-items="@(new SelectList(@Model.systemPreferences.CountryList,"idfsCountry","strCountryName"))" class="form-control">
+                            </select>
+                            
+                            <span asp-validation-for="@Model.systemPreferences.Country" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                            <i class="fas fa-asterisk text-danger"></i>
+                            <label asp-for="@Model.systemPreferences.DefaultMapProject" field-label-for="@FieldLabelResourceKeyConstants.DefaultMapProjectFieldLabel" class="control-label"></label>
+                            <select asp-for="@Model.systemPreferences.DefaultMapProject"
+                                    asp-items="@(new SelectList(@Model.systemPreferences.MapProjects,"Value","MapText"))" class="form-control">
+                            </select>
+                            <span asp-validation-for="@Model.systemPreferences.DefaultMapProject" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset class="border p-2">
+                <legend class="w-auto" heading-for="@HeadingResourceKeyConstants.AdditionalHeading"></legend>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <input asp-for="@Model.systemPreferences.DefaultRegionInSearchPanels" />
+                            <label asp-for="@Model.systemPreferences.DefaultRegionInSearchPanels" field-label-for="@FieldLabelResourceKeyConstants.SystemPreferencesDefaultRegionFieldLabel" class="control-label"></label>
+                            <span asp-validation-for="@Model.systemPreferences.DefaultRegionInSearchPanels" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <input asp-for="@Model.systemPreferences.DefaultRayonInSearchPanels" />
+                            <label asp-for="@Model.systemPreferences.DefaultRayonInSearchPanels" field-label-for="@FieldLabelResourceKeyConstants.SystemPreferencesDefaultRayonFieldLabel" class="control-label"></label>
+                            <span asp-validation-for="@Model.systemPreferences.DefaultRayonInSearchPanels" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <input asp-for="@Model.systemPreferences.ShowWarningForFinalCaseClassification" />
+                            <label asp-for="@Model.systemPreferences.ShowWarningForFinalCaseClassification" field-label-for="@FieldLabelResourceKeyConstants.ShowWarningForFinalCaseClassificationFieldLabel" class="control-label"></label>
+                            <span asp-validation-for="@Model.systemPreferences.ShowWarningForFinalCaseClassification" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <input asp-for="@Model.systemPreferences.PrintMapInVetInvestigationForms" />
+                            <label asp-for="@Model.systemPreferences.PrintMapInVetInvestigationForms" field-label-for="@FieldLabelResourceKeyConstants.PrintMapInVeterinaryInvestigationFormsFieldLabel" class="control-label"></label>
+                            <span asp-validation-for="@Model.systemPreferences.PrintMapInVetInvestigationForms" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <input asp-for="@Model.systemPreferences.FilterSamplesByDisease" />
+                            <label asp-for="@Model.systemPreferences.FilterSamplesByDisease" field-label-for="@FieldLabelResourceKeyConstants.FilterSamplesByDiseaseLabel" class="control-label"></label>
+                            <span asp-validation-for="@Model.systemPreferences.FilterSamplesByDisease" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <input asp-for="@Model.systemPreferences.LinkLocalSampleIdToReportSessionId" />
+                            <label asp-for="@Model.systemPreferences.LinkLocalSampleIdToReportSessionId" field-label-for="@FieldLabelResourceKeyConstants.LinkLocalSampleIDToReportSessionIDFieldLabel" class="control-label"></label>
+                            <span asp-validation-for="@Model.systemPreferences.LinkLocalSampleIdToReportSessionId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <input asp-for="@Model.systemPreferences.AllowPastDates" />
+                            <label asp-for="@Model.systemPreferences.AllowPastDates" field-label-for="@FieldLabelResourceKeyConstants.AllowPastDatesInLaboratoryModuleFieldLabel" class="control-label"></label>
+                            <span asp-validation-for="@Model.systemPreferences.AllowPastDates" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <label asp-for="@Model.systemPreferences.NumberDaysDisplayedByDefault" field-label-for="@FieldLabelResourceKeyConstants.NumberDaysDisplayedByDefaultFieldLabel" class="control-label"></label>
+                            <input asp-for="@Model.systemPreferences.NumberDaysDisplayedByDefault" class="form-control" />
+                            <span asp-validation-for="@Model.systemPreferences.NumberDaysDisplayedByDefault" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11 text-center">
+                    <button type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.CancelButton" onclick="cancelDetails('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)', event)"></button>
+                    <button type="submit" class="btn btn-outline-primary" value="Clear" button-for="@ButtonResourceKeyConstants.ClearButton" name="button" asp-action="SystemPreferenceSettings" asp-controller="Preferences" asp-area="Administration"></button>
+                    <button type="submit" class="btn btn-primary" value="Save" button-for="@ButtonResourceKeyConstants.SubmitButton" asp-action="SystemPreferenceSettings" asp-controller="Preferences" asp-area="Administration"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+<partial name="_WarningModalPartial" />
+
+
+@section Scripts {
+
+    @if (!string.IsNullOrEmpty(Model.InformationalMessage))
+    {
+        <script type="text/javascript">
+                $(function () {
+                    showInformationalModal(@Model.InformationalMessage);
+                });
+        </script>
+    }
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script type="text/javascript">
+
+            function cancelDetails(message, event) {
+                event.preventDefault();
+
+                showWarningModal(message).then(response => {
+                    if (response) {
+                        location.href = '@Url.Action("Index", "Dashboard", new { area = "Administration" })';
+                    }
+                });
+            };
+
+    </script>
+}
+

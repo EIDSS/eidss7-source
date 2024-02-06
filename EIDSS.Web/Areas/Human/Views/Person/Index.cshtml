@@ -1,0 +1,25 @@
+﻿@model EIDSS.Web.Areas.Human.Person.ViewModels.PersonSearchPageViewModel
+@using EIDSS.Web.Components.Human.SearchPerson
+@using EIDSS.Web.Enumerations
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.PersonPageHeading);
+}
+
+<style type="text/css">
+    button.dt-button, button.buttons-print {
+        display: none;        
+    }
+</style>
+
+<partial name="_WarningModalPartial" />
+<partial name="_ErrorModalPartial" />
+
+<div class="card">
+    <div class="card-header">        
+        <h3 heading-for="@HeadingResourceKeyConstants.PersonPageHeading"></h3>
+    </div>
+    <div class="card-body">
+        <component type="typeof(SearchPerson)" render-mode="Server" param-Mode=@SearchModeEnum.Default param-CallbackUrl='string.Empty' />
+    </div>
+</div>

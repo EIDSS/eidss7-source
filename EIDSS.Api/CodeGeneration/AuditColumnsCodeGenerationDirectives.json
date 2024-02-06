@@ -1,0 +1,6955 @@
+{
+  "AuditingDirectives": [
+    {
+      "idfTable": 74800000000,
+      "TableName": "ffDecorElement",
+      "TableDescription": "Decoration Elements",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 76240000000,
+          "ColumnName": "idfDecorElement",
+          "ColumnDescription": "Decoration element identifier"
+        },
+        {
+          "idfColumn": 76250000000,
+          "ColumnName": "idfsDecorElementType",
+          "ColumnDescription": "Decoration element type identifier (line or label)"
+        },
+        {
+          "idfColumn": 76260000000,
+          "ColumnName": "idfsFormTemplate",
+          "ColumnDescription": "Template identifier"
+        },
+        {
+          "idfColumn": 76270000000,
+          "ColumnName": "idfsLanguage",
+          "ColumnDescription": "Language identifier"
+        },
+        {
+          "idfColumn": 76280000000,
+          "ColumnName": "idfsSection",
+          "ColumnDescription": "Section identifier"
+        }
+      ]
+    },
+    {
+      "idfTable": 74810000000,
+      "TableName": "ffDecorElementLine",
+      "TableDescription": "Line Decoration Elements",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 76290000000,
+          "ColumnName": "blnOrientation",
+          "ColumnDescription": "Line orientation (IsVertical : true - vertical, false - horizontal)"
+        },
+        {
+          "idfColumn": 76300000000,
+          "ColumnName": "idfDecorElement",
+          "ColumnDescription": "Line decoration element identifier"
+        },
+        {
+          "idfColumn": 76310000000,
+          "ColumnName": "intColor",
+          "ColumnDescription": "Line color"
+        },
+        {
+          "idfColumn": 4577310000000,
+          "ColumnName": "intHeight"
+        },
+        {
+          "idfColumn": 4577280000000,
+          "ColumnName": "intLeft"
+        },
+        {
+          "idfColumn": 4577290000000,
+          "ColumnName": "intTop"
+        },
+        {
+          "idfColumn": 4577300000000,
+          "ColumnName": "intWidth"
+        }
+      ]
+    },
+    {
+      "idfTable": 74820000000,
+      "TableName": "ffDecorElementText",
+      "TableDescription": "Label Decoration Elements",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 76330000000,
+          "ColumnName": "idfDecorElement",
+          "ColumnDescription": "Label decoration element identifier"
+        },
+        {
+          "idfColumn": 76340000000,
+          "ColumnName": "idfsBaseReference",
+          "ColumnDescription": "Label translation identifier"
+        },
+        {
+          "idfColumn": 76350000000,
+          "ColumnName": "intColor",
+          "ColumnDescription": "Font color"
+        },
+        {
+          "idfColumn": 76360000000,
+          "ColumnName": "intFontSize",
+          "ColumnDescription": "Font size"
+        },
+        {
+          "idfColumn": 76370000000,
+          "ColumnName": "intFontStyle",
+          "ColumnDescription": "Font style"
+        },
+        {
+          "idfColumn": 76380000000,
+          "ColumnName": "intHeight",
+          "ColumnDescription": "Label text placeholder height"
+        },
+        {
+          "idfColumn": 4577320000000,
+          "ColumnName": "intLeft"
+        },
+        {
+          "idfColumn": 4577330000000,
+          "ColumnName": "intTop"
+        },
+        {
+          "idfColumn": 76390000000,
+          "ColumnName": "intWidth",
+          "ColumnDescription": "Label text placeholder width"
+        }
+      ]
+    },
+    {
+      "idfTable": 74830000000,
+      "TableName": "ffDeterminantType",
+      "TableDescription": "Determinant Type",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 76400000000,
+          "ColumnName": "idfsFormType",
+          "ColumnDescription": "Template type identifier"
+        },
+        {
+          "idfColumn": 76410000000,
+          "ColumnName": "idfsReferenceType",
+          "ColumnDescription": "Reference type identifier"
+        },
+        {
+          "idfColumn": 76420000000,
+          "ColumnName": "intOrder",
+          "ColumnDescription": "Order number"
+        }
+      ]
+    },
+    {
+      "idfTable": 74840000000,
+      "TableName": "ffDeterminantValue",
+      "TableDescription": "Determinant Values",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4577340000000,
+          "ColumnName": "idfDeterminantValue"
+        },
+        {
+          "idfColumn": 4577350000000,
+          "ColumnName": "idfsBaseReference"
+        },
+        {
+          "idfColumn": 76430000000,
+          "ColumnName": "idfsFormTemplate",
+          "ColumnDescription": "Template identifier"
+        },
+        {
+          "idfColumn": 4577360000000,
+          "ColumnName": "idfsGISBaseReference"
+        }
+      ]
+    },
+    {
+      "idfTable": 74850000000,
+      "TableName": "ffFormTemplate",
+      "TableDescription": "Templates",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 76440000000,
+          "ColumnName": "blnUNI",
+          "ColumnDescription": "Flag - template is used by default"
+        },
+        {
+          "idfColumn": 76450000000,
+          "ColumnName": "idfsFormTemplate",
+          "ColumnDescription": "Template identifier"
+        },
+        {
+          "idfColumn": 76460000000,
+          "ColumnName": "idfsFormType",
+          "ColumnDescription": "Template type identifier"
+        },
+        {
+          "idfColumn": 76470000000,
+          "ColumnName": "strNote",
+          "ColumnDescription": "Template notes"
+        }
+      ]
+    },
+    {
+      "idfTable": 74860000000,
+      "TableName": "ffParameter",
+      "TableDescription": "Parameters",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 76480000000,
+          "ColumnName": "idfsEditor",
+          "ColumnDescription": "Editor type identifier"
+        },
+        {
+          "idfColumn": 76490000000,
+          "ColumnName": "idfsFormType",
+          "ColumnDescription": "Parameter form type identifier (can be used only in a template of this type)"
+        },
+        {
+          "idfColumn": 76500000000,
+          "ColumnName": "idfsParameter",
+          "ColumnDescription": "Parameter identifier"
+        },
+        {
+          "idfColumn": 76510000000,
+          "ColumnName": "idfsParameterCaption",
+          "ColumnDescription": "Parameter caption identifier"
+        },
+        {
+          "idfColumn": 76520000000,
+          "ColumnName": "idfsParameterType",
+          "ColumnDescription": "Parameter type identifier"
+        },
+        {
+          "idfColumn": 76530000000,
+          "ColumnName": "idfsSection",
+          "ColumnDescription": "Containing Section identifier"
+        },
+        {
+          "idfColumn": 76540000000,
+          "ColumnName": "intHACode",
+          "ColumnDescription": "Human\/Animal code"
+        },
+        {
+          "idfColumn": 76550000000,
+          "ColumnName": "intOrder",
+          "ColumnDescription": "Order in the section"
+        },
+        {
+          "idfColumn": 76560000000,
+          "ColumnName": "strNote",
+          "ColumnDescription": "Parameter notes"
+        }
+      ]
+    },
+    {
+      "idfTable": 74870000000,
+      "TableName": "ffParameterDesignOption",
+      "TableDescription": "Parameter Design Options",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 76570000000,
+          "ColumnName": "idfParameterDesignOption",
+          "ColumnDescription": "Parameter design option identifier"
+        },
+        {
+          "idfColumn": 76580000000,
+          "ColumnName": "idfsFormTemplate",
+          "ColumnDescription": "Affected template identifier (null - used by default)"
+        },
+        {
+          "idfColumn": 76590000000,
+          "ColumnName": "idfsLanguage",
+          "ColumnDescription": "Affected language identifier (default - EN)"
+        },
+        {
+          "idfColumn": 76600000000,
+          "ColumnName": "idfsParameter",
+          "ColumnDescription": "Parameter identifier"
+        },
+        {
+          "idfColumn": 76610000000,
+          "ColumnName": "intHeight",
+          "ColumnDescription": "Height"
+        },
+        {
+          "idfColumn": 76620000000,
+          "ColumnName": "intLabelSize",
+          "ColumnDescription": "Label size"
+        },
+        {
+          "idfColumn": 76630000000,
+          "ColumnName": "intLeft",
+          "ColumnDescription": "Left indent"
+        },
+        {
+          "idfColumn": 76640000000,
+          "ColumnName": "intOrder",
+          "ColumnDescription": "Order in grid (used only for grid sections)"
+        },
+        {
+          "idfColumn": 76650000000,
+          "ColumnName": "intScheme",
+          "ColumnDescription": "Label is on the (0 - left, 1 - right, 2 - top, 3- bottom)"
+        },
+        {
+          "idfColumn": 76660000000,
+          "ColumnName": "intTop",
+          "ColumnDescription": "Top indent"
+        },
+        {
+          "idfColumn": 76670000000,
+          "ColumnName": "intWidth",
+          "ColumnDescription": "Width"
+        }
+      ]
+    },
+    {
+      "idfTable": 74880000000,
+      "TableName": "ffParameterFixedPresetValue",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 76680000000,
+          "ColumnName": "idfsParameterFixedPresetValue",
+          "ColumnDescription": "Translated value identifier"
+        },
+        {
+          "idfColumn": 76690000000,
+          "ColumnName": "idfsParameterType",
+          "ColumnDescription": "Parameter type identifier"
+        }
+      ]
+    },
+    {
+      "idfTable": 74890000000,
+      "TableName": "ffParameterForAction",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4577370000000,
+          "ColumnName": "idfParameterForAction"
+        },
+        {
+          "idfColumn": 76700000000,
+          "ColumnName": "idfsFormTemplate",
+          "ColumnDescription": "Template identifier"
+        },
+        {
+          "idfColumn": 76710000000,
+          "ColumnName": "idfsParameter",
+          "ColumnDescription": "Parameter identifier"
+        },
+        {
+          "idfColumn": 4577390000000,
+          "ColumnName": "idfsRule"
+        },
+        {
+          "idfColumn": 4577380000000,
+          "ColumnName": "idfsRuleAction"
+        }
+      ]
+    },
+    {
+      "idfTable": 74900000000,
+      "TableName": "ffParameterForFunction",
+      "TableDescription": "Parameters for function",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4577400000000,
+          "ColumnName": "idfParameterForFunction"
+        },
+        {
+          "idfColumn": 76720000000,
+          "ColumnName": "idfsFormTemplate",
+          "ColumnDescription": "Template identifier"
+        },
+        {
+          "idfColumn": 76730000000,
+          "ColumnName": "idfsParameter",
+          "ColumnDescription": "Paramenter identifier"
+        },
+        {
+          "idfColumn": 4577410000000,
+          "ColumnName": "idfsRule"
+        },
+        {
+          "idfColumn": 76740000000,
+          "ColumnName": "intOrder",
+          "ColumnDescription": "Order in function"
+        }
+      ]
+    },
+    {
+      "idfTable": 74910000000,
+      "TableName": "ffParameterForTemplate",
+      "TableDescription": "Parameters for template",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4577420000000,
+          "ColumnName": "blnFreeze"
+        },
+        {
+          "idfColumn": 76750000000,
+          "ColumnName": "idfsEditMode",
+          "ColumnDescription": "Edit mode identifier (read-only\/mandatory\/…)"
+        },
+        {
+          "idfColumn": 76760000000,
+          "ColumnName": "idfsFormTemplate",
+          "ColumnDescription": "Template identifier"
+        },
+        {
+          "idfColumn": 76770000000,
+          "ColumnName": "idfsParameter",
+          "ColumnDescription": "Parameter identifier"
+        }
+      ]
+    },
+    {
+      "idfTable": 74920000000,
+      "TableName": "ffParameterType",
+      "TableDescription": "Parameter types",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 76780000000,
+          "ColumnName": "idfsParameterType",
+          "ColumnDescription": "Parameter type identifier"
+        },
+        {
+          "idfColumn": 76790000000,
+          "ColumnName": "idfsReferenceType",
+          "ColumnDescription": "Reference type identifier"
+        }
+      ]
+    },
+    {
+      "idfTable": 74930000000,
+      "TableName": "ffRule",
+      "TableDescription": "Rules",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4577450000000,
+          "ColumnName": "blnNot"
+        },
+        {
+          "idfColumn": 4577430000000,
+          "ColumnName": "idfsCheckPoint"
+        },
+        {
+          "idfColumn": 76800000000,
+          "ColumnName": "idfsFormTemplate",
+          "ColumnDescription": "Template identifier"
+        },
+        {
+          "idfColumn": 76810000000,
+          "ColumnName": "idfsRule",
+          "ColumnDescription": "Rule identifier"
+        },
+        {
+          "idfColumn": 4577440000000,
+          "ColumnName": "idfsRuleFunction"
+        },
+        {
+          "idfColumn": 76820000000,
+          "ColumnName": "idfsRuleMessage",
+          "ColumnDescription": "Message identifier"
+        }
+      ]
+    },
+    {
+      "idfTable": 74940000000,
+      "TableName": "ffRuleConstant",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4577460000000,
+          "ColumnName": "idfRuleConstant"
+        },
+        {
+          "idfColumn": 4577470000000,
+          "ColumnName": "idfsRule"
+        },
+        {
+          "idfColumn": 4577480000000,
+          "ColumnName": "varConstant"
+        }
+      ]
+    },
+    {
+      "idfTable": 74950000000,
+      "TableName": "ffRuleFunction",
+      "TableDescription": "Rule Functions",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 76830000000,
+          "ColumnName": "idfsRuleFunction",
+          "ColumnDescription": "Function identifier"
+        },
+        {
+          "idfColumn": 76840000000,
+          "ColumnName": "intNumberOfParameters",
+          "ColumnDescription": "Number of accepted parameters"
+        }
+      ]
+    },
+    {
+      "idfTable": 74960000000,
+      "TableName": "ffSection",
+      "TableDescription": "Sections",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4577490000000,
+          "ColumnName": "blnFixedRowSet"
+        },
+        {
+          "idfColumn": 76850000000,
+          "ColumnName": "blnGrid",
+          "ColumnDescription": "Flag - Is Grid section"
+        },
+        {
+          "idfColumn": 76860000000,
+          "ColumnName": "idfsFormType",
+          "ColumnDescription": "Template type identifier"
+        },
+        {
+          "idfColumn": 12666760000000,
+          "ColumnName": "idfsMatrixType"
+        },
+        {
+          "idfColumn": 76870000000,
+          "ColumnName": "idfsParentSection",
+          "ColumnDescription": "Parent section identifier"
+        },
+        {
+          "idfColumn": 76880000000,
+          "ColumnName": "idfsSection",
+          "ColumnDescription": "Section identifier"
+        },
+        {
+          "idfColumn": 76890000000,
+          "ColumnName": "intOrder",
+          "ColumnDescription": "Order in tree\/list"
+        }
+      ]
+    },
+    {
+      "idfTable": 74970000000,
+      "TableName": "ffSectionDesignOption",
+      "TableDescription": "Section design options",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 76900000000,
+          "ColumnName": "idfSectionDesignOption",
+          "ColumnDescription": "Section design option identifier"
+        },
+        {
+          "idfColumn": 76910000000,
+          "ColumnName": "idfsFormTemplate",
+          "ColumnDescription": "Affected template identifier (null - used by default)"
+        },
+        {
+          "idfColumn": 76920000000,
+          "ColumnName": "idfsLanguage",
+          "ColumnDescription": "Affected language identifier (default - EN)"
+        },
+        {
+          "idfColumn": 76930000000,
+          "ColumnName": "idfsSection",
+          "ColumnDescription": "Section identifier"
+        },
+        {
+          "idfColumn": 749080000000,
+          "ColumnName": "intCaptionHeight"
+        },
+        {
+          "idfColumn": 76940000000,
+          "ColumnName": "intHeight",
+          "ColumnDescription": "Section Height"
+        },
+        {
+          "idfColumn": 76950000000,
+          "ColumnName": "intLeft",
+          "ColumnDescription": "Left indent"
+        },
+        {
+          "idfColumn": 76960000000,
+          "ColumnName": "intOrder",
+          "ColumnDescription": "Order in grid (used only for grid sections)"
+        },
+        {
+          "idfColumn": 76970000000,
+          "ColumnName": "intTop",
+          "ColumnDescription": "Top indent"
+        },
+        {
+          "idfColumn": 76980000000,
+          "ColumnName": "intWidth",
+          "ColumnDescription": "Section Width"
+        }
+      ]
+    },
+    {
+      "idfTable": 74980000000,
+      "TableName": "ffSectionForAction",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4577500000000,
+          "ColumnName": "idfSectionForAction"
+        },
+        {
+          "idfColumn": 76990000000,
+          "ColumnName": "idfsFormTemplate",
+          "ColumnDescription": "Template identifier"
+        },
+        {
+          "idfColumn": 77000000000,
+          "ColumnName": "idfsRule",
+          "ColumnDescription": "Rule identifier"
+        },
+        {
+          "idfColumn": 4577510000000,
+          "ColumnName": "idfsRuleAction"
+        },
+        {
+          "idfColumn": 77010000000,
+          "ColumnName": "idfsSection",
+          "ColumnDescription": "Section identifier"
+        }
+      ]
+    },
+    {
+      "idfTable": 74990000000,
+      "TableName": "ffSectionForTemplate",
+      "TableDescription": "Sections for template",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 77020000000,
+          "ColumnName": "blnFreeze",
+          "ColumnDescription": "Flag - Is Freezed (used only for Grid Sections)"
+        },
+        {
+          "idfColumn": 77030000000,
+          "ColumnName": "idfsFormTemplate",
+          "ColumnDescription": "Template identifier"
+        },
+        {
+          "idfColumn": 77040000000,
+          "ColumnName": "idfsSection",
+          "ColumnDescription": "Section identifier"
+        }
+      ]
+    },
+    {
+      "idfTable": 75000000000,
+      "TableName": "gisBaseReference",
+      "TableDescription": "Base Reference table for GIS reference values",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 77050000000,
+          "ColumnName": "idfsGISBaseReference",
+          "ColumnDescription": "GIS reference value identifier"
+        },
+        {
+          "idfColumn": 77060000000,
+          "ColumnName": "idfsGISReferenceType",
+          "ColumnDescription": "GIS reference type identifier"
+        },
+        {
+          "idfColumn": 77070000000,
+          "ColumnName": "intOrder",
+          "ColumnDescription": "Order in lists\/lookups"
+        },
+        {
+          "idfColumn": 77080000000,
+          "ColumnName": "strBaseReferenceCode",
+          "ColumnDescription": "Legacy string identifier for value"
+        },
+        {
+          "idfColumn": 77090000000,
+          "ColumnName": "strDefault",
+          "ColumnDescription": "Default value"
+        }
+      ]
+    },
+    {
+      "idfTable": 75010000000,
+      "TableName": "gisCountry",
+      "TableDescription": "Countries",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 77100000000,
+          "ColumnName": "idfsCountry",
+          "ColumnDescription": "Country identifier"
+        },
+        {
+          "idfColumn": 77110000000,
+          "ColumnName": "strCode",
+          "ColumnDescription": "code"
+        },
+        {
+          "idfColumn": 77120000000,
+          "ColumnName": "strHASC",
+          "ColumnDescription": "Country HASC code"
+        }
+      ]
+    },
+    {
+      "idfTable": 75040000000,
+      "TableName": "gisRayon",
+      "TableDescription": "Rayons",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 77130000000,
+          "ColumnName": "idfsCountry",
+          "ColumnDescription": "Country identifier"
+        },
+        {
+          "idfColumn": 77140000000,
+          "ColumnName": "idfsRayon",
+          "ColumnDescription": "Rayon identifier"
+        },
+        {
+          "idfColumn": 77150000000,
+          "ColumnName": "idfsRegion",
+          "ColumnDescription": "Region identifier"
+        },
+        {
+          "idfColumn": 77160000000,
+          "ColumnName": "strCode",
+          "ColumnDescription": "code"
+        },
+        {
+          "idfColumn": 77170000000,
+          "ColumnName": "strHASC",
+          "ColumnDescription": "Rayon HASC code"
+        }
+      ]
+    },
+    {
+      "idfTable": 75050000000,
+      "TableName": "gisReferenceType",
+      "TableDescription": "GIS Reference types",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 77180000000,
+          "ColumnName": "idfsGISReferenceType",
+          "ColumnDescription": "GIS reference type identifier"
+        },
+        {
+          "idfColumn": 77190000000,
+          "ColumnName": "strGISReferenceTypeCode",
+          "ColumnDescription": "Legacy GIS reference type string identifier"
+        },
+        {
+          "idfColumn": 77200000000,
+          "ColumnName": "strGISReferenceTypeName",
+          "ColumnDescription": "GIS reference type name"
+        }
+      ]
+    },
+    {
+      "idfTable": 75060000000,
+      "TableName": "gisRegion",
+      "TableDescription": "Regions",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 77210000000,
+          "ColumnName": "idfsCountry",
+          "ColumnDescription": "Country identifier"
+        },
+        {
+          "idfColumn": 77220000000,
+          "ColumnName": "idfsRegion",
+          "ColumnDescription": "Region identifier"
+        },
+        {
+          "idfColumn": 77230000000,
+          "ColumnName": "strCode",
+          "ColumnDescription": "code"
+        },
+        {
+          "idfColumn": 77240000000,
+          "ColumnName": "strHASC",
+          "ColumnDescription": "Region HASC code"
+        }
+      ]
+    },
+    {
+      "idfTable": 75070000000,
+      "TableName": "gisSettlement",
+      "TableDescription": "Settlements",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4579140000000,
+          "ColumnName": "blnIsCustomSettlement"
+        },
+        {
+          "idfColumn": 77250000000,
+          "ColumnName": "dblLatitude",
+          "ColumnDescription": "Latitude"
+        },
+        {
+          "idfColumn": 77260000000,
+          "ColumnName": "dblLongitude",
+          "ColumnDescription": "Longitude"
+        },
+        {
+          "idfColumn": 77270000000,
+          "ColumnName": "idfsCountry",
+          "ColumnDescription": "Country identifier"
+        },
+        {
+          "idfColumn": 77280000000,
+          "ColumnName": "idfsRayon",
+          "ColumnDescription": "Rayon identifier"
+        },
+        {
+          "idfColumn": 77290000000,
+          "ColumnName": "idfsRegion",
+          "ColumnDescription": "Region identifier"
+        },
+        {
+          "idfColumn": 77300000000,
+          "ColumnName": "idfsSettlement",
+          "ColumnDescription": "Settlement identifier"
+        },
+        {
+          "idfColumn": 77310000000,
+          "ColumnName": "idfsSettlementType",
+          "ColumnDescription": "Settlement type identifier"
+        },
+        {
+          "idfColumn": 12675380000000,
+          "ColumnName": "intElevation"
+        },
+        {
+          "idfColumn": 4579130000000,
+          "ColumnName": "strSettlementCode"
+        }
+      ]
+    },
+    {
+      "idfTable": 75080000000,
+      "TableName": "gisStringNameTranslation",
+      "TableDescription": "Translated values for GIS References",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 77320000000,
+          "ColumnName": "idfsGISBaseReference",
+          "ColumnDescription": "GIS reference value identifier"
+        },
+        {
+          "idfColumn": 77330000000,
+          "ColumnName": "idfsLanguage",
+          "ColumnDescription": "Language identifier"
+        },
+        {
+          "idfColumn": 77340000000,
+          "ColumnName": "strTextString",
+          "ColumnDescription": "Translated value in specified language "
+        }
+      ]
+    },
+    {
+      "idfTable": 4573470000000,
+      "TableName": "locBaseReference",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4573480000000,
+          "ColumnName": "idflBaseReference"
+        }
+      ]
+    },
+    {
+      "idfTable": 4573490000000,
+      "TableName": "locStringNameTranslation",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4573500000000,
+          "ColumnName": "idflBaseReference"
+        },
+        {
+          "idfColumn": 4573510000000,
+          "ColumnName": "idfsLanguage"
+        },
+        {
+          "idfColumn": 4573520000000,
+          "ColumnName": "strTextString"
+        }
+      ]
+    },
+    {
+      "idfTable": 4573530000000,
+      "TableName": "tasglLayout",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 50815610000000,
+          "ColumnName": "blnApplyPivotGridFilter"
+        },
+        {
+          "idfColumn": 50815630000000,
+          "ColumnName": "blnCompactPivotGrid"
+        },
+        {
+          "idfColumn": 50815640000000,
+          "ColumnName": "blnFreezeRowHeaders"
+        },
+        {
+          "idfColumn": 4573590000000,
+          "ColumnName": "blnReadOnly"
+        },
+        {
+          "idfColumn": 4573710000000,
+          "ColumnName": "blnShareLayout"
+        },
+        {
+          "idfColumn": 4573670000000,
+          "ColumnName": "blnShowColGrandTotals"
+        },
+        {
+          "idfColumn": 4573650000000,
+          "ColumnName": "blnShowColsTotals"
+        },
+        {
+          "idfColumn": 4573690000000,
+          "ColumnName": "blnShowForSingleTotals"
+        },
+        {
+          "idfColumn": 50815660000000,
+          "ColumnName": "blnShowMissedValuesInPivotGrid"
+        },
+        {
+          "idfColumn": 4573680000000,
+          "ColumnName": "blnShowRowGrandTotals"
+        },
+        {
+          "idfColumn": 4573660000000,
+          "ColumnName": "blnShowRowsTotals"
+        },
+        {
+          "idfColumn": 50815650000000,
+          "ColumnName": "blnUseArchivedData"
+        },
+        {
+          "idfColumn": 50815600000000,
+          "ColumnName": "idfsDefaultGroupDate"
+        },
+        {
+          "idfColumn": 4573580000000,
+          "ColumnName": "idfsDescription"
+        },
+        {
+          "idfColumn": 4573540000000,
+          "ColumnName": "idfsLayout"
+        },
+        {
+          "idfColumn": 4573560000000,
+          "ColumnName": "idfsLayoutFolder"
+        },
+        {
+          "idfColumn": 4573550000000,
+          "ColumnName": "idfsQuery"
+        },
+        {
+          "idfColumn": 4573570000000,
+          "ColumnName": "idfUserID"
+        },
+        {
+          "idfColumn": 50815670000000,
+          "ColumnName": "intGisLayerPosition"
+        },
+        {
+          "idfColumn": 50815620000000,
+          "ColumnName": "intPivotGridXmlVersion"
+        }
+      ]
+    },
+    {
+      "idfTable": 4573880000000,
+      "TableName": "tasglLayoutFolder",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4573920000000,
+          "ColumnName": "blnReadOnly"
+        },
+        {
+          "idfColumn": 4573890000000,
+          "ColumnName": "idfsLayoutFolder"
+        },
+        {
+          "idfColumn": 4573900000000,
+          "ColumnName": "idfsParentLayoutFolder"
+        },
+        {
+          "idfColumn": 4573910000000,
+          "ColumnName": "idfsQuery"
+        }
+      ]
+    },
+    {
+      "idfTable": 4574010000000,
+      "TableName": "tasglQuery",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4574060000000,
+          "ColumnName": "blnAddAllKeyFieldValues"
+        },
+        {
+          "idfColumn": 4574050000000,
+          "ColumnName": "blnReadOnly"
+        },
+        {
+          "idfColumn": 50815680000000,
+          "ColumnName": "blnSubQuery"
+        },
+        {
+          "idfColumn": 4574040000000,
+          "ColumnName": "idfsDescription"
+        },
+        {
+          "idfColumn": 4574020000000,
+          "ColumnName": "idfsQuery"
+        },
+        {
+          "idfColumn": 4574030000000,
+          "ColumnName": "strFunctionName"
+        }
+      ]
+    },
+    {
+      "idfTable": 4574070000000,
+      "TableName": "tasglQueryConditionGroup",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4574120000000,
+          "ColumnName": "blnJoinByOr"
+        },
+        {
+          "idfColumn": 4574130000000,
+          "ColumnName": "blnUseNot"
+        },
+        {
+          "idfColumn": 4574100000000,
+          "ColumnName": "idfParentQueryConditionGroup"
+        },
+        {
+          "idfColumn": 4574080000000,
+          "ColumnName": "idfQueryConditionGroup"
+        },
+        {
+          "idfColumn": 4574090000000,
+          "ColumnName": "idfQuerySearchObject"
+        },
+        {
+          "idfColumn": 4574110000000,
+          "ColumnName": "intOrder"
+        }
+      ]
+    },
+    {
+      "idfTable": 4574140000000,
+      "TableName": "tasglQuerySearchField",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4574170000000,
+          "ColumnName": "blnShow"
+        },
+        {
+          "idfColumn": 4574150000000,
+          "ColumnName": "idfQuerySearchField"
+        },
+        {
+          "idfColumn": 4574160000000,
+          "ColumnName": "idfQuerySearchObject"
+        },
+        {
+          "idfColumn": 4574190000000,
+          "ColumnName": "idfsParameter"
+        },
+        {
+          "idfColumn": 4574180000000,
+          "ColumnName": "idfsSearchField"
+        }
+      ]
+    },
+    {
+      "idfTable": 4574200000000,
+      "TableName": "tasglQuerySearchFieldCondition",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4574270000000,
+          "ColumnName": "blnUseNot"
+        },
+        {
+          "idfColumn": 4574220000000,
+          "ColumnName": "idfQueryConditionGroup"
+        },
+        {
+          "idfColumn": 4574230000000,
+          "ColumnName": "idfQuerySearchField"
+        },
+        {
+          "idfColumn": 4574210000000,
+          "ColumnName": "idfQuerySearchFieldCondition"
+        },
+        {
+          "idfColumn": 4574260000000,
+          "ColumnName": "intOperatorType"
+        },
+        {
+          "idfColumn": 4574250000000,
+          "ColumnName": "intOrder"
+        },
+        {
+          "idfColumn": 4574240000000,
+          "ColumnName": "strOperator"
+        },
+        {
+          "idfColumn": 4574280000000,
+          "ColumnName": "varValue"
+        }
+      ]
+    },
+    {
+      "idfTable": 4574290000000,
+      "TableName": "tasglQuerySearchObject",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4574330000000,
+          "ColumnName": "idfParentQuerySearchObject"
+        },
+        {
+          "idfColumn": 4574300000000,
+          "ColumnName": "idfQuerySearchObject"
+        },
+        {
+          "idfColumn": 4574310000000,
+          "ColumnName": "idfsQuery"
+        },
+        {
+          "idfColumn": 4574320000000,
+          "ColumnName": "idfsSearchObject"
+        },
+        {
+          "idfColumn": 4574340000000,
+          "ColumnName": "intOrder"
+        }
+      ]
+    },
+    {
+      "idfTable": 75170000000,
+      "TableName": "tasLayout",
+      "TableDescription": "Report Layouts",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 77350000000,
+          "ColumnName": "blnReadOnly",
+          "ColumnDescription": "Flag - Is Read-Only"
+        },
+        {
+          "idfColumn": 4574510000000,
+          "ColumnName": "blnShareLayout"
+        },
+        {
+          "idfColumn": 4574470000000,
+          "ColumnName": "blnShowColGrandTotals"
+        },
+        {
+          "idfColumn": 4574450000000,
+          "ColumnName": "blnShowColsTotals"
+        },
+        {
+          "idfColumn": 4574490000000,
+          "ColumnName": "blnShowForSingleTotals"
+        },
+        {
+          "idfColumn": 4574480000000,
+          "ColumnName": "blnShowRowGrandTotals"
+        },
+        {
+          "idfColumn": 4574460000000,
+          "ColumnName": "blnShowRowsTotals"
+        },
+        {
+          "idfColumn": 4574390000000,
+          "ColumnName": "idflDescription"
+        },
+        {
+          "idfColumn": 4574350000000,
+          "ColumnName": "idflLayout"
+        },
+        {
+          "idfColumn": 4574380000000,
+          "ColumnName": "idflLayoutFolder"
+        },
+        {
+          "idfColumn": 4574370000000,
+          "ColumnName": "idflQuery"
+        },
+        {
+          "idfColumn": 4574360000000,
+          "ColumnName": "idfsGlobalLayout"
+        },
+        {
+          "idfColumn": 77370000000,
+          "ColumnName": "idfUserID",
+          "ColumnDescription": "Identifier of the User who created layout "
+        }
+      ]
+    },
+    {
+      "idfTable": 4574680000000,
+      "TableName": "tasLayoutFolder",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4574730000000,
+          "ColumnName": "blnReadOnly"
+        },
+        {
+          "idfColumn": 4574690000000,
+          "ColumnName": "idflLayoutFolder"
+        },
+        {
+          "idfColumn": 4574710000000,
+          "ColumnName": "idflParentLayoutFolder"
+        },
+        {
+          "idfColumn": 4574720000000,
+          "ColumnName": "idflQuery"
+        },
+        {
+          "idfColumn": 4574700000000,
+          "ColumnName": "idfsGlobalLayoutFolder"
+        }
+      ]
+    },
+    {
+      "idfTable": 75220000000,
+      "TableName": "tasQuery",
+      "TableDescription": "Queries",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4574830000000,
+          "ColumnName": "blnAddAllKeyFieldValues"
+        },
+        {
+          "idfColumn": 77480000000,
+          "ColumnName": "blnReadOnly",
+          "ColumnDescription": "Flag - Is Read-Only"
+        },
+        {
+          "idfColumn": 4574820000000,
+          "ColumnName": "idflDescription"
+        },
+        {
+          "idfColumn": 4574800000000,
+          "ColumnName": "idflQuery"
+        },
+        {
+          "idfColumn": 4574810000000,
+          "ColumnName": "idfsGlobalQuery"
+        },
+        {
+          "idfColumn": 77510000000,
+          "ColumnName": "strFunctionName",
+          "ColumnDescription": "Physical SQL function name"
+        }
+      ]
+    },
+    {
+      "idfTable": 75230000000,
+      "TableName": "tasQueryConditionGroup",
+      "TableDescription": "Query Condition Groups",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 77520000000,
+          "ColumnName": "blnJoinByOr",
+          "ColumnDescription": "Flag - Is join by Or (true - Or, false - And)"
+        },
+        {
+          "idfColumn": 77530000000,
+          "ColumnName": "blnUseNot",
+          "ColumnDescription": "Flag - Is Not (true - Not, false - no Not)"
+        },
+        {
+          "idfColumn": 4574860000000,
+          "ColumnName": "idfParentQueryConditionGroup"
+        },
+        {
+          "idfColumn": 4574840000000,
+          "ColumnName": "idfQueryConditionGroup"
+        },
+        {
+          "idfColumn": 4574850000000,
+          "ColumnName": "idfQuerySearchObject"
+        },
+        {
+          "idfColumn": 77540000000,
+          "ColumnName": "intOrder",
+          "ColumnDescription": "Order in group"
+        }
+      ]
+    },
+    {
+      "idfTable": 75240000000,
+      "TableName": "tasQuerySearchField",
+      "TableDescription": "Query Search Fields",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4574890000000,
+          "ColumnName": "blnShow"
+        },
+        {
+          "idfColumn": 4574870000000,
+          "ColumnName": "idfQuerySearchField"
+        },
+        {
+          "idfColumn": 4574880000000,
+          "ColumnName": "idfQuerySearchObject"
+        },
+        {
+          "idfColumn": 77550000000,
+          "ColumnName": "idfsParameter",
+          "ColumnDescription": "Flex-form parameter identifier"
+        },
+        {
+          "idfColumn": 77560000000,
+          "ColumnName": "idfsSearchField",
+          "ColumnDescription": "Field identifier"
+        }
+      ]
+    },
+    {
+      "idfTable": 75250000000,
+      "TableName": "tasQuerySearchFieldCondition",
+      "TableDescription": "Query Search Field Conditions",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4574960000000,
+          "ColumnName": "blnUseNot"
+        },
+        {
+          "idfColumn": 4574910000000,
+          "ColumnName": "idfQueryConditionGroup"
+        },
+        {
+          "idfColumn": 4574920000000,
+          "ColumnName": "idfQuerySearchField"
+        },
+        {
+          "idfColumn": 4574900000000,
+          "ColumnName": "idfQuerySearchFieldCondition"
+        },
+        {
+          "idfColumn": 4574950000000,
+          "ColumnName": "intOperatorType"
+        },
+        {
+          "idfColumn": 4574940000000,
+          "ColumnName": "intOrder"
+        },
+        {
+          "idfColumn": 4574930000000,
+          "ColumnName": "strOperator"
+        },
+        {
+          "idfColumn": 4574970000000,
+          "ColumnName": "varValue"
+        }
+      ]
+    },
+    {
+      "idfTable": 75260000000,
+      "TableName": "tasQuerySearchObject",
+      "TableDescription": "Query Search Objects",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4574990000000,
+          "ColumnName": "idflQuery"
+        },
+        {
+          "idfColumn": 4575010000000,
+          "ColumnName": "idfParentQuerySearchObject"
+        },
+        {
+          "idfColumn": 4574980000000,
+          "ColumnName": "idfQuerySearchObject"
+        },
+        {
+          "idfColumn": 4575000000000,
+          "ColumnName": "idfsSearchObject"
+        },
+        {
+          "idfColumn": 4575020000000,
+          "ColumnName": "intOrder"
+        }
+      ]
+    },
+    {
+      "idfTable": 4579150000000,
+      "TableName": "tasSearchField",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 51523480000000,
+          "ColumnName": "blnAllowMissedReferenceValues"
+        },
+        {
+          "idfColumn": 4579500000000,
+          "ColumnName": "blnGeoLocationString"
+        },
+        {
+          "idfColumn": 51523400000000,
+          "ColumnName": "blnShortAddressString"
+        },
+        {
+          "idfColumn": 51523390000000,
+          "ColumnName": "idfsDefaultAggregateFunction"
+        },
+        {
+          "idfColumn": 4579200000000,
+          "ColumnName": "idfsGISReferenceType"
+        },
+        {
+          "idfColumn": 4579190000000,
+          "ColumnName": "idfsReferenceType"
+        },
+        {
+          "idfColumn": 4579160000000,
+          "ColumnName": "idfsSearchField"
+        },
+        {
+          "idfColumn": 4579170000000,
+          "ColumnName": "idfsSearchFieldType"
+        },
+        {
+          "idfColumn": 4579180000000,
+          "ColumnName": "idfsSearchObject"
+        },
+        {
+          "idfColumn": 4579240000000,
+          "ColumnName": "intIncidenceDisplayOrder"
+        },
+        {
+          "idfColumn": 4579230000000,
+          "ColumnName": "intMapDisplayOrder"
+        },
+        {
+          "idfColumn": 4579510000000,
+          "ColumnName": "strCalculatedFieldText"
+        },
+        {
+          "idfColumn": 51523470000000,
+          "ColumnName": "strLookupAttribute"
+        },
+        {
+          "idfColumn": 51523440000000,
+          "ColumnName": "strLookupFunction"
+        },
+        {
+          "idfColumn": 51523450000000,
+          "ColumnName": "strLookupFunctionIdField"
+        },
+        {
+          "idfColumn": 51523460000000,
+          "ColumnName": "strLookupFunctionNameField"
+        },
+        {
+          "idfColumn": 4579220000000,
+          "ColumnName": "strLookupTable"
+        },
+        {
+          "idfColumn": 4579210000000,
+          "ColumnName": "strSearchFieldAlias"
+        }
+      ]
+    },
+    {
+      "idfTable": 4579250000000,
+      "TableName": "tasSearchObject",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4579280000000,
+          "ColumnName": "blnPrimary"
+        },
+        {
+          "idfColumn": 50815690000000,
+          "ColumnName": "blnShowReportType"
+        },
+        {
+          "idfColumn": 4579270000000,
+          "ColumnName": "idfsFormType"
+        },
+        {
+          "idfColumn": 4579260000000,
+          "ColumnName": "idfsSearchObject"
+        }
+      ]
+    },
+    {
+      "idfTable": 50815700000000,
+      "TableName": "tasSearchObjectToSearchObject",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 50815740000000,
+          "ColumnName": "blnUseForSubQuery"
+        },
+        {
+          "idfColumn": 50815720000000,
+          "ColumnName": "idfsParentSearchObject"
+        },
+        {
+          "idfColumn": 50815710000000,
+          "ColumnName": "idfsRelatedSearchObject"
+        },
+        {
+          "idfColumn": 50815730000000,
+          "ColumnName": "strSubQueryJoinCondition"
+        }
+      ]
+    },
+    {
+      "idfTable": 75300000000,
+      "TableName": "tauColumn",
+      "TableDescription": "Table fields for audit",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 77600000000,
+          "ColumnName": "idfColumn",
+          "ColumnDescription": "Column identifier"
+        },
+        {
+          "idfColumn": 77610000000,
+          "ColumnName": "idfTable",
+          "ColumnDescription": "Containing Table identifier"
+        },
+        {
+          "idfColumn": 77620000000,
+          "ColumnName": "strDescription",
+          "ColumnDescription": "Column description"
+        },
+        {
+          "idfColumn": 77630000000,
+          "ColumnName": "strName",
+          "ColumnDescription": "Column name"
+        }
+      ]
+    },
+    {
+      "idfTable": 75310000000,
+      "TableName": "tauDataAuditDetailCreate",
+      "TableDescription": "Object Creation Audit ",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 77640000000,
+          "ColumnName": "idfDataAuditDetailCreate",
+          "ColumnDescription": "Detailed information about object creation identifier"
+        },
+        {
+          "idfColumn": 77650000000,
+          "ColumnName": "idfDataAuditEvent",
+          "ColumnDescription": "Audit event identifier"
+        },
+        {
+          "idfColumn": 77660000000,
+          "ColumnName": "idfObject",
+          "ColumnDescription": "Object identifier"
+        },
+        {
+          "idfColumn": 77670000000,
+          "ColumnName": "idfObjectDetail",
+          "ColumnDescription": "Corresponding Created object identifier"
+        },
+        {
+          "idfColumn": 77680000000,
+          "ColumnName": "idfObjectTable",
+          "ColumnDescription": "Table identifier"
+        }
+      ]
+    },
+    {
+      "idfTable": 75320000000,
+      "TableName": "tauDataAuditDetailDelete",
+      "TableDescription": "Object Deletion Audit ",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 77690000000,
+          "ColumnName": "idfDataAuditDetailDelete",
+          "ColumnDescription": "Detailed information about object deletion identifier"
+        },
+        {
+          "idfColumn": 77700000000,
+          "ColumnName": "idfDataAuditEvent",
+          "ColumnDescription": "Audit event identifier"
+        },
+        {
+          "idfColumn": 77710000000,
+          "ColumnName": "idfObject",
+          "ColumnDescription": "Object identifier"
+        },
+        {
+          "idfColumn": 77720000000,
+          "ColumnName": "idfObjectDetail",
+          "ColumnDescription": "Corresponding Deleted object identifier"
+        },
+        {
+          "idfColumn": 77730000000,
+          "ColumnName": "idfObjectTable",
+          "ColumnDescription": "Table identifier"
+        }
+      ]
+    },
+    {
+      "idfTable": 75330000000,
+      "TableName": "tauDataAuditDetailUpdate",
+      "TableDescription": "Object Change Audit ",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 77740000000,
+          "ColumnName": "idfColumn",
+          "ColumnDescription": "Changed column identifier"
+        },
+        {
+          "idfColumn": 77750000000,
+          "ColumnName": "idfDataAuditDetailUpdate",
+          "ColumnDescription": "Detailed information about object change identifier"
+        },
+        {
+          "idfColumn": 77760000000,
+          "ColumnName": "idfDataAuditEvent",
+          "ColumnDescription": "Audit event identifier"
+        },
+        {
+          "idfColumn": 77770000000,
+          "ColumnName": "idfObject",
+          "ColumnDescription": "Object identifier"
+        },
+        {
+          "idfColumn": 77780000000,
+          "ColumnName": "idfObjectDetail",
+          "ColumnDescription": "Corresponding Changed object identifier"
+        },
+        {
+          "idfColumn": 77790000000,
+          "ColumnName": "idfObjectTable",
+          "ColumnDescription": "Table identifier"
+        },
+        {
+          "idfColumn": 77800000000,
+          "ColumnName": "strNewValue",
+          "ColumnDescription": "New value"
+        },
+        {
+          "idfColumn": 77810000000,
+          "ColumnName": "strOldValue",
+          "ColumnDescription": "Old value"
+        }
+      ]
+    },
+    {
+      "idfTable": 75340000000,
+      "TableName": "tauDataAuditEvent",
+      "TableDescription": "Audit Events",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 77820000000,
+          "ColumnName": "datEnteringDate",
+          "ColumnDescription": "Date\/time of event creation"
+        },
+        {
+          "idfColumn": 77830000000,
+          "ColumnName": "idfDataAuditEvent",
+          "ColumnDescription": "Audit event identifier"
+        },
+        {
+          "idfColumn": 77840000000,
+          "ColumnName": "idfMainObject",
+          "ColumnDescription": "Main audit object identifier"
+        },
+        {
+          "idfColumn": 77850000000,
+          "ColumnName": "idfMainObjectTable",
+          "ColumnDescription": "Main audit object table identifier"
+        },
+        {
+          "idfColumn": 77860000000,
+          "ColumnName": "idfsDataAuditEventType",
+          "ColumnDescription": "Audit event type"
+        },
+        {
+          "idfColumn": 77870000000,
+          "ColumnName": "idfsDataAuditObjectType",
+          "ColumnDescription": "Audit object type"
+        },
+        {
+          "idfColumn": 77890000000,
+          "ColumnName": "idfUserID",
+          "ColumnDescription": "User caused audit event identifier"
+        },
+        {
+          "idfColumn": 77900000000,
+          "ColumnName": "strHostname",
+          "ColumnDescription": "Host name caused event"
+        }
+      ]
+    },
+    {
+      "idfTable": 75350000000,
+      "TableName": "tauTable",
+      "TableDescription": "Audit Tables",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 77920000000,
+          "ColumnName": "idfTable",
+          "ColumnDescription": "Audited table identifier"
+        },
+        {
+          "idfColumn": 77930000000,
+          "ColumnName": "strDescription",
+          "ColumnDescription": "Description"
+        },
+        {
+          "idfColumn": 77940000000,
+          "ColumnName": "strName",
+          "ColumnDescription": "Audited table name"
+        }
+      ]
+    },
+    {
+      "idfTable": 75360000000,
+      "TableName": "tdeDataExport",
+      "TableDescription": "WHO Module exports performed",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 77950000000,
+          "ColumnName": "datExportDate",
+          "ColumnDescription": "Date\/time of data export operation"
+        },
+        {
+          "idfColumn": 77960000000,
+          "ColumnName": "idfDataExport",
+          "ColumnDescription": "Data export operation identifier"
+        },
+        {
+          "idfColumn": 77970000000,
+          "ColumnName": "idfUserID",
+          "ColumnDescription": "User initiated data export operation identifier"
+        },
+        {
+          "idfColumn": 77980000000,
+          "ColumnName": "strNote",
+          "ColumnDescription": "Data export operation notes"
+        }
+      ]
+    },
+    {
+      "idfTable": 75370000000,
+      "TableName": "tdeDataExportDetail",
+      "TableDescription": "WHO Module export details",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 77990000000,
+          "ColumnName": "datActivityDate",
+          "ColumnDescription": "Date\/time of export performed"
+        },
+        {
+          "idfColumn": 78000000000,
+          "ColumnName": "idfCase",
+          "ColumnDescription": "Case exported identifier"
+        },
+        {
+          "idfColumn": 78010000000,
+          "ColumnName": "idfDataExport",
+          "ColumnDescription": "Data export operation identifier "
+        },
+        {
+          "idfColumn": 78020000000,
+          "ColumnName": "idfDataExportDetail",
+          "ColumnDescription": "Detailed information identifier"
+        },
+        {
+          "idfColumn": 78030000000,
+          "ColumnName": "idfsDataExportDetailStatus",
+          "ColumnDescription": "Data export operation type (deletion\/addition\/change)"
+        },
+        {
+          "idfColumn": 78040000000,
+          "ColumnName": "idfsDiagnosis",
+          "ColumnDescription": "Exported case Diagnosis identifier"
+        },
+        {
+          "idfColumn": 78050000000,
+          "ColumnName": "strXMLActivityHash",
+          "ColumnDescription": "Hash-stamp of the case exported data"
+        }
+      ]
+    },
+    {
+      "idfTable": 75380000000,
+      "TableName": "tdeDataExportDiagnosis",
+      "TableDescription": "WHO Module export diagnosis",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 78060000000,
+          "ColumnName": "idfDataExport",
+          "ColumnDescription": "Export operation identifier"
+        },
+        {
+          "idfColumn": 78070000000,
+          "ColumnName": "idfsDiagnosis",
+          "ColumnDescription": "Diagnosis identifier"
+        }
+      ]
+    },
+    {
+      "idfTable": 75390000000,
+      "TableName": "tdeDataExportProblem",
+      "TableDescription": "WHO Module export problems",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 78080000000,
+          "ColumnName": "idfCase",
+          "ColumnDescription": "Exported case identifier"
+        },
+        {
+          "idfColumn": 78090000000,
+          "ColumnName": "idfDataExport",
+          "ColumnDescription": "Export operation identifier"
+        },
+        {
+          "idfColumn": 78100000000,
+          "ColumnName": "idfDataExportProblem",
+          "ColumnDescription": "Data export problem identifier"
+        },
+        {
+          "idfColumn": 78110000000,
+          "ColumnName": "strDetail",
+          "ColumnDescription": "Text description of the problem"
+        }
+      ]
+    },
+    {
+      "idfTable": 75410000000,
+      "TableName": "tlbActivityParameters",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4576580000000,
+          "ColumnName": "idfActivityParameters"
+        },
+        {
+          "idfColumn": 78170000000,
+          "ColumnName": "idfObservation",
+          "ColumnDescription": "Flex-Form instance identifier"
+        },
+        {
+          "idfColumn": 4576590000000,
+          "ColumnName": "idfRow"
+        },
+        {
+          "idfColumn": 78180000000,
+          "ColumnName": "idfsParameter",
+          "ColumnDescription": "Flex-Form Parameter identifier"
+        },
+        {
+          "idfColumn": 78190000000,
+          "ColumnName": "varValue",
+          "ColumnDescription": "Flex-Form parameter value"
+        }
+      ]
+    },
+    {
+      "idfTable": 75420000000,
+      "TableName": "tlbAggrCase",
+      "TableDescription": "Aggregate cases",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 78200000000,
+          "ColumnName": "datEnteredByDate",
+          "ColumnDescription": "Date\/time entered"
+        },
+        {
+          "idfColumn": 78210000000,
+          "ColumnName": "datFinishDate",
+          "ColumnDescription": "End of perion Date\/time"
+        },
+        {
+          "idfColumn": 78220000000,
+          "ColumnName": "datReceivedByDate",
+          "ColumnDescription": "Date\/time received"
+        },
+        {
+          "idfColumn": 78230000000,
+          "ColumnName": "datSentByDate",
+          "ColumnDescription": "Date\/time sent"
+        },
+        {
+          "idfColumn": 78240000000,
+          "ColumnName": "datStartDate",
+          "ColumnDescription": "Beginning of perion Date\/time "
+        },
+        {
+          "idfColumn": 78250000000,
+          "ColumnName": "idfAggrCase",
+          "ColumnDescription": "Aggregate case identifier"
+        },
+        {
+          "idfColumn": 4577590000000,
+          "ColumnName": "idfCaseObservation"
+        },
+        {
+          "idfColumn": 4577600000000,
+          "ColumnName": "idfDiagnosticObservation"
+        },
+        {
+          "idfColumn": 4577640000000,
+          "ColumnName": "idfDiagnosticVersion"
+        },
+        {
+          "idfColumn": 4577570000000,
+          "ColumnName": "idfEnteredByOffice"
+        },
+        {
+          "idfColumn": 4577580000000,
+          "ColumnName": "idfEnteredByPerson"
+        },
+        {
+          "idfColumn": 4577610000000,
+          "ColumnName": "idfProphylacticObservation"
+        },
+        {
+          "idfColumn": 4577650000000,
+          "ColumnName": "idfProphylacticVersion"
+        },
+        {
+          "idfColumn": 4577530000000,
+          "ColumnName": "idfReceivedByOffice"
+        },
+        {
+          "idfColumn": 4577540000000,
+          "ColumnName": "idfReceivedByPerson"
+        },
+        {
+          "idfColumn": 4577520000000,
+          "ColumnName": "idfsAdministrativeUnit"
+        },
+        {
+          "idfColumn": 78260000000,
+          "ColumnName": "idfsAggrCaseType",
+          "ColumnDescription": "Aggregate case type"
+        },
+        {
+          "idfColumn": 4577620000000,
+          "ColumnName": "idfSanitaryObservation"
+        },
+        {
+          "idfColumn": 4577660000000,
+          "ColumnName": "idfSanitaryVersion"
+        },
+        {
+          "idfColumn": 4577550000000,
+          "ColumnName": "idfSentByOffice"
+        },
+        {
+          "idfColumn": 4577560000000,
+          "ColumnName": "idfSentByPerson"
+        },
+        {
+          "idfColumn": 4577630000000,
+          "ColumnName": "idfVersion"
+        },
+        {
+          "idfColumn": 4577670000000,
+          "ColumnName": "strCaseID"
+        }
+      ]
+    },
+    {
+      "idfTable": 75430000000,
+      "TableName": "tlbAggrDiagnosticActionMTX",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4577680000000,
+          "ColumnName": "idfAggrDiagnosticActionMTX"
+        },
+        {
+          "idfColumn": 4577700000000,
+          "ColumnName": "idfsDiagnosis"
+        },
+        {
+          "idfColumn": 4577710000000,
+          "ColumnName": "idfsDiagnosticAction"
+        },
+        {
+          "idfColumn": 4577690000000,
+          "ColumnName": "idfsSpeciesType"
+        },
+        {
+          "idfColumn": 12666600000000,
+          "ColumnName": "idfVersion"
+        },
+        {
+          "idfColumn": 12666610000000,
+          "ColumnName": "intNumRow"
+        }
+      ]
+    },
+    {
+      "idfTable": 12666620000000,
+      "TableName": "tlbAggrHumanCaseMTX",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 12666630000000,
+          "ColumnName": "idfAggrHumanCaseMTX"
+        },
+        {
+          "idfColumn": 12666650000000,
+          "ColumnName": "idfsDiagnosis"
+        },
+        {
+          "idfColumn": 12666640000000,
+          "ColumnName": "idfVersion"
+        },
+        {
+          "idfColumn": 12666660000000,
+          "ColumnName": "intNumRow"
+        }
+      ]
+    },
+    {
+      "idfTable": 707330000000,
+      "TableName": "tlbAggrMatrixVersionHeader",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 707380000000,
+          "ColumnName": "blnIsActive"
+        },
+        {
+          "idfColumn": 840870000000,
+          "ColumnName": "blnIsDefault"
+        },
+        {
+          "idfColumn": 707370000000,
+          "ColumnName": "datStartDate"
+        },
+        {
+          "idfColumn": 12666590000000,
+          "ColumnName": "idfsMatrixType"
+        },
+        {
+          "idfColumn": 707340000000,
+          "ColumnName": "idfVersion"
+        },
+        {
+          "idfColumn": 707360000000,
+          "ColumnName": "MatrixName"
+        }
+      ]
+    },
+    {
+      "idfTable": 75440000000,
+      "TableName": "tlbAggrProphylacticActionMTX",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4577720000000,
+          "ColumnName": "idfAggrProphylacticActionMTX"
+        },
+        {
+          "idfColumn": 4577740000000,
+          "ColumnName": "idfsDiagnosis"
+        },
+        {
+          "idfColumn": 4577750000000,
+          "ColumnName": "idfsProphilacticAction"
+        },
+        {
+          "idfColumn": 4577730000000,
+          "ColumnName": "idfsSpeciesType"
+        },
+        {
+          "idfColumn": 12666670000000,
+          "ColumnName": "idfVersion"
+        },
+        {
+          "idfColumn": 12666680000000,
+          "ColumnName": "intNumRow"
+        }
+      ]
+    },
+    {
+      "idfTable": 12666690000000,
+      "TableName": "tlbAggrSanitaryActionMTX",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 12666700000000,
+          "ColumnName": "idfAggrSanitaryActionMTX"
+        },
+        {
+          "idfColumn": 12666720000000,
+          "ColumnName": "idfsSanitaryAction"
+        },
+        {
+          "idfColumn": 12666710000000,
+          "ColumnName": "idfVersion"
+        },
+        {
+          "idfColumn": 12666730000000,
+          "ColumnName": "intNumRow"
+        }
+      ]
+    },
+    {
+      "idfTable": 75450000000,
+      "TableName": "tlbAggrVetCaseMTX",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4577760000000,
+          "ColumnName": "idfAggrVetCaseMTX"
+        },
+        {
+          "idfColumn": 4577780000000,
+          "ColumnName": "idfsDiagnosis"
+        },
+        {
+          "idfColumn": 4577770000000,
+          "ColumnName": "idfsSpeciesType"
+        },
+        {
+          "idfColumn": 12666740000000,
+          "ColumnName": "idfVersion"
+        },
+        {
+          "idfColumn": 12666750000000,
+          "ColumnName": "intNumRow"
+        }
+      ]
+    },
+    {
+      "idfTable": 75460000000,
+      "TableName": "tlbAnimal",
+      "TableDescription": "Animals",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 78270000000,
+          "ColumnName": "idfAnimal",
+          "ColumnDescription": "Animal identifier"
+        },
+        {
+          "idfColumn": 78280000000,
+          "ColumnName": "idfObservation",
+          "ColumnDescription": "Assocciated flex-form identifier"
+        },
+        {
+          "idfColumn": 78290000000,
+          "ColumnName": "idfsAnimalAge",
+          "ColumnDescription": "Animal age identifier"
+        },
+        {
+          "idfColumn": 78300000000,
+          "ColumnName": "idfsAnimalCondition",
+          "ColumnDescription": "Animal condition identifier"
+        },
+        {
+          "idfColumn": 78310000000,
+          "ColumnName": "idfsAnimalGender",
+          "ColumnDescription": "Animal gender identifier"
+        },
+        {
+          "idfColumn": 78320000000,
+          "ColumnName": "idfSpecies",
+          "ColumnDescription": "Animal species identifier"
+        },
+        {
+          "idfColumn": 78330000000,
+          "ColumnName": "strAnimalCode",
+          "ColumnDescription": "Animal code"
+        },
+        {
+          "idfColumn": 4572160000000,
+          "ColumnName": "strColor"
+        },
+        {
+          "idfColumn": 78340000000,
+          "ColumnName": "strDescription",
+          "ColumnDescription": "Description"
+        },
+        {
+          "idfColumn": 4572150000000,
+          "ColumnName": "strName"
+        }
+      ]
+    },
+    {
+      "idfTable": 75470000000,
+      "TableName": "tlbAntimicrobialTherapy",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 78350000000,
+          "ColumnName": "datFirstAdministeredDate",
+          "ColumnDescription": "Date\/time of beginning of therapy "
+        },
+        {
+          "idfColumn": 4577790000000,
+          "ColumnName": "idfAntimicrobialTherapy"
+        },
+        {
+          "idfColumn": 4577800000000,
+          "ColumnName": "idfHumanCase"
+        },
+        {
+          "idfColumn": 78360000000,
+          "ColumnName": "strAntimicrobialTherapyName",
+          "ColumnDescription": "Therapy name"
+        },
+        {
+          "idfColumn": 4577810000000,
+          "ColumnName": "strDosage"
+        }
+      ]
+    },
+    {
+      "idfTable": 50791230000000,
+      "TableName": "tlbBasicSyndromicSurveillance",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 50791550000000,
+          "ColumnName": "blnAsthma"
+        },
+        {
+          "idfColumn": 50791570000000,
+          "ColumnName": "blnCardiovascular"
+        },
+        {
+          "idfColumn": 50791560000000,
+          "ColumnName": "blnDiabetes"
+        },
+        {
+          "idfColumn": 50791620000000,
+          "ColumnName": "blnImmunodeficiency"
+        },
+        {
+          "idfColumn": 50791600000000,
+          "ColumnName": "blnLiver"
+        },
+        {
+          "idfColumn": 50791610000000,
+          "ColumnName": "blnNeurological"
+        },
+        {
+          "idfColumn": 50791580000000,
+          "ColumnName": "blnObesity"
+        },
+        {
+          "idfColumn": 50791590000000,
+          "ColumnName": "blnRenal"
+        },
+        {
+          "idfColumn": 50791540000000,
+          "ColumnName": "blnRespiratorySystem"
+        },
+        {
+          "idfColumn": 50791630000000,
+          "ColumnName": "blnUnknownEtiology"
+        },
+        {
+          "idfColumn": 50791260000000,
+          "ColumnName": "datDateEntered"
+        },
+        {
+          "idfColumn": 50791270000000,
+          "ColumnName": "datDateLastSaved"
+        },
+        {
+          "idfColumn": 50791460000000,
+          "ColumnName": "datDateOfCare"
+        },
+        {
+          "idfColumn": 50791390000000,
+          "ColumnName": "datDateOfSymptomsOnset"
+        },
+        {
+          "idfColumn": 50791530000000,
+          "ColumnName": "datDateReceivedAntiviralMedication"
+        },
+        {
+          "idfColumn": 50791310000000,
+          "ColumnName": "datReportDate"
+        },
+        {
+          "idfColumn": 50791640000000,
+          "ColumnName": "datSampleCollectionDate"
+        },
+        {
+          "idfColumn": 50791670000000,
+          "ColumnName": "datTestResultDate"
+        },
+        {
+          "idfColumn": 50791240000000,
+          "ColumnName": "idfBasicSyndromicSurveillance"
+        },
+        {
+          "idfColumn": 50791280000000,
+          "ColumnName": "idfEnteredBy"
+        },
+        {
+          "idfColumn": 50791300000000,
+          "ColumnName": "idfHospital"
+        },
+        {
+          "idfColumn": 50791680000000,
+          "ColumnName": "idfHuman"
+        },
+        {
+          "idfColumn": 50791290000000,
+          "ColumnName": "idfsBasicSyndromicSurveillanceType"
+        },
+        {
+          "idfColumn": 50791410000000,
+          "ColumnName": "idfsMethodOfMeasurement"
+        },
+        {
+          "idfColumn": 50791480000000,
+          "ColumnName": "idfsOutcome"
+        },
+        {
+          "idfColumn": 50791660000000,
+          "ColumnName": "idfsTestResult"
+        },
+        {
+          "idfColumn": 50791510000000,
+          "ColumnName": "idfsYNAdministratedAntiviralMedication"
+        },
+        {
+          "idfColumn": 50791430000000,
+          "ColumnName": "idfsYNCough"
+        },
+        {
+          "idfColumn": 50791400000000,
+          "ColumnName": "idfsYNFever"
+        },
+        {
+          "idfColumn": 50791470000000,
+          "ColumnName": "idfsYNPatientWasHospitalized"
+        },
+        {
+          "idfColumn": 50791490000000,
+          "ColumnName": "idfsYNPatientWasInER"
+        },
+        {
+          "idfColumn": 50791380000000,
+          "ColumnName": "idfsYNPostpartumPeriod"
+        },
+        {
+          "idfColumn": 50791370000000,
+          "ColumnName": "idfsYNPregnant"
+        },
+        {
+          "idfColumn": 50791450000000,
+          "ColumnName": "idfsYNSeasonalFluVaccine"
+        },
+        {
+          "idfColumn": 50791440000000,
+          "ColumnName": "idfsYNShortnessOfBreath"
+        },
+        {
+          "idfColumn": 50791500000000,
+          "ColumnName": "idfsYNTreatment"
+        },
+        {
+          "idfColumn": 50791350000000,
+          "ColumnName": "intAgeFullMonth"
+        },
+        {
+          "idfColumn": 50791340000000,
+          "ColumnName": "intAgeFullYear"
+        },
+        {
+          "idfColumn": 50791330000000,
+          "ColumnName": "intAgeMonth"
+        },
+        {
+          "idfColumn": 50791320000000,
+          "ColumnName": "intAgeYear"
+        },
+        {
+          "idfColumn": 50791250000000,
+          "ColumnName": "strFormID"
+        },
+        {
+          "idfColumn": 50791420000000,
+          "ColumnName": "strMethod"
+        },
+        {
+          "idfColumn": 50791520000000,
+          "ColumnName": "strNameOfMedication"
+        },
+        {
+          "idfColumn": 50791360000000,
+          "ColumnName": "strPersonalID"
+        },
+        {
+          "idfColumn": 50791650000000,
+          "ColumnName": "strSampleID"
+        }
+      ]
+    },
+    {
+      "idfTable": 50791790000000,
+      "TableName": "tlbBasicSyndromicSurveillanceAggregateDetail",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 50791800000000,
+          "ColumnName": "idfAggregateDetail"
+        },
+        {
+          "idfColumn": 50791810000000,
+          "ColumnName": "idfAggregateHeader"
+        },
+        {
+          "idfColumn": 50791820000000,
+          "ColumnName": "idfHospital"
+        },
+        {
+          "idfColumn": 50791830000000,
+          "ColumnName": "intAge0_4"
+        },
+        {
+          "idfColumn": 50791850000000,
+          "ColumnName": "intAge15_29"
+        },
+        {
+          "idfColumn": 50791860000000,
+          "ColumnName": "intAge30_64"
+        },
+        {
+          "idfColumn": 50815350000000,
+          "ColumnName": "intAge5_14"
+        },
+        {
+          "idfColumn": 50791870000000,
+          "ColumnName": "intAge65"
+        },
+        {
+          "idfColumn": 50791900000000,
+          "ColumnName": "intILISamples"
+        },
+        {
+          "idfColumn": 50791880000000,
+          "ColumnName": "inTotalILI"
+        },
+        {
+          "idfColumn": 50791890000000,
+          "ColumnName": "intTotalAdmissions"
+        }
+      ]
+    },
+    {
+      "idfTable": 50791690000000,
+      "TableName": "tlbBasicSyndromicSurveillanceAggregateHeader",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 50791720000000,
+          "ColumnName": "datDateEntered"
+        },
+        {
+          "idfColumn": 50791730000000,
+          "ColumnName": "datDateLastSaved"
+        },
+        {
+          "idfColumn": 50791780000000,
+          "ColumnName": "datFinishDate"
+        },
+        {
+          "idfColumn": 50791770000000,
+          "ColumnName": "datStartDate"
+        },
+        {
+          "idfColumn": 50791700000000,
+          "ColumnName": "idfAggregateHeader"
+        },
+        {
+          "idfColumn": 50791740000000,
+          "ColumnName": "idfEnteredBy"
+        },
+        {
+          "idfColumn": 50791760000000,
+          "ColumnName": "intWeek"
+        },
+        {
+          "idfColumn": 50791750000000,
+          "ColumnName": "intYear"
+        },
+        {
+          "idfColumn": 50791710000000,
+          "ColumnName": "strFormID"
+        }
+      ]
+    },
+    {
+      "idfTable": 75480000000,
+      "TableName": "tlbBatchTest",
+      "TableDescription": "Batch test parameters",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4577850000000,
+          "ColumnName": "datPerformedDate"
+        },
+        {
+          "idfColumn": 78370000000,
+          "ColumnName": "datValidatedDate",
+          "ColumnDescription": "Date\/time of the Batch test results validation"
+        },
+        {
+          "idfColumn": 78380000000,
+          "ColumnName": "idfBatchTest",
+          "ColumnDescription": "Batch test identifier"
+        },
+        {
+          "idfColumn": 78390000000,
+          "ColumnName": "idfObservation",
+          "ColumnDescription": "Flex-form assocciated with batch identifier"
+        },
+        {
+          "idfColumn": 4577830000000,
+          "ColumnName": "idfPerformedByOffice"
+        },
+        {
+          "idfColumn": 4577840000000,
+          "ColumnName": "idfPerformedByPerson"
+        },
+        {
+          "idfColumn": 6617400000000,
+          "ColumnName": "idfResultEnteredByOffice"
+        },
+        {
+          "idfColumn": 6617390000000,
+          "ColumnName": "idfResultEnteredByPerson"
+        },
+        {
+          "idfColumn": 4577820000000,
+          "ColumnName": "idfsBatchStatus"
+        },
+        {
+          "idfColumn": 49545490000000,
+          "ColumnName": "idfsTestName"
+        },
+        {
+          "idfColumn": 78410000000,
+          "ColumnName": "idfValidatedByOffice",
+          "ColumnDescription": "Institution validated test results identifier"
+        },
+        {
+          "idfColumn": 78420000000,
+          "ColumnName": "idfValidatedByPerson",
+          "ColumnDescription": "Officer validated test results identifier"
+        },
+        {
+          "idfColumn": 4577860000000,
+          "ColumnName": "strBarcode"
+        }
+      ]
+    },
+    {
+      "idfTable": 706900000000,
+      "TableName": "tlbCampaign",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 706950000000,
+          "ColumnName": "datCampaignDateEnd"
+        },
+        {
+          "idfColumn": 706940000000,
+          "ColumnName": "datCampaignDateStart"
+        },
+        {
+          "idfColumn": 706910000000,
+          "ColumnName": "idfCampaign"
+        },
+        {
+          "idfColumn": 706930000000,
+          "ColumnName": "idfsCampaignStatus"
+        },
+        {
+          "idfColumn": 706920000000,
+          "ColumnName": "idfsCampaignType"
+        },
+        {
+          "idfColumn": 706980000000,
+          "ColumnName": "strCampaignAdministrator"
+        },
+        {
+          "idfColumn": 706960000000,
+          "ColumnName": "strCampaignID"
+        },
+        {
+          "idfColumn": 706970000000,
+          "ColumnName": "strCampaignName"
+        },
+        {
+          "idfColumn": 706990000000,
+          "ColumnName": "strComments"
+        }
+      ]
+    },
+    {
+      "idfTable": 707000000000,
+      "TableName": "tlbCampaignToDiagnosis",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 707010000000,
+          "ColumnName": "idfCampaign"
+        },
+        {
+          "idfColumn": 749070000000,
+          "ColumnName": "idfCampaignToDiagnosis"
+        },
+        {
+          "idfColumn": 707020000000,
+          "ColumnName": "idfsDiagnosis"
+        },
+        {
+          "idfColumn": 51586580000000,
+          "ColumnName": "idfsSampleType"
+        },
+        {
+          "idfColumn": 4578710000000,
+          "ColumnName": "idfsSpeciesType"
+        },
+        {
+          "idfColumn": 707030000000,
+          "ColumnName": "intOrder"
+        },
+        {
+          "idfColumn": 4578660000000,
+          "ColumnName": "intPlannedNumber"
+        }
+      ]
+    },
+    {
+      "idfTable": 706820000000,
+      "TableName": "tlbChangeDiagnosisHistory",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 706880000000,
+          "ColumnName": "datChangedDate"
+        },
+        {
+          "idfColumn": 706830000000,
+          "ColumnName": "idfChangeDiagnosisHistory"
+        },
+        {
+          "idfColumn": 706840000000,
+          "ColumnName": "idfHumanCase"
+        },
+        {
+          "idfColumn": 51586560000000,
+          "ColumnName": "idfPerson"
+        },
+        {
+          "idfColumn": 12014640000000,
+          "ColumnName": "idfsChangeDiagnosisReason"
+        },
+        {
+          "idfColumn": 706870000000,
+          "ColumnName": "idfsCurrentDiagnosis"
+        },
+        {
+          "idfColumn": 706860000000,
+          "ColumnName": "idfsPreviousDiagnosis"
+        },
+        {
+          "idfColumn": 706890000000,
+          "ColumnName": "strReason"
+        }
+      ]
+    },
+    {
+      "idfTable": 75500000000,
+      "TableName": "tlbContactedCasePerson",
+      "TableDescription": "Case Contact Persons",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 78500000000,
+          "ColumnName": "datDateOfLastContact",
+          "ColumnDescription": "Date of last contact"
+        },
+        {
+          "idfColumn": 4566370000000,
+          "ColumnName": "idfContactedCasePerson"
+        },
+        {
+          "idfColumn": 78510000000,
+          "ColumnName": "idfHuman",
+          "ColumnDescription": "Human identifier"
+        },
+        {
+          "idfColumn": 4566380000000,
+          "ColumnName": "idfHumanCase"
+        },
+        {
+          "idfColumn": 78520000000,
+          "ColumnName": "idfsPersonContactType",
+          "ColumnDescription": "Type of contact identifier"
+        },
+        {
+          "idfColumn": 12675390000000,
+          "ColumnName": "strComments"
+        },
+        {
+          "idfColumn": 4566390000000,
+          "ColumnName": "strPlaceInfo"
+        }
+      ]
+    },
+    {
+      "idfTable": 50815890000000,
+      "TableName": "tlbDepartment",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 50815900000000,
+          "ColumnName": "idfDepartment"
+        },
+        {
+          "idfColumn": 50815920000000,
+          "ColumnName": "idfOrganization"
+        },
+        {
+          "idfColumn": 50815910000000,
+          "ColumnName": "idfsDepartmentName"
+        }
+      ]
+    },
+    {
+      "idfTable": 75520000000,
+      "TableName": "tlbEmployee",
+      "TableDescription": "Employees",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 78640000000,
+          "ColumnName": "idfEmployee",
+          "ColumnDescription": "Employee\/group identifier"
+        },
+        {
+          "idfColumn": 78650000000,
+          "ColumnName": "idfsEmployeeType",
+          "ColumnDescription": "Employee\/group type identifier"
+        }
+      ]
+    },
+    {
+      "idfTable": 75530000000,
+      "TableName": "tlbEmployeeGroup",
+      "TableDescription": "Employee Groups",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 78670000000,
+          "ColumnName": "idfEmployeeGroup",
+          "ColumnDescription": "Group identifier"
+        },
+        {
+          "idfColumn": 78680000000,
+          "ColumnName": "idfsEmployeeGroupName",
+          "ColumnDescription": "Translated Group name identifier"
+        },
+        {
+          "idfColumn": 78700000000,
+          "ColumnName": "strDescription",
+          "ColumnDescription": "Group description"
+        },
+        {
+          "idfColumn": 78710000000,
+          "ColumnName": "strName",
+          "ColumnDescription": "Group name"
+        }
+      ]
+    },
+    {
+      "idfTable": 75540000000,
+      "TableName": "tlbEmployeeGroupMember",
+      "TableDescription": "Employee Group Members",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4577870000000,
+          "ColumnName": "idfEmployee"
+        },
+        {
+          "idfColumn": 78720000000,
+          "ColumnName": "idfEmployeeGroup",
+          "ColumnDescription": "Group identifier"
+        }
+      ]
+    },
+    {
+      "idfTable": 75550000000,
+      "TableName": "tlbFarm",
+      "TableDescription": "Farms",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 51389480000000,
+          "ColumnName": "datModificationDate"
+        },
+        {
+          "idfColumn": 78750000000,
+          "ColumnName": "idfFarm",
+          "ColumnDescription": "Farm identifier"
+        },
+        {
+          "idfColumn": 4572170000000,
+          "ColumnName": "idfFarmActual"
+        },
+        {
+          "idfColumn": 78760000000,
+          "ColumnName": "idfFarmAddress",
+          "ColumnDescription": "Farm address identifier"
+        },
+        {
+          "idfColumn": 78780000000,
+          "ColumnName": "idfHuman",
+          "ColumnDescription": "Farm owner identifier"
+        },
+        {
+          "idfColumn": 4572180000000,
+          "ColumnName": "idfMonitoringSession"
+        },
+        {
+          "idfColumn": 78790000000,
+          "ColumnName": "idfObservation",
+          "ColumnDescription": "Farm assocciated flex-form identifier"
+        },
+        {
+          "idfColumn": 78800000000,
+          "ColumnName": "idfsAvianFarmType",
+          "ColumnDescription": "Avian farm type identifier"
+        },
+        {
+          "idfColumn": 78810000000,
+          "ColumnName": "idfsAvianProductionType",
+          "ColumnDescription": "Avian production type identifier"
+        },
+        {
+          "idfColumn": 78820000000,
+          "ColumnName": "idfsFarmCategory",
+          "ColumnDescription": "Farm category identifier"
+        },
+        {
+          "idfColumn": 78830000000,
+          "ColumnName": "idfsGrazingPattern",
+          "ColumnDescription": "Grazing patter identifier"
+        },
+        {
+          "idfColumn": 78840000000,
+          "ColumnName": "idfsIntendedUse",
+          "ColumnDescription": "Farm Production intended use identifier "
+        },
+        {
+          "idfColumn": 78850000000,
+          "ColumnName": "idfsLivestockProductionType",
+          "ColumnDescription": "Livestock production type identifier"
+        },
+        {
+          "idfColumn": 78860000000,
+          "ColumnName": "idfsMovementPattern",
+          "ColumnDescription": "Movement Patter identifier"
+        },
+        {
+          "idfColumn": 78870000000,
+          "ColumnName": "idfsOwnershipStructure",
+          "ColumnDescription": "Ownership structure identifier"
+        },
+        {
+          "idfColumn": 4572240000000,
+          "ColumnName": "intAvianDeadAnimalQty"
+        },
+        {
+          "idfColumn": 4572220000000,
+          "ColumnName": "intAvianSickAnimalQty"
+        },
+        {
+          "idfColumn": 4572200000000,
+          "ColumnName": "intAvianTotalAnimalQty"
+        },
+        {
+          "idfColumn": 4572260000000,
+          "ColumnName": "intBirdsPerBuilding"
+        },
+        {
+          "idfColumn": 4572250000000,
+          "ColumnName": "intBuidings"
+        },
+        {
+          "idfColumn": 51389470000000,
+          "ColumnName": "intHACode"
+        },
+        {
+          "idfColumn": 4572230000000,
+          "ColumnName": "intLivestockDeadAnimalQty"
+        },
+        {
+          "idfColumn": 4572210000000,
+          "ColumnName": "intLivestockSickAnimalQty"
+        },
+        {
+          "idfColumn": 4572190000000,
+          "ColumnName": "intLivestockTotalAnimalQty"
+        },
+        {
+          "idfColumn": 78900000000,
+          "ColumnName": "strContactPhone",
+          "ColumnDescription": "phone number"
+        },
+        {
+          "idfColumn": 78910000000,
+          "ColumnName": "strEmail",
+          "ColumnDescription": "e-mail address"
+        },
+        {
+          "idfColumn": 78920000000,
+          "ColumnName": "strFarmCode",
+          "ColumnDescription": "Alphanumeric farm code"
+        },
+        {
+          "idfColumn": 78930000000,
+          "ColumnName": "strFax",
+          "ColumnDescription": "Fax number"
+        },
+        {
+          "idfColumn": 78940000000,
+          "ColumnName": "strInternationalName",
+          "ColumnDescription": "Internation (english) name of the farm"
+        },
+        {
+          "idfColumn": 78950000000,
+          "ColumnName": "strNationalName",
+          "ColumnDescription": "Translated name of the farm"
+        },
+        {
+          "idfColumn": 4572270000000,
+          "ColumnName": "strNote"
+        }
+      ]
+    },
+    {
+      "idfTable": 4572790000000,
+      "TableName": "tlbFarmActual",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 51389500000000,
+          "ColumnName": "datModificationDate"
+        },
+        {
+          "idfColumn": 4572800000000,
+          "ColumnName": "idfFarmActual"
+        },
+        {
+          "idfColumn": 4572900000000,
+          "ColumnName": "idfFarmAddress"
+        },
+        {
+          "idfColumn": 4572890000000,
+          "ColumnName": "idfHumanActual"
+        },
+        {
+          "idfColumn": 4572810000000,
+          "ColumnName": "idfsAvianFarmType"
+        },
+        {
+          "idfColumn": 4572820000000,
+          "ColumnName": "idfsAvianProductionType"
+        },
+        {
+          "idfColumn": 4572830000000,
+          "ColumnName": "idfsFarmCategory"
+        },
+        {
+          "idfColumn": 4572870000000,
+          "ColumnName": "idfsGrazingPattern"
+        },
+        {
+          "idfColumn": 4572860000000,
+          "ColumnName": "idfsIntendedUse"
+        },
+        {
+          "idfColumn": 4572880000000,
+          "ColumnName": "idfsLivestockProductionType"
+        },
+        {
+          "idfColumn": 4572850000000,
+          "ColumnName": "idfsMovementPattern"
+        },
+        {
+          "idfColumn": 4572840000000,
+          "ColumnName": "idfsOwnershipStructure"
+        },
+        {
+          "idfColumn": 4573060000000,
+          "ColumnName": "intAvianDeadAnimalQty"
+        },
+        {
+          "idfColumn": 4573040000000,
+          "ColumnName": "intAvianSickAnimalQty"
+        },
+        {
+          "idfColumn": 4573020000000,
+          "ColumnName": "intAvianTotalAnimalQty"
+        },
+        {
+          "idfColumn": 4573080000000,
+          "ColumnName": "intBirdsPerBuilding"
+        },
+        {
+          "idfColumn": 4573070000000,
+          "ColumnName": "intBuidings"
+        },
+        {
+          "idfColumn": 51389490000000,
+          "ColumnName": "intHACode"
+        },
+        {
+          "idfColumn": 4573050000000,
+          "ColumnName": "intLivestockDeadAnimalQty"
+        },
+        {
+          "idfColumn": 4573030000000,
+          "ColumnName": "intLivestockSickAnimalQty"
+        },
+        {
+          "idfColumn": 4573010000000,
+          "ColumnName": "intLivestockTotalAnimalQty"
+        },
+        {
+          "idfColumn": 4572970000000,
+          "ColumnName": "strContactPhone"
+        },
+        {
+          "idfColumn": 4572960000000,
+          "ColumnName": "strEmail"
+        },
+        {
+          "idfColumn": 4572940000000,
+          "ColumnName": "strFarmCode"
+        },
+        {
+          "idfColumn": 4572950000000,
+          "ColumnName": "strFax"
+        },
+        {
+          "idfColumn": 4572920000000,
+          "ColumnName": "strInternationalName"
+        },
+        {
+          "idfColumn": 4572930000000,
+          "ColumnName": "strNationalName"
+        },
+        {
+          "idfColumn": 4573090000000,
+          "ColumnName": "strNote"
+        }
+      ]
+    },
+    {
+      "idfTable": 75560000000,
+      "TableName": "tlbFreezer",
+      "TableDescription": "Freezers",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4577880000000,
+          "ColumnName": "idfFreezer"
+        },
+        {
+          "idfColumn": 79000000000,
+          "ColumnName": "idfsStorageType",
+          "ColumnDescription": "Storage type identifier"
+        },
+        {
+          "idfColumn": 79010000000,
+          "ColumnName": "strBarcode",
+          "ColumnDescription": "Barcode (alphanumeric inventory code)"
+        },
+        {
+          "idfColumn": 79020000000,
+          "ColumnName": "strFreezerName",
+          "ColumnDescription": "Storage name"
+        },
+        {
+          "idfColumn": 79030000000,
+          "ColumnName": "strNote",
+          "ColumnDescription": "Storage notes"
+        }
+      ]
+    },
+    {
+      "idfTable": 75570000000,
+      "TableName": "tlbFreezerSubdivision",
+      "TableDescription": "Freezer Subdivisions",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 749100000000,
+          "ColumnName": "idfFreezer"
+        },
+        {
+          "idfColumn": 749110000000,
+          "ColumnName": "idfParentSubdivision"
+        },
+        {
+          "idfColumn": 79050000000,
+          "ColumnName": "idfsSubdivisionType",
+          "ColumnDescription": "Freezer subdivision type identifier"
+        },
+        {
+          "idfColumn": 749090000000,
+          "ColumnName": "idfSubdivision"
+        },
+        {
+          "idfColumn": 749120000000,
+          "ColumnName": "intCapacity"
+        },
+        {
+          "idfColumn": 79060000000,
+          "ColumnName": "strBarcode",
+          "ColumnDescription": "Subdivision Barcode (alphanumeric inventory code)"
+        },
+        {
+          "idfColumn": 79070000000,
+          "ColumnName": "strNameChars",
+          "ColumnDescription": "Subdivision name"
+        },
+        {
+          "idfColumn": 79080000000,
+          "ColumnName": "strNote",
+          "ColumnDescription": "Subdivision notes"
+        }
+      ]
+    },
+    {
+      "idfTable": 75580000000,
+      "TableName": "tlbGeoLocation",
+      "TableDescription": "Address\/Geo Location",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4578780000000,
+          "ColumnName": "blnForeignAddress"
+        },
+        {
+          "idfColumn": 79090000000,
+          "ColumnName": "dblAccuracy",
+          "ColumnDescription": "Accuracy"
+        },
+        {
+          "idfColumn": 79100000000,
+          "ColumnName": "dblAlignment",
+          "ColumnDescription": "Alignment (used in relative point)"
+        },
+        {
+          "idfColumn": 79110000000,
+          "ColumnName": "dblDistance",
+          "ColumnDescription": "Distance from settlement (used in relative point)"
+        },
+        {
+          "idfColumn": 79120000000,
+          "ColumnName": "dblLatitude",
+          "ColumnDescription": "Latitude"
+        },
+        {
+          "idfColumn": 79130000000,
+          "ColumnName": "dblLongitude",
+          "ColumnDescription": "Longitude"
+        },
+        {
+          "idfColumn": 79140000000,
+          "ColumnName": "idfGeoLocation",
+          "ColumnDescription": "Geo location\/address identifier"
+        },
+        {
+          "idfColumn": 79150000000,
+          "ColumnName": "idfsCountry",
+          "ColumnDescription": "Country identifier"
+        },
+        {
+          "idfColumn": 79160000000,
+          "ColumnName": "idfsGeoLocationType",
+          "ColumnDescription": "Geo location\/address type identifier (exact point\/relative point\/address)"
+        },
+        {
+          "idfColumn": 79170000000,
+          "ColumnName": "idfsGroundType",
+          "ColumnDescription": "Landscape type identifier"
+        },
+        {
+          "idfColumn": 79180000000,
+          "ColumnName": "idfsRayon",
+          "ColumnDescription": "Rayon identifier"
+        },
+        {
+          "idfColumn": 79190000000,
+          "ColumnName": "idfsRegion",
+          "ColumnDescription": "Region identifier"
+        },
+        {
+          "idfColumn": 79200000000,
+          "ColumnName": "idfsResidentType",
+          "ColumnDescription": "Residence type identifier"
+        },
+        {
+          "idfColumn": 79210000000,
+          "ColumnName": "idfsSettlement",
+          "ColumnDescription": "Settlement identifier"
+        },
+        {
+          "idfColumn": 4577890000000,
+          "ColumnName": "strApartment"
+        },
+        {
+          "idfColumn": 79230000000,
+          "ColumnName": "strBuilding",
+          "ColumnDescription": "Building number"
+        },
+        {
+          "idfColumn": 79240000000,
+          "ColumnName": "strDescription",
+          "ColumnDescription": "Geo location description"
+        },
+        {
+          "idfColumn": 4578790000000,
+          "ColumnName": "strForeignAddress"
+        },
+        {
+          "idfColumn": 79250000000,
+          "ColumnName": "strHouse",
+          "ColumnDescription": "House number"
+        },
+        {
+          "idfColumn": 79260000000,
+          "ColumnName": "strPostCode",
+          "ColumnDescription": "Postal code"
+        },
+        {
+          "idfColumn": 51523680000000,
+          "ColumnName": "strShortAddressString"
+        },
+        {
+          "idfColumn": 79270000000,
+          "ColumnName": "strStreetName",
+          "ColumnDescription": "Street name"
+        }
+      ]
+    },
+    {
+      "idfTable": 4572590000000,
+      "TableName": "tlbGeoLocationShared",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4578800000000,
+          "ColumnName": "blnForeignAddress"
+        },
+        {
+          "idfColumn": 4572770000000,
+          "ColumnName": "dblAccuracy"
+        },
+        {
+          "idfColumn": 4572780000000,
+          "ColumnName": "dblAlignment"
+        },
+        {
+          "idfColumn": 4572740000000,
+          "ColumnName": "dblDistance"
+        },
+        {
+          "idfColumn": 4572750000000,
+          "ColumnName": "dblLatitude"
+        },
+        {
+          "idfColumn": 4572760000000,
+          "ColumnName": "dblLongitude"
+        },
+        {
+          "idfColumn": 4572600000000,
+          "ColumnName": "idfGeoLocationShared"
+        },
+        {
+          "idfColumn": 4572640000000,
+          "ColumnName": "idfsCountry"
+        },
+        {
+          "idfColumn": 4572630000000,
+          "ColumnName": "idfsGeoLocationType"
+        },
+        {
+          "idfColumn": 4572620000000,
+          "ColumnName": "idfsGroundType"
+        },
+        {
+          "idfColumn": 4572660000000,
+          "ColumnName": "idfsRayon"
+        },
+        {
+          "idfColumn": 4572650000000,
+          "ColumnName": "idfsRegion"
+        },
+        {
+          "idfColumn": 4572610000000,
+          "ColumnName": "idfsResidentType"
+        },
+        {
+          "idfColumn": 4572670000000,
+          "ColumnName": "idfsSettlement"
+        },
+        {
+          "idfColumn": 4572720000000,
+          "ColumnName": "strApartment"
+        },
+        {
+          "idfColumn": 4572710000000,
+          "ColumnName": "strBuilding"
+        },
+        {
+          "idfColumn": 4572730000000,
+          "ColumnName": "strDescription"
+        },
+        {
+          "idfColumn": 4578810000000,
+          "ColumnName": "strForeignAddress"
+        },
+        {
+          "idfColumn": 4572700000000,
+          "ColumnName": "strHouse"
+        },
+        {
+          "idfColumn": 4572680000000,
+          "ColumnName": "strPostCode"
+        },
+        {
+          "idfColumn": 51523690000000,
+          "ColumnName": "strShortAddressString"
+        },
+        {
+          "idfColumn": 4572690000000,
+          "ColumnName": "strStreetName"
+        }
+      ]
+    },
+    {
+      "idfTable": 75590000000,
+      "TableName": "tlbHerd",
+      "TableDescription": "Heards",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 79280000000,
+          "ColumnName": "idfFarm",
+          "ColumnDescription": "Farm identifier"
+        },
+        {
+          "idfColumn": 79290000000,
+          "ColumnName": "idfHerd",
+          "ColumnDescription": "Herd identifier"
+        },
+        {
+          "idfColumn": 4572280000000,
+          "ColumnName": "idfHerdActual"
+        },
+        {
+          "idfColumn": 79300000000,
+          "ColumnName": "intDeadAnimalQty",
+          "ColumnDescription": "Dead animal quantity"
+        },
+        {
+          "idfColumn": 4572290000000,
+          "ColumnName": "intSickAnimalQty"
+        },
+        {
+          "idfColumn": 79310000000,
+          "ColumnName": "intTotalAnimalQty",
+          "ColumnDescription": "Total animal quantity"
+        },
+        {
+          "idfColumn": 79320000000,
+          "ColumnName": "strHerdCode",
+          "ColumnDescription": "Herd code"
+        },
+        {
+          "idfColumn": 4572300000000,
+          "ColumnName": "strNote"
+        }
+      ]
+    },
+    {
+      "idfTable": 4573120000000,
+      "TableName": "tlbHerdActual",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4573140000000,
+          "ColumnName": "idfFarmActual"
+        },
+        {
+          "idfColumn": 4573130000000,
+          "ColumnName": "idfHerdActual"
+        },
+        {
+          "idfColumn": 4573180000000,
+          "ColumnName": "intDeadAnimalQty"
+        },
+        {
+          "idfColumn": 4573160000000,
+          "ColumnName": "intSickAnimalQty"
+        },
+        {
+          "idfColumn": 4573170000000,
+          "ColumnName": "intTotalAnimalQty"
+        },
+        {
+          "idfColumn": 4573150000000,
+          "ColumnName": "strHerdCode"
+        },
+        {
+          "idfColumn": 4573190000000,
+          "ColumnName": "strNote"
+        }
+      ]
+    },
+    {
+      "idfTable": 75600000000,
+      "TableName": "tlbHuman",
+      "TableDescription": "Human\/Patient",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 12675400000000,
+          "ColumnName": "blnPermantentAddressAsCurrent"
+        },
+        {
+          "idfColumn": 79330000000,
+          "ColumnName": "datDateofBirth",
+          "ColumnDescription": "Date of birth"
+        },
+        {
+          "idfColumn": 79340000000,
+          "ColumnName": "datDateOfDeath",
+          "ColumnDescription": "Date of death"
+        },
+        {
+          "idfColumn": 51389530000000,
+          "ColumnName": "datEnteredDate"
+        },
+        {
+          "idfColumn": 51389540000000,
+          "ColumnName": "datModificationDate"
+        },
+        {
+          "idfColumn": 79350000000,
+          "ColumnName": "idfCurrentResidenceAddress",
+          "ColumnDescription": "Current residence address identifier"
+        },
+        {
+          "idfColumn": 79360000000,
+          "ColumnName": "idfEmployerAddress",
+          "ColumnDescription": "Employer address identifier"
+        },
+        {
+          "idfColumn": 79370000000,
+          "ColumnName": "idfHuman",
+          "ColumnDescription": "Human identifier"
+        },
+        {
+          "idfColumn": 4572310000000,
+          "ColumnName": "idfHumanActual"
+        },
+        {
+          "idfColumn": 79380000000,
+          "ColumnName": "idfRegistrationAddress",
+          "ColumnDescription": "Registration address identifier"
+        },
+        {
+          "idfColumn": 79390000000,
+          "ColumnName": "idfsHumanGender",
+          "ColumnDescription": "Human gender identifier"
+        },
+        {
+          "idfColumn": 79400000000,
+          "ColumnName": "idfsNationality",
+          "ColumnDescription": "Nationality identifier"
+        },
+        {
+          "idfColumn": 79410000000,
+          "ColumnName": "idfsOccupationType",
+          "ColumnDescription": "Occupation type identifier"
+        },
+        {
+          "idfColumn": 12014460000000,
+          "ColumnName": "idfsPersonIDType"
+        },
+        {
+          "idfColumn": 79420000000,
+          "ColumnName": "strEmployerName",
+          "ColumnDescription": "Employer's Name"
+        },
+        {
+          "idfColumn": 79430000000,
+          "ColumnName": "strFirstName",
+          "ColumnDescription": "First name"
+        },
+        {
+          "idfColumn": 79440000000,
+          "ColumnName": "strHomePhone",
+          "ColumnDescription": "Home phone number"
+        },
+        {
+          "idfColumn": 79450000000,
+          "ColumnName": "strLastName",
+          "ColumnDescription": "Last name"
+        },
+        {
+          "idfColumn": 12014470000000,
+          "ColumnName": "strPersonID"
+        },
+        {
+          "idfColumn": 79460000000,
+          "ColumnName": "strRegistrationPhone",
+          "ColumnDescription": "Registration phone number"
+        },
+        {
+          "idfColumn": 79470000000,
+          "ColumnName": "strSecondName",
+          "ColumnDescription": "Middle name"
+        },
+        {
+          "idfColumn": 79480000000,
+          "ColumnName": "strWorkPhone",
+          "ColumnDescription": "Work phone number"
+        }
+      ]
+    },
+    {
+      "idfTable": 4573200000000,
+      "TableName": "tlbHumanActual",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4573280000000,
+          "ColumnName": "datDateofBirth"
+        },
+        {
+          "idfColumn": 4573290000000,
+          "ColumnName": "datDateOfDeath"
+        },
+        {
+          "idfColumn": 51389550000000,
+          "ColumnName": "datEnteredDate"
+        },
+        {
+          "idfColumn": 51389560000000,
+          "ColumnName": "datModificationDate"
+        },
+        {
+          "idfColumn": 4573250000000,
+          "ColumnName": "idfCurrentResidenceAddress"
+        },
+        {
+          "idfColumn": 4573260000000,
+          "ColumnName": "idfEmployerAddress"
+        },
+        {
+          "idfColumn": 4573210000000,
+          "ColumnName": "idfHumanActual"
+        },
+        {
+          "idfColumn": 4573270000000,
+          "ColumnName": "idfRegistrationAddress"
+        },
+        {
+          "idfColumn": 4573240000000,
+          "ColumnName": "idfsHumanGender"
+        },
+        {
+          "idfColumn": 4573230000000,
+          "ColumnName": "idfsNationality"
+        },
+        {
+          "idfColumn": 4573220000000,
+          "ColumnName": "idfsOccupationType"
+        },
+        {
+          "idfColumn": 12527780000000,
+          "ColumnName": "idfsPersonIDType"
+        },
+        {
+          "idfColumn": 4573340000000,
+          "ColumnName": "strEmployerName"
+        },
+        {
+          "idfColumn": 4573320000000,
+          "ColumnName": "strFirstName"
+        },
+        {
+          "idfColumn": 4573350000000,
+          "ColumnName": "strHomePhone"
+        },
+        {
+          "idfColumn": 4573300000000,
+          "ColumnName": "strLastName"
+        },
+        {
+          "idfColumn": 12527790000000,
+          "ColumnName": "strPersonID"
+        },
+        {
+          "idfColumn": 4573330000000,
+          "ColumnName": "strRegistrationPhone"
+        },
+        {
+          "idfColumn": 4573310000000,
+          "ColumnName": "strSecondName"
+        },
+        {
+          "idfColumn": 4573360000000,
+          "ColumnName": "strWorkPhone"
+        }
+      ]
+    },
+    {
+      "idfTable": 75610000000,
+      "TableName": "tlbHumanCase",
+      "TableDescription": "Human Cases",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 79490000000,
+          "ColumnName": "blnClinicalDiagBasis",
+          "ColumnDescription": "Flag - disgnosis based on clinical picture"
+        },
+        {
+          "idfColumn": 79500000000,
+          "ColumnName": "blnEpiDiagBasis",
+          "ColumnDescription": "Flag - disgnosis based on epi investigation"
+        },
+        {
+          "idfColumn": 79510000000,
+          "ColumnName": "blnLabDiagBasis",
+          "ColumnDescription": "Flag - disgnosis based on lab results"
+        },
+        {
+          "idfColumn": 79520000000,
+          "ColumnName": "datCompletionPaperFormDate",
+          "ColumnDescription": "Date case paper form was completed"
+        },
+        {
+          "idfColumn": 79530000000,
+          "ColumnName": "datDischargeDate",
+          "ColumnDescription": "Date of discharge"
+        },
+        {
+          "idfColumn": 12665420000000,
+          "ColumnName": "datEnteredDate"
+        },
+        {
+          "idfColumn": 79540000000,
+          "ColumnName": "datExposureDate",
+          "ColumnDescription": "Date of exposure"
+        },
+        {
+          "idfColumn": 79550000000,
+          "ColumnName": "datFacilityLastVisit",
+          "ColumnDescription": "Date of the last visit of health care facility"
+        },
+        {
+          "idfColumn": 51389570000000,
+          "ColumnName": "datFinalCaseClassificationDate"
+        },
+        {
+          "idfColumn": 79560000000,
+          "ColumnName": "datFinalDiagnosisDate",
+          "ColumnDescription": "Final diagnosis date"
+        },
+        {
+          "idfColumn": 855750000000,
+          "ColumnName": "datFirstSoughtCareDate"
+        },
+        {
+          "idfColumn": 79570000000,
+          "ColumnName": "datHospitalizationDate",
+          "ColumnDescription": "Date of hospitalization"
+        },
+        {
+          "idfColumn": 79580000000,
+          "ColumnName": "datInvestigationStartDate",
+          "ColumnDescription": "Investigation start date"
+        },
+        {
+          "idfColumn": 79590000000,
+          "ColumnName": "datModificationDate",
+          "ColumnDescription": "Last case modification date"
+        },
+        {
+          "idfColumn": 855740000000,
+          "ColumnName": "datNotificationDate"
+        },
+        {
+          "idfColumn": 855760000000,
+          "ColumnName": "datOnSetDate"
+        },
+        {
+          "idfColumn": 79600000000,
+          "ColumnName": "datTentativeDiagnosisDate",
+          "ColumnDescription": "Tentative diagnosis date"
+        },
+        {
+          "idfColumn": 855720000000,
+          "ColumnName": "idfCSObservation"
+        },
+        {
+          "idfColumn": 855730000000,
+          "ColumnName": "idfDeduplicationResultCase"
+        },
+        {
+          "idfColumn": 855710000000,
+          "ColumnName": "idfEpiObservation"
+        },
+        {
+          "idfColumn": 51523420000000,
+          "ColumnName": "idfHospital"
+        },
+        {
+          "idfColumn": 4577900000000,
+          "ColumnName": "idfHuman"
+        },
+        {
+          "idfColumn": 79610000000,
+          "ColumnName": "idfHumanCase",
+          "ColumnDescription": "Human case identifier"
+        },
+        {
+          "idfColumn": 79620000000,
+          "ColumnName": "idfInvestigatedByOffice",
+          "ColumnDescription": "Case investigated by office identifier"
+        },
+        {
+          "idfColumn": 4578410000000,
+          "ColumnName": "idfInvestigatedByPerson"
+        },
+        {
+          "idfColumn": 12665410000000,
+          "ColumnName": "idfOutbreak"
+        },
+        {
+          "idfColumn": 4577910000000,
+          "ColumnName": "idfPersonEnteredBy"
+        },
+        {
+          "idfColumn": 79630000000,
+          "ColumnName": "idfPointGeoLocation",
+          "ColumnDescription": "Case Geo location (exact point) identifier"
+        },
+        {
+          "idfColumn": 79640000000,
+          "ColumnName": "idfReceivedByOffice",
+          "ColumnDescription": "Case received by office identifier"
+        },
+        {
+          "idfColumn": 4578400000000,
+          "ColumnName": "idfReceivedByPerson"
+        },
+        {
+          "idfColumn": 12665440000000,
+          "ColumnName": "idfsCaseProgressStatus"
+        },
+        {
+          "idfColumn": 855700000000,
+          "ColumnName": "idfSentByOffice"
+        },
+        {
+          "idfColumn": 4578390000000,
+          "ColumnName": "idfSentByPerson"
+        },
+        {
+          "idfColumn": 855690000000,
+          "ColumnName": "idfsFinalCaseStatus"
+        },
+        {
+          "idfColumn": 79660000000,
+          "ColumnName": "idfsFinalDiagnosis",
+          "ColumnDescription": "Final diagnosis identifier"
+        },
+        {
+          "idfColumn": 79670000000,
+          "ColumnName": "idfsFinalState",
+          "ColumnDescription": "Human final state identifier"
+        },
+        {
+          "idfColumn": 79680000000,
+          "ColumnName": "idfsHospitalizationStatus",
+          "ColumnDescription": "Hospitalization status identifier"
+        },
+        {
+          "idfColumn": 79690000000,
+          "ColumnName": "idfsHumanAgeType",
+          "ColumnDescription": "Human age type identifier (years\/months\/days)"
+        },
+        {
+          "idfColumn": 79700000000,
+          "ColumnName": "idfsInitialCaseStatus",
+          "ColumnDescription": "Initial case status identifier"
+        },
+        {
+          "idfColumn": 12014660000000,
+          "ColumnName": "idfsNonNotifiableDiagnosis"
+        },
+        {
+          "idfColumn": 12014670000000,
+          "ColumnName": "idfsNotCollectedReason"
+        },
+        {
+          "idfColumn": 12014650000000,
+          "ColumnName": "idfSoughtCareFacility"
+        },
+        {
+          "idfColumn": 79710000000,
+          "ColumnName": "idfsOutcome",
+          "ColumnDescription": "Case outcome identifier"
+        },
+        {
+          "idfColumn": 79720000000,
+          "ColumnName": "idfsTentativeDiagnosis",
+          "ColumnDescription": "Tentative diagnosis identifier"
+        },
+        {
+          "idfColumn": 79730000000,
+          "ColumnName": "idfsYNAntimicrobialTherapy",
+          "ColumnDescription": "Flag - yes\/no Antimicrabial Therapy"
+        },
+        {
+          "idfColumn": 79740000000,
+          "ColumnName": "idfsYNHospitalization",
+          "ColumnDescription": "Flag - yes\/no Hospitalization"
+        },
+        {
+          "idfColumn": 79750000000,
+          "ColumnName": "idfsYNRelatedToOutbreak",
+          "ColumnDescription": "Flag - yes\/no Case related to outbreak"
+        },
+        {
+          "idfColumn": 79760000000,
+          "ColumnName": "idfsYNSpecimenCollected",
+          "ColumnDescription": "Flag - yes\/no Specimen Collected"
+        },
+        {
+          "idfColumn": 4578420000000,
+          "ColumnName": "idfsYNTestsConducted"
+        },
+        {
+          "idfColumn": 79770000000,
+          "ColumnName": "intPatientAge",
+          "ColumnDescription": "Patient age (in patient age type units)"
+        },
+        {
+          "idfColumn": 12665430000000,
+          "ColumnName": "strCaseID"
+        },
+        {
+          "idfColumn": 79780000000,
+          "ColumnName": "strClinicalDiagnosis",
+          "ColumnDescription": "Clinical Diagnosis"
+        },
+        {
+          "idfColumn": 855770000000,
+          "ColumnName": "strClinicalNotes"
+        },
+        {
+          "idfColumn": 79790000000,
+          "ColumnName": "strCurrentLocation",
+          "ColumnDescription": "Current location"
+        },
+        {
+          "idfColumn": 79800000000,
+          "ColumnName": "strEpidemiologistsName",
+          "ColumnDescription": "Epidemiologists' Name"
+        },
+        {
+          "idfColumn": 79810000000,
+          "ColumnName": "strHospitalizationPlace",
+          "ColumnDescription": "Hospitalization Place"
+        },
+        {
+          "idfColumn": 79820000000,
+          "ColumnName": "strLocalIdentifier",
+          "ColumnDescription": "Case Local Text code (legacy\/office record system)"
+        },
+        {
+          "idfColumn": 79830000000,
+          "ColumnName": "strNotCollectedReason",
+          "ColumnDescription": "Reason for not collecting case samples"
+        },
+        {
+          "idfColumn": 79840000000,
+          "ColumnName": "strNote",
+          "ColumnDescription": "Case notes"
+        },
+        {
+          "idfColumn": 79850000000,
+          "ColumnName": "strReceivedByFirstName",
+          "ColumnDescription": "Case paper form received by First name"
+        },
+        {
+          "idfColumn": 79860000000,
+          "ColumnName": "strReceivedByLastName",
+          "ColumnDescription": "Case paper form received by Last name"
+        },
+        {
+          "idfColumn": 79870000000,
+          "ColumnName": "strReceivedByPatronymicName",
+          "ColumnDescription": "Case paper form received by Middle name"
+        },
+        {
+          "idfColumn": 12665450000000,
+          "ColumnName": "strSampleNotes"
+        },
+        {
+          "idfColumn": 79880000000,
+          "ColumnName": "strSentByFirstName",
+          "ColumnDescription": "Case paper form sent by First name"
+        },
+        {
+          "idfColumn": 79890000000,
+          "ColumnName": "strSentByLastName",
+          "ColumnDescription": "Case paper form sent by Last name"
+        },
+        {
+          "idfColumn": 79900000000,
+          "ColumnName": "strSentByPatronymicName",
+          "ColumnDescription": "Case paper form sent by Middle name"
+        },
+        {
+          "idfColumn": 79910000000,
+          "ColumnName": "strSoughtCareFacility",
+          "ColumnDescription": "Facility patient sought care"
+        },
+        {
+          "idfColumn": 855780000000,
+          "ColumnName": "strSummaryNotes"
+        },
+        {
+          "idfColumn": 12665460000000,
+          "ColumnName": "uidOfflineCaseID"
+        }
+      ]
+    },
+    {
+      "idfTable": 75620000000,
+      "TableName": "tlbMaterial",
+      "TableDescription": "Samples collected from human\/animal patient",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 49545580000000,
+          "ColumnName": "blnAccessioned"
+        },
+        {
+          "idfColumn": 4578730000000,
+          "ColumnName": "blnReadOnly"
+        },
+        {
+          "idfColumn": 49545610000000,
+          "ColumnName": "blnShowInAccessionInForm"
+        },
+        {
+          "idfColumn": 49545590000000,
+          "ColumnName": "blnShowInCaseOrSession"
+        },
+        {
+          "idfColumn": 49545620000000,
+          "ColumnName": "blnShowInDispositionList"
+        },
+        {
+          "idfColumn": 49545600000000,
+          "ColumnName": "blnShowInLabList"
+        },
+        {
+          "idfColumn": 12666880000000,
+          "ColumnName": "datAccession"
+        },
+        {
+          "idfColumn": 4576400000000,
+          "ColumnName": "datDestructionDate"
+        },
+        {
+          "idfColumn": 4576390000000,
+          "ColumnName": "datEnteringDate"
+        },
+        {
+          "idfColumn": 79920000000,
+          "ColumnName": "datFieldCollectionDate",
+          "ColumnDescription": "Date of collection"
+        },
+        {
+          "idfColumn": 79930000000,
+          "ColumnName": "datFieldSentDate",
+          "ColumnDescription": "Date of sending"
+        },
+        {
+          "idfColumn": 51528570000000,
+          "ColumnName": "datOutOfRepositoryDate"
+        },
+        {
+          "idfColumn": 51528580000000,
+          "ColumnName": "datSampleStatusDate"
+        },
+        {
+          "idfColumn": 12666910000000,
+          "ColumnName": "idfAccesionByPerson"
+        },
+        {
+          "idfColumn": 4572450000000,
+          "ColumnName": "idfAnimal"
+        },
+        {
+          "idfColumn": 4576370000000,
+          "ColumnName": "idfDestroyedByPerson"
+        },
+        {
+          "idfColumn": 79940000000,
+          "ColumnName": "idfFieldCollectedByOffice",
+          "ColumnDescription": "Material collected by Institution identifier"
+        },
+        {
+          "idfColumn": 79950000000,
+          "ColumnName": "idfFieldCollectedByPerson",
+          "ColumnDescription": "Material collected by Officer identifier"
+        },
+        {
+          "idfColumn": 4572430000000,
+          "ColumnName": "idfHuman"
+        },
+        {
+          "idfColumn": 12665570000000,
+          "ColumnName": "idfHumanCase"
+        },
+        {
+          "idfColumn": 4576360000000,
+          "ColumnName": "idfInDepartment"
+        },
+        {
+          "idfColumn": 49545410000000,
+          "ColumnName": "idfMainTest"
+        },
+        {
+          "idfColumn": 51523600000000,
+          "ColumnName": "idfMarkedForDispositionByPerson"
+        },
+        {
+          "idfColumn": 79960000000,
+          "ColumnName": "idfMaterial",
+          "ColumnDescription": "Material identifier"
+        },
+        {
+          "idfColumn": 4572470000000,
+          "ColumnName": "idfMonitoringSession"
+        },
+        {
+          "idfColumn": 79970000000,
+          "ColumnName": "idfParentMaterial",
+          "ColumnDescription": "Immediate source of the material identifier"
+        },
+        {
+          "idfColumn": 49545400000000,
+          "ColumnName": "idfRootMaterial"
+        },
+        {
+          "idfColumn": 12666890000000,
+          "ColumnName": "idfsAccessionCondition"
+        },
+        {
+          "idfColumn": 12014480000000,
+          "ColumnName": "idfsBirdStatus"
+        },
+        {
+          "idfColumn": 49545560000000,
+          "ColumnName": "idfsCurrentSite"
+        },
+        {
+          "idfColumn": 12675260000000,
+          "ColumnName": "idfsDestructionMethod"
+        },
+        {
+          "idfColumn": 4578720000000,
+          "ColumnName": "idfSendToOffice"
+        },
+        {
+          "idfColumn": 4572440000000,
+          "ColumnName": "idfSpecies"
+        },
+        {
+          "idfColumn": 49545570000000,
+          "ColumnName": "idfsSampleKind"
+        },
+        {
+          "idfColumn": 49545420000000,
+          "ColumnName": "idfsSampleStatus"
+        },
+        {
+          "idfColumn": 49545390000000,
+          "ColumnName": "idfsSampleType"
+        },
+        {
+          "idfColumn": 4576340000000,
+          "ColumnName": "idfSubdivision"
+        },
+        {
+          "idfColumn": 4575200000000,
+          "ColumnName": "idfVector"
+        },
+        {
+          "idfColumn": 4575190000000,
+          "ColumnName": "idfVectorSurveillanceSession"
+        },
+        {
+          "idfColumn": 12665580000000,
+          "ColumnName": "idfVetCase"
+        },
+        {
+          "idfColumn": 4576410000000,
+          "ColumnName": "strBarcode"
+        },
+        {
+          "idfColumn": 4572480000000,
+          "ColumnName": "strCalculatedCaseID"
+        },
+        {
+          "idfColumn": 4572490000000,
+          "ColumnName": "strCalculatedHumanName"
+        },
+        {
+          "idfColumn": 12666900000000,
+          "ColumnName": "strCondition"
+        },
+        {
+          "idfColumn": 80030000000,
+          "ColumnName": "strFieldBarcode",
+          "ColumnDescription": "Field barcode assigned to material"
+        },
+        {
+          "idfColumn": 4576420000000,
+          "ColumnName": "strNote"
+        }
+      ]
+    },
+    {
+      "idfTable": 707040000000,
+      "TableName": "tlbMonitoringSession",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4578680000000,
+          "ColumnName": "datEndDate"
+        },
+        {
+          "idfColumn": 707130000000,
+          "ColumnName": "datEnteredDate"
+        },
+        {
+          "idfColumn": 4578670000000,
+          "ColumnName": "datStartDate"
+        },
+        {
+          "idfColumn": 707120000000,
+          "ColumnName": "idfCampaign"
+        },
+        {
+          "idfColumn": 707050000000,
+          "ColumnName": "idfMonitoringSession"
+        },
+        {
+          "idfColumn": 707110000000,
+          "ColumnName": "idfPersonEnteredBy"
+        },
+        {
+          "idfColumn": 707070000000,
+          "ColumnName": "idfsCountry"
+        },
+        {
+          "idfColumn": 707060000000,
+          "ColumnName": "idfsMonitoringSessionStatus"
+        },
+        {
+          "idfColumn": 707090000000,
+          "ColumnName": "idfsRayon"
+        },
+        {
+          "idfColumn": 707080000000,
+          "ColumnName": "idfsRegion"
+        },
+        {
+          "idfColumn": 707100000000,
+          "ColumnName": "idfsSettlement"
+        },
+        {
+          "idfColumn": 707140000000,
+          "ColumnName": "strMonitoringSessionID"
+        }
+      ]
+    },
+    {
+      "idfTable": 708220000000,
+      "TableName": "tlbMonitoringSessionAction",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 708280000000,
+          "ColumnName": "datActionDate"
+        },
+        {
+          "idfColumn": 708240000000,
+          "ColumnName": "idfMonitoringSession"
+        },
+        {
+          "idfColumn": 708230000000,
+          "ColumnName": "idfMonitoringSessionAction"
+        },
+        {
+          "idfColumn": 708250000000,
+          "ColumnName": "idfPersonEnteredBy"
+        },
+        {
+          "idfColumn": 708270000000,
+          "ColumnName": "idfsMonitoringSessionActionStatus"
+        },
+        {
+          "idfColumn": 708260000000,
+          "ColumnName": "idfsMonitoringSessionActionType"
+        },
+        {
+          "idfColumn": 708290000000,
+          "ColumnName": "strComments"
+        }
+      ]
+    },
+    {
+      "idfTable": 4578950000000,
+      "TableName": "tlbMonitoringSessionSummary",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4579030000000,
+          "ColumnName": "datCollectionDate"
+        },
+        {
+          "idfColumn": 4578980000000,
+          "ColumnName": "idfFarm"
+        },
+        {
+          "idfColumn": 4578970000000,
+          "ColumnName": "idfMonitoringSession"
+        },
+        {
+          "idfColumn": 4578960000000,
+          "ColumnName": "idfMonitoringSessionSummary"
+        },
+        {
+          "idfColumn": 4579000000000,
+          "ColumnName": "idfsAnimalSex"
+        },
+        {
+          "idfColumn": 4578990000000,
+          "ColumnName": "idfSpecies"
+        },
+        {
+          "idfColumn": 4579040000000,
+          "ColumnName": "intPositiveAnimalsQty"
+        },
+        {
+          "idfColumn": 4579010000000,
+          "ColumnName": "intSampledAnimalsQty"
+        },
+        {
+          "idfColumn": 4579020000000,
+          "ColumnName": "intSamplesQty"
+        }
+      ]
+    },
+    {
+      "idfTable": 4579090000000,
+      "TableName": "tlbMonitoringSessionSummaryDiagnosis",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4579480000000,
+          "ColumnName": "blnChecked"
+        },
+        {
+          "idfColumn": 4579110000000,
+          "ColumnName": "idfMonitoringSessionSummary"
+        },
+        {
+          "idfColumn": 4579120000000,
+          "ColumnName": "idfsDiagnosis"
+        }
+      ]
+    },
+    {
+      "idfTable": 4579050000000,
+      "TableName": "tlbMonitoringSessionSummarySample",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4579490000000,
+          "ColumnName": "blnChecked"
+        },
+        {
+          "idfColumn": 4579070000000,
+          "ColumnName": "idfMonitoringSessionSummary"
+        },
+        {
+          "idfColumn": 4579080000000,
+          "ColumnName": "idfsSampleType"
+        }
+      ]
+    },
+    {
+      "idfTable": 707150000000,
+      "TableName": "tlbMonitoringSessionToDiagnosis",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 707160000000,
+          "ColumnName": "idfMonitoringSession"
+        },
+        {
+          "idfColumn": 749060000000,
+          "ColumnName": "idfMonitoringSessionToDiagnosis"
+        },
+        {
+          "idfColumn": 707170000000,
+          "ColumnName": "idfsDiagnosis"
+        },
+        {
+          "idfColumn": 51586590000000,
+          "ColumnName": "idfsSampleType"
+        },
+        {
+          "idfColumn": 4578860000000,
+          "ColumnName": "idfsSpeciesType"
+        },
+        {
+          "idfColumn": 707180000000,
+          "ColumnName": "intOrder"
+        }
+      ]
+    },
+    {
+      "idfTable": 75640000000,
+      "TableName": "tlbObservation",
+      "TableDescription": "Flex-form filled out instances",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 80060000000,
+          "ColumnName": "idfObservation",
+          "ColumnDescription": "Flex-Form instance identifier"
+        },
+        {
+          "idfColumn": 80070000000,
+          "ColumnName": "idfsFormTemplate",
+          "ColumnDescription": "Flex-form template identifier"
+        }
+      ]
+    },
+    {
+      "idfTable": 75650000000,
+      "TableName": "tlbOffice",
+      "TableDescription": "Offices",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 51577490000000,
+          "ColumnName": "idfCustomizationPackage"
+        },
+        {
+          "idfColumn": 4577920000000,
+          "ColumnName": "idfLocation"
+        },
+        {
+          "idfColumn": 80080000000,
+          "ColumnName": "idfOffice",
+          "ColumnDescription": "Office identifier"
+        },
+        {
+          "idfColumn": 80110000000,
+          "ColumnName": "idfsOfficeAbbreviation",
+          "ColumnDescription": "Office abbreviation identifier"
+        },
+        {
+          "idfColumn": 80120000000,
+          "ColumnName": "idfsOfficeName",
+          "ColumnDescription": "Office name identifier"
+        },
+        {
+          "idfColumn": 50815930000000,
+          "ColumnName": "intHACode"
+        },
+        {
+          "idfColumn": 80150000000,
+          "ColumnName": "strContactPhone",
+          "ColumnDescription": "Office Contact phone number"
+        },
+        {
+          "idfColumn": 51523430000000,
+          "ColumnName": "strOrganizationID"
+        }
+      ]
+    },
+    {
+      "idfTable": 75660000000,
+      "TableName": "tlbOutbreak",
+      "TableDescription": "Outbreaks",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 746520000000,
+          "ColumnName": "datFinishDate"
+        },
+        {
+          "idfColumn": 746510000000,
+          "ColumnName": "datStartDate"
+        },
+        {
+          "idfColumn": 80160000000,
+          "ColumnName": "idfGeoLocation",
+          "ColumnDescription": "Geo location identifier"
+        },
+        {
+          "idfColumn": 80170000000,
+          "ColumnName": "idfOutbreak",
+          "ColumnDescription": "Outbreak identifier"
+        },
+        {
+          "idfColumn": 12675370000000,
+          "ColumnName": "idfPrimaryCaseOrSession"
+        },
+        {
+          "idfColumn": 12675310000000,
+          "ColumnName": "idfsDiagnosisOrDiagnosisGroup"
+        },
+        {
+          "idfColumn": 80190000000,
+          "ColumnName": "idfsOutbreakStatus",
+          "ColumnDescription": "Outbreak status identifier"
+        },
+        {
+          "idfColumn": 746540000000,
+          "ColumnName": "strDescription"
+        },
+        {
+          "idfColumn": 746530000000,
+          "ColumnName": "strOutbreakID"
+        }
+      ]
+    },
+    {
+      "idfTable": 707190000000,
+      "TableName": "tlbOutbreakNote",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 707230000000,
+          "ColumnName": "datNoteDate"
+        },
+        {
+          "idfColumn": 707210000000,
+          "ColumnName": "idfOutbreak"
+        },
+        {
+          "idfColumn": 707200000000,
+          "ColumnName": "idfOutbreakNote"
+        },
+        {
+          "idfColumn": 707240000000,
+          "ColumnName": "idfPerson"
+        },
+        {
+          "idfColumn": 707220000000,
+          "ColumnName": "strNote"
+        }
+      ]
+    },
+    {
+      "idfTable": 75680000000,
+      "TableName": "tlbPensideTest",
+      "TableDescription": "Penside tests",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4575170000000,
+          "ColumnName": "datTestDate"
+        },
+        {
+          "idfColumn": 4575130000000,
+          "ColumnName": "idfMaterial"
+        },
+        {
+          "idfColumn": 80230000000,
+          "ColumnName": "idfPensideTest",
+          "ColumnDescription": "Penside test identifier"
+        },
+        {
+          "idfColumn": 4575160000000,
+          "ColumnName": "idfsDiagnosis"
+        },
+        {
+          "idfColumn": 4578380000000,
+          "ColumnName": "idfsPensideTestCategory"
+        },
+        {
+          "idfColumn": 49545450000000,
+          "ColumnName": "idfsPensideTestName"
+        },
+        {
+          "idfColumn": 80240000000,
+          "ColumnName": "idfsPensideTestResult",
+          "ColumnDescription": "Penside test result identifier"
+        },
+        {
+          "idfColumn": 4575150000000,
+          "ColumnName": "idfTestedByOffice"
+        },
+        {
+          "idfColumn": 4578630000000,
+          "ColumnName": "idfTestedByPerson"
+        }
+      ]
+    },
+    {
+      "idfTable": 75690000000,
+      "TableName": "tlbPerson",
+      "TableDescription": "Staff Persons (Officers)",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 80260000000,
+          "ColumnName": "idfDepartment",
+          "ColumnDescription": "Department identifier"
+        },
+        {
+          "idfColumn": 80270000000,
+          "ColumnName": "idfInstitution",
+          "ColumnDescription": "Institution identifier"
+        },
+        {
+          "idfColumn": 80280000000,
+          "ColumnName": "idfPerson",
+          "ColumnDescription": "Officer identifier"
+        },
+        {
+          "idfColumn": 80290000000,
+          "ColumnName": "idfsStaffPosition",
+          "ColumnDescription": "Staff position identifier"
+        },
+        {
+          "idfColumn": 80300000000,
+          "ColumnName": "strBarcode",
+          "ColumnDescription": "Barcode (alphanumeric badge code)"
+        },
+        {
+          "idfColumn": 80310000000,
+          "ColumnName": "strContactPhone",
+          "ColumnDescription": "Officer contact phone number"
+        },
+        {
+          "idfColumn": 80320000000,
+          "ColumnName": "strFamilyName",
+          "ColumnDescription": "Officer Last name"
+        },
+        {
+          "idfColumn": 80330000000,
+          "ColumnName": "strFirstName",
+          "ColumnDescription": "Officer First name"
+        },
+        {
+          "idfColumn": 80340000000,
+          "ColumnName": "strSecondName",
+          "ColumnDescription": "Officer Middle name"
+        }
+      ]
+    },
+    {
+      "idfTable": 75700000000,
+      "TableName": "tlbPostalCode",
+      "TableDescription": "Postal Codes",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4576560000000,
+          "ColumnName": "idfPostalCode"
+        },
+        {
+          "idfColumn": 80350000000,
+          "ColumnName": "idfsSettlement",
+          "ColumnDescription": "Settlement identifier"
+        },
+        {
+          "idfColumn": 80360000000,
+          "ColumnName": "strPostCode",
+          "ColumnDescription": "Postal code"
+        }
+      ]
+    },
+    {
+      "idfTable": 75710000000,
+      "TableName": "tlbSpecies",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4572370000000,
+          "ColumnName": "datStartOfSignsDate"
+        },
+        {
+          "idfColumn": 4572350000000,
+          "ColumnName": "idfHerd"
+        },
+        {
+          "idfColumn": 4572360000000,
+          "ColumnName": "idfObservation"
+        },
+        {
+          "idfColumn": 4572320000000,
+          "ColumnName": "idfSpecies"
+        },
+        {
+          "idfColumn": 4572330000000,
+          "ColumnName": "idfSpeciesActual"
+        },
+        {
+          "idfColumn": 4572340000000,
+          "ColumnName": "idfsSpeciesType"
+        },
+        {
+          "idfColumn": 4572410000000,
+          "ColumnName": "intDeadAnimalQty"
+        },
+        {
+          "idfColumn": 4572390000000,
+          "ColumnName": "intSickAnimalQty"
+        },
+        {
+          "idfColumn": 4572400000000,
+          "ColumnName": "intTotalAnimalQty"
+        },
+        {
+          "idfColumn": 4572380000000,
+          "ColumnName": "strAverageAge"
+        },
+        {
+          "idfColumn": 4572420000000,
+          "ColumnName": "strNote"
+        }
+      ]
+    },
+    {
+      "idfTable": 4573370000000,
+      "TableName": "tlbSpeciesActual",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4573410000000,
+          "ColumnName": "datStartOfSignsDate"
+        },
+        {
+          "idfColumn": 4573400000000,
+          "ColumnName": "idfHerdActual"
+        },
+        {
+          "idfColumn": 4573380000000,
+          "ColumnName": "idfSpeciesActual"
+        },
+        {
+          "idfColumn": 4573390000000,
+          "ColumnName": "idfsSpeciesType"
+        },
+        {
+          "idfColumn": 4573450000000,
+          "ColumnName": "intDeadAnimalQty"
+        },
+        {
+          "idfColumn": 4573430000000,
+          "ColumnName": "intSickAnimalQty"
+        },
+        {
+          "idfColumn": 4573440000000,
+          "ColumnName": "intTotalAnimalQty"
+        },
+        {
+          "idfColumn": 4573420000000,
+          "ColumnName": "strAverageAge"
+        },
+        {
+          "idfColumn": 4573460000000,
+          "ColumnName": "strNote"
+        }
+      ]
+    },
+    {
+      "idfTable": 75720000000,
+      "TableName": "tlbStatistic",
+      "TableDescription": "Statistics",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 80370000000,
+          "ColumnName": "datStatisticFinishDate",
+          "ColumnDescription": "Statistic value related period end date"
+        },
+        {
+          "idfColumn": 80380000000,
+          "ColumnName": "datStatisticStartDate",
+          "ColumnDescription": "Statistic value related period start date"
+        },
+        {
+          "idfColumn": 80390000000,
+          "ColumnName": "idfsArea",
+          "ColumnDescription": "Statistic Value Related Area identifier"
+        },
+        {
+          "idfColumn": 4577930000000,
+          "ColumnName": "idfsMainBaseReference"
+        },
+        {
+          "idfColumn": 12014500000000,
+          "ColumnName": "idfsStatisticalAgeGroup"
+        },
+        {
+          "idfColumn": 80400000000,
+          "ColumnName": "idfsStatisticAreaType",
+          "ColumnDescription": "Statistic value related Area type"
+        },
+        {
+          "idfColumn": 80410000000,
+          "ColumnName": "idfsStatisticDataType",
+          "ColumnDescription": "Statistic data type identifier"
+        },
+        {
+          "idfColumn": 80420000000,
+          "ColumnName": "idfsStatisticPeriodType",
+          "ColumnDescription": "Statistic value related Period type"
+        },
+        {
+          "idfColumn": 80430000000,
+          "ColumnName": "idfStatistic",
+          "ColumnDescription": "Statistic value identifier"
+        },
+        {
+          "idfColumn": 80440000000,
+          "ColumnName": "varValue",
+          "ColumnDescription": "Statistic value "
+        }
+      ]
+    },
+    {
+      "idfTable": 75730000000,
+      "TableName": "tlbStreet",
+      "TableDescription": "Streets",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 80450000000,
+          "ColumnName": "idfsSettlement",
+          "ColumnDescription": "Settlement identifier"
+        },
+        {
+          "idfColumn": 4576570000000,
+          "ColumnName": "idfStreet"
+        },
+        {
+          "idfColumn": 80460000000,
+          "ColumnName": "strStreetName",
+          "ColumnDescription": "Street name"
+        }
+      ]
+    },
+    {
+      "idfTable": 4578430000000,
+      "TableName": "tlbTestAmendmentHistory",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4578480000000,
+          "ColumnName": "datAmendmentDate"
+        },
+        {
+          "idfColumn": 4578460000000,
+          "ColumnName": "idfAmendByOffice"
+        },
+        {
+          "idfColumn": 4578470000000,
+          "ColumnName": "idfAmendByPerson"
+        },
+        {
+          "idfColumn": 4578500000000,
+          "ColumnName": "idfsNewTestResult"
+        },
+        {
+          "idfColumn": 4578490000000,
+          "ColumnName": "idfsOldTestResult"
+        },
+        {
+          "idfColumn": 4578440000000,
+          "ColumnName": "idfTestAmendmentHistory"
+        },
+        {
+          "idfColumn": 4578450000000,
+          "ColumnName": "idfTesting"
+        },
+        {
+          "idfColumn": 4578520000000,
+          "ColumnName": "strNewNote"
+        },
+        {
+          "idfColumn": 4578510000000,
+          "ColumnName": "strOldNote"
+        },
+        {
+          "idfColumn": 4578530000000,
+          "ColumnName": "strReason"
+        }
+      ]
+    },
+    {
+      "idfTable": 75740000000,
+      "TableName": "tlbTesting",
+      "TableDescription": "Assigned tests information",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 50815850000000,
+          "ColumnName": "blnExternalTest"
+        },
+        {
+          "idfColumn": 4578760000000,
+          "ColumnName": "blnNonLaboratoryTest"
+        },
+        {
+          "idfColumn": 4578740000000,
+          "ColumnName": "blnReadOnly"
+        },
+        {
+          "idfColumn": 4578550000000,
+          "ColumnName": "datConcludedDate"
+        },
+        {
+          "idfColumn": 50815870000000,
+          "ColumnName": "datReceivedDate"
+        },
+        {
+          "idfColumn": 4578540000000,
+          "ColumnName": "datStartedDate"
+        },
+        {
+          "idfColumn": 80470000000,
+          "ColumnName": "idfBatchTest",
+          "ColumnDescription": "Test Batch identifier"
+        },
+        {
+          "idfColumn": 4576430000000,
+          "ColumnName": "idfMaterial"
+        },
+        {
+          "idfColumn": 80500000000,
+          "ColumnName": "idfObservation",
+          "ColumnDescription": "Flexform instance identifier"
+        },
+        {
+          "idfColumn": 50815860000000,
+          "ColumnName": "idfPerformedByOffice"
+        },
+        {
+          "idfColumn": 4578580000000,
+          "ColumnName": "idfResultEnteredByOffice"
+        },
+        {
+          "idfColumn": 4578590000000,
+          "ColumnName": "idfResultEnteredByPerson"
+        },
+        {
+          "idfColumn": 4572520000000,
+          "ColumnName": "idfsDiagnosis"
+        },
+        {
+          "idfColumn": 49545440000000,
+          "ColumnName": "idfsTestCategory"
+        },
+        {
+          "idfColumn": 49545430000000,
+          "ColumnName": "idfsTestName"
+        },
+        {
+          "idfColumn": 80510000000,
+          "ColumnName": "idfsTestResult",
+          "ColumnDescription": "Test Result identifier"
+        },
+        {
+          "idfColumn": 4572510000000,
+          "ColumnName": "idfsTestStatus"
+        },
+        {
+          "idfColumn": 4578560000000,
+          "ColumnName": "idfTestedByOffice"
+        },
+        {
+          "idfColumn": 4578570000000,
+          "ColumnName": "idfTestedByPerson"
+        },
+        {
+          "idfColumn": 80530000000,
+          "ColumnName": "idfTesting",
+          "ColumnDescription": "Test identifier"
+        },
+        {
+          "idfColumn": 4578600000000,
+          "ColumnName": "idfValidatedByOffice"
+        },
+        {
+          "idfColumn": 4578610000000,
+          "ColumnName": "idfValidatedByPerson"
+        },
+        {
+          "idfColumn": 80540000000,
+          "ColumnName": "intTestNumber",
+          "ColumnDescription": "Number of test in batch"
+        },
+        {
+          "idfColumn": 50815880000000,
+          "ColumnName": "strContactPerson"
+        },
+        {
+          "idfColumn": 4572540000000,
+          "ColumnName": "strNote"
+        }
+      ]
+    },
+    {
+      "idfTable": 75750000000,
+      "TableName": "tlbTestValidation",
+      "TableDescription": "Test interpretation\/validation results",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4572560000000,
+          "ColumnName": "blnCaseCreated"
+        },
+        {
+          "idfColumn": 6617410000000,
+          "ColumnName": "blnReadOnly"
+        },
+        {
+          "idfColumn": 80550000000,
+          "ColumnName": "blnValidateStatus",
+          "ColumnDescription": "Interpretation validated (Flag - yes\/no)"
+        },
+        {
+          "idfColumn": 4572580000000,
+          "ColumnName": "datInterpretationDate"
+        },
+        {
+          "idfColumn": 4572570000000,
+          "ColumnName": "datValidationDate"
+        },
+        {
+          "idfColumn": 80560000000,
+          "ColumnName": "idfInterpretedByOffice",
+          "ColumnDescription": "Interpreted by office identifier"
+        },
+        {
+          "idfColumn": 80570000000,
+          "ColumnName": "idfInterpretedByPerson",
+          "ColumnDescription": "Interpreted by officer identifier"
+        },
+        {
+          "idfColumn": 80580000000,
+          "ColumnName": "idfsDiagnosis",
+          "ColumnDescription": "Diagnosis identifier"
+        },
+        {
+          "idfColumn": 80590000000,
+          "ColumnName": "idfsInterpretedStatus",
+          "ColumnDescription": "Status identifier (confirmed\/rejected)"
+        },
+        {
+          "idfColumn": 80600000000,
+          "ColumnName": "idfTesting",
+          "ColumnDescription": "Test (interpreted\/validated) identifier"
+        },
+        {
+          "idfColumn": 4572550000000,
+          "ColumnName": "idfTestValidation"
+        },
+        {
+          "idfColumn": 80610000000,
+          "ColumnName": "idfValidatedByOffice",
+          "ColumnDescription": "Validated by office identifier"
+        },
+        {
+          "idfColumn": 80620000000,
+          "ColumnName": "idfValidatedByPerson",
+          "ColumnDescription": "Validated by officer identifier"
+        },
+        {
+          "idfColumn": 80630000000,
+          "ColumnName": "strInterpretedComment",
+          "ColumnDescription": "Interpretation comments"
+        },
+        {
+          "idfColumn": 80640000000,
+          "ColumnName": "strValidateComment",
+          "ColumnDescription": "Validation comments"
+        }
+      ]
+    },
+    {
+      "idfTable": 75770000000,
+      "TableName": "tlbTransferOUT",
+      "TableDescription": "Container transfers out (to another lab\/site)",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 80720000000,
+          "ColumnName": "datSendDate",
+          "ColumnDescription": "Date sent"
+        },
+        {
+          "idfColumn": 80730000000,
+          "ColumnName": "idfSendByPerson",
+          "ColumnDescription": "Person sent by identifier"
+        },
+        {
+          "idfColumn": 80740000000,
+          "ColumnName": "idfSendFromOffice",
+          "ColumnDescription": "Transfer out of office identifier"
+        },
+        {
+          "idfColumn": 80750000000,
+          "ColumnName": "idfSendToOffice",
+          "ColumnDescription": "Transfer out to office identifier"
+        },
+        {
+          "idfColumn": 4577940000000,
+          "ColumnName": "idfsTransferStatus"
+        },
+        {
+          "idfColumn": 80760000000,
+          "ColumnName": "idfTransferOut",
+          "ColumnDescription": "Transfer out identifier"
+        },
+        {
+          "idfColumn": 4577950000000,
+          "ColumnName": "strBarcode"
+        },
+        {
+          "idfColumn": 80770000000,
+          "ColumnName": "strNote",
+          "ColumnDescription": "Comment"
+        }
+      ]
+    },
+    {
+      "idfTable": 4576460000000,
+      "TableName": "tlbTransferOutMaterial",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4576470000000,
+          "ColumnName": "idfMaterial"
+        },
+        {
+          "idfColumn": 4576480000000,
+          "ColumnName": "idfTransferOut"
+        }
+      ]
+    },
+    {
+      "idfTable": 75790000000,
+      "TableName": "tlbVaccination",
+      "TableDescription": "Vaccinations",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 80780000000,
+          "ColumnName": "datVaccinationDate",
+          "ColumnDescription": "Vaccination date"
+        },
+        {
+          "idfColumn": 80790000000,
+          "ColumnName": "idfsDiagnosis",
+          "ColumnDescription": "Diagnosis identifier"
+        },
+        {
+          "idfColumn": 4577970000000,
+          "ColumnName": "idfSpecies"
+        },
+        {
+          "idfColumn": 4577980000000,
+          "ColumnName": "idfsVaccinationRoute"
+        },
+        {
+          "idfColumn": 80800000000,
+          "ColumnName": "idfsVaccinationType",
+          "ColumnDescription": "Vaccination type identifier"
+        },
+        {
+          "idfColumn": 80810000000,
+          "ColumnName": "idfVaccination",
+          "ColumnDescription": "Vaccination identifier"
+        },
+        {
+          "idfColumn": 4577960000000,
+          "ColumnName": "idfVetCase"
+        },
+        {
+          "idfColumn": 80820000000,
+          "ColumnName": "intNumberVaccinated",
+          "ColumnDescription": "Number of vaccinations"
+        },
+        {
+          "idfColumn": 80830000000,
+          "ColumnName": "strLotNumber",
+          "ColumnDescription": "Quantity"
+        },
+        {
+          "idfColumn": 80840000000,
+          "ColumnName": "strManufacturer",
+          "ColumnDescription": "Vaccine manufacturer"
+        },
+        {
+          "idfColumn": 4577990000000,
+          "ColumnName": "strNote"
+        }
+      ]
+    },
+    {
+      "idfTable": 4575310000000,
+      "TableName": "tlbVector",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4575430000000,
+          "ColumnName": "datCollectionDateTime"
+        },
+        {
+          "idfColumn": 4575530000000,
+          "ColumnName": "datIdentifiedDateTime"
+        },
+        {
+          "idfColumn": 4575410000000,
+          "ColumnName": "idfCollectedByOffice"
+        },
+        {
+          "idfColumn": 4575420000000,
+          "ColumnName": "idfCollectedByPerson"
+        },
+        {
+          "idfColumn": 4575340000000,
+          "ColumnName": "idfHostVector"
+        },
+        {
+          "idfColumn": 4575510000000,
+          "ColumnName": "idfIdentifiedByOffice"
+        },
+        {
+          "idfColumn": 4575520000000,
+          "ColumnName": "idfIdentifiedByPerson"
+        },
+        {
+          "idfColumn": 4575370000000,
+          "ColumnName": "idfLocation"
+        },
+        {
+          "idfColumn": 4575550000000,
+          "ColumnName": "idfObservation"
+        },
+        {
+          "idfColumn": 4575460000000,
+          "ColumnName": "idfsBasisOfRecord"
+        },
+        {
+          "idfColumn": 4575450000000,
+          "ColumnName": "idfsCollectionMethod"
+        },
+        {
+          "idfColumn": 4578000000000,
+          "ColumnName": "idfsDayPeriod"
+        },
+        {
+          "idfColumn": 6618110000000,
+          "ColumnName": "idfsEctoparasitesCollected"
+        },
+        {
+          "idfColumn": 4575540000000,
+          "ColumnName": "idfsIdentificationMethod"
+        },
+        {
+          "idfColumn": 4575500000000,
+          "ColumnName": "idfsSex"
+        },
+        {
+          "idfColumn": 4575390000000,
+          "ColumnName": "idfsSurrounding"
+        },
+        {
+          "idfColumn": 4575480000000,
+          "ColumnName": "idfsVectorSubType"
+        },
+        {
+          "idfColumn": 4575470000000,
+          "ColumnName": "idfsVectorType"
+        },
+        {
+          "idfColumn": 4575320000000,
+          "ColumnName": "idfVector"
+        },
+        {
+          "idfColumn": 4575330000000,
+          "ColumnName": "idfVectorSurveillanceSession"
+        },
+        {
+          "idfColumn": 4575380000000,
+          "ColumnName": "intElevation"
+        },
+        {
+          "idfColumn": 4575490000000,
+          "ColumnName": "intQuantity"
+        },
+        {
+          "idfColumn": 4578700000000,
+          "ColumnName": "strComment"
+        },
+        {
+          "idfColumn": 4575360000000,
+          "ColumnName": "strFieldVectorID"
+        },
+        {
+          "idfColumn": 4575400000000,
+          "ColumnName": "strGEOReferenceSources"
+        },
+        {
+          "idfColumn": 4575350000000,
+          "ColumnName": "strVectorID"
+        }
+      ]
+    },
+    {
+      "idfTable": 4575210000000,
+      "TableName": "tlbVectorSurveillanceSession",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4575270000000,
+          "ColumnName": "datCloseDate"
+        },
+        {
+          "idfColumn": 4575260000000,
+          "ColumnName": "datStartDate"
+        },
+        {
+          "idfColumn": 4575280000000,
+          "ColumnName": "idfLocation"
+        },
+        {
+          "idfColumn": 4575290000000,
+          "ColumnName": "idfOutbreak"
+        },
+        {
+          "idfColumn": 4575250000000,
+          "ColumnName": "idfsVectorSurveillanceStatus"
+        },
+        {
+          "idfColumn": 4575220000000,
+          "ColumnName": "idfVectorSurveillanceSession"
+        },
+        {
+          "idfColumn": 6751020000000,
+          "ColumnName": "intCollectionEffort"
+        },
+        {
+          "idfColumn": 4575300000000,
+          "ColumnName": "strDescription"
+        },
+        {
+          "idfColumn": 4575240000000,
+          "ColumnName": "strFieldSessionID"
+        },
+        {
+          "idfColumn": 4575230000000,
+          "ColumnName": "strSessionID"
+        }
+      ]
+    },
+    {
+      "idfTable": 12666920000000,
+      "TableName": "tlbVectorSurveillanceSessionSummary",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 12666970000000,
+          "ColumnName": "datCollectionDateTime"
+        },
+        {
+          "idfColumn": 12666960000000,
+          "ColumnName": "idfGeoLocation"
+        },
+        {
+          "idfColumn": 12666990000000,
+          "ColumnName": "idfsSex"
+        },
+        {
+          "idfColumn": 12666980000000,
+          "ColumnName": "idfsVectorSubType"
+        },
+        {
+          "idfColumn": 12666930000000,
+          "ColumnName": "idfsVSSessionSummary"
+        },
+        {
+          "idfColumn": 12666940000000,
+          "ColumnName": "idfVectorSurveillanceSession"
+        },
+        {
+          "idfColumn": 12667000000000,
+          "ColumnName": "intQuantity"
+        },
+        {
+          "idfColumn": 12666950000000,
+          "ColumnName": "strVSSessionSummaryID"
+        }
+      ]
+    },
+    {
+      "idfTable": 12667010000000,
+      "TableName": "tlbVectorSurveillanceSessionSummaryDiagnosis",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 12667040000000,
+          "ColumnName": "idfsDiagnosis"
+        },
+        {
+          "idfColumn": 12667030000000,
+          "ColumnName": "idfsVSSessionSummary"
+        },
+        {
+          "idfColumn": 12667020000000,
+          "ColumnName": "idfsVSSessionSummaryDiagnosis"
+        },
+        {
+          "idfColumn": 12667050000000,
+          "ColumnName": "intPositiveQuantity"
+        }
+      ]
+    },
+    {
+      "idfTable": 75800000000,
+      "TableName": "tlbVetCase",
+      "TableDescription": "Veterinary Cases",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 80850000000,
+          "ColumnName": "datAssignedDate",
+          "ColumnDescription": "Assignment date"
+        },
+        {
+          "idfColumn": 12665500000000,
+          "ColumnName": "datEnteredDate"
+        },
+        {
+          "idfColumn": 80860000000,
+          "ColumnName": "datFinalDiagnosisDate",
+          "ColumnDescription": "Final diagnosis date"
+        },
+        {
+          "idfColumn": 4566330000000,
+          "ColumnName": "datInvestigationDate"
+        },
+        {
+          "idfColumn": 80870000000,
+          "ColumnName": "datReportDate",
+          "ColumnDescription": "Reporting date"
+        },
+        {
+          "idfColumn": 80880000000,
+          "ColumnName": "datTentativeDiagnosis1Date",
+          "ColumnDescription": "Tentative diagnosis 1 date"
+        },
+        {
+          "idfColumn": 80890000000,
+          "ColumnName": "datTentativeDiagnosis2Date",
+          "ColumnDescription": "Tentative diagnosis 2 date"
+        },
+        {
+          "idfColumn": 80900000000,
+          "ColumnName": "datTentativeDiagnosisDate",
+          "ColumnDescription": "Tentative diagnosis date"
+        },
+        {
+          "idfColumn": 4575810000000,
+          "ColumnName": "idfFarm"
+        },
+        {
+          "idfColumn": 6618100000000,
+          "ColumnName": "idfInvestigatedByOffice"
+        },
+        {
+          "idfColumn": 4566320000000,
+          "ColumnName": "idfObservation"
+        },
+        {
+          "idfColumn": 12665490000000,
+          "ColumnName": "idfOutbreak"
+        },
+        {
+          "idfColumn": 12665540000000,
+          "ColumnName": "idfParentMonitoringSession"
+        },
+        {
+          "idfColumn": 80910000000,
+          "ColumnName": "idfPersonEnteredBy",
+          "ColumnDescription": "Case created by person identifier"
+        },
+        {
+          "idfColumn": 80920000000,
+          "ColumnName": "idfPersonInvestigatedBy",
+          "ColumnDescription": "Investigated by person identifier"
+        },
+        {
+          "idfColumn": 80930000000,
+          "ColumnName": "idfPersonReportedBy",
+          "ColumnDescription": "Case reported by person identifier"
+        },
+        {
+          "idfColumn": 6618090000000,
+          "ColumnName": "idfReportedByOffice"
+        },
+        {
+          "idfColumn": 12665470000000,
+          "ColumnName": "idfsCaseClassification"
+        },
+        {
+          "idfColumn": 12665520000000,
+          "ColumnName": "idfsCaseProgressStatus"
+        },
+        {
+          "idfColumn": 6618120000000,
+          "ColumnName": "idfsCaseReportType"
+        },
+        {
+          "idfColumn": 12665560000000,
+          "ColumnName": "idfsCaseType"
+        },
+        {
+          "idfColumn": 80940000000,
+          "ColumnName": "idfsFinalDiagnosis",
+          "ColumnDescription": "Final diagnosis identifier"
+        },
+        {
+          "idfColumn": 12665480000000,
+          "ColumnName": "idfsShowDiagnosis"
+        },
+        {
+          "idfColumn": 80960000000,
+          "ColumnName": "idfsTentativeDiagnosis",
+          "ColumnDescription": "Tentative diagnosis identifier"
+        },
+        {
+          "idfColumn": 80970000000,
+          "ColumnName": "idfsTentativeDiagnosis1",
+          "ColumnDescription": "Tentative diagnosis 1 identifier"
+        },
+        {
+          "idfColumn": 80980000000,
+          "ColumnName": "idfsTentativeDiagnosis2",
+          "ColumnDescription": "Tentative diagnosis 2 identifier"
+        },
+        {
+          "idfColumn": 4578870000000,
+          "ColumnName": "idfsYNTestsConducted"
+        },
+        {
+          "idfColumn": 80990000000,
+          "ColumnName": "idfVetCase",
+          "ColumnDescription": "Veterinary case identifier"
+        },
+        {
+          "idfColumn": 12665510000000,
+          "ColumnName": "strCaseID"
+        },
+        {
+          "idfColumn": 81000000000,
+          "ColumnName": "strClinicalNotes",
+          "ColumnDescription": "Clinical notes"
+        },
+        {
+          "idfColumn": 12014720000000,
+          "ColumnName": "strDefaultDisplayDiagnosis"
+        },
+        {
+          "idfColumn": 4566340000000,
+          "ColumnName": "strFieldAccessionID"
+        },
+        {
+          "idfColumn": 12665530000000,
+          "ColumnName": "strSampleNotes"
+        },
+        {
+          "idfColumn": 81020000000,
+          "ColumnName": "strSummaryNotes",
+          "ColumnDescription": "Summary notes"
+        },
+        {
+          "idfColumn": 81030000000,
+          "ColumnName": "strTestNotes",
+          "ColumnDescription": "Test notes"
+        },
+        {
+          "idfColumn": 12665550000000,
+          "ColumnName": "uidOfflineCaseID"
+        }
+      ]
+    },
+    {
+      "idfTable": 12014680000000,
+      "TableName": "tlbVetCaseDisplayDiagnosis",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 12014700000000,
+          "ColumnName": "idfsLanguage"
+        },
+        {
+          "idfColumn": 12014690000000,
+          "ColumnName": "idfVetCase"
+        },
+        {
+          "idfColumn": 12014710000000,
+          "ColumnName": "strDisplayDiagnosis"
+        }
+      ]
+    },
+    {
+      "idfTable": 75810000000,
+      "TableName": "tlbVetCaseLog",
+      "TableDescription": "Veterinary Case log",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 81040000000,
+          "ColumnName": "datCaseLogDate",
+          "ColumnDescription": "Date"
+        },
+        {
+          "idfColumn": 81050000000,
+          "ColumnName": "idfPerson",
+          "ColumnDescription": "Officer identifier"
+        },
+        {
+          "idfColumn": 4578020000000,
+          "ColumnName": "idfsCaseLogStatus"
+        },
+        {
+          "idfColumn": 4578030000000,
+          "ColumnName": "idfVetCase"
+        },
+        {
+          "idfColumn": 4578010000000,
+          "ColumnName": "idfVetCaseLog"
+        },
+        {
+          "idfColumn": 4578040000000,
+          "ColumnName": "strActionRequired"
+        },
+        {
+          "idfColumn": 81060000000,
+          "ColumnName": "strNote",
+          "ColumnDescription": "Notes"
+        }
+      ]
+    },
+    {
+      "idfTable": 75820000000,
+      "TableName": "trtBaseReference",
+      "TableDescription": "Base Reference (translatable) table ",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 747460000000,
+          "ColumnName": "blnSystem"
+        },
+        {
+          "idfColumn": 81070000000,
+          "ColumnName": "idfsBaseReference",
+          "ColumnDescription": "Base reference value identifier"
+        },
+        {
+          "idfColumn": 81080000000,
+          "ColumnName": "idfsReferenceType",
+          "ColumnDescription": "Reference type identifier"
+        },
+        {
+          "idfColumn": 81090000000,
+          "ColumnName": "intHACode",
+          "ColumnDescription": "Human\/Animal Code"
+        },
+        {
+          "idfColumn": 81100000000,
+          "ColumnName": "intOrder",
+          "ColumnDescription": "Listing order"
+        },
+        {
+          "idfColumn": 81110000000,
+          "ColumnName": "strBaseReferenceCode",
+          "ColumnDescription": "Base reference code (from version 2)"
+        },
+        {
+          "idfColumn": 81120000000,
+          "ColumnName": "strDefault",
+          "ColumnDescription": "Default value"
+        }
+      ]
+    },
+    {
+      "idfTable": 50815360000000,
+      "TableName": "trtBssAggregateColumns",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 50815380000000,
+          "ColumnName": "idfColumn"
+        },
+        {
+          "idfColumn": 50815370000000,
+          "ColumnName": "idfsBssAggregateColumn"
+        }
+      ]
+    },
+    {
+      "idfTable": 4575710000000,
+      "TableName": "trtCollectionMethodForVectorType",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4575720000000,
+          "ColumnName": "idfCollectionMethodForVectorType"
+        },
+        {
+          "idfColumn": 4575730000000,
+          "ColumnName": "idfsCollectionMethod"
+        },
+        {
+          "idfColumn": 4575740000000,
+          "ColumnName": "idfsVectorType"
+        }
+      ]
+    },
+    {
+      "idfTable": 740850000000,
+      "TableName": "trtDerivativeForSampleType",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 740860000000,
+          "ColumnName": "idfDerivativeForSampleType"
+        },
+        {
+          "idfColumn": 740880000000,
+          "ColumnName": "idfsDerivativeType"
+        },
+        {
+          "idfColumn": 740870000000,
+          "ColumnName": "idfsSampleType"
+        }
+      ]
+    },
+    {
+      "idfTable": 75840000000,
+      "TableName": "trtDiagnosis",
+      "TableDescription": "Diagnosis",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 51389460000000,
+          "ColumnName": "blnZoonotic"
+        },
+        {
+          "idfColumn": 81150000000,
+          "ColumnName": "idfsDiagnosis",
+          "ColumnDescription": "Diagnosis identifier"
+        },
+        {
+          "idfColumn": 4578050000000,
+          "ColumnName": "idfsUsingType"
+        },
+        {
+          "idfColumn": 81160000000,
+          "ColumnName": "strIDC10",
+          "ColumnDescription": "IDC10 Code"
+        },
+        {
+          "idfColumn": 81170000000,
+          "ColumnName": "strOIECode",
+          "ColumnDescription": "OIE Code"
+        }
+      ]
+    },
+    {
+      "idfTable": 12014510000000,
+      "TableName": "trtDiagnosisAgeGroup",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 12014550000000,
+          "ColumnName": "idfsAgeType"
+        },
+        {
+          "idfColumn": 12014520000000,
+          "ColumnName": "idfsDiagnosisAgeGroup"
+        },
+        {
+          "idfColumn": 12014530000000,
+          "ColumnName": "intLowerBoundary"
+        },
+        {
+          "idfColumn": 12014540000000,
+          "ColumnName": "intUpperBoundary"
+        }
+      ]
+    },
+    {
+      "idfTable": 12014600000000,
+      "TableName": "trtDiagnosisAgeGroupToDiagnosis",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 12014610000000,
+          "ColumnName": "idfDiagnosisAgeGroupToDiagnosis"
+        },
+        {
+          "idfColumn": 12014620000000,
+          "ColumnName": "idfsDiagnosis"
+        },
+        {
+          "idfColumn": 12014630000000,
+          "ColumnName": "idfsDiagnosisAgeGroup"
+        }
+      ]
+    },
+    {
+      "idfTable": 49545320000000,
+      "TableName": "trtDiagnosisAgeGroupToStatisticalAgeGroup",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 49545330000000,
+          "ColumnName": "idfDiagnosisAgeGroupToStatisticalAgeGroup"
+        },
+        {
+          "idfColumn": 49545340000000,
+          "ColumnName": "idfsDiagnosisAgeGroup"
+        },
+        {
+          "idfColumn": 49545350000000,
+          "ColumnName": "idfsStatisticalAgeGroup"
+        }
+      ]
+    },
+    {
+      "idfTable": 12675270000000,
+      "TableName": "trtDiagnosisToDiagnosisGroup",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 50815470000000,
+          "ColumnName": "idfDiagnosisToDiagnosisGroup"
+        },
+        {
+          "idfColumn": 12675300000000,
+          "ColumnName": "idfsDiagnosis"
+        },
+        {
+          "idfColumn": 12675290000000,
+          "ColumnName": "idfsDiagnosisGroup"
+        }
+      ]
+    },
+    {
+      "idfTable": 749130000000,
+      "TableName": "trtDiagnosisToGroupForReportType",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 51577260000000,
+          "ColumnName": "idfDiagnosisToGroupForReportType"
+        },
+        {
+          "idfColumn": 51577240000000,
+          "ColumnName": "idfsCustomReportType"
+        },
+        {
+          "idfColumn": 749160000000,
+          "ColumnName": "idfsDiagnosis"
+        },
+        {
+          "idfColumn": 51577250000000,
+          "ColumnName": "idfsReportDiagnosisGroup"
+        }
+      ]
+    },
+    {
+      "idfTable": 75850000000,
+      "TableName": "trtEventType",
+      "TableDescription": "Event types",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 12666780000000,
+          "ColumnName": "blnDisplayInLog"
+        },
+        {
+          "idfColumn": 12666770000000,
+          "ColumnName": "blnSubscription"
+        },
+        {
+          "idfColumn": 12666790000000,
+          "ColumnName": "idfsEventSubscription"
+        },
+        {
+          "idfColumn": 4579290000000,
+          "ColumnName": "idfsEventTypeID"
+        }
+      ]
+    },
+    {
+      "idfTable": 51577140000000,
+      "TableName": "trtFFObjectForCustomReport",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 51577150000000,
+          "ColumnName": "idfFFObjectForCustomReport"
+        },
+        {
+          "idfColumn": 51577160000000,
+          "ColumnName": "idfsCustomReportType"
+        },
+        {
+          "idfColumn": 51577180000000,
+          "ColumnName": "idfsFFObject"
+        },
+        {
+          "idfColumn": 51577170000000,
+          "ColumnName": "strFFObjectAlias"
+        }
+      ]
+    },
+    {
+      "idfTable": 51577190000000,
+      "TableName": "trtFFObjectToDiagnosisForCustomReport",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 51577220000000,
+          "ColumnName": "idfFFObjectForCustomReport"
+        },
+        {
+          "idfColumn": 51577200000000,
+          "ColumnName": "idfFFObjectToDiagnosisForCustomReport"
+        },
+        {
+          "idfColumn": 51577210000000,
+          "ColumnName": "idfsDiagnosis"
+        }
+      ]
+    },
+    {
+      "idfTable": 9295740000000,
+      "TableName": "trtFFParameterToDiagnosisForCustomReport",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 9295770000000,
+          "ColumnName": "idfFFParameterForCustomReport"
+        },
+        {
+          "idfColumn": 9295750000000,
+          "ColumnName": "idfFFParameterToDiagnosisForCustomReport"
+        },
+        {
+          "idfColumn": 9295760000000,
+          "ColumnName": "idfsDiagnosis"
+        }
+      ]
+    },
+    {
+      "idfTable": 75860000000,
+      "TableName": "trtHACodeList",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4579320000000,
+          "ColumnName": "idfsCodeName"
+        },
+        {
+          "idfColumn": 4579310000000,
+          "ColumnName": "intHACode"
+        },
+        {
+          "idfColumn": 4579330000000,
+          "ColumnName": "strNote"
+        }
+      ]
+    },
+    {
+      "idfTable": 12666850000000,
+      "TableName": "trtLanguageToCountry",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 12666870000000,
+          "ColumnName": "idfsCountry"
+        },
+        {
+          "idfColumn": 12666860000000,
+          "ColumnName": "idfsLanguage"
+        }
+      ]
+    },
+    {
+      "idfTable": 75880000000,
+      "TableName": "trtMaterialForDisease",
+      "TableDescription": "Samples recommended for collection in case of a certain diagnosis",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4578060000000,
+          "ColumnName": "idfMaterialForDisease"
+        },
+        {
+          "idfColumn": 81200000000,
+          "ColumnName": "idfsDiagnosis",
+          "ColumnDescription": "Diagnosis identifier"
+        },
+        {
+          "idfColumn": 49545460000000,
+          "ColumnName": "idfsSampleType"
+        },
+        {
+          "idfColumn": 81220000000,
+          "ColumnName": "intRecommendedQty",
+          "ColumnDescription": "Recommended Quantity"
+        }
+      ]
+    },
+    {
+      "idfTable": 75890000000,
+      "TableName": "trtObjectTypeToObjectOperation",
+      "TableDescription": "Links between object type and available operation",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 81230000000,
+          "ColumnName": "idfsObjectOperation",
+          "ColumnDescription": "Object Operation identifier"
+        },
+        {
+          "idfColumn": 81240000000,
+          "ColumnName": "idfsObjectType",
+          "ColumnDescription": "Object Type identifier"
+        }
+      ]
+    },
+    {
+      "idfTable": 75900000000,
+      "TableName": "trtObjectTypeToObjectType",
+      "TableDescription": "Links between object types",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 81250000000,
+          "ColumnName": "idfsParentObjectType",
+          "ColumnDescription": "Parent object type identifier"
+        },
+        {
+          "idfColumn": 81260000000,
+          "ColumnName": "idfsRelatedObjectType",
+          "ColumnDescription": "Child object type identifier"
+        },
+        {
+          "idfColumn": 81270000000,
+          "ColumnName": "idfsStatus",
+          "ColumnDescription": "Status identifier "
+        }
+      ]
+    },
+    {
+      "idfTable": 6617430000000,
+      "TableName": "trtPensideTestForDisease",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 6617440000000,
+          "ColumnName": "idfPensideTestForDisease"
+        },
+        {
+          "idfColumn": 6617460000000,
+          "ColumnName": "idfsDiagnosis"
+        },
+        {
+          "idfColumn": 49545550000000,
+          "ColumnName": "idfsPensideTestName"
+        }
+      ]
+    },
+    {
+      "idfTable": 4575760000000,
+      "TableName": "trtPensideTestTypeForVectorType",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4575770000000,
+          "ColumnName": "idfPensideTestTypeForVectorType"
+        },
+        {
+          "idfColumn": 49545540000000,
+          "ColumnName": "idfsPensideTestName"
+        },
+        {
+          "idfColumn": 4575790000000,
+          "ColumnName": "idfsVectorType"
+        }
+      ]
+    },
+    {
+      "idfTable": 75910000000,
+      "TableName": "trtPensideTestTypeToTestResult",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 6617420000000,
+          "ColumnName": "blnIndicative"
+        },
+        {
+          "idfColumn": 49545530000000,
+          "ColumnName": "idfsPensideTestName"
+        },
+        {
+          "idfColumn": 4578080000000,
+          "ColumnName": "idfsPensideTestResult"
+        }
+      ]
+    },
+    {
+      "idfTable": 75920000000,
+      "TableName": "trtProphilacticAction",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4578090000000,
+          "ColumnName": "idfsProphilacticAction"
+        },
+        {
+          "idfColumn": 4578100000000,
+          "ColumnName": "strActionCode"
+        }
+      ]
+    },
+    {
+      "idfTable": 75930000000,
+      "TableName": "trtReferenceType",
+      "TableDescription": "Reference types",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 81280000000,
+          "ColumnName": "idfMaxID",
+          "ColumnDescription": "Maximum identifier value reserved "
+        },
+        {
+          "idfColumn": 81290000000,
+          "ColumnName": "idfMinID",
+          "ColumnDescription": "Minimum identifier value reserved "
+        },
+        {
+          "idfColumn": 81300000000,
+          "ColumnName": "idfsReferenceType",
+          "ColumnDescription": "Reference type identifier"
+        },
+        {
+          "idfColumn": 12665220000000,
+          "ColumnName": "intDefaultHACode"
+        },
+        {
+          "idfColumn": 12665210000000,
+          "ColumnName": "intHACodeMask"
+        },
+        {
+          "idfColumn": 12665200000000,
+          "ColumnName": "intStandard"
+        },
+        {
+          "idfColumn": 81310000000,
+          "ColumnName": "strReferenceTypeCode",
+          "ColumnDescription": "Reference type code"
+        },
+        {
+          "idfColumn": 81320000000,
+          "ColumnName": "strReferenceTypeName",
+          "ColumnDescription": "Reference type name"
+        }
+      ]
+    },
+    {
+      "idfTable": 12675320000000,
+      "TableName": "trtReportDiagnosisGroup",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 12675330000000,
+          "ColumnName": "idfsReportDiagnosisGroup"
+        },
+        {
+          "idfColumn": 12675340000000,
+          "ColumnName": "strCode"
+        },
+        {
+          "idfColumn": 12675350000000,
+          "ColumnName": "strDiagnosisGroupAlias"
+        }
+      ]
+    },
+    {
+      "idfTable": 749170000000,
+      "TableName": "trtReportRows",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 51541520000000,
+          "ColumnName": "idfReportRows"
+        },
+        {
+          "idfColumn": 51577230000000,
+          "ColumnName": "idfsCustomReportType"
+        },
+        {
+          "idfColumn": 12675360000000,
+          "ColumnName": "idfsDiagnosisOrReportDiagnosisGroup"
+        },
+        {
+          "idfColumn": 6816320000000,
+          "ColumnName": "idfsICDReportAdditionalText"
+        },
+        {
+          "idfColumn": 952260000000,
+          "ColumnName": "idfsReportAdditionalText"
+        },
+        {
+          "idfColumn": 9842280000000,
+          "ColumnName": "intNullValueInsteadZero"
+        },
+        {
+          "idfColumn": 749220000000,
+          "ColumnName": "intRowOrder"
+        }
+      ]
+    },
+    {
+      "idfTable": 746920000000,
+      "TableName": "trtSampleType",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 746930000000,
+          "ColumnName": "idfsSampleType"
+        },
+        {
+          "idfColumn": 746940000000,
+          "ColumnName": "strSampleCode"
+        }
+      ]
+    },
+    {
+      "idfTable": 4575660000000,
+      "TableName": "trtSampleTypeForVectorType",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4575670000000,
+          "ColumnName": "idfSampleTypeForVectorType"
+        },
+        {
+          "idfColumn": 4575680000000,
+          "ColumnName": "idfsSampleType"
+        },
+        {
+          "idfColumn": 4575690000000,
+          "ColumnName": "idfsVectorType"
+        }
+      ]
+    },
+    {
+      "idfTable": 75940000000,
+      "TableName": "trtSanitaryAction",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4578110000000,
+          "ColumnName": "idfsSanitaryAction"
+        },
+        {
+          "idfColumn": 4578120000000,
+          "ColumnName": "strActionCode"
+        }
+      ]
+    },
+    {
+      "idfTable": 51577590000000,
+      "TableName": "trtSpeciesContentInCustomReport",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 51577610000000,
+          "ColumnName": "idfsCustomReportType"
+        },
+        {
+          "idfColumn": 51577600000000,
+          "ColumnName": "idfSpeciesContentInCustomReport"
+        },
+        {
+          "idfColumn": 51577630000000,
+          "ColumnName": "idfsReportAdditionalText"
+        },
+        {
+          "idfColumn": 51577620000000,
+          "ColumnName": "idfsSpeciesOrSpeciesGroup"
+        },
+        {
+          "idfColumn": 51577640000000,
+          "ColumnName": "intItemOrder"
+        },
+        {
+          "idfColumn": 51577650000000,
+          "ColumnName": "intNullValueInsteadZero"
+        }
+      ]
+    },
+    {
+      "idfTable": 51577510000000,
+      "TableName": "trtSpeciesGroup",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 51577520000000,
+          "ColumnName": "idfsSpeciesGroup"
+        },
+        {
+          "idfColumn": 51577530000000,
+          "ColumnName": "strSpeciesGroupAlias"
+        }
+      ]
+    },
+    {
+      "idfTable": 51577540000000,
+      "TableName": "trtSpeciesToGroupForCustomReport",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 51577560000000,
+          "ColumnName": "idfsCustomReportType"
+        },
+        {
+          "idfColumn": 51577550000000,
+          "ColumnName": "idfSpeciesToGroupForCustomReport"
+        },
+        {
+          "idfColumn": 51577570000000,
+          "ColumnName": "idfsSpeciesGroup"
+        },
+        {
+          "idfColumn": 51577580000000,
+          "ColumnName": "idfsSpeciesType"
+        }
+      ]
+    },
+    {
+      "idfTable": 75960000000,
+      "TableName": "trtSpeciesType",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4578130000000,
+          "ColumnName": "idfsSpeciesType"
+        },
+        {
+          "idfColumn": 4578140000000,
+          "ColumnName": "strCode"
+        }
+      ]
+    },
+    {
+      "idfTable": 75970000000,
+      "TableName": "trtSpeciesTypeToAnimalAge",
+      "TableDescription": "Animal age types for animal species",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 81330000000,
+          "ColumnName": "idfsAnimalAge",
+          "ColumnDescription": "Animal age identifier"
+        },
+        {
+          "idfColumn": 749050000000,
+          "ColumnName": "idfSpeciesTypeToAnimalAge"
+        },
+        {
+          "idfColumn": 81340000000,
+          "ColumnName": "idfsSpeciesType",
+          "ColumnDescription": "Specie type identifier"
+        }
+      ]
+    },
+    {
+      "idfTable": 75980000000,
+      "TableName": "trtStatisticDataType",
+      "TableDescription": "Statistic data types",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 12014490000000,
+          "ColumnName": "blnRelatedWithAgeGroup"
+        },
+        {
+          "idfColumn": 81350000000,
+          "ColumnName": "idfsReferenceType",
+          "ColumnDescription": "Base reference type identifier"
+        },
+        {
+          "idfColumn": 4578150000000,
+          "ColumnName": "idfsStatisticAreaType"
+        },
+        {
+          "idfColumn": 81360000000,
+          "ColumnName": "idfsStatisticDataType",
+          "ColumnDescription": "Statistical data type identifier"
+        },
+        {
+          "idfColumn": 4578160000000,
+          "ColumnName": "idfsStatisticPeriodType"
+        }
+      ]
+    },
+    {
+      "idfTable": 75990000000,
+      "TableName": "trtStringNameTranslation",
+      "TableDescription": "Base reference translated values",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 81370000000,
+          "ColumnName": "idfsBaseReference",
+          "ColumnDescription": "Base reference value identifier"
+        },
+        {
+          "idfColumn": 81380000000,
+          "ColumnName": "idfsLanguage",
+          "ColumnDescription": "Language identifier"
+        },
+        {
+          "idfColumn": 81390000000,
+          "ColumnName": "strTextString",
+          "ColumnDescription": "Translated value in specified language "
+        }
+      ]
+    },
+    {
+      "idfTable": 76000000000,
+      "TableName": "trtSystemFunction",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4579350000000,
+          "ColumnName": "idfsObjectType"
+        },
+        {
+          "idfColumn": 4579340000000,
+          "ColumnName": "idfsSystemFunction"
+        },
+        {
+          "idfColumn": 4579360000000,
+          "ColumnName": "intNumber"
+        }
+      ]
+    },
+    {
+      "idfTable": 76010000000,
+      "TableName": "trtTestForDisease",
+      "TableDescription": "Tests recommended for a certain diagnosis",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 81400000000,
+          "ColumnName": "idfsDiagnosis",
+          "ColumnDescription": "Diagnosis identifier"
+        },
+        {
+          "idfColumn": 49545470000000,
+          "ColumnName": "idfsSampleType"
+        },
+        {
+          "idfColumn": 49545480000000,
+          "ColumnName": "idfsTestCategory"
+        },
+        {
+          "idfColumn": 49545500000000,
+          "ColumnName": "idfsTestName"
+        },
+        {
+          "idfColumn": 81440000000,
+          "ColumnName": "idfTestForDisease",
+          "ColumnDescription": "Test for disease identifier"
+        },
+        {
+          "idfColumn": 81450000000,
+          "ColumnName": "intRecommendedQty",
+          "ColumnDescription": "Recommended Quantity"
+        }
+      ]
+    },
+    {
+      "idfTable": 9294210000000,
+      "TableName": "trtTestTypeForCustomReport",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 51577270000000,
+          "ColumnName": "idfsCustomReportType"
+        },
+        {
+          "idfColumn": 49545520000000,
+          "ColumnName": "idfsTestName"
+        },
+        {
+          "idfColumn": 9294220000000,
+          "ColumnName": "idfTestTypeForCustomReport"
+        },
+        {
+          "idfColumn": 9294250000000,
+          "ColumnName": "intRowOrder"
+        }
+      ]
+    },
+    {
+      "idfTable": 76020000000,
+      "TableName": "trtTestTypeToTestResult",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4578170000000,
+          "ColumnName": "blnIndicative"
+        },
+        {
+          "idfColumn": 49545510000000,
+          "ColumnName": "idfsTestName"
+        },
+        {
+          "idfColumn": 81460000000,
+          "ColumnName": "idfsTestResult",
+          "ColumnDescription": "Test Result identifier"
+        }
+      ]
+    },
+    {
+      "idfTable": 4575570000000,
+      "TableName": "trtVectorSubType",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4575580000000,
+          "ColumnName": "idfsVectorSubType"
+        },
+        {
+          "idfColumn": 4575590000000,
+          "ColumnName": "idfsVectorType"
+        },
+        {
+          "idfColumn": 4575600000000,
+          "ColumnName": "strCode"
+        }
+      ]
+    },
+    {
+      "idfTable": 4575620000000,
+      "TableName": "trtVectorType",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4575650000000,
+          "ColumnName": "bitCollectionByPool"
+        },
+        {
+          "idfColumn": 4575630000000,
+          "ColumnName": "idfsVectorType"
+        },
+        {
+          "idfColumn": 4575640000000,
+          "ColumnName": "strCode"
+        }
+      ]
+    },
+    {
+      "idfTable": 76030000000,
+      "TableName": "tstAggrSetting",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 51577500000000,
+          "ColumnName": "idfCustomizationPackage"
+        },
+        {
+          "idfColumn": 4578180000000,
+          "ColumnName": "idfsAggrCaseType"
+        },
+        {
+          "idfColumn": 4578190000000,
+          "ColumnName": "idfsStatisticAreaType"
+        },
+        {
+          "idfColumn": 4578200000000,
+          "ColumnName": "idfsStatisticPeriodType"
+        },
+        {
+          "idfColumn": 81490000000,
+          "ColumnName": "strValue",
+          "ColumnDescription": "Value"
+        }
+      ]
+    },
+    {
+      "idfTable": 4575820000000,
+      "TableName": "tstBarcodeLayout",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4575830000000,
+          "ColumnName": "idfsNumberName"
+        }
+      ]
+    },
+    {
+      "idfTable": 76050000000,
+      "TableName": "tstEventSubscription",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4575030000000,
+          "ColumnName": "idfsEventTypeID"
+        },
+        {
+          "idfColumn": 4575040000000,
+          "ColumnName": "strClient"
+        }
+      ]
+    },
+    {
+      "idfTable": 51523320000000,
+      "TableName": "tstGeoLocationFormat",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 51523330000000,
+          "ColumnName": "idfsCountry"
+        },
+        {
+          "idfColumn": 51523340000000,
+          "ColumnName": "strAddressString"
+        },
+        {
+          "idfColumn": 51523350000000,
+          "ColumnName": "strExactPointString"
+        },
+        {
+          "idfColumn": 51523370000000,
+          "ColumnName": "strForeignAddress"
+        },
+        {
+          "idfColumn": 51523360000000,
+          "ColumnName": "strRelativePointString"
+        },
+        {
+          "idfColumn": 51523380000000,
+          "ColumnName": "strShortAddress"
+        }
+      ]
+    },
+    {
+      "idfTable": 76220000000,
+      "TableName": "tstGlobalSiteOptions",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 82260000000,
+          "ColumnName": "strName"
+        },
+        {
+          "idfColumn": 82270000000,
+          "ColumnName": "strValue"
+        }
+      ]
+    },
+    {
+      "idfTable": 76110000000,
+      "TableName": "tstLocalSiteOptions",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4575050000000,
+          "ColumnName": "strName"
+        },
+        {
+          "idfColumn": 4575060000000,
+          "ColumnName": "strValue"
+        }
+      ]
+    },
+    {
+      "idfTable": 76130000000,
+      "TableName": "tstNextNumbers",
+      "TableDescription": "Next ID Creation rules",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 81740000000,
+          "ColumnName": "blnUseAlphaNumericValue",
+          "ColumnDescription": "Use alphanumeric (true\/false)"
+        },
+        {
+          "idfColumn": 81750000000,
+          "ColumnName": "blnUseHACSCodeSite",
+          "ColumnDescription": "Use HASC code (true\/false)"
+        },
+        {
+          "idfColumn": 81760000000,
+          "ColumnName": "blnUsePrefix",
+          "ColumnDescription": "Use prefix (true\/false)"
+        },
+        {
+          "idfColumn": 81770000000,
+          "ColumnName": "blnUseSiteID",
+          "ColumnDescription": "Use site ID (true\/false)"
+        },
+        {
+          "idfColumn": 81780000000,
+          "ColumnName": "blnUseYear",
+          "ColumnDescription": "Use year (true\/false)"
+        },
+        {
+          "idfColumn": 81790000000,
+          "ColumnName": "idfsNumberName",
+          "ColumnDescription": "Numbering rule identifier"
+        },
+        {
+          "idfColumn": 81800000000,
+          "ColumnName": "intMinNumberLength",
+          "ColumnDescription": "Minimum number length"
+        },
+        {
+          "idfColumn": 81810000000,
+          "ColumnName": "intNumberValue",
+          "ColumnDescription": "Number value"
+        },
+        {
+          "idfColumn": 81820000000,
+          "ColumnName": "intYear",
+          "ColumnDescription": "Year"
+        },
+        {
+          "idfColumn": 81840000000,
+          "ColumnName": "strDocumentName",
+          "ColumnDescription": "Document name"
+        },
+        {
+          "idfColumn": 81850000000,
+          "ColumnName": "strPrefix",
+          "ColumnDescription": "Prefix"
+        },
+        {
+          "idfColumn": 81860000000,
+          "ColumnName": "strSuffix",
+          "ColumnDescription": "Suffix"
+        }
+      ]
+    },
+    {
+      "idfTable": 76140000000,
+      "TableName": "tstNotification",
+      "TableDescription": "Notifications",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 81870000000,
+          "ColumnName": "datCreationDate",
+          "ColumnDescription": "Notification creation date"
+        },
+        {
+          "idfColumn": 81880000000,
+          "ColumnName": "datEnteringDate",
+          "ColumnDescription": "Notification entering date"
+        },
+        {
+          "idfColumn": 81890000000,
+          "ColumnName": "idfNotification",
+          "ColumnDescription": "Notification identifier"
+        },
+        {
+          "idfColumn": 81900000000,
+          "ColumnName": "idfNotificationObject",
+          "ColumnDescription": "Notification object identifier"
+        },
+        {
+          "idfColumn": 81910000000,
+          "ColumnName": "idfsNotificationObjectType",
+          "ColumnDescription": "Notification object type identifier"
+        },
+        {
+          "idfColumn": 4575070000000,
+          "ColumnName": "idfsNotificationType"
+        },
+        {
+          "idfColumn": 81930000000,
+          "ColumnName": "idfsTargetSite",
+          "ColumnDescription": "Notification target site identifier"
+        },
+        {
+          "idfColumn": 4575080000000,
+          "ColumnName": "idfsTargetSiteType"
+        },
+        {
+          "idfColumn": 81940000000,
+          "ColumnName": "idfTargetUserID",
+          "ColumnDescription": "Notification target user identifier"
+        },
+        {
+          "idfColumn": 81950000000,
+          "ColumnName": "idfUserID",
+          "ColumnDescription": "User identifier"
+        },
+        {
+          "idfColumn": 4575090000000,
+          "ColumnName": "strPayload"
+        }
+      ]
+    },
+    {
+      "idfTable": 76150000000,
+      "TableName": "tstNotificationStatus",
+      "TableDescription": "Notification status",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 81960000000,
+          "ColumnName": "idfNotification",
+          "ColumnDescription": "Notification identifier"
+        },
+        {
+          "idfColumn": 81970000000,
+          "ColumnName": "intProcessed",
+          "ColumnDescription": "Is Notification processed (0\/1)"
+        },
+        {
+          "idfColumn": 12137920000000,
+          "ColumnName": "intSessionID"
+        }
+      ]
+    },
+    {
+      "idfTable": 76160000000,
+      "TableName": "tstObjectAccess",
+      "TableDescription": "Object access",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 81980000000,
+          "ColumnName": "idfActor",
+          "ColumnDescription": "Actor identifier"
+        },
+        {
+          "idfColumn": 4578210000000,
+          "ColumnName": "idfObjectAccess"
+        },
+        {
+          "idfColumn": 81990000000,
+          "ColumnName": "idfsObjectID",
+          "ColumnDescription": "Object identifier"
+        },
+        {
+          "idfColumn": 82000000000,
+          "ColumnName": "idfsObjectOperation",
+          "ColumnDescription": "Object Operation identifier"
+        },
+        {
+          "idfColumn": 82010000000,
+          "ColumnName": "idfsObjectType",
+          "ColumnDescription": "Object Type identifier"
+        },
+        {
+          "idfColumn": 82020000000,
+          "ColumnName": "idfsOnSite",
+          "ColumnDescription": "Site identifier"
+        },
+        {
+          "idfColumn": 82030000000,
+          "ColumnName": "intPermission",
+          "ColumnDescription": "Permission (0\/1)"
+        }
+      ]
+    },
+    {
+      "idfTable": 76230000000,
+      "TableName": "tstSecurityConfiguration",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 82380000000,
+          "ColumnName": "blnPredefined"
+        },
+        {
+          "idfColumn": 82290000000,
+          "ColumnName": "idfParentSecurityConfiguration"
+        },
+        {
+          "idfColumn": 82280000000,
+          "ColumnName": "idfSecurityConfiguration"
+        },
+        {
+          "idfColumn": 82300000000,
+          "ColumnName": "idfsSecurityLevel"
+        },
+        {
+          "idfColumn": 82320000000,
+          "ColumnName": "intAccountLockTimeout"
+        },
+        {
+          "idfColumn": 82330000000,
+          "ColumnName": "intAccountTryCount"
+        },
+        {
+          "idfColumn": 707850000000,
+          "ColumnName": "intAlphabetCount"
+        },
+        {
+          "idfColumn": 707860000000,
+          "ColumnName": "intForcePasswordComplexity"
+        },
+        {
+          "idfColumn": 82340000000,
+          "ColumnName": "intInactivityTimeout"
+        },
+        {
+          "idfColumn": 82350000000,
+          "ColumnName": "intPasswordAge"
+        },
+        {
+          "idfColumn": 82360000000,
+          "ColumnName": "intPasswordHistoryLength"
+        },
+        {
+          "idfColumn": 82370000000,
+          "ColumnName": "intPasswordMinimalLength"
+        }
+      ]
+    },
+    {
+      "idfTable": 76240000000,
+      "TableName": "tstSecurityConfigurationAlphabet",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 708130000000,
+          "ColumnName": "idfsSecurityConfigurationAlphabet"
+        },
+        {
+          "idfColumn": 707870000000,
+          "ColumnName": "strAlphabet"
+        }
+      ]
+    },
+    {
+      "idfTable": 76250000000,
+      "TableName": "tstSecurityConfigurationAlphabetParticipation",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 82430000000,
+          "ColumnName": "idfSecurityConfiguration"
+        },
+        {
+          "idfColumn": 708140000000,
+          "ColumnName": "idfsSecurityConfigurationAlphabet"
+        }
+      ]
+    },
+    {
+      "idfTable": 76170000000,
+      "TableName": "tstSite",
+      "TableDescription": "Sites",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4578820000000,
+          "ColumnName": "blnIsWEB"
+        },
+        {
+          "idfColumn": 82040000000,
+          "ColumnName": "idfOffice",
+          "ColumnDescription": "Office identifier"
+        },
+        {
+          "idfColumn": 82050000000,
+          "ColumnName": "idfsCountry",
+          "ColumnDescription": "Country identifier"
+        },
+        {
+          "idfColumn": 4578830000000,
+          "ColumnName": "idfsParentSite"
+        },
+        {
+          "idfColumn": 82070000000,
+          "ColumnName": "idfsSiteType",
+          "ColumnDescription": "Site type identifier"
+        },
+        {
+          "idfColumn": 869070000000,
+          "ColumnName": "intFlags"
+        },
+        {
+          "idfColumn": 82080000000,
+          "ColumnName": "strHASCsiteID",
+          "ColumnDescription": "Site HASC code"
+        },
+        {
+          "idfColumn": 82090000000,
+          "ColumnName": "strServerName",
+          "ColumnDescription": "Server name"
+        },
+        {
+          "idfColumn": 869060000000,
+          "ColumnName": "strSiteID"
+        },
+        {
+          "idfColumn": 82100000000,
+          "ColumnName": "strSiteName",
+          "ColumnDescription": "Site name"
+        }
+      ]
+    },
+    {
+      "idfTable": 76180000000,
+      "TableName": "tstSiteRelation",
+      "TableDescription": "Site relations",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4578220000000,
+          "ColumnName": "idfSiteRelation"
+        },
+        {
+          "idfColumn": 4578850000000,
+          "ColumnName": "idfsReceiverSite"
+        },
+        {
+          "idfColumn": 4578840000000,
+          "ColumnName": "idfsSenderSite"
+        }
+      ]
+    },
+    {
+      "idfTable": 76190000000,
+      "TableName": "tstUserTable",
+      "TableDescription": "Users",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4578260000000,
+          "ColumnName": "binPassword"
+        },
+        {
+          "idfColumn": 4578240000000,
+          "ColumnName": "datPasswordSet"
+        },
+        {
+          "idfColumn": 4578230000000,
+          "ColumnName": "datTryDate"
+        },
+        {
+          "idfColumn": 82140000000,
+          "ColumnName": "idfPerson",
+          "ColumnDescription": "Person identifier"
+        },
+        {
+          "idfColumn": 82160000000,
+          "ColumnName": "idfUserID",
+          "ColumnDescription": "User identifier"
+        },
+        {
+          "idfColumn": 4578270000000,
+          "ColumnName": "intTry"
+        },
+        {
+          "idfColumn": 4578250000000,
+          "ColumnName": "strAccountName"
+        }
+      ]
+    },
+    {
+      "idfTable": 76200000000,
+      "TableName": "tstUserTableOldPassword",
+      "TableDescription": "Old passwords",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 4579390000000,
+          "ColumnName": "binOldPassword"
+        },
+        {
+          "idfColumn": 4579380000000,
+          "ColumnName": "datExpiredDate"
+        },
+        {
+          "idfColumn": 4579370000000,
+          "ColumnName": "idfUserID"
+        },
+        {
+          "idfColumn": 82210000000,
+          "ColumnName": "idfUserOldPassword",
+          "ColumnDescription": "Old Password identifier"
+        }
+      ]
+    },
+    {
+      "idfTable": 76210000000,
+      "TableName": "tstVersionCompare",
+      "TableDescription": "Valid Version pairs (db\/client)",
+      "AssociatedColumns": [
+        {
+          "idfColumn": 82230000000,
+          "ColumnName": "strDatabaseVersion",
+          "ColumnDescription": "Database version"
+        },
+        {
+          "idfColumn": 82240000000,
+          "ColumnName": "strModuleName",
+          "ColumnDescription": "Module name"
+        },
+        {
+          "idfColumn": 82250000000,
+          "ColumnName": "strModuleVersion",
+          "ColumnDescription": "Module version"
+        }
+      ]
+    }
+  ]
+}

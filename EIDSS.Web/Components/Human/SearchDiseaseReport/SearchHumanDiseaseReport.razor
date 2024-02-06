@@ -1,0 +1,307 @@
+﻿@using EIDSS.Web.Areas.Human.ViewModels.Human
+@using EIDSS.Domain.ViewModels.Human
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Components.CrossCutting
+@inherits SearchHumanDiseaseReportBase
+
+<RadzenTemplateForm Data="@Model" id="humanDiseaseReportSearchForm" @ref="Form" Submit="@HandleValidSearchSubmit" TItem="SearchHumanDiseaseReportPageViewModel">
+<div id="accordion">
+<!--search criteria-->
+<div class="card">
+    <div class="card-header" id="humanDiseaseReportSearchCriteria">
+        <button aria-controls="humanDiseaseReportSearchCriteriaBody" aria-expanded="false" class="btn d-inline-block" data-toggle="collapse" @onclick="@(() => AccordionClick(0))" type="button">
+            <span class="text-left fas @(expandSearchCriteria ? "fa-caret-down" : "fa-caret-right")"></span>
+            <h4 class="mb-0 d-inline-block"> @Localizer.GetString(HeadingResourceKeyConstants.SearchCriteriaHeading)</h4>
+        </button>
+    </div>
+    <div aria-labelledby="humanDiseaseReportSearchCriteria" class="@(expandSearchCriteria ? "collapse show" : "collapse")" data-parent="#accordion" id="humanDiseaseReportSearchCriteriaBody">
+        <div class="card-body">
+            <div class="form-row">
+                <!--Report ID-->
+                <InterfaceEditorResource CssClass="col-md-6" For="reportID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsReportIDFieldLabel" IsRow="false">
+                    <RadzenTextBox AutoComplete="true" @bind-Value="@Model.SearchCriteria.ReportID" class="form-control" Disabled="@LoadingComponentIndicator" id="reportID" Name="reportID"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <!--Legacy Report ID-->
+                <InterfaceEditorResource CssClass="col-md-6" For="legacyReportID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsLegacyIDFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="@Model.SearchCriteria.LegacyReportID" class="form-control" Disabled="@LoadingComponentIndicator" id="legacyReportID" Name="legacyReportID"></RadzenTextBox>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <!--Disease Drop Down-->
+                <InterfaceEditorResource CssClass="col-md-6" For="diseaseID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsDiseaseFieldLabel" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@Model.SearchCriteria.DiseaseID" class="form-control" Count="@DiseaseCount" Data="@Diseases" Disabled="@(DiseaseId != null || LoadingComponentIndicator)" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="diseaseID" LoadData="@GetDiseasesAsync" Name="diseaseID" TextProperty="DiseaseName" TValue="long?" ValueProperty="DiseaseID"/>
+                </InterfaceEditorResource>
+                <!--Report Status Drop Down-->
+                <InterfaceEditorResource CssClass="col-md-6" For="reportStatusTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsReportStatusFieldLabel" IsRow="false">
+                    <RadzenDropDown AllowClear="true" @bind-Value="@Model.SearchCriteria.ReportStatusTypeID" class="form-control" Data="@ReportStatuses" Disabled="@LoadingComponentIndicator" id="reportStatusTypeID" LoadData="@GetReportStatusesAsync" Name="reportStatusTypeID" TabIndex="0" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"></RadzenDropDown>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <!--Person Name Fields-->
+                <InterfaceEditorResource CssClass="col-md-3" For="patientFirstName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsFirstNameFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="@Model.SearchCriteria.PatientFirstName" class="form-control" Disabled="@LoadingComponentIndicator" id="patientFirstName" Name="patientFirstName"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-md-3" For="patientMiddleName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsMiddleNameFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="@Model.SearchCriteria.PatientMiddleName" class="form-control" Disabled="@LoadingComponentIndicator" id="patientMiddleName"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-md-6" For="patientLastName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsLastNameFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="@Model.SearchCriteria.PatientLastName" class="form-control" Disabled="@LoadingComponentIndicator" id="patientLastName" Name="patientLastName"></RadzenTextBox>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <fieldset class="col-md-12" disabled="@LoadingComponentIndicator">
+                    <legend>@Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsLocationFieldLabel)</legend>
+                    <LocationView @ref="LocationViewComponent" ParmLocationViewModel="@Model.SearchLocationViewModel" LocationViewModelChanged="@LocationChanged"/>
+                </fieldset>
+            </div>
+            <div class="form-row">
+                <!--Date Entered Range -->
+                <fieldset class="col-md-12">
+                    <legend>@Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsDateEnteredRangeFieldLabel)</legend>
+                    <div class="row">
+                        <InterfaceEditorResource CssClass="col-md-4" For="SearchCriteria_DateEnteredFrom" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FromFieldLabel" IsRow="false">
+                            <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="@Model.SearchCriteria.DateEnteredFrom" class="form-control-range" DateFormat="d" Disabled="@LoadingComponentIndicator" id="dateEnteredFrom" Name="SearchCriteria_DateEnteredFrom" @ref="@DateEnteredFrom" TValue="DateTime?"/>
+                            <RadzenCompareValidator Component="SearchCriteria_DateEnteredFrom" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), Localizer.GetString(FieldLabelResourceKeyConstants.DateFromFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.DateToFieldLabel))" Value="@Model.SearchCriteria.DateEnteredTo" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.DateEnteredTo.ToString()))"/>
+                            <RadzenCompareValidator Component="SearchCriteria_DateEnteredFrom" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="@DateTime.Now"/>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource CssClass="col-md-4" For="SearchCriteria_DateEnteredTo" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ToFieldLabel" IsRow="false">
+                            <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="@Model.SearchCriteria.DateEnteredTo" class="form-control-range" DateFormat="d" Disabled="@LoadingComponentIndicator" id="dateEnteredTo" Name="SearchCriteria_DateEnteredTo" TValue="DateTime?"/>
+                            <RadzenCompareValidator Component="SearchCriteria_DateEnteredTo" Operator="CompareOperator.GreaterThanEqual" Popup="false" Style="display: block" Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.DateToFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.DateFromFieldLabel))" Value="@Model.SearchCriteria.DateEnteredFrom" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.DateEnteredFrom.ToString()))"/>
+                            <RadzenCompareValidator Component="SearchCriteria_DateEnteredTo" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="@DateTime.Now"/>
+                        </InterfaceEditorResource>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="form-row">
+                <!--Case Classification Drop Down-->
+                <InterfaceEditorResource CssClass="col-md-6" For="classificationTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsCaseClassificationFieldLabel" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@Model.SearchCriteria.ClassificationTypeID" class="form-control" Data="@CaseClassifications" Disabled="@LoadingComponentIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="classificationTypeID" LoadData="@GetCaseClassificationsAsync" Name="classificationTypeID" TextProperty="strName" TValue="long?" ValueProperty="idfsBaseReference"/>
+                </InterfaceEditorResource>
+                <!--Hospitalization Drop Down-->
+                <InterfaceEditorResource CssClass="col-md-6" For="hospitalizationYNID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsHospitalizationFieldLabel" IsRow="false">
+                    <RadzenDropDown AllowClear="true" @bind-Value="@Model.SearchCriteria.HospitalizationYNID" class="form-control" Data="@HospitalizationStatuses" Disabled="@LoadingComponentIndicator" id="hospitalizationYNID" LoadData="@GetHospitalizationStatusAsync" Name="hospitalizationYNID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"/>
+                </InterfaceEditorResource>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end search criteria-->
+<!--advanced search criteria-->
+<div class="card">
+    <div class="card-header" id="humanDiseaseReportAdvancedSearchCriteria">
+        <button aria-controls="humanDiseaseReportAdvancedSearchCriteriaBody" aria-expanded="false" class="btn d-inline-block" data-toggle="collapse" @onclick="@(() => AccordionClick(1))" type="button">
+            <span class="text-left fas @(expandAdvancedSearchCriteria ? "fa-caret-down" : "fa-caret-right")"></span>
+            <h4 class="mb-0 d-inline-block">@Localizer.GetString(HeadingResourceKeyConstants.AdvancedSearchCriteriaHeading)</h4>
+        </button>
+    </div>
+    <div aria-labelledby="humanDiseaseReportAdvancedSearchCriteria" class="@(expandAdvancedSearchCriteria ? "collapse show" : "collapse")" data-parent="#accordion" id="humanDiseaseReportAdvancedSearchCriteriaBody">
+        <div class="card-body">
+            <div class="form-row">
+                <!--Sent By Facility Drop Down-->
+                <InterfaceEditorResource CssClass="col-md-4" For="sentByFacilityID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsSentByFacilityFieldLabel" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@Model.SearchCriteria.SentByFacilityID" class="form-control" Data="@SentByFacilities" Disabled="@LoadingComponentIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="sentByFacilityID" LoadData="@GetSentByOrganizationsAsync" Name="sentByFacilityID" TextProperty="name" TValue="long?" ValueProperty="idfOffice"/>
+                </InterfaceEditorResource>
+                <!--Received By Facility Drop Down-->
+                <InterfaceEditorResource CssClass="col-md-4" For="receivedByFacilityID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsReceivedByFacilityFieldLabel" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@Model.SearchCriteria.ReceivedByFacilityID" class="form-control" Data="@ReceivedByFacilities" Disabled="@LoadingComponentIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="receivedByFacilityID" LoadData="@GetReceivedByOrganizationsAsync" Name="receivedByFacilityID" TextProperty="name" TValue="long?" ValueProperty="idfOffice"/>
+                </InterfaceEditorResource>
+                <!--Data Entry Site Drop Down-->
+                <InterfaceEditorResource CssClass="col-md-4" For="dataEntrySiteID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsDataEntrySiteFieldLabel" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@Model.SearchCriteria.DataEntrySiteID" class="form-control" Data="@DataEntrySites" Disabled="@LoadingComponentIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="dataEntrySiteID" LoadData="@GetEnteredByOrganizationsAsync" TextProperty="name" TValue="long?" ValueProperty="idfsSite"/>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <fieldset class="col-md-12" disabled="@LoadingComponentIndicator">
+                    <legend>@Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsLocationOfExposureFieldLabel)</legend>
+                    <LocationView @ref="ExposureLocationViewComponent" ParmLocationViewModel="@Model.SearchExposureLocationViewModel" LocationViewModelChanged="@ExposureLocationChanged" />
+                </fieldset>
+            </div>
+            <div class="form-row">
+                <fieldset class="col-md-12">
+                    <legend>@Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsDateOfFinalCaseClassificationRangeFieldLabel) </legend>
+                    <div class="row">
+                        <!--Date of Final Case Classification From-->
+                        <InterfaceEditorResource CssClass="col-md-4" For="SearchCriteria_DateOfFinalCaseClassificationFrom" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FromFieldLabel" IsRow="false">
+                            <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="@Model.SearchCriteria.DateOfFinalCaseClassificationFrom" class="form-control-range" DateFormat="d" Disabled="@LoadingComponentIndicator" id="dateOfFinalClassificationFrom" Name="SearchCriteria_DateOfFinalCaseClassificationFrom" TValue="DateTime?"/>
+                            <RadzenCompareValidator Component="SearchCriteria_DateOfFinalCaseClassificationFrom" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), Localizer.GetString(FieldLabelResourceKeyConstants.DateFromFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.DateToFieldLabel))" Value="@Model.SearchCriteria.DateOfFinalCaseClassificationTo" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.DateOfFinalCaseClassificationTo.ToString()))"/>
+                        </InterfaceEditorResource>
+                        <!--Date of Final Case Classification To-->
+                        <InterfaceEditorResource CssClass="col-md-4" For="SearchCriteria_DateOfFinalCaseClassificationTo" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ToFieldLabel" IsRow="false">
+                            <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="@Model.SearchCriteria.DateOfFinalCaseClassificationTo" class="form-control-range" DateFormat="d" Disabled="@LoadingComponentIndicator" id="dateOfFinalClassificationTo" Name="SearchCriteria_DateOfFinalCaseClassificationTo" TValue="DateTime?"/>
+                            <RadzenCompareValidator Component="SearchCriteria_DateOfFinalCaseClassificationTo" Operator="CompareOperator.GreaterThanEqual" Popup="false" Style="display: block" Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.DateToFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.DateFromFieldLabel))" Value="@Model.SearchCriteria.DateOfFinalCaseClassificationFrom" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.DateOfFinalCaseClassificationFrom.ToString()))"/>
+                        </InterfaceEditorResource>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="form-row">
+                <fieldset class="col-md-12">
+                    <legend>@Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsNotificationDateRangeFieldLabel) </legend>
+                    <div class="row">
+                        <!--Notification Date-->
+                        <InterfaceEditorResource CssClass="col-md-4" For="SearchCriteria_NotificationDateFrom" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FromFieldLabel" IsRow="false">
+                            <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="@Model.SearchCriteria.NotificationDateFrom" class="form-control-range" DateFormat="d" Disabled="@LoadingComponentIndicator" id="notificationDateFrom" Name="SearchCriteria_NotificationDateFrom" TValue="DateTime?"/>
+                            <RadzenCompareValidator Component="SearchCriteria_NotificationDateFrom" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), Localizer.GetString(FieldLabelResourceKeyConstants.DateFromFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.DateToFieldLabel))" Value="@Model.SearchCriteria.NotificationDateTo" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.NotificationDateTo.ToString()))"/>
+                        </InterfaceEditorResource>
+                        <!--Notification Date-->
+                        <InterfaceEditorResource CssClass="col-md-4" For="SearchCriteria_NotificationDateTo" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ToFieldLabel" IsRow="false">
+                            <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="@Model.SearchCriteria.NotificationDateTo" class="form-control-range" DateFormat="d" Disabled="@LoadingComponentIndicator" id="notificationDateTo" Name="SearchCriteria_NotificationDateTo" TValue="DateTime?"/>
+                            <RadzenCompareValidator Component="SearchCriteria_NotificationDateTo" Operator="CompareOperator.GreaterThanEqual" Popup="false" Style="display: block" Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.DateToFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.DateFromFieldLabel))" Value="@Model.SearchCriteria.NotificationDateFrom" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.NotificationDateFrom.ToString()))"/>
+                        </InterfaceEditorResource>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="form-row">
+                <fieldset class="col-md-12">
+                    <legend>@Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsDateOfSymptomsOnsetRangeFieldLabel) </legend>
+                    <div class="row">
+                        <!--Date of Symptoms Onset-->
+                        <InterfaceEditorResource CssClass="col-md-4" For="SearchCriteria_DateOfSymptomsOnsetFrom" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FromFieldLabel" IsRow="false">
+                            <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="@Model.SearchCriteria.DateOfSymptomsOnsetFrom" class="form-control-range" DateFormat="d" Disabled="@LoadingComponentIndicator" id="dateOfSymptomsOnsetFrom" Name="SearchCriteria_DateOfSymptomsOnsetFrom" TValue="DateTime?"/>
+                            <RadzenCompareValidator Component="SearchCriteria_DateOfSymptomsOnsetFrom" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), Localizer.GetString(FieldLabelResourceKeyConstants.DateFromFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.DateToFieldLabel))" Value="@Model.SearchCriteria.DateOfSymptomsOnsetTo" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.DateOfSymptomsOnsetTo.ToString()))"/>
+                        </InterfaceEditorResource>
+                        <!--Date of Symptoms Onset-->
+                        <InterfaceEditorResource CssClass="col-md-4" For="SearchCriteria_DateOfSymptomsOnsetTo" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ToFieldLabel" IsRow="false">
+                            <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="@Model.SearchCriteria.DateOfSymptomsOnsetTo" class="form-control-range" DateFormat="d" Disabled="@LoadingComponentIndicator" id="dateOfSymptomsOnsetTo" Name="SearchCriteria_DateOfSymptomsOnsetTo" TValue="DateTime?"/>
+                            <RadzenCompareValidator Component="SearchCriteria_DateOfSymptomsOnsetTo" Operator="CompareOperator.GreaterThanEqual" Popup="false" Style="display: block" Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.DateToFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.DateFromFieldLabel))" Value="@Model.SearchCriteria.DateOfSymptomsOnsetFrom" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.DateOfSymptomsOnsetFrom.ToString()))"/>
+                        </InterfaceEditorResource>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="form-row">
+                <fieldset class="col-md-12">
+                    <legend>@Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsDiagnosisDateRangeFieldLabel)</legend>
+                    <div class="row">
+                        <!--Diagnosis Date Range-->
+                        <InterfaceEditorResource CssClass="col-md-4" For="SearchCriteria_DiagnosisDateFrom" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FromFieldLabel" IsRow="false">
+                            <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="@Model.SearchCriteria.DiagnosisDateFrom" class="form-control-range" DateFormat="d" Disabled="@LoadingComponentIndicator" id="diagnosisDateFrom" Name="SearchCriteria_DiagnosisDateFrom" TValue="DateTime?"/>
+                            <RadzenCompareValidator Component="SearchCriteria_DiagnosisDateFrom" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), Localizer.GetString(FieldLabelResourceKeyConstants.DateFromFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.DateToFieldLabel))" Value="@Model.SearchCriteria.DiagnosisDateTo" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.DiagnosisDateTo.ToString()))"/>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource CssClass="col-md-4" For="SearchCriteria_DiagnosisDateTo" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ToFieldLabel" IsRow="false">
+                            <!--Diagnosis Date Range-->
+                            <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="@Model.SearchCriteria.DiagnosisDateTo" class="form-control-range" DateFormat="d" Disabled="@LoadingComponentIndicator" id="diagnosisDateTo" Name="SearchCriteria_DiagnosisDateTo" TValue="DateTime?"/>
+                            <RadzenCompareValidator Component="SearchCriteria_DiagnosisDateTo" Operator="CompareOperator.GreaterThanEqual" Popup="false" Style="display: block" Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.DateToFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.DateFromFieldLabel))" Value="@Model.SearchCriteria.DiagnosisDateFrom" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.DiagnosisDateFrom.ToString()))"/>
+                        </InterfaceEditorResource>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="form-row">
+                <!--Local Sample ID-->
+                <InterfaceEditorResource CssClass="col-md-6" For="localOrFieldSampleID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsLocalSampleIDFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="@Model.SearchCriteria.LocalOrFieldSampleID" class="form-control" Disabled="@LoadingComponentIndicator" id="localOrFieldSampleID" Name="localOrFieldSampleID"/>
+                </InterfaceEditorResource>
+                <!--Outcome Drop Down-->
+                <InterfaceEditorResource CssClass="col-md-6" For="outcomeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsOutcomeFieldLabel" IsRow="false">
+                    <RadzenDropDown AllowClear="true" @bind-Value="@Model.SearchCriteria.OutcomeID" class="form-control" Data="@Outcomes" Disabled="@LoadingComponentIndicator" id="outcomeID" LoadData="@GetOutcomesAsync" Name="outcomeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"/>
+                </InterfaceEditorResource>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end advanced search criteria-->
+<!--search criteria buttons-->
+<div class="card-footer @(showSearchCriteriaButtons ? "d-block" : "d-none")">
+    <div class="row">
+        <div class="col-md-12">
+            <button class="btn btn-outline-primary" id="clearButton" @onclick="@(ResetSearch)" type="reset">@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)</button>
+            <button autofocus class="btn btn-primary" disabled="@disableSearchButton" id="searchButton" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SearchButton)</button>
+        </div>
+    </div>
+</div>
+<!--search criteria buttons-->
+<!--search results-->
+<div class="card @(showSearchResults ? "d-block" : "d-none")">
+    <div class="card-header" id="humanDiseaseReportSearchResults">
+        <h4 class="d-inline-block" style="line-height: 1.5rem; padding: 0.375rem 0.75rem;">@Localizer.GetString(HeadingResourceKeyConstants.SearchResultsHeading)</h4>
+    </div>
+    <div aria-labelledby="humanDiseaseReportSearchResults" class="collapse show" data-parent="#accordion" id="humanDiseaseReportSearchResultsBody">
+        <div class="card-body">
+            <GridExtension OnColumnSave="GridSearchHumanDiseaseReportClickHandler"></GridExtension>
+            <div class="row">
+                <div class="col-12">
+                    <RadzenDataGrid AllowColumnPicking="true" AllowColumnReorder="true" AllowColumnResize="true" AllowPaging="true" AllowSorting="true" Count="@count" Data="@Model.SearchResults" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" ExpandMode="DataGridExpandMode.Single" HeaderCellRender="@(args => HeaderCellRender(args.Column.Property))" id="searchResults" IsLoading="@isLoading" LoadData="@(args => LoadData(args))" PageSizeOptions="@pageSizeOptions" @ref="Grid" ShowPagingSummary="true" TItem="HumanDiseaseReportViewModel" Visible="@showSearchResults">
+                        <Columns>
+                            <RadzenDataGridColumn Pickable="false" Property="ReportKey" Reorderable="false" TItem="HumanDiseaseReportViewModel" Title="ReportKey" Visible="false"/>
+                            <RadzenDataGridColumn OrderIndex="@FindColumnOrder("ReportID")" Property="ReportID" Reorderable="true" Sortable="true" TItem="HumanDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsReportIDColumnHeading)" Visible="@GetColumnVisibility("ReportID")" Width="160px">
+                                <Template Context="data">
+                                    <button class="btn btn-link btn-sm" @onclick="@(() => SendReportLink(data.ReportKey))">@data.ReportID.ToString()</button>
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn OrderIndex="@FindColumnOrder("LegacyReportID")" Property="LegacyReportID" Reorderable="true" Sortable="true" TItem="HumanDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsLegacyIDColumnHeading)" Visible="@GetColumnVisibility("LegacyReportID")"/>
+                            <RadzenDataGridColumn OrderIndex="@FindColumnOrder("PersonName")" Property="PersonName" Reorderable="true" Sortable="true" TItem="HumanDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsPersonNameColumnHeading)" Visible="@GetColumnVisibility("PersonName")" Width="200px">
+                                <Template Context="data">
+                                    @if (data.AccessToPersonalDataPermissionIndicator)
+                                    {
+                                        <button class="btn btn-link btn-sm" @onclick="@(() => OpenPerson(data.PersonMasterID ?? data.PersonMasterID.Value))">@data.PersonName</button>
+                                    }
+                                    else
+                                    {
+                                        <RadzenGridCell TItem="HumanDiseaseReportViewModel">********</RadzenGridCell>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn FormatString="{0:d}" OrderIndex="@FindColumnOrder("EnteredDate")" Property="EnteredDate" Reorderable="true" Sortable="true" TItem="HumanDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsDateEnteredColumnHeading)" Visible="@GetColumnVisibility("EnteredDate")" Width="125px"/>
+                            <RadzenDataGridColumn OrderIndex="@FindColumnOrder("DiseaseName")" Property="DiseaseName" Reorderable="true" Sortable="true" TItem="HumanDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsDiseasesColumnHeading)" Visible="@GetColumnVisibility("DiseaseName")"/>
+                            <RadzenDataGridColumn OrderIndex="@FindColumnOrder("ReportStatusTypeName")" Property="ReportStatusTypeName" Reorderable="true" Sortable="true" TItem="HumanDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsReportStatusColumnHeading)" Visible="@GetColumnVisibility("ReportStatusTypeName")"/>
+                            <RadzenDataGridColumn OrderIndex="@FindColumnOrder("PersonLocation")" Property="PersonLocation" Reorderable="true" Sortable="true" TItem="HumanDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsLocationColumnHeading)" Visible="@GetColumnVisibility("PersonLocation")"/>
+                            <RadzenDataGridColumn OrderIndex="@FindColumnOrder("ClassificationTypeName")" Property="ClassificationTypeName" Reorderable="true" Sortable="true" TItem="HumanDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsCaseClassificationColumnHeading)" Visible="@GetColumnVisibility("ClassificationTypeName")" Width="175px"/>
+                            <RadzenDataGridColumn Filterable="false" Pickable="false" Property="" Reorderable="false" Sortable="false" TItem="HumanDiseaseReportViewModel" Title="" Visible="@Model.HumanDiseaseReportPermissions.Write" Width="50px">
+                                <Template Context="data">
+                                    @if (data.WritePermissionIndicator)
+                                    {
+                                        <button @onclick=@(() => OpenEdit(data.ReportKey)) class="btn btn-sm" type="button">
+                                            <i class="fas fa-edit fa-lg"></i>
+                                        </button>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                        <!--Expandable Detail Template for Grid-->
+                        <Template Context="data">
+                            <RadzenCard>
+                                <div class="row">
+                                    <InterfaceEditorResource CssClass="col-md-4" For="personID" InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsPersonIDColumnHeading" IsRow="false">
+                                        <RadzenTextBox @bind-Value="@data.PersonID" class="form-control" id="personID" Name="personID" ReadOnly="true"></RadzenTextBox>
+                                    </InterfaceEditorResource>
+                                    <InterfaceEditorResource CssClass="col-md-4" For="employerName" InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsEnteredbyOrganizationColumnHeading" IsRow="false">
+                                        <RadzenTextBox @bind-Value="@data.EnteredByOrganizationName" class="form-control" id="enteredByOrganizationName" Name="enteredByOrganizationName" ReadOnly="true"></RadzenTextBox>
+                                    </InterfaceEditorResource>
+                                    <InterfaceEditorResource CssClass="col-md-4" For="enteredByPersonName" InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsEnteredbyNameColumnHeading" IsRow="false">
+                                        <RadzenTextBox @bind-Value="@data.EnteredByPersonName" class="form-control" id="enteredByPersonName" ReadOnly="true"></RadzenTextBox>
+                                    </InterfaceEditorResource>
+                                </div>
+                                <div class="row">
+                                    <InterfaceEditorResource CssClass="col-md-4" For="reportTypeName" InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsReportTypeColumnHeading" IsRow="false">
+                                        <RadzenTextBox @bind-Value="@data.ReportTypeName" class="form-control" id="reportTypeName" Name="reportTypeName" ReadOnly="true"></RadzenTextBox>
+                                    </InterfaceEditorResource>
+                                    <InterfaceEditorResource CssClass="col-md-4" For="hospitalizationStatus" InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsHospitalizationColumnHeading" IsRow="false">
+                                        <RadzenTextBox @bind-Value="@data.HospitalizationStatus" class="form-control" id="hospitalizationStatus" Name="hospitalizationStatus" ReadOnly="true"></RadzenTextBox>
+                                    </InterfaceEditorResource>
+                                </div>
+                            </RadzenCard>
+                        </Template>
+                    </RadzenDataGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        <div class="row">
+            <div class="col-md-12">
+                <button class="btn btn-outline-primary" id="printButton" @onclick="@(PrintResults)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.PrintButton)</button>
+                <button class="btn btn-outline-primary" id="cancelButtonResults" @onclick="@(CancelSearchClicked)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end search results-->
+</div>
+</RadzenTemplateForm>
+
+@code{
+
+    void GridSearchHumanDiseaseReportClickHandler()
+    {
+        GridColumnSave("SearchHumanDiseaseReport");
+    }
+
+}

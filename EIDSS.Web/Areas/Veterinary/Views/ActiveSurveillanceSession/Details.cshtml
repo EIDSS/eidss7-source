@@ -1,0 +1,35 @@
+﻿@model EIDSS.Web.Areas.Veterinary.ViewModels.ActiveSurveillanceSession.ActiveSurveillanceSessionDetailPageViewModel
+@using EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.VeterinaryActiveSurveillanceSessionPageHeading);
+}
+
+<partial name="_ErrorModalNoTitlePartial" />
+
+<div id="divVeterinaryActiveSurveillanceSessionView" class="card">
+    <div class="card-header">
+       <h3>@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryActiveSurveillanceSessionPageHeading)</h3> 
+    </div>
+    <div class="card-body">
+        <component param-CampaignKey="@Model.CampaignId" param-IsReadOnly="@Model.IsReadonly" param-SessionID="@Model.SessionID" render-mode="Server" type="typeof(SurveillanceSession)"/>
+    </div>
+</div>
+
+<script src="~/js/Veterinary/activeSurveillanceSession.js"></script>
+<script src="~/js/Human/person.js"></script>
+<script src="~/js/Veterinary/farm.js"></script>
+@section Scripts {
+    <script type="text/javascript">  
+        function insufficientPermissions() {
+            showErrorModalNoTitle('@Localizer.GetString(MessageResourceKeyConstants.WarningMessagesYourPermissionsAreInsufficientToPerformThisFunctionMessage)').then(response => {
+                if (response) {
+                    $("#errorModal").modal("hide");
+                    $(".modal-backdrop").remove();
+                    window.location.replace('@Url.Action("Index", "Dashboard", new {Area = "Administration"})');
+                }
+            });
+        };
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+}

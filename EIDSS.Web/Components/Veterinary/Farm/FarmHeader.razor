@@ -1,0 +1,20 @@
+﻿@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Services
+@inherits FarmHeaderBase
+
+<RadzenTemplateForm @ref="Form" TItem="FarmStateContainer" Data="@StateContainer">
+    <div class="card">
+        <div class="card-header">
+        </div>
+        <div id="divFarmSummary" class="card-body show">
+            <div class="form-row border border-secondary">
+                <InterfaceEditorResource CssClass="col-4" For="dateEntered" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmInformationDateEnteredFieldLabel" IsRow="false">
+                    <RadzenDatePicker @bind-Value="@StateContainer.DateEntered" class="form-control-plaintext" DateFormat="d" Name="dateEntered" ReadOnly="true" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-4" For="dateModified" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmInformationDateLastUpdatedFieldLabel" IsRow="false">
+                    <RadzenDatePicker @bind-Value="@StateContainer.DateModified" class="form-control-plaintext" DateFormat="d" Name="dateModified" ReadOnly="true" />
+                </InterfaceEditorResource>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

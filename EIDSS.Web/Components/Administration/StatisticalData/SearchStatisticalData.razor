@@ -1,0 +1,262 @@
+﻿@using EIDSS.Domain.ResponseModels.Administration
+@using EIDSS.Web.ViewModels.Administration
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using System.Text.Json
+@using Newtonsoft.Json
+
+@inherits EIDSS.Web.Components.Administration.StatisticalData.SearchStatisticalDataBase;
+
+@inject IJSRuntime JsRuntime;
+
+@code {
+
+    public StatisticalDataFileModel _statisticalDataFileModel;
+    protected RadzenUpload StatisticUpload;
+    int progress;
+    string info;
+    string _response;
+    protected bool disableUpload { get; set; } = true;
+
+    void OnChange(UploadChangeEventArgs args)
+    {
+        
+        if (args.Files.Count() > 0) disableUpload = false;
+        else disableUpload = true;
+    }
+
+    void OnProgress(UploadProgressArgs args, string name)
+    {
+        this.info = $"% '{name}' / {args.Loaded} of {args.Total} bytes.";
+        this.progress = args.Progress;        
+    }
+
+    void OnCompleteAsync(UploadCompleteEventArgs args)
+    {
+        if (userPermissions.Create == true)
+        {
+            _statisticalDataFileModel = new StatisticalDataFileModel();
+            JsonElement jsonRowElement = new JsonElement();
+            JsonElement jsonMessageElement = new JsonElement();
+            jsonRowElement = args.JsonResponse.RootElement.GetProperty("rows");
+            jsonMessageElement = args.JsonResponse.RootElement.GetProperty("errorMessagesList");
+            
+            var p = JsonConvert.DeserializeObject<StatisticalDataFileModel>(args.JsonResponse.RootElement.ToString());
+            
+            _dialogService.OpenAsync<FileUploadDialog>(@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading), 
+                new Dictionary<string, object>() { 
+                    { "_statisticalDataFileModel", p }, 
+                    { "Username", @UserName },
+                    { "IsIncorrectFileFormat", p.IsIncorrectFileFormat }
+                },
+                new DialogOptions() { 
+                    Width = "700px", 
+                    //Height = string.Empty, 
+                    Resizable = true, 
+                    Draggable = false 
+                }
+            );
+        }
+        else
+        {
+            JsRuntime.InvokeAsync<string>("showPermissionsWarning");
+        }
+    }
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3>@Localizer.GetString(@HeadingResourceKeyConstants.StatisticalDataPageHeading)</h3>
+    </div>
+    <div class="card-body">
+
+        <RadzenTemplateForm id="statisticalDataSearchForm" @ref="_form" TItem="SearchStatisticalDataViewModel" Data="@model" Submit="@HandleValidSearchSubmit">
+
+            <div class="accordion">
+
+                <div id="statisticalDataSearchCriteria" class="card ">
+                    <div class="card-header">
+                        <button aria-controls="statisticalDataSearchCriteriaForm" aria-expanded="false" class="btn d-inline-block" data-toggle="collapse" @onclick="@(() => AccordionClick(0))" type="button">
+                            <span class="text-left fas @(expandSearchCriteria ? "fa-caret-down" : "fa-caret-right")"></span>
+                            <h4 class="mb-0 d-inline-block"> @Localizer.GetString(HeadingResourceKeyConstants.SearchCriteriaHeading)</h4>
+                        </button>
+                    </div>
+                    <div id="statisticalDataSearchCriteriaForm" class="card-body show @(expandSearchCriteria ? "d-block" : "d-none" )">
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.StatisticalDataDetailsStatisticalDataTypeFieldLabel" IsRow="false" For="StatisticalDataType" IsRequiredByDefaultBusinessRule="false">
+                                    <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="true" @bind-Value="@model.selectedStatisticalDataItem" Change="SetStatisticalData" class="form-control" Count="@statisticalDataTypesListCount" Data="@statisticalDataTypesList" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="StatisticalDataType" LoadData="@GetStatisticalDataItems" Name="StatisticalDataType" @ref="_StatisticalDataTypeDD" TextProperty="Name" TValue="long?" ValueProperty="BaseReferenceId">
+                                    </RadzenDropDown>
+                                </InterfaceEditorResource>
+                            </div>
+                            <div class="form-group col-md-6"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.FromFieldLabel" IsRow="false" For="FromDate" IsRequiredByDefaultBusinessRule="true">
+                                    <RadzenDatePicker Name="FromDate" AllowClear="false" AllowInput="true" class="form-control-range" TValue="DateTime?" @bind-Value="@model.FromDate" DateFormat="d" />
+                                </InterfaceEditorResource>
+                                <RadzenCompareValidator Component="FromDate" Operator="CompareOperator.LessThan" Value="model.ToDate" Text="@Localizer.GetString(MessageResourceKeyConstants.SearchStatisticalDataRecordDateenteredmustbeearlierthanStatisticalDataforPeriodToMessage)"></RadzenCompareValidator>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ToFieldLabel" IsRow="false" For="ToDate" IsRequiredByDefaultBusinessRule="true">
+                                    <RadzenDatePicker Name="ToDate" AllowClear="false" AllowInput="true" class="form-control-range" TValue="DateTime?" @bind-Value="@model.ToDate" DateFormat="d" />
+                                </InterfaceEditorResource>
+                                <RadzenCompareValidator Component="ToDate" Value="model.FromDate" Operator="CompareOperator.GreaterThan" Text="@Localizer.GetString(MessageResourceKeyConstants.SearchStatisticalDataRecordStartDateforPeriodTomustoccurafterStatisticalDataforPeriodFromMessage)"></RadzenCompareValidator>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <LocationView ParmLocationViewModel="@model.LocationViewModel" LocationViewModelChanged="@ChangeLocationSettings" />
+                            </div>
+                            <div class="form-group col-md-6">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="btn-group" role="group" aria-label="Basic example">
+                                <RadzenUpload Auto="false" Change="@(args => OnChange(args))" ChooseText="@Localizer.GetString(HeadingResourceKeyConstants.ChooseFileForUpload)" Complete="@((args) => OnCompleteAsync(args))" Progress="@((args) => OnProgress(args, "Single file upload"))" @ref="StatisticUpload" Url="upload/StatisticalData" />
+                                @if (disableUpload)
+                                {
+                                    <button class="btn btn-outline-primary btn-sm disabled" id="loadData" type="button">@Localizer.GetString(ButtonResourceKeyConstants.SearchStatisticalDataRecordLoadDataButtonText)</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-outline-primary btn-sm" id="loadData" @onclick="@(args => StatisticUpload.Upload())" type="button">@Localizer.GetString(ButtonResourceKeyConstants.SearchStatisticalDataRecordLoadDataButtonText)</button>
+                                }
+                            </div>
+                        </div>
+                        <div class="form-row">
+                        </div>
+                    </div>
+                    <div id="statisticalDataSearchCriteriaCommands" class="card-footer">
+                        <button id="cancelSearchCriteria" type="button" class="btn btn-outline-primary" onclick="cancelSearch();">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                        <button id="clear" type="button" @onclick="@(() => ResetFields())" class="btn btn-outline-primary @(displayCancel ?  "show" : "hide" )">@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)</button>
+                        <button id="search" type="submit" class="btn btn-primary">@Localizer.GetString(ButtonResourceKeyConstants.SearchButton)</button>
+                        <button id="addStatisticalDataSearchCriteria" type="button" class="btn btn-outline-primary @(userPermissions.Write   ?  "" : "d-none" )" @onclick="@(() => RedirectToAdd())">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                    </div>
+                </div>
+                <br />
+                <div id="statisticalDataSearchResults" class="card @(showSearchResults ?  "d-block" : "d-none" )">
+                    <div class="card-header">
+                        <button class="btn d-inline-block"
+                                type="button"
+                                data-toggle="collapse"
+                                aria-expanded="false"
+                                aria-controls="statisticalDataSearchCriteriaForm"
+                                @onclick="@(() => AccordionClick(1))">
+                            <span class="text-left fas @(expandSearchCriteria ? "fa-caret-down" : "fa-caret-right")"></span>
+                            <h4 class="mb-0 d-inline-block"> @Localizer.GetString(HeadingResourceKeyConstants.SearchResultsHeading)</h4>
+                        </button>
+                    </div>
+                    <div class="card-body @(showSearchResults ?  "d-block" : "d-none" )">
+                        <div class="col-12">
+                            <RadzenDataGrid 
+                                TItem="StatisticalDataResponseModel" 
+                                    EditTItem="StatisticalDataResponseModel" 
+                                    IsLoading="@isLoading"
+                                    Data="model.StatisticalDataResults" 
+                                    LoadData="@((args) => LoadStatisticalDataGrid(args))" 
+                                    AllowSorting="true" 
+                                    Visible="@showSearchResults"
+                                    RowUpdate="@OnUpdateRow" 
+                                    RowCreate="@OnCreateRow" 
+                                    @ref="_grid" 
+                                    AllowPaging="true" 
+                                    PageSizeOptions="@pageSizeOptions" 
+                                    ShowPagingSummary="true" 
+                                    Count="@StatisticalDataResultsCount">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="StatisticalDataResponseModel" Property="varValue" Width="40%" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchStatisticalDataRecordValueColumnHeading)" />
+                                    <RadzenDataGridColumn TItem="StatisticalDataResponseModel" Property="strStatisticalAgeGroup" Width="100%" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchStatisticalDataRecordStatisticalAgeGroupColumnHeading)" />
+                                    <RadzenDataGridColumn TItem="StatisticalDataResponseModel" Property="ParameterType" Width="100%" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchStatisticalDataRecordParameterTypeColumnHeading)" />
+                                    <RadzenDataGridColumn TItem="StatisticalDataResponseModel" Property="setnParameterName" Width="100%" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchStatisticalDataRecordParameterColumnHeading)" />
+                                    <RadzenDataGridColumn TItem="StatisticalDataResponseModel" Property="setnPeriodTypeName" Width="100%" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchStatisticalDataRecordStatisticalPeriodTypeColumnHeading)" />
+                                    <RadzenDataGridColumn TItem="StatisticalDataResponseModel" Property="datStatisticStartDate" Width="100%" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchStatisticalDataRecordStartDateforPeriodColumnHeading)">
+                                        <Template Context="data">
+                                            @(DateTime.Parse(data.datStatisticStartDate.ToString()).ToShortDateString())
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="StatisticalDataResponseModel" Property="setnAreaTypeName" Width="100%" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchStatisticalDataRecordStatisticalAreaTypeColumnHeading)" />
+                                    <RadzenDataGridColumn TItem="StatisticalDataResponseModel" Property="setnArea" Width="100%" Title="Area" />
+                                    <RadzenDataGridColumn TItem="StatisticalDataResponseModel" Property="idfStatistic" Width="40%" Visible="userPermissions.Write">
+                                        <Template Context="data">
+                                            <a role="button" @onclick="((args) => EditRow(data))" class="pull-left"><i class="fas fa-edit  fa-lg  @(userPermissions.Write   ?  "" : "d-none" )"></i></a>
+                                            <a role="button" @onclick="((args) => ConfirmDeleteRow(data))" class="pull-right"><i class="fas fa-trash fa-lg @(userPermissions.Delete   ?  "" : "d-none" )"></i></a>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                    <div id="statisticalDataSearchResultsCommands" class="card-footer">
+                    </div>
+                </div>
+            </div>
+        </RadzenTemplateForm>
+    </div>
+</div>
+
+<!-- Modals -->
+<div class="modal fade" id="cancelSearchModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)
+            </div>
+            <div class="modal-footer">
+                <button id="cancelSearchYes" type="button" class="btn btn-primary" @onclick="@(() => RedirectToDashBoard())">@Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>
+                <button id="cancelSearchNo" type="button" class="btn btn-primary" onclick="cloaseSearchModal();">@Localizer.GetString(ButtonResourceKeyConstants.NoButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="deleteSearchModal" tabindex="-1" role="dialog" aria-labelledby="deleteSearchModalModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteSearchModalModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSWarningModalHeading)</h5>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage)
+            </div>
+            <div class="modal-footer">
+                <button id="deleteYes" type="button" class="btn btn-primary" @onclick="@(() => DeleteRecord(@idfStatistic.Value))">@Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>
+                <button id="deleteNo" type="button" class="btn btn-primary" onclick="cancelDeleteRecord();">@Localizer.GetString(ButtonResourceKeyConstants.NoButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="permissionsModal" tabindex="-1" role="dialog" aria-labelledby="permissionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="permissionsModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSWarningModalHeading)</h5>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.WarningMessagesYourPermissionsAreInsufficientToPerformThisFunctionMessage)
+            </div>
+            <div class="modal-footer">
+                <button id="permissionsOK" type="button" class="btn btn-primary" onclick="hidePermissionsWarning();">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="importStatusModal" tabindex="-1" role="dialog" aria-labelledby="importStatusLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="importStatusLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button id="importStatusOK" type="button" class="btn btn-primary" onclick="hidePermissionsWarning();">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>

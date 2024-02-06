@@ -1,0 +1,178 @@
+﻿@using EIDSS.Domain.ViewModels.CrossCutting
+@using EIDSS.Domain.ViewModels.Veterinary
+@inherits EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession.TestListBase
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-6">
+            </div>
+            <div class="col-6 text-right mb-3">
+                <button class="btn btn-sm btn-outline-primary" id="printTest" disabled="@(!StateContainer.ActiveSurveillanceSessionPermissions.Write)" @onclick="@OnPrintTestClick">@Localizer.GetString(ButtonResourceKeyConstants.PrintButton)</button>
+                <button class="btn btn-sm btn-outline-primary" id="addTest" disabled="@(!StateContainer.ActiveSurveillanceSessionPermissions.Write)" @onclick="@OnAddTestClick">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                <button class="btn btn-sm btn-outline-primary" id="deleteSelectedTest" disabled="@(!StateContainer.ActiveSurveillanceSessionPermissions.Write)" @onclick="@DeleteSelectedTestsClick">@Localizer.GetString(ButtonResourceKeyConstants.DeleteButton)</button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="form-row">
+            <div class="col-12">
+                <RadzenDataGrid id="testListGrid"
+                                TItem="LaboratoryTestGetListViewModel"
+                                Data="@StateContainer.Tests"
+                                @ref="TestGrid"
+                                LoadData="@LoadTestGrid"
+                                Count="@TestsCount"
+                                AllowColumnResize="true"
+                                AllowColumnReorder="true"
+                                AllowFiltering="false"
+                                AllowPaging="true"
+                                AllowSorting="true"
+                                EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" ExpandMode="DataGridExpandMode.Single"
+                                SelectionMode="DataGridSelectionMode.Single"
+                                PageSizeOptions="pageSizeOptions"
+                                ShowPagingSummary="true">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="LaboratoryTestGetListViewModel" Property="TestID" Title="@string.Empty" Width="75px" Sortable="true">
+                            <Template Context="data">
+                                <RadzenCheckBox TValue="bool" TriState="false" Change="@(args => OnTestSelectionChange(data))" />
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="LaboratoryTestGetListViewModel" Property="EIDSSLocalOrFieldSampleID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsFieldSampleIDColumnHeading)" Width="140px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestGetListViewModel" Property="EIDSSLaboratorySampleID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsLabSampleIDColumnHeading)" Width="130px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestGetListViewModel" Property="EIDSSFarmID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsFarmIDColumnHeading)" Width="200px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestGetListViewModel" Property="SampleTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsSampleTypeColumnHeading)" Width="200px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestGetListViewModel" Property="EIDSSAnimalID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsAnimalIDColumnHeading)" Width="200px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestGetListViewModel" Property="TestNameTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsTestNameColumnHeading)" Width="200px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestGetListViewModel" Property="DiseaseName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsDiseaseColumnHeading)" Width="200px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestGetListViewModel" Property="ResultDate" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsResultDateColumnHeading)" Width="200px" Sortable="true" FormatString="{0:d}" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestGetListViewModel" Property="TestCategoryTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsTestCategoryColumnHeading)" Width="200px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestGetListViewModel" Property="TestStatusTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsTestStatusColumnHeading)" Width="200px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestGetListViewModel" Property="TestResultTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsTestResultColumnHeading)" Width="200px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestGetListViewModel" Property="" Title="" Sortable="false" Filterable="false" Width="50px">
+                            <Template Context="data">
+                                <button @onclick="@(() => OnInterpretTestClick(data))" class="btn btn-sm" disabled="@(!StateContainer.CanInterpretVeterinaryPermissions.Execute
+                                                        || StateContainer.TestInterpretations.Any(x=>x.TestID == data.TestID))" type="button">
+                                    <span class="fas fa-file fa-lg"></span>
+                                </button>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="LaboratoryTestGetListViewModel" Property="" Title="" Sortable="false" Filterable="false" Width="50px">
+                            <Template Context="data">
+                                <button @onclick="@(() => OnEditTestClick(data))" class="btn btn-sm" type="button"
+                                        disabled="@(!StateContainer.ActiveSurveillanceSessionPermissions.Write
+                                        || data.EIDSSLaboratorySampleID != null
+                                        || StateContainer.TestInterpretations.Any(x => x.TestID == data.TestID))">
+                                    <span class="fas fa-edit fa-lg"></span>
+                                </button>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="LaboratoryTestGetListViewModel" Property="" Title="" Sortable="false" Filterable="false" Width="50px">
+                            <Template Context="data">
+                                <button @onclick="@(() => OnDeleteTestClick(data))" class="btn btn-sm" type="button"
+                                        disabled="@(!StateContainer.ActiveSurveillanceSessionPermissions.Write
+                                        || data.EIDSSLaboratorySampleID != null
+                                        || StateContainer.TestInterpretations.Any(x => x.TestID == data.TestID))">
+                                    <span class="fas fa-trash fa-lg"></span>
+                                </button>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-6">
+                <h5>@Localizer.GetString(HeadingResourceKeyConstants.VeterinarySessionInterpretationDetailsModalHeading)</h5>
+            </div>
+            <div class="col-6 text-right mb-3">
+                <button class="btn btn-sm btn-outline-primary" id="deleteInterpretation" disabled="@(!StateContainer.ActiveSurveillanceSessionPermissions.Write)" @onclick="@OnDeleteSelectedInterpretationsClick">@Localizer.GetString(ButtonResourceKeyConstants.DeleteButton)</button>
+            </div>
+        </div>
+    </div>
+    <div id="divResultsSummaryAndInterpretationSubSection" class="card-body">
+        <div class="form-row">
+            <div class="col-12">
+                <RadzenDataGrid @ref="InterpretationsGrid"
+                                Count="InterpretationsCount"
+                                IsLoading="IsLoading"
+                                Data="StateContainer.TestInterpretations"
+                                LoadData="LoadTestInterpretationsGrid"
+                                TItem="LaboratoryTestInterpretationGetListViewModel"
+                                AllowColumnResize="true"
+                                AllowColumnReorder="true"
+                                AllowFiltering="false"
+                                AllowPaging="true"
+                                AllowSorting="true"
+                                EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" ExpandMode="DataGridExpandMode.Single"
+                                SelectionMode="DataGridSelectionMode.Single"
+                                PageSizeOptions="pageSizeOptions"
+                                ShowPagingSummary="true">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="LaboratoryTestInterpretationGetListViewModel" Property="TestInterpretationID" Title="@string.Empty" Sortable="true" Width="75px">
+                            <Template Context="data">
+                                <RadzenCheckBox TValue="bool" TriState="false" Change="@(args => OnTestInterpretationSelectionChange(data))" />
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="LaboratoryTestInterpretationGetListViewModel" Property="EIDSSFarmID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsFarmIDColumnHeading)" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestInterpretationGetListViewModel" Property="SpeciesTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsSpeciesColumnHeading)" Width="300px" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestInterpretationGetListViewModel" Property="EIDSSAnimalID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsAnimalIDColumnHeading)" Width="250px" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestInterpretationGetListViewModel" Property="TestNameTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsTestNameColumnHeading)" Width="200px" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestInterpretationGetListViewModel" Property="EIDSSLaboratorySampleID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsLabSampleIDColumnHeading)" Width="200px" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestInterpretationGetListViewModel" Property="EIDSSLocalOrFieldSampleID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsFieldSampleIDColumnHeading)" Width="100px" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestInterpretationGetListViewModel" Property="InterpretedStatusTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsRuleInRuleOutColumnHeading)" Width="250px" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestInterpretationGetListViewModel" Property="ValidatedStatusIndicator" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsValidatedColumnHeading)" Width="150px" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestInterpretationGetListViewModel" Property="ValidatedDate" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsDateValidatedColumnHeading)" Width="125px" FormatString="{0:d}" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestInterpretationGetListViewModel" Property="ValidatedByPersonName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionTestsValidatedByColumnHeading)" Width="200px" />
+                        <RadzenDataGridColumn TItem="LaboratoryTestInterpretationGetListViewModel" Property="" Title="" Sortable="false" Filterable="false" Width="50px">
+                            <Template Context="data">
+                                @if (StateContainer.VeterinaryDiseaseResultPermissions.Create 
+                                     && data.DiseaseUsingType == (long)DiseaseUsingTypes.Standard 
+                                     && data.IndicativeIndicator && data.ValidatedStatusIndicator 
+                                     && data.InterpretedStatusTypeID == (long)InterpretedStatusTypes.RuledIn)
+                                {
+                                    <button @onclick="@(() => OnLinkDiseaseReportClick(data))" class="btn btn-sm" type="button">
+                                        <span class="fas fa-link fa-lg"></span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm" disabled type="button">
+                                        <span class="fas fa-link fa-lg disabled"></span>
+                                    </button>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="LaboratoryTestInterpretationGetListViewModel" Property="" Title="" Sortable="false" Filterable="false" Width="50px">
+                            <Template Context="data">
+                                @if (!StateContainer.ActiveSurveillanceSessionPermissions.Write || (data.ReportSessionCreatedIndicator.GetValueOrDefault()))
+                                {
+                                    <button class="btn btn-sm" disabled type="button">
+                                        <span class="fas fa-edit fa-lg"></span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button @onclick="@(() => OnEditInterpretationClick(data))" class="btn btn-sm" type="button">
+                                        <span class="fas fa-edit fa-lg"></span>
+                                    </button>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="LaboratoryTestInterpretationGetListViewModel" Property="" Title="" Sortable="false" Filterable="false" Width="50px">
+                            <Template Context="data">
+                                <button @onclick="@(() => OnDeleteInterpretationClick(data))" class="btn btn-sm" disabled="@(!StateContainer.ActiveSurveillanceSessionPermissions.Delete)" type="button">
+                                    <span class="fas fa-trash fa-lg"></span>
+                                </button>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+</div>

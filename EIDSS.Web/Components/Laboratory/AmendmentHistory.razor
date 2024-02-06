@@ -1,0 +1,13 @@
+﻿@using EIDSS.Domain.ViewModels.Laboratory
+@inherits AmendmentHistoryBase
+
+<RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" @bind-value="AmendmentHistory" Count="Count" Data="AmendmentHistory" LoadData="LoadAmendmentHistoryData" @ref="AmendmentHistoryGrid" TItem="TestAmendmentsGetListViewModel">
+    <Columns>
+        <RadzenDataGridColumn FormatString="{0:d}" Property="AmendmentDate" TItem="TestAmendmentsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySampleTestDetailsModalAmendmentDateColumnHeading)" Width="160px"/>
+        <RadzenDataGridColumn Property="AmendedByPersonName" TItem="TestAmendmentsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySampleTestDetailsModalAmendedByPersonColumnHeading)" Width="225px"/>
+        <RadzenDataGridColumn Property="AmendedByOrganizationName" TItem="TestAmendmentsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySampleTestDetailsModalAmendedByOrganizationColumnHeading)" Width="225px"/>
+        <RadzenDataGridColumn Property="OriginalTestResultTypeName" TItem="TestAmendmentsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySampleTestDetailsModalOriginalTestResultsColumnHeading)" Width="225px"/>
+        <RadzenDataGridColumn Property="ChangedTestResultTypeName" TItem="TestAmendmentsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySampleTestDetailsModalChangedTestResultColumnHeading)" Width="225px"/>
+        <RadzenDataGridColumn Property="ReasonForAmendment" TItem="TestAmendmentsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySampleTestDetailsModalReasonForAmendmentColumnHeading)" Width="225px"/>
+    </Columns>
+</RadzenDataGrid>

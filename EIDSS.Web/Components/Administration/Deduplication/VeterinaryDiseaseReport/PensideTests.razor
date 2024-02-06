@@ -1,0 +1,77 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Enumerations
+
+@inherits EIDSS.Web.Components.Administration.Deduplication.VeterinaryDiseaseReport.PensideTestsBase
+
+<div class="form-row">
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord" TValue="int" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.RecordSelection
+                                       Change="@((args) => OnRecordSelectionChangeAsync(Model.ReportType, args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="PensideTests"></div>
+    </div>
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord2" TValue="int" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.Record2Selection
+                                       Change="@((args) => OnRecord2SelectionChangeAsync(Model.ReportType, args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="PensideTests2"></div>
+    </div>
+</div>
+<div class="form-row">
+    <div class="col-6">
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" 
+            Count="@VeterinaryDiseaseReportDeduplicationService.PensideTestsCount" 
+            Data="@VeterinaryDiseaseReportDeduplicationService.PensideTests" 
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@VeterinaryDiseaseReportDeduplicationService.SelectedPensideTests"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            PageSizeOptions="pageSizeOptions" @ref="PensideTestsGrid" 
+            ShowPagingSummary="true" TItem="PensideTestGetListViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="PensideTestGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" Disabled= "true" 
+                            Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedPensideTests != null && VeterinaryDiseaseReportDeduplicationService.SelectedPensideTests.Contains(data))" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="PensideTestNameTypeName" TItem="PensideTestGetListViewModel" Title="@TestNameColumnHeadingResourceKey"/>
+                <RadzenDataGridColumn Property="EIDSSLocalOrFieldSampleID" TItem="PensideTestGetListViewModel" Title="@FieldSampleIdColumnHeadingResourceKey"/>
+                <RadzenDataGridColumn Property="SampleTypeName" TItem="PensideTestGetListViewModel" Title="@SampleTypeColumnHeadingResourceKey"/>
+                <RadzenDataGridColumn Property="Species" TItem="PensideTestGetListViewModel" Title="@SpeciesColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Avian)"/>
+                <RadzenDataGridColumn Property="EIDSSAnimalID" TItem="PensideTestGetListViewModel" Title="@AnimalIdColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Livestock)"/>
+                <RadzenDataGridColumn Property="PensideTestResultTypeName" TItem="PensideTestGetListViewModel" Title="@ResultColumnHeadingResourceKey"/>
+             </Columns>
+        </RadzenDataGrid>
+    </div>
+    <div class="col-6">
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" 
+            Count="@VeterinaryDiseaseReportDeduplicationService.PensideTestsCount2" 
+            Data="@VeterinaryDiseaseReportDeduplicationService.PensideTests2" 
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@VeterinaryDiseaseReportDeduplicationService.SelectedPensideTests2"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            PageSizeOptions="pageSizeOptions" @ref="PensideTestsGrid" 
+            ShowPagingSummary="true" TItem="PensideTestGetListViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="PensideTestGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" Disabled= "true" 
+                            Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedPensideTests2 != null && VeterinaryDiseaseReportDeduplicationService.SelectedPensideTests2.Contains(data))" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="PensideTestNameTypeName" TItem="PensideTestGetListViewModel" Title="@TestNameColumnHeadingResourceKey"/>
+                <RadzenDataGridColumn Property="EIDSSLocalOrFieldSampleID" TItem="PensideTestGetListViewModel" Title="@FieldSampleIdColumnHeadingResourceKey"/>
+                <RadzenDataGridColumn Property="SampleTypeName" TItem="PensideTestGetListViewModel" Title="@SampleTypeColumnHeadingResourceKey"/>
+                <RadzenDataGridColumn Property="Species" TItem="PensideTestGetListViewModel" Title="@SpeciesColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Avian)"/>
+                <RadzenDataGridColumn Property="EIDSSAnimalID" TItem="PensideTestGetListViewModel" Title="@AnimalIdColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Livestock)"/>
+                <RadzenDataGridColumn Property="PensideTestResultTypeName" TItem="PensideTestGetListViewModel" Title="@ResultColumnHeadingResourceKey"/>
+             </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>

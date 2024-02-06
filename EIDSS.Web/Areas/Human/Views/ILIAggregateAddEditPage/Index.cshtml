@@ -1,0 +1,33 @@
+﻿@model EIDSS.Web.ViewModels.Human.ILIAggregatePageViewModel;
+@using EIDSS.Web.Components.Human
+
+@{
+    ViewData["Title"] = @Localizer.GetString(HeadingResourceKeyConstants.ILIAggregatePageHeading);
+}
+
+<form id="frmMain" method="post">
+
+    <div class="row mb-3">
+        <div class="col-12">            
+            <h3>@Localizer.GetString(HeadingResourceKeyConstants.ILIAggregatePageHeading)</h3>
+        </div>
+    </div>
+
+</form>
+
+<div>
+
+    <div class="row">
+        <div class="col-md-12 py-4">
+            <component type="typeof(ILIAggregateFormEdit)" render-mode="ServerPrerendered" param-header="@Model" />
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+
+

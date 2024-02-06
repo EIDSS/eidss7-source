@@ -1,0 +1,66 @@
+﻿function SetEditModalContent(d){
+	for (i = 0 ; i < d.length;i++){
+		if($('#ctrlEdit_'+ i.toString()).get(0) != undefined){
+			if($('#ctrlEdit_'+ i.toString()) != undefined & $('#ctrlEdit_'+ i.toString()).prop('type') == "text" ||
+				$('#ctrlEdit_'+ i.toString()) != undefined & $('#ctrlEdit_'+ i.toString()).prop('type') == "number"){
+				$('#ctrlEdit_'+ i.toString()).val(''+ (d[i] ?? "").toString() + '' );
+			}
+			if($('#ctrlEdit_'+ i.toString()).prop('type') == "select-one" | $('#ctrlEdit_'+ i.toString()).prop('type') == "select-multiple" ){
+				$('#ctrlEdit_'+ i.toString()).select2({
+					ajax:
+					{
+						url: gridJSObject.ColumnNames[i].ColumnAjaxDataUrl,
+						dataType: 'json'
+					},
+					width: '400',
+					tags: true,
+					closeOnSelect: true,
+					multiple: gridJSObject.ColumnNames[i].AllowMultipleDropDownItemSelection,
+					allowClear: true,
+					placeholder: ' '
+				});
+				$('#ctrlEdit_' + i.toString()).empty();
+				if (gridJSObject.ColumnNames[i].SplitCsvValues){
+					var csvValues = [];
+					var csvText = d[i].split(',');
+					var newOption;
+
+					if (csvText.toString() != ""){
+						if (gridJSObject.ColumnNames[i].AssociatedFieldId != ""){
+							if (gridJSObject.ColumnNames[i].SplitCsvValues){
+								for (iSub = 0 ; iSub < d.length;iSub++){
+									if (gridJSObject.ColumnNames[iSub].ColumnName == gridJSObject.ColumnNames[i].AssociatedFieldId){
+										csvValues = d[iSub].split(',');
+									}
+								}
+								for(iItem=0;iItem<csvValues.length;iItem++){
+									newOption = new Option(''+ csvText[iItem] + '', '' + csvValues[iItem] + '', true, true);
+									$('#ctrlEdit_'+ i.toString()).append(newOption);
+								}
+							}
+							else{
+								for (iSub = 0 ; iSub < d.length;iSub++){
+									if (gridJSObject.ColumnNames[iSub].ColumnName == gridJSObject.ColumnNames[i].AssociatedFieldId){
+										csvValues = d[iSub].toString();
+									}
+								}
+								newOption = new Option(''+ csvText[iItem] + '', '' + csvValues + '', true, true);
+								$('#ctrlEdit_'+ i.toString()).append(newOption);
+							}
+						}
+						else{
+							for (iSub = 0 ; iSub < csvText.length;iSub++){
+								newOption = new Option(''+ csvText[iSub] + '', '' + csvValues[iSub] + '', true, true);
+								$('#ctrlEdit_'+ i.toString()).append(newOption);
+							}
+						}
+					}
+				}
+				else{
+					newOption = new Option(''+ d[i].toString() +'', ''+ d[i].toString() +'', true, true);
+					$('#ctrlEdit_'+ i.toString()).append(newOption);
+				}
+			}
+		};
+	};
+};

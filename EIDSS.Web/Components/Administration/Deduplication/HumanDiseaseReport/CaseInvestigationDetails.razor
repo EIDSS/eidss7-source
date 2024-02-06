@@ -1,0 +1,71 @@
+﻿@inherits EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport.CaseInvestigationDetailsBase
+
+<div class="form-row">
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord" TValue="int" @bind-Value=@HumanDiseaseReportDeduplicationService.RecordSelection
+                                       Change="@((args) => OnRecordSelectionChangeAsync(args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="CaseInvestigationDetails"></div>
+                <RadzenCheckBox Name="chkCheckAllCaseInvestigation" @bind-Value=@HumanDiseaseReportDeduplicationService.chkCheckAllCaseInvestigation TValue="bool" Change="@((args) => OnCheckAllCaseinvestigationDetailsChangeAsync(args))" />
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllCaseInvestigation" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord2" TValue="int" @bind-Value=@HumanDiseaseReportDeduplicationService.Record2Selection
+                                       Change="@((args) => OnRecord2SelectionChangeAsync(args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="CaseInvestigationDetails2"></div>
+                <RadzenCheckBox Name="chkCheckAllCaseInvestigation" @bind-Value=@HumanDiseaseReportDeduplicationService.chkCheckAllCaseInvestigation2 TValue="bool" Change="@((args) => OnCheckAllCaseInvestigationDetails2ChangeAsync(args))" />
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllCaseInvestigation2" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+</div>
+<div class="form-row">
+    <div class="col-6 mx-auto">
+        <RadzenCard>
+                @if (HumanDiseaseReportDeduplicationService.CaseInvestigationDetailsList != null)
+                {                 
+                     <RadzenDataList WrapItems=false AllowPaging=false Data=HumanDiseaseReportDeduplicationService.CaseInvestigationDetailsList TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
+                    <Template Context="field">
+                    @if (field.Index < idfPointGeoLocation)
+                    {
+                            <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key TValue="bool" Disabled=@field.Disabled 
+                            TriState=false Style="vertical-align: top !important;" Change="@((args) => OnDataListCaseInvestigationDetailsSelectionChangeAsync(args, field.Index))" />
+                            <div class="ml-2 d-inline-block vertical-align-middle">
+                                <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                  }
+                    </Template>
+                </RadzenDataList>
+                }
+        </RadzenCard>
+    </div>
+    <div class="col-6">
+        <RadzenCard>
+                @if (HumanDiseaseReportDeduplicationService.CaseInvestigationDetailsList2 != null)
+                {
+
+                     <RadzenDataList WrapItems=false AllowPaging=false Data=HumanDiseaseReportDeduplicationService.CaseInvestigationDetailsList2 TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
+                    <Template Context="field">
+                      @if (field.Index < idfPointGeoLocation)
+                    {
+                            <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key TValue="bool" Disabled=@field.Disabled 
+                            TriState=false Style="vertical-align: top !important;"  Change="@((args) => OnDataListCaseInvestigationDetails2SelectionChangeAsync(args, field.Index))"/>
+                            <div class="ml-2 d-inline-block vertical-align-middle">
+                                <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                                <span>@(field.Value)</span>
+                            </div>
+                        }
+                    </Template>
+                </RadzenDataList>
+                }
+        </RadzenCard>
+    </div>
+</div>

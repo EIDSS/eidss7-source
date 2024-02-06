@@ -1,0 +1,83 @@
+﻿@model EIDSS.Web.Areas.Administration.SubAreas.Security.ViewModels.Site.SiteDetailsViewModel
+@using EIDSS.Web.Components.Administration.Site
+
+@addTagHelper *, EIDSS.Web.Components
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.SiteDetailsPageHeading);
+}
+
+<partial name="_ErrorModalPartial" />
+<partial name="_InformationalModalPartial" for="InformationalMessage" />
+<partial name="_WarningModalPartial" />
+<partial name="_SearchActorModalPartial" for="SearchActorViewModel" />
+
+<div class="container-fluid">
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@HeadingResourceKeyConstants.SiteDetailsPageHeading"></h3>
+    </div>
+    <div class="card-body">
+        <component type="typeof(SiteSections)" render-mode="ServerPrerendered" param-Model="Model" />
+    </div>
+</div>
+<div class="modal fade" id="searchOrganizationModal" tabindex="-1" role="dialog" aria-labelledby="searchOrganizationModal" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="searchOrganizationModalHeader" heading-for="@HeadingResourceKeyConstants.SearchOrganizationsSearchOrganizationsModalHeading"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+                    <div class="card-body">
+                        @await Component.InvokeAsync("OrganizationSearch", new { recordSelectionIndicator = true, showInModalIndicator = true })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="addOrganizationModal" tabindex="-1" role="dialog" aria-labelledby="addOrganizationModal" aria-hidden="true" style="overflow-y: auto;">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addOrganizationModalHeader" heading-for="@HeadingResourceKeyConstants.AddOrganizationModalOrganizationDetailsModalHeading"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @await Component.InvokeAsync("OrganizationDetails", new { organizationID = (long?)null, showInModalIndicator = true })
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script src="~/js/Administration/site.js"></script>
+@section Scripts {
+    <script type="text/javascript">
+        initializeOrganizationComponent();
+
+        ///
+        /// Styling to handle stacked modals for the site permissions modals.
+        ///
+        $(document).on("show.bs.modal", ".modal", function (event) {
+            var zIndex = 1040 + (10 * $(".modal:visible").length);
+            $(this).css("z-index", zIndex);
+            setTimeout(function () {
+                $(".modal-backdrop").not(".modal-stack").css("z-index", zIndex - 1).addClass("modal-stack");
+            }, 0);
+        });
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+}
+
+@if (ViewBag.JavaScriptFunction != null)
+{
+    <script type="text/javascript">
+        @Html.Raw(ViewBag.JavaScriptFunction)
+    </script>
+}

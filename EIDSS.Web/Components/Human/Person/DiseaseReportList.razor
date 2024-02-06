@@ -1,0 +1,46 @@
+﻿@using EIDSS.Domain.ViewModels.Human
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits EIDSS.Web.Components.Human.Person.DiseaseReportListBase
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-6">
+                <h5>@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportHumanDiseaseReportHeading)</h5>
+            </div>
+            <div class="col-6 text-right mb-2">
+                @if (StateContainer.HumanDiseaseReportPermissions.Create)
+                {
+                    <button button-for="@ButtonResourceKeyConstants.AddButton" class="btn btn-outline-primary  sidebar-do-not-disable" id="addHumanDiseaseReport" @onclick="@OnAddHumanDiseaseReportClick" type="button">
+                        @Localizer.GetString(ButtonResourceKeyConstants.AddButton)
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowPaging="true" AllowSorting="true" Count="@DiseaseReportCount" Data="@StateContainer.DiseaseReports" EditMode="DataGridEditMode.Single" ExpandMode="DataGridExpandMode.Single" IsLoading="@IsLoading" LoadData="@LoadDiseaseReportGridView" Name="diseaseReportsResults" PageSize="10" @ref="DiseaseReportGrid" TItem="HumanDiseaseReportViewModel">
+            <Columns>
+                <RadzenDataGridColumn Property="ReportID" Sortable="true" TItem="HumanDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsReportIDColumnHeading)" Visible="@StateContainer.HumanDiseaseReportPermissions.Read" Width="175px">
+                    <Template Context="data">
+                        <button @onclick="@(() => OnOpenReadOnly(data))" class="btn btn-link btn-sm sidebar-do-not-disable" type="button">
+                            @data.ReportID
+                        </button>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="DiseaseName" Sortable="true" TItem="HumanDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsDiseasesColumnHeading)" Width="175px" />
+                <RadzenDataGridColumn Property="EnteredDate" Sortable="true" TItem="HumanDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsDateEnteredColumnHeading)" Width="175px" />               
+                <RadzenDataGridColumn Property="ClassificationTypeName" Sortable="true" TItem="HumanDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanDiseaseReportsCaseClassificationColumnHeading)" Width="175px" />
+                <RadzenDataGridColumn Property="ReportStatusTypeName" Sortable="true" TItem="HumanDiseaseReportViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmDiseaseReportsReportStatusColumnHeading)" Width="175px" />
+                <RadzenDataGridColumn Filterable="false" Property="" Sortable="false" TItem="HumanDiseaseReportViewModel" Title="" Visible=@StateContainer.HumanDiseaseReportPermissions.Write Width="50px">
+                    <Template Context="data">
+                        <button @onclick="@(() => OnOpenEdit(data))" class="btn btn-sm sidebar-do-not-disable" type="button">
+                            <i class="fas fa-edit fa-lg"></i>
+                        </button>
+                    </Template>
+                    </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>

@@ -1,0 +1,118 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Areas.Veterinary.ViewModels.ActiveSurveillanceSession
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Services
+@inherits EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession.DetailedAnimalSamplesListBase
+
+<div class="card">
+    <div class="card-header">
+        <div class="form-row">
+            <div class="col-5 pt-4">
+                <h5>@Localizer.GetString(HeadingResourceKeyConstants.VeterinarySessionDetailedInformationDetailedAnimalsAndSamplesHeading)</h5>
+            </div>
+            <div class="col-5 pt-4">
+                <div class="text-right">
+                    <button class="btn btn-sm btn-outline-primary" id="printSample" disabled="@PrintSampleButtonDisabled" @onclick="@OnPrintSampleClick">@Localizer.GetString(ButtonResourceKeyConstants.PrintButton)</button>
+                    <button class="btn btn-sm btn-outline-primary" id="addSample" disabled="@AddSampleButtonDisabled" @onclick="@OnAddSampleClick">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                    <button class="btn btn-sm btn-outline-primary" id="deleteSample" disabled="@DeleteSampleButtonDisabled" @onclick="@OnDeleteSelectedSampleClick">@Localizer.GetString(ButtonResourceKeyConstants.DeleteButton)</button>
+                    <button class="btn btn-sm btn-outline-primary" id="copySample" disabled="@CopySampleButtonDisabled" @onclick="@OnCopySelectedSampleClick">@Localizer.GetString(ButtonResourceKeyConstants.Copy_ButtonText)</button>
+                </div>
+            </div>
+            <div class="col-2">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionDetailedInformationNumberFieldLabel" For="totalNumber" IsRow="false">
+                    <RadzenNumeric @ref="TotalNumberControl" Name="totalNumber" class="form-control" Disabled="false" @bind-Value="StateContainer.TotalNumber" />
+                    <RadzenRegexValidator Component="totalNumber" Pattern="" Text="@MessageResourceKeyConstants.NumberIsOutOfRangeMessage" />
+                </InterfaceEditorResource>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionDetailedInformationTotalNumberOfAnimalsSampledFieldLabel" For="totalNumberOfAnimalsSampled" CSSClass="col-4" IsRow="false">
+                <RadzenNumeric @ref="TotalNumberOfAnimalsSampledControl" Name="totalNumberOfAnimalsSampled" class="form-control" Disabled="true" ShowUpDown="false" Value="StateContainer.TotalNumberOfAnimalsSampled" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionDetailedInformationTotalNumberOfSamplesFieldLabel" For="totalNumberOfSamples" CSSClass="col-4" IsRow="false">
+                <RadzenNumeric @ref="TotalNumberOfSamplesControl" Name="totalNumberOfSamples" class="form-control" Disabled="true" ShowUpDown="false" Value="StateContainer.TotalNumberOfSamples" />
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <div class="col-12">
+                <RadzenDataGrid id="animalSampleGrid"
+                                TItem="SampleGetListViewModel"
+                                Data="@StateContainer.AnimalSamples"
+                                @ref="AnimalSampleGrid"
+                                LoadData="@LoadAnimalSampleGrid"
+                                Count="@Count"
+                                EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)"
+                                SelectionMode="DataGridSelectionMode.Single"
+                                ShowExpandColumn="true"
+                                AllowColumnResize="true"
+                                AllowPaging="true"
+                                ShowPagingSummary="true"
+                                AllowSorting="true" 
+                                PageSizeOptions="@pageSizeOptions">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="SampleGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                            <HeaderTemplate>
+                                <RadzenCheckBox TriState="false" TValue="bool" Value="IsHeaderRecordSelected()" Change="(args => OnHeaderRecordSelectionChange(args))" />
+                            </HeaderTemplate>
+                            <Template Context="item">
+                                <RadzenCheckBox TriState="false" TValue="bool" Value="IsRecordSelected(item)" Change="(args => OnRecordSelectionChange(args, item))" />
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="SampleGetListViewModel" Property="SampleTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionDetailedInformationSampleTypeColumnHeading)" Width="140px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="SampleGetListViewModel" Property="EIDSSLocalOrFieldSampleID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionDetailedInformationFieldSampleIDColumnHeading)" Width="130px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="SampleGetListViewModel" Property="EIDSSFarmID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionDetailedInformationFarmIDColumnHeading)" Width="200px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="SampleGetListViewModel" Property="Species" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionDetailedInformationSpeciesColumnHeading)" Width="200px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="SampleGetListViewModel" Property="EIDSSAnimalID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionDetailedInformationAnimalIDColumnHeading)" Width="200px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="SampleGetListViewModel" Property="DiseaseNames" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionDetailedInformationDiseaseColumnHeading)" Width="200px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="SampleGetListViewModel" Property="CollectionDate" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionDetailedInformationCollectionDateColumnHeading)" Width="175px" Sortable="true" FormatString="{0:d}" />
+                        <RadzenDataGridColumn TItem="SampleGetListViewModel" Property="SentToOrganizationName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionDetailedInformationSentToOrganizationColumnHeading)" Width="200px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="SampleGetListViewModel" Property="" Title="" Sortable="false" Filterable="false"
+                                              Visible="@(StateContainer.ActiveSurveillanceSessionPermissions.Write)" Width="50px">
+                            <Template Context="data"> 
+                                <button @onclick="@(() => OnEditSampleClick(data))" class="btn btn-sm" type="button" disabled="@(data.TestsCount > 0 ? true : false)">
+                                    <i class="fas fa-edit fa-lg"></i>
+                                </button> 
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="SampleGetListViewModel" Property="" Title="" Sortable="false" Filterable="false" Width="50px">
+                            <Template Context="data">
+                                <button @onclick="@(() => OnDeleteSampleClick(data))" class="btn btn-sm" disabled="@(data.TestsCount > 0 || !StateContainer.ActiveSurveillanceSessionPermissions.Write)" type="button">
+                                    <i class="fas fa-trash fa-lg"></i>
+                                </button>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                    <!--Expandable Detail Template for Grid-->
+                    <Template Context="data">
+                        <RadzenCard>
+                            <div class="row">
+                                <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.VeterinarySessionDetailedInformationSampleTypeColumnHeading" IsRow="false" CssClass="col-md-4" For="derivativeSampleType">
+                                    <input id="derivativeSampleType" class="form-control-plaintext" value="@data.SampleTypeName" />
+                                </InterfaceEditorResource>
+                                <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.VeterinarySessionDetailedInformationLabSampleIDColumnHeading" IsRow="false" CssClass="col-md-4" For="labSampleID">
+                                    <input id="labSampleID" class="form-control-plaintext" value="@data.EIDSSLaboratorySampleID" />
+                                </InterfaceEditorResource>
+                                <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.VeterinarySessionDetailedInformationStatusColumnHeading" IsRow="false" CssClass="col-md-4" For="status">
+                                    <input id="status" class="form-control-plaintext" value="@data.SampleStatusTypeName" />
+                                </InterfaceEditorResource>
+                            </div>
+                            <div class="row">
+                                <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.VeterinarySessionDetailedInformationLabColumnHeading" IsRow="false" CssClass="col-md-4" For="lab">
+                                    <input id="lab" class="form-control-plaintext" value="@data.SentToOrganizationName" />
+                                </InterfaceEditorResource>
+                                <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.VeterinarySessionDetailedInformationFunctionalAreaColumnHeading" IsRow="false" CssClass="col-md-4" For="functionalArea">
+                                    <input id="functionalArea" class="form-control-plaintext" value="@data.FunctionalAreaName" />
+                                </InterfaceEditorResource>
+                            </div>
+                        </RadzenCard>
+                    </Template>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+</div>
+

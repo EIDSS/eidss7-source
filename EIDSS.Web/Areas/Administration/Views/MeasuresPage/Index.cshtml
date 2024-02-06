@@ -1,0 +1,275 @@
+﻿@model EIDSS.Web.ViewModels.BaseReferenceEditorPagesViewModel;
+
+<h2 heading-for="@HeadingResourceKeyConstants.MeasuresReferenceEditorPageHeading"></h2>
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.MeasuresReferenceEditorPageHeading);
+
+    //PAGE LEVEL
+    Model.PageLevelAddButtonModalText = Localizer.GetString(ButtonResourceKeyConstants.AddButton);
+    Model.PageLevelAddButtonModal = "mdAddMeasure";
+    Model.PageLevelAddButtonID = "btnPageLevelAddButton";
+
+    //SET UP DROPDOWN
+    Select2Configruation select2Configuration = new Select2Configruation
+    {
+        DropDownId = "ddlMeasureType",
+        ControlTargetType = DropDownTargetTypes.Table,
+        Label = Localizer.GetString(FieldLabelResourceKeyConstants.MeasureReferenceTypeFieldLabel)
+    };
+    select2Configuration.ControlTargetType = DropDownTargetTypes.Table;
+    select2Configuration.Endpoint = @Url.Action("MeasuresTypeList", "MeasuresPage", new { Area = "Administration" });
+    select2Configuration.isVisible = true;
+    Model.Select2Configurations.Add(select2Configuration);
+
+    //SET UP MODAL
+    var eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.MeasureDetailsModalHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            //success modal configs
+            SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton)
+        },
+        ModalId = "mdAddMeasure",
+        SavingControlsCollection = "ddlMeasureType",
+        TargetGridControlID = "gMeasures", //ID of Grid to Refresh
+        PostAjaxDataUrl = @Url.Action("AddMeasure", "MeasuresPage", new { Area = "Administration" }),
+        SaveCompleteMethod = "CheckSuccess"
+    };
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "Default",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "DefaultValueRequired"
+    });
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ControlName = "Name",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "NationalValueRequired"
+    });
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.MeasureCodeFieldLabel),
+        ControlName = "Code",
+        Visible = true
+    });
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlName = "Order",
+        ControlType = ControlType.Numeric,
+        Visible = true
+    });
+
+
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //SET UP GRID
+    Model.eidssGridConfiguration.GridId = "gMeasures";
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.ControlFilterID = "ddlMeasureType";
+    Model.eidssGridConfiguration.ControlIdThatRefreshGrid = "ddlMeasureType";
+    Model.eidssGridConfiguration.EditModalAjaxUrl = @Url.Action("EditMeasure", "MeasuresPage", new { Area = "Administration" });
+    Model.eidssGridConfiguration.DeleteModalAjaxUrl = @Url.Action("DeleteMeasure", "MeasuresPage", new { Area = "Administration" });
+    Model.eidssGridConfiguration.AjaxDataUrl = @Url.Action("GetList", "MeasuresPage", new { Area = "Administration" });
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.EnableCustomSearching = true;
+    Model.eidssGridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.Inline;
+    Model.eidssGridConfiguration.SaveCompleteMethod = "CheckSuccess";
+    Model.eidssGridConfiguration.DeleteCompleteMethod = "CheckDeleteSuccess";
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels
+    {
+        DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage),
+        EditModalMessage = Localizer.GetString((int)InterfaceEditorResourceSetEnum.WarningMessages + "Are you sure that you want to edit this record?" + (long)InterfaceEditorTypeEnum.Message),
+        DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+        SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
+        DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton),
+        CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton),
+        CancelInlineEditTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage),
+        YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton),
+        NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton),
+        SaveInlineEditTitle = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+        SaveInlineEditMessage = Localizer.GetString((int)InterfaceEditorResourceSetEnum.WarningMessages + "Are you sure that you want to save this record?" + (long)InterfaceEditorTypeEnum.Message)
+    };
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        ColumnName = "Row",
+        Visible = true,
+        ColumnType = ColumnType.ReadOnly,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = string.Empty,
+        ColumnName = "MeasureId",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "ReferenceTypeId",
+        ColumnTitleHeader = "ReferenceTypeId",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.DefaultValueColumnHeading),
+        ColumnName = "StrDefault",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "EditDefaultValueRequired",
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.NationalValueColumnHeading),
+        ColumnName = "StrName",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "EditNationalValueRequired",
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.CodeColumnHeading),
+        ColumnName = "StrCode",
+        Visible = true,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OrderColumnHeading),
+        ColumnName = "IntOrder",
+        Visible = true,
+        VisibleInModal = true,
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = string.Empty,
+        ColumnName = "name",
+        ColumnType = ColumnType.Edit,
+        Visible = Model.UserPermissions.Create
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = string.Empty,
+        ColumnName = "name",
+        ColumnType = ColumnType.Delete,
+        Visible = Model.UserPermissions.Delete
+    });
+}
+
+<partial name="_InformationalModalPartial" for="InformationMessage" />
+
+<!-- Hidden fields -->
+<input id="hfWritePermission" type="hidden" value="@Model.UserPermissions.Write.ToString()" />
+<input id="hfCreatePermission" type="hidden" value="@Model.UserPermissions.Create.ToString()" />
+
+<!-- Duplicate Record Message Modal -->
+<div class="modal fade" id="duplicatesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsg"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_BaseReferenceEditorsPartial" />
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#btnPageLevelAddButton").prop("disabled", true);
+
+        $('#ddlMeasureType').on('change', function () {
+
+            if ($(this).find('option:selected').val().trim() == '') {
+                $("#btnPageLevelAddButton").prop("disabled", true);
+            } else {
+                if ($("#hfCreatePermission").val() === "True") {
+                    $("#btnPageLevelAddButton").prop("disabled", false);
+                }
+            }
+        });
+
+    });
+
+    function CheckSuccess(data) {
+
+        var stringified_data = JSON.stringify(data);
+        var parsed_data = JSON.parse(stringified_data);
+
+        if (parsed_data.returnMessage == "SUCCESS") {
+            $("#mdAddMeasureSuccessModal").modal("show");
+
+            updateNotificationEnvelopeCount();
+        }
+        else if (parsed_data.returnMessage == "DOES EXIST") {
+            $("#duplicatesModal").modal("show");
+            $("#dupemsg").html(parsed_data.strDuplicatedField);
+        }
+    };
+
+    function CheckDeleteSuccess(data) {
+        var stringifiedData = JSON.stringify(data);
+        var parsedData = JSON.parse(stringifiedData);
+        if (parsedData.returnMessage === "SUCCESS") {
+            updateNotificationEnvelopeCount();
+            showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+        }
+    };
+</script>

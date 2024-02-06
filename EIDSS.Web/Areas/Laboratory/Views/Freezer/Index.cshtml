@@ -1,0 +1,2076 @@
+﻿@using EIDSS.Web.Components.CrossCutting;
+@model EIDSS.Web.ViewModels.Laboratory.FreezerPageViewModel;
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.FreezersPageHeading);
+}
+
+<style type="text/css">
+
+    .iconLink:hover, .treeNode:hover {
+        cursor: pointer;
+    }
+
+    .treeNode {
+        padding-top: 10px;
+    }
+
+    #ulFreezerTreeview {
+        display: inline-block;
+    }
+
+    #dvFreezerDetails {
+        border: 1px solid #ccc;
+        min-height: 300px;
+        background-color: #eee;
+        display: none;
+        padding: 40px;
+    }
+
+    #lnkAdvancedSearch {
+        cursor: pointer;
+    }
+
+    .errorMsg {
+        color: red;
+    }
+
+    .nodeLabel {
+        padding: 4px;
+    }
+</style>
+
+<br />
+<h2>@Localizer.GetString(HeadingResourceKeyConstants.FreezersPageHeading)</h2>
+
+<form id="frmFreezer" method="post" asp-action="Index" asp-controller="Freezer" asp-area="Laboratory">
+
+@if (Model != null && Model.FreezerList != null)
+{
+    <div class="row pb-5">
+        <div class="col-12">
+
+            <br />
+            <input id="hfSiteID" type="hidden" asp-for="SiteID" />
+            <input id="hfSelectedFreezerId" type="hidden" asp-for="@Model.SelectedFreezerId" />       
+            <input id="hfSelectedSubdivisionId" type="hidden" asp-for="@Model.SelectedSubdivisionId" />          
+            <input id="hfShowPrintBarCode" type="hidden" asp-for="@Model.ShowBarcodeModal" />  
+            <input id="hfShowPrint" type="hidden" asp-for="@Model.ShowPrintModal" />
+
+            <div class="pb-3" style="text-align:right;">
+                <button id="btnAddFreezer" type="button" class="btn btn-primary toggleDetails" @(!Model.UserPermissions.Create ? "disabled" : "")>@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                <button id="btnCopyFreezer" type="button" class="btn btn-primary" @(!Model.UserPermissions.Create ? "disabled" : "")>@Localizer.GetString(ButtonResourceKeyConstants.FreezersCopyFreezerButtonText)</button>
+                <button id="btnReset" type="button" class="btn btn-primary">@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)</button>                                
+                <label id="lnkAdvancedSearch">Advanced Search</label>                
+            </div>            
+
+            <table id="tblFreezers" class="table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>@Localizer.GetString(ColumnHeadingResourceKeyConstants.FreezersFreezerNameColumnHeading)</th>
+                        <th>@Localizer.GetString(ColumnHeadingResourceKeyConstants.FreezersNoteColumnHeading)</th>
+                        <th>@Localizer.GetString(ColumnHeadingResourceKeyConstants.FreezersStorageTypeColumnHeading)</th>
+                        <th>@Localizer.GetString(ColumnHeadingResourceKeyConstants.FreezersBuildingColumnHeading)</th>
+                        <th>@Localizer.GetString(ColumnHeadingResourceKeyConstants.FreezersRoomColumnHeading)</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.FreezerList)
+                    {
+                        <tr>
+                            <td><input type="checkbox" class="checkboxSelect" data-freezer-id="@item.FreezerID" /></td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.FreezerName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.FreezerNote)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.StorageTypeName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Building)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Room)
+                            </td>
+                            <td>
+                                @if(Model.UserPermissions.Write){
+                                    <span class="editLink iconLink toggleDetails" data-freezer-id="@item.FreezerID">
+                                        <i class="fas fa-edit"></i>
+                                    </span>
+                                }                                                                  
+                            </td>
+                            <td>
+                                @if(Model.UserPermissions.Delete){
+                                    <span class="deleteLink iconLink" data-freezer-id="@item.FreezerID">
+                                        <i class="fas fa-trash"></i>
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <div id="dvFreezerDetails" class="row pb-5">
+        <div class="container-fluid">
+            <div class="row">
+
+                <div class="col-6">
+                    <h2>Freezer Details</h2>
+                    <ul id="ulFreezerTreeview"></ul>
+                </div>
+
+                <div class="col-6">
+
+                 <!-- Freezer Attributes -->
+                    <div id="dvFreezerAttributes" class="row my-4">
+
+                        <div class="col-12">
+                            <h2>Freezer Attributes</h2>
+                        </div>
+
+                        <div class="col-6">
+
+                            <div class="pb-3">
+                                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsBuildingFieldLabel)</label>
+                                <input id="txtBuildingDetail" type="text" class="form-control detailsControl" />
+                            </div>
+                            
+                            <div class="pb-3">
+                                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.FreezerDetailsFreezerNameFieldLabel"></i>
+                                <label asp-for="@Model.FreezerName">@Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsFreezerNameFieldLabel)</label>                                                                
+                                @Html.EditorFor(model => model.FreezerName, new { htmlAttributes = new { @id = "txtFreezerNameDetail", @class = "form-control detailsControl" } })
+                                <span asp-validation-for="@Model.FreezerName" class="text-danger"></span>
+                            </div>
+
+                            <div class="pb-3">
+                                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsFreezerBarcodeFieldLabel)</label>                               
+                                <input id="txtBarCodeFreezerDetail" type="text" class="form-control detailsControl" asp-for="@Model.BarcodeLabelCode" maxlength="200" />                                                                
+                            </div>                            
+                            <div class="pb-3">
+                                <input id="btnFreezerBarcode" type="submit" class="btn btn-primary btn-sm printBarcode" value="@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryPrintBarcodeButtonText)" />
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="pb-3">
+                                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsRoomFieldLabel)</label>
+                                <input id="txtRoomDetail" type="text" class="form-control detailsControl" />
+                            </div>
+                            <div class="pb-3">
+                                <label><span style="color:red;">*</span> @Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsStorageTypeFieldLabel)</label>
+                                <select id="ddlStorageTypeDetail"
+                                    asp-items="@(new SelectList(@Model.StorageTyleList, "KeyId", "StrName"))"
+                                    class="form-control detailsControl">
+                                </select>
+                                <label id="lblStorageTypeRequired" class="errorMsg" style="display:none;">Freezer Type is required</label>
+                            </div>
+                            <div class="pb-3" hidden-if="@FieldLabelResourceKeyConstants.FreezerDetailsFreezerNotesFieldLabel">
+                                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsFreezerNotesFieldLabel)</label>
+                                <input id="txtNoteFreezerDetail" type="text" class="form-control detailsControl" maxlength="200" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Subdivision Attributes -->
+                    <div id="dvSubdivisionAttributes" class="row my-4" style="display:none;">
+
+                        <div class="col-12">
+                            <h2 id="h2SubdivisionAttributes">Subdivision Attributes</h2>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="pb-3">
+                                <label><span style="color:red;">*</span> @Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsSubdivisionNameFieldLabel)</label>
+                                <input id="txtSubdivisionName" type="text" class="form-control detailsControl" />
+                                <label id="lblSubdivisionNameRequired" class="errorMsg" style="display:none;">Subdivision Name is required</label>
+                            </div>
+                            <div class="pb-3">
+                                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsNumberofLocationsFieldLabel)</label>
+                                <input id="txtNumberOfLocations" type="text" class="form-control detailsControl" disabled />
+                            </div>
+                            <div class="pb-3">
+                                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsSubdivisionBarcodeFieldLabel)</label>
+                                <input id="txtBarCodeSubdivision" type="text" class="form-control detailsControl" asp-for="@Model.SubdivisionBarcodeLabelCode" maxlength="200" />                                
+                            </div>
+                            <div class="pb-3">
+                                <input id="btnSubdivisionBarcode" type="button" class="btn btn-primary btn-sm printBarcode" value="@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryPrintBarcodeButtonText)" />
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="pb-3">
+                                <label><span style="color:red;">*</span> @Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsSubdivisionTypeFieldLabel)</label>
+                                <select id="ddlSubdivisionType"
+                                    asp-items="@(new SelectList(@Model.SubdivisionTypeList, "KeyId", "StrName"))"
+                                    class="form-control detailsControl" disabled>
+                                </select>
+                            </div>
+                            <div id="dvBoxSizeType" class="pb-3">
+                                <label><span style="color:red;">*</span> @Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsBoxSizeFieldLabel)</label>
+                                <select id="ddlBoxSizeType"
+                                    asp-items="@(new SelectList(@Model.BoxSizeTypeList, "KeyId", "StrName"))"
+                                    class="form-control detailsControl">
+                                </select>
+                                <label id="lblBoxSizeRequired" class="errorMsg" style="display:none;">Box Size is required</label>
+                            </div>
+                            <div class="pb-3">
+                                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsFreezerNotesFieldLabel)</label>
+                                <input id="txtNoteSubdivision" type="text" class="form-control detailsControl" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <button id="btnAddSubdivision" type="button" class="btn btn-primary">Add</button>
+                    <button id="btnCopySubdivision" type="button" class="btn btn-primary">Copy</button>
+                    <button id="btnDeleteSubdivision" type="button" class="btn btn-primary" disabled>Delete</button>
+                    <input id="printButton" type="button" class="btn btn-primary" value="@Localizer.GetString(ButtonResourceKeyConstants.PrintButton)" />
+                 
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="dvSaveCancel" class="row pt-5 justify-content-center" style="display:none;">
+        <div class="col-4" style="text-align:center;">
+            <button id="btnCancel" type="button" class="btn btn-secondary">Cancel</button>
+            <button id="btnSave" type="button" class="btn btn-primary">Save</button>
+        </div>
+    </div>
+}
+
+<!-- Advanced Search Modal -->
+<div class="modal fade" id="mdAdvancedSearch" tabindex="-1" aria-labelledby="mdAdvancedSearchLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                    Advanced Search
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <div class="pb-3">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsFreezerNameFieldLabel)</label>
+                    <input id="txtFreezerNameAdvSearch" type="text" class="form-control advancedSearchControl" autocomplete="off" />
+                </div>
+
+                <div class="pb-3">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsFreezerNotesFieldLabel)</label>
+                    <input id="txtNoteAdvSearch" type="text" class="form-control advancedSearchControl" autocomplete="off" />
+                </div>
+
+                <div class="pb-3">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsStorageTypeFieldLabel)</label>
+                    <select id="ddlStorageTypeAdvSearch"
+                            asp-items="@(new SelectList(@Model.StorageTyleList, "KeyId", "StrName"))"
+                            class="form-control">
+                    </select>
+
+                </div>
+
+                <div class="pb-3">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsBuildingFieldLabel)</label>
+                    <input id="txtBuildingAdvSearch" type="text" class="form-control advancedSearchControl" autocomplete="off" />
+                </div>
+
+                <div class="pb-3">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.FreezerAdvancedSearchModalRoomFieldLabel)</label>
+                    <input id="txtRoomAdvSearch" type="text" class="form-control advancedSearchControl" autocomplete="off" />
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button id="btnCancelAdvancedSearch"
+                        type="button"
+                        class="btn btn-secondary">
+                    @Localizer.GetString(ButtonResourceKeyConstants.CancelButton)
+                </button>
+                <button id="btnClearAdvancedSearch"
+                        type="button"
+                        class="btn btn-secondary">
+                    @Localizer.GetString(ButtonResourceKeyConstants.ClearButton)
+                </button>
+                <button id="btnAdvancedSearch"
+                        type="button"
+                        class="btn btn-primary">
+                    @Localizer.GetString(ButtonResourceKeyConstants.SearchButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Unsaved Changes Warning -->
+<div class="modal fade" id="mdUnsavedChangesConfirmation" tabindex="-1" aria-labelledby="mdUnsavedChangesConfirmationLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                    @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">                
+                @Localizer.GetString(MessageResourceKeyConstants.ChangesMadeToTheRecordWillBeLostIfYouLeaveThePageDoYouWantToContinueMessage)
+            </div>
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal">
+                    @Localizer.GetString(ButtonResourceKeyConstants.NoButton)
+                </button>
+                <button id="btnUnsavedChangesConfirm"
+                        type="button"
+                        class="btn btn-primary">
+                    @Localizer.GetString(ButtonResourceKeyConstants.YesButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Freezer Confirmation Modal -->
+<div class="modal fade" id="mdDeleteFreezerConfirmation" tabindex="-1" aria-labelledby="mdDeleteFreezerConfirmationLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                    @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @*Once a freezer is deleted, neither the freezer nor its subdivisions can be further used or automatically restored. Do you want to delete this freezer?*@
+                @Localizer.GetString(MessageResourceKeyConstants.FreezerDetailsOnceAFreezerIsDeletedNeitherTheFreezerNorItsSubdivisionsCanBeFurtherUsedOrAutomaticallRestoredDoYouWantToDeleteThisFreezerMessage)
+            </div>
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal">
+                    @Localizer.GetString(ButtonResourceKeyConstants.NoButton)
+                </button>
+                <button id="btnDeleteFreezerConfirm"
+                        type="button"
+                        class="btn btn-primary">
+                    @Localizer.GetString(ButtonResourceKeyConstants.YesButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Subdivision Confirmation Modal -->
+<div class="modal fade" id="mdDeleteSubdivisionConfirmation" tabindex="-1" aria-labelledby="mdDeleteSubdivisionConfirmationLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @*Once a freezer is deleted, neither the freezer nor its subdivisions can be further used or automatically restored. Do you want to delete this freezer?*@
+                @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage)
+            </div>
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal">
+                    @Localizer.GetString(ButtonResourceKeyConstants.NoButton)
+                </button>
+                <button id="btnDeleteSubdivisionConfirm"
+                        type="button"
+                        class="btn btn-primary">
+                    @Localizer.GetString(ButtonResourceKeyConstants.YesButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Has at least One Sub-Level Modal -->
+<div class="modal fade" id="mdHasSubLevel" tabindex="-1" aria-labelledby="mdHasSubLevelLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @*Unable to delete this Freezer as it contains samples.*@
+                Unable to delete this subdivision as it contains at least one sub-level.
+            </div>
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-primary"
+                        data-dismiss="modal">
+                    @Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Has Samples Modal -->
+<div class="modal fade" id="mdHasSamples" tabindex="-1" aria-labelledby="mdHasSamplesLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                    @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @*Unable to delete this Freezer as it contains samples.*@
+                @Localizer.GetString(MessageResourceKeyConstants.FreezerDetailsUnableToDeleteThisFreezerAsItContainsSamplesMessage)
+            </div>
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-primary"
+                        data-dismiss="modal">
+                    @Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Save Success Message -->
+<div class="modal fade" id="mdSaveSuccess" tabindex="-1" aria-labelledby="mdSaveSuccessLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @*Unable to delete this Freezer as it contains samples.*@
+                @Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)
+            </div>
+            <div class="modal-footer">
+                <button id="btnSaveSuccessConfirm"
+                        type="button"
+                        class="btn btn-primary"
+                        data-dismiss="modal">
+                    @Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Changes Modal -->
+<div class="modal fade" id="mdCancelChanges" tabindex="-1" aria-labelledby="mdCancelChangesLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)
+            </div>
+            <div class="modal-footer">
+                <button id="btnCancelChangesYes"
+                        type="button"
+                        class="btn btn-primary">
+                    @Localizer.GetString(ButtonResourceKeyConstants.YesButton)
+                </button>
+                <button id="btnCancelChangesNo"
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal">
+                    @Localizer.GetString(ButtonResourceKeyConstants.NoButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Duplicate Record Message Modal -->
+<div class="modal fade" id="duplicatesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsg"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Print Barcode Modal -->
+<div class="modal fade" id="barcodeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.PrintBarcodesPageHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @if (Model.ShowBarcodeModal)
+                {
+                    <component type="typeof(DisplayReport)"
+                               render-mode="Server"
+                               param-ReportHeader="Model.ReportHeader"
+                               param-ReportName="Model.ReportName"
+                               param-ParametersJSON="Model.FreezerBarcodeParametersJSON"
+                               param-CancelButtonVisibleIndicator="false" />                        
+                }                                        
+            </div>        
+        </div>
+    </div>
+</div>
+
+<!-- Print Report Modal -->
+<div class="modal fade" id="printModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.FreezersSearchFreezersModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @if (Model.ShowPrintModal)
+                {
+                    <component type="typeof(DisplayReport)"
+                               param-ReportHeader="@Model.ReportHeader" 
+                               param-ReportName="@Model.PrintReportName" 
+                               param-ParametersJSON="@Model.PrintParametersJSON"
+                               param-CancelButtonVisibleIndicator="false" 
+                               render-mode="Server" />
+                }
+            </div>        
+        </div>
+    </div>
+</div>
+
+</form>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {       
+
+        var isChanged = false;
+        var printFreezerDetails = false;
+
+        // get query string parameters
+        const params = new Proxy(new URLSearchParams(window.location.search), {
+            get: (searchParams, prop) => searchParams.get(prop),
+        });
+
+        // Get the value of "some_key" in eg "https://example.com/?some_key=some_value"
+        let f = params.f; // "some_value"
+        let s = params.s;
+
+        //console.log("f = " + f);
+        //console.log("s = " + s);
+
+        if('@Model.SelectedFreezerId' !== '0'){                        
+            EditFreezer('@Model.SelectedFreezerId');
+        }   
+        else if(f !== null){            
+            EditFreezer(f);                    
+        }        
+        
+        // initial disable copy button
+        $("#btnCopyFreezer").prop("disabled", true);
+
+
+        if(('@Model.ShowBarcodeModal') === "True"){            
+            $("#barcodeModal").modal('show');
+        }
+
+        if(('@Model.ShowPrintModal') === "True"){            
+            $("#printModal").modal('show');
+        }
+
+
+        /////////////////////////////////
+        // Datatable Initialization
+        /////////////////////////////////
+        var table = $('#tblFreezers').DataTable({
+            searching: true,
+            lengthChange: false,
+            paging: true,
+            rowReorder: false,
+            columnDefs: [
+                { orderable: false, targets: [0, 6, 7] }
+            ],
+            "order": [[1, "asc"]],
+            "language": {
+                "emptyTable": "@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)"
+            }
+        });
+
+        // removes "x" clear icon from search textbox
+        $(".dataTables_filter input").attr("type", "text");
+
+        /////////////////////////////////
+        // Checkbox Select Event
+        /////////////////////////////////        
+        $(document).on('click', '.checkboxSelect', function () {
+            if ($(this).is(":checked")) {
+                //alert("is checked");
+                $(".checkboxSelect").prop("checked", false);
+                $(this).prop("checked", true);
+                
+                if ('@Model.UserPermissions.Create' == "True") {
+                    $("#btnCopyFreezer").prop("disabled", false);
+                }
+            }
+            else {                
+                $("#btnCopyFreezer").prop("disabled", true);                
+            }
+        });
+
+        /////////////////////////////////
+        // Advance Search Click Event
+        /////////////////////////////////
+        $("#lnkAdvancedSearch").on("click", function () {
+            $("#mdAdvancedSearch").modal('show');
+        });
+
+        /////////////////////////////////
+        // Advance Search Cancel Event
+        /////////////////////////////////
+        $("#btnCancelAdvancedSearch").on("click", function () {
+            if ($.trim($("#txtFreezerNameAdvSearch").val()) !== '' || $.trim($("#txtNoteAdvSearch").val()) !== '' || $.trim($("#txtBuildingAdvSearch").val()) !== '' || $.trim($("#txtRoomAdvSearch").val()) !== '' || $("#ddlStorageTypeAdvSearch").val() !== '0') {
+                $("#mdCancelChanges").modal('show');
+            }
+            else {
+                $("#mdAdvancedSearch").modal('hide');
+            }
+        });
+
+        /////////////////////////////////
+        // Advanced Search Clear
+        /////////////////////////////////
+        $("#btnClearAdvancedSearch").on("click", function () {
+            $(".advancedSearchControl").val('');
+            $("#ddlStorageTypeAdvSearch").val('0');
+        });
+
+        /////////////////////////////////
+        // Advanced Search Reset
+        /////////////////////////////////
+
+        $("#btnReset").on('click', function () {
+            if (window.location.href.indexOf('?') > 0) {
+                var url = window.location.href.substr(0, window.location.href.indexOf('?'));
+                window.location.href = url;
+            }
+            else {                
+                // clears the filtering
+                $('#tblFreezers').dataTable().fnFilter('');                
+            }
+            
+        });
+
+        /////////////////////////////////
+        // Advance Search POST
+        /////////////////////////////////
+        $("#btnAdvancedSearch").on("click", function () {
+
+            advancedSearchParams = new Object();
+            advancedSearchParams.FreezerName = $("#txtFreezerNameAdvSearch").val();
+            advancedSearchParams.Note = $("#txtNoteAdvSearch").val();
+            advancedSearchParams.StorageType = $("#ddlStorageTypeAdvSearch").val();
+            advancedSearchParams.Building = $("#txtBuildingAdvSearch").val();
+            advancedSearchParams.Room = $("#txtRoomAdvSearch").val();
+
+            var url = '@Url.Action("AdvancedSearch", "Freezer", new { Area = "Laboratory" })';
+
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: JSON.stringify(advancedSearchParams),
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                },
+                complete: function (data) {
+                    var url = window.location.href;
+                    var pound = url.indexOf("#");
+                    var question = url.indexOf("?");
+
+                    if (question > -1) {
+                        url = url.substr(0, question);
+                        window.location.href = url + "?reset=1";
+                    }
+
+                    if (pound > -1) {
+                        url = url.substr(0, pound);
+                        window.location.href = url + "?reset=1";
+                    }
+
+                    window.location.href = url + "?reset=1";
+                },
+                error: function (request, error) {
+                }
+            });
+        });
+
+        /////////////////////////////////
+        // Delete Freezer Event
+        /////////////////////////////////
+        var freezerIdToDelete;        
+        $("table td .deleteLink").on("click", function () {
+            freezer = new Object();
+            freezer.FreezerId = $(this).data("freezer-id");
+
+            var url = '@Url.Action("DeleteFreezer", "Freezer", new { Area = "Laboratory" })';
+
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: JSON.stringify(freezer),
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data == "Warning_Confirm_Delete_Text") {
+                        freezerIdToDelete = freezer.FreezerId;
+                        $('#mdDeleteFreezerConfirmation').modal('show');
+                    }
+                    else if (data == "Warning_Has_Samples_Body_Text") {
+                        $('#mdHasSamples').modal('show');
+                    }
+                },
+                complete: function (data) {
+                },
+                error: function (request, error) {
+                }
+            });
+
+        });
+
+        /////////////////////////////////
+        // Delete Freezer Confirm Event
+        /////////////////////////////////
+        $("#btnDeleteFreezerConfirm").on("click", function () {
+
+            freezer = new Object();
+            freezer.FreezerId = freezerIdToDelete;
+            var url = '@Url.Action("DeleteFreezerConfirm", "Freezer", new { Area = "Laboratory" })';
+
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: JSON.stringify(freezer),
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                },
+                complete: function (data) {
+                    window.location.reload(true);
+                },
+                error: function (request, error) {
+                }
+            });
+
+        });
+
+        /////////////////////////////////
+        // Edit Freezer Event
+        /////////////////////////////////
+        var freezerIdToEdit;
+        var freezerJSON;
+        
+        $(document).on('click', '.editLink', function () {
+
+            if(isChanged){                
+                freezerIdToEdit = $(this).data("freezer-id");
+                $("#mdUnsavedChangesConfirmation").modal("show");
+            }
+            else{
+                EditFreezer($(this).data("freezer-id"));     
+            }
+            
+        });
+
+        $("#btnUnsavedChangesConfirm").on('click', function() {
+            isChanged = false;
+            $("#mdUnsavedChangesConfirmation").modal("hide");
+
+            if(printFreezerDetails){
+                SubmitPrintForm();
+            }
+            else{
+                EditFreezer(freezerIdToEdit);            
+            }
+
+        });
+
+        function EditFreezer(freezerId) {
+                        
+            freezer = new Object();
+            //freezerIdToEdit = freezerId;
+            freezer.FreezerId = freezerId;
+            subdivisionToEdit = freezer.FreezerId;
+            $("#btnCopySubdivision").prop("disabled", true);            
+
+            $("#hfSelectedFreezerId").val(freezerId);
+
+            var url = '@Url.Action("EditFreezer", "Freezer", new { Area = "Laboratory" })';
+
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: JSON.stringify(freezer),
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {                    
+                    //enable print barcode button
+                    $(".printBarcode").prop("disabled", false);
+
+                    GenerateTreeView(data);
+                },
+                complete: function (data) {
+                },
+                error: function (request, error) {
+                    console.log("error");
+                }
+            });
+
+        }
+
+        /////////////////////////////////
+        // Treenode Click Event
+        /////////////////////////////////
+        var subdivisionToEdit;
+        $("#ulFreezerTreeview").on("click", "li", function (e) {
+
+            e.stopPropagation();
+            var isFreezerNode = false;
+
+            if ($(this).hasClass("freezerNode")) {
+                isFreezerNode = true;            
+            }
+            HandleTreeNodeClickEvent($(this).attr('id'), isFreezerNode);
+
+        });
+
+        function HandleTreeNodeClickEvent(nodeId, isFreezerNode) {
+            
+            var subdivisionId = nodeId;
+            subdivisionToEdit = subdivisionId;            
+
+            // toggle view of tree nodes and highlight
+            $("#ulFreezerTreeview").find(".nodeLabel").css("background-color", "");           
+
+            $("#hfSelectedSubdivisionId").val(subdivisionId);
+            
+            if (isFreezerNode) {
+                                
+                $("#dvSubdivisionAttributes").hide();
+                $("#dvFreezerAttributes").show();
+
+                $("#txtBuildingDetail").val(freezerJSON.building);
+                $("#txtFreezerNameDetail").val(freezerJSON.freezerName);
+                $("#txtBarCodeFreezerDetail").val(freezerJSON.eidssFreezerID);
+
+                $("#txtRoomDetail").val(freezerJSON.room);
+                $("#ddlStorageTypeDetail").val(freezerJSON.storageTypeID);
+                $("#txtNoteFreezerDetail").val(freezerJSON.freezerNote);
+
+                $("#btnDeleteSubdivision").prop("disabled", true);
+                $("#btnCopySubdivision").prop("disabled", true);
+                $("#btnAddSubdivision").prop("disabled", false); 
+            }
+            else
+            {
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+
+                    if (freezerJSON.freezerSubdivisions[i].freezerSubdivisionID == subdivisionId) {
+
+                        $("#btnDeleteSubdivision").prop("disabled", false);
+
+                        if (freezerJSON.freezerSubdivisions[i].subdivisionTypeID === 39900000000 || freezerJSON.freezerSubdivisions[i].subdivisionTypeID === 10093001 || freezerJSON.freezerSubdivisions[i].subdivisionTypeID === 39890000000) {
+
+                            $("#dvSubdivisionAttributes").show();
+                            $("#dvFreezerAttributes").hide();
+
+                            $("#txtSubdivisionName").val(freezerJSON.freezerSubdivisions[i].freezerSubdivisionName);
+                            $("#txtNumberOfLocations").val(freezerJSON.freezerSubdivisions[i].numberOfLocations);
+                            $("#txtBarCodeSubdivision").val(freezerJSON.freezerSubdivisions[i].eidssFreezerSubdivisionID);
+                            $("#txtBarCodeFreezerDetail").val('');
+
+                            $("#ddlSubdivisionType").val(freezerJSON.freezerSubdivisions[i].subdivisionTypeID);
+                            $("#txtNoteSubdivision").val(freezerJSON.freezerSubdivisions[i].subdivisionNote);
+
+                            // shelf
+                            if (freezerJSON.freezerSubdivisions[i].subdivisionTypeID === 39900000000) {
+                                $("#h2SubdivisionAttributes").text("Shelf Attributes");
+                                $("#btnAddSubdivision").prop("disabled", false);
+                                $("#btnCopySubdivision").prop("disabled", false);
+                            }
+
+                            // rack
+                            else if (freezerJSON.freezerSubdivisions[i].subdivisionTypeID === 10093001) {
+                                $("#h2SubdivisionAttributes").text("Rack Attributes");
+                                $("#btnAddSubdivision").prop("disabled", false);
+                                $("#btnCopySubdivision").prop("disabled", false);
+                            }
+
+                            // box
+                            else if (freezerJSON.freezerSubdivisions[i].subdivisionTypeID === 39890000000) {
+                                $("#h2SubdivisionAttributes").text("Box Attributes");
+                                $("#btnAddSubdivision").prop("disabled", true);
+                                $("#btnCopySubdivision").prop("disabled", false);
+                            }
+                        }
+
+                        if (freezerJSON.freezerSubdivisions[i].subdivisionTypeID === 39890000000) {
+                            $("#dvBoxSizeType").show();
+                            $("#ddlBoxSizeType").val(freezerJSON.freezerSubdivisions[i].boxSizeTypeID);
+                        }
+                        else {
+                            $("#dvBoxSizeType").hide();
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+
+
+        /////////////////////////////////
+        // Freezer Name Change Event
+        /////////////////////////////////
+        $("#txtFreezerNameDetail").on('keyup', function () {
+
+            if ($.trim($(this).val()) === '') {
+                $("#lblFreezerNameRequired").show();
+            }
+            else {
+                $("#lblFreezerNameRequired").hide();
+                freezerJSON.freezerName = $(this).val();
+            }
+
+            CanSaveFreezer();
+            //CanSaveSubdivision();
+        });
+
+
+        ////////////////////////////////////////
+        // Freezer Storage Type Change Event
+        ////////////////////////////////////////
+        $("#ddlStorageTypeDetail").on('change', function () {
+
+            if ($.trim($(this).val()) === '0') {
+                $("#lblStorageTypeRequired").show();
+            }
+            else {
+                $("#lblStorageTypeRequired").hide();
+                freezerJSON.storageTypeID = $(this).val();
+            }
+
+            CanSaveFreezer();
+            //CanSaveSubdivision();
+        });
+
+
+        /////////////////////////////////
+        // Subdivision Name Change Event
+        /////////////////////////////////
+        $("#txtSubdivisionName").on('keyup', function () {
+
+            if ($.trim($(this).val()) === '') {
+                $("#lblSubdivisionNameRequired").show();
+            }
+            else {
+                $("#lblSubdivisionNameRequired").hide();
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+                    if (freezerJSON.freezerSubdivisions[i].freezerSubdivisionID == subdivisionToEdit) {
+                        freezerJSON.freezerSubdivisions[i].freezerSubdivisionName = $(this).val();
+                        break;
+                    }
+                }
+            }
+
+            CanSaveFreezer();
+            CanSaveSubdivision();
+
+        });
+
+
+        /////////////////////////////////
+        // Treenode Blur Updates JSON
+        /////////////////////////////////
+        $(".detailsControl").blur(function () {                              
+
+            isChanged = true;
+            var newVal = $(this).val();           
+            
+            // freezer details
+            if ($(this).attr('id') == "txtBuildingDetail") {                
+                freezerJSON.building = newVal;
+            }
+            else if ($(this).attr('id') == "txtFreezerNameDetail") {                
+                freezerJSON.freezerName = newVal;
+                $(".freezerNodeLabel").text("Freezer " + newVal);
+            }
+            else if ($(this).attr('id') == "txtBarCodeFreezerDetail") {
+                freezerJSON.eidssFreezerID = newVal;                
+            }
+            else if ($(this).attr('id') == "txtRoomDetail") {
+                freezerJSON.room = newVal;
+            }
+            else if ($(this).attr('id') == "ddlStorageTypeDetail") {
+                freezerJSON.storageTypeID = newVal;
+            }
+            else if ($(this).attr('id') == "txtNoteFreezerDetail") {
+                freezerJSON.freezerNote = newVal;
+            }
+
+            // subdivision details
+            else if ($(this).attr('id') == "txtSubdivisionName") {
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+
+                    if (freezerJSON.freezerSubdivisions[i].freezerSubdivisionID == subdivisionToEdit) {
+                        
+                        freezerJSON.freezerSubdivisions[i].freezerSubdivisionName = newVal;
+
+                        if($("#ddlSubdivisionType").val() == 39900000000){
+                            $("#" + subdivisionToEdit + " label:first").text("Shelf " + newVal);
+                        }                            
+                        else if($("#ddlSubdivisionType").val() == 10093001){
+                            $("#" + subdivisionToEdit + " label:first").text("Rack " + newVal);
+                        }
+                        else if($("#ddlSubdivisionType").val() == 39890000000){
+                            $("#" + subdivisionToEdit + " label:first").text("Box " + newVal);
+                        }
+
+                        break;
+                    }
+                }
+            }
+            else if ($(this).attr('id') == "txtNumberOfLocations") {
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+                    if (freezerJSON.freezerSubdivisions[i].freezerSubdivisionID == subdivisionToEdit) {
+                        freezerJSON.freezerSubdivisions[i].numberOfLocations = newVal;
+                        break;
+                    }
+                }
+            }
+            else if ($(this).attr('id') == "txtBarCodeSubdivision") {
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+                    if (freezerJSON.freezerSubdivisions[i].freezerSubdivisionID == subdivisionToEdit) {
+                        freezerJSON.freezerSubdivisions[i].eidssFreezerSubdivisionID = newVal;
+                        break;
+                    }
+                }
+            }
+            else if ($(this).attr('id') == "ddlSubdivisionType") {
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+                    if (freezerJSON.freezerSubdivisions[i].freezerSubdivisionID == subdivisionToEdit) {
+                        freezerJSON.freezerSubdivisions[i].subdivisionTypeID = newVal;
+                        break;
+                    }
+                }
+            }
+            else if ($(this).attr('id') == "txtNoteSubdivision") {
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+                    if (freezerJSON.freezerSubdivisions[i].freezerSubdivisionID == subdivisionToEdit) {
+                        freezerJSON.freezerSubdivisions[i].subdivisionNote = newVal;
+                        break;
+                    }
+                }
+            }
+            else if ($(this).attr('id') == "ddlBoxSizeType") {
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+                    if (freezerJSON.freezerSubdivisions[i].freezerSubdivisionID == subdivisionToEdit) {
+                        freezerJSON.freezerSubdivisions[i].boxSizeTypeID = newVal;
+                        break;
+                    }
+                }
+            }
+
+        });
+
+        ////////////////////////////////////////////
+        // Delete Freezer Subdivision
+        ////////////////////////////////////////////
+        $("#btnDeleteSubdivision").on('click', function() {            
+
+            $("#mdDeleteSubdivisionConfirmation").modal("show");            
+           
+        });
+
+        ////////////////////////////////////////////
+        // Delete Freezer Subdivision Confirmed
+        ////////////////////////////////////////////
+        $("#btnDeleteSubdivisionConfirm").on('click', function() {
+            
+            var hasSubLevel = false;
+            var hasSamples = false;
+
+            for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+                if (freezerJSON.freezerSubdivisions[i].subdivisionTypeName == "Box") {
+                    if (freezerJSON.freezerSubdivisions[i].boxPlaceAvailability.includes("false")) {
+                        hasSamples = true;
+                        break;                        
+                    }
+                }
+            }
+
+            if(hasSamples) {
+                $("#mdDeleteSubdivisionConfirmation").modal("hide");
+                $("#mdHasSamples").modal('show');                
+                return;
+            }            
+            else {
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+                    if (freezerJSON.freezerSubdivisions[i].parentFreezerSubdivisionID == subdivisionToEdit) {
+                        hasSubLevel = true;
+                        break;
+                    }                
+                }
+
+                if(hasSubLevel) {
+                    $("#mdDeleteSubdivisionConfirmation").modal("hide");
+                    $("#mdHasSubLevel").modal("show");
+                    return;
+                }
+                else {     
+                    isChanged = true;
+                    for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+                        if (freezerJSON.freezerSubdivisions[i].freezerSubdivisionID == subdivisionToEdit) {
+                            freezerJSON.freezerSubdivisions[i].rowStatus = 1; //softdelete
+                            $("#" + subdivisionToEdit).remove();
+                            $("#ulFreezerTreeview li:first").trigger('click');
+                            $("#mdDeleteSubdivisionConfirmation").modal("hide");
+                            break;
+                        }
+                    }                        
+                }
+            }          
+        });
+
+        ////////////////////////////////////////////
+        // Add Freezer Subdivision
+        ////////////////////////////////////////////
+        $("#btnAddSubdivision").on('click', function () {
+
+            isChanged = true;            
+
+            //generate unique id (make it negative for new subdivisions)
+            var newId = Date.now();
+            newId = -Math.abs(newId);            
+
+            var parentID = subdivisionToEdit;
+
+            if ($("#" + subdivisionToEdit).hasClass("freezerNode")) {                                                
+
+                $(".freezerNodeLabel").text("Freezer " + $("#txtFreezerNameDetail").val());
+                $("#" + subdivisionToEdit).append("<ul><li id='" + newId + "' class='shelfNode treeNode'><label class='nodeLabel shelfNodeLabel'>Shelf (New Shelf)</label></li></ul>");
+
+                subdivisionToEdit = newId;
+                $("#dvSubdivisionAttributes").show();
+                $("#dvFreezerAttributes").hide();
+
+                $("#txtSubdivisionName").val("(New Shelf)");
+                $("#txtNumberOfLocations").val('');
+                $("#txtBarCodeSubdivision").val('');
+                $("#ddlSubdivisionType").val('39900000000');
+                $("#txtNoteSubdivision").val('');
+                $("#h2SubdivisionAttributes").text("Shelf Attributes");
+                $("#btnAddSubdivision").prop("disabled", false);
+                $("#dvBoxSizeType").hide();                
+
+                var shelf = {};
+                shelf.boxPlaceAvailability = null;
+                shelf.boxPlaceAvailabilityList = null;
+                shelf.boxSizeTypeID = null;
+                shelf.boxSizeTypeName = null;
+                shelf.building = freezerJSON.building;
+                shelf.eidssFreezerSubdivisionID = null;
+                shelf.freezerBarCode = freezerJSON.freezerBarCode;
+                shelf.freezerID = freezerJSON.freezerID;
+                shelf.freezerName = freezerJSON.freezerName;
+                shelf.freezerNote = freezerJSON.freezerNote;
+                shelf.freezerSubdivisionID = subdivisionToEdit;
+                shelf.freezerSubdivisionName = "(New Shelf)";
+                shelf.numberOfLocations = 0;
+                shelf.organizationID = freezerJSON.organizationID;
+                shelf.parentFreezerSubdivisionID = null;
+                shelf.room = freezerJSON.room;
+                shelf.rowAction = "I";
+                shelf.rowStatus = "0";
+                shelf.sampleCount = 0;
+                shelf.storageTypeID = freezerJSON.storageTypeID;
+                shelf.subdivisionNote = "";
+                shelf.subdivisionTypeID = 39900000000;
+                shelf.subdivisionTypeName = "Shelf";
+
+                freezerJSON.freezerSubdivisions.push(shelf);    
+            }
+            else if ($("#" + subdivisionToEdit).hasClass("shelfNode")) {
+                                     
+                var subLiLabelShelf = $("#" + subdivisionToEdit).find("label").first();
+                subLiLabelShelf.text("Shelf " + $("#txtSubdivisionName").val());
+                $("#" + subdivisionToEdit).append("<ul><li id='" + newId + "' class='rackNode treeNode'><label class='nodeLabel rackNodeLabel'>Rack (New Rack)</label></li></ul>");
+
+                subdivisionToEdit = newId;
+                $("#dvSubdivisionAttributes").show();
+                $("#dvFreezerAttributes").hide();
+
+                $("#txtSubdivisionName").val("(New Rack)");
+                $("#txtNumberOfLocations").val('');
+                $("#txtBarCodeSubdivision").val('');
+                $("#ddlSubdivisionType").val('10093001');
+                $("#txtNoteSubdivision").val('');
+                $("#h2SubdivisionAttributes").text("Rack Attributes");
+                $("#btnAddSubdivision").prop("disabled", false);
+
+                var rack = {};
+                rack.boxPlaceAvailability = null;
+                rack.boxPlaceAvailabilityList = null;
+                rack.boxSizeTypeID = null;
+                rack.boxSizeTypeName = null;
+                rack.building = freezerJSON.building;
+                rack.eidssFreezerSubdivisionID = null;
+                rack.freezerBarCode = freezerJSON.freezerBarCode;
+                rack.freezerID = freezerJSON.freezerID;
+                rack.freezerName = freezerJSON.freezerName;
+                rack.freezerNote = freezerJSON.freezerNote;
+                rack.freezerSubdivisionID = subdivisionToEdit;
+                rack.freezerSubdivisionName = "(New Rack)";
+                rack.numberOfLocations = 0;
+                rack.organizationID = freezerJSON.organizationID;
+                rack.parentFreezerSubdivisionID = parentID;
+                rack.room = freezerJSON.room;
+                rack.rowAction = "I";
+                rack.rowStatus = "0";
+                rack.sampleCount = 0;
+                rack.storageTypeID = freezerJSON.storageTypeID;
+                rack.subdivisionNote = "";
+                rack.subdivisionTypeID = 10093001;
+                rack.subdivisionTypeName = "Rack";
+
+                freezerJSON.freezerSubdivisions.push(rack);                
+            }
+            else if ($("#" + subdivisionToEdit).hasClass("rackNode")) {
+
+                var subLiLabelRack = $("#" + subdivisionToEdit).find("label").first();
+                subLiLabelRack.text("Rack " + $("#txtSubdivisionName").val());
+                $("#" + subdivisionToEdit).append("<ul><li id='" + newId + "' class='boxNode treeNode'><label class='nodeLabel boxNodeLabel'>Box (New Box)<label></li></ul>");
+
+                subdivisionToEdit = newId;
+                $("#dvSubdivisionAttributes").show();
+                $("#dvFreezerAttributes").hide();
+
+                $("#txtSubdivisionName").val("(New Box)");
+                $("#txtNumberOfLocations").val('');
+                $("#txtBarCodeSubdivision").val('');
+                $("#ddlSubdivisionType").val('39890000000');
+                $("#txtNoteSubdivision").val('');
+                $("#h2SubdivisionAttributes").text("Box Attributes");
+                $("#btnAddSubdivision").prop("disabled", true);
+                $("#dvBoxSizeType").show();
+
+                $("#ddlBoxSizeType").val(-1);
+
+                var box = {};
+                box.boxPlaceAvailability = null;
+                box.boxPlaceAvailabilityList = null;
+                box.boxSizeTypeID = null;
+                box.boxSizeTypeName = null;
+                box.building = freezerJSON.building;
+                box.eidssFreezerSubdivisionID = null;
+                box.freezerBarCode = freezerJSON.freezerBarCode;
+                box.freezerID = freezerJSON.freezerID;
+                box.freezerName = freezerJSON.freezerName;
+                box.freezerNote = freezerJSON.freezerNote;
+                box.freezerSubdivisionID = subdivisionToEdit;
+                box.freezerSubdivisionName = "(New Box)";
+                box.numberOfLocations = 0;
+                box.organizationID = freezerJSON.organizationID;
+                box.parentFreezerSubdivisionID = parentID;
+                box.room = freezerJSON.room;
+                box.rowAction = "I";
+                box.rowStatus = "0";
+                box.sampleCount = 0;
+                box.storageTypeID = freezerJSON.storageTypeID;
+                box.subdivisionNote = "";
+                box.subdivisionTypeID = 39890000000;
+                box.subdivisionTypeName = "Box";
+
+                freezerJSON.freezerSubdivisions.push(box);
+
+                $("#btnSave").prop("disabled", true);
+                $("#btnAddSubdivision").prop("disabled", true);
+            }
+
+            subdivisionToEdit = newId;
+        });
+
+        ////////////////////////////////////////////
+        // Copy Freezer Subdivision
+        ////////////////////////////////////////////
+        $("#btnCopySubdivision").on('click', function () {
+
+            isChanged = true;
+
+            // copy shelf (with its racks and boxes)
+            if ($("#" + subdivisionToEdit).hasClass("shelfNode")) {
+
+                var shelfId = subdivisionToEdit;
+                var newShelfId = Date.now();
+                newShelfId = -Math.abs(newShelfId);
+                var nodeName;
+
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+
+                    if (freezerJSON.freezerSubdivisions[i].freezerSubdivisionID == shelfId) {
+
+                        nodeName = freezerJSON.freezerSubdivisions[i].freezerSubdivisionName;
+
+                        var shelf = {};
+                        shelf.boxPlaceAvailability = null;
+                        shelf.boxPlaceAvailabilityList = null;
+                        shelf.boxSizeTypeID = null;
+                        shelf.boxSizeTypeName = null;
+                        shelf.building = freezerJSON.building;
+                        shelf.eidssFreezerSubdivisionID = null;
+                        shelf.freezerBarCode = freezerJSON.freezerBarCode;
+                        shelf.freezerID = freezerJSON.freezerID;
+                        shelf.freezerName = freezerJSON.freezerName;
+                        shelf.freezerNote = freezerJSON.freezerNote;
+                        shelf.freezerSubdivisionID = newShelfId;
+                        shelf.freezerSubdivisionName = freezerJSON.freezerSubdivisions[i].freezerSubdivisionName;
+                        shelf.numberOfLocations = freezerJSON.freezerSubdivisions[i].numberOfLocations;
+                        shelf.organizationID = freezerJSON.organizationID;
+                        shelf.parentFreezerSubdivisionID = null;
+                        shelf.room = freezerJSON.room;
+                        shelf.rowAction = "I";
+                        shelf.rowStatus = "0";
+                        shelf.sampleCount = 0;
+                        shelf.storageTypeID = freezerJSON.storageTypeID;
+                        shelf.subdivisionNote = freezerJSON.freezerSubdivisions[i].subdivisionNote;
+                        shelf.subdivisionTypeID = 39900000000;
+                        shelf.subdivisionTypeName = "Shelf";
+
+                        freezerJSON.freezerSubdivisions.push(shelf);
+
+                        break;
+                    }
+                }
+
+                // add the copied shelf to treeview
+                $("#ulFreezerTreeview").append("<ul><li id='" + newShelfId + "' class='shelfNode treeNode'>Shelf " + nodeName + " (Copy)</li></ul>");
+
+                // find racks belonging to the shelf if any
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+
+                    if (freezerJSON.freezerSubdivisions[i].parentFreezerSubdivisionID == shelfId) {
+
+                        var rackId = freezerJSON.freezerSubdivisions[i].freezerSubdivisionID;
+                        var newRackId = Date.now() + i;
+                        newRackId = -Math.abs(newRackId);
+                        var nodeName;
+
+                        var rack = {};
+                        rack.boxPlaceAvailability = null;
+                        rack.boxPlaceAvailabilityList = null;
+                        rack.boxSizeTypeID = null;
+                        rack.boxSizeTypeName = null;
+                        rack.building = freezerJSON.building;
+                        rack.eidssFreezerSubdivisionID = null;
+                        rack.freezerBarCode = freezerJSON.freezerBarCode;
+                        rack.freezerID = freezerJSON.freezerID;
+                        rack.freezerName = freezerJSON.freezerName;
+                        rack.freezerNote = freezerJSON.freezerNote;
+                        rack.freezerSubdivisionID = newRackId;
+                        rack.freezerSubdivisionName = freezerJSON.freezerSubdivisions[i].freezerSubdivisionName;
+                        rack.numberOfLocations = freezerJSON.freezerSubdivisions[i].numberOfLocations;
+                        rack.organizationID = freezerJSON.organizationID;
+                        rack.parentFreezerSubdivisionID = newShelfId;
+                        rack.room = freezerJSON.room;
+                        rack.rowAction = "I";
+                        rack.rowStatus = "0";
+                        rack.sampleCount = 0;
+                        rack.storageTypeID = freezerJSON.storageTypeID;
+                        rack.subdivisionNote = freezerJSON.freezerSubdivisions[i].subdivisionNote;
+                        rack.subdivisionTypeID = 10093001;
+                        rack.subdivisionTypeName = "Rack";
+
+                        freezerJSON.freezerSubdivisions.push(rack);
+
+                        $("#" + newShelfId).append("<ul><li id='" + newRackId + "' class='rackNode treeNode'>Rack " + freezerJSON.freezerSubdivisions[i].freezerSubdivisionName + " (Copy)</li></ul>");
+
+                        // find all boxes for the rack in the loop
+                        for (var j = 0; j < freezerJSON.freezerSubdivisions.length; j++) {
+
+                            if (freezerJSON.freezerSubdivisions[j].parentFreezerSubdivisionID == rackId) {
+
+                                var boxId = freezerJSON.freezerSubdivisions[i].freezerSubdivisionID;
+                                var newBoxId = Date.now() + j;
+                                newBoxId = -Math.abs(newBoxId);
+
+                                var box = {};
+                                box.boxPlaceAvailability = null;
+                                box.boxPlaceAvailabilityList = null;
+                                box.boxSizeTypeID = freezerJSON.freezerSubdivisions[j].boxSizeTypeID;
+                                box.boxSizeTypeName = null;
+                                box.building = freezerJSON.building;
+                                box.eidssFreezerSubdivisionID = null;
+                                box.freezerBarCode = freezerJSON.freezerBarCode;
+                                box.freezerID = freezerJSON.freezerID;
+                                box.freezerName = freezerJSON.freezerName;
+                                box.freezerNote = freezerJSON.freezerNote;
+                                box.freezerSubdivisionID = newBoxId;
+                                box.freezerSubdivisionName = freezerJSON.freezerSubdivisions[j].freezerSubdivisionName;
+                                box.numberOfLocations = freezerJSON.freezerSubdivisions[j].numberOfLocations;
+                                box.organizationID = freezerJSON.organizationID;
+                                box.parentFreezerSubdivisionID = newRackId;
+                                box.room = freezerJSON.room;
+                                box.rowAction = "I";
+                                box.rowStatus = "0";
+                                box.sampleCount = 0;
+                                box.storageTypeID = freezerJSON.storageTypeID;
+                                box.subdivisionNote = freezerJSON.freezerSubdivisions[j].subdivisionNote;
+                                box.subdivisionTypeID = 39890000000;
+                                box.subdivisionTypeName = "Box";
+
+                                freezerJSON.freezerSubdivisions.push(box);
+
+                                $("#" + newRackId).append("<ul><li id='" + newBoxId + "' class='boxNode treeNode'>Box " + freezerJSON.freezerSubdivisions[j].freezerSubdivisionName + " (Copy)</li></ul>");
+
+                            }
+                        }
+                    }
+                }
+            }
+
+            // copy rack (with its boxes)
+            else if ($("#" + subdivisionToEdit).hasClass("rackNode")){
+
+                var rackId = subdivisionToEdit;
+                var newRackId = Date.now();
+                newRackId = -Math.abs(newRackId);
+                var parentShelfId;
+                var nodeName;
+
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+
+                    if (freezerJSON.freezerSubdivisions[i].freezerSubdivisionID == rackId) {
+
+                        nodeName = freezerJSON.freezerSubdivisions[i].freezerSubdivisionName;
+                        parentShelfId = freezerJSON.freezerSubdivisions[i].parentFreezerSubdivisionID;
+
+                        var rack = {};
+                        rack.boxPlaceAvailability = null;
+                        rack.boxPlaceAvailabilityList = null;
+                        rack.boxSizeTypeID = null;
+                        rack.boxSizeTypeName = null;
+                        rack.building = freezerJSON.building;
+                        rack.eidssFreezerSubdivisionID = null;
+                        rack.freezerBarCode = freezerJSON.freezerBarCode;
+                        rack.freezerID = freezerJSON.freezerID;
+                        rack.freezerName = freezerJSON.freezerName;
+                        rack.freezerNote = freezerJSON.freezerNote;
+                        rack.freezerSubdivisionID = newRackId;
+                        rack.freezerSubdivisionName = freezerJSON.freezerSubdivisions[i].freezerSubdivisionName;
+                        rack.numberOfLocations = freezerJSON.freezerSubdivisions[i].numberOfLocations;
+                        rack.organizationID = freezerJSON.organizationID;
+                        rack.parentFreezerSubdivisionID = freezerJSON.freezerSubdivisions[i].parentFreezerSubdivisionID;;
+                        rack.room = freezerJSON.room;
+                        rack.rowAction = "I";
+                        rack.rowStatus = "0";
+                        rack.sampleCount = 0;
+                        rack.storageTypeID = freezerJSON.storageTypeID;
+                        rack.subdivisionNote = freezerJSON.freezerSubdivisions[i].subdivisionNote;
+                        rack.subdivisionTypeID = 10093001;
+                        rack.subdivisionTypeName = "Rack";
+
+                        freezerJSON.freezerSubdivisions.push(rack);
+
+                        break;
+                    }
+                }
+
+                $("#" + parentShelfId).append("<ul><li id='" + newRackId + "' class='rackNode treeNode'>Rack " + nodeName + " (Copy)</li></ul>");
+
+                // find boxes belonging to the rack if any
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+
+                    if (freezerJSON.freezerSubdivisions[i].parentFreezerSubdivisionID == rackId) {
+
+                        var newBoxId = Date.now() + i;
+                        newBoxId = -Math.abs(newBoxId);
+
+                        var box = {};
+                        box.boxPlaceAvailability = null;
+                        box.boxPlaceAvailabilityList = null;
+                        box.boxSizeTypeID = freezerJSON.freezerSubdivisions[i].boxSizeTypeID;;
+                        box.boxSizeTypeName = null;
+                        box.building = freezerJSON.building;
+                        box.eidssFreezerSubdivisionID = null;
+                        box.freezerBarCode = freezerJSON.freezerBarCode;
+                        box.freezerID = freezerJSON.freezerID;
+                        box.freezerName = freezerJSON.freezerName;
+                        box.freezerNote = freezerJSON.freezerNote;
+                        box.freezerSubdivisionID = newBoxId;
+                        box.freezerSubdivisionName = freezerJSON.freezerSubdivisions[i].freezerSubdivisionName;
+                        box.numberOfLocations = freezerJSON.freezerSubdivisions[i].numberOfLocations;
+                        box.organizationID = freezerJSON.organizationID;
+                        box.parentFreezerSubdivisionID = newRackId;
+                        box.room = freezerJSON.room;
+                        box.rowAction = "I";
+                        box.rowStatus = "0";
+                        box.sampleCount = 0;
+                        box.storageTypeID = freezerJSON.storageTypeID;
+                        box.subdivisionNote = freezerJSON.freezerSubdivisions[i].subdivisionNote;
+                        box.subdivisionTypeID = 39890000000;
+                        box.subdivisionTypeName = "Box";
+
+                        freezerJSON.freezerSubdivisions.push(box);
+
+                        $("#" + newRackId).append("<ul><li id='" + newBoxId + "' class='boxNode treeNode'>Box " + freezerJSON.freezerSubdivisions[i].freezerSubdivisionName + " (Copy)</li></ul>");
+                    }
+                }
+
+            }
+
+            // copy box
+            else if ($("#" + subdivisionToEdit).hasClass("boxNode")){
+
+                var boxId = subdivisionToEdit;
+                var newBoxId = Date.now();
+                newBoxId = -Math.abs(newBoxId);
+                var parentRackId;
+                var nodeName;
+
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+
+                    if (freezerJSON.freezerSubdivisions[i].freezerSubdivisionID == boxId) {
+
+                        parentRackId = freezerJSON.freezerSubdivisions[i].parentFreezerSubdivisionID;
+                        nodeName = freezerJSON.freezerSubdivisions[i].freezerSubdivisionName;
+
+                        var box = {};
+                        box.boxPlaceAvailability = null;
+                        box.boxPlaceAvailabilityList = null;
+                        box.boxSizeTypeID = freezerJSON.freezerSubdivisions[i].boxSizeTypeID;
+                        box.boxSizeTypeName = null;
+                        box.building = freezerJSON.building;
+                        box.eidssFreezerSubdivisionID = null;
+                        box.freezerBarCode = freezerJSON.freezerBarCode;
+                        box.freezerID = freezerJSON.freezerID;
+                        box.freezerName = freezerJSON.freezerName;
+                        box.freezerNote = freezerJSON.freezerNote;
+                        box.freezerSubdivisionID = newBoxId;
+                        box.freezerSubdivisionName = freezerJSON.freezerSubdivisions[i].freezerSubdivisionName;
+                        box.numberOfLocations = freezerJSON.freezerSubdivisions[i].numberOfLocations;
+                        box.organizationID = freezerJSON.organizationID;
+                        box.parentFreezerSubdivisionID = newBoxId;
+                        box.room = freezerJSON.room;
+                        box.rowAction = "I";
+                        box.rowStatus = "0";
+                        box.sampleCount = 0;
+                        box.storageTypeID = freezerJSON.storageTypeID;
+                        box.subdivisionNote = freezerJSON.freezerSubdivisions[i].subdivisionNote;
+                        box.subdivisionTypeID = 39890000000;
+                        box.subdivisionTypeName = "Box";
+
+                        freezerJSON.freezerSubdivisions.push(box);
+                        break;
+                    }
+                }
+
+                $("#" + parentRackId).append("<ul><li id='" + newBoxId + "' class='boxNode treeNode'>Box " + nodeName + " (Copy)</li></ul>");
+            }
+        });
+
+        ////////////////////////////////////////////
+        // Add New Freezer
+        ////////////////////////////////////////////
+        $("#btnAddFreezer").on('click', function () {
+
+            var newFreezerId = Date.now();
+            newFreezerId = -Math.abs(newFreezerId);
+            subdivisionToEdit = newFreezerId;
+
+            //disable print barcode button
+            $(".printBarcode").prop("disabled", true);
+            
+            // clear out JSON array
+            freezerJSON = {};
+
+            freezerJSON.building = null;
+            freezerJSON.eidssFreezerSubdivisionID = null;
+            freezerJSON.freezerBarCode = null;
+            freezerJSON.eidssFreezerID = null;
+            freezerJSON.freezerID = newFreezerId;
+            freezerJSON.freezerName = null;
+            freezerJSON.freezerNote = null;
+            freezerJSON.freezerSubdivisionID = -1;
+            freezerJSON.freezerSubdivisionName = null;
+            freezerJSON.numberOfLocations = null;
+            freezerJSON.organizationID = $("#hfSiteID").val();
+            freezerJSON.parentFreezerSubdivisionID = null;
+            freezerJSON.room = null;
+            freezerJSON.rowAction = 'I';
+            freezerJSON.rowStatus = 0;
+            freezerJSON.sampleCount = null;
+            freezerJSON.storageTypeID = null;
+            freezerJSON.subdivisionNote = null;
+            freezerJSON.subdivisionTypeID = null;
+            freezerJSON.subdivisionTypeName = 'Freezer';
+            freezerJSON.freezerSubdivisions = [];
+
+            // add to JSON array
+
+            // clear out treeview
+            $("#ulFreezerTreeview").empty();            
+            $("#ulFreezerTreeview").append("<li id='" + newFreezerId + "' class='freezerNode treeNode'><label class='freezerNodeLabel'>Freezer (New Freezer)</label></li>");
+
+            //Freezer Details
+            $("#txtBuildingDetail").val('');
+            $("#txtFreezerNameDetail").val('');
+            $("#txtBarCodeFreezerDetail").val('');
+            $("#txtRoomDetail").val('');
+            $("#ddlStorageTypeDetail").val('0');
+            $("#txtNoteFreezerDetail").val('');
+
+            $("#dvFreezerDetails").show();
+            $("#dvSubdivisionAttributes").hide();
+            $("#dvFreezerAttributes").show();
+
+            $("#btnCopySubdivision").prop("disabled", true);
+            $("#btnDeleteSubdivision").prop("disabled", true);
+
+            $("#dvSaveCancel").show();
+
+            CanSaveFreezer();
+            $("#btnAddSubdivision").prop("disabled", true);
+
+        });
+
+        ////////////////////////////////////////////
+        // Copy Freezer
+        ////////////////////////////////////////////
+        $("#btnCopyFreezer").on('click', function () {
+            
+
+            if('@Model.UserPermissions.Create' == "True") {
+             
+                freezer = new Object();
+                $(".checkboxSelect").each(function () {
+                    if ($(this).is(":checked")) {
+                        freezer.FreezerId = $(this).data("freezer-id");
+                        return false;
+                    }
+                });
+            
+                subdivisionToEdit = -Math.abs(freezer.FreezerId);
+                var url = '@Url.Action("CopyFreezer", "Freezer", new { Area = "Laboratory" })';
+
+                $.ajax({
+                    url: url,
+                    type: 'post',
+                    data: JSON.stringify(freezer),
+                    dataType: 'json',
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        isChanged = true;
+                        GenerateTreeView(data);
+                    },
+                    complete: function (data) {
+                    },
+                    error: function (request, error) {
+                        console.log("error");
+                    }
+                });
+            }            
+
+        });
+
+        ////////////////////////////////////////////
+        // Box Size Type Change Event
+        ////////////////////////////////////////////
+        $("#ddlBoxSizeType").on('change', function () {
+
+            var boxSize = $("#ddlBoxSizeType option:selected").text();
+
+            if (boxSize.length === 0) {
+                $("#lblBoxSizeRequired").show();
+                $("#btnSave").prop("disabled", true);
+            }
+            else {
+                $("#lblBoxSizeRequired").hide();
+                CanSaveFreezer();
+                $("#btnAddSubdivision").prop("disabled", true);
+
+                var numberOfLocations = boxSize.substr(0, boxSize.indexOf("X"));
+                numberOfLocations = numberOfLocations * numberOfLocations;
+                var rackParentFreezerSubdivisionID;
+                var shelfParentFreezerSubdivisionID;
+
+                // update number of locations for the selected box size
+                // store the box's parent id (rack id)
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+                    if (freezerJSON.freezerSubdivisions[i].freezerSubdivisionID == subdivisionToEdit) {
+                        freezerJSON.freezerSubdivisions[i].numberOfLocations = numberOfLocations;
+                        $("#txtNumberOfLocations").val(numberOfLocations);
+                        rackParentFreezerSubdivisionID = freezerJSON.freezerSubdivisions[i].parentFreezerSubdivisionID;
+                        break;
+                    }
+                }
+
+                // add up the number of locations for all boxes under that rack parent id
+                // store the total
+                var newTotalNumberOfLocationsFor_Rack = 0;
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+                    if (freezerJSON.freezerSubdivisions[i].parentFreezerSubdivisionID == rackParentFreezerSubdivisionID) {
+                        newTotalNumberOfLocationsFor_Rack += freezerJSON.freezerSubdivisions[i].numberOfLocations;
+                    }
+                }
+
+                // find the rack parent and update the number of locations
+                // stored the parent of the rack (shelf id)
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+                    if (freezerJSON.freezerSubdivisions[i].freezerSubdivisionID == rackParentFreezerSubdivisionID) {
+                        freezerJSON.freezerSubdivisions[i].numberOfLocations = newTotalNumberOfLocationsFor_Rack;
+                        shelfParentFreezerSubdivisionID = freezerJSON.freezerSubdivisions[i].parentFreezerSubdivisionID;
+                        break;
+                    }
+                }
+
+                // add up the number of locations for all racks under the shelf parent id
+                // store the total
+                var newTotalNumberOfLocationsFor_Shelf = 0;
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+                    if (freezerJSON.freezerSubdivisions[i].parentFreezerSubdivisionID == shelfParentFreezerSubdivisionID) {
+                        newTotalNumberOfLocationsFor_Shelf += freezerJSON.freezerSubdivisions[i].numberOfLocations;
+                    }
+                }
+
+                // find the shelf parent and update the number of locations
+                for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+                    if (freezerJSON.freezerSubdivisions[i].freezerSubdivisionID == shelfParentFreezerSubdivisionID) {
+                        freezerJSON.freezerSubdivisions[i].numberOfLocations = newTotalNumberOfLocationsFor_Shelf;
+                        break;
+                    }
+                }
+            }
+
+        });
+
+        ////////////////////////////////////////////
+        // Save Freezer (with all subdivisions)
+        ////////////////////////////////////////////
+        $("#btnSave").on('click', function () {
+
+            var url = '@Url.Action("SaveFreezer", "Freezer", new { Area = "Laboratory" })';
+
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: JSON.stringify(freezerJSON),
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    CheckSuccess(data);
+                },
+                complete: function (data) {
+                },
+                error: function (request, error) {
+                }
+            });
+
+        });
+
+        ////////////////////////////////////////////////
+        // Save Freezer Success Confirmation - Reload
+        ////////////////////////////////////////////////
+        $("#btnSaveSuccessConfirm").on("click", function () {            
+            if (!window.location.href.includes('?')) window.location.href = window.location.href + "?f=" + freezerIdLastSaved;
+            else window.location.href = window.location.href;
+        });
+
+
+        ////////////////////////////////////////////////
+        // Validation for Save
+        ////////////////////////////////////////////////
+        function CanSaveFreezer() {
+
+            if (($.trim($("#txtFreezerNameDetail").val()) === '' && $("#txtFreezerNameDetail").hasClass("valid")) || $("#ddlStorageTypeDetail option:selected").index() === 0) { 
+                $("#btnSave").prop("disabled", true);
+                $("#btnAddSubdivision").prop("disabled", true);
+            }
+            else {
+                $("#btnSave").prop("disabled", false);
+                $("#btnAddSubdivision").prop("disabled", false);
+            }
+
+        }
+
+        function CanSaveSubdivision() {
+
+            if ($.trim($("#txtSubdivisionName").val()) === '') {
+                $("#btnSave").prop("disabled", true);
+                $("#btnAddSubdivision").prop("disabled", true);
+            }
+            else {
+                $("#btnSave").prop("disabled", false);
+                $("#btnAddSubdivision").prop("disabled", false);
+            }
+
+        }
+
+
+        ////////////////////////////////////////////////
+        // Check for Successful Freezer Save
+        ////////////////////////////////////////////////
+        var freezerIdLastSaved;
+        function CheckSuccess(data) {
+
+            var stringified_data = JSON.stringify(data);
+            var parsed_data = JSON.parse(stringified_data);            
+
+            if (parsed_data.returnMessage == "SUCCESS") {
+                freezerIdLastSaved = parsed_data.freezerID;                                
+                subdivisionToEdit = freezerIdLastSaved;
+                $("#mdSaveSuccess").modal("show");
+            }
+            else if (parsed_data.returnMessage == "DOES EXIST") {
+                $("#duplicatesModal").modal("show");
+                $("#dupemsg").html(parsed_data.strDuplicateField);
+            }
+
+        }
+
+        ////////////////////////////////////////////
+        // Function for generating treeview
+        ////////////////////////////////////////////
+        function GenerateTreeView(data) {            
+
+            freezerJSON = null;
+            freezerJSON = data;
+
+            $("#dvFreezerDetails").show();
+            $("#ulFreezerTreeview").empty();
+            $("#ulFreezerTreeview").append("<li id='" + data.freezerID + "' class='freezerNode treeNode'><label class='freezerNodeLabel'>Freezer " + data.freezerName + "</label></li>");            
+
+            //Freezer Details
+            $("#txtBuildingDetail").val(data.building);
+            $("#txtFreezerNameDetail").val(data.freezerName);
+            $("#txtBarCodeFreezerDetail").val(data.eidssFreezerID);
+            $("#txtRoomDetail").val(data.room);
+            $("#ddlStorageTypeDetail").val(data.storageTypeID);
+            $("#txtNoteFreezerDetail").val(data.freezerNote);
+
+            $.each(data.freezerSubdivisions, function (i, item) {
+
+                // Shelf
+                if (item.subdivisionTypeID == "39900000000") {
+                    $("#ulFreezerTreeview li.freezerNode").append("<ul><li id='" + item.freezerSubdivisionID + "' class='shelfNode treeNode'><label class='nodeLabel shelfNodeLabel'>Shelf " + item.freezerSubdivisionName + "</label></li></ul>");
+                    $("#txtBarCodeSubdivision").val(item.eidssFreezerSubdivisionID);
+                }
+
+            });
+
+            $.each(data.freezerSubdivisions, function (i, item) {
+
+                // Rack
+                if (item.subdivisionTypeID == "10093001") {
+                    parentID = item.parentFreezerSubdivisionID;
+                    $("#" + parentID).append("<ul><li id='" + item.freezerSubdivisionID + "' class='rackNode treeNode'><label class='nodeLabel rackNodeLabel'>Rack " + item.freezerSubdivisionName + "</label></li></ul>");
+                    $("#txtBarCodeSubdivision").val(item.eidssFreezerSubdivisionID);
+                }
+
+            });
+
+            $.each(data.freezerSubdivisions, function (i, item) {
+
+                // Box
+                if (item.subdivisionTypeID == "39890000000") {
+
+                    parentID = item.parentFreezerSubdivisionID;
+                    $("#" + parentID).append("<ul><li id='" + item.freezerSubdivisionID + "' class='boxNode treeNode'><label class='nodeLabel boxNodeLabel'>Box " + item.freezerSubdivisionName + "</label></li></ul>");
+                    $("#txtBarCodeSubdivision").val(item.eidssFreezerSubdivisionID);
+
+                    if (item.boxPlaceAvailability != null) {
+
+                        var boxPlaceAvailabilityParsed = JSON.parse(item.boxPlaceAvailability);
+
+                        var sqrt = Math.sqrt(item.numberOfLocations);
+
+                        var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ;"
+                        var numbers = "123456789";
+
+                        var table = "<table id='" + item.freezerSubdivisionID + "_tblBoxAvailability' class='boxAvailability'>";
+                        table += "<tr><th></th>";
+                        for (var r = 0; r < sqrt; r++) {
+                            table += "<th style='padding:5px;'>" + letters.substr(r, 1) + "</th>";
+                        }
+                        table += "</tr>";
+
+                        var e = 0;
+
+                        for (var r = 0; r < sqrt; r++) {
+
+                            table += "<tr>";
+                            table += "<td>" + (r + 1) + "</td>";
+                            var letterCount = 0;
+
+                            for (var c = 0; c < sqrt; c++) {
+                                table += "<td id='" + item.freezerSubdivisionID + "_" + letters.substr(letterCount, 1) + (r + 1) + "' style='padding:5px;'>";
+                                letterCount++;
+
+                                table += "</td>";
+                                e++;
+                            }
+                            table += ("</tr>");
+                        }
+
+                        table += "</table>";
+
+                        $("#" + item.freezerSubdivisionID).append("<ul><li>" + table + "</li></ul>");
+
+                        for (var b = 0; b < boxPlaceAvailabilityParsed.length; b++) {
+
+                            var slotColor;
+                            if (boxPlaceAvailabilityParsed[b].AvailabilityIndicator == true) slotColor = "green";
+                            else slotColor = "red";
+
+                            var slotHtml = "<i style='color: " + slotColor + "; ' class='fas fa-solid fa-circle'>"
+                            $("#" + item.freezerSubdivisionID + "_" + boxPlaceAvailabilityParsed[b].BoxLocation).html(slotHtml);
+                        }
+                    }
+                }
+            });
+
+            $("#dvSaveCancel").show();
+        }
+
+        //################################
+        // Freezer Barcode
+        //################################
+
+        //################################
+        // Cancel Changes Modal
+        //################################
+        $("#btnCancel").on('click', function () {
+            $("#mdCancelChanges").modal('show');
+        });
+
+        $("#btnCancelChangesYes").on('click', function () {
+            window.location.href = window.location.href;
+        });
+
+
+
+        $("#printButton").click(function() {
+
+            printFreezerDetails = true;
+
+            if(isChanged){
+                $("#mdUnsavedChangesConfirmation").modal("show");
+            }
+            else{                
+                SubmitPrintForm();
+            }
+                  
+        });
+
+    });
+
+
+
+    //################################
+    // Helper Functions
+    //################################
+
+    function GetParameterValues(param) {
+        var url = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for (var i = 0; i < url.length; i++) {
+            var urlparam = url[i].split('=');
+            if (urlparam[0] == param) {
+                return urlparam[1];
+            }
+        }
+    }
+
+    function GetBaseUrl() {
+        var getUrl = window.location;
+        return getUrl.protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+    }
+    
+    // submits the form for the print report
+    function SubmitPrintForm(){
+        $("#hfShowPrintBarCode").val("false");
+        $("#hfShowPrint").val("true");
+        $('#frmFreezer').submit();
+    }
+
+       
+    $(".printBarcode").click(function() {
+
+        $("#hfShowPrintBarCode").val("true");
+        $("#hfShowPrint").val("false");
+
+        $('#frmFreezer').submit();
+      
+    });
+
+    
+
+</script>
+

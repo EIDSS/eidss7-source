@@ -1,0 +1,126 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Domain.Enumerations
+
+@inherits VaccinationsSectionBase
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-9">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryDiseaseReportVaccinationsHeading)</h4>
+        </div>
+        <div class="col-3 text-right">
+            @if (Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0)
+            {
+                <button class="btn btn-link add-section" id="addVaccination" @onclick="OnAddVaccinationClick" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+            }
+            else if (!Model.WritePermissionIndicator || Model.ReportDisabledIndicator)
+            {
+                <button class="btn btn-link add-section disabled" disabled id="addVaccination" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-link add-section" id="addVaccination" @onclick="OnAddVaccinationClick" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+            }
+
+            @if ((Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0) || (Model.WritePermissionIndicator && Model.DiseaseReportID > 0 && Model.ReportStatusTypeID == (long) DiseaseReportStatusTypeEnum.InProcess && Model.ReportCurrentlyClosedIndicator == false))
+            {
+                if (Model.OutbreakCaseIndicator)
+                {
+                    <a class="edit-section" href="#caseDiseaseReportWizard-h-4" id="editVaccinationsSectionButton">
+                        <span class="fas fa-edit fa-lg"></span>
+                    </a>
+                }
+                else
+                {
+                    <a class="edit-section" href="#caseDiseaseReportWizard-h-5" id="editVaccinationsSectionButton">
+                        <span class="fas fa-edit fa-lg"></span>
+                    </a>
+                }
+            }
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h3>@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryDiseaseReportVaccinationsHeading)</h3>
+        </div>
+        <div id="divVaccinationsSection" class="card-body">
+            <div class="row">
+                <div class="col-12">
+                    <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" Count="Count" Data="Model.Vaccinations" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="args => LoadVaccinationData(args)" PageSizeOptions="pageSizeOptions" PageSizeText="@Localizer.GetString(FieldLabelResourceKeyConstants.CommonLabelsItemsPerPageFieldLabel)" @ref="VaccinationsGrid" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="true" TItem="VaccinationGetListViewModel">
+                        <Columns>
+                            <RadzenDataGridColumn Property="DiseaseName" TItem="VaccinationGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportVaccinationsDiseaseNameColumnHeading)"/>
+                            <RadzenDataGridColumn FormatString="{0:d}" Property="VaccinationDate" TItem="VaccinationGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportVaccinationsDateColumnHeading)"/>
+                            <RadzenDataGridColumn Property="Species" TItem="VaccinationGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportVaccinationsSpeciesColumnHeading)"/>
+                            <RadzenDataGridColumn Property="NumberVaccinated" TItem="VaccinationGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportVaccinationsVaccinatedNumberColumnHeading)"/>
+                            <RadzenDataGridColumn Filterable="false" Frozen="true" Property="VaccinationID" Sortable="false" TextAlign="TextAlign.Center" TItem="VaccinationGetListViewModel" Title="" Width="55px">
+                                <Template Context="item">
+                                    @if (Model.ReportDisabledIndicator || (Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0) || (Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0))
+                                    {
+                                        <button class="btn btn-link disabled" disabled>
+                                            <span class="fas fa-edit disabled"></span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-link" @onclick="_ => OnEditVaccinationClick(item)">
+                                            <span class="fas fa-edit"></span>
+                                        </button>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn Filterable="false" Frozen="true" Property="VaccinationID" Sortable="false" TextAlign="TextAlign.Center" TItem="VaccinationGetListViewModel" Title="" Width="55px">
+                                <Template Context="item">
+                                    @if (Model.ReportDisabledIndicator || (Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0) || (Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0))
+                                    {
+                                        <button class="btn btn-link disabled" disabled>
+                                            <span class="fas fa-trash disabled"></span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button @onclick="_ => OnDeleteVaccinationClick(item)" class="btn btn-link">
+                                            <span class="fas fa-trash"></span>
+                                        </button>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                        <!--Expandable Detail Template for Grid -->
+                        <Template Context="item">
+                            <RadzenCard>
+                                <div class="row">
+                                    <InterfaceEditorResource CssClass="col-6" For="type" InterfaceEditorKey="@TypeResourceKey" IsRow="false">
+                                        <RadzenTextBox @bind-Value="item.VaccinationTypeName" class="form-control" id="type" Name="type" ReadOnly="true"/>
+                                    </InterfaceEditorResource>
+                                    <InterfaceEditorResource CssClass="col-6" For="route" InterfaceEditorKey="@RouteResourceKey" IsRow="false">
+                                        <RadzenTextBox @bind-Value="item.RouteTypeName" class="form-control" id="route" Name="route" ReadOnly="true"/>
+                                    </InterfaceEditorResource>
+                                </div>
+                                <div class="row">
+                                    <InterfaceEditorResource CssClass="col-3" For="lotNumber" InterfaceEditorKey="@LotNumberResourceKey" IsRow="false">
+                                        <RadzenTextBox @bind-Value="item.LotNumber" class="form-control" id="lotNumber" Name="lotNumber" ReadOnly="true"/>
+                                    </InterfaceEditorResource>
+                                    <InterfaceEditorResource CssClass="col-9" For="manufacturer" InterfaceEditorKey="@ManufacturerResourceKey" IsRow="false">
+                                        <RadzenTextBox @bind-Value="item.Manufacturer" class="form-control" id="manufacturer" Name="manufacturer" ReadOnly="true"/>
+                                    </InterfaceEditorResource>
+                                </div>
+                                <div class="row">
+                                    <InterfaceEditorResource CssClass="col-12" For="comments" InterfaceEditorKey="@CommentsResourceKey" IsRow="false">
+                                        <RadzenTextBox @bind-Value="item.Comments" class="form-control" id="comments" Name="comments" ReadOnly="true"/>
+                                    </InterfaceEditorResource>
+                                </div>
+                            </RadzenCard>
+                        </Template>
+                    </RadzenDataGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

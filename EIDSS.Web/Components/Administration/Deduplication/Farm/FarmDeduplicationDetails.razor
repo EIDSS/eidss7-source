@@ -1,0 +1,127 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Web.Areas.Administration.SubAreas.Deduplication.ViewModels.FarmDeduplication
+@using EIDSS.Domain.ViewModels.Veterinary;
+
+@inherits EIDSS.Web.Components.Administration.Deduplication.Farm.FarmDeduplicationDetailsBase
+
+<RadzenTemplateForm id="farmDeduplicationDetailsForm" @ref="form" TItem="FarmDeduplicationDetailsViewModel" Data="@Model">
+    @if (showDetails)
+    {
+        <RadzenTabs Change="@OnChange" RenderMode="TabRenderMode.Server" SelectedIndex="(int)Tab">
+            <Tabs>
+                <RadzenTabsItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.FarmRecordDeduplicationFarmDetailsFieldLabel)" Icon="" >
+                    @if (Tab == FarmDeduplicationTabEnum.FarmDetails)
+                    {
+                        <div>
+                            <FarmDetails />
+                        </div>
+                    }
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.FarmRecordDeduplicationAnimalDiseaseReportsFieldLabel)">
+                    @if (Tab == FarmDeduplicationTabEnum.AnimalDiseaseReports)
+                    {
+                        <div>
+                            <AnimalDiseaseReports />
+                        </div>
+                    }
+                </RadzenTabsItem>
+            </Tabs>
+        </RadzenTabs>
+
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-md-12">
+                    <button id="cancelButton" class="btn btn-outline-primary" type="button" @onclick=@(() => CancelMergeClicked())>@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    @if (showPreviousButton)
+                    {<button id="previousButton" class="btn btn-outline-primary" type="button" @onclick=@(() => PreviousClicked())>@Localizer.GetString(ButtonResourceKeyConstants.PreviousButton)</button>}
+                    @if (showNextButton)
+                    {<button id="nextButton" class="btn btn-outline-primary" type="button" @onclick=@(() => NextClicked())>@Localizer.GetString(ButtonResourceKeyConstants.NextButton)</button>}
+                    <button id="mergeButton" type="button" class="btn btn-primary" disabled="@disableMergeButton" @onclick="OnMergeAsync">@Localizer.GetString(@ButtonResourceKeyConstants.DeduplicationMergeButtonText)</button>
+                </div>
+            </div>
+        </div>
+    }
+    @if (showReview)
+    {
+        <RadzenCard>
+            <div class="card-header" id="ReviewFarmDetails">
+                <div class="form-row">
+                    <div class="col-md-11">
+                        <h4>@Localizer.GetString(HeadingResourceKeyConstants.FarmDetailsFarmDetailsHeading)</h4>
+                    </div>
+                    <div class="col-md-1">
+                        <button class="btn d-inline-block" @onclick=@(() => EditClickAsync(0))><i class="fas fa-edit fa-lg"></i></button>
+                    </div>
+                </div>
+            </div>
+            @if (FarmDeduplicationService.SurvivorInfoList != null)
+            {
+                <RadzenDataList WrapItems=false AllowPaging=false Data=FarmDeduplicationService.SurvivorInfoList TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
+                    <Template Context="field">
+                    @if (field.Index < RegionID)
+                    {
+                        <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key Disabled=@field.Disabled TriState=false Style="vertical-align: top !important;" />
+                        <div class="ml-2 d-inline-block vertical-align-middle">
+                            <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <RadzenPanel Visible="@(field.Index < RegionID)">
+                        <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key Disabled=@field.Disabled TriState=false Style="vertical-align: top !important;" />
+                        <div class="ml-2 d-inline-block vertical-align-middle">
+                            <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                        </RadzenPanel>
+                    }
+                    </Template>
+                </RadzenDataList>
+             }
+        </RadzenCard>
+        <RadzenCard>
+            <div class="card-header" id="ReviewDiseaseReport">
+                <div class="form-row">
+                    <div class="col-md-11">
+                        <h4>@Localizer.GetString(FieldLabelResourceKeyConstants.FarmRecordDeduplicationAnimalDiseaseReportsFieldLabel)</h4>
+                    </div>
+                    <div class="col-md-1">
+                        <button class="btn d-inline-block" @onclick=@(() => EditClickAsync(1))><i class="fas fa-edit fa-lg"></i></button>
+                    </div>
+                </div>
+            </div>
+            <RadzenDataGrid @ref="ReviewDiseaseReportGrid"
+                        Name="diseaseReports"
+                        TItem="VeterinaryDiseaseReportViewModel"
+                        Count="@FarmDeduplicationService.SurvivorDiseaseReportCount"
+                        Data="@FarmDeduplicationService.SurvivorDiseaseReports"
+                        AllowPaging="true"
+                        PageSize="10"
+                        AllowSorting="true"
+                        AllowColumnResize="true"
+                        ExpandMode="DataGridExpandMode.Single"
+                        AllowColumnReorder="true"
+                        EditMode="DataGridEditMode.Single" >
+                        <Columns>
+                            <RadzenDataGridColumn Width="150px" TItem="VeterinaryDiseaseReportViewModel" Property="ReportID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmDiseaseReportsReportIDColumnHeading)" Sortable="true" />
+                            <RadzenDataGridColumn Width="150px" TItem="VeterinaryDiseaseReportViewModel" Property="DiseaseName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmDiseaseReportsDiseaseColumnHeading)" Sortable="true" />
+                            <RadzenDataGridColumn Width="150px" TItem="VeterinaryDiseaseReportViewModel" Property="EnteredDate" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmDiseaseReportsDateEnteredColumnHeading)" Sortable="true" FormatString="{0:d}"  />
+                            <RadzenDataGridColumn Width="175px" TItem="VeterinaryDiseaseReportViewModel" Property="ClassificationTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmDiseaseReportsCaseClassificationColumnHeading)" Sortable="true" />
+                            <RadzenDataGridColumn Width="150px" TItem="VeterinaryDiseaseReportViewModel" Property="FarmName" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchAvianDiseaseReportsFarmNameColumnHeading) Sortable="true" />
+                            <RadzenDataGridColumn Width="150px" TItem="VeterinaryDiseaseReportViewModel" Property="FarmAddress" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchAvianDiseaseReportsFarmAddressColumnHeading) Sortable="true" />
+                            <RadzenDataGridColumn Width="150px" TItem="VeterinaryDiseaseReportViewModel" Property="ReportStatusTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmDiseaseReportsReportStatusColumnHeading)" Sortable="true" />
+                            <RadzenDataGridColumn Width="125px" TItem="VeterinaryDiseaseReportViewModel" Property="ReportTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchAvianDiseaseReportsReportTypeColumnHeading)" Sortable="true" />
+                        </Columns>
+            </RadzenDataGrid>
+        </RadzenCard>
+        <div class="card-footer">
+           <div class="row">
+               <div class="col-md-12">
+                   <button id="cancelButtonReview" class="btn btn-outline-primary" type="button" @onclick=@(() => CancelReviewClicked()) >@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                   <button id="saveButton" type="button" class="btn btn-primary" @onclick="OnSaveAsync">@Localizer.GetString(@ButtonResourceKeyConstants.SaveButton)</button>
+               </div>
+           </div>
+       </div>
+    }
+    </RadzenTemplateForm>

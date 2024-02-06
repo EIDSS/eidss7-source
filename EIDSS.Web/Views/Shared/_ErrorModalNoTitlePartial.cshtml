@@ -1,0 +1,45 @@
+﻿<div class="modal fade" id="errorModalNoTitle" tabindex="-1" role="dialog" data-backdrop='static' data-keyboard='false' aria-labelledby="errorModalNoTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 text-right">
+                        <span class="fas fa-times-circle fa-2x modal-icon"></span>
+                    </div>
+                    <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                        <div id="errorMessage"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="$('#errorModalNoTitle').modal('hide');" button-for="@ButtonResourceKeyConstants.OKButton"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function showErrorModalNoTitle(message, title = "", size = "medium") {
+        $("#errorModalNoTitle").find("#errorMessage").text(message.replace(/&quot;/g, '\"')).end(); // replace HTML &quot to show actual double quotes.
+        var localizedString = $("#errorModalNoTitle").find("#errorMessage").text();
+        var decodedLocalizedMessage = $("#errorModalNoTitle").find("#errorMessage").html(localizedString).text();
+
+        const modal = new Promise(function (resolve, reject) {
+            $("#errorModalNoTitle").find('.modal-header > h5').text(title).end();
+            $("#errorModalNoTitle").find('#errorMessage').html(decodedLocalizedMessage).end();
+            $("#errorModalNoTitle").modal('show');
+
+            $('#errorModalNoTitle .btn-primary').click(function () {
+                resolve(true);
+            });
+        });
+
+        return modal;
+    };
+    $(document).on("show.bs.modal", ".modal", function (event) {
+        var zIndex = 1040 + (10 * $(".modal:visible").length);
+        $(this).css("z-index", zIndex);
+        setTimeout(function () {
+            $(".modal-backdrop").not(".modal-stack").css("z-index", zIndex - 1).addClass("modal-stack");
+        }, 0);
+    });
+</script>

@@ -1,0 +1,25 @@
+﻿@model EIDSS.Web.Areas.Outbreak.ViewModels.HumanCaseViewModel;
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.CreateHumanCaseCaseDetailsHeading);
+}
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-lg-11">
+                <div class="panel-heading">
+                    <h2>@Localizer.GetString(HeadingResourceKeyConstants.OutbreakSessionOutbreakSessionHeading)</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <fieldset>
+        <form>
+            <input asp-for="@Model.idfOutbreak" id="idfOutbreak" type="hidden" />
+            <partial name="_caseSummary" />
+        </form>
+    </fieldset>
+
+    @await Component.InvokeAsync("HumanCase", Model)
+</div>
+
+<script src="@Url.Content("~/js/Outbreak/humanCase.js")"></script>

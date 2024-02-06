@@ -1,0 +1,78 @@
+﻿@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Services
+@using EIDSS.Web.ViewModels.Vector
+
+@inherits EIDSS.Web.Components.Vector.VectorDetailedCollections.VectorDataBase
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-md-11">
+                <h4 id="locationHeading">@Localizer.GetString(HeadingResourceKeyConstants.VectorSessionVectorDataVectorDataHeading)</h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editDetailedCollectionVectorDataSectionButton" href="#detailedCollectionWizard-h-1" class="edit-section">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div id="vectorData" class="card-body">
+        <RadzenTemplateForm id="detailedCollectionForm" @ref="VectorDataForm" TItem="VectorSessionStateContainer" Data="@VectorSessionStateContainer">
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSessionVectorDataQuantityFieldLabel" IsRow="false" CssClass="col-4" For="quantity">
+                    <RadzenNumeric Name="quantity" class="form-control" TValue="int?" @bind-Value="VectorSessionStateContainer.DetailQuantity"  Disabled="VectorSessionStateContainer.DetailCollectionDisabledIndicator"/>
+                    <RadzenRegexValidator Component="quantity" Text=@Localizer.GetString(MessageResourceKeyConstants.NumberIsOutOfRangeMessage) Pattern="^(\s*|\d+)$" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSessionVectorDataSpeciesFieldLabel" IsRow="false" CssClass="col-4" For="species">
+                    <RadzenDropDown Name="species" Data="@SpeciesList" AllowClear="true" TValue="long?" ValueProperty="KeyId" TextProperty="StrName"
+                                    LoadData="@LoadSpeciesVectorTypesList" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowVirtualization="false" class="form-control"
+                                    @bind-Value="VectorSessionStateContainer.DetailSpeciesID"  Disabled="VectorSessionStateContainer.DetailCollectionDisabledIndicator" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSessionVectorDataSexFieldLabel" IsRow="false" CssClass="col-4" For="sex">
+                    <RadzenDropDown Name="sex" AllowClear="true" Data="@AnimalSexList" LoadData="@LoadAnimalSex"
+                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    TValue="long?" ValueProperty="IdfsBaseReference" TextProperty="Name" class="form-control"
+                                    @bind-Value="VectorSessionStateContainer.DetailSpeciesSexID"  Disabled="VectorSessionStateContainer.DetailCollectionDisabledIndicator" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSessionVectorDataIdentifiedByInstitutionFieldLabel" IsRow="false" CssClass="col-6" For="identifiedByInstitution">
+                    <RadzenDropDown Change="@IdentifiedByInstitutionChange" Name="identifiedByInstitution"
+                                    Data="@IdentifiedByInstitutionList" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    TValue="long?" LoadData="@LoadIdentifiedByInstitution" ValueProperty="idfOffice" TextProperty="name" AllowVirtualization="false"
+                                    class="form-control" @bind-Value="VectorSessionStateContainer.DetailIdentifiedByInstitutionID" 
+                                    Disabled="VectorSessionStateContainer.DetailCollectionDisabledIndicator"/>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSessionVectorDataIdentifiedByFieldLabel" IsRow="false" CssClass="col-6" For="identifiedByPerson">
+                    <RadzenDropDown Name="identifiedByPerson" AllowClear="true" TValue="long?"
+                                    Data="@(IdentifiedByPersonList == null ? null : IdentifiedByPersonList.Where(x=>x.idfOffice == VectorSessionStateContainer.DetailIdentifiedByInstitutionID))" 
+                                    LoadData="@LoadIdentifiedByPerson" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    ValueProperty="idfPerson" TextProperty="FullName" AllowVirtualization="false" AllowFiltering="true" class="form-control"
+                                    @bind-Value="VectorSessionStateContainer.DetailIdentifiedByPersonID"  Disabled="VectorSessionStateContainer.DetailCollectionDisabledIndicator"/>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSessionVectorDataIdentifyingMethodFieldLabel" IsRow="false" CssClass="col-6" For="identifyingMethod">
+                    <RadzenDropDown Name="identifyingMethod" AllowClear="true" TValue="long?" Data="@IdentifyingMethodList" LoadData="@LoadIdentifyingMethod"
+                                    ValueProperty="IdfsBaseReference" TextProperty="Name" AllowVirtualization="false" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="form-control"
+                                    @bind-Value="VectorSessionStateContainer.DetailIdentifiedByMethodID"  Disabled="VectorSessionStateContainer.DetailCollectionDisabledIndicator" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSessionVectorDataIdentifyingDateFieldLabel" IsRow="false" CssClass="col-6" For="identifyingDate">
+                    <RadzenDatePicker Name="identifyingDate" AllowClear="true" AllowInput="true" class="form-control-range" TValue="DateTime?"
+                                      @bind-Value="VectorSessionStateContainer.DetailIdentifiedDate" DateFormat="d"  Disabled="VectorSessionStateContainer.DetailCollectionDisabledIndicator"/>
+                    <RadzenCompareValidator Component="identifyingDate" Operator="CompareOperator.GreaterThanEqual" Popup="false" Style="display: block" Text="@Localizer.GetString(MessageResourceKeyConstants.VectorIdentifyingDateShallBeOnOrAfterSessionStartDateMessage)" Value="@VectorSessionStateContainer.StartDate.GetValueOrDefault().Date" />
+                    <RadzenCompareValidator Component="identifyingDate" Operator="CompareOperator.GreaterThanEqual" Popup="false" Style="display: block" Text="@Localizer.GetString(MessageResourceKeyConstants.VectorIdentifyingDateShallBeOnOrAfterCollectionDateMessage)" Value="@VectorSessionStateContainer.DetailCollectionDate.GetValueOrDefault().Date" Visible="@(VectorSessionStateContainer.DetailCollectionDate != null)" />
+                    <RadzenCompareValidator Component="identifyingDate" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@Localizer.GetString(MessageResourceKeyConstants.VectorIdentifyingDateShallBeOnOrBeforeSessionCloseDateMessage)" Value="@VectorSessionStateContainer.CloseDate" Visible="@(VectorSessionStateContainer.CloseDate != null)" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSessionVectorDataCommentFieldLabel" IsRow="false" CssClass="col-12" For="identifyingMethod">
+                    <RadzenTextArea Name="Comments" class="form-control" @bind-Value="VectorSessionStateContainer.DetailComment"  Disabled="VectorSessionStateContainer.DetailCollectionDisabledIndicator"/>
+                </InterfaceEditorResource>
+            </div>
+        </RadzenTemplateForm>
+    </div>
+</div>
+
+

@@ -1,0 +1,99 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Enumerations
+@using EIDSS.Domain.Enumerations
+
+@inherits DiseaseReportSummaryBase
+
+<RadzenTemplateForm @ref="Form" TItem="DiseaseReportGetDetailViewModel" Data="Model">
+    <DataAnnotationsValidator/>
+    <div class="card">
+        <div class="card-body">
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-4" For="@nameof(Model.EIDSSReportID)" InterfaceEditorKey="@ReportIdFieldLabelResourceKey" IsRow="false">
+                    <RadzenTextBox @bind-Value="Model.EIDSSReportID" class="form-control" Disabled="true" MaxLength="36" Name="@nameof(Model.EIDSSReportID)" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-4" For="@nameof(Model.ReportStatusTypeID)" InterfaceEditorKey="@ReportStatusFieldLabelResourceKey" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.ReportStatusTypeID" Change="@(OnReportStatusTypeChange)" class="form-control" Data="ReportStatusTypes" Disabled="@(Model.ReportStatusTypeDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.OutbreakID is not null)" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="@nameof(Model.ReportStatusTypeID)" LoadData="GetReportStatusTypes" Name="@nameof(Model.ReportStatusTypeID)" @ref="ReportStatus" TabIndex="1" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-4" For="@nameof(Model.ClassificationTypeID)" InterfaceEditorKey="@ClassificationFieldLabelResourceKey" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.ClassificationTypeID" Change="@(OnClassificationTypeChange)" class="form-control" Data="ClassificationTypes" Disabled="@(Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="@nameof(Model.ClassificationTypeID)" LoadData="GetClassificationTypes" Name="@nameof(Model.ClassificationTypeID)" @ref="Classification" TabIndex="2" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <div class="form-row">
+                    <div class="col-lg-11">
+                        <h4>@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportDiseaseReportSummaryHeading)</h4>
+                    </div>
+                    <div class="col-lg-1">
+                        <span aria-expanded="false" class="fas fa-caret-up align-bottom fa-2x e-dark-blue" data-target="#divCaseReportSummary" data-toggle="collapse" id="sCaseReportSummaryToggle" onclick="toggleCaseReportSummary();">&nbsp;</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body show" id="divCaseReportSummary">
+                @if (Model.RelatedToVeterinaryDiseaseReportID is not null)
+                {
+                    <div class="form-row">
+                        <a @onclick="@OnRelatedToDiseaseReportClick" role="button">
+                            <strong>
+                                <i class="fas fa-link fa-lg"></i> @(RelatedToDiseaseReportResourceKey + " " + Model.RelatedToVeterinaryDiseaseEIDSSReportID)
+                            </strong>
+                        </a>
+                        <br/>
+                        <br/>
+                    </div>
+                }
+
+                @if (Model.ConnectedDiseaseReportID is not null)
+                {
+                    <div class="form-row">
+                        <a @onclick="@OnConnectedDiseaseReportClick" role="button">
+                            <strong>
+                                <i class="fas fa-link fa-lg"></i> @(RelatedToDiseaseReportResourceKey + " " + Model.ConnectedDiseaseEIDSSReportID)
+                            </strong>
+                        </a>
+                        <br/>
+                        <br/>
+                    </div>
+                }
+                <div class="form-row">
+                    <InterfaceEditorResource CssClass="col-3" For="@nameof(Model.LegacyID)" InterfaceEditorKey="@LegacyIdFieldLabelResourceKey" IsRow="false">
+                        <RadzenTextBox @bind-Value="Model.LegacyID" class="form-control" Disabled="true" MaxLength="36" Name="@nameof(Model.LegacyID)" />
+                    </InterfaceEditorResource>
+                    <InterfaceEditorResource CssClass="col-3" For="@nameof(Model.EIDSSFieldAccessionID)" InterfaceEditorKey="@FieldAccessionIdFieldLabelResourceKey" IsRow="false">
+                        <RadzenTextBox @bind-Value="Model.EIDSSFieldAccessionID" class="form-control" Disabled="@(Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)" id="@nameof(Model.EIDSSFieldAccessionID)" MaxLength="36" Name="@nameof(Model.EIDSSFieldAccessionID)" @ref="FieldAccessionId" TabIndex="3" />
+                    </InterfaceEditorResource>
+                    <InterfaceEditorResource CssClass="col-3" For="@nameof(Model.EIDSSOutbreakID)" InterfaceEditorKey="@OutbreakIdFieldLabelResourceKey" IsRow="false">
+                        <RadzenTextBox @bind-Value="Model.EIDSSOutbreakID" class="form-control" Disabled="true" MaxLength="36" Name="@nameof(Model.EIDSSOutbreakID)" />
+                    </InterfaceEditorResource>
+                    <InterfaceEditorResource CssClass="col-3" For="@nameof(Model.EIDSSParentMonitoringSessionID)" InterfaceEditorKey="@SessionIdFieldLabelResourceKey" IsRow="false">
+                        <RadzenTextBox @bind-Value="Model.EIDSSParentMonitoringSessionID" class="form-control" Disabled="true" MaxLength="36" Name="@nameof(Model.EIDSSParentMonitoringSessionID)" />
+                    </InterfaceEditorResource>
+                </div>
+                <div class="form-row">
+                    <InterfaceEditorResource CssClass="col-4" For="@nameof(Model.ReportTypeID)" InterfaceEditorKey="@ReportTypeFieldLabelResourceKey" IsRow="false">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.ReportTypeID" class="form-control" Data="ReportTypes" Disabled="@(Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0 || Model.ParentMonitoringSessionID.HasValue)" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="@nameof(Model.ReportTypeID)" LoadData="GetReportTypes" Name="@nameof(Model.ReportTypeID)" @ref="ReportType" TabIndex="4" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+                    </InterfaceEditorResource>
+                    <InterfaceEditorResource CssClass="col-4" For="@nameof(Model.DiagnosisDate)" InterfaceEditorKey="@DiagnosisDateFieldLabelResourceKey" IsRow="false">
+                        <br/>
+                        <RadzenDatePicker AllowClear="@(Model.OutbreakID is null && (Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0 || Model.DiseaseReportID > 0 && Model.ReportStatusTypeID == (long)DiseaseReportStatusTypeEnum.InProcess && Model.ReportCurrentlyClosedIndicator == false))" @bind-Value="Model.DiagnosisDate" DateFormat="d" Disabled="@(Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)" id="@nameof(Model.DiagnosisDate)" Name="@nameof(Model.DiagnosisDate)" @ref="DiagnosisDate" TabIndex="5" TValue="DateTime?" />
+                        <RadzenCompareValidator Component="@nameof(Model.DiagnosisDate)" Operator="CompareOperator.LessThanEqual" Popup="false" Style="position: absolute" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="@DateTime.Now" />
+                    </InterfaceEditorResource>
+                    <InterfaceEditorResource CssClass="col-4" For="@nameof(Model.DiseaseID)" InterfaceEditorKey="@DiseaseFieldLabelResourceKey" IsRow="false">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.DiseaseID" Change="OnDiseaseChange" class="form-control" Data="Diseases" Disabled="Model.DiseaseDisabledIndicator || Model.ParentMonitoringSessionID.HasValue" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="@nameof(Model.DiseaseID)" LoadData="GetDiseases" Name="@nameof(Model.DiseaseID)" @ref="Disease" TabIndex="6" TextProperty="DiseaseName" TValue="long?" ValueProperty="DiseaseID" />
+                    </InterfaceEditorResource>
+                </div>
+                <div class="form-row">
+                        <InterfaceEditorResource CssClass="col-4" For="comments" InterfaceEditorKey="@CommentsFieldLabelResourceKey" IsRow="false">
+                            <RadzenTextArea @bind-Value="Model.Comments" class="form-control" id="comments" Name="comments" Disabled="@(Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)" />
+                        </InterfaceEditorResource>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

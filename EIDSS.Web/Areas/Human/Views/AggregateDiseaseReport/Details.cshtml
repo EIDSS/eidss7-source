@@ -1,0 +1,414 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using EIDSS.Web.Components.CrossCutting
+@model EIDSS.Web.ViewModels.CrossCutting.AggregateReportDetailsViewModel
+@addTagHelper *, EIDSS.Web.Components
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.HumanAggregateDiseaseReportPageHeading);
+}
+
+<partial name="_ErrorModalPartial"/>
+<partial name="_ErrorModalNoTitlePartial"/>
+<partial name="_InformationalModalPartial" for="InformationalMessage"/>
+<partial name="_WarningModalPartial"/>
+<partial name="_AggregateDiseaseReportSuccessModalPartial"/>
+
+<input type="hidden" id="idfAggrCaseHidden" value="@Model.ReportDetailsSection.AggregateDiseaseReportDetails.idfAggrCase"/>
+
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@HeadingResourceKeyConstants.HumanAggregateDiseaseReportPageHeading"></h3>
+    </div>
+    <div class="card-body">
+        <div id="reportWizard">
+            <h4 heading-for="@HeadingResourceKeyConstants.HumanAggregateDiseaseReportReportDetailsHeading"></h4>
+            <section>
+                <partial name="_ReportDetailsPartial" for="ReportDetailsSection"/>
+            </section>
+            <h4 heading-for="@HeadingResourceKeyConstants.HumanAggregateDiseaseReportDiseaseMatrixHeading"></h4>
+            <section>
+                <partial name="_DiseaseMatrixPartial" for="DiseaseMatrixSection"/>
+            </section>
+            <h4 heading-for="@HeadingResourceKeyConstants.ReviewHeading"></h4>
+            <section>
+            </section>
+        </div>
+    </div>
+</div>
+
+@{
+    for (var i = 0; i < Model.ReportDetailsSection.EmployeeDetails.eIDSSModalConfiguration.Count(); i++)
+    {
+        <eidss-reference-editors-modal control-labels="@Model.ReportDetailsSection.EmployeeDetails.eIDSSModalConfiguration[i].ControlLabels"
+                                       ajax-save-url="@Model.ReportDetailsSection.EmployeeDetails.eIDSSModalConfiguration[i].PostAjaxDataUrl"
+                                       modal-configuration="@Model.ReportDetailsSection.EmployeeDetails.eIDSSModalConfiguration[i]"
+                                       modal-id="@Model.ReportDetailsSection.EmployeeDetails.eIDSSModalConfiguration[i].ModalId">
+
+        </eidss-reference-editors-modal>
+    }
+}
+
+<div class="modal fade" id="printModal" tabindex="-1" role="dialog" aria-labelledby="printModal">
+    <div class="modal-dialog" style="top: 150px; left: 150px; max-width: 1050px; max-height: 600px; resize: both">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@Localizer.GetString(HeadingResourceKeyConstants.HumanAggregateDiseaseReportPageHeading)</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" style="width: 1050px; height: 600px;">
+                <component type="typeof(DisplayReport)" param-ReportHeader="null" param-ReportName="@Model.PrintReportName" param-Parameters="@Model.ReportPrintViewModel.Parameters" render-mode="Server"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if ('@Model.Permissions.Read' == "False") {
+                insufficientPermissions('@Localizer.GetString(MessageResourceKeyConstants.WarningMessagesYourPermissionsAreInsufficientToPerformThisFunctionMessage)');
+            }
+        });
+
+        var enableDeleteButton = false;
+        var enableFinishButton = false;
+
+        if ('@Model.EnableFinishButton' == "True")
+            enableFinishButton = true;
+
+        if ('@Model.Permissions.Delete' == "True")
+            enableDeleteButton = true;
+        
+        var stepsWizard = $("#reportWizard").steps({
+                headerTag: "h4",
+                titleTemplate: '<span id="erroredStep" class="fa-stack text-danger" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-times fa-stack-1x fa-inverse"></i></span><span id="step" class="fa-stack text-muted" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span><span id="completedStep" class="fa-stack text-success" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span><span id="reviewStep" class="fa-stack text-muted" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-clipboard-list fa-stack-1x fa-inverse"></i></span> <span class="stepTitleText">#title#</span>',
+                bodyTag: "section",
+                transitionEffect: "none",
+                stepsOrientation: "vertical",
+                enableAllSteps: true,
+                enableCancelButton: true,
+                enableKeyNavigation: true,
+                enableContentCache: true,
+                enablePrintButton: true,
+                enableFinishButton: enableFinishButton,
+                enableDeleteButton: enableDeleteButton,
+                labels: {
+                    cancel: "@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)",
+                    print: "@Localizer.GetString(ButtonResourceKeyConstants.PrintButton)",
+                    delete: "@Localizer.GetString(ButtonResourceKeyConstants.DeleteButton)",
+                    finish: "@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)",
+                    next: "@Localizer.GetString(ButtonResourceKeyConstants.NextButton)",
+                    previous: "@Localizer.GetString(ButtonResourceKeyConstants.PreviousButton)",
+                    loading: "@Localizer.GetString(MessageResourceKeyConstants.PleaseWaitWhileWeProcessYourRequestMessage)"
+                },
+                onInit: function (event) {
+                    initializeReportDetailsSection(); initializeDiseaseMatrixSection();
+                },
+                onCanceled: function (event) { cancelReportDetails('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)', event); },
+                onDeleting: function (event) { deleteAggregateDiseaseReport('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage)', event); },
+                onStepChanging: function (event, currentIndex, newIndex) {
+                    switch (currentIndex) {
+                        case 0:
+                            $("#reportDetailsForm").removeData("validator");
+                            $("#reportDetailsForm").removeData("unobtrusiveValidation");
+                            $.validator.unobtrusive.parse("#reportDetailsForm")
+
+                            if ('@Model.StartIndex' == 0) {
+                                $("#reportDetailsForm").validate({
+                                    ignore: null
+                                });
+
+                                if ($("#reportDetailsForm").valid()) {
+                                    return true;
+                                }
+						    } else
+							    return true;
+                            break;
+                        case 1:
+                            return true;
+                            break;
+                        default:
+                            return true;
+                    }
+                },
+                onFinished: function (event) {
+                    getFlexFormAnswers10034012();
+
+                    $("#reportDetailsForm").removeData("validator");
+                    $("#reportDetailsForm").removeData("unobtrusiveValidation");
+                    $.validator.unobtrusive.parse("#reportDetailsForm")
+
+                    var isValidSentByOffice = true;
+                    var sentByOffice = $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfSentByOffice").val();
+                    if (sentByOffice == null || sentByOffice == "")
+                        isValidSentByOffice = false;
+                    var isValidSentByPerson = true;
+                    var sentByPerson = $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfSentByPerson").val();
+                    if (sentByPerson == null || sentByPerson == "")
+                        isValidSentByPerson = false;
+                    var isValidSentByDate = true;
+                    var sentByDate = $("#ReportDetailsSection_AggregateDiseaseReportDetails_datSentByDate").val();
+                    if (sentByDate == null || sentByDate == "")
+                        isValidSentByDate = false;
+                    var idfsAreaType = $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfsAreaType").val();
+                    var idfsPeriodType = $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfsPeriodType").val();
+
+                    var isValidAdminUnit = true;
+
+                    switch (parseInt(idfsAreaType)) {
+                        case 10089004:
+                            var adminLevel1 = $("#ReportDetailsSection_AdminLevel1Value").val();
+                            var adminLevel2 = $("#ReportDetailsSection_AdminLevel2Value").val();
+                            var adminLevel3 = $("#ReportDetailsSection_AdminLevel3Value").val();
+                            if (adminLevel2 == null || adminLevel2 == "" || adminLevel1 == null || adminLevel1 == "" || adminLevel3 == null || adminLevel3 == "")
+                                isValidAdminUnit = false;
+                            break;
+                        case 10089003:
+                            var adminLevel1 = $("#ReportDetailsSection_AdminLevel1Value").val();
+                            if (adminLevel1 == null || adminLevel1 == "")
+                                isValidAdminUnit = false;
+                            break;
+                        case 10089002:
+                            var adminLevel1 = $("#ReportDetailsSection_AdminLevel1Value").val();
+                            var adminLevel2 = $("#ReportDetailsSection_AdminLevel2Value").val();
+                            if (adminLevel2 == null || adminLevel2 == "" || adminLevel1 == null || adminLevel1 == "")
+                                isValidAdminUnit = false;
+                            break;
+                        case 10089001:
+                            var adminLevel0 = $("#ReportDetailsSection_AdminLevel0Value").val();
+                            if (adminLevel0 == null || adminLevel0 == "")
+                                isValidAdminUnit = false;
+                            break;
+                        case 10089005:
+                            var adminLevel1 = $("#ReportDetailsSection_AdminLevel1Value").val();
+                            var adminLevel2 = $("#ReportDetailsSection_AdminLevel2Value").val();
+                            var adminLevel3 = $("#ReportDetailsSection_AdminLevel3Value").val();
+                            var org = $("#ReportDetailsSection_Organization").val();
+                            if (adminLevel2 == null || adminLevel2 == "" || adminLevel1 == null || adminLevel1 == "" || adminLevel3 == null || adminLevel3 == "" || org == null || org == "")
+                                isValidAdminUnit = false;
+                    }
+                    var isValidPeriod = true;
+                    switch (parseInt(idfsPeriodType)) {
+                        case 10091002:
+                            var year = $("#ReportDetailsSection_Year").val();
+                            var month = $("#ReportDetailsSection_Month").val();
+                            var day = $("#ReportDetailsSection_Day").val();
+                            if (year == null || year == "" || month == "null" || month == "" || day == "null" || day == "")
+                                isValidPeriod = false;
+                            break;
+                        case 10091004:
+                            var year = $("#ReportDetailsSection_Year").val();
+                            var week = $("#ReportDetailsSection_Week").val();
+                            if (year == null || year == "" || week == "null" || week == "")
+                                isValidPeriod = false;
+                            break;
+                        case 10091001:
+                            var year = $("#ReportDetailsSection_Year").val();
+                            var month = $("#ReportDetailsSection_Month").val();
+                            if (year == null || year == "" || month == "null" || month == "")
+                                isValidPeriod = false;
+                            break;
+                        case 10091003:
+                            var year = $("#ReportDetailsSection_Year").val();
+                            var quarter = $("#ReportDetailsSection_Quarter").val();
+                            if (year == null || year == "" || quarter == "null" || quarter == "")
+                                isValidPeriod = false;
+                            break;
+                        case 10091005:
+                            var year = $("#ReportDetailsSection_Year").val();
+                            if (year == null || year == "")
+                                isValidPeriod = false;
+                            break;
+                    }
+                    if (isValidSentByOffice && isValidSentByPerson && isValidSentByDate && isValidAdminUnit && isValidPeriod) {
+                        submitAggregateDiseaseReportDetails(event);
+                    } else {
+                        $("#reportWizard").steps("setStep", 0);
+                    }
+                }
+
+            });
+
+        for (let i = 0; i < @Model.StartIndex; i++) {
+            stepsWizard.steps("next"); // this will send us on next step :-)
+            stepsWizard.steps("next"); // this will send us on next step :-)
+            stepsWizard.steps("next"); // this will send us on next step :-)
+        }
+
+
+        function resetForm() {
+
+            $("#reportDetailsForm").find(":input").each(function () {
+                switch (this.type) {
+                    case "password":
+                    case "select-multiple":
+                    case "select-one":
+                    case "text":
+                    case "textarea":
+                        $(this).val("");
+                        break;
+                    case "checkbox":
+                    case "radio":
+                        this.checked = false;
+                }
+            });
+
+        };
+
+        function cancelReportDetails(message, event) {
+            event.preventDefault();
+
+            showWarningModal(message).then(response => {
+                if (response)
+                    location.href = '@Url.Action("Index", "AggregateDiseaseReport")';
+            });
+        };
+
+        ///
+        /// Styling to handle stacked modals for the site permissions modals.
+        ///
+        $(document).on("show.bs.modal", ".modal", function (event) {
+            var zIndex = 1040 + (10 * $(".modal:visible").length);
+            $(this).css("z-index", zIndex);
+            setTimeout(function () {
+                $(".modal-backdrop").not(".modal-stack").css("z-index", zIndex - 1).addClass("modal-stack");
+            }, 0);
+        });
+        
+        var duplicateKey;
+        function submitAggregateDiseaseReportDetails(event) {
+            var request = {};
+            request.idfAggrCase = $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfAggrCase").val();
+            request.idfsSite = $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfsSite").val();
+            request.idfsAggrCaseType = $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfsAggrCaseType").val();
+            request.idfsAdministrativeUnit = $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfsAdministrativeUnit").val();
+            request.strCaseID = $("#ReportDetailsSection_AggregateDiseaseReportDetails_strCaseID").val();
+            request.idfsAreaType = $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfsAreaType").val();
+            request.idfsPeriodType = $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfsPeriodType").val();
+            request.idfsCaseFormTemplate = $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfsCaseFormTemplate").val();
+            request.datStartDate = $("#ReportDetailsSection_AggregateDiseaseReportDetails_datStartDate").val();
+            request.datFinishDate = $("#ReportDetailsSection_AggregateDiseaseReportDetails_datFinishDate").val();
+            request.idfEnteredByOffice = $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfEnteredByOffice").val();
+            request.idfEnteredByPerson = $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfEnteredByPerson").val();
+            request.datEnteredByDate = $("#ReportDetailsSection_AggregateDiseaseReportDetails_datEnteredByDate").val();
+            request.idfCaseObservation = $("[asp-for='idfCaseObservation']").val(); //Flex Form Observation   
+            request.idfSentByOffice = $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfSentByOffice").val();
+            request.idfSentByPerson = $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfSentByPerson").val();
+            request.datSentByDate = $("#ReportDetailsSection_AggregateDiseaseReportDetails_datSentByDate").val();
+            request.idfReceivedByOffice = ($("#ReportDetailsSection_AggregateDiseaseReportDetails_idfReceivedByOffice").val() == "" ? "" : $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfReceivedByOffice").val());
+            request.idfReceivedByPerson = ($("#ReportDetailsSection_AggregateDiseaseReportDetails_idfReceivedByPerson").val() == "" ? "" : $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfReceivedByPerson").val());
+            request.datReceivedByDate = $("#ReportDetailsSection_AggregateDiseaseReportDetails_datReceivedByDate").val();
+
+            request.CountryID = $("#ReportDetailsSection_AdminLevel0Value").val();
+            request.AdministrativeLevel1ID = $("#ReportDetailsSection_AdminLevel1Value").val();
+            request.AdministrativeLevel2ID = $("#ReportDetailsSection_AdminLevel2Value").val();
+            request.AdministrativeLevel3ID = $("#ReportDetailsSection_AdminLevel3Value").val();
+            request.SettlementID = $("#ReportDetailsSection_AdminLevel3Value").val();
+
+            request.Year = ($("#ReportDetailsSection_Year").val() == "" ? "" : $("#ReportDetailsSection_Year").val());
+            request.Quarter = ($("#ReportDetailsSection_Quarter").val() == "" ? "" : $("#ReportDetailsSection_Quarter").val());
+            request.Month = ($("#ReportDetailsSection_Month").val() == "" ? "" : $("#ReportDetailsSection_Month").val());
+            request.Week = ($("#ReportDetailsSection_Week").val() == "" ? "" : $("#ReportDetailsSection_Week").val());
+            request.Day = ($("#ReportDetailsSection_Day").val() == "" ? "" : $("#ReportDetailsSection_Day").val());
+
+            request.Organization = ($("#ReportDetailsSection_Organization").val() == undefined ? "" : $("#ReportDetailsSection_Organization").val());
+
+            request.VersionID = ($("#MatrixVersionsDropDown").val() == "" ? "" : $("#MatrixVersionsDropDown").val());
+            request.TemplateID = ($("#TemplatesDropDown").val() == "" ? "" : $("#TemplatesDropDown").val());
+            $.ajax({
+                url: '@Url.Action("SaveAggregateDiseaseReport", "AggregateDiseaseReport", new {Area = "Human"})',
+                data: JSON.stringify(request),
+                contentType: "application/json",
+                dataType: "json",
+                type: "POST",
+                success: function (response) {
+                    if (response.errorMessage != null) {
+                        showErrorModal(response.errorMessage);
+                    }
+                    else if (response != null && response.warningMessage == "Duplicate Record") {
+                        showWarningModal(response.informationalMessage);
+                        duplicateKey = response.duplicateKey;
+                    }
+                    else {
+                        $("#ReportDetailsSection_AggregateDiseaseReportDetails_strCaseID").val(response.reportDetailsSection.aggregateDiseaseReportDetails.strCaseID);
+                        $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfAggrCase").val(response.reportDetailsSection.aggregateDiseaseReportDetails.idfAggrCase);
+                        $("#DiseaseMatrixSection_idfVersion").val(response.diseaseMatrixSection.idfVersion);
+
+                        showAggregateDiseaseReportSuccessModal(response.informationalMessage).then(response => {
+                            if (response) {
+                                // Return To Dashboard
+                                location.href = '@Url.Action("Index", "Dashboard", new {area = "Administration"})';
+                            }
+                        });
+
+                       updateNotificationEnvelopeCount();
+                    }
+                },
+                error: function (response) { alert("An error occurred: " + response); }
+            });
+        };
+
+        function deleteAggregateDiseaseReport(message, event) {
+            event.preventDefault();
+            showWarningModal(message).then(response => {
+                if (response) {
+                    var id = $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfAggrCase").val();
+                    var jsonData = {
+                        "id": id
+                    };
+                    $.ajax({
+                        url: '@Url.Action("Delete", "AggregateDiseaseReport")',
+                        /*data: id,*/
+                        data: JSON.stringify(jsonData),
+                        contentType: "application/json",
+                        type: "POST",
+                        success: function (response) {
+                            if (response == "SUCCESS") {
+                                showInformationalModalWait('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)').then(response => {
+                                if (response)
+                                    location.href = '@Url.Action("Index", "AggregateDiseaseReport", new {area = "Human"})';
+                            });
+                            }
+                        },
+                        error: function (reponse) { alert("An error occurred: " + reponse); }
+                });
+                }
+            });
+        };
+        
+       
+        $("#warningYesBtn").click(function(){          
+            if (duplicateKey != undefined) {
+                location.href = '@Url.Action("Details", "AggregateDiseaseReport", new {area = "Human"})' + '/' + duplicateKey;
+            }
+        });
+        
+        $("#printButton").on('click', function() {
+            var idfAggrCase = $("#idfAggrCaseHidden").val();
+            if (idfAggrCase != null && idfAggrCase != '')
+            {
+		        $('#printModal').modal('show');
+            }
+
+        
+	    });
+        
+    function insufficientPermissions(message) {
+        showErrorModalNoTitle(message).then(response => {
+            if (response) {
+                    $("#errorModal").modal("hide");
+                    $(".modal-backdrop").remove();
+                    window.location.replace('@Url.Action("Index", "Dashboard", new {Area = "Administration"})');
+            }
+        });
+    };
+    </script>
+
+    <partial name="_ValidationScriptsPartial"/>
+}
+
+@if (ViewBag.JavaScriptFunction != null)
+{
+    <script type="text/javascript">
+        @Html.Raw(ViewBag.JavaScriptFunction)
+    </script>
+}

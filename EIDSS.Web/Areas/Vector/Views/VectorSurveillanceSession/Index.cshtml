@@ -1,0 +1,18 @@
+﻿@using EIDSS.Web.Components.Vector.SearchVectorSurveillanceSession
+@using EIDSS.Web.Enumerations 
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.VectorPageHeading);
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3>@Localizer.GetString(HeadingResourceKeyConstants.VectorPageHeading)</h3>
+    </div>
+    <div class="card-body">
+        <component type="typeof(SearchVectorSurveillanceSession)" render-mode="Server" param-Mode=@SearchModeEnum.Default param-CallbackUrl='string.Empty' />
+    </div>
+    <div class="card-footer">
+    </div>
+</div>
+

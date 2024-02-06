@@ -1,0 +1,55 @@
+﻿@using EIDSS.Web.Components.FlexForm
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits EIDSS.Web.Components.Administration.Deduplication.VeterinaryDiseaseReport.SpeciesInvestigationBase
+
+<div class="form-row">
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord" TValue="int" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.RecordSelection
+                                       Change="@((args) => OnRecordSelectionChangeAsync(Model.ReportType, args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="FarmInventory2"></div>
+    </div>
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord2" TValue="int" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.Record2Selection
+                                       Change="@((args) => OnRecord2SelectionChangeAsync(Model.ReportType, args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="FarmInventory2"></div>
+    </div>
+</div>
+<div class="form-row">
+    <div class="col-6">
+        <RadzenCard>
+            <div class="form-row">
+            @if (VeterinaryDiseaseReportDeduplicationService.FarmInventory is not null)
+            {
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.LivestockDiseaseReportAnimalDetailsModalSpeciesFieldLabel" IsRow="false" CssClass="col-6" For="species">
+                    <RadzenLabel Text="@VeterinaryDiseaseReportDeduplicationService.Species"/>
+                </InterfaceEditorResource>
+            }
+            </div>
+            <FlexForm FormDisabledIndicator="VeterinaryDiseaseReportDeduplicationService.FlexFormDisabledIndicator" Request="@VeterinaryDiseaseReportDeduplicationService.SpeciesFlexFormRequest"/>
+        </RadzenCard>
+    </div>
+    <div class="col-6">
+            <div class="form-row">
+            @if (VeterinaryDiseaseReportDeduplicationService.FarmInventory2 is not null)
+            {               
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.LivestockDiseaseReportAnimalDetailsModalSpeciesFieldLabel" IsRow="false" CssClass="col-6" For="species">
+                    <RadzenLabel Text="@VeterinaryDiseaseReportDeduplicationService.Species2"/>
+                </InterfaceEditorResource>
+            }
+            </div>
+        <RadzenCard>
+            <FlexForm FormDisabledIndicator="VeterinaryDiseaseReportDeduplicationService.FlexFormDisabledIndicator" Request="@VeterinaryDiseaseReportDeduplicationService.SpeciesFlexFormRequest2"/>
+        </RadzenCard>
+    </div>
+</div>

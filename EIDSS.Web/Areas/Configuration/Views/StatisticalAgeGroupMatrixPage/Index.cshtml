@@ -1,0 +1,344 @@
+﻿@model ConfigurationMatrixPagesViewModel;
+@using EIDSS.ClientLibrary.Enumerations
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@{
+    //PageLevel
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.AgeGroupStatisticalAgeGroupMatrixPageHeading);
+    Model.PageName = Localizer.GetString(HeadingResourceKeyConstants.AgeGroupStatisticalAgeGroupMatrixPageHeading);
+    Model.PageLevelAddButtonModalText = Localizer.GetString(ButtonResourceKeyConstants.AddButton);
+    Model.PageLevelAddButtonModal = "AddStatisticalAgeGroupDetailsModal";
+    Model.PageLevelAddButtonID = "AddStatisticalAgeGroupDetailButton";
+
+    //Age Group Drop Down
+    var select2Configuration = new Select2Configruation
+    {
+        DropDownId = "AgeGroupDD",
+        ControltargetId = "StatisticalAgeGroupMatrixGrid",
+        Label = Localizer.GetString(FieldLabelResourceKeyConstants.AgeGroupFieldLabel),
+        DisabledControls = "AddStatisticalAgeGroupDetailButton",
+        CustomJsOnClearFunction = "selectOnClear",
+        CustomJsOnChangeFunction = "changeAddButtonActiveStatus",
+        ControlTargetType = DropDownTargetTypes.Table,
+        Endpoint = Url.Action("GetAgeGroupList", "StatisticalAgeGroupMatrixPage", new {Area = "Configuration"}),
+        ControlTargetUrl = Url.Action("GetList", "StatisticalAgeGroupMatrixPage", new {Area = "Configuration"}),
+        isVisible = true
+    };
+    Model.Select2Configurations.Add(select2Configuration);
+
+    //Modal for adding statistical age group detail to the grid
+    var statAgeGroupDetailModal = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.AgeGroupStatisticalAgeGroupDetailsModalHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton)
+        },
+        ModalId = "AddStatisticalAgeGroupDetailsModal",
+        SavingControlsCollection = "AgeGroupDD",
+        SuccessConfirmationMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+        TargetGridControlID = "StatisticalAgeGroupMatrixGrid", //ID of Grid to Refresh
+        PostAjaxDataUrl = Url.Action("Create", "StatisticalAgeGroupMatrixPage", new {Area = "Configuration"}), //Save Endpoint
+        SaveCompleteMethod = "checkSuccess",
+        DisplayConfirmCancelModal = true
+    };
+    statAgeGroupDetailModal.ControlNames.Add(new EIDSSControlNames
+    {
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.StatisticalAgeGroupFieldLabel),
+        ControlName = "StatisticalAgeGroupDD",
+        ControlType = ControlType.DropDownAddButtonOpenModal,
+        OpenModalName = "AddStatisticalAgeGroupModal",
+        ClassName = "sagmStatisticalAgeGroupDD",
+        AllowMultipleDropDownItemSelection = false,
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = (long) ReferenceTypes.StatisticalAgeGroup})
+    });
+    Model.eIDSSModalConfiguration.Add(statAgeGroupDetailModal);
+
+    //Modal to Add Statistical Age Group
+    var statAgeGroupModal = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(FieldLabelResourceKeyConstants.StatisticalAgeGroupFieldLabel), //"Add Statistical Age Group";
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton)
+        },
+        ModalId = "AddStatisticalAgeGroupModal",
+        TargetGridControlID = "StatisticalAgeGroupDD", //ID of Grid to Refresh
+        PostAjaxDataUrl = Url.Action("AddStatisticalAgeGroup", "StatisticalAgeGroupMatrixPage", new {Area = "Configuration"}),
+        SaveCompleteMethod = "checkSuccessAddStatisticalAgeGroup",
+        SuccessConfirmationMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+        DisplayConfirmCancelModal = true
+    };
+    statAgeGroupModal.ControlNames.Add(new EIDSSControlNames
+    {
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "sagmEnglishValue",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "StrDefault",
+        Visible = true
+    });
+    statAgeGroupModal.ControlNames.Add(new EIDSSControlNames
+    {
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ClassName = "sagmNationalValue",
+        ControlName = "StrName",
+        Visible = true
+    });
+    statAgeGroupModal.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlName = "intOrder",
+        ControlType = ControlType.Numeric,
+        Visible = true,
+        ClassName = "sagmOrder",
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsInvalidValidRangeIsMessage),
+            ValidationRule = "[-2147483648,2147483647]"
+        }
+    });
+    Model.eIDSSModalConfiguration.Add(statAgeGroupModal);
+
+    //SETUP GRID
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.GridId = "StatisticalAgeGroupMatrixGrid";
+    Model.eidssGridConfiguration.ControlFilterID = "AgeGroupDD";
+    Model.eidssGridConfiguration.AjaxDataUrl = Url.Action("GetList", "StatisticalAgeGroupMatrixPage", new {Area = "Configuration"});
+    Model.eidssGridConfiguration.DeleteModalAjaxUrl = Url.Action("Delete", "StatisticalAgeGroupMatrixPage", new {Area = "Configuration"});
+    Model.eidssGridConfiguration.DeleteCompleteMethod = "CheckDeleteSuccess";
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.EnableProcessingMessage = true;
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels
+    {
+        DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage),
+        DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton),
+        SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton),
+        YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton),
+        NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton),
+        DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton),
+        CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton)
+    };
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        ColumnName = "row",
+        Visible = true,
+        Orderable = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "IdfDiagnosisAgeGroupToStatisticalAgeGroup",
+        ColumnName = "IdfDiagnosisAgeGroupToStatisticalAgeGroup",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        Orderable = false,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "IdfsDiagnosisAgeGroup",
+        ColumnName = "IdfsDiagnosisAgeGroup",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        Orderable = false,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "IdfsStatisticalAgeGroup",
+        ColumnName = "IdfsStatisticalAgeGroup",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        Orderable = false,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.StatisticalAgeGroupColumnHeading),
+        ColumnName = "StrStatisticalAgeGroupName",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        Orderable = true,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = string.Empty,
+        ColumnName = "delCommand",
+        ColumnType = ColumnType.Delete,
+        Orderable = false,
+        Visible = Model.UserPermissions.Delete
+    });
+}
+
+<partial name="_ConfigurationPartial"/>
+<partial name="_WarningModalPartial"/>
+<partial name="_InformationalModalPartial" for="InformationMessage" />
+<partial name="_SuccessDuplicateModalPartial"/>
+
+<!-- Add Statistical Age Group Modal -->
+<div class="modal fade" id="addStatisticalAgeGroupModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.ProblemHasOccurredMessage)
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.NoButton)</button>
+                <button type="button" class="btn btn-primary" onclick="showAddStatisticalAgeGroupModal();"> @Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        //hook the modal cancel button clicks
+        $("#AddStatisticalAgeGroupDetailsModalbtnCancel").on('click', cancelAddStatisticalAgeGroupDetails);
+        $("#AddStatisticalAgeGroupModalbtnCancel").on('click', cancelAddAgeGroup);
+    });
+
+    // Called after execution of save method
+    // for adding a statistical age group (detail) to grid
+    function checkSuccess(data) {
+        var stringifiedData = JSON.stringify(data);
+        var parsedData = JSON.parse(stringifiedData);
+
+        if (parsedData.returnMessage == "SUCCESS") {
+            showSuccessModal().then(response => {
+                if (response) {
+                    //$("#AddStatisticalAgeGroupDetailsModal").modal("show");
+                }
+            });
+            updateNotificationEnvelopeCount();
+        }
+        else if (parsedData.returnMessage == "DOES EXIST") {
+
+            showDuplicateModal(parsedData.duplicatedField).then(response => {
+                if (response) {
+                    //$("#AddStatisticalAgeGroupDetailsModal").modal("show");
+                }
+            });
+        }
+    };
+
+    // Called after execution of save method
+    // for adding a new statistical age group
+    function checkSuccessAddStatisticalAgeGroup(data) {
+        var stringifiedData = JSON.stringify(data);
+        var parsedData = JSON.parse(stringifiedData);
+
+        switch (parsedData.returnMessage) {
+        case "SUCCESS":
+            event.preventDefault();
+
+            $("#AddStatisticalAgeGroupModal").modal("hide");
+            $("#AddStatisticalAgeGroupDetailsModal").modal("hide");
+
+            showSuccessModal().then(response => {
+                if (response) {
+                    $("#AddStatisticalAgeGroupModal").modal("hide");
+                    $("#AddStatisticalAgeGroupDetailsModal").modal("show");
+
+                }
+            });
+
+            updateNotificationEnvelopeCount();
+            break;
+        case "DOES EXIST":
+            showDuplicateModal(parsedData.strClientPageMessage).then(response => {
+                if (response) {
+                    $("#AddStatisticalAgeGroupModal").modal("show");
+                    $("#AddStatisticalAgeGroupDetailsModal").modal("hide");
+
+                } else {
+                    $("#AddStatisticalAgeGroupModal").modal("show");
+                    $("#AddStatisticalAgeGroupDetailsModal").modal("hide");
+                }
+            });
+
+            break;
+        default:
+            $("#AddStatisticalAgeGroupModal").modal("show");
+            break;
+        }
+    };
+    
+    function CheckDeleteSuccess(data) {
+        var stringifiedData = JSON.stringify(data);
+        var parsedData = JSON.parse(stringifiedData);
+        if (parsedData.returnMessage === "SUCCESS") {
+            updateNotificationEnvelopeCount();
+            showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+        }
+    };
+
+    // When Drop Down Items Are Cleared
+    function selectOnClear(data) {
+        $("#AddStatisticalAgeGroupDetailButton").prop('disabled', true);
+    };
+
+    // When a drop down item is selected
+    function changeAddButtonActiveStatus(data) {
+        if (data) {
+            $("#AddStatisticalAgeGroupDetailButton").prop('disabled', false);
+        }
+    };
+
+    function cancelAddStatisticalAgeGroupDetails(event) {
+        var message = '@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)';
+        event.preventDefault();
+
+        showWarningModal(message).then(response => {
+            if (response) {
+                $("#AddStatisticalAgeGroupDetailsModal").modal("hide");
+                $("#warningModal").modal("hide");
+            } else {
+                $("#AddStatisticalAgeGroupDetailsModal").modal("show");
+            }
+        });
+    };
+
+    function cancelAddAgeGroup(event) {
+        var message = '@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)';
+        event.preventDefault();
+
+        showWarningModal(message).then(response => {
+            if (response) {
+                $("#AddStatisticalAgeGroupModal").modal("hide");
+                $("#warningModal").modal("hide");
+            } else {
+                $("#AddStatisticalAgeGroupModal").modal("show");
+            }
+        });
+    };
+</script>

@@ -1,0 +1,38 @@
+﻿@using EIDSS.Web.Components.FlexForm
+
+@inherits EIDSS.Web.Components.Administration.Deduplication.VeterinaryDiseaseReport.FarmEpiInformationBase
+
+<div class="form-row">
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord" TValue="int" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.RecordSelection
+                                       Change="@((args) => OnRecordSelectionChangeAsync(Model.ReportType, args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="FarmInventory2"></div>
+    </div>
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord2" TValue="int" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.Record2Selection
+                                       Change="@((args) => OnRecord2SelectionChangeAsync(Model.ReportType, args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="FarmInventory2"></div>
+    </div>
+</div>
+<div class="form-row">
+    <div class="col-6">
+        <RadzenCard>
+            <FlexForm FormDisabledIndicator="VeterinaryDiseaseReportDeduplicationService.FlexFormDisabledIndicator" Request="@VeterinaryDiseaseReportDeduplicationService.FarmEpiFlexFormRequest"/>
+        </RadzenCard>
+    </div>
+    <div class="col-6">
+        <RadzenCard>
+            <FlexForm FormDisabledIndicator="VeterinaryDiseaseReportDeduplicationService.FlexFormDisabledIndicator" Request="@VeterinaryDiseaseReportDeduplicationService.FarmEpiFlexFormRequest2"/>
+        </RadzenCard>
+    </div>
+</div>

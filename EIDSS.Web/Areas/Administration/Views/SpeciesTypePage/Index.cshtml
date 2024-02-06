@@ -1,0 +1,175 @@
+﻿@model EIDSS.Web.ViewModels.BaseReferenceEditorPagesViewModel;
+
+<h2 heading-for="@HeadingResourceKeyConstants.SpeciesTypesReferenceEditorPageHeading"></h2>
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.SpeciesTypesReferenceEditorPageHeading);
+
+    @if (@Model.UserPermissions.Create)
+    {
+        Model.PageLevelAddButtonModalText = Localizer.GetString(ButtonResourceKeyConstants.AddButton);
+        Model.PageLevelAddButtonModal = "bAddSpeciesType";
+    }
+
+    <partial name="_SpeciesTypeModalPartial" />
+
+    //Set up Grid
+    Model.eidssGridConfiguration.GridId = "gSpeciesTypes";
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.AjaxDataUrl = @Url.Action("GetList", "SpeciesTypePage", new { Area = "Administration" });
+    Model.eidssGridConfiguration.EditModalAjaxUrl = @Url.Action("AddEditSpeciesType", "SpeciesTypePage", new { Area = "Administration" });
+    Model.eidssGridConfiguration.DeleteModalAjaxUrl = @Url.Action("DeleteSpeciesType", "SpeciesTypePage", new { Area = "Administration" });
+    Model.eidssGridConfiguration.EnableCustomSearching = true;
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.EnableProcessingMessage = true;
+    Model.eidssGridConfiguration.SaveCompleteMethod = "CheckSuccess";
+    Model.eidssGridConfiguration.DeleteCompleteMethod = "CheckDeleteSuccess";
+
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels
+    {
+        DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage),
+        EditModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage),
+        DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+        SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
+        DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton),
+        CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton)
+    };
+
+    Model.eidssGridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.Inline;
+    Model.eidssGridConfiguration.ControlLabels.CancelInlineEditTitle = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    Model.eidssGridConfiguration.ControlLabels.CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage);
+    Model.eidssGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.eidssGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.eidssGridConfiguration.ControlLabels.SaveInlineEditTitle = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    Model.eidssGridConfiguration.ControlLabels.SaveInlineEditMessage = Localizer.GetString((int)InterfaceEditorResourceSetEnum.WarningMessages + "Are you sure that you want to save this record?" + (long)InterfaceEditorTypeEnum.Message);
+    Model.eidssGridConfiguration.ControlLabels.DeleteExceptionMessage = "You are attempting to delete a reference value which is currently used in the system.";
+    Model.eidssGridConfiguration.ControlLabels.DeleteExceptionTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "row",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.ReadOnly,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "SpeciesTypeId",
+        ColumnTitleHeader = String.Empty,
+        Visible = false,
+        ColumnType = ColumnType.Default
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "strDefault",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.DefaultValueColumnHeading),
+        Visible = true,
+        VisibleInModal = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "DefaultValueRequired",
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "strName",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.NationalValueColumnHeading),
+        Visible = true,
+        VisibleInModal = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "NationalValueRequired",
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "strCode",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SpeciesCodeColumnHeading),
+        Visible = true,
+        VisibleInModal = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "intHACode",
+        ColumnTitleHeader = String.Empty,
+        Visible = false,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "strHACodeNames",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.AccessoryCodeColumnHeading),
+        Visible = true,
+        VisibleInModal = true,
+        ColumnType = ColumnType.DropDown,
+        DisplayDropDownInModalOnly = true,
+        AllowMultipleDropDownItemSelection = true,
+        SplitCsvValues = true,
+        AssociatedFieldId = "intHACode",
+        ColumnAjaxDataUrl = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { area = "CrossCutting", referenceTypeID = (long) ReferenceTypes.AccessoryCode, intHACode = 96 }),
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "AccessoryCodeRequired",
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "intOrder",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OrderColumnHeading),
+        Visible = true,
+        VisibleInModal = true,
+        Orderable = true,
+        ColumnType = ColumnType.Numeric,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidationRule = "[0,2147483647]",
+            RangeValidationMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsInvalidValidRangeIsMessage)
+
+        },
+        ClassName = "IntOrderRange"
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "name",
+        ColumnTitleHeader = string.Empty,
+        ColumnType = ColumnType.Edit,
+        Visible = Model.UserPermissions.Create
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "name",
+        ColumnTitleHeader = String.Empty,
+        ColumnType = ColumnType.Delete,
+        Visible = Model.UserPermissions.Delete
+    });
+}
+
+<partial name="_InformationalModalPartial" for="InformationMessage" />
+<partial name="_BaseReferenceEditorsPartial" />
+<partial name="_SuccessDuplicateModalPartial" />
+
+@section Scripts
+{
+    <script>
+        function CheckDeleteSuccess(data) {
+            var stringifiedData = JSON.stringify(data);
+            var parsedData = JSON.parse(stringifiedData);
+            if (parsedData.returnMessage === "SUCCESS") {
+                updateNotificationEnvelopeCount();
+                showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+            }
+        };
+    </script>
+}

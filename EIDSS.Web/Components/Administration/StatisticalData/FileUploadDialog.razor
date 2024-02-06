@@ -1,0 +1,85 @@
+﻿@inherits EIDSS.Web.Components.Administration.StatisticalData.FileUploadDialogBase;
+
+<br />
+@{
+
+    if (_statisticalDataFileModel.ErrorCount == 0)
+    {
+        @Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)
+        <br />
+        <br />
+    }
+    else if (_statisticalDataFileModel.ErrorCount > 10)
+    {
+        @Localizer.GetString(MessageResourceKeyConstants.StatisticalDataDatawasnotimportedInputdatacontainstoomanyerrorsMaximumErrorNumberisexceededMessage)
+        <br />
+        <br />
+    }
+    else if (_statisticalDataFileModel.ErrorCount > 0)
+    {
+        if (IsIncorrectFileFormat)
+        {
+            @Localizer.GetString(MessageResourceKeyConstants.StatisticalDataThefileformatisincorrectPleaseselectproperfileformatMessage)
+            <br />
+        }
+        else
+        {
+            <div class="list-group" id="informationVisibility">
+
+                <div class="list-group-item">
+                    <h5>@Localizer.GetString(MessageResourceKeyConstants.StatisticalDataThefollowinglinescontainerrorsandwillnotbeimportedMessage)</h5>
+                </div>
+
+                <div class="list-group-item"><label>@Localizer.GetString(FieldLabelResourceKeyConstants.StatisticalDataNotesFieldLabel)</label></div>
+
+                @foreach (var m in _statisticalDataFileModel.ErrorMessagesList)
+                {
+                    <div class="list-group-item">
+
+                        @if(m.LineNumber == "0")
+                        {
+                            <div>Header Row</div>
+                        }
+                        else
+                        {
+                            <div>@m.LineNumber</div>
+                        }
+
+                        <div>@m.ErrorMessage</div>
+                    </div>
+                }
+
+                @if (_statisticalDataFileModel.GoodRows.Count > 0)
+                {
+                    <div class="list-group-item">
+                        <h5>@Localizer.GetString(MessageResourceKeyConstants.StatisticalDataImportdataMessage)</h5>
+                    </div>
+                }
+            </div>
+        }
+    }
+}
+
+<div class="card-footer">
+    <div class="row">
+        <div class="col-md-12 text-center">
+            @if (_statisticalDataFileModel.ErrorCount == 0 || _statisticalDataFileModel.ErrorCount > 10 || IsIncorrectFileFormat)
+            {
+                <button class="btn btn-primary" @onclick="@((args) => _dialogService.Close())">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            }
+            else if (_statisticalDataFileModel.ErrorCount > 0)
+            {
+                if (_statisticalDataFileModel.GoodRows.Count > 0)
+                {
+                    <button class="btn btn-primary" @onclick="@((args) => SaveStatisticalDataFromImport(@_statisticalDataFileModel))">@Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>
+
+                    <button class="btn btn-outline-primary" @onclick="@((args) => _dialogService.Close())">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                }
+                else
+                {
+                    <button class="btn btn-outline-primary" @onclick="@((args) => _dialogService.Close())">@Localizer.GetString(ButtonResourceKeyConstants.CloseButton)</button>
+                }
+            }
+        </div>
+    </div>
+</div>

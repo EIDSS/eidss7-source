@@ -1,0 +1,64 @@
+﻿@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Areas.Human.ViewModels.ActiveSurveillanceSession;
+
+@inherits TestDetailsModalBase
+
+<RadzenTemplateForm Data="model" OnInvalidSubmit="@HandleInvalidSubmit" @ref="_form" Submit="@HandleValidSubmit" TItem="ActiveSurveillanceSessionViewModel">
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-4" For="FieldSampleID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalFieldSampleIDieldLabel" IsRow="false">
+            <RadzenDropDown AllowClear="true" @bind-Value="model.TestsInformation.FieldSampleID" Change="@(value => FieldSampleSelected(value))" class="form-control" Data="@model.DetailedInformation.List" Disabled="@model.RecordReadOnly" Name="FieldSampleID" TextProperty="FieldSampleID" TValue="string" ValueProperty="FieldSampleID"></RadzenDropDown>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-4" For="LabSampleID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalLabSampleIDFieldLabel" IsRow="false">
+            <RadzenTextBox @bind-Value="model.TestsInformation.LabSampleID" class="form-control" Disabled="true" Name="LabSampleID"></RadzenTextBox>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-4" For="SampleType" InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalSampleTypeFieldLabel" IsRow="false">
+            <RadzenTextBox @bind-Value="model.TestsInformation.SampleType" class="form-control" Disabled="true" Name="SampleType"></RadzenTextBox>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-4" For="PersonID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalPersonIDFieldLabel" IsRow="false">
+            <RadzenTextBox @bind-Value="model.TestsInformation.EIDSSPersonID" class="form-control" Disabled="true" Name="PersonID"></RadzenTextBox>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-4" For="TestDisease" InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalTestDiseaseFieldLabel" IsRow="false">
+            <RadzenDropDown AllowClear="true" @bind-Value="model.TestsInformation.TestDiseaseID" Change="@(args => GetFilteredTestNames(args))" class="form-control" Data="@model.TestsInformation.Diseases" Disabled="@model.RecordReadOnly" Name="TestDisease" TextProperty="DiseaseName" TValue="long?" ValueProperty="DiseaseID"></RadzenDropDown>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-4" For="FilterByDisease" InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalFilterByDiseaseFieldLabel" IsRow="false">
+            <RadzenCheckBox Change="@(value => FilterByDiseaseSelected(value))" Name="FilterByDisease" TValue="bool" Value="@model.TestsInformation.FilterByDisease"></RadzenCheckBox>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-4" For="TestName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalTestNameFieldLabel" IsRow="false">
+            <RadzenDropDown AllowClear="true" @bind-Value="model.TestsInformation.TestNameID" Change="@(value => FilterByTestName(value))" class="form-control" Data="@model.TestsInformation.TestNames" Disabled="@TestNameDisabled" Name="TestName" TextProperty="TestNameTypeName" TValue="long?" ValueProperty="TestNameTypeID"></RadzenDropDown>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-4" For="TestStatus" InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalTestStatusFieldLabel" IsRow="false">
+            <RadzenTextBox @bind-Value="model.TestsInformation.TestStatus" class="form-control" Disabled="true" Name="TestStatus"></RadzenTextBox>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-4" For="TestCategory" InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalTestCategoryFieldLabel" IsRow="false">
+            <RadzenDropDown AllowClear="true" @bind-Value="model.TestsInformation.TestCategoryID" class="form-control" Data="@TestCategories" Disabled="@model.RecordReadOnly" LoadData="@(args => GetBaseReferenceItems(args, EIDSSConstants.BaseReferenceConstants.TestCategory))" Name="TestCategory" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"></RadzenDropDown>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-4" For="ResultDate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalResultDateFieldLabel" IsRow="false">
+            <RadzenDatePicker @bind-Value="model.TestsInformation.ResultDate" class="form-control-range" Disabled="@model.RecordReadOnly" Name="ResultDate"></RadzenDatePicker>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-4" For="TestResult" InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalTestResultFieldLabel" IsRow="false">
+            <RadzenDropDown AllowClear="true" @bind-Value="model.TestsInformation.TestResultID" class="form-control" Data="@model.TestsInformation.TestResults" Disabled="@TestResultDisabled" Name="TestResult" TextProperty="strTestResultName" TValue="long?" ValueProperty="idfsTestResult"></RadzenDropDown>
+        </InterfaceEditorResource>
+    </div>
+    <div class="card-footer">
+        <div class="form-row">
+            <div class="col-12">
+                <button class="btn btn-outline-primary" @onclick="_ => DiagService.Close()" type="button">
+                    @Localizer.GetString(ButtonResourceKeyConstants.CancelButton)
+                </button>
+                <button class="btn btn-primary" disabled="@model.RecordReadOnly" type="submit">
+                    @Localizer.GetString(ButtonResourceKeyConstants.SaveButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

@@ -1,0 +1,43 @@
+﻿@using EIDSS.Domain.ViewModels.Administration
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits EIDSS.Web.Components.Administration.ReferenceEditors.AddSettlementTypeBase;
+
+<RadzenTemplateForm Data="SettlementTypeToAdd" @ref="Form" Submit="OnSubmitClick" TItem="SettlementTypeModel">
+
+    <DataAnnotationsValidator />
+
+    <div class="form-row">
+        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.DefaultValueFieldLabel" IsRow="false" CssClass="col-4" For="@nameof(SettlementTypeToAdd.strDefault)">
+            <RadzenTextBox @bind-Value="SettlementTypeToAdd.strDefault" class="form-control" id="defaultValue" Name="@nameof(SettlementTypeToAdd.strDefault)" />
+        </InterfaceEditorResource>
+    </div>
+
+    <div class="form-row">
+        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.NationalValueFieldLabel" IsRow="false" CssClass="col-4" For="@nameof(SettlementTypeToAdd.name)">
+            <RadzenTextBox @bind-Value="SettlementTypeToAdd.name" class="form-control" id="nationalValue" Name="@nameof(SettlementTypeToAdd.name)" />
+        </InterfaceEditorResource>
+    </div>
+
+    <div class="form-row">
+        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.OrderFieldLabel" IsRow="false" CssClass="col-4" For="@nameof(SettlementTypeToAdd.intOrder)">
+            <RadzenNumeric @bind-Value="SettlementTypeToAdd.intOrder" class="form-control" id="order" Min="0" Name="@nameof(SettlementTypeToAdd.intOrder)" />
+        </InterfaceEditorResource>
+    </div>
+
+    <div style="padding-top:20px;">
+        <button id="btnCancel"
+                type="button"
+                class="btn btn-secondary"
+                @onclick="OnCancel">
+            @Localizer.GetString(ButtonResourceKeyConstants.CancelButton)            
+        </button>
+
+        <button id="btnOk"
+                type="submit"
+                class="btn btn-primary">
+            @Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        </button>
+    </div>
+
+</RadzenTemplateForm>

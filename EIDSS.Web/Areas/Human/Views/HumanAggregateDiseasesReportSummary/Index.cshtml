@@ -1,0 +1,23 @@
+﻿@using EIDSS.Web.Enumerations
+@using EIDSS.Web.Components.Human.HumanAggregateDiseaseReportSummary
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.HumanAggregateDiseaseReportSummaryHumanAggregateDiseaseReportsSummaryHeading);
+}
+<style>
+    table{
+        width:100%;
+    }
+</style>
+<div class="card">
+    <div class="card-header">
+        <h3>@Localizer.GetString(HeadingResourceKeyConstants.HumanAggregateDiseaseReportSummaryHumanAggregateDiseaseReportsSummaryHeading)</h3>
+    </div>
+    <div class="card-body">
+        <component type="typeof(HumanAggregateDiseaseReportSummary)" render-mode="Server" param-Mode=@SearchModeEnum.Default param-CallbackUrl='string.Empty' />
+    </div>
+    <div class="card-footer">
+    </div>
+</div>
+<script>
+    $("table").dataTable();
+</script>

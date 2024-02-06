@@ -1,0 +1,257 @@
+﻿@model BaseReferenceEditorPagesViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
+@using EIDSS.Web.TagHelpers.Models
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.PersonalIdentificationTypeMatrixPageHeading);
+
+    //PAGE LEVEL
+    Model.PageName = Localizer.GetString(HeadingResourceKeyConstants.PersonalIdentificationTypeMatrixPageHeading);
+    Model.PageLevelAddButtonModalText = Localizer.GetString(ButtonResourceKeyConstants.AddButton);
+    Model.PageLevelAddButtonModal = "mdAddPersonalIdentificationTypeMatrix";
+    Model.PageLevelAddButtonID = "btnAddPersonalIdentificationTypeMatrix";
+
+    //SET UP MODAL
+    var eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ModalId = "mdAddPersonalIdentificationTypeMatrix",
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.PersonalIdentificationTypesDetailsModalHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            SuccessModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+            SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        },
+        TargetGridControlID = "gPersonalIdentificationTypeMatrix",
+        PostAjaxDataUrl = Url.Action("AddPersonalIdentificationTypeMatrix", "PersonalIdentificationTypeMatrixPage"),
+        SaveCompleteMethod = "CheckSuccess"
+    };
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.PersonalIDTypeFieldLabel),
+        ControlName = "IdfPersonalIDType",
+        ControlType = ControlType.DropDownAddButtonOpenModal,
+        DropDownAddButtonOpenModalCustomFunction = "SetReferenceType(19000148)",
+        OpenModalName = "AddBaseReference",
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "ddAddPersonalIDType",
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = "19000148", intHACode = HACodeList.NoneHACode})
+    });
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        ControlName = "IdfsFieldType",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.FieldTypeFieldLabel),
+        ClassName = "ddFieldType",
+        ControlType = ControlType.DropDown,
+        Visible = true,
+        AllowMultipleDropDownItemSelection = false,
+        ControlAjaxDataUrl = Url.Action("FieldTypesForSelect2DropDown", "PersonalIdentificationTypeMatrixPage"),
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        }
+    });
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        ControlName = "IntLength",
+        ControlType = ControlType.Numeric,
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.LengthFieldLabel),
+        Visible = true,
+        DefaultContent = "25",
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE_AND_REQUIRED,
+            ValidationRule = "[0,50]",
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+            RangeValidationMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsInvalidValidRangeIsMessage)
+        },
+        ClassName = "IntLengthRange"
+    });
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        ControlName = "IntOrder",
+        ControlType = ControlType.Numeric,
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        Visible = true
+    });
+
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //SET UP GRID
+    Model.eidssGridConfiguration.GridId = "gPersonalIdentificationTypeMatrix";
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.DeleteModalAjaxUrl = Url.Action("DeletePersonalIdentificationTypeMatrix", "PersonalIdentificationTypeMatrixPage");
+    Model.eidssGridConfiguration.DeleteCompleteMethod = "CheckDeleteSuccess";
+    Model.eidssGridConfiguration.AjaxDataUrl = Url.Action("GetList", "PersonalIdentificationTypeMatrixPage");
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.EnableCustomSearching = false;
+    Model.eidssGridConfiguration.EditType = EditType.Inline;
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels
+    {
+        DeleteExceptionTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        DeleteExceptionMessage = Localizer.GetString(MessageResourceKeyConstants.InUseReferenceValueAreYouSureMessage),
+        DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage),
+        EditModalMessage = Localizer.GetString((int) InterfaceEditorResourceSetEnum.WarningMessages + "Are you sure that you want to edit this record?" + (long) InterfaceEditorTypeEnum.Message),
+        DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+        SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
+        DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton),
+        CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton),
+        CancelInlineEditTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage),
+        YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton),
+        NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton),
+        SaveInlineEditTitle = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+        SaveInlineEditMessage = Localizer.GetString((int) InterfaceEditorResourceSetEnum.WarningMessages + "Are you sure that you want to save this record?" + (long) InterfaceEditorTypeEnum.Message)
+    };
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        ColumnName = "Row",
+        Visible = true,
+        ColumnType = ColumnType.ReadOnly,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = string.Empty,
+        ColumnName = "IdfPersonalIDType",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.PersonalIDTypeColumnHeading),
+        ColumnName = "StrPersonalIDType",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true,
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.FieldTypeColumnHeading),
+        ColumnName = "StrFieldType",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = true,
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.LengthColumnHeading),
+        ColumnName = "IntLength",
+        Visible = true,
+        ColumnType = ColumnType.Numeric,
+        VisibleInModal = true,
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OrderColumnHeading),
+        ColumnName = "IntOrder",
+        Visible = true,
+        ColumnType = ColumnType.Numeric,
+        VisibleInModal = true,
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = string.Empty,
+        ColumnName = "name",
+        ColumnType = ColumnType.Delete,
+        Visible = Model.UserPermissions.Delete
+    });
+}
+
+<!-- Duplicate Record Message Modal -->
+<div class="modal fade" id="duplicatesModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="duplicateHeading"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsg"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="showAddPersonalIdentificationTypeMatrixModal();">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_baseReferenceModalPartial"/>
+<partial name="_BaseReferenceEditorsPartial"/>
+<partial name="_InformationalModalPartial" for="InformationMessage"/>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#hdHideLoinCode").val("1");
+        $("#hdHideAccessoryCode").val("1");
+        $("#hdBaseReferenceCustomModalTitle").val($("#mdAddPersonalIdentificationTypeMatrix").find('.modal-title').text());
+        HideFields(); // hides fields for the _baseReferenceModalPartial
+        SetCustomModalTitle();
+
+        $(document).on('keypress',
+            function(e) {
+                if (e.which == 13) {
+                    $("#mdAddPersonalIdentificationTypeMatrixbtnSave").trigger('click');
+                }
+            });
+    });
+
+    function CheckSuccess(data) {
+        var stringifiedData = JSON.stringify(data);
+        var parsedData = JSON.parse(stringifiedData);
+
+        switch (parsedData.returnMessage) {
+        case "SUCCESS":
+            $("#mdAddPersonalIdentificationTypeMatrixSuccessModal").modal("show");
+            updateNotificationEnvelopeCount();
+            break;
+        case "DOES EXIST":
+            $("#dupemsg").html(parsedData.strClientPageMessage);
+            $("#duplicatesModal").modal("show");
+            break;
+        default:
+            $("#mdAddPersonalIdentificationTypeMatrix").modal("show");
+            break;
+        }
+    };
+
+    function CheckDeleteSuccess(data) {
+        var stringifiedData = JSON.stringify(data);
+        var parsedData = JSON.parse(stringifiedData);
+        if (parsedData.returnMessage === "SUCCESS") {
+            updateNotificationEnvelopeCount();
+            showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+        }
+    };
+
+    // Allows user to try again if the duplicates modal appears
+    function showAddPersonalIdentificationTypeMatrixModal() {
+        $("#duplicatesModal").modal("hide");
+        $("#duplicateMsg_AddStatisticalAgeGroup").empty();
+        $("#mdAddPersonalIdentificationTypeMatrix").modal("show");
+    };
+</script>

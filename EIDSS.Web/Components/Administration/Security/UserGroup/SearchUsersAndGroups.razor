@@ -1,0 +1,120 @@
+﻿@using EIDSS.Domain.ViewModels.Administration.Security
+@using EIDSS.Web.Administration.ViewModels.Administration;
+
+
+@inherits EIDSS.Web.Components.Administration.Security.UserGroup.SearchUsersAndGroupsBase
+
+<RadzenTemplateForm id="SearchForm" @ref="_form" TItem="SearchEmployeeActorViewModel" Data="@model" Submit="@HandleValidSearchSubmit" OnInvalidSubmit="@HandleInvalidSearchSubmit">
+    <div id="accordion">
+        <!--search criteria-->
+        <div class="card">
+            <div class="card-header" id="SearchCriteria">
+                <button class="btn d-inline-block"
+                        type="button"
+                        data-toggle="collapse"
+                        aria-expanded="false"
+                        aria-controls="SearchCriteriaBody"
+                        @onclick="@(() => AccordionClick(0))">
+                    <span class="text-left fas @(expandSearchCriteria ? "fa-caret-down" : "fa-caret-right")" />
+                    <h3 class="mb-0 d-inline-block"> @Localizer.GetString(HeadingResourceKeyConstants.SearchCriteriaHeading)</h3>
+                </button>
+            </div>
+            <div id="SearchCriteriaBody" class="@(expandSearchCriteria ?  "collapse show" : "collapse" )" aria-labelledby="SearchCriteria" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <!--Type Drop Down-->
+                            <label for="@model.SearchCriteria.Type">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchUsersAndUserGroupsTypeFieldLabel)</label>
+                            <RadzenDropDown id="typeID" AllowClear="true" TValue="long?" Data="@types" LoadData="@GetTypes" 
+                                ValueProperty="IdfsBaseReference" TextProperty="Name" @bind-Value="@model.SearchCriteria.Type"
+                                class="form-control" AllowVirtualization="false"></RadzenDropDown>
+                        </div>
+                         <div class="form-group col-md-6">
+                             <label asp-for="SearchCriteria.Name" field-label-for="@FieldLabelResourceKeyConstants.SearchUsersAndUserGroupsNameFieldLabel">
+                                 @Localizer.GetString(FieldLabelResourceKeyConstants.SearchUsersAndUserGroupsNameFieldLabel)
+                             </label>
+                            <RadzenTextBox @bind-Value="model.SearchCriteria.Name" class="form-control" Name="@nameof(model.SearchCriteria.Name)" />
+                         </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.SearchActorsOrganizationNameFieldLabel">
+                            <div class="form-group">
+                                <label asp-for="SearchCriteria.Organization" field-label-for="@FieldLabelResourceKeyConstants.SearchActorsOrganizationNameFieldLabel">
+                                     @Localizer.GetString(FieldLabelResourceKeyConstants.SearchActorsOrganizationNameFieldLabel)
+                                </label>
+                                <RadzenTextBox @bind-Value="model.SearchCriteria.Organization" class="form-control" Name="@nameof(model.SearchCriteria.Organization)" />
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="SearchCriteria.Description" field-label-for="@FieldLabelResourceKeyConstants.SearchActorsUserGroupDescriptionFieldLabel">
+                                   @Localizer.GetString(FieldLabelResourceKeyConstants.SearchActorsUserGroupDescriptionFieldLabel)
+                            </label>
+                            <RadzenTextBox @bind-Value="model.SearchCriteria.Description" class="form-control" Name="@nameof(model.SearchCriteria.Description)" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end search criteria-->
+        <!--search results-->
+        <div class="card">
+            <div class="card-header" id="SearchResults">
+                <button class="btn d-inline-block"
+                        type="button"
+                        data-toggle="collapse"
+                        aria-expanded="false"
+                        aria-controls="SearchResultsBody"
+                        @onclick="@(() => AccordionClick(1))">
+                    <span class="text-left fas @(expandSearchResults ? "fa-caret-down" : "fa-caret-right")" />
+                    <h3 class="mb-0 d-inline-block">@Localizer.GetString(HeadingResourceKeyConstants.SearchResultsHeading)</h3>
+                </button>
+            </div>
+            <div id="SearchResultsBody" class="@(expandSearchResults ?  "collapse show" : "collapse" )" aria-labelledby="SearchResults" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <RadzenDataGrid @ref="_grid" id="searchResults" TItem="EmployeesForUserGroupViewModel" IsLoading="@isLoading" 
+                                            LoadData="@((args) => LoadData(args))" Data="@SearchResults"
+                                            AllowPaging="true" PageSize="10" AllowSorting="true" Count="@count" AllowColumnResize="true"                                            
+                                            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@UserGroupService.SelectedUsersAndGroups"
+                                            ExpandMode="DataGridExpandMode.Single" Visible="@expandSearchResults">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="EmployeesForUserGroupViewModel" Property="idfEmployee" Title="idfEmployee" Visible="false" />
+                                    <RadzenDataGridColumn TItem="EmployeesForUserGroupViewModel" Property="idfEmployeeGroup" Title="idfEmployeeGroup" Visible="false" />
+                                    <RadzenDataGridColumn TItem="EmployeesForUserGroupViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                                        <Template Context="data">
+                                            <RadzenCheckBox TriState="false" Value="@(UserGroupService.SelectedUsersAndGroups != null && UserGroupService.SelectedUsersAndGroups.Contains(data))" />
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="EmployeesForUserGroupViewModel" Property="TypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.ActorTypeNameColumnHeading)" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="EmployeesForUserGroupViewModel" Property="Name" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.NameColumnHeading)" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="EmployeesForUserGroupViewModel" Property="Organization" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.UserGroupDetailsOrganizationColumnHeading)" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="EmployeesForUserGroupViewModel" Property="Description" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.UserGroupDetailsDescriptionColumnHeading)" Sortable="true" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end search results-->
+    </div>
+    <div id="SearchCriteriaCommands" class="card">
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-md-12">
+                    @if (showPrintButton)
+                    {<button id="printButton" class="btn btn-outline-primary" type="button" @onclick=@(() => PrintSearchResults())>@Localizer.GetString(ButtonResourceKeyConstants.PrintButton)</button>}
+                    @if (showCancelButton)
+                    {<button id="cancelButton" class="btn btn-outline-primary" type="button" @onclick=@(() => CancelSearch())>@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>}
+                    @if (showSelectButton)
+                    {<button id="selectButton" class="btn btn-outline-primary" type="button"  @onclick=@(() => OnSelectReports())>@Localizer.GetString(ButtonResourceKeyConstants.SelectButton)</button>}
+                    @if (showClearButton)
+                    {<button id="clearButton" class="btn btn-outline-primary" type="reset" @onclick=@(() => ResetSearch())>@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)</button>}
+                    @if (showSearchButton)
+                    {<button id="searchButton" type="submit" class="btn btn-primary">@Localizer.GetString(@ButtonResourceKeyConstants.SearchButton)</button>}
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

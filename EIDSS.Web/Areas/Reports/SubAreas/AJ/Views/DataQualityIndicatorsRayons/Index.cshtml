@@ -1,0 +1,237 @@
+﻿@model EIDSS.Web.Areas.Reports.SubAreas.AJ.ViewModels.DataQualityIndicatorsRayonsViewModel
+@using EIDSS.ReportViewer
+@{
+    ViewBag.Title = Localizer.GetString(HeadingResourceKeyConstants.DataQualityIndicatorsForRayonsPageHeading);
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@(HeadingResourceKeyConstants.DataQualityIndicatorsForRayonsPageHeading + "," + Model.LanguageId)"></h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            <div class="form-row">
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="LanguageId" field-label-for="@(FieldLabelResourceKeyConstants.LanguageFieldLabel + "," + Model.LanguageId)"></label>
+                        <div class="input-group">
+                            <select asp-for="LanguageId"
+                                    asp-items="@(new SelectList(Model.ReportLanguageModels, "LangID", "Language"))" class="form-control">
+                            </select>
+                        </div>
+                    </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="Year" field-label-for="@(FieldLabelResourceKeyConstants.YearFieldLabel + "," + Model.LanguageId)"></label>
+                        <div class="input-group">
+                            <select asp-for="Year"
+                                    asp-items="@(new SelectList(Model.ReportYearModels, "Year", "Year"))" class="form-control">
+                            </select>
+                            <span asp-validation-for="Year" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                        <label asp-for="idfsReference_FromMonth" field-label-for="@(FieldLabelResourceKeyConstants.FromMonthFieldLabel + "," + Model.LanguageId)"></label>
+                        <div class="input-group">
+                            <select asp-for="idfsReference_FromMonth" style="width: 150px;"
+                                    asp-items="@(new SelectList(Model.ReportFromMonthNameModels, "intOrder", "strTextString"))" class="form-control">
+                                <option value="0"></option>
+                            </select>
+                            <span class="input-group-append">
+                                <button type="button" id="btnFromMonth" class="btn btn-outline-secondary btn-sm border-left-0 border"><i class="fa fa-times fa-sm"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                        <label asp-for="idfsReference_ToMonth" field-label-for="@(FieldLabelResourceKeyConstants.ToMonthFieldLabel + "," + Model.LanguageId)"></label>
+                        <div class="input-group">
+                            <select asp-for="idfsReference_ToMonth" style="width: 150px;"
+                                    asp-items="@(new SelectList(Model.ReportToMonthNameModels, "intOrder", "strTextString"))" class="form-control">
+                                <option value="0"></option>
+                            </select>
+                            <span class="input-group-append">
+                                <button type="button" id="btnToMonth" class="btn btn-outline-secondary btn-sm border-left-0 border"><i class="fa fa-times fa-sm"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4 text-right">
+                        <button type="submit" id="submitReport" class="btn btn-primary" button-for="@(ButtonResourceKeyConstants.GenerateReportButton + "," + Model.LanguageId)"></button>
+                    </div>
+                </div>
+            <div class="form-row">
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="DiagnosisId" field-label-for="@(FieldLabelResourceKeyConstants.DiagnosisFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="DiagnosisId" multiple
+                                asp-items="@(new SelectList(Model.DiagnosisList, "IdfsBaseReference", "Name"))" class="form-control">
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group col-md-2 form-check form-check-inline" style="@(Model.ShowIncludeSignature ? "display:block;" : "display:none;")padding-top: 25px;">
+                    <input asp-for="IncludeSignature" class="form-check-input" type="checkbox" />
+                    <label asp-for="IncludeSignature" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.IncludeSignatureFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+                <div class="form-group col-md-4 form-check form-check-inline" style="@(Model.ShowUseArchiveData ? "display:block;" : "display:none;")padding-top: 25px;">
+                    <input asp-for="UseArchiveData" class="form-check-input" type="checkbox" />
+                    <label asp-for="UseArchiveData" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.UseArchivedDataFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+            </div>
+        </form>
+        <div class="col-xs-4 col-xs-offset-4" id="divLoading"></div>
+        <div id="ReportView"></div>
+    </div>
+</div>
+@section runreport {
+    <script type="text/javascript">
+
+        function submitReport() {
+                $("#ReportView").html("");
+                onBegin();
+            $.ajax({
+                    url: '@Url.Action("GenerateReport", "DataQualityIndicatorsRayons", new { Area = "Reports", SubArea = "AJ" })',//controller name and action
+                    type: 'POST',
+                    contentType :'application/json; charset=utf-8',
+                    data: JSON.stringify(getFormData())  //information for search
+                })
+                .done(function (result) {
+                    $('#ReportView').html(result); //write returned partial view to empty div
+                    onComplete();
+                })
+         };
+
+         function onBegin() {
+                $("#divLoading").html('<image  src="@Url.Content("~/Includes/Images/ajax-loader.gif")"  alt="Loading, please wait" />');
+         };
+
+         function onComplete() {
+                var jsonData = {
+                    "strReportName": '@Model.ReportName',
+                    "idfIsSignatureIncluded": $("#IncludeSignature").is(':checked') ? 'true' : 'false'
+                };
+                //Save ReportAudit
+                $.ajax({
+                    url: '@Url.Action("SaveReportAudit", "DataQualityIndicatorsRayons", new { Area = "Reports", SubArea = "AJ" })',//controller name and action
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(jsonData)  //information for search
+                })
+                    .done(function (result) {
+                        $("#divLoading").html("");
+                        $('#DiagnosisId').select2MultiCheckboxes('remove');
+                        $('#DiagnosisId').select2MultiCheckboxes({
+                            placeholder: "Choose multiple elements",
+                            width: "100%"
+                        })
+
+                    })
+         };
+
+        function getFormData() {
+            var jsonData = {
+                "idfsReference_FromMonth": $("#idfsReference_FromMonth").val(),
+                "languageId": $("#LanguageId").val(),
+                "year": $("#Year").val(),
+                "idfsReference_ToMonth": $("#idfsReference_ToMonth").val(),
+                "diagnosisId": $("#DiagnosisId").val(),
+                "useArchiveData": $("#UseArchiveData").is(':checked') ? 'true' : 'false',
+                "includeSignature": $("#IncludeSignature").is(':checked') ? 'true' : 'false',
+                "PrintDateTime": localDate()
+            };
+
+            return jsonData;
+        };
+
+        $(document).ready(function () {
+            $("#idfsReference_FromMonth").on("change", function () {
+                FromMonthValidation();
+            });
+
+            $("#idfsReference_ToMonth").on("change", function () {
+                ToMonthValidation();
+            });
+
+            $('#DiagnosisId').select2MultiCheckboxes({
+                placeholder: "Choose multiple elements",
+                width: "100%"
+            });
+
+            //To clear dropdown texts
+            $('#btnDiagnosis').on('click', function () {
+                $('#DiagnosisId').val('0').change();
+            });
+
+            var ClearMonths = function () {
+                $('#idfsReference_FromMonth').val('0').change();
+                $('#idfsReference_ToMonth').val('0').change();
+            };
+            $('#btnFromMonth').on('click', ClearMonths);
+            $('#btnToMonth').on('click', ClearMonths);
+        });
+
+
+
+        function RefreshFromMonths(monthId) {
+            var langId = $("#LanguageId").val();
+            var selectedMonth = $(monthId).val();
+
+            $.ajax({
+                url: '@Url.Action("GetMonthNameList", "DataQualityIndicatorsRayons", new { Area = "Reports", SubArea = "AJ" })' +"?langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $(monthId).empty();
+                    var items = '<option></option>';
+                    $.each(data, function (i, monthNames) {
+                        items += "<option value='" + monthNames.intOrder + "' > " + monthNames.strTextString + "</option > ";
+                    });
+                    $(monthId).html(items)
+                    $(monthId).val(selectedMonth);
+                });
+        };
+
+        function RefreshDiagnosisList() {
+            var langId = $("#LanguageId").val();
+            var selectedOrg = $('#DiagnosisId').val();
+
+            $.ajax({
+                url: '@Url.Action("GetDiagnosisList", "DataQualityIndicatorsRayons", new { Area = "Reports", SubArea = "AJ" })' +"?langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#DiagnosisId').empty();
+                    var items = '<option value="0"></option>';
+                    $.each(data, function (i, diagnosis) {
+                        items += "<option value='" + diagnosis.idfsBaseReference + "' > " + diagnosis.name + "</option > ";
+                    });
+                    $('#DiagnosisId').html(items);
+                    $('#DiagnosisId').val(selectedOrg);
+                });
+        };
+
+        //From Month shall be less than or equel to To Month
+        function FromMonthValidation() {
+            var ddlFromMonth = $("#idfsReference_FromMonth").val();
+            var ddlToMonth = $("#idfsReference_ToMonth").val();
+            if ((parseInt(ddlFromMonth) > parseInt(ddlToMonth)) || parseInt(ddlFromMonth) == 0) {
+                $('#idfsReference_ToMonth').val(ddlFromMonth);
+            }
+            return false;
+        };
+        function ToMonthValidation() {
+            var ddlFromMonth = $("#idfsReference_FromMonth").val();
+            var ddlToMonth = $("#idfsReference_ToMonth").val();
+            if (parseInt(ddlFromMonth) > parseInt(ddlToMonth)) {
+                $('#idfsReference_FromMonth').val(ddlToMonth);
+            }
+            return false;
+        };
+    </script>
+    @if (@Model.JavascriptToRun != null)
+    {
+        <script type="text/javascript">
+            @Html.Raw(@Model.JavascriptToRun)
+        </script>
+    }
+}

@@ -1,0 +1,78 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+
+@inherits EIDSS.Web.Components.Administration.Deduplication.VeterinaryDiseaseReport.VaccinationBase
+
+<div class="form-row">
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord" TValue="int" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.RecordSelection
+                                       Change="@((args) => OnRecordSelectionChangeAsync(Model.ReportType, args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="Vaccination"></div>
+                <RadzenCheckBox Name="chkCheckAllVaccination" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.chkCheckAllVaccination TValue="bool" Change="@((args) => OnCheckAllVaccinationChangeAsync(args))" />
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllVaccination" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord2" TValue="int" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.Record2Selection
+                                       Change="@((args) => OnRecord2SelectionChangeAsync(Model.ReportType, args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="Vaccination2"></div>
+                <RadzenCheckBox Name="chkCheckAllVaccination2" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.chkCheckAllVaccination2 TValue="bool" Change="@((args) => OnCheckAllVaccination2ChangeAsync(args))" />
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllVaccination2" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+</div>
+<div class="form-row">
+    <div class="col-6">
+        <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" 
+            Count="@VeterinaryDiseaseReportDeduplicationService.VaccinationsCount" 
+            Data="@VeterinaryDiseaseReportDeduplicationService.Vaccinations" 
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@VeterinaryDiseaseReportDeduplicationService.SelectedVaccinations"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            PageSizeOptions="pageSizeOptions" @ref="VaccinationGrid" 
+            ShowPagingSummary="true" TItem="VaccinationGetListViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="VaccinationGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool" 
+                        Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedVaccinations != null && VeterinaryDiseaseReportDeduplicationService.SelectedVaccinations.Contains(data))" 
+                        Change="@(args => OnVaccinationRowCheckChangeAsync(args, data, false))" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="DiseaseName" TItem="VaccinationGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportVaccinationsDiseaseNameColumnHeading)"/>
+                <RadzenDataGridColumn FormatString="{0:d}" Property="VaccinationDate" TItem="VaccinationGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportVaccinationsDateColumnHeading)"/>
+                <RadzenDataGridColumn Property="Species" TItem="VaccinationGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportVaccinationsSpeciesColumnHeading)"/>
+                <RadzenDataGridColumn Property="NumberVaccinated" TItem="VaccinationGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportVaccinationsVaccinatedNumberColumnHeading)"/>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+    <div class="col-6">
+        <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" 
+            Count="@VeterinaryDiseaseReportDeduplicationService.VaccinationsCount2" 
+            Data="@VeterinaryDiseaseReportDeduplicationService.Vaccinations2" 
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@VeterinaryDiseaseReportDeduplicationService.SelectedVaccinations2"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            PageSizeOptions="pageSizeOptions" @ref="VaccinationGrid2" 
+            ShowPagingSummary="true" TItem="VaccinationGetListViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="VaccinationGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool" 
+                        Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedVaccinations2 != null && VeterinaryDiseaseReportDeduplicationService.SelectedVaccinations2.Contains(data))" 
+                        Change="@(args => OnVaccinationRowCheckChangeAsync(args, data, true))" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="DiseaseName" TItem="VaccinationGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportVaccinationsDiseaseNameColumnHeading)"/>
+                <RadzenDataGridColumn FormatString="{0:d}" Property="VaccinationDate" TItem="VaccinationGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportVaccinationsDateColumnHeading)"/>
+                <RadzenDataGridColumn Property="Species" TItem="VaccinationGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportVaccinationsSpeciesColumnHeading)"/>
+                <RadzenDataGridColumn Property="NumberVaccinated" TItem="VaccinationGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportVaccinationsVaccinatedNumberColumnHeading)"/>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>

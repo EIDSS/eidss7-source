@@ -1,0 +1,648 @@
+﻿@implements IDisposable;
+@using System.Threading.Tasks;
+@using EIDSS.ClientLibrary.ApiClients.FlexForm;
+@using EIDSS.Domain.Enumerations
+@using EIDSS.Web.ViewModels.CrossCutting;
+@using EIDSS.Domain.RequestModels.FlexForm;
+@using EIDSS.Domain.ResponseModels.FlexForm;
+@using System.Collections.Generic;
+@using System.Linq;
+@using Newtonsoft.Json;
+@using EIDSS.Web.Services;
+@using Microsoft.Extensions.Logging
+
+<RadzenTemplateForm @ref="FlexFormForm" Data="ComponentParameter" TItem="Parameter">
+    @if (ShouldRender())
+    {
+        ComponentParameters = new List<Parameter>();
+        ComponentParameters.Clear();
+
+        var rnd = new Random();
+
+        FlexFormQuestionnaireResponses ??= new List<FlexFormQuestionnaireResponseModel>();
+
+        long idfRow;
+
+        @foreach (var item in FlexFormQuestionnaireResponses)
+        {
+            if (item.idfsSection == item.idfsParameter)
+            {
+                SectionItem = new Section
+                {
+                    BlnGrid = item.blnGrid ?? false,
+                    SectionId = (item.idfsSection ?? 0) == 0
+                        ? item.idfsParameter
+                        : item.idfsSection ?? 0
+                };
+                Sections.Add(SectionItem);
+
+                @* First-level or embedded section *@
+                if (item.idfsSection != 0)
+                {
+                    <legend>@item.SectionName</legend>
+
+                    @* First-level section only *@
+                    if ((item.idfsParentSection == null))
+                    {
+                        <div class="card-header">
+                            <h6 title></h6>
+                        </div>
+                    }
+
+                }
+            }
+
+            @* Table item(header, sub-header or column(parameter)) *@
+            if (item.blnGrid.HasValue && item.blnGrid.Value)
+            {
+                @* Table Section *@
+                if (item.idfsSection == item.idfsParameter)
+                {
+                    @* Temporary ignore sub-headers *@
+                    var isSubHeader = false;
+                    if (item.idfsParentSection != null && Sections is { Count: > 0 })
+                    {
+                        var parentSectionItem = Sections.Where(x => x != null && x.SectionId == item.idfsParentSection).ToList().FirstOrDefault();
+                        if (parentSectionItem is { BlnGrid: true })
+                            isSubHeader = true;
+                    }
+                    if (!isSubHeader)
+                    {
+                        var strPasteId = "Paste-" + item.idfsSection;
+                        var strCopyId = "Copy-" + item.idfsSection;
+                        var strAddId = "Add-" + item.idfsSection;
+                        var strSelectRow = string.Empty;
+                        var bGridRowDone = false;
+                        var iColumns = 0;
+                        long parameterId = 0;
+
+                        <table>
+                            <tr>
+                                @foreach (var item2 in FlexFormQuestionnaireResponses.Where(x => x != null && x.idfsSection == item.idfsSection && x.idfsParameter != item.idfsSection && x.idfsEditor != null).ToList())
+                                {
+                                    iColumns++;
+                                    <td>@item2.ParameterName</td>
+                                }
+                            </tr>
+                            @{
+                                idfRow = 1;
+                            }
+                            @while (!bGridRowDone)
+                            {
+                                <tr>
+                                    @foreach (var item2 in FlexFormQuestionnaireResponses.Where(x => x != null && x.idfsSection == item.idfsSection && x.idfsParameter != item.idfsSection && x.idfsEditor != null).ToList())
+                                    {
+                                        Answer = new FlexFormActivityParametersListResponseModel();
+                                        parameterId = item2.idfsParameter;
+
+                                        if (Answers.Any(x => x.idfsParameter == parameterId && x.idfRow == idfRow))
+                                        {
+                                            Answer = Answers.First(x => x.idfsParameter == parameterId && x.idfRow == idfRow);
+                                            Answer.idfRow = idfRow;
+                                            bGridRowDone = false;
+                                        }
+                                        else
+                                        {
+                                            bGridRowDone = true;
+                                            Answer.idfRow = 1;
+                                        }
+
+                                        var tagId = ComponentParameters.FirstOrDefault(x => x.ParameterId == item2.idfsParameter && x.IdfRow == idfRow)?.TagID;
+
+                                        ComponentParameter = new Parameter
+                                            {
+                                                ParameterId = item2.idfsParameter,
+                                                IdfRow = Answer.idfRow,
+                                                Value = Answer.varValue,
+                                                EditorId = long.Parse(item2.idfsEditor.ToString()),
+                                                Name = item2.ParameterName,
+                                                TagID = tagId ?? rnd.Next(),
+                                                EditMode = (long)item2.idfsEditMode
+                                            };
+
+                                        ComponentParameters.Add(ComponentParameter);
+
+                                        <td>
+                                            @if (SelectedRow == ComponentParameter.IdfRow && SelectedSection == item.idfsSection)
+                                            {
+                                                <FlexFormParameter FfParameter="@ComponentParameter" FormDisabledIndicator="@FormDisabledIndicator" Selected="true" IsGrid="true" />
+                                            }
+                                            else
+                                            {
+                                                <FlexFormParameter FfParameter="@ComponentParameter" FormDisabledIndicator="@FormDisabledIndicator" IsGrid="true" />
+                                            }
+                                        </td>
+                                        strSelectRow = item.idfsSection + "-" + idfRow;
+                                    }
+                                    <td>
+                                        @{
+                                            var localSectionId = item.idfsSection ?? 0;
+                                            var localRowId = idfRow;
+                                        }
+                                        <button @onclick="@(args => SelectRow(localSectionId, localRowId))" class="btn btn-link" id="@strSelectRow" name="@strSelectRow" title="@idfRow" type="button">
+                                            <span class="fas fa-clipboard-check fa-lg"></span>
+                                        </button>
+                                    </td>
+                                    @{
+                                        if (!bGridRowDone)
+                                        {
+                                            idfRow++;
+                                            if (!Answers.Any(x => x.idfsParameter == parameterId && x.idfRow == idfRow))
+                                            {
+                                                bGridRowDone = true;
+                                            }
+                                        }
+                                    }
+                                </tr>
+                            }
+                            <tr>
+                                <td colspan="@iColumns">
+                                    <button @onclick="@(args => CopyRow(args, strCopyId))" class="btn btn-link" id="@strCopyId" name="@strCopyId" type="button">
+                                        <span class="fas fa-copy fa-lg"></span>
+                                    </button>
+                                    <button @onclick="@(args => PasteRow(args, strPasteId))" class="btn btn-link" id="@strPasteId" name="@strPasteId" type="button">
+                                        <span class="fas fa-paste fa-lg"></span>
+                                    </button>
+                                    <button @onclick="@(args => AddRow(args, strAddId))" class="btn btn-link" id="@strAddId" name="@strAddId" type="button">
+                                        <span class="fas fa-plus fa-lg"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        </table>
+                    }
+                }
+            }
+            else if (item.idfsParameter != item.idfsSection)
+            {
+                @* Parameter *@
+                if (item.idfsEditor is not null)
+                {
+                    Answer = new FlexFormActivityParametersListResponseModel();
+                    Answers ??= new List<FlexFormActivityParametersListResponseModel>();
+                    if (Answers.Any(x => x.idfsParameter == item.idfsParameter))
+                    {
+                        Answer = Answers.First(x => x.idfsParameter == item.idfsParameter);
+                    }
+                    var tagId = ComponentParameters.FirstOrDefault(x => x.ParameterId == item.idfsParameter && x.IdfRow == Answer.idfRow)?.TagID;
+
+                    ComponentParameter = new Parameter
+                    {
+                        ParameterId = item.idfsParameter,
+                        IdfRow = Answer.idfRow,
+                        Value = Answer.varValue,
+                        EditorId = item.idfsEditor.Value,
+                        Name = item.ParameterName,
+                        TagID = tagId ?? rnd.Next(),
+                        EditMode = item.idfsEditMode ?? 0
+                    };
+
+                    ComponentParameters.Add(ComponentParameter);
+
+                <div style="margin-left: -10px; border: solid 0 black">
+                   <div class="row">
+                        <FlexFormParameter FfParameter="@ComponentParameter" FormDisabledIndicator="@FormDisabledIndicator" IsGrid="false" />
+                    </div>
+                </div>
+
+                }
+                @* Label *@
+                else
+                {
+                    <legend>@item.DecoreElementText</legend>
+                }
+            }
+
+        }
+
+        FlexFormLoading = false;
+    }
+</RadzenTemplateForm>
+
+@code {
+    [Inject] private ILogger<FlexForm> Logger { get; set; }
+    [Inject] private IJSRuntime JsRuntime { get; set; }
+    [Inject] public IFlexFormClient FlexFormClient { get; set; }
+
+    [Parameter] public FlexFormQuestionnaireGetRequestModel Request { get; set; }
+    [Parameter] public bool FormDisabledIndicator { get; set; } = false;
+
+    public FlexFormQuestionnaireViewModel FlexFormQuestionnaire { get; set; }
+    protected RadzenTemplateForm<Parameter> FlexFormForm { get; set; }
+    private List<FlexFormQuestionnaireResponseModel> FlexFormQuestionnaireResponses { get; set; }
+    private string Title { get; set; } = string.Empty;
+    private List<Section> Sections { get; set; }
+    private Section SectionItem { get; set; }
+    private long? SectionId { get; set; } = -1;
+    private string StrFlexFormSectionHtml { get; set; }
+    public IList<FlexFormActivityParametersListResponseModel> Answers { get; set; }
+    private FlexFormActivityParametersListResponseModel Answer { get; set; }
+    public Parameter ComponentParameter { get; set; }
+    public List<Parameter> Parameters { get; set; }
+    public List<Parameter> ComponentParameters { get; set; }
+
+    private static long SelectedRow { get; set; }
+    private static long SelectedSection { get; set; }
+    private static long CopyRowId { get; set; }
+    private static long CopySectionId { get; set; }
+    private static bool FlexFormLoading { get; set; } = false;
+
+    private long? TagID { get; set; }
+
+    internal ILogger _logger;
+
+    public class SectionSelection
+    {
+        public long Id { get; set; }
+    }
+
+    public class Parameter
+    {
+        public long ParameterId { get; set; }
+        public long? IdfRow { get; set; }
+        public string Value { get; set; }
+        public long? LValue { get; set; }
+        public bool BValue { get; set; }
+        public long EditorId { get; set; }
+        public string Name { get; set; }
+        public long TagID { get; set; }
+        public long ParameterType { get; set; }
+        public long EditMode { get; set; }
+    }
+
+    private class Section
+    {
+        public long SectionId { get; set; }
+        public bool BlnGrid { get; set; }
+    }
+
+    /// <summary>
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        _logger = Logger;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (!firstRender) return;
+        Parameters = new List<Parameter>();
+            DisplayQuestionnaire();
+            FlexFormLoading = true;
+            StateHasChanged();
+    }
+
+    protected override bool ShouldRender()
+    {
+        return FlexFormLoading;
+    }
+
+    void IDisposable.Dispose()
+    {
+    }
+
+    public void Render()
+    {
+        FlexFormLoading = true;
+        DisplayQuestionnaire();
+    }
+
+    public async Task SaveFlexForm()
+    {
+        var answers = await CollectAnswers();
+
+        if (answers.Answers != "[]")
+        {
+            var response = await FlexFormClient.SaveAnswers(answers);
+            Request.idfObservation = response.idfObservation;
+        }
+    }
+
+    public void SetRequestParameter(FlexFormQuestionnaireGetRequestModel ffRequest)
+    {
+        Request = ffRequest;
+
+        Render();
+    }
+
+    public async Task<FlexFormActivityParametersSaveRequestModel> CollectAnswers(long? sectionId = null, long? tagId = null)
+    {
+        var lAnswers = new List<FlexFormObservationAnswers>();
+        var controlAnswers = new List<FlexFormActivityParametersListResponseModel>();
+        var saveAnswerRequest = new FlexFormActivityParametersSaveRequestModel();
+
+        TagID = tagId;
+
+        FlexFormQuestionnaireResponses ??= new List<FlexFormQuestionnaireResponseModel>();
+
+        if (FlexFormQuestionnaireResponses.Count == 0)
+            if (FlexFormClient is not null)
+                if (Request is not null)
+                    FlexFormQuestionnaireResponses = await FlexFormClient.GetQuestionnaire(Request);
+
+        foreach (var flexFormQuestionnaireResponseModel in FlexFormQuestionnaireResponses)
+        {
+            if (flexFormQuestionnaireResponseModel == null || flexFormQuestionnaireResponseModel.idfsParameter == flexFormQuestionnaireResponseModel.idfsSection || flexFormQuestionnaireResponseModel.idfsEditor is null) continue;
+            
+            var answer = new FlexFormObservationAnswers();
+
+            FlexFormActivityParametersListResponseModel controlAnswer;
+            if (flexFormQuestionnaireResponseModel is {blnGrid: not null } && flexFormQuestionnaireResponseModel.blnGrid.Value)
+            {
+                var bFound = false;
+
+                foreach (var gridRow in Answers.Where(x => x.idfsParameter == flexFormQuestionnaireResponseModel.idfsParameter))
+                {
+                    answer = new FlexFormObservationAnswers
+                    {
+                        idfsParameter = flexFormQuestionnaireResponseModel.idfsParameter,
+                        idfsEditor = flexFormQuestionnaireResponseModel.idfsEditor,
+                        idfRow = long.Parse(gridRow.idfRow.ToString())
+                    };
+
+                    controlAnswer = GetControlAnswer(long.Parse(flexFormQuestionnaireResponseModel.idfsEditor.ToString()), flexFormQuestionnaireResponseModel.idfsSection, flexFormQuestionnaireResponseModel.idfsParameter, answer.idfRow);
+                    controlAnswers.Add(controlAnswer);
+
+                    answer.answer = controlAnswer.varValue;
+
+                    lAnswers.Add(answer);
+
+                    bFound = true;
+                }
+
+                if (answer.idfRow is not (null or 0) || bFound) continue;
+                answer = new FlexFormObservationAnswers
+                {
+                    idfRow = 1,
+                    idfsParameter = flexFormQuestionnaireResponseModel.idfsParameter,
+                    idfsEditor = flexFormQuestionnaireResponseModel.idfsEditor
+                };
+
+                controlAnswer = GetControlAnswer(long.Parse(flexFormQuestionnaireResponseModel.idfsEditor.ToString()), flexFormQuestionnaireResponseModel.idfsSection, flexFormQuestionnaireResponseModel.idfsParameter, 1);
+                controlAnswers.Add(controlAnswer);
+
+                answer.answer = controlAnswer.varValue;
+
+                lAnswers.Add(answer);
+            }
+            else
+            {
+                controlAnswer = GetControlAnswer(long.Parse(flexFormQuestionnaireResponseModel.idfsEditor.ToString()), flexFormQuestionnaireResponseModel.idfsSection, flexFormQuestionnaireResponseModel.idfsParameter, null);
+                controlAnswers.Add(controlAnswer);
+
+                answer = new FlexFormObservationAnswers
+                {
+                    idfsParameter = flexFormQuestionnaireResponseModel.idfsParameter,
+                    idfRow = 0,
+                    answer = controlAnswer.varValue,
+                    idfsEditor = flexFormQuestionnaireResponseModel.idfsEditor
+                };
+                lAnswers.Add(answer);
+            }
+        }
+
+        if (sectionId != null)
+        {
+            if (controlAnswers.Any())
+            {
+                var idfRow = controlAnswers.LastOrDefault(x => x.idfsSection == SelectedSection).idfRow;
+
+                var controlAnswersCopy = controlAnswers.Where(x => x.idfsSection == SelectedSection && x.idfRow == idfRow).Select(controlAnswer2 => new FlexFormActivityParametersListResponseModel
+                    {
+                        idfRow = idfRow + 1,
+                        idfsParameter = controlAnswer2.idfsParameter,
+                        idfsSection = controlAnswer2.idfsSection
+                    }).ToList();
+
+                controlAnswers.AddRange(controlAnswersCopy);
+            }
+        }
+
+        Answers = controlAnswers;
+
+        saveAnswerRequest.Answers = JsonConvert.SerializeObject(lAnswers);
+        if (FlexFormQuestionnaireResponses.Count > 0)
+            saveAnswerRequest.idfsFormTemplate = FlexFormQuestionnaireResponses[0].idfsFormTemplate;
+        if (Request == null) return saveAnswerRequest;
+        saveAnswerRequest.idfObservation = Request.idfObservation == 0 ? null : Request.idfObservation;
+        saveAnswerRequest.User = Request.User;
+
+        return saveAnswerRequest;
+    }
+
+    private FlexFormActivityParametersListResponseModel GetControlAnswer(long editorId, long? sectionId, long parameterId, long? idfRow)
+    {
+        var answer = new FlexFormActivityParametersListResponseModel
+            {
+                idfsParameter = parameterId,
+                idfsSection = sectionId
+            };
+
+        var id = parameterId.ToString();
+
+        if (idfRow != null)
+        {
+            id += "-" + idfRow;
+            answer.idfRow = idfRow;
+        }
+
+        if (TagID is not null)
+        {
+            id += "-" + TagID;
+        }
+        else if (Request is not null)
+        {
+            id += "-" + Request.TagID;
+        }
+
+        switch (editorId)
+        {
+            case (long)FlexibleFormEditorTypeEnum.CheckBox:
+                if (TagID is null)
+                {
+                    if (ComponentParameters is not null && ComponentParameters.Count(x => x.ParameterId == parameterId) > 0)
+                        answer.varValue = ComponentParameters.First(x => x.ParameterId == parameterId).BValue.ToString();
+                }
+                else if (ComponentParameters is not null && ComponentParameters.Count(x => x.ParameterId == parameterId && x.TagID == TagID) > 0)
+                    answer.varValue = ComponentParameters.First(x => x.ParameterId == parameterId && x.TagID == TagID).BValue.ToString();
+                break;
+            case (long)FlexibleFormEditorTypeEnum.DatePicker:
+            case (long)FlexibleFormEditorTypeEnum.DateTimePicker:
+                var date = (RadzenDatePicker<DateTime?>) FlexFormForm?.FindComponent(id);
+
+                if (date?.Value != null)
+                {
+                    if (DateTime.TryParse(date.Value.ToString(), out _))
+                    {
+                        answer.varValue = date.Value.ToString();
+                    }
+                }
+                break;
+            default:
+                if (TagID is null)
+                {
+                    if (idfRow is null)
+                    {
+                        if (ComponentParameters is not null && ComponentParameters.Count(x => x.ParameterId == parameterId) > 0)
+                            answer.varValue = ComponentParameters.First(x => x.ParameterId == parameterId).Value;
+                    }
+                    else
+                    {
+                        if (ComponentParameters is not null && ComponentParameters.Count(x => x.ParameterId == parameterId && x.IdfRow == idfRow) > 0)
+                            answer.varValue = ComponentParameters.First(x => x.ParameterId == parameterId && x.IdfRow == idfRow).Value;
+                    }
+                }
+                else
+                {
+                    if (idfRow is null)
+                        if (ComponentParameters is not null && ComponentParameters.Count(x => x.ParameterId == parameterId && x.TagID == TagID) > 0)
+                            answer.varValue = ComponentParameters.First(x => x.ParameterId == parameterId && x.TagID == TagID).Value;
+                        else
+                        if (ComponentParameters is not null && ComponentParameters.Count(x => x.ParameterId == parameterId && x.TagID == TagID && x.IdfRow == idfRow) > 0)
+                            answer.varValue = ComponentParameters.First(x => x.ParameterId == parameterId && x.TagID == TagID && x.IdfRow == idfRow).Value;
+                }
+                break;
+        }
+
+        return answer;
+    }
+
+    public void DisplayQuestionnaire()
+    {
+        try
+        {
+            if (Request != null)
+            {
+                var result = Request.idfsFormType switch
+                {
+                    10034501 => "Outbreak",
+                    10034502 => "Outbreak",
+                    10034503 => "Outbreak",
+                    10034504 => "Outbreak",
+                    10034505 => "Outbreak",
+                    10034506 => "Outbreak",
+                    10034507 => "Outbreak",
+                    10034508 => "Outbreak",
+                    10034509 => "Outbreak",
+                    _ => "Non-Outbreak"
+                };
+
+                if (result == "Outbreak")
+                {
+                    Request.idfsFormTemplate ??= -1;
+                }
+
+                if (!string.IsNullOrEmpty(Request.Title))
+                    Title = Request.Title;
+
+                StrFlexFormSectionHtml = string.Empty;
+                SectionId = null;
+                Sections = new List<Section>();
+                SectionItem = new Section();
+
+                FlexFormQuestionnaireResponses = new List<FlexFormQuestionnaireResponseModel>();
+
+                if (FlexFormClient is not null)
+                {
+                    var t = Task.Run(() => FlexFormClient.GetQuestionnaire(Request));
+                    t.Wait();
+                    FlexFormQuestionnaireResponses = t.Result;
+                }
+
+                var answersRequest = new FlexFormActivityParametersGetRequestModel();
+
+                Answers ??= new List<FlexFormActivityParametersListResponseModel>();
+
+                if (Request is not null && Request.ReviewAnswers is null)
+                {
+                    if (Request.idfObservation == null || Answers.Count != 0) return;
+                    answersRequest.observationList = Request.idfObservation.ToString();
+                    answersRequest.LangID = Request.LangID;
+                    if (FlexFormClient is null) return;
+                    var t = Task.Run(() => FlexFormClient.GetAnswers(answersRequest));
+                    t.Wait();
+                    Answers = t.Result;
+                }
+                else if (Request != null) Answers = Request.ReviewAnswers;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message, null);
+            throw;
+        }
+    }
+
+    protected async Task SelectRow(long sectionId, long idfRow)
+    {
+        if (SelectedSection == sectionId && SelectedRow == idfRow)
+        {
+            SelectedSection = -1;
+            SelectedRow = -1;
+        }
+        else
+        {
+            SelectedSection = sectionId;
+            SelectedRow = idfRow;
+        }
+
+        await CollectAnswers();
+        FlexFormLoading = true;
+    }
+
+    protected async Task CopyRow(object value, object id)
+    {
+        CopyRowId = SelectedRow;
+        CopySectionId = SelectedSection;
+
+        await CollectAnswers();
+        FlexFormLoading = true;
+    }
+
+    protected async Task PasteRow(object value, object id)
+    {
+        await CollectAnswers();
+
+        foreach (var answer in Answers.Where(x => x.idfsSection == CopySectionId && x.idfRow == CopyRowId))
+        {
+            Answers.FirstOrDefault(x => x.idfsParameter == answer.idfsParameter && x.idfsSection == SelectedSection && x.idfRow == SelectedRow)!.varValue = answer.varValue;
+        }
+
+        FlexFormLoading = true;
+    }
+
+    protected async Task AddRow(object value, object id)
+    {
+        SelectedSection = long.Parse(id?.ToString()?.Split("-")[1] ?? "0");
+        await CollectAnswers(SelectedSection);
+        FlexFormLoading = true;
+    }
+
+    /// <summary>
+    /// </summary>
+    public void ClearForm()
+    {
+        foreach (var answer in Answers)
+        {
+            answer.varValue = null;
+        }
+
+        FlexFormLoading = true;
+    }
+
+    public bool IsFormModified()
+    {
+        if (FlexFormForm is null)
+            return false;
+
+        return FlexFormForm.EditContext is not null && FlexFormForm.EditContext.IsModified();
+    }
+
+    public void SetFormDisabled(bool disabledIndicator)
+    {
+        FormDisabledIndicator = disabledIndicator;
+    }
+}

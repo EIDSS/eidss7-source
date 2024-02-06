@@ -1,0 +1,86 @@
+﻿@model EIDSS.Web.ViewModels.BaseReferenceEditorPagesViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+
+@{
+     //SETUP GRID
+    Model.eidssGridConfiguration.SaveCompleteMethod = "SaveGridSuccess";
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.SaveCompleteMethod = "CheckSuccess";
+    Model.eidssGridConfiguration.GridId = "BaseReferenceGrid";
+    Model.eidssGridConfiguration.ControlIdThatRefreshGrid = "RefereceTypeDD";
+    Model.eidssGridConfiguration.ControlFilterID = "RefereceTypeDD";
+    Model.eidssGridConfiguration.EditModalAjaxUrl = @Url.Action("EditReferenceType", "BaseReferencePage");
+    Model.eidssGridConfiguration.DeleteModalAjaxUrl = @Url.Action("DeleteModalData", "BaseReferencePage");
+    Model.eidssGridConfiguration.AjaxDataUrl = @Url.Action("GetBaseReferenceTableNew", "BaseReferencePage");
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.RowDataEnablesAndDisblesDelete = true;
+    Model.eidssGridConfiguration.EnableProcessingMessage = true;
+    // Model.eidssGridConfiguration.EnableCustomSearching = true;
+    Model.eidssGridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.Inline;
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels();
+    Model.eidssGridConfiguration.ControlLabels.DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage);
+    Model.eidssGridConfiguration.ControlLabels.EditModalMessage = Localizer.GetString((int)InterfaceEditorResourceSetEnum.WarningMessages + "Are you sure that you want to Edit this record?" + (long)InterfaceEditorTypeEnum.Message);
+    Model.eidssGridConfiguration.ControlLabels.DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.eidssGridConfiguration.ControlLabels.EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.eidssGridConfiguration.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    Model.eidssGridConfiguration.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    Model.eidssGridConfiguration.ControlLabels.DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton);
+    Model.eidssGridConfiguration.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton);
+    Model.eidssGridConfiguration.ControlLabels.CancelInlineEditTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.eidssGridConfiguration.ControlLabels.CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage);
+    Model.eidssGridConfiguration.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.eidssGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.eidssGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "Row",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.ReadOnly,
+        VisibleInModal = false,
+        Orderable = false,
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "BaseReferenceId",
+        ColumnTitleHeader = "BaseReferenceId",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "ReferenceTypeId",
+        ColumnTitleHeader = "ReferenceTypeId",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+}
+
+    <div class="card-header">
+        @*card header always an h3!*@
+        <h3>@Model.PageName</h3>
+    </div>
+    <div class="card-body">
+             <div class="row">
+            <div class="col-12">
+                <eidss-grid id="@Model.eidssGridConfiguration.GridId"
+                            grid-configuration="@Model.eidssGridConfiguration"
+                            filtered-control-ids="@Model.eidssGridConfiguration.ControlFilterID"
+                            enable-server-side="@Model.eidssGridConfiguration.EnableServerSide"
+                            enable-processing="@Model.eidssGridConfiguration.EnableProcessingMessage"
+                            enable-search="@Model.eidssGridConfiguration.EnableSearching"
+                            end-point="@Model.eidssGridConfiguration.AjaxDataUrl"
+                            class-name="@Model.eidssGridConfiguration.GridClass"
+                            details-ajax-url="@Url.Action("EditModalData", "BaseReferencePage")"
+                            enable-top-header-search-button="@Model.eidssGridConfiguration.EnableCustomSearching"
+                            control-labels="@Model.eidssGridConfiguration.ControlLabels"
+                            controls-that-refresh-the-grid="@Model.eidssGridConfiguration.ControlIdThatRefreshGrid" >
+                </eidss-grid>
+            </div>
+        </div>
+    </div>
+

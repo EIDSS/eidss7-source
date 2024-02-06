@@ -1,0 +1,62 @@
+﻿@using EIDSS.Web.Enumerations
+
+@inherits BaseComponent
+
+@inject DialogService DialogService;
+
+<div class="card">
+    <div class="card-body">
+        <div class="row"></div>
+        <div class="row">
+            <div class="col-xs-11">
+                @if (!string.IsNullOrEmpty(Message))
+                {
+                    <p id="message">@(Message)</p>
+                }
+                else if (!string.IsNullOrEmpty(LocalizedMessage))
+                {
+                    <p id="message">@(LocalizedMessage)</p>
+                }
+                else
+                {
+                    @(MarkupMessage)
+                }
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        @{
+            foreach (var button in DialogButtons)
+            {
+                var dialogResult = new DialogReturnResult
+                {
+                    ButtonResultText = button.ButtonText,
+                    CallingComponent = DialogService.GetType(),
+                    DialogName = DialogName
+                };
+                <button class="btn btn-primary m-2" type="button" @onclick="@(_ => DialogService.Close(dialogResult))">@button.ButtonText</button>
+            }
+        }
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public LocalizedString Message { get; set; }
+
+    [Parameter]
+    public string LocalizedMessage { get; set; }
+
+    [Parameter]
+    public MarkupString MarkupMessage { get; set; }
+
+    [Parameter]
+    public IEnumerable<DialogButton> DialogButtons { get; set; }
+
+    [Parameter]
+    public string DialogName { get; set; }
+
+    [Parameter]
+    public EIDSSDialogType DialogType { get; set; }
+}

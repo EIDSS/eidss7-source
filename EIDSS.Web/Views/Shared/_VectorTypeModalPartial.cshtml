@@ -1,0 +1,74 @@
+﻿@{
+    var eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ModalId = "mdAddVector",
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.VectorTypeDetailsModalHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            //success modal configs
+            SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton)
+        },
+        TargetGridControlID = "gVectorTypes", //ID of Grid to Refresh
+        PostAjaxDataUrl = @Url.Action("AddVectorType", "VectorTypePage", new {Area = "Administration"}),
+        SaveCompleteMethod = "CheckSuccess"
+    };
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "Default",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "DefaultValueRequired"
+    });
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ControlName = "Name",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "NationalValueRequired"
+    });
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.MeasureCodeFieldLabel),
+        ControlName = "Code",
+        Visible = true
+    });
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlName = "Order",
+        ControlType = ControlType.Numeric,
+        Visible = true
+    });
+
+    var yesNoOptions = new List<RadionCheckBoxOptions>() {
+        new() { Value = "1", Key = "", IsChecked = false },
+    };
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        ControlName = "CollectedByPool",
+        ControlType = ControlType.CheckBox,
+        RadioCheckBoxOptions = yesNoOptions,
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.CollectedByPoolFieldLabel)
+    });
+
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+}

@@ -1,0 +1,210 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ResponseModels.FlexForm;
+@using EIDSS.ClientLibrary.ApiClients.FlexForm;
+@using EIDSS.Domain.RequestModels.FlexForm;
+@using System.Globalization
+
+@inherits BaseComponent;
+
+@if (!IsGrid)
+{
+    <div class="col-lg-6 col-md-6 col-sm-6">
+        @if (FfParameter.EditMode == (long)FlexFormEditMode.Mandatory)
+        {
+            <span class='fas fa-asterisk text-danger'></span>
+            <span class="">@FfParameter.Name</span>
+        }
+
+        else{
+            <span class="">@FfParameter.Name</span>
+        }
+    </div>
+    ControlId = FfParameter.ParameterId.ToString();
+}
+else
+{
+    ControlId = FfParameter.ParameterId + "-" + FfParameter.IdfRow;
+}
+
+@{
+    ControlId += "-" + FfParameter.TagID;
+    CssSelected = Selected ? "background-color: #ffffbb" : string.Empty;
+
+    string TotalTag = string.Empty;
+    string SumTag = string.Empty;
+    string onChangeScript = string.Empty;
+}
+
+@switch (FfParameter.EditorId)
+{
+    case (long)FlexibleFormEditorTypeEnum.CheckBox:
+        if (FfParameter.Value != null)
+        {
+            if (FfParameter.Value is "0" or "False")
+            {
+                FfParameter.BValue = false;
+                FfParameter.Value = "0";
+            }
+            else
+            {
+                FfParameter.BValue = true;
+                FfParameter.Value = "1";
+            }
+        }
+        else
+        {
+            FfParameter.BValue = false;
+            FfParameter.Value = "0";
+        }
+        <RadzenCheckBox @bind-Value="@FfParameter.BValue" Change="args => OnCheckBoxChange(FfParameter, args)" Disabled="@FormDisabledIndicator" id="@ControlId" idfsEditor="@FfParameter.EditorId" idfRow="@FfParameter.IdfRow" Name="@ControlId" Style="@CssSelected" title="@FfParameter.IdfRow" TriState="false" TValue="bool" />
+        break;
+    case (long)FlexibleFormEditorTypeEnum.DropDown:
+        if (FfParameter.Value != null)
+            FfParameter.LValue = long.Parse(FfParameter.Value);
+
+        <RadzenDropDown @bind-Value="@FfParameter.LValue" AllowClear="true" class="form-control" Change="args => OnDropDownChange(FfParameter, args)" Data="@Options" Disabled="@FormDisabledIndicator" id="@ControlId" Name="@ControlId" idfsEditor="@FfParameter.EditorId" idfRow="@FfParameter.IdfRow" LoadData="@(args => GetDropdownOptions(args))" title="@FfParameter.IdfRow" TextProperty="strValueCaption" TValue="long?" ValueProperty="idfsValue" />
+        break;
+    case (long)FlexibleFormEditorTypeEnum.DatePicker:
+        DateTime? localDate = null;
+        if (FfParameter.Value != null && FfParameter.Value != "0")
+        {
+            localDate = DateTime.Parse(FfParameter.Value, CultureInfo.InvariantCulture);
+            FfParameter.Value = Convert.ToDateTime(FfParameter.Value, CultureInfo.InvariantCulture).ToShortDateString();
+        }
+        <RadzenDatePicker AllowClear="true" DateFormat="d" id="@ControlId" idfsEditor="@FfParameter.EditorId" idfRow="@FfParameter.IdfRow" Disabled="@FormDisabledIndicator" Name="@ControlId" Style="@CssSelected" TValue="DateTime?" Value="@localDate" />
+        break;
+    case (long)FlexibleFormEditorTypeEnum.DateTimePicker:
+        DateTime? localDateTime = null;
+        if (FfParameter.Value != null)
+        {
+            localDateTime = DateTime.Parse(FfParameter.Value, CultureInfo.InvariantCulture);
+            FfParameter.Value = Convert.ToDateTime(localDateTime, CultureInfo.InvariantCulture).ToShortTimeString();
+        }
+        <RadzenDatePicker AllowClear="true" DateFormat="g" id="@ControlId" idfsEditor="@FfParameter.EditorId" idfRow="@FfParameter.IdfRow" Disabled="@FormDisabledIndicator" Name="ControlId" Style="@CssSelected" TValue="DateTime?" Value="@localDateTime" />
+        break;
+    case (long)FlexibleFormEditorTypeEnum.TextArea:
+        <RadzenTextArea @bind-Value="@FfParameter.Value" class="form-control" id="@ControlId" idfsEditor="@FfParameter.EditorId" idfRow="@FfParameter.IdfRow" Change="args => OnTextBoxChange(FfParameter, args)" Disabled="@FormDisabledIndicator" Name="@ControlId" Style="@CssSelected" title="@FfParameter.IdfRow" />
+        break;
+    case (long)FlexibleFormEditorTypeEnum.TextBox:
+        <RadzenTextBox @bind-Value="@FfParameter.Value" class="form-control" id="@ControlId" idfsEditor="@FfParameter.EditorId" idfRow="@FfParameter.IdfRow" Change="args => OnTextBoxChange(FfParameter, args)" Disabled="@FormDisabledIndicator" Name="@ControlId" Style="@CssSelected" title="@FfParameter.IdfRow" />
+        break;
+    case (long)FlexibleFormEditorTypeEnum.Numeric:
+       switch(FfParameter.ParameterType){
+            case (long)FlexibleFormParameterTypeEnum.NumericNatural:
+                <RadzenNumeric Min="0" Step="1" @bind-Value="@FfParameter.Value" class="form-control" id="@ControlId" idfsEditor="@FfParameter.EditorId" idfRow="@FfParameter.IdfRow" Disabled="@FormDisabledIndicator" Name="@ControlId" Style="@CssSelected" title="@FfParameter.IdfRow" />
+                break;
+            case (long)FlexibleFormParameterTypeEnum.NumericPositive:
+                <RadzenNumeric Min="0" @bind-Value="@FfParameter.Value" class="form-control" id="@ControlId" idfsEditor="@FfParameter.EditorId" idfRow="@FfParameter.IdfRow" Disabled="@FormDisabledIndicator" Name="@ControlId" Style="@CssSelected" title="@FfParameter.IdfRow" />
+                break;
+            case (long)FlexibleFormParameterTypeEnum.NumericInteger:
+                <RadzenNumeric Step="1" @bind-Value="@FfParameter.Value" class="form-control" id="@ControlId" idfsEditor="@FfParameter.EditorId" idfRow="@FfParameter.IdfRow" Disabled="@FormDisabledIndicator" Name="@ControlId" Style="@CssSelected" title="@FfParameter.IdfRow" />
+                break;
+        }
+        break;
+    case (long)FlexibleFormEditorTypeEnum.RadioButtonList:
+        <RadzenRadioButtonList @bind-Value="@FfParameter.Value" class="form-control" id="@ControlId" idfsEditor="@FfParameter.EditorId" idfRow="@FfParameter.IdfRow" Disabled="@FormDisabledIndicator" Name="@ControlId" Style="@CssSelected" title="@FfParameter.IdfRow" />
+        break;
+    case (long)FlexibleFormEditorTypeEnum.TextBoxSummingField:
+        TotalTag = "MTF-" + @FfParameter.IdfRow.ToString();
+        SumTag = "MSF-" + @FfParameter.IdfRow.ToString();
+        onChangeScript = "var t = 0;$(\"[SumTag=" + SumTag + "]\").each(function (i, j) { if(!isNaN(parseInt($(j).val()))) { t += parseInt($(j).val()); }});$(\"[TotalTag=" + TotalTag + "]\").val(t);";
+        <input type="number" id="@ControlId" Value="@FfParameter.Value" SumTag="@SumTag" class="form-control" onchange="@onChangeScript" idfsEditor="@FfParameter.EditorId" idfRow="@FfParameter.IdfRow" Disabled="@FormDisabledIndicator" Name="@ControlId" Style="@CssSelected" title="@FfParameter.IdfRow" />
+        break;
+    case (long)FlexibleFormEditorTypeEnum.TextBoxTotalField:
+        TotalTag = "MTF-" + @FfParameter.IdfRow.ToString();
+        <input type="text" TotalTag="@TotalTag" class="form-control" id="@ControlId" idfsEditor="@FfParameter.EditorId" idfRow="@FfParameter.IdfRow" Disabled="@FormDisabledIndicator" Name="@ControlId" Style="@CssSelected" title="@FfParameter.IdfRow" />
+        break;
+    default:
+        string test = "";
+        break;
+}
+
+@if(FfParameter.EditMode == (long)FlexFormEditMode.Mandatory){
+    <RadzenRequiredValidator Component="@ControlId" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)" />
+}
+
+@code {
+    [Inject]
+    protected IFlexFormClient FlexFormClient { get; set; }
+
+    [Parameter]
+    public bool IsGrid { get; set; }
+    [Parameter]
+    public FlexForm.Parameter FfParameter { get; set; }
+    [Parameter]
+    public bool Selected { get; set; } = false;
+    [Parameter]
+    public bool FormDisabledIndicator { get; set; } = false;
+
+    private string ControlId { get; set; }
+    private string CssSelected { get; set; }
+    private static int TotalID { get; set; } = 0;
+
+    private IList<FlexFormParameterSelectListResponseModel> Options { get; set; }
+
+    private async Task GetDropdownOptions(LoadDataArgs args)
+    {
+        try
+        {
+            var request = new FlexFormParameterSelectListGetRequestModel
+                {
+                    LangID = GetCurrentLanguage(),
+                    idfsParameter = FfParameter.ParameterId
+                };
+
+            Options = await FlexFormClient.GetDropDownOptionsList(request);
+        }
+        catch { }
+    }
+
+    protected void OnCheckBoxChange(FlexForm.Parameter parameter, object value)
+    {
+        if (parameter is null) return;
+        if (value is null)
+        {
+            parameter.Value = null;
+            parameter.BValue = false;
+        }
+        else
+        {
+            parameter.Value = value.ToString();
+            parameter.BValue = (bool)value;
+        }
+    }
+
+    protected void OnTextBoxChange(FlexForm.Parameter parameter, object value)
+    {
+        if (parameter is null) return;
+        parameter.Value = value?.ToString();
+    }
+
+    protected void OnNumericBoxChange(FlexForm.Parameter parameter, object value)
+    {
+        if (parameter is null) return;
+        if (value is null)
+        {
+            parameter.Value = null;
+            parameter.BValue = false;
+        }
+        else
+        {
+            parameter.Value = value.ToString();
+            parameter.BValue = (bool)value;
+        }
+    }
+
+    protected void OnDropDownChange(FlexForm.Parameter parameter, object value)
+    {
+        if (parameter is null) return;
+        if (value is null)
+        {
+            parameter.Value = null;
+            parameter.LValue = null;
+        }
+        else
+        {
+            parameter.Value = value.ToString();
+            parameter.LValue = (long)value;
+        }
+    }
+}

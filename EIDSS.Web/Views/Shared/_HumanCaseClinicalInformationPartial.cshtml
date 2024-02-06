@@ -1,0 +1,300 @@
+﻿@model EIDSS.Web.ViewModels.Human.DiseaseReportComponentViewModel;
+@using EIDSS.Web.Components.Human
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@using EIDSS.Domain.Enumerations;
+@using EIDSS.Web.Components.Human.HumanDiseaseReport
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    @functions{
+        string FormatNullableDate(DateTime? value) => value.HasValue ? value.Value.ToString("d") : "";
+    }
+    var defaultReference = new Select2DataItem();
+
+    if (Model.SymptomsSection.idfCaseClassfication !=null && Model.SymptomsSection.idfCaseClassfication != 0 && Model.SymptomsSection.strCaseClassification != null && Model.SymptomsSection.strCaseClassification != "")
+    {
+        defaultReference = new Select2DataItem() { id = Model.SymptomsSection.idfCaseClassfication.ToString(), text = Model.SymptomsSection.strCaseClassification };
+    }
+    
+    Model.SymptomsSection.caseClassficationDD.DropDownId = "caseClassficationDD";
+    Model.SymptomsSection.caseClassficationDD.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.SymptomsSection.caseClassficationDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.CreateHumanCaseOutbreakStatusFieldLabel);
+    Model.SymptomsSection.caseClassficationDD.Endpoint = @Url.Action("BaseReferenceListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", ReferenceType = "Outbreak Case Status", intHACode = (int)AccessoryCodeEnum.Human });
+    Model.SymptomsSection.caseClassficationDD.isVisible = true;
+    Model.SymptomsSection.caseClassficationDD.defaultSelect2Selection = defaultReference;
+    Model.SymptomsSection.caseClassficationDD.CustomJsOnChangeFunction = "GetSiteAlertForInitialCaseClassification";
+    Model.SymptomsSection.caseClassficationDD.ConfigureForPartial = true;
+
+    //Facility Drop Down
+    Model.FacilityDetailsSection.FacilitySelect.DropDownId = "FacilitySelect";
+    Model.FacilityDetailsSection.FacilitySelect.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsFacilityPatientFirstSoughtCareFieldLabel);
+    Model.FacilityDetailsSection.FacilitySelect.Endpoint = @Url.Action("GetOrganizationsForLookup", "CrossCutting", new { Area = "CrossCutting", organizationSiteAssociation = (int)OrganizationSiteAssociations.OrganizationsWithOrWithoutSite, accessoryCode = EIDSSConstants.HACodeList.HumanHACode });
+    Model.FacilityDetailsSection.FacilitySelect.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.FacilityDetailsSection.FacilitySelect.isVisible = true;
+
+    //Diagnosis Drop Down
+    Model.FacilityDetailsSection.DiagnosisSelect.DropDownId = "DiagnosisSelect";
+    Model.FacilityDetailsSection.DiagnosisSelect.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsNonNotifiableDiagnosisFromFacilityWherePatientFirstSoughtCareFieldLabel);
+    Model.FacilityDetailsSection.DiagnosisSelect.Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDownWithSorting", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = (long)ReferenceTypes.NonNotifiableDiagnosis, sortColumn = "intOrder" });
+    Model.FacilityDetailsSection.DiagnosisSelect.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.FacilityDetailsSection.DiagnosisSelect.isVisible = true;
+    Model.FacilityDetailsSection.DiagnosisSelect.IncludeAddButton = true;
+    Model.FacilityDetailsSection.DiagnosisSelect.AddButtonId = "btnAddDiagnosis";
+
+    //Hospital Drop Down
+    Model.FacilityDetailsSection.HospitalSelect.DropDownId = "HospitalSelect";
+    Model.FacilityDetailsSection.HospitalSelect.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsHospitalNameFieldLabel);
+    Model.FacilityDetailsSection.HospitalSelect.Endpoint = @Url.Action("GetOrganizationsForLookup", "CrossCutting", new { Area = "CrossCutting", organizationSiteAssociation = (int)OrganizationSiteAssociations.OrganizationsWithOrWithoutSite, organizationTypeID = (long)OrganizationTypes.Hospital });
+    Model.FacilityDetailsSection.HospitalSelect.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.FacilityDetailsSection.HospitalSelect.isVisible = true;
+}
+
+<form id="ClinicalInformationForm">
+    <div class="card">
+        <div class="card-header"><h4 heading-for="@HeadingResourceKeyConstants.CreateHumanCaseClinicalInformationHeading"></h4></div>
+        <div class="card-body">
+            <div class="row">
+                <div class="form-group col-md-6">
+                    @if ((Model.SymptomsSection.blnFinalSSD == null || (Model.SymptomsSection.blnFinalSSD != null && Model.SymptomsSection.blnFinalSSD.Value == false))
+                      && (Model.SymptomsSection.blnInitialSSD == null || (Model.SymptomsSection.blnInitialSSD != null && Model.SymptomsSection.blnInitialSSD.Value == false)
+                      ))
+                        {
+                            <i class="fas fa-asterisk text-danger"></i>
+                            <eidss-select2DropDown id="@Model.SymptomsSection.caseClassficationDD.DropDownId"
+                                                   name="@Model.SymptomsSection.caseClassficationDD.DropDownId"
+                                                   control-target-id="@Model.SymptomsSection.caseClassficationDD.ControltargetId"
+                                                   target-type="@Model.SymptomsSection.caseClassficationDD.ControlTargetType"
+                                                   target-ajax-url="@Model.SymptomsSection.caseClassficationDD.ControlTargetUrl"
+                                                   selectct2-default-data="@Model.SymptomsSection.caseClassficationDD.defaultSelect2Selection"
+                                                   end-point="@Model.SymptomsSection.caseClassficationDD.Endpoint"
+                                                   label-name="@Model.SymptomsSection.caseClassficationDD.Label"
+                                                   is-visible="@Model.SymptomsSection.caseClassficationDD.isVisible"
+                                                   custom-js-on-change-function="@Model.SymptomsSection.caseClassficationDD.CustomJsOnChangeFunction"
+                                                   is-disabled="@Model.SymptomsSection.IsReportClosed"
+                                                   asp-for="@Model.SymptomsSection.idfCaseClassfication"
+                                                   partial-dynamic-load="true"
+                                                   class-name="form-control">
+                            </eidss-select2DropDown>
+                            <span asp-validation-for="@Model.SymptomsSection.idfCaseClassfication" class="text-danger"></span>
+
+                        }
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label asp-for="SymptomsSection.OutBreakSymptomsOnsetDate" field-label-for="@FieldLabelResourceKeyConstants.HumanDiseaseReportSymptomsDateOfSymptomsOnsetFieldLabel"></label>
+                    <eidss-calendar id="SymptomsSection_OutBreakSymptomsOnsetDate" name="SymptomsSection.OutBreakSymptomsOnsetDate" asp-for="SymptomsSection.OutBreakSymptomsOnsetDate" SearchFilter="true"
+                                    value="@FormatNullableDate(Model.SymptomsSection.OutBreakSymptomsOnsetDate)" disabled="@Model.FacilityDetailsSection.IsReportClosed" dates-ids-to_validate="HumanCaseClinicalInformation_datFinalDiagnosisDate"></eidss-calendar>
+                    <span asp-validation-for="SymptomsSection.OutBreakSymptomsOnsetDate" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.CreateHumanCaseDateofDiseaseFieldLabel"></i>
+                    <label asp-for="HumanCaseClinicalInformation.datFinalDiagnosisDate" field-label-for="@FieldLabelResourceKeyConstants.CreateHumanCaseDateofDiseaseFieldLabel"></label>
+                    <eidss-calendar id="HumanCaseClinicalInformation_datFinalDiagnosisDate" name="HumanCaseClinicalInformation.datFinalDiagnosisDate" asp-for="HumanCaseClinicalInformation.datFinalDiagnosisDate" SearchFilter="true"
+                                    value="@FormatNullableDate(Model.HumanCaseClinicalInformation.datFinalDiagnosisDate)" disabled="@Model.FacilityDetailsSection.IsReportClosed" dates-ids-to_validate="NotificationSection_datOutbreakNotification,SymptomsSection_OutBreakSymptomsOnsetDate"></eidss-calendar>
+                    <span asp-validation-for="HumanCaseClinicalInformation.datFinalDiagnosisDate" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="card">
+                <div id="divSymptomsList">
+                    @await Component.InvokeAsync("FlexFormView", Model.SymptomsSection.HumanDiseaseSymptoms)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h4>@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportClinicalInformationFacilityDetailsHeading)</h4>
+        </div>
+        <div class="card-body">
+            <div class="collapse show" id="facilityReveal">
+                <div class="form-row">
+                    <div class="col-md-6">
+                        <!--Date Patient Sought Care-->
+                        <label asp-for="@Model.FacilityDetailsSection.SoughtCareFirstDate">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsDatePatientFirstSoughtCareFieldLabel)</label>
+                        <eidss-calendar asp-for="@Model.FacilityDetailsSection.SoughtCareFirstDate" id="FacilityDetailsSection_SoughtCareFirstDate" name="FacilityDetailsSection.SoughtCareFirstDate" css-class="form-control" date-format="d" shortdate=true disabled="@Model.FacilityDetailsSection.IsReportClosed"/>
+                        <span asp-validation-for="@Model.FacilityDetailsSection.SoughtCareFirstDate" class="text-danger" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <!--Facility where Care was Sought Drop Down-->
+                        <eidss-select2DropDown id="@Model.FacilityDetailsSection.FacilitySelect.DropDownId"
+                                               control-target-id="@Model.FacilityDetailsSection.FacilitySelect.ControltargetId"
+                                               target-type="@Model.FacilityDetailsSection.FacilitySelect.ControlTargetType"
+                                               target-ajax-url="@Model.FacilityDetailsSection.FacilitySelect.ControlTargetUrl"
+                                               selectct2-default-data="@Model.FacilityDetailsSection.FacilitySelect.defaultSelect2Selection"
+                                               end-point="@Model.FacilityDetailsSection.FacilitySelect.Endpoint"
+                                               label-name="@Model.FacilityDetailsSection.FacilitySelect.Label"
+                                               is-visible="@Model.FacilityDetailsSection.FacilitySelect.isVisible"
+                                               is-disabled="@Model.FacilityDetailsSection.IsReportClosed">
+                        </eidss-select2DropDown>
+                    </div>
+
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <!--Non-Notifiable Diagnosis Drop Down-->
+                        <eidss-select2DropDown id="@Model.FacilityDetailsSection.DiagnosisSelect.DropDownId"
+                                               control-target-id="@Model.FacilityDetailsSection.DiagnosisSelect.ControltargetId"
+                                               target-type="@Model.FacilityDetailsSection.DiagnosisSelect.ControlTargetType"
+                                               target-ajax-url="@Model.FacilityDetailsSection.DiagnosisSelect.ControlTargetUrl"
+                                               selectct2-default-data="@Model.FacilityDetailsSection.DiagnosisSelect.defaultSelect2Selection"
+                                               end-point="@Model.FacilityDetailsSection.DiagnosisSelect.Endpoint"
+                                               label-name="@Model.FacilityDetailsSection.DiagnosisSelect.Label"
+                                               is-visible="@Model.FacilityDetailsSection.DiagnosisSelect.isVisible"
+                                               is-disabled="@Model.FacilityDetailsSection.IsReportClosed"
+                                               >
+                        </eidss-select2DropDown>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <!--Was patient hospitalized?-->
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsHospitalizationFieldLabel)</label>
+                    @for (int i = 0; i <= Model.FacilityDetailsSection.YesNoChoices.Count() - 1; i++)
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="FacilityDetailsSection.Hospitalized" asp-for="@Model.FacilityDetailsSection.Hospitalized" value="@Model.FacilityDetailsSection.YesNoChoices[i].IdfsBaseReference" disabled="@Model.FacilityDetailsSection.IsReportClosed" />
+                            <label class="form-check-label" asp-for="@Model.FacilityDetailsSection.Hospitalized">@Model.FacilityDetailsSection.YesNoChoices[i].Name</label>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="collapse show" id="hospitalReveal">
+                <div class="form-row">
+                    <div class="col-md-6">
+                        <!--Date of Hospitalization-->
+                        <label asp-for="@Model.FacilityDetailsSection.OutbreakHospitalizationDate">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsDateOfHospitalizationFieldLabel)</label>
+                        <eidss-calendar asp-for="@Model.FacilityDetailsSection.OutbreakHospitalizationDate" id="FacilityDetailsSection_OutbreakHospitalizationDate" name="FacilityDetailsSection.OutbreakHospitalizationDate" css-class="form-control" date-format="d" shortdate=true disabled="@Model.FacilityDetailsSection.IsReportClosed"></eidss-calendar>
+                        <span asp-validation-for="@Model.FacilityDetailsSection.OutbreakHospitalizationDate" class="text-danger" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <!--Date of Discharge-->
+                        <label asp-for="@Model.FacilityDetailsSection.DateOfDischarge">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsDateOfDischargeFieldLabel)</label>
+                        <eidss-calendar asp-for="@Model.FacilityDetailsSection.DateOfDischarge" id="FacilityDetailsSection_DateOfDischarge" name="FacilityDetailsSection.DateOfDischarge" css-class="form-control" date-format="d" shortdate=true disabled="@Model.FacilityDetailsSection.IsReportClosed"></eidss-calendar>
+                        <span asp-validation-for="@Model.FacilityDetailsSection.DateOfDischarge"  class="text-danger" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <!--Hospital Name Drop Down-->
+                        <eidss-select2DropDown id="@Model.FacilityDetailsSection.HospitalSelect.DropDownId"
+                                               control-target-id="@Model.FacilityDetailsSection.HospitalSelect.ControltargetId"
+                                               target-type="@Model.FacilityDetailsSection.HospitalSelect.ControlTargetType"
+                                               target-ajax-url="@Model.FacilityDetailsSection.HospitalSelect.ControlTargetUrl"
+                                               selectct2-default-data="@Model.FacilityDetailsSection.HospitalSelect.defaultSelect2Selection"
+                                               end-point="@Model.FacilityDetailsSection.HospitalSelect.Endpoint"
+                                               label-name="@Model.FacilityDetailsSection.HospitalSelect.Label"
+                                               is-visible="@Model.FacilityDetailsSection.HospitalSelect.isVisible"
+                                               is-disabled="@Model.FacilityDetailsSection.IsReportClosed">
+                        </eidss-select2DropDown>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <component type="typeof(HumanDiseaseReportAntibioticVaccineHistory)" param-model=@Model.AntibioticVaccineHistorySection param-isEdit=@Model.isEdit param-IsReportClosed="@Model.IsReportClosed" render-mode="Server" />
+    </div>
+</form>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        // wire change events for sought care radio buttons
+        $("input[type='radio'][name='FacilityDetailsSection.PatientPreviouslySoughtCare']").on('change', toggleFacilityReveal);
+
+        // wire change events for hospitalized radio buttons
+        $("input[type='radio'][name='FacilityDetailsSection.Hospitalized']").on('change', toggleHospitalReveal);
+
+        // disable diagnosis add button unless user has permission
+        if ('@Model.FacilityDetailsSection.BaseReferencePermissions.Create')
+        {
+            $("#btnAddDiagnosis").attr("disabled", false);
+        }
+        else
+        {
+            $("#btnAddDiagnosis").attr("disabled", true);
+        }
+
+        //set the initial state
+        toggleFacilityAtLoad();
+        toggleHospitalAtLoad();
+    });
+
+    function toggleFacilityAtLoad() {
+        var soughtCare=$('input:radio[name="FacilityDetailsSection.PatientPreviouslySoughtCare"]:checked').val();
+
+         var yesValue = '@EIDSSConstants.YesNoValueList.Yes';
+         if (soughtCare == yesValue) {
+            $("#facilityReveal").collapse('show');
+        }
+        else {
+            $("#facilityReveal").collapse('hide');
+        }
+    }
+
+    function toggleFacilityReveal() {
+         var yesValue = '@EIDSSConstants.YesNoValueList.Yes';
+        if ($(this).val() == yesValue) {
+            $("#facilityReveal").collapse('show');
+        }
+        else {
+            $("#facilityReveal").collapse('hide');
+        }
+    }
+
+    function toggleHospitalReveal() {
+
+        var yesValue = '@EIDSSConstants.YesNoValueList.Yes';
+        if ($(this).val() == yesValue) {
+            $("#hospitalReveal").collapse('show');
+        }
+        else {
+            $("#hospitalReveal").collapse('hide');
+        }
+    }
+    function toggleHospitalAtLoad() {
+
+        var hospitalized = $('input:radio[name="FacilityDetailsSection.Hospitalized"]:checked').val();
+
+
+         var yesValue = '@EIDSSConstants.YesNoValueList.Yes';
+        if (hospitalized == yesValue) {
+             $("#hospitalReveal").collapse('show');
+        }
+        else {
+             $("#hospitalReveal").collapse('hide');
+        }
+    }
+
+    function GetSiteAlertForInitialCaseClassification(data)
+    {
+        var model={};
+        model.idfCaseClassfication='@Model.SymptomsSection.idfCaseClassfication';
+        model.idfHumanCase='@Model.idfHumanCase';
+        model.idfHuman='@Model.SymptomsSection.idfHuman';
+        model.idfsSite='@Model.SymptomsSection.idfsSite';
+        model.DiseaseID = '@Model.SymptomsSection.DiseaseID';
+          $.ajax({
+                url: '@Url.Action("GetSiteAlertForInitialCaseClassification", "DiseaseReport", new { Area = "Human"})?data=' + JSON.stringify(model),
+                type: 'GET',
+                async:false,
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    
+                },
+                complete: function (data) {
+                },
+                error: function (request, error) {
+                    alert("failure" + error);
+                }
+            });
+    }
+</script>
+
+<partial name="_ValidationScriptsPartial" />

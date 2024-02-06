@@ -1,0 +1,75 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits VaccinationBase
+
+<RadzenTemplateForm @ref="Form" TItem="VaccinationGetListViewModel" Data="Model" Submit="OnSubmit">
+    <div class="card">
+        <DataAnnotationsValidator/>
+        <div class="form-row">
+            <InterfaceEditorResource CssClass="col-9" For="disease" InterfaceEditorKey="@DiseaseFieldLabelResourceKey" IsRow="false">
+                <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.DiseaseID" Change="@(OnDiseaseChange)" class="form-control" Data="Diseases" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetDiseases" Name="disease" TextProperty="DiseaseName" TValue="long?" ValueProperty="DiseaseID"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-3" For="vaccinationDate" InterfaceEditorKey="@VaccinationDateFieldLabelResourceKey" IsRow="false">
+                <br/>
+                <RadzenDatePicker AllowClear="true" @bind-Value="Model.VaccinationDate" DateFormat="d" Name="vaccinationDate" TValue="DateTime?"/>
+                <RadzenCompareValidator Component="vaccinationDate" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="DateTime.Now"/>
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource CssClass="col-9" For="species" InterfaceEditorKey="@SpeciesFieldLabelResourceKey" IsRow="false">
+                <RadzenDropDown @bind-Value="Model.SpeciesID" AllowClear="true" AllowFiltering="true" class="form-control" Data="Species" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetSpecies" Name="species" TextProperty="Species" TValue="long?" ValueProperty="SpeciesID"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-3" For="numberVaccinated" InterfaceEditorKey="@NumberVaccinatedFieldLabelResourceKey" IsRow="false">
+                <RadzenNumeric @bind-Value="Model.NumberVaccinated" class="form-control" Min="0" Name="numberVaccinated"/>
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource CssClass="col-6" For="type" InterfaceEditorKey="@TypeFieldLabelResourceKey" IsRow="false">
+                <div class="input-group mb-3">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.VaccinationTypeID" class="form-control" Data="VaccinationTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetVaccinationTypes" Name="type" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"/>
+                    @if (DiseaseReport.CreateBaseReferencePermissionIndicator)
+                    {
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary btn-sm" id="addVaccinationType" @onclick="@AddVaccinationTypeClick" type="button">
+                                <span class="fas fa-plus" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    }
+                </div>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-6" For="route" InterfaceEditorKey="@RouteFieldLabelResourceKey" IsRow="false">
+                <div class="input-group mb-3">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.RouteTypeID" class="form-control" Data="VaccinationRouteTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetVaccinationRouteTypes" Name="route" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"/>
+                    @if (DiseaseReport.CreateBaseReferencePermissionIndicator)
+                    {
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary btn-sm" id="addRouteType" @onclick="@AddRouteTypeClick" type="button">
+                                <span class="fas fa-plus" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    }
+                </div>
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource CssClass="col-3" For="lotNumber" InterfaceEditorKey="@LotNumberFieldLabelResourceKey" IsRow="false">
+                <RadzenTextBox @bind-Value="Model.LotNumber" class="form-control" MaxLength="200" Name="lotNumber"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-9" For="manufacturer" InterfaceEditorKey="@ManufacturerFieldLabelResourceKey" IsRow="false">
+                <RadzenTextBox @bind-Value="Model.Manufacturer" class="form-control" MaxLength="200" Name="manufacturer"/>
+            </InterfaceEditorResource>
+        </div>
+        <InterfaceEditorResource CssClass="col-12" For="comments" InterfaceEditorKey="@CommentsFieldLabelResourceKey" IsRow="true">
+            <RadzenTextBox @bind-Value="Model.Comments" class="form-control" MaxLength="200" Name="comments"/>
+        </InterfaceEditorResource>
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-12">
+                    <button class="btn btn-outline-primary" @onclick="OnCancel" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button class="btn btn-primary" @onsubmit="OnSubmit" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

@@ -1,0 +1,34 @@
+﻿@model EIDSS.Web.Areas.Administration.ViewModels.Administration.InterfaceEditorLanguageUpload;
+@using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+
+<div class="row m-auto">
+    <div class="col-auto">
+        <h5>@Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorAddaLanguageFileFieldLabel)</h5>
+    </div>
+</div>
+<div class="row m-auto">
+    <form class="form-inline" id="addLanguageForm"
+          onsubmit="InterfaceEditor.uploadLanguageTemplate();"
+          enctype="multipart/form-data"
+          method="post">
+
+        <div class="row">
+            <div class="form-group col-auto">
+                <label class="px-2 py-2" for="availableCultures">@Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorLanguageFieldLabel)</label>
+                <select class="form-control" id="availableCultures" asp-items="Model.AvailableCultures" asp-for="LanguageName"></select>
+            </div>
+            <div class="form-group col-auto">
+                <button class="btn btn-primary" asp-action="DownloadLanguageTranslationTemplate" asp-controller="InterfaceEditorPage" asp-area="Administration">@Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorDownloadTemplateFieldLabel)</button>
+            </div>
+            <div class="form-group col-auto">
+                <label class="px-2 py-2" for="languageFile" asp-for="LanguageFile">@Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorUploadFileFieldLabel):</label>
+                <input id="loadLanguageFile" type="button" class="btn btn-primary" value="@Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorChooseafileFieldLabel)" onclick="document.getElementById('languageFile').click();" />
+                <input id="languageFile" type="file" style="display:none;" asp-for="LanguageFile" placeholder="@Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorChooseafileFieldLabel)"  />
+            </div>
+            <div class="form-group col-auto">
+                <button type="submit" id="UploadLanguageTemplateButton" class="btn btn-primary">@Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorUploadFieldLabel)</button>
+                <div class="alert alert-dark" hidden role="alert">@Model.PageResult</div>
+            </div>
+        </div>
+    </form>
+</div>

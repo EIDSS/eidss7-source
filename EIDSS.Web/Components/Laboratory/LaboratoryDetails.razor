@@ -1,0 +1,102 @@
+﻿@using EIDSS.Domain.ViewModels.Laboratory
+@using EIDSS.Web.Components.FlexForm
+@using EIDSS.Domain.Enumerations
+@inherits LaboratoryDetailsBase
+
+<RadzenTemplateForm Data="Model" @ref="Form" Submit="OnSubmit" TItem="LaboratoryDetailViewModel">
+    <div class="card">
+        <DataAnnotationsValidator/>
+        <div class="form-row">
+            <div class="col-12">
+                <RadzenPanel AllowCollapse="true" Collapsed="Model.AccordionIndex != 0" Style="width: 100%;">
+                    <HeaderTemplate>
+                        <div class="laboratoryDetailsModalSectionHeading">
+                            <span class="laboratoryDetailsModalSectionHeadingText">@Localizer.GetString(HeadingResourceKeyConstants.LaboratorySampleTestDetailsModalSampleDetailsHeading)</span>
+                            <span class="laboratoryDetailsModalSectionHeadingPrint">
+                                <a id="printSampleButton" @onclick="_ => OnSamplePaperFormReportClick()" role="button">
+                                    <i class="fa fa-print fa-lg"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </HeaderTemplate>
+                    <ChildContent>
+                        <SampleDetails @ref="SampleDetailsComponent" Sample="Model.Sample"/>
+                    </ChildContent>
+                </RadzenPanel>
+                <RadzenPanel AllowCollapse="true" Collapsed="Model.AccordionIndex != 1" Style="width: 100%;">
+                    <HeaderTemplate>
+                        <div class="laboratoryDetailsModalSectionHeading">
+                            <span class="laboratoryDetailsModalSectionHeadingText">@Localizer.GetString(HeadingResourceKeyConstants.LaboratorySampleTestDetailsModalTestDetailsHeading)</span>
+                            <span class="laboratoryDetailsModalSectionHeadingPrint">
+                                @if (TestId is null)
+                                {
+                                    <a id="printTestButton" class="disabled" disabled role="button">
+                                        <i class="fa fa-print fa-lg disabled"></i>
+                                    </a>
+
+                                }
+                                else
+                                {
+                                    <a id="printTestButton" @onclick="_ => OnTestResultPaperFormReportClick()" role="button">
+                                        <i class="fa fa-print fa-lg"></i>
+                                    </a>
+                                }
+                            </span>
+                        </div>
+                    </HeaderTemplate>
+                    <ChildContent>
+                        <TestDetails Sample="Model.Sample" Test="Model.Test" Transfer="Model.Transfer" />
+                    </ChildContent>
+                </RadzenPanel>
+                <RadzenPanel AllowCollapse="true" Collapsed="false" Style="width: 100%;">
+                    <HeaderTemplate>
+                        <div class="laboratoryDetailsModalSectionHeading">
+                            <span class="laboratoryDetailsModalSectionHeadingText">@Localizer.GetString(HeadingResourceKeyConstants.LaboratorySampleTestDetailsModalAdditionalTestDetailsHeading)</span>
+                        </div>
+                    </HeaderTemplate>
+                    <ChildContent>
+                        <FlexForm @ref="AdditionalTestDetailsFlexForm" FormDisabledIndicator="Model.Test?.TestStatusTypeID is (long) TestStatusTypeEnum.Deleted or (long) TestStatusTypeEnum.MarkedForDeletion" Request="FlexFormRequest"/>
+                    </ChildContent>
+                </RadzenPanel>
+                <RadzenPanel AllowCollapse="true" Collapsed="true" Style="width: 100%;">
+                    <HeaderTemplate>
+                        <div class="laboratoryDetailsModalSectionHeading">
+                            <span class="laboratoryDetailsModalSectionHeadingText">@Localizer.GetString(HeadingResourceKeyConstants.LaboratorySampleTestDetailsModalAmendmentHistoryHeading)</span>
+                        </div>
+                    </HeaderTemplate>
+                    <ChildContent>
+                        <AmendmentHistory TestId="Model.TestID"/>
+                    </ChildContent>
+                </RadzenPanel>
+                <RadzenPanel AllowCollapse="true" Collapsed="Model.AccordionIndex != 4" Style="width: 100%;" Visible="Model.ShowTransferDetails">
+                    <HeaderTemplate>
+                        <div class="laboratoryDetailsModalSectionHeading">
+                            <span class="laboratoryDetailsModalSectionHeadingText">@Localizer.GetString(HeadingResourceKeyConstants.LaboratoryTransferDetailsHeading)</span>
+                            <span class="laboratoryDetailsModalSectionHeadingPrint">
+                                <a id="printTransferButton" @onclick="_ => OnTransferPaperFormReportClick()" role="button">
+                                    <i class="fa fa-print fa-lg"></i>
+                                </a>
+                            </span>
+                        </div>
+                    </HeaderTemplate>
+                    <ChildContent>
+                        <TransferDetails Transfer="Model.Transfer"/>
+                    </ChildContent>
+                </RadzenPanel>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-12">
+                    <button class="btn btn-outline-primary" @onclick="OnCancel" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToCancelToolTip)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    @if ((Model.SamplesWritePermission && Model.Sample.WritePermissionIndicator) ||
+                         (Model.TestingWritePermission && Model.Test is not null && Model.Test.WritePermissionIndicator) ||
+                         (Model.TransferredWritePermission && Model.Transfer is not null && Model.Transfer.WritePermissionIndicator))
+                    {
+                        <button class="btn btn-primary" @onsubmit="OnSubmit" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

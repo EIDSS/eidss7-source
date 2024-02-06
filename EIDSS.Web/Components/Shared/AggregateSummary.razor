@@ -1,0 +1,52 @@
+﻿@using System.Collections
+@using Microsoft.EntityFrameworkCore.ValueGeneration.Internal
+@inherits EIDSS.Web.Components.Shared.AggregateSummaryBase
+
+<div class="card-header">
+    <h6>@Model.Title</h6>
+</div>
+<div class="card-body">
+    <table class="table">
+        <thead class="thead-light">
+            <tr>
+                @* Matrix Column Headings *@
+                @foreach (var matrixColumnHeading in Model.MatrixColumnHeadings)
+                {
+                    <th class="text-wrap p-2">@matrixColumnHeading</th>
+                }
+
+                @* Flex Form Column Headings *@
+                @foreach (var flexFormColumnHeading in Model.AggregateSummaryRecords.DistinctBy(x => x.ParameterName).OrderBy(x => x.ParameterOrder))
+                {
+                    <th class="p-2">@flexFormColumnHeading.ParameterName</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var rowGroup in Model.AggregateSummaryRecords.DistinctBy(x => x.intNumRow).OrderBy(x => x.intNumRow))
+            {
+                <tr>
+                    @{
+                        var fields = rowGroup.GetType().GetProperties();
+
+                        @* Matrix Cells *@
+                        @foreach (var displayField in Model.DisplayFields)
+                        {
+
+                            var matrixFieldValue = fields.Any(x => x.Name == displayField.Key)
+                            ? fields.First(x => x.Name == displayField.Key).GetValue(rowGroup)?.ToString()
+                            : string.Empty;
+                            <td class="text-wrap p-2">@matrixFieldValue</td>
+                        }
+
+                        @* Flex Form Cells *@
+                        @foreach (var summaryRecord in Model.AggregateSummaryRecords.Where(x => x.intNumRow == rowGroup.intNumRow).OrderBy(x => x.ParameterOrder))
+                        {
+                           <td class="p-2">@summaryRecord.varValue</td>
+                        }
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,294 @@
+﻿@model EIDSS.Web.Administration.ViewModels.Administration.SearchEmployeeActorViewModel
+
+<div id="searchEmployeeActorModal" class="modal fade" role="dialog" aria-labelledby="searchActorModal" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@Model.ModalTitle</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="actorSearchForm">
+                    <div id="actorSearchCriteria" class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-lg-11">
+                                    <h3 id="searchCriteriaHeader" heading-for="@HeadingResourceKeyConstants.SearchCriteriaHeading"></h3>
+                                </div>
+                                <div class="col-lg-1 pull-right">
+                                    <span id="toggleActorSearchIcon" class="fas fa-caret-up align-bottom fa-2x e-dark-blue" data-toggle="collapse" data-target="#actorSearchCriteriaForm" aria-expanded="true" onclick="toggleActorSearchCriteria(event);">&nbsp;</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="actorSearchCriteriaForm" class="card-body collapse in">
+                            <input type="hidden" asp-for="SearchCriteria.idfEmployeeGroup" />
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label asp-for="SearchCriteria.Type" field-label-for="@FieldLabelResourceKeyConstants.SearchUsersAndUserGroupsTypeFieldLabel"></label>
+                                    <select asp-for="SearchCriteria.Type"
+                                            asp-items="@(new SelectList(Model.ActorTypeList, "IdfsBaseReference", "Name"))" class="form-control">
+                                        <option disabled selected></option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label asp-for="SearchCriteria.Name" field-label-for="@FieldLabelResourceKeyConstants.SearchUsersAndUserGroupsNameFieldLabel"></label>
+                                    <input asp-for="SearchCriteria.Name" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.SearchActorsOrganizationNameFieldLabel">
+                                    <div class="form-group">
+                                        <label asp-for="SearchCriteria.Organization" field-label-for="@FieldLabelResourceKeyConstants.SearchActorsOrganizationNameFieldLabel"></label>
+                                        <input asp-for="SearchCriteria.Organization" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label asp-for="SearchCriteria.Description" field-label-for="@FieldLabelResourceKeyConstants.SearchActorsUserGroupDescriptionFieldLabel"></label>
+                                    <input asp-for="SearchCriteria.Description" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div id="actorSearchCriteriaCommands" class="card-footer">
+                            <button id="actorSearchCriteriaCancel" type="button" class="btn btn-outline-primary" data-dismiss="modal" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+                            <button id="actorSearchCriteriaClear" type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.ClearButton"></button>
+                            <button id="actorSearchCriteriaSearch" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.SearchButton"></button>
+                        </div>
+                    </div>
+                    <br />
+                    <div id="actorSearchResults" class="card">
+                        <div class="card-header">
+                            <h3 id="searchResultsHeader" heading-for="@HeadingResourceKeyConstants.SearchResultsHeading"></h3>
+                        </div>
+                        <div class="card-body">
+                            @await Component.InvokeAsync("EmployeeActor")
+                        </div>
+                        <div id="actorSearchResultsCommands" class="card-footer">
+                            <button id="actorSearchResultsCancel" type="button" class="btn btn-outline-primary" data-dismiss="modal" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+                            <button id="selectActors" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.SelectButton">Select</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<form>
+    <input type="hidden" id="searchActorGrantingActorIndicator" />
+    <input type="hidden" id="searchActorDataPermissionsDiseaseID" />
+</form>
+<script type="text/javascript">
+    $("#searchEmployeeActorModal").on('shown.bs.modal', function (e) {
+        showActorSearchCriteria();
+    });
+
+    function toggleActorSearchCriteria(e) {
+        if ($("#actorSearchCriteriaForm").hasClass("show")) {
+            $("#toggleActorSearchIcon").removeClass("fa-caret-down").addClass("fa-caret-up");
+            $("#actorSearchCancelCriteria").hide();
+            $("#actorSearchClear").hide();
+            $("#actorSearch").hide();
+            $("#actorSearchCriteriaForm").collapse("show");
+            $("#actorSearchCriteriaCommands").hide();
+            $("#actorSearchCancelResults").show();
+        }
+        else {
+            $("#toggleActorSearchIcon").removeClass("fa-caret-up").addClass("fa-caret-down");
+            $("#actorSearchCancelCriteria").hide();
+            $("#actorSearchClear").show();
+            $("#actorSearch").show();
+            $("#actorSearchCriteriaForm").collapse("hide");
+            $("#actorSearchCriteriaCommands").show();
+        }
+    };
+
+    function hideActorSearchCriteria() {
+        $("#aToggleActorSearch").show();
+        $("#actorSearchCriteriaForm").collapse('hide');
+        $("#actorSearchCriteriaCommands").hide();
+        $("#actorSearchResults").show();
+        $("#actorSearchResultsCommands").show();
+    };
+
+    function hideActorSearchCriteriaCloseWarningModal() {
+        $("#actorSearchCriteriaForm").collapse('hide');
+        $("#actorSearchCriteriaCommands").hide();
+        $("#actorSearchResultsCommands").show();
+        $('#divWarningModal').modal('hide');
+    };
+
+    function showActorSearchCriteria() {
+        $("#aToggleActorSearch").hide();
+        $("#actorSearchCriteriaForm").collapse('show');
+        $("#actorSearchCriteriaCommands").show();
+        $("#actorSearchResults").hide();
+        $("#actorSearchResultsCommands").hide();
+    };
+
+    function showSearchEmployeeActorModal() {
+        $("#searchEmployeeActorModal").modal("show");
+    };
+
+    $("#actorSearchCriteriaSearch").on("click", function (e) {
+        $("#actorsTable").DataTable().draw();
+
+        hideActorSearchCriteria();
+    });
+
+    // click Select Button
+    $("#selectActors").on("click", function (e) {
+        var idfEmployeeGroup = $("[id$=SearchCriteria_idfEmployeeGroup]").val();
+        if (idfEmployeeGroup != "") {
+            selectEmployeeActors();
+        } else {
+            submitUserGroupDetails(event);
+            $("#searchEmployeeActorModal").modal("hide");
+        }
+    });
+
+    // Handle click on checkbox
+    $("#actorsTable tbody").on("click", 'input[type="checkbox"]', function (e) {
+        var $row = $(this).closest("tr");
+
+        if (this.checked) {
+            $row.addClass("selected");
+        } else {
+            $row.removeClass("selected");
+        }
+
+        // Prevent click event from propagating to parent
+        e.stopPropagation();
+    });
+
+    $("#selectAllActors").on("click", function (e) {
+        $('#actorsTable tbody input[type="checkbox"]:not(:checked)').trigger('click');
+
+        selectActors();
+    });
+
+
+    function validateDuplicateActors(actors) {
+        var actorsArray = actors.sort();
+        for (var i = 0; i < actorsArray.length - 1; i++) {
+            if (actorsArray[i + 1] == actorsArray[i]) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    function selectEmployeeActors() {
+        var actors = [];
+        var selectedActors = $("#actorsTable").DataTable().rows([".selected"]).data().toArray();
+        $.each(selectedActors, function (index, value) {
+            actors.push(value[0]);
+        });
+        var strEmployees = actors.join(", ");
+
+        var idfEmployeeGroup = $("[id$=SearchCriteria_idfEmployeeGroup]").val();
+        if (idfEmployeeGroup == "") {
+            idfEmployeeGroup = null;
+        }
+
+        var jsonData = {
+            "idfEmployeeGroup": idfEmployeeGroup,
+            "strEmployees": strEmployees
+        };
+
+        $.ajax({
+            url: '@Url.Action("SaveEmployeesToUserGroup", "UserGroupPage", new {Area = "Administration", SubArea = "Security"})',
+            data: JSON.stringify(jsonData),
+            contentType: "application/json",
+            type: "POST",
+            success: function (response) {
+
+                $('#employeesForUserGroupGrid').DataTable().ajax.reload();
+
+                $("#searchEmployeeActorModal").modal("hide");
+                if ($('.modal.show').length == 0) {
+                    $('.modal-backdrop').remove();
+                }
+            }
+            ,error: function (reponse) { alert("An error occurred: " + reponse); }
+        });
+
+        $("#searchEmployeeActorModal").modal("hide");
+        if ($('.modal.show').length == 0) {
+            $('.modal-backdrop').remove();
+        }
+    };
+
+    function loadEmployeesForUserGroupListTable(id) {
+        var idfEmployeeGroup = id;
+        alert(idfEmployeeGroup);
+
+        var jsonData = {
+            "UsersAndGroupsSection_idfEmployeeGroup": idfEmployeeGroup
+         };
+         $.ajax({
+             url: '@Url.Action("GetEmployeesForUserGroupList", "UserGroupPage", new { Area = "Administration", SubArea = "Security"})',
+             data: JSON.stringify(jsonData),
+             contentType: "application/json",
+             type: "POST",
+             success: function (response) {
+             alert("success!!");
+             // Add the data retrieved from the database, if any.
+             $("#employeesForUserGroupGrid").DataTable().rows.add(response.data).draw();
+             },
+             error: function (reponse) {
+                alert("An error occurred: " + reponse);
+             }
+         });
+
+    };
+
+    function selectActors() {
+        var actors = [];
+        var existingActors = [];
+        existingActors = $("#employeesForUserGroupGrid").DataTable().rows().data().toArray();
+        $.each(existingActors, function (index, value) {
+            actors.push(value[0]);
+        });
+
+        var selectedActors = $("#actorsTable").DataTable().rows('.selected').data().toArray();
+
+         $.each(selectedActors, function (index, value) {
+             if (value[0] != "") {
+                 alert(value[0]);
+                 actors.push(value[0]);
+             }
+        });
+        if (validateDuplicateActors(actors) == false) {
+            showErrorModal("@Localizer.GetString(MessageResourceKeyConstants.DuplicateRecordsAreNotAllowedMessage)");
+        }
+        else {
+            var idfEmployeeGroup = $("[id$=SearchCriteria_idfEmployeeGroup]").val();
+            if (idfEmployeeGroup == "") {
+                idfEmployeeGroup = null;
+            }
+
+            actors = [];
+            var actor;
+            $.each(selectedActors, function (index, value) {
+                if (value[0] != "") {
+                    actor = new Object();
+                    actor.idfEmployee = value[0];
+                    actor.idfEmployeeGroup = idfEmployeeGroup;
+                    actor.TypeName = value[3];
+                    actor.Name = value[4];
+                    actor.Organization = value[5];
+                    actor.Description = value[6];
+                    actors.push(actor.idfEmployee);
+                    alert(value[3]);
+                    alert(value[4]);
+                    alert(value[5]);
+                    alert(value[6]);
+                    var rowAdded = $("#employeesForUserGroupGrid").DataTable().row.add([value[0].toString(), value[3], value[4], value[5], value[6]]).draw();
+                    $("#actorsTable").DataTable().$("tr.selected").removeClass("selected");
+                    rowAdded.nodes().to$().addClass('selected');
+                }
+            });
+
+        }
+    };
+
+</script>

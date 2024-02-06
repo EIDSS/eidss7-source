@@ -1,0 +1,2027 @@
+{
+  "Regions": [
+    {
+      "Level": 2,
+      "idfsGISReferenceType": 19000003,
+      "strGISReferenceTypeName": "Region",
+      "idfsReference": 1344330000000,
+      "Name": "Gotham",
+      "strNode": "/15/2540/",
+      "strHASC": "AZBA00",
+      "strCode": null,
+      "Rayons": [
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1344360000000,
+          "Name": "Surakhany (Baku)",
+          "strNode": "/15/2540/2347/",
+          "strHASC": "AZBASN",
+          "strCode": null,
+          "Settlements": [
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345190000000,
+              "Name": "Surakhany",
+              "strNode": "/15/2540/2347/1/",
+              "strHASC": null,
+              "strCode": null
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1344370000000,
+          "Name": "Khazar (Baku)",
+          "strNode": "/15/2540/2348/",
+          "strHASC": "AZBAEZ",
+          "strCode": null,
+          "Settlements": [
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345200000000,
+              "Name": "Khazar",
+              "strNode": "/15/2540/2348/2/",
+              "strHASC": null,
+              "strCode": null
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1344380000000,
+          "Name": "Khatai (Baku)",
+          "strNode": "/15/2540/2349/",
+          "strHASC": "AZBAKT",
+          "strCode": null,
+          "Settlements": [
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345210000000,
+              "Name": "Khatai",
+              "strNode": "/15/2540/2349/3/",
+              "strHASC": null,
+              "strCode": null
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1344390000000,
+          "Name": "Nizami (Baku)",
+          "strNode": "/15/2540/2350/",
+          "strHASC": "AZBANM",
+          "strCode": null,
+          "Settlements": [
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345320000000,
+              "Name": "Nizami",
+              "strNode": "/15/2540/2350/14/",
+              "strHASC": null,
+              "strCode": null
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1344400000000,
+          "Name": "Sabunchu (Baku)",
+          "strNode": "/15/2540/2351/",
+          "strHASC": "AZBASC",
+          "strCode": null
+        },
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1344410000000,
+          "Name": "Narimanov (Baku)",
+          "strNode": "/15/2540/2352/",
+          "strHASC": "AZBANA",
+          "strCode": null
+        },
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1344420000000,
+          "Name": "Binegedi (Baku)",
+          "strNode": "/15/2540/2353/",
+          "strHASC": "AZBABI",
+          "strCode": null,
+          "Settlements": [
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345280000000,
+              "Name": "Binagadi",
+              "strNode": "/15/2540/2353/10/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 75112960000802,
+              "Name": "AA NL New Settlement",
+              "strNode": "/15/2540/2353/4983/",
+              "strHASC": null,
+              "strCode": null
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1344430000000,
+          "Name": "Nesimi (Baku)",
+          "strNode": "/15/2540/2354/",
+          "strHASC": "AZBANS",
+          "strCode": null
+        },
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1344440000000,
+          "Name": "Yasamal (Baku)",
+          "strNode": "/15/2540/2355/",
+          "strHASC": "AZBAYS",
+          "strCode": null
+        },
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1344450000000,
+          "Name": "Sabail (Baku)",
+          "strNode": "/15/2540/2356/",
+          "strHASC": "AZBASA",
+          "strCode": null
+        },
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1344630000000,
+          "Name": "Garadagh(Baku)",
+          "strNode": "/15/2540/2374/",
+          "strHASC": "AZBAGZ",
+          "strCode": null,
+          "Settlements": [
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345550000000,
+              "Name": "Garadagh",
+              "strNode": "/15/2540/2374/37/",
+              "strHASC": null,
+              "strCode": null
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 4720500000000,
+          "Name": "Pirallahi (Baku)",
+          "strNode": "/15/2540/3606/",
+          "strHASC": "AZBAPI",
+          "strCode": null
+        }
+      ]
+    },
+    {
+      "Level": 2,
+      "idfsGISReferenceType": 19000003,
+      "strGISReferenceTypeName": "Region",
+      "idfsReference": 1344340000000,
+      "Name": "Jackson",
+      "strNode": "/15/2541/",
+      "strHASC": "JACK01",
+      "strCode": null,
+      "Rayons": [
+        {
+          "level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1344460000000,
+          "name": "Siyezen",
+          "strNode": "/15/2541/2357/",
+          "strHASC": "AZORSY",
+          "strCode": null,
+          "Settlements": [
+            {
+              "level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345590000000,
+              "name": "Kolany",
+              "strNode": "/15/2541/2357/41/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345600000000,
+              "name": "Toghan",
+              "strNode": "/15/2541/2357/42/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345610000000,
+              "name": "Agasibeyli",
+              "strNode": "/15/2541/2357/43/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345620000000,
+              "name": "Boyuk Hamya",
+              "strNode": "/15/2541/2357/44/",
+              "strHASC": null,
+              "strCode": null
+            }
+          ]
+        },
+        {
+          "level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1344470000000,
+          "name": "Sumgayit",
+          "strNode": "/15/2541/2358/",
+          "strHASC": "AZORSQ",
+          "strCode": null,
+          "Settlements": [
+            {
+              "level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345370000000,
+              "name": "Jorat",
+              "strNode": "/15/2541/2358/19/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345380000000,
+              "name": "Sumgait",
+              "strNode": "/15/2541/2358/20/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345390000000,
+              "name": "Haji Zeynalabdin",
+              "strNode": "/15/2541/2358/21/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345440000000,
+              "name": "Yeni Yashma",
+              "strNode": "/15/2541/2358/26/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345450000000,
+              "name": "Yashma Tretiy",
+              "strNode": "/15/2541/2358/27/",
+              "strHASC": null,
+              "strCode": null
+            }
+          ]
+        },
+        {
+          "level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1344480000000,
+          "name": "Khyzy",
+          "strNode": "/15/2541/2359/",
+          "strHASC": "AZORXI",
+          "strCode": null,
+          "Settlements": [
+            {
+              "level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345410000000,
+              "name": "Mashadi Hasan",
+              "strNode": "/15/2541/2359/23/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345420000000,
+              "name": "Shuraabad",
+              "strNode": "/15/2541/2359/24/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345430000000,
+              "name": "Turkoba",
+              "strNode": "/15/2541/2359/25/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345460000000,
+              "name": "Yashma",
+              "strNode": "/15/2541/2359/28/",
+              "strHASC": null,
+              "strCode": null
+            }
+          ]
+        },
+        {
+          "level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1344490000000,
+          "name": "Absheron",
+          "strNode": "/15/2541/2360/",
+          "strHASC": "AZORAR",
+          "strCode": null,
+          "Settlements": [
+            {
+              "level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345240000000,
+              "name": "Fatmai",
+              "strNode": "/15/2541/2360/6/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345250000000,
+              "name": "Digah",
+              "strNode": "/15/2541/2360/7/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345260000000,
+              "name": "Mehdiabad",
+              "strNode": "/15/2541/2360/8/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345270000000,
+              "name": "Mamadli",
+              "strNode": "/15/2541/2360/9/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1345290000000,
+              "name": "Novkhany",
+              "strNode": "/15/2541/2360/11/",
+              "strHASC": null,
+              "strCode": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Level": 2,
+      "idfsGISReferenceType": 19000003,
+      "strGISReferenceTypeName": "Region",
+      "idfsReference": 1344350000000,
+      "Name": "Nutwood",
+      "strNode": "/15/2542/",
+      "strHASC": "AZNA00",
+      "strCode": null,
+      "Rayons": [
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1345100000000,
+          "Name": "Klow",
+          "strNode": "/15/2542/2421/",
+          "strHASC": "AZNASH",
+          "strCode": null,
+          "Settlements": [
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392740000000,
+              "Name": "Bichenek",
+              "strNode": "/15/2542/2421/4752/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392750000000,
+              "Name": "Ashaghy Gyshlag",
+              "strNode": "/15/2542/2421/4753/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392760000000,
+              "Name": "Gamur",
+              "strNode": "/15/2542/2421/4754/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392770000000,
+              "Name": "Yukhary Gyshlag",
+              "strNode": "/15/2542/2421/4755/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392780000000,
+              "Name": "Nurs",
+              "strNode": "/15/2542/2421/4756/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392790000000,
+              "Name": "Kolany",
+              "strNode": "/15/2542/2421/4757/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392800000000,
+              "Name": "Gecazur",
+              "strNode": "/15/2542/2421/4758/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392810000000,
+              "Name": "Guney Gyshkag",
+              "strNode": "/15/2542/2421/4759/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392820000000,
+              "Name": "Kuku",
+              "strNode": "/15/2542/2421/4760/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392830000000,
+              "Name": "Gyzyl Gyshlaq",
+              "strNode": "/15/2542/2421/4761/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392840000000,
+              "Name": "Arynj",
+              "strNode": "/15/2542/2421/4762/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392850000000,
+              "Name": "Mahmudoba",
+              "strNode": "/15/2542/2421/4763/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392860000000,
+              "Name": "Garababa",
+              "strNode": "/15/2542/2421/4764/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392870000000,
+              "Name": "Shahbuz shahari",
+              "strNode": "/15/2542/2421/4765/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392880000000,
+              "Name": "Kechili",
+              "strNode": "/15/2542/2421/4766/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392930000000,
+              "Name": "Kulus",
+              "strNode": "/15/2542/2421/4771/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392940000000,
+              "Name": "Shahbuz kandi",
+              "strNode": "/15/2542/2421/4772/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392980000000,
+              "Name": "Badamly",
+              "strNode": "/15/2542/2421/4776/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392990000000,
+              "Name": "Badamly",
+              "strNode": "/15/2542/2421/4777/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393000000000,
+              "Name": "Shada",
+              "strNode": "/15/2542/2421/4778/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393010000000,
+              "Name": "Turkesh",
+              "strNode": "/15/2542/2421/4779/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393020000000,
+              "Name": "Daylagly",
+              "strNode": "/15/2542/2421/4780/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393030000000,
+              "Name": "Kichikoba",
+              "strNode": "/15/2542/2421/4781/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393040000000,
+              "Name": "Maralyg",
+              "strNode": "/15/2542/2421/4782/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393050000000,
+              "Name": "Salasuz",
+              "strNode": "/15/2542/2421/4783/",
+              "strHASC": null,
+              "strCode": null
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1345120000000,
+          "Name": "Hootin Holler",
+          "strNode": "/15/2542/2423/",
+          "strHASC": "AZNAOR",
+          "strCode": null,
+          "Settlements": [
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392290000000,
+              "Name": "Pazmari",
+              "strNode": "/15/2542/2423/4707/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392300000000,
+              "Name": "Nigide",
+              "strNode": "/15/2542/2423/4708/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392310000000,
+              "Name": "Karudzhikh",
+              "strNode": "/15/2542/2423/4709/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392320000000,
+              "Name": "Kilit",
+              "strNode": "/15/2542/2423/4710/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392330000000,
+              "Name": "Hotam",
+              "strNode": "/15/2542/2423/4711/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392340000000,
+              "Name": "Ganza",
+              "strNode": "/15/2542/2423/4712/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392350000000,
+              "Name": "Ashaghy Andamij",
+              "strNode": "/15/2542/2423/4713/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392360000000,
+              "Name": "Anabad",
+              "strNode": "/15/2542/2423/4714/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392370000000,
+              "Name": "Nusnus",
+              "strNode": "/15/2542/2423/4715/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392380000000,
+              "Name": "Ordubad",
+              "strNode": "/15/2542/2423/4716/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392390000000,
+              "Name": "Yukhary Andamij",
+              "strNode": "/15/2542/2423/4717/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392410000000,
+              "Name": "Khurs",
+              "strNode": "/15/2542/2423/4719/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392420000000,
+              "Name": "Nurgut",
+              "strNode": "/15/2542/2423/4720/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392430000000,
+              "Name": "Alahi",
+              "strNode": "/15/2542/2423/4721/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392440000000,
+              "Name": "Bist",
+              "strNode": "/15/2542/2423/4722/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392450000000,
+              "Name": "Nasirvaz",
+              "strNode": "/15/2542/2423/4723/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392460000000,
+              "Name": "Aghdara",
+              "strNode": "/15/2542/2423/4724/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392470000000,
+              "Name": "Paragchay",
+              "strNode": "/15/2542/2423/4725/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392480000000,
+              "Name": "Mazra",
+              "strNode": "/15/2542/2423/4726/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392490000000,
+              "Name": "Urmis",
+              "strNode": "/15/2542/2423/4727/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392500000000,
+              "Name": "Bilav",
+              "strNode": "/15/2542/2423/4728/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392510000000,
+              "Name": "Bahrud",
+              "strNode": "/15/2542/2423/4729/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392520000000,
+              "Name": "Paraga",
+              "strNode": "/15/2542/2423/4730/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392530000000,
+              "Name": "Tivi",
+              "strNode": "/15/2542/2423/4731/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392540000000,
+              "Name": "Anagut",
+              "strNode": "/15/2542/2423/4732/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392550000000,
+              "Name": "Kalaki",
+              "strNode": "/15/2542/2423/4733/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392560000000,
+              "Name": "Dyrnys",
+              "strNode": "/15/2542/2423/4734/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392570000000,
+              "Name": "Gorukhlar",
+              "strNode": "/15/2542/2423/4735/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392580000000,
+              "Name": "Unus",
+              "strNode": "/15/2542/2423/4736/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392590000000,
+              "Name": "Ashaghy Aylis",
+              "strNode": "/15/2542/2423/4737/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392600000000,
+              "Name": "Yukhary Aylis",
+              "strNode": "/15/2542/2423/4738/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392610000000,
+              "Name": "Shahriyar",
+              "strNode": "/15/2542/2423/4739/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392620000000,
+              "Name": "Bashkand",
+              "strNode": "/15/2542/2423/4740/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392630000000,
+              "Name": "Jananab",
+              "strNode": "/15/2542/2423/4741/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392640000000,
+              "Name": "Ustupu",
+              "strNode": "/15/2542/2423/4742/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392650000000,
+              "Name": "Valavar",
+              "strNode": "/15/2542/2423/4743/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392660000000,
+              "Name": "Duylun",
+              "strNode": "/15/2542/2423/4744/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392670000000,
+              "Name": "Goshadiza",
+              "strNode": "/15/2542/2423/4745/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392680000000,
+              "Name": "Agry",
+              "strNode": "/15/2542/2423/4746/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392690000000,
+              "Name": "Vanand",
+              "strNode": "/15/2542/2423/4747/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392700000000,
+              "Name": "Diza",
+              "strNode": "/15/2542/2423/4748/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392710000000,
+              "Name": "Dyuylyundiza",
+              "strNode": "/15/2542/2423/4749/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392720000000,
+              "Name": "Dasta",
+              "strNode": "/15/2542/2423/4750/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392730000000,
+              "Name": "Khanagha",
+              "strNode": "/15/2542/2423/4751/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393430000000,
+              "Name": "Bashdiza",
+              "strNode": "/15/2542/2423/4821/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393440000000,
+              "Name": "Gilanchay",
+              "strNode": "/15/2542/2423/4822/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393450000000,
+              "Name": "Dar",
+              "strNode": "/15/2542/2423/4823/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393460000000,
+              "Name": "Kalantardiza",
+              "strNode": "/15/2542/2423/4824/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393470000000,
+              "Name": "Aza",
+              "strNode": "/15/2542/2423/4825/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393480000000,
+              "Name": "Azadkand",
+              "strNode": "/15/2542/2423/4826/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393490000000,
+              "Name": "Sabirkand",
+              "strNode": "/15/2542/2423/4827/",
+              "strHASC": null,
+              "strCode": null
+            }
+          ]
+        },
+
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1345140000000,
+          "Name": "Riverdale",
+          "strNode": "/15/2542/2425/",
+          "strHASC": "AZNAKG",
+          "strCode": null,
+          "Settlements": [
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394270000000,
+              "Name": "Chalkhangala",
+              "strNode": "/15/2542/2425/4905/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394280000000,
+              "Name": "Garabaghlar",
+              "strNode": "/15/2542/2425/4906/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394290000000,
+              "Name": "Aznabyurt",
+              "strNode": "/15/2542/2425/4907/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394300000000,
+              "Name": "Gabullu",
+              "strNode": "/15/2542/2425/4908/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394310000000,
+              "Name": "Yurdchu",
+              "strNode": "/15/2542/2425/4909/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394340000000,
+              "Name": "Boyuk-Duz",
+              "strNode": "/15/2542/2425/4912/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394350000000,
+              "Name": "Khinjab",
+              "strNode": "/15/2542/2425/4913/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394360000000,
+              "Name": "Tazakand",
+              "strNode": "/15/2542/2425/4914/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394370000000,
+              "Name": "Yeni Kerki",
+              "strNode": "/15/2542/2425/4915/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394390000000,
+              "Name": "Gyvrag",
+              "strNode": "/15/2542/2425/4917/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394400000000,
+              "Name": "Khok",
+              "strNode": "/15/2542/2425/4918/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394410000000,
+              "Name": "Shakhtakhty",
+              "strNode": "/15/2542/2425/4919/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393800000000,
+              "Name": "c",
+              "strNode": "/15/2542/2426/4858/",
+              "strHASC": null,
+              "strCode": null
+            }
+          ]
+        },
+
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1345150000000,
+          "Name": "Star",
+          "strNode": "/15/2542/2426/",
+          "strHASC": "AZNASR",
+          "strCode": null,
+          "Settlements": [
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393810000000,
+              "Name": "Yukhary Yayjy",
+              "strNode": "/15/2542/2426/4859/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393820000000,
+              "Name": "Avush",
+              "strNode": "/15/2542/2426/4860/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393830000000,
+              "Name": "Gumushlu",
+              "strNode": "/15/2542/2426/4861/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393840000000,
+              "Name": "Kunnut",
+              "strNode": "/15/2542/2426/4862/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393850000000,
+              "Name": "Ashaghy Yayjy",
+              "strNode": "/15/2542/2426/4863/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393860000000,
+              "Name": "Danzik",
+              "strNode": "/15/2542/2426/4864/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393870000000,
+              "Name": "Akhura",
+              "strNode": "/15/2542/2426/4865/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393880000000,
+              "Name": "Hamzali",
+              "strNode": "/15/2542/2426/4866/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393890000000,
+              "Name": "Darakand",
+              "strNode": "/15/2542/2426/4867/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393900000000,
+              "Name": "Oghlangala",
+              "strNode": "/15/2542/2426/4868/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393910000000,
+              "Name": "Diza",
+              "strNode": "/15/2542/2426/4869/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393920000000,
+              "Name": "Ul'ya Norashen",
+              "strNode": "/15/2542/2426/4870/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393930000000,
+              "Name": "Bakhruz Kangarli",
+              "strNode": "/15/2542/2426/4871/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393940000000,
+              "Name": "Jalilkand",
+              "strNode": "/15/2542/2426/4872/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393950000000,
+              "Name": "Mahmudkand",
+              "strNode": "/15/2542/2426/4873/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393960000000,
+              "Name": "Zeyvakand",
+              "strNode": "/15/2542/2426/4874/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393970000000,
+              "Name": "Zeyva",
+              "strNode": "/15/2542/2426/4875/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393980000000,
+              "Name": "Siyagut",
+              "strNode": "/15/2542/2426/4876/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393990000000,
+              "Name": "Yukhary-Dasharkh",
+              "strNode": "/15/2542/2426/4877/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394000000000,
+              "Name": "Karkhun",
+              "strNode": "/15/2542/2426/4878/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394010000000,
+              "Name": "Yukhary Aralyg",
+              "strNode": "/15/2542/2426/4879/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394020000000,
+              "Name": "Mughanjik-Muslum",
+              "strNode": "/15/2542/2426/4880/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394030000000,
+              "Name": "Sarkhanly",
+              "strNode": "/15/2542/2426/4881/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394110000000,
+              "Name": "Sharur",
+              "strNode": "/15/2542/2426/4889/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394120000000,
+              "Name": "Dudanga",
+              "strNode": "/15/2542/2426/4890/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394130000000,
+              "Name": "Mughanjik-Mehrab",
+              "strNode": "/15/2542/2426/4891/",
+              "strHASC": null,
+              "strCode": null
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1345160000000,
+          "Name": "Rivendale",
+          "strNode": "/15/2542/2427/",
+          "strHASC": "AZNASD",
+          "strCode": null,
+          "Settlements": [
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394040000000,
+              "Name": "Karki",
+              "strNode": "/15/2542/2427/4882/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394050000000,
+              "Name": "Haydarabad",
+              "strNode": "/15/2542/2427/4883/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394060000000,
+              "Name": "Garaghac",
+              "strNode": "/15/2542/2427/4884/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394070000000,
+              "Name": "Sadarak",
+              "strNode": "/15/2542/2427/4885/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394080000000,
+              "Name": "Karimbayli",
+              "strNode": "/15/2542/2427/4886/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394090000000,
+              "Name": "Damirchi",
+              "strNode": "/15/2542/2427/4887/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394100000000,
+              "Name": "Tazakend",
+              "strNode": "/15/2542/2427/4888/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394190000000,
+              "Name": "Aghamad",
+              "strNode": "/15/2542/2427/4897/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394200000000,
+              "Name": "Garaburj",
+              "strNode": "/15/2542/2427/4898/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1394210000000,
+              "Name": "Maxta",
+              "strNode": "/15/2542/2427/4899/",
+              "strHASC": null,
+              "strCode": null
+            }
+          ]
+        },
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1345170000000,
+          "Name": "Symkaria",
+          "strNode": "/15/2542/2428/",
+          "strHASC": "AZNABB",
+          "strCode": null,
+          "Settlements": [
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1392970000000,
+              "Name": "Suramelik",
+              "strNode": "/15/2542/2428/4775/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393060000000,
+              "Name": "Karmachatag",
+              "strNode": "/15/2542/2428/4784/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393070000000,
+              "Name": "Ashaghy Buzgov",
+              "strNode": "/15/2542/2428/4785/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393080000000,
+              "Name": "Yukhary Buzgov",
+              "strNode": "/15/2542/2428/4786/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393090000000,
+              "Name": "Lizbirt",
+              "strNode": "/15/2542/2428/4787/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393100000000,
+              "Name": "Payiz",
+              "strNode": "/15/2542/2428/4788/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393110000000,
+              "Name": "Gulshanabad",
+              "strNode": "/15/2542/2428/4789/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393120000000,
+              "Name": "Mazra",
+              "strNode": "/15/2542/2428/4790/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393130000000,
+              "Name": "Vaykhyr",
+              "strNode": "/15/2542/2428/4791/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393140000000,
+              "Name": "Khalkhal",
+              "strNode": "/15/2542/2428/4792/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393150000000,
+              "Name": "Sirab",
+              "strNode": "/15/2542/2428/4793/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393160000000,
+              "Name": "Mammadrza Diza",
+              "strNode": "/15/2542/2428/4794/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393170000000,
+              "Name": "Garagala",
+              "strNode": "/15/2542/2428/4795/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393180000000,
+              "Name": "Yukhary Leninabad",
+              "strNode": "/15/2542/2428/4796/",
+              "strHASC": null,
+              "strCode": null
+            }
+          ]
+        },
+
+        {
+          "Level": 3,
+          "idfsGISReferenceType": 19000002,
+          "strGISReferenceTypeName": "Rayon",
+          "idfsReference": 1345180000000,
+          "Name": "Tollembeek",
+          "strNode": "/15/2542/2429/",
+          "strHASC": "AZNANX",
+          "strCode": null,
+          "Settlements": [
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393670000000,
+              "Name": "Sovetabad",
+              "strNode": "/15/2542/2429/4845/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393680000000,
+              "Name": "Garajug",
+              "strNode": "/15/2542/2429/4846/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393690000000,
+              "Name": "Aliabad",
+              "strNode": "/15/2542/2429/4847/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393700000000,
+              "Name": "Hajyniyet",
+              "strNode": "/15/2542/2429/4848/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393710000000,
+              "Name": "Nakhchyvan shahari",
+              "strNode": "/15/2542/2429/4849/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393750000000,
+              "Name": "Tumbu",
+              "strNode": "/15/2542/2429/4853/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393770000000,
+              "Name": "Bulgan",
+              "strNode": "/15/2542/2429/4855/",
+              "strHASC": null,
+              "strCode": null
+            },
+            {
+              "Level": 4,
+              "idfsGISReferenceType": 19000004,
+              "strGISReferenceTypeName": "Settlement",
+              "idfsReference": 1393790000000,
+              "Name": "Garakhanbayli",
+              "strNode": "/15/2542/2429/4857/",
+              "strHASC": null,
+              "strCode": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

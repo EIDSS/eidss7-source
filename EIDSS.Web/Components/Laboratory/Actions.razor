@@ -1,0 +1,215 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Laboratory
+@using EIDSS.Domain.ViewModels.CrossCutting
+@inherits EIDSS.Web.Components.Laboratory.ActionsBase
+@switch (Tab)
+{
+    case LaboratoryTabEnum.Samples:
+        <div class="form-group form-group-sm border-right px-4">
+            @if (AccessionDisabledIndicator)
+            {
+                <button type="button" class="btn btn-outline-primary popover-window" data-toggle="popover" data-placement="right" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToDisplayTheAccessionInPopupToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratorySamplesAccessionButton)</button>
+            }
+            else
+            {
+                <button id="samplesTabAccessionButton" type="button" class="btn btn-outline-primary" title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToDisplayTheAccessionInPopupToolTip)" @onclick="OnAccessionClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratorySamplesAccessionButton)</button>
+            }
+            &nbsp;
+            @if (AliquotDisabledIndicator)
+            {
+                <button id="samplesTabAliquot" class="btn btn-outline-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToDisplayTheAliquotPopupToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratorySamplesAliquotButton)</button>
+            }
+            else
+            {
+                <button id="samplesTabAliquot" class="btn btn-outline-primary" @onclick="OnAliquotClick" title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToDisplayTheAliquotPopupToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratorySamplesAliquotButton)</button>
+            }
+            &nbsp;
+            @if (AssignTestDisabledIndicator)
+            {
+                <button id="samplesTabAssignTest" class="btn btn-outline-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToDisplayTheAssignTestPopupToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratorySamplesAssignTestButton)</button>
+            }
+            else
+            {
+                <button id="samplesTabAssignTest" class="btn btn-outline-primary" @onclick="OnAssignTestClick" title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToDisplayTheAssignTestPopupToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratorySamplesAssignTestButton)</button>
+            }
+            @if (SaveDisabledIndicator)
+            {
+                <button id="samplesTabSave" class="btn btn-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSubmitToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+            }
+            else
+            {
+                <button id="samplesTabSave" class="btn btn-primary" onclick="showProcessingIndicator();" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSubmitToolTip)"><i id="processing"></i> @Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+            }
+        </div>
+
+        break;
+    case LaboratoryTabEnum.Testing:
+        <div class="form-group form-group-sm border-right px-4">
+            @if (BatchDisabledIndicator)
+            {
+                <button id="testingTabBatch" class="btn btn-outline-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToDisplayTheBatchPopupToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryTestingBatchButtonText)</button>
+            }
+            else
+            {
+                <button id="testingTabBatch" class="btn btn-outline-primary" @onclick="OnBatchClick" title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToDisplayTheBatchPopupToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryTestingBatchButtonText)</button>
+            }
+            &nbsp;
+            @if (AssignTestDisabledIndicator)
+            {
+                <button id="testingTabAssignTest" class="btn btn-outline-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToDisplayTheAssignTestPopupToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryTestingAssignTestButton)</button>
+            }
+            else
+            {
+                <button id="testingTabAssignTest" class="btn btn-outline-primary" @onclick="OnAssignTestClick" title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToDisplayTheAssignTestPopupToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryTestingAssignTestButton)</button>
+            }
+            @if (SaveDisabledIndicator)
+            {
+                <button id="testingTabSave" class="btn btn-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSubmitToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+            }
+            else
+            {
+                <button id="testingTabSave" class="btn btn-primary" onclick="showProcessingIndicator();" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSubmitToolTip)"><i id="processing"></i> @Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+            }
+        </div>
+
+        break;
+    case LaboratoryTabEnum.Transferred:
+        <div class="form-group form-group-sm border-right px-4">
+            @if (CancelTransferDisabledIndicator)
+            {
+                <button id="transferredTabCancelTransfer" class="btn btn-outline-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.TransferredClickToCancelTheSelectedTransfersToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryTransferredCancelTransferButtonText)</button>
+            }
+            else
+            {
+                <button id="transferredTabCancelTransfer" class="btn btn-outline-primary" @onclick="OnCancelTransferClick" title="@Localizer.GetString(TooltipResourceKeyConstants.TransferredClickToCancelTheSelectedTransfersToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryTransferredCancelTransferButtonText)</button>
+            }
+            &nbsp;
+            @if (PrintTransferDisabledIndicator)
+            {
+                <button id="transferredTabPrintTransfer" class="btn btn-outline-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.TransferredClickToDisplayTheSelectedTransfersReportForPrintingToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryTransferredPrintTransferButtonText)</button>
+            }
+            else
+            {
+                <button id="transferredTabPrintTransfer" class="btn btn-outline-primary" @onclick="OnPrintTransferClick" title="@Localizer.GetString(TooltipResourceKeyConstants.TransferredClickToDisplayTheSelectedTransfersReportForPrintingToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryTransferredPrintTransferButtonText)</button>
+            }
+            @if (SaveDisabledIndicator)
+            {
+                <button id="transferredTabSave" class="btn btn-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSubmitToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+            }
+            else
+            {
+                <button id="transferredTabSave" class="btn btn-primary" onclick="showProcessingIndicator();" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSubmitToolTip)"><i id="processing"></i> @Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+            }
+        </div>
+
+        break;
+    case LaboratoryTabEnum.MyFavorites:
+        <div class="form-group form-group-sm border-right px-4">
+            @if (AccessionDisabledIndicator)
+            {
+                <button type="button" class="btn btn-outline-primary disabled popover-window" data-toggle="popover" data-placement="right" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToDisplayTheAccessionInPopupToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratorySamplesAccessionButton)</button>
+            }
+            else
+            {
+                <button class="btn btn-outline-primary" id="myFavoritesTabAccessionButton" @onclick="OnAccessionClick" title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToDisplayTheAccessionInPopupToolTip)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.LaboratorySamplesAccessionButton)</button>
+            }
+           &nbsp;
+
+            @if (AssignTestDisabledIndicator)
+            {
+                <button id="myFavoritesTabAssignTest" class="btn btn-outline-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToDisplayTheAssignTestPopupToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryMyFavoritesAssignTestButton)</button>
+            }
+            else
+            {
+                <button id="myFavoritesTabAssignTest" class="btn btn-outline-primary" @onclick="OnAssignTestClick" title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToDisplayTheAssignTestPopupToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryMyFavoritesAssignTestButton)</button>
+            }
+            &nbsp;
+            @if (BatchDisabledIndicator)
+            {
+                <button id="myFavoritesTabBatch" class="btn btn-outline-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToDisplayTheBatchPopupToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryMyFavoritesBatchButton)</button>
+            }
+            else
+            {
+                <button id="myFavoritesTabBatch" class="btn btn-outline-primary" @onclick="OnBatchClick" title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToDisplayTheBatchPopupToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryMyFavoritesBatchButton)</button>
+            }
+            @if (SaveDisabledIndicator)
+            {
+                <button id="myFavoritesTabSave" class="btn btn-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSubmitToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+            }
+            else
+            {
+                <button id="myFavoritesTabSave" class="btn btn-primary" onclick="showProcessingIndicator();" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSubmitToolTip)"><i id="processing"></i> @Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+            }
+        </div>
+
+        break;
+    case LaboratoryTabEnum.Batches:
+        <div class="form-group form-group-sm border-right px-4">
+            @if (RemoveSampleDisabledIndicator)
+            {
+                <button id="batchesTabRemoveSample" class="btn btn-outline-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.BatchesClickToRemoveTheSelectedSamplesFromTheBatchToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryBatchesRemoveSampleButtonText)</button>
+            }
+            else
+            {
+                <button id="batchesTabRemoveSample" class="btn btn-outline-primary" @onclick="OnRemoveSampleClick" title="@Localizer.GetString(TooltipResourceKeyConstants.BatchesClickToRemoveTheSelectedSamplesFromTheBatchToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryBatchesRemoveSampleButtonText)</button>
+            }
+            &nbsp;
+            @if (AddGroupResultDisabledIndicator)
+            {
+                <button id="batchesTabAddGroupResult" class="btn btn-outline-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.BatchesClickToAddATestResultToTheSelectedRecordsToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryBatchesAddGroupResultButtonText)</button>
+            }
+            else
+            {
+                <button id="batchesTabAddGroupResult" class="btn btn-outline-primary" @onclick="OnAddGroupResultClick" title="@Localizer.GetString(TooltipResourceKeyConstants.BatchesClickToAddATestResultToTheSelectedRecordsToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryBatchesAddGroupResultButtonText)</button>
+            }
+            &nbsp;
+            @if (CloseBatchDisabledIndicator)
+            {
+                <button id="batchesTabCloseBatch" class="btn btn-outline-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.BatchesClickToCloseTheBatchToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryBatchesCloseBatchButtonText)</button>
+            }
+            else
+            {
+                <button id="batchesTabCloseBatch" class="btn btn-outline-primary" @onclick="OnCloseBatchClick" title="@Localizer.GetString(TooltipResourceKeyConstants.BatchesClickToCloseTheBatchToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryBatchesCloseBatchButtonText)</button>
+            }
+            @if (SaveDisabledIndicator)
+            {
+                <button id="batchesTabSave" class="btn btn-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSubmitToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+            }
+            else
+            {
+                <button id="batchesTabSave" class="btn btn-primary" onclick="showProcessingIndicator();" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSubmitToolTip)"><i id="processing"></i> @Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+            }
+        </div>
+
+        break;
+    case LaboratoryTabEnum.Approvals:
+        <div class="form-group form-group-sm border-right px-4">
+            @if (ApproveDisabledIndicator)
+            {
+                <button id="approvalsTabApprove" class="btn btn-outline-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.ApprovalsClickToApproveTheSelectedRecordsToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryApprovalsApproveButtonText)</button>
+            }
+            else
+            {
+                <button id="approvalsTabApprove" class="btn btn-outline-primary" onclick="showApproveProcessingIndicator();" title="@Localizer.GetString(TooltipResourceKeyConstants.ApprovalsClickToApproveTheSelectedRecordsToolTip)"><i id="approveProcessing"></i> @Localizer.GetString(ButtonResourceKeyConstants.LaboratoryApprovalsApproveButtonText)</button>
+            }
+            &nbsp;
+            @if (RejectDisabledIndicator)
+            {
+                <button id="approvalsTabReject" class="btn btn-outline-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.ApprovalsClickToRejectTheSelectedRecordsToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryApprovalsRejectButtonText)</button>
+            }
+            else
+            {
+                <button id="approvalsTabReject" class="btn btn-outline-primary" onclick="showRejectProcessingIndicator();" title="@Localizer.GetString(TooltipResourceKeyConstants.ApprovalsClickToRejectTheSelectedRecordsToolTip)"><i id="rejectProcessing"></i> @Localizer.GetString(ButtonResourceKeyConstants.LaboratoryApprovalsRejectButtonText)</button>
+            }
+            @if (SaveDisabledIndicator)
+            {
+                <button id="approvalsTabSave" class="btn btn-primary disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSubmitToolTip)">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+            }
+            else
+            {
+                <button id="approvalsTabSave" class="btn btn-primary" onclick="showProcessingIndicator();" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSubmitToolTip)"><i id="processing"></i> @Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+            }
+        </div>
+
+        break;
+}

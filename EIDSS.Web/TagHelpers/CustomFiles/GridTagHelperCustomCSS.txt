@@ -1,0 +1,7 @@
+﻿<style type="text/css">
+    .SearchBoxClear {
+        margin-left: -20px;
+        position: absolute;
+        margin-top: 5px;
+    }
+</style>

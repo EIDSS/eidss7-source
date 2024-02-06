@@ -1,0 +1,1008 @@
+﻿@model EIDSS.Web.ViewModels.Human.HumanActiveSurveillanceCampaignCreateAndEditViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.HumanActiveSurveillanceCampaignHumanActiveSurveillanceCampaignHeading);
+}
+
+@{
+    //DropDowns
+    Select2Configruation select2Configruation = new Select2Configruation();
+    select2Configruation.DropDownId = "CampaignTypeDD";
+    //select2Configruation.ControltargetId = "BaseReferenceGrid";
+    select2Configruation.Label = @Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanActiveSurveillanceCampaignsCampaignTypeFieldLabel);
+    // select2Configruation.ControlTargetType = DropDownTargetTypes.Table;
+    select2Configruation.Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000116 });
+    //select2Configruation.ControlTargetUrl = @Url.Action("GetBaseReferenceTableNew", "BaseReferencePage");
+    select2Configruation.isVisible = true;
+    select2Configruation.defaultSelect2Selection = Model.DefaultCampaignType;
+
+    Model.Select2Configurations.Add(select2Configruation);
+
+    select2Configruation = new Select2Configruation();
+    select2Configruation.DropDownId = "CampaignStatusDD";
+    //select2Configruation.ControltargetId = "BaseReferenceGrid";
+    select2Configruation.Label = @Localizer.GetString(FieldLabelResourceKeyConstants.SearchActiveSurveillanceCampaignsModalCampaignStatusFieldLabel);
+    //select2Configruation.ControlTargetType = DropDownTargetTypes.Table;
+    select2Configruation.Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000115 });
+    //select2Configruation.ControlTargetUrl = @Url.Action("GetBaseReferenceTableNew", "BaseReferencePage");
+    select2Configruation.defaultSelect2Selection = Model.DefaultCampaignStatus;
+    select2Configruation.isVisible = true;
+    Model.Select2Configurations.Add(select2Configruation);
+
+    select2Configruation = new Select2Configruation();
+    select2Configruation.DropDownId = "DiseaseDD";
+    select2Configruation.Label = @Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanActiveSurveillanceCampaignsCampaignDiseaseFieldLabel);
+    //select2Configruation.ControlTargetType = DropDownTargetTypes.Table;
+    select2Configruation.Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000019 });
+    // select2Configruation.ControlTargetUrl = @Url.Action("GetBaseReferenceTableNew", "BaseReferencePage");
+    select2Configruation.defaultSelect2Selection = Model.DefaultDisease;
+    select2Configruation.isVisible = true;
+    Model.Select2Configurations.Add(select2Configruation);
+
+
+
+    Model.Select2Configurations.Add(select2Configruation);
+    <h2>@Localizer.GetString(HeadingResourceKeyConstants.HumanActiveSurveillanceCampaignHumanActiveSurveillanceCampaignHeading) </h2>
+    <div class="card">
+
+        <div class="card-header">
+            <div class="row">
+                <div class="col-md-1 pull-left">
+                    <span id="headerEdit" class="fa fa-edit fa-lg fa-pull-left" style="color:white;padding-top:5px;margin-top:5px;cursor:pointer;" onclick="ReturnToCampaign('@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignID');">&nbsp;</span>
+                </div>
+                <div class="col-md-11">
+
+                    <h4>@Localizer.GetString(HeadingResourceKeyConstants.CampaignInformationHeading) </h4>
+                </div>
+
+            </div>
+        </div>
+        <div id="searchCriteriaDiv" class="searchCriteriaDiv collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+
+            <form id="addCampaignForm">
+
+
+                <div class="card-body">
+                    <fieldset>
+
+                        <div class="row">
+                            <div class="col-md-3">
+
+                                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanActiveSurveillanceCampaignsCampaignIDFieldLabel)</label>
+                                <br />
+                                @if (Model.ReadOnlyMode == true)
+                                {
+                                    <span> @Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.EIDSSCampaignID</span>
+                                }
+                                else
+                                {
+                                    <input class="form-control" disabled="disabled" type="text" id="CampaignID" value="@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.EIDSSCampaignID" />
+                                }
+
+
+                                @if (String.IsNullOrEmpty(@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignID.ToString()))
+                                {
+
+                                    <input type="hidden" id="idfsCampaignId" />
+                                }
+                                else
+                                {
+                                    <input type="hidden" value="@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignID" id="idfsCampaignId" name="idfsCampaignId" />
+
+                                }
+
+                            </div>
+                            <div class="col-md-3">
+                                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanActiveSurveillanceCampaignsCampaignNameFieldLabel)</label>
+                                <br />
+                                @if (Model.ReadOnlyMode == true)
+                                {
+                                    <span> @Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignName</span>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.SearchHumanActiveSurveillanceCampaignsCampaignNameFieldLabel"></i>
+
+                                    if (Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStatusTypeID == 10140002)
+                                    {
+                                        <input name="CampaignName" class="form-control" type="text" id="CampaignName" value="@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignName" disabled />
+                                    }
+                                    else
+                                    {
+                                        <input name="CampaignName" class="form-control" type="text" id="CampaignName" value="@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignName" />
+                                    }
+
+
+                                }
+                            </div>
+
+                            <div class="col-md-3">
+
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.SearchHumanActiveSurveillanceCampaignsCampaignTypeFieldLabel"></i>
+                                @if (Model.ReadOnlyMode != true)
+                                {
+
+                                    <eidss-select2DropDown id="@Model.Select2Configurations[0].DropDownId"
+                                                           control-target-id="@Model.Select2Configurations[0].ControltargetId"
+                                                           target-type="@Model.Select2Configurations[0].ControlTargetType"
+                                                           target-ajax-url="@Model.Select2Configurations[0].ControlTargetUrl"
+                                                           selectct2-default-data="@Model.Select2Configurations[0].defaultSelect2Selection"
+                                                           end-point="@Model.Select2Configurations[0].Endpoint"
+                                                           label-name="@Model.Select2Configurations[0].Label"
+                                                           is-visible="@Model.Select2Configurations[0].isVisible"
+                                                           name="@Model.Select2Configurations[0].DropDownId" is-disabled="@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStatusTypeID == 10140002 ? true : false">
+                                    </eidss-select2DropDown>
+
+                                }
+                                else
+                                {
+                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CampaignInformationCampaignTypeFieldLabel)</label>
+                                    <br />
+                                    <span> @Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignTypeName</span>
+                                }
+
+
+                            </div>
+                            <div class="col-md-6">
+                                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.SearchActiveSurveillanceCampaignsModalCampaignStatusFieldLabel"></i>
+                                @if (Model.ReadOnlyMode != true)
+                                {
+                                    <eidss-select2DropDown id="@Model.Select2Configurations[1].DropDownId"
+                                                           control-target-id="@Model.Select2Configurations[1].ControltargetId"
+                                                           target-type="@Model.Select2Configurations[1].ControlTargetType"
+                                                           target-ajax-url="@Model.Select2Configurations[1].ControlTargetUrl"
+                                                           selectct2-default-data="@Model.Select2Configurations[1].defaultSelect2Selection"
+                                                           end-point="@Model.Select2Configurations[1].Endpoint"
+                                                           label-name="@Model.Select2Configurations[1].Label"
+                                                           is-visible="@Model.Select2Configurations[1].isVisible"
+                                                           name="@Model.Select2Configurations[1].DropDownId" is-disabled="@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStatusTypeID == 10140002 ? true : false">
+                                    </eidss-select2DropDown>
+                                }
+                                else
+                                {
+                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CampaignInformationCampaignStatusFieldLabel)</label>
+                                    <br />
+                                    <span> @Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStatusTypeName</span>
+                                }
+                            </div>
+                        </div>
+                        <br />
+                        <br />
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.HumanActiveSurveillanceCampaignCampaignStartDateFieldLabel)</label>
+                                <span asp-validation-for="GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStartDate"></span>
+                                <br />
+                                @if (Model.ReadOnlyMode == true)
+                                {
+                                    <span>@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStartDate</span>
+                                }
+                                else
+                                {
+                                    <div class="input-group mb-3">
+                                        @if (@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStatusTypeID == 10140002)
+                                        {
+                                            <input class="form-control" type="text" name="CampaignStartDate" id="CampaignStartDate" value="@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStartDate.ToShortDateString()" disabled />
+                                        }
+                                        else
+                                        {
+                                            string startdatestr = Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStartDate.ToShortDateString() != "1/1/0001" ? Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStartDate.ToShortDateString() : string.Empty;
+                                            <input class="form-control" type="text" name="CampaignStartDate" id="CampaignStartDate" value="@startdatestr" />
+                                        }
+                                        <div class="input-group-append">
+                                            <span class="input-group-text" id="datePickerIcon1" style="cursor:pointer;" onclick="ShowDatePicker('CampaignStartDate');"><i class="fa fa-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                }
+                                <br />
+                            </div>
+                            <div class="col-md-3">
+                                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.HumanActiveSurveillanceCampaignCampaignEndDateFieldLabel)</label>
+                                <span asp-validation-for="GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignEndDate"></span>
+                                <br />
+                                @if (Model.ReadOnlyMode == true)
+                                {
+                                    <span>@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignEndDate</span>
+                                }
+                                else
+                                {
+                                    <div class="input-group mb-3">
+                                        @if (@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStatusTypeID == 10140002)
+                                        {
+                                            <input class="form-control" type="text" name="CampaignEndDate" id="CampaignEndDate" value="@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignEndDate.ToShortDateString()" disabled />
+                                        }
+                                        else
+                                        {
+                                            string enddatestr = Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignEndDate.ToShortDateString() != "1/1/0001" ? Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignEndDate.ToShortDateString() : string.Empty;
+                                            <input class="form-control" type="text" name="CampaignEndDate" id="CampaignEndDate" value="@enddatestr" />
+                                        }
+
+                                        <div class="input-group-append">
+                                            <span class="input-group-text" id="datePickerIcon2" style="cursor:pointer;" onclick="ShowDatePicker('CampaignEndDate');"><i class="fa fa-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                }
+                                <br />
+                            </div>
+                            <div class="col-md-6">
+                                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.HumanActiveSurveillanceCampaignCampaignAdministratorFieldLabel)</label>
+                                <br />
+                                @if (Model.ReadOnlyMode == true)
+                                {
+                                    <span>@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignAdministrator</span>
+                                }
+                                else
+                                {
+                                    if (Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStatusTypeID == 10140002)
+                                    {
+                                        <input type="text" name="CampaignAdministrator" id="CampaignAdministrator" class="form-control" value="@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignAdministrator" disabled />
+                                    }
+                                    else
+                                    {
+                                        <input type="text" name="CampaignAdministrator" id="CampaignAdministrator" class="form-control" value="@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignAdministrator" />
+                                    }
+
+                                }
+                            </div>
+
+                        </div>
+
+                        <br />
+
+                        <br />
+
+                    </fieldset>
+                    @{
+                        if (Model.ReadOnlyMode != true)
+                        {
+                            if (Model.WritePermissionIndicator)
+                            {
+                                if (Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStatusTypeID != 10140002)
+                                {
+                                    <a id="showModaAddBtnActive" data-toggle="modal" data-target="#createSampleTypeModal" class="btn btn-outline-primary">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</a>
+                                }
+
+                            }
+                            else
+                            {
+                                @if (Model.ReadOnlyMode == false & Model.WritePermissionIndicator == true)
+                                {
+                                    <a id="showModaAddBtnInActive" disabled="disabled" class="btn btn-outline-primary">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</a>
+                                }
+
+
+                            }
+
+
+
+
+
+                        }
+                    }
+                </div>
+                <div class="card-footer">
+                    @if (Model.UserPermissions.Delete & Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignID > 0)
+                    {
+                        @if (Model.ReadOnlyMode == false & Model.DeletePermissionIndicator == true)
+                        {
+                            <a class="btn btn-danger" id="deleteBtn" onclick="DeleteConfirmCampaign();">@Localizer.GetString(ButtonResourceKeyConstants.DeleteButton)</a>
+                        }
+                    }
+                    <a class="btn btn-default" id="cancelBtn" onclick="CancelPage();">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</a>
+                    <a class="btn btn-default" onclick="ExpandPanel();" id="searchBtn">@Localizer.GetString(ButtonResourceKeyConstants.SearchButton)</a>
+                    @if (Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStatusTypeID != 10140002)
+                    {
+                        @if (Model.ReadOnlyMode == false & Model.WritePermissionIndicator == true)
+                        {
+                            <a class="btn btn-outline-primary" id="savebtn" onclick="SaveHASCampaign();">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</a>
+                        }
+
+
+                    }
+
+                </div>
+            </form>
+            <br />
+            <h3>@Localizer.GetString(HeadingResourceKeyConstants.SampleTypeDetailsModalHeading) </h3>
+            <span style="color:red;" id="sampleTypeGridRequired">@Localizer.GetString(MessageResourceKeyConstants.EnterAtLeastOneParameterMessage)</span>
+            <br />
+
+            <div class="row">
+                <div class="col-md-12">
+
+                    <partial name="_DiseaseToSampleTypeGridPartial" />
+                </div>
+
+            </div>
+            @if (Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignID > 0)
+            {
+                <div class="row" id="SessionsAndConclusions">
+                    <div class="col-md-12">
+                        <h3>@Localizer.GetString(HeadingResourceKeyConstants.SessionInformationSessionInformationHeading) </h3>
+                        <br />
+
+                        <h3>Conclusion</h3>
+                        @if (Model.ReadOnlyMode == false & Model.WritePermissionIndicator == true)
+                        {
+                            <input type="text" class="form-control form-control-lg" id="Conclusions" value="@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.Conclusion" />
+                        }
+                        else
+                        {
+                            <span>@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.Conclusion</span>
+                        }
+                    </div>
+
+                </div>
+            }
+
+            <br />
+
+        </div>
+    </div>
+
+
+}
+@{
+    List<Select2Configruation> newDiseaseSampleTypesDD = new List<Select2Configruation>();
+    Select2Configruation select2Configruation_2 = new Select2Configruation();
+    select2Configruation_2.DropDownId = "DiagnosisDDModal";
+    // select2Configruation_2.ControltargetId = "SampleTypeDDModal";
+    select2Configruation_2.Label = @Localizer.GetString(FieldLabelResourceKeyConstants.SearchHumanActiveSurveillanceCampaignsCampaignDiseaseFieldLabel);
+    // select2Configruation.ControlTargetType = DropDownTargetTypes.DropDown;
+    select2Configruation_2.Endpoint = @Url.Action("GetDiseasesForSelect2DropDownFilteredAndPaged", "CrossCutting", new { Area = "CrossCutting" });
+    //  select2Configruation_2.ControlTargetUrl =@Url.Action("GetDiseaseSampleTypeByDiseasePaged", "Configuration", new { Area = "Configuration"});
+    select2Configruation_2.isVisible = true;
+    // select2Configruation.defaultSelect2Selection = Model.DefaultCampaignType;
+    newDiseaseSampleTypesDD.Add(select2Configruation_2);
+
+    select2Configruation_2 = new Select2Configruation();
+    select2Configruation_2.DropDownId = "SampleTypeDDModal";
+    //select2Configruation.ControltargetId = "BaseReferenceGrid";
+    select2Configruation_2.Label = @Localizer.GetString(FieldLabelResourceKeyConstants.SampleTypeFieldLabel);
+    //select2Configruation.ControlTargetType = DropDownTargetTypes.Table;
+    select2Configruation_2.Endpoint = @Url.Action("GetDiseaseSampleTypeByDiseasePaged", "Configuration", new { Area = "Configuration" });
+    //select2Configruation.ControlTargetUrl = @Url.Action("GetBaseReferenceTableNew", "BaseReferencePage");
+    //select2Configruation.defaultSelect2Selection = Model.DefaultCampaignStatus;
+    select2Configruation_2.FilteredId = "DiagnosisDDModal";
+    select2Configruation_2.isVisible = true;
+    newDiseaseSampleTypesDD.Add(select2Configruation_2);
+
+
+}
+
+<!--New Sample Type---->
+<div class="modal fade" id="createSampleTypeModal" tabindex="-1" role="dialog" aria-labelledby="createSampleTypeModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="padding:20px;">
+            <form id="newSampleTypeForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="row">
+                        <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.SearchHumanActiveSurveillanceCampaignsCampaignDiseaseFieldLabel"></i>
+                        <br />
+                        <div class="col-md-12">
+                            <eidss-select2DropDown id="@newDiseaseSampleTypesDD[0].DropDownId" name="@newDiseaseSampleTypesDD[0].DropDownId"
+                                                   control-target-id="@newDiseaseSampleTypesDD[0].ControltargetId"
+                                                   target-type="@newDiseaseSampleTypesDD[0].ControlTargetType"
+                                                   target-ajax-url="@newDiseaseSampleTypesDD[0].ControlTargetUrl"
+                                                   selectct2-default-data="@newDiseaseSampleTypesDD[0].defaultSelect2Selection"
+                                                   end-point="@newDiseaseSampleTypesDD[0].Endpoint"
+                                                   label-name="@newDiseaseSampleTypesDD[0].Label"
+                                                   is-visible="@newDiseaseSampleTypesDD[0].isVisible"
+                                                   include-add-button="@newDiseaseSampleTypesDD[0].IncludeAddButton"
+                                                   add-modal-id="@newDiseaseSampleTypesDD[0].AddModalId"
+                                                   custom-js-on-change-function="@newDiseaseSampleTypesDD[0].CustomJsOnChangeFunction"
+                                                   custom-js-on-clear-function="@newDiseaseSampleTypesDD[0].CustomJsOnClearFunction"
+                                                   disabled-controls="@newDiseaseSampleTypesDD[0].DisabledControls"
+                                                   filter-id="@newDiseaseSampleTypesDD[0].FilteredId">
+                            </eidss-select2DropDown>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.SampleTypeFieldLabel"></i>
+
+                        <br />
+                        <div class="col-md-12">
+                            <eidss-select2DropDown id="@newDiseaseSampleTypesDD[1].DropDownId" name="@newDiseaseSampleTypesDD[1].DropDownId"
+                                                   control-target-id="@newDiseaseSampleTypesDD[1].ControltargetId"
+                                                   target-type="@newDiseaseSampleTypesDD[1].ControlTargetType"
+                                                   target-ajax-url="@newDiseaseSampleTypesDD[1].ControlTargetUrl"
+                                                   selectct2-default-data="@newDiseaseSampleTypesDD[1].defaultSelect2Selection"
+                                                   end-point="@newDiseaseSampleTypesDD[1].Endpoint"
+                                                   label-name="@newDiseaseSampleTypesDD[1].Label"
+                                                   is-visible="@newDiseaseSampleTypesDD[1].isVisible"
+                                                   include-add-button="@newDiseaseSampleTypesDD[1].IncludeAddButton"
+                                                   add-modal-id="@newDiseaseSampleTypesDD[1].AddModalId"
+                                                   custom-js-on-change-function="@newDiseaseSampleTypesDD[1].CustomJsOnChangeFunction"
+                                                   custom-js-on-clear-function="@newDiseaseSampleTypesDD[1].CustomJsOnClearFunction"
+                                                   disabled-controls="@newDiseaseSampleTypesDD[1].DisabledControls"
+                                                   filter-id="@newDiseaseSampleTypesDD[1].FilteredId">
+                            </eidss-select2DropDown>
+                        </div>
+                    </div>
+                    <br />
+                    <br />
+                    <div class="row">
+                        <label> Planned Number</label>
+                        <div class="col-md-12">
+                            <input type="number" id="PlannedNumberModal" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label>@Localizer.GetString(FieldLabelResourceKeyConstants.HumanSessionSampleDetailsModalCommentsFieldLabel) </label>
+                        <div class="col-md-12">
+                            <textarea type="text" id="CommentsModal" class="form-control"></textarea>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <a id="addBtn" class="btn btn-primary">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</a>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!--Success Modal-->
+<div class="modal fade" id="saveSuccessModal" tabindex="-1" role="dialog" aria-labelledby="saveSuccessModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="padding:20px;">
+            <div class="modal-header">
+                <h5 class="modal-title">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <div class="col-md-12">
+                        <span>   @Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)   </span> <span id="successCampaignId">  </span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="button" id="returnToCampaignBtn" class="btn btn-primary " onclick="CloseSuccessModal();">@Localizer.GetString(ButtonResourceKeyConstants.HumanActiveSurveillanceCampaignReturnToActiveSurveillanceCampaignButtonText)</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="button" id="returntoDashBoardBtn" class="btn btn-primary" onclick="ReturnToDashBoard();">@Localizer.GetString(ButtonResourceKeyConstants.HumanActiveSurveillanceCampaignReturnToDashboardButtonText)</button>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<!--Delete Row Modal-->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="padding:20px;">
+            <div class="modal-header">
+                <h5 class="modal-title">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <div class="col-md-12">
+                        @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage)
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="returnToCampaignBtn" class="btn btn-primary" onclick="CloseDeleteModal();">@Localizer.GetString(ButtonResourceKeyConstants.NoButton)</button>
+                <button type="button" id="returntoDashBoardBtn" class="btn btn-default" onclick="DeleteRowData();">@Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--Delete Campaign Modal-->
+
+<div class="modal fade" id="deleteCampaignModal" tabindex="-1" role="dialog" aria-labelledby="deleteCampaignModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="padding:20px;">
+            <div class="modal-header">
+                <h5 class="modal-title">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <div class="col-md-12">
+                        @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage)
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="returnToCampaignBtn" class="btn btn-primary" onclick="CloseDeleteCampaignModal();">@Localizer.GetString(ButtonResourceKeyConstants.NoButton)</button>
+                <button type="button" id="returntoDashBoardBtn" class="btn btn-default" onclick="DeleteCampaign('@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignID');">@Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Delete Success-->
+<div class="modal fade" id="deleteSuccessModal" tabindex="-1" role="dialog" aria-labelledby="deleteSuccessModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="padding:20px;">
+            <div class="modal-header">
+                <h5 class="modal-title">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <div class="col-md-12">
+                        <span>   @Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)   </span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="button" id="returnToCampaignBtn" class="btn btn-primary " onclick="ClosedDeleteSuccessModal();">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+                    </div>
+                </div>
+
+
+            </div>
+
+
+        </div>
+    </div>
+</div>
+<!-- Cancel Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)
+            </div>
+            <div class="modal-footer">
+                <button id="successBtnNo" type="button" class="btn btn-secondary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.NoButton)</button>
+                <button id="successBtnYes" type="button" class="btn btn-primary" onclick="HistoryRedirect();"> @Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--Duplicates Modal-->
+
+
+<div class="modal fade" id="duplicatesModal" tabindex="-1" role="dialog" aria-labelledby="duplicatesModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="padding:20px;">
+            <div class="modal-header">
+                <h5 class="modal-title">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <div class="col-md-12">
+                        @Localizer.GetString(MessageResourceKeyConstants.DuplicateRecordsAreNotAllowedMessage)
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="returnToCampaignBtn" class="btn btn-primary" onclick="CloseDuplicatesModal();">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<input id="rowDataHidden" type="hidden" />
+
+
+<script>
+    var tableRows = []; //Store table data
+    var duplicateArray = [];
+    $(document).ready(function () {
+
+        //Initialize Date Picker
+        $("#CampaignStartDate").datepicker();
+        $("#CampaignEndDate").datepicker();
+        $("#sampleTypeGridRequired").hide();
+      //  $("#SessionsAndConclusions").hide();
+        
+    });
+
+
+
+    ////ADD NEW SAMPLE TYPE TO TABLE
+    $("#addBtn").click(function () {
+        $("#newSampleTypeForm").validate({
+            errorClass: "alert-danger",
+            ignore: null,
+            rules: {
+                DiagnosisDDModal: {
+                    required: true
+                },
+                SampleTypeDDModal: {
+                    required: true
+                },
+            }
+        });
+        if ($("#newSampleTypeForm").valid()) {
+            var rowData = {
+            };
+
+            if ($("#DiagnosisDDModal").select2('data')[0].text != undefined & $("#DiagnosisDDModal").select2('data')[0].text != "") {
+                rowData.Row = 1;
+                rowData.idfsCampaignToDiagnosis = -1;
+                rowData.Disease = $("#DiagnosisDDModal").select2('data')[0].id;
+                rowData.DiseaseName = $("#DiagnosisDDModal").select2('data')[0].text;
+                rowData.SampleType = $("#SampleTypeDDModal").select2('data')[0].id;
+                rowData.SampleTypeName = $("#SampleTypeDDModal").select2('data')[0].text;
+                rowData.PlannedNumber = $("#PlannedNumberModal").val()
+                rowData.Comments = $("#CommentsModal").val();
+                rowData.RowCommand = 'ADD';
+                tableRows.push(rowData);
+            }
+
+            $("#rowDataHidden").val(JSON.stringify(tableRows));
+            var dt = $('#SampleTypeGrid').DataTable();
+            dt.ajax.reload();
+            $("#PlannedNumberModal").val("")
+            $("#CommentsModal").val("");
+            $("#DiagnosisDDModal").val(null).trigger('change');
+            $("#SampleTypeDDModal").val(null).trigger('change');
+            $("#createSampleTypeModal").modal('hide');
+        }
+    });
+
+
+    //EDITING A TABLE ROW
+    function EditRow(obj) {
+        tableRows = [];
+        //alert(JSON.stringify(obj));
+        var dt = $('#SampleTypeGrid').DataTable();
+        var dtData = dt.data();
+
+
+
+        for (i = 0; i <= dtData.length - 1; i++) {
+            var rowData = {
+            };
+            if (dtData[i][1] == obj.IdfCampainToDiagnosis) {
+                rowData.Row = dtData[i][0];
+                rowData.idfsCampaignToDiagnosis = obj.IdfCampainToDiagnosis;
+                rowData.DiseaseName = obj.Disease[0].text;
+                rowData.Disease = obj.Disease[0].id;
+                rowData.SampleTypeName = obj.SampleTypeName[0].text;
+                rowData.SampleType = obj.SampleTypeName[0].id;
+                rowData.PlannedNumber = obj.PlannedNumber;
+                rowData.Comments = obj.CommentsDescriptions;
+                rowData.RowCommand = 'ADD';
+                tableRows.push(rowData);
+            } else {
+                rowData.Row = dtData[i][0];
+                rowData.idfsCampaignToDiagnosis = dtData[i][1];
+                rowData.DiseaseName = dtData[i][2];
+                rowData.Disease = dtData[i][3];
+                rowData.SampleTypeName = dtData[i][4];
+                rowData.SampleType = dtData[i][5];
+                rowData.PlannedNumber = dtData[i][6];
+                rowData.Comments = dtData[i][7];
+                rowData.RowCommand = 'ADD';
+                tableRows.push(rowData);
+            }
+        }
+        var campaignDataIfo = {
+            campaignID: '',
+            campaignName: '',
+            campaignTypeDD: '',
+            campaignStatusDD: '',
+            campaignFromDateRange: '',
+            campaignToDateRange: '',
+            sampleTypeData: '',
+            campaignAdministrator: '',
+            idfsCampaignId: ''
+        }
+        campaignDataIfo.campaingID = $("#CampaignID").val();
+        campaignDataIfo.campaignName = $("#CampaignName").val();
+        campaignDataIfo.campaignTypeDD = $("#CampaignTypeDD").val();
+        campaignDataIfo.campaignStatusDD = $("#CampaignStatusDD").val();
+        campaignDataIfo.campaignFromDateRange = $("#CampaignStartDate").val();
+        campaignDataIfo.campaignToDateRange = $("#CampaignEndDate").val();
+        campaignDataIfo.campaignAdministrator = $("#CampaignAdministrator").val();
+        campaignDataIfo.idfsCampaignId = $("#idfsCampaignId").val();
+        campaignDataIfo.campaignDetails = tableRows;
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveRowData", "HumanActiveSurveillanceCampaignPage")',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify(campaignDataIfo),
+            success: function (data) {
+
+                $("#CampaignID").val(data[0].strCampaignID);
+                $("#idfsCampaignId").val(data[0].idfCampaign);
+                $("#successCampaignId").val(data[0].strCampaignID);
+                $("#saveSuccessModal").modal('show');
+
+            }
+        });
+
+    }
+
+    //SAVING A CAMPAIGN
+    function SaveHASCampaign() {
+        $("#addCampaignForm").validate({
+            debug: true,
+            errorClass: "alert-danger",
+            ignore: null,
+            rules: {
+                CampaignTypeDD: {
+                    required: true
+                },
+                CampaignStatusDD: {
+                    required: true
+                },
+                CampaignName: {
+                    required: true
+                }
+            }
+        });
+        if ($("#addCampaignForm").valid()) {
+            tableRows = [];
+            var dt = $('#SampleTypeGrid').DataTable();
+            var dtData = dt.data();
+            //Get Data from the Grid
+            if (dtData.length == 0) {
+                $("#sampleTypeGridRequired").show();
+            }
+            else {
+
+                $("#sampleTypeGridRequired").hide();
+                for (i = 0; i <= dtData.length - 1; i++) {
+                    var rowData = {
+                    };
+                    rowData.Row = dtData[i][0];
+                    rowData.idfsCampaignToDiagnosis = dtData[i][1];
+                    rowData.DiseaseName = dtData[i][2];
+                    rowData.Disease = dtData[i][3];
+                    rowData.SampleTypeName = dtData[i][4];
+                    rowData.SampleType = dtData[i][5];
+                    rowData.PlannedNumber = dtData[i][6];
+                    rowData.Comments = dtData[i][7];
+                    rowData.RowCommand = 'ADD';
+                    duplicateArray.push(dtData[i][1] +'-' +  dtData[i][5])
+                    tableRows.push(rowData);
+                }
+                var campaignDataIfo = {
+                    campaignID: '',
+                    campaignName: '',
+                    campaignTypeDD: '',
+                    campaignStatusDD: '',
+                    campaignFromDateRange: '',
+                    campaignToDateRange: '',
+                    sampleTypeData: '',
+                    campaignAdministrator: '',
+                    conclusions:'',
+                    idfsCampaignId: ''
+                }
+                campaignDataIfo.campaingID = $("#CampaignID").val();
+                campaignDataIfo.campaignName = $("#CampaignName").val();
+                campaignDataIfo.campaignTypeDD = $("#CampaignTypeDD").val();
+                campaignDataIfo.campaignStatusDD = $("#CampaignStatusDD").val();
+                campaignDataIfo.campaignFromDateRange = $("#CampaignFromDateRange").val();
+                campaignDataIfo.campaignToDateRange = $("#CampaignToDateRange").val();
+                campaignDataIfo.campaignAdministrator = $("#CampaignAdministrator").val();
+                campaignDataIfo.conclusions = $("#Conclusions").val();
+                campaignDataIfo.idfsCampaignId = $("#idfsCampaignId").val();
+                campaignDataIfo.campaignDetails = tableRows;
+
+
+
+                //DUpplicate Check
+                if (hasDuplicates(duplicateArray)) {
+                    $("#duplicatesModal").modal('show');
+
+                }
+                else {
+
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("SaveRowData", "HumanActiveSurveillanceCampaignPage")',
+                        dataType: 'json',
+                        contentType: 'application/json',
+                        data: JSON.stringify(campaignDataIfo),
+                        success: function (data) {
+                            // alert(data[0].strCampaignID);
+                            $("#CampaignID").val(data[0].strCampaignID);
+                            $("#idfsCampaignId").val(data[0].idfCampaign);
+                            $("#successCampaignId").val(data[0].strCampaignID);
+                            $("#saveSuccessModal").modal('show');
+                           // $("#SessionsAndConclusions").show();
+                        }
+                    });
+                }
+            }
+        } else {
+
+        }
+    }
+    //CHECKING FOR DUPLICATES
+    function hasDuplicates(arr) {
+        return new Set(arr).size !== arr.length;
+    }
+
+
+
+
+
+    //CAMPAIGN STATUS CHANGE
+    $('#CampaignStatusDD').on('select2:select', function (e) {
+        var status = $('#CampaignStatusDD').val();
+        var endDate = $("#CampaignEndDate").val();
+        if (status == 10140002 & (endDate == "" | endDate == undefined | endDate == '1/1/0001')) {
+            $("#CampaignEndDate").val(moment().format('MM/DD/YYYY'));
+        }
+        if (status == 10140002) {
+
+            $("#addCampaignForm :input").not('#CampaignStatusDD').prop("disabled", true);
+            $("#showModaAddBtnActive").hide();
+            $("#deleteBtn").hide();
+            $("#savebtn").hide();
+            $(".fa-trash").hide();
+            $(".fa-edit").hide();
+        } else {
+            
+            $("#addCampaignForm :input").not('#CampaignID').prop("disabled", false);
+            $("#showModaAddBtnActive").show();
+            $("#deleteBtn").show();
+            $("#savebtn").show();
+            $(".fa-trash").show();
+            $(".fa-edit").show();
+        }
+    });
+
+
+    function HistoryRedirect() {
+        var referrer = document.referrer;
+        //If the referrer is the same page or view in the same controller
+        //we redirect to dashboard else we redirect to the referrer
+        if (referrer.search("HumanActiveSurveillanceCampaignPage") > -1) {
+            window.location.replace('@Url.Action("Index", "Dashboard", new { Area = "Administration" })');
+        }
+        if (referrer.search("HumanActiveSurveillanceCampaignPage/Create") > -1) {
+            window.location.replace('@Url.Action("Index", "Dashboard", new { Area = "Administration" })');
+        }
+        else {
+            window.location.replace(referrer);
+        }
+    }
+
+
+    function CancelPage() {
+        $("#cancelModal").modal('show');
+    }
+
+    function CloseSuccessModal(){
+        $("#saveSuccessModal").modal('hide');
+        var campaignId =   $("#idfsCampaignId").val();
+        ReturnToCampaign(campaignId)
+    }
+    function ReturnToDashBoard() {
+          window.location.replace('@Url.Action("Index", "Dashboard", new { Area = "Administration"})');
+    }
+    function ReturnToCampaign(campaignId) {
+        window.location.replace('@Url.Action("Create", "HumanActiveSurveillanceCampaignPage", new { Area = "Human", @readOnly = 0 })' + '&campaignId=' + campaignId);
+    }
+    function ClearDateFields() {
+        $("#CampaignStartDate").val("");
+        $("#CampaignEndDate").val("");
+    }
+    //Show Date Picker
+    function ShowDatePicker(ctrlId) {
+        $("#"+ctrlId).datepicker("show");
+
+    }
+    //Deleting removing Row
+    var deletingRow;
+    var deletingIndex;
+    function DeleteRow(row,index) {
+       // alert(JSON.stringify(row) + "," + JSON.stringify(index));
+        $("#deleteModal").modal('show');
+        deletingIndex = index;
+        deletingRow = deletingRow;
+    }
+    function DeleteRowData() {
+        var deletetable = $('#SampleTypeGrid').DataTable();
+        deletetable.row(deletingIndex).remove().draw();
+        $("#deleteModal").modal('hide');
+        deletingRow =''
+        deletingIndex = '';
+    }
+    //function BuildRowId(data, type, row, meta) {
+    //    var ctrl;
+    //    ctrl = "<input type='text' id='Row_" + meta.row.toString() + "'  value='" + data.toString() + "'/>";
+    //    return ctrl
+    //}
+
+    function CloseDuplicatesModal() {
+        
+        $("#duplicatesModal").modal('hide');
+    }
+    function CloseDeleteModal () {
+        $("#deleteModal").modal('hide');
+    }
+    function DeleteConfirmCampaign() {
+
+        $("#deleteCampaignModal").modal('show');
+    }
+    function CloseDeleteCampaignModal() {
+
+        $("#deleteCampaignModal").modal('hide');
+    }
+    function DeleteCampaign(campaignId) {
+        $("#deleteCampaignModal").modal('hide');
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Delete", "HumanActiveSurveillanceCampaignPage",new { Area = "Human", @campaignId = Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignID })' ,
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function (data) {
+                if (data[0].ReturnCode == 1) {
+                    alert(data[0].ReturnMessage);
+                } else {
+                    $("#deleteSuccessModal").modal('show');
+                }
+
+
+
+            }
+        });
+    }
+    function ClosedDeleteSuccessModal() {
+        $("#deleteSuccessModal").modal('hide');
+        window.location.replace('@Url.Action("Index", "HumanActiveSurveillanceCampaignPage", new { Area = "Human", })');
+    }
+</script>
+
+<partial name="_ValidationScriptsPartial" />

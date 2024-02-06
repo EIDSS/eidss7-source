@@ -1,0 +1,39 @@
+﻿@using EIDSS.Web.ViewModels.Vector
+@using EIDSS.Domain.ResponseModels.Vector
+
+@inherits LaboratoryTestListBase
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-lg-11">
+                <h4>@Localizer.GetString(HeadingResourceKeyConstants.VectorDetailedCollectionLaboratoryTestsHeading)</h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editDetailedCollectionLabTestsSectionButton" href="#detailedCollectionWizard-h-5" class="edit-section">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body" id="laboratoryTests">
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenDataGrid AllowColumnPicking="false" AllowColumnReorder="true" AllowColumnResize="true" AllowPaging="true" Count="@LaboratoryTestsCount" Data="@VectorSessionStateContainer.LaboratoryTestsList" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" LoadData="@LoadTestGrid" @ref="LaboratoryTestListGrid" ShowPagingSummary="true" TItem="USP_VCTS_LABTEST_GetListResponseModel">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="USP_VCTS_LABTEST_GetListResponseModel" Property="EIDSSLaboratorySampleID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorDetailedCollectionLaboratoryTestsLabSampleIDColumnHeading)" Width="150px" />
+                        <RadzenDataGridColumn TItem="USP_VCTS_LABTEST_GetListResponseModel" Property="strFieldSampleID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorDetailedCollectionLaboratoryTestsFieldSampleIDColumnHeading)" />
+                        <RadzenDataGridColumn TItem="USP_VCTS_LABTEST_GetListResponseModel" Property="strSampleTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorDetailedCollectionLaboratoryTestsSampleTypeColumnHeading)" />
+                        <RadzenDataGridColumn TItem="USP_VCTS_LABTEST_GetListResponseModel" Property="strSpeciesName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorDetailedCollectionLaboratoryTestsSpeciesColumnHeading)" />
+                        <RadzenDataGridColumn TItem="USP_VCTS_LABTEST_GetListResponseModel" Property="strTestName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorDetailedCollectionLaboratoryTestsTestNameColumnHeading)" />
+                        <RadzenDataGridColumn TItem="USP_VCTS_LABTEST_GetListResponseModel" Property="strResultName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorDetailedCollectionLaboratoryTestsTestResultColumnHeading)" />
+                        <RadzenDataGridColumn TItem="USP_VCTS_LABTEST_GetListResponseModel" Property="datConculdedDate" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorDetailedCollectionLaboratoryTestsResultDateColumnHeading)" FormatString="{0:d}" />
+                        <RadzenDataGridColumn TItem="USP_VCTS_LABTEST_GetListResponseModel" Property="strDiseaseName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorDetailedCollectionLaboratoryTestsDiseaseColumnHeading)" />
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+</div>
+
+

@@ -1,0 +1,20 @@
+﻿@model EIDSS.Web.Areas.Outbreak.ViewModels.HumanCaseViewModel;
+@using EIDSS.Web.Enumerations
+@using EIDSS.Web.ViewModels.Human;
+@using Microsoft.AspNetCore.Mvc.ViewComponents;
+@using EIDSS.Web.Components.Human.SearchPerson;
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.CreateHumanCaseCaseDetailsHeading);
+}
+<link href="~/css/EIDSS7Styles-1.0.0.css" rel="stylesheet" />
+<link href="~/css/EIDSS7FullViewModuleStyles-1.0.0.css" rel="stylesheet" />
+<link href="~/css/site.css" rel="stylesheet" />
+
+<div class="card" id="divHumanCaseView">
+    <div class="card-header">
+        <h3>@Localizer.GetString(HeadingResourceKeyConstants.OutbreakCasesOutbreakPersonSearchHeading)</h3>
+    </div>
+    <div class="card-body">
+        <component param-CallbackKey="@Model.idfOutbreak" param-CallbackUrl=@Url.Action("Details","HumanCase") param-CancelUrl="@Model.CancelURL" param-Mode="@SearchModeEnum.Import" render-mode="Server" type="typeof(SearchPerson)" />
+    </div>
+</div>

@@ -1,0 +1,14 @@
+﻿@using EIDSS.Web.Components.Human.ActiveSurveillanceCampaign
+@using  EIDSS.ClientLibrary.Enumerations
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.HumanActiveSurveillanceCampaignHumanActiveSurveillanceCampaignHeading);
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3>@Localizer.GetString(HeadingResourceKeyConstants.HumanActiveSurveillanceCampaignHumanActiveSurveillanceCampaignHeading)</h3>
+    </div>
+    <div class="card-body">
+        <component type="typeof(SearchActiveSurveillanceCampaign)" param-CampaignCategoryId="@Convert.ToInt64(EIDSSConstants.CampaignCategory.Human)" render-mode="Server" />
+    </div>
+</div>

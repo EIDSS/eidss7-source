@@ -1,0 +1,177 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Outbreak
+@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.FlexForm
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Enumerations
+@using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants
+
+@inherits ClinicalInformationSectionBase
+
+<div id="divClinicalInformationSection" class="container-fluid">
+    <div class="row">
+        <div class="col-9">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.CreateVeterinaryCaseClinicalInformationHeading)</h4>
+        </div>
+        <div class="col-3 text-right">
+            @if (Case.CreatePermissionIndicator && Case.CaseId is null)
+            {
+                <a class="edit-section" href="#caseDiseaseReportWizard-h-3" id="editClinicalInformationSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            }
+            else if (Case.CaseDisabledIndicator == false && Case.WritePermissionIndicator)
+            {
+                <a class="edit-section" href="#caseDiseaseReportWizard-h-3" id="editClinicalInformationSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            }
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div id="divClinicalInvestigationsSubSection" class="card-body">
+        <div class="row">
+            <div class="col-6">
+                @if (SpeciesId is null)
+                {
+                    <button class="btn btn-link disabled" disabled>
+                        <span class="fas fa-copy fa-lg"></span>
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-link" @onclick="OnCopyClick">
+                        <span class="fas fa-copy fa-lg"></span>
+                    </button>
+                }
+                @if (CopiedAnswers is null)
+                {
+                    <button class="btn btn-link disabled" disabled>
+                        <span class="fas fa-paste fa-lg"></span>
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-link" @onclick="OnPasteClick">
+                        <span class="fas fa-paste fa-lg"></span>
+                    </button>
+                }
+                @if (SpeciesId is null)
+                {
+                    <button class="btn btn-link disabled" disabled>
+                        <span class="fas fa-eraser fa-lg"></span>
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-link" @onclick="OnClearClick">
+                        <span class="fas fa-eraser fa-lg"></span>
+                    </button>
+                }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <RadzenDataGrid AllowColumnReorder="false" AllowColumnResize="true" AllowFiltering="false" AllowPaging="false" AllowSorting="false" ColumnWidth="300px" Count="Count" Data="Species" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsClinicalInformationLoading" LoadData="LoadClinicalInvestigationData" RowExpand="OnRowExpand" PageSize="int.MaxValue - 1" @ref="ClinicalInvestigationsGrid" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="false" TItem="FarmInventoryGetListViewModel">
+                    <Columns>
+                        <RadzenDataGridColumn Property="SpeciesTypeName" TItem="FarmInventoryGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCaseClinicalInformationSpeciesColumnHeading)" Width="150px">
+                            <Template Context="item">
+                                <RadzenDropDown @bind-Value="item.SpeciesID" AllowClear="true" AllowFiltering="true" class="form-control" Data="Species" Disabled="@(Case.CaseDisabledIndicator || (Case.WritePermissionIndicator == false && Case.CaseId > 0) || (Case.CreatePermissionIndicator == false && Case.CaseId is null))" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetSpecies" Name="species" TextProperty="Species" TValue="long?" ValueProperty="SpeciesID"/>
+                                <RadzenRequiredValidator Component="clinicalInformationSectionSpeciesType" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)"/>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn Property="StatusTypeName" TItem="FarmInventoryGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCaseClinicalInformationStatusColumnHeading)" Width="150px">
+                            <Template Context="item">
+                                <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="item.OutbreakCaseStatusTypeID" Change="_ => OnStatusTypeChange(item)" class="form-control" Data="StatusTypes" Disabled="@(Case.CaseDisabledIndicator || (Case.WritePermissionIndicator == false && Case.CaseId > 0) || (Case.CreatePermissionIndicator == false && Case.CaseId is null))" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="clinicalInformationStatusType" TextProperty="Name" ValueProperty="IdfsBaseReference"/>
+                                <RadzenRequiredValidator Component="clinicalInformationStatusType" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)"/>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                    <!-- Expandable Detail Template -->
+                    <Template Context="item">
+                        <RadzenCard>
+                            <div class="row">
+                                <FlexForm @ref="ClinicalInvestigation" Request="item.SpeciesClinicalInvestigationFlexFormRequest"/>       
+                            </div>
+                        </RadzenCard>
+                    </Template>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+</div>
+@if (Model.ReportCategoryTypeID == (long)CaseTypeEnum.Livestock)
+{
+    <div class="card">
+        <div id="divAnimalsSubSection" class="card-body">
+            <div class="row">
+                <div class="col-11">
+                    <h4 class="header non-section">@Localizer.GetString(HeadingResourceKeyConstants.CreateVeterinaryCaseAnimalInvestigationsHeading)</h4>
+                </div>
+                <div class="col-1 text-right">
+                    @if (Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false)
+                    {
+                        <button class="btn btn-link add-section disabled" disabled id="addAnimal" type="button">
+                            <span class="fas fa-plus fa-lg"></span>
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-link add-section" id="addAnimal" @onclick="OnAddAnimalClick" type="button">
+                            <span class="fas fa-plus fa-lg"></span>
+                        </button>
+                    }
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" Count="Count" Data="Model.Animals" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsAnimalsLoading" LoadData="args => LoadAnimalData(args)" PageSizeOptions="pageSizeOptions" @ref="AnimalsGrid" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="true" TItem="AnimalGetListViewModel">
+                        <Columns>
+                            <RadzenDataGridColumn Property="EIDSSHerdID" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsHerdIDColumnHeading)" Width="150px"/>
+                            <RadzenDataGridColumn Property="EIDSSAnimalID" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsAnimalIDColumnHeading)" Width="150px"/>
+                            <RadzenDataGridColumn Property="SpeciesTypeName" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsSpeciesColumnHeading)" Width="175px"/>
+                            <RadzenDataGridColumn Property="AgeTypeName" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsAgeColumnHeading)" Width="175px"/>
+                            <RadzenDataGridColumn Property="SexTypeName" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsSexColumnHeading)" Width="150px"/>
+                            <RadzenDataGridColumn Property="ConditionTypeName" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsStatusColumnHeading)" Width="175px"/>
+                            <RadzenDataGridColumn Property="AnimalDescription" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsNoteAdditionalInfoColumnHeading)"/>
+                            <RadzenDataGridColumn Filterable="false" Frozen="true" Property="AnimalID" Sortable="false" TextAlign="TextAlign.Center" TItem="AnimalGetListViewModel" Title="" Width="55px">
+                                <Template Context="item">
+                                    @if (Model.WritePermissionIndicator)
+                                    {
+                                        <button class="btn btn-link" @onclick="_ => OnEditAnimalClick(item)">
+                                            <span class="fas fa-edit"></span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-link disabled" disabled>
+                                            <span class="fas fa-edit disabled"></span>
+                                        </button>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn Filterable="false" Frozen="true" Property="AnimalID" Sortable="false" TextAlign="TextAlign.Center" TItem="AnimalGetListViewModel" Title="" Width="55px">
+                                <Template Context="item">
+                                    @if (Model.WritePermissionIndicator)
+                                    {
+                                        <button class="btn btn-link" @onclick="_ => OnDeleteAnimalClick(item)">
+                                            <span class="fas fa-trash"></span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-link disabled" disabled>
+                                            <span class="fas fa-trash disabled"></span>
+                                        </button>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+}

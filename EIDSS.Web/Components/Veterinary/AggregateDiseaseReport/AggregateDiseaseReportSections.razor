@@ -1,0 +1,18 @@
+﻿@inherits AggregateDiseaseReportSectionsBase
+
+@if (Model.Permissions.Read)
+{
+    <div id="aggregateReportWizard">
+        <div class="content content-collapsed clearfix">
+            <section>
+                <ReportDetailsSection Model="Model"></ReportDetailsSection>
+            </section>
+            <section>
+                <DiseaseMatrixSection Model="Model"></DiseaseMatrixSection>
+            </section>
+            <section>
+                <h4 style="display: none">@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateDiseaseReportReviewHeading)</h4>
+            </section>
+        </div>
+    </div>
+}

@@ -1,0 +1,258 @@
+﻿@model EIDSS.Web.Administration.Security.ViewModels.UserGroupSearchViewModel
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.SearchUserGroupsPageHeading);
+
+    Model.GridConfiguration = new();
+    Model.GridConfiguration.GridId = "userGroupGrid";
+    Model.GridConfiguration.GridClass = "table table-sm table-striped";
+    Model.GridConfiguration.ControlFilterID = "SearchCriteria_strName,SearchCriteria_strDescription";
+    Model.GridConfiguration.AjaxDataUrl = Url.Action("GetUserGroupList");
+    Model.GridConfiguration.EnableServerSide = true;
+    Model.GridConfiguration.EnableCustomSearching = false;
+    Model.GridConfiguration.EnableProcessingMessage = true;
+    Model.GridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.PageRedirect;
+    Model.GridConfiguration.EditPageRedirectLink = Url.Action("Details", "UserGroupPage", new { Area = "Administration", SubArea = "Security" });
+    Model.GridConfiguration.DeleteModalAjaxUrl = @Url.Action("Delete");
+    Model.GridConfiguration.DeleteCompleteMethod = "checkDeleteSuccess";
+    Model.GridConfiguration.EnablePrintButton = true;
+
+    Model.GridConfiguration.ControlLabels.DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage);
+    Model.GridConfiguration.ControlLabels.DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.GridConfiguration.ControlLabels.DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton);
+    Model.GridConfiguration.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton);
+    Model.GridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.GridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "idfEmployeeGroup",
+        ColumnTitleHeader = String.Empty,
+        ColumnType = ColumnType.Default,
+        Visible = false,
+        ColumnAjaxDataUrl = Url.Action("Details", "UserGroupPage"),
+        Orderable = true
+    });
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "idfsEmployeeGroupName",
+        ColumnTitleHeader = String.Empty,
+        ColumnType = ColumnType.Default,
+        Visible = false,
+        Orderable = true
+    });
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "strName",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchUserGroupsGroupColumnHeading),
+        ColumnType = ColumnType.Default,
+        Visible = true,
+        Orderable = true
+    });
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "strDescription",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchUserGroupsDescriptionColumnHeading),
+        ColumnType = ColumnType.Default,
+        Visible = true,
+        Orderable = true
+    });
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "idfEmployeeGroup",
+        ColumnTitleHeader = String.Empty,
+        ColumnType = ColumnType.Edit,
+        ColumnAjaxDataUrl = Url.Action("Details", "UserGroupPage", new { Area = "Administration", SubArea = "Security" }),
+        //Visible = true
+        Visible = Model.UserGroupPermissions.Write
+    });
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = String.Empty,
+        ColumnName = "idfEmployeeGroup",
+        ColumnType = ColumnType.Delete,
+        //Visible = true
+        Visible = Model.UserGroupPermissions.Delete
+    });
+}
+
+<style type="text/css">
+    button.dt-button, button.buttons-print {
+        display: none;
+    }
+</style>
+
+<partial name="_InformationalModalPartial" for="InformationalMessage" />
+<partial name="_WarningModalPartial" />
+
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@HeadingResourceKeyConstants.SearchUserGroupsPageHeading"></h3>
+    </div>
+    <div class="card-body">
+        <form id="userGroupSearchForm" method="post">
+            <div id="userGroupSearchCriteria" class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-lg-11">
+                            <h4 id="searchCriteriaHeader" heading-for="@HeadingResourceKeyConstants.SearchCriteriaHeading"></h4>
+                        </div>
+                        <div class="col-lg-1 pull-right">
+                            <a id="aToggleUserGroupSearch" href="#userGroupSearchCriteriaForm" data-toggle="collapse" data-parent="#userGroupSearchCriteria"
+                               onclick="toggleUserGroupSearchCriteria(event);">
+                                <span id="toggleUserGroupSearchIcon" role="button" class="toggle-icon fas fa-caret-down fa-2x">&nbsp;</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div id="userGroupSearchCriteriaForm" class="card-body collapse in">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="SearchCriteria.strName" field-label-for="@FieldLabelResourceKeyConstants.SearchUserGroupsGroupFieldLabel"></label>
+                            <input asp-for="SearchCriteria.strName" type="text" class="form-control" />
+                        </div>
+                        <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.EmployeeGroupDescriptionFieldLabel">
+                            <label asp-for="SearchCriteria.strDescription" field-label-for="@FieldLabelResourceKeyConstants.SearchUserGroupsDescriptionFieldLabel"></label>
+                            <input asp-for="SearchCriteria.strDescription" type="text" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div id="userGroupSearchCriteriaCommands" class="card-footer">
+                    <button id="cancelSearchCriteria" type="button" class="btn btn-outline-primary"
+                            onclick="cancelSearch('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)', event)"
+                            button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+                    <button id="clear" type="reset" onclick="clearSearchCriteria();" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.ClearButton"></button>
+                    <button id="search" type="submit" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.SearchButton" ></button>
+                    <button id="addUserGroupSearchCriteria" type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.AddButton" 
+                            onclick="addUserGroup();"
+                            visible="@Model.UserGroupPermissions.Create" ></button>
+                </div>
+            </div>
+            <input type="hidden" asp-for="SearchCriteria.SortColumn" />
+            <input type="hidden" asp-for="SearchCriteria.SortOrder" />
+            <br />
+        </form>
+        <div id="userGroupSearchResults" class="card">
+            <div class="card-header">
+                <h4 id="searchResultsHeader" heading-for="@HeadingResourceKeyConstants.SearchResultsHeading"></h4>
+            </div>
+            <div class="card-body">
+                @if (Model.ShowSearchResults)
+                {
+                    <eidss-grid id="@Model.GridConfiguration.GridId"
+                                grid-configuration="@Model.GridConfiguration"
+                                class-name="@Model.GridConfiguration.GridClass"
+                                enable-server-side="true"
+                                enable-processing="@Model.GridConfiguration.EnableProcessingMessage"
+                                enable-search="false"
+                                end-point="@Model.GridConfiguration.AjaxDataUrl"
+                                enable-custom-search="false"
+                                filtered-control-ids="@Model.GridConfiguration.ControlFilterID"
+                                controls-that-refresh-the-grid="@Model.GridConfiguration.ControlIdThatRefreshGrid"
+                                control-labels="@Model.GridConfiguration.ControlLabels">
+                    </eidss-grid>
+                }
+            </div>
+            <div id="userGroupSearchResultsCommands" class="card-footer">
+                <button id="btnPrint" type="button" class="btn btn-default" button-for="@ButtonResourceKeyConstants.PrintButton"></button>
+                <button id="cancelSearchResults" type="button" class="btn btn-outline-primary"
+                        onclick="cancelSearch('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)', event)"
+                        button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+                <button id="addUserGroup" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.AddButton" 
+                        onclick="addUserGroup();"
+                        visible="@Model.UserGroupPermissions.Create"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+    });
+
+    function toggleUserGroupSearchCriteria() {
+        if ($("#userGroupSearchCriteriaForm").hasClass("show")) {
+            $("#userGroupSearchResults").show();
+            $("#toggleUserGroupSearchIcon").removeClass("fa-caret-up").addClass("fa-caret-down");
+            $("#cancelSearchCriteria").hide();
+            $("#clear").hide();
+            $("#search").hide();
+            $("#userGroupSearchCriteriaForm").collapse("show");
+            $("#userGroupSearchCriteriaCommands").hide();
+            $("#cancelSearchResults").show();
+        }
+        else {
+            $("#toggleUserGroupSearchIcon").removeClass("fa-caret-down").addClass("fa-caret-up");
+            $("#cancelSearchCriteria").hide();
+            $("#clear").show();
+            $("#search").show();
+            $("#addUserGroupSearchCriteria").hide();
+            $("#userGroupSearchCriteriaForm").collapse("hide");
+            $("#userGroupSearchCriteriaCommands").show();
+            $("#userGroupSearchResults").show();
+        }
+    };
+
+
+    function hideUserGroupSearchCriteria() {
+        $("#toggleUserGroupSearchIcon").show();
+        $("#userGroupSearchCriteriaForm").collapse('hide');
+        $("#userGroupSearchCriteriaCommands").hide();
+        $("#userGroupSearchResultsCommands").show();
+        $("#search").show();
+    };
+
+    function showUserGroupSearchCriteria() {
+        $("#toggleUserGroupSearchIcon").hide();
+        $("#userGroupSearchCriteriaForm").collapse('show');
+        $("#userGroupSearchCriteriaCommands").show();
+        $("#userGroupSearchResults").hide();
+    };
+
+    function cancelSearch(message, event) {
+        event.preventDefault();
+
+        showWarningModal(message).then(response => {
+            if (response) {
+                HistoryRedirect();
+            }
+        });
+    };
+
+    function HistoryRedirect() {
+        var referrer = document.referrer;
+        //If the referrer is the same page or view in the same controller
+        //we redirect to dashboard else we redirect to the referrer
+        if (referrer.search("UserGroupPage") > -1) {
+            window.location.replace('@Url.Action("Index", "Dashboard", new { Area = "Administration" })');
+        }
+        if (referrer.search("UserGroupPage/Details") > -1) {
+            window.location.replace('@Url.Action("Index", "Dashboard", new { Area = "Administration" })');
+        }
+        else {
+            window.location.replace(referrer);
+        }
+    }
+
+    function clearSearchCriteria() {
+        $("[id$=SearchCriteria_strName]").val("").trigger("change");
+        $("[id$=SearchCriteria_strDescription]").val("").trigger("change");
+    };
+
+
+    function addUserGroup() {
+        location.href='@Url.Action("Details", "UserGroupPage")'
+    };
+
+        function checkDeleteSuccess(response) {
+        if (response == "SUCCESS") {
+        }
+    };
+
+</script>
+
+@if (ViewBag.JavaScriptFunction != null)
+{
+    <script type="text/javascript">
+        @Html.Raw(ViewBag.JavaScriptFunction)
+    </script>
+}

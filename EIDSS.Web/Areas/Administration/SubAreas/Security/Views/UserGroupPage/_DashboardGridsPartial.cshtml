@@ -1,0 +1,22 @@
+﻿@model EIDSS.Web.Administration.Security.ViewModels.UserGroup.DashboardGridsSectionViewModel
+
+<form id="dashboardGridsForm">
+    <div class="container-fluid">
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4 heading-for="@HeadingResourceKeyConstants.UserGroupDetailsDashboardGridsHeading"></h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editDashboardGridsSectionButton" href="#userGroupWizard-h-4" class="edit-section"><span class="far fa-edit fa-lg"></span></a>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label asp-for="SelectedDashboardGrid" field-label-for="Grid"></label>
+                <select asp-for="SelectedDashboardGrid"
+                        asp-items="@(new SelectList(Model.DashboardGrids, "idfsBaseReference", "strName"))" class="form-control">
+                </select>
+            </div>
+        </div>
+    </div>
+</form>

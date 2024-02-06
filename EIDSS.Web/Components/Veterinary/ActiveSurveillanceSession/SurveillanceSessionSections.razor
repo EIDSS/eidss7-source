@@ -1,0 +1,29 @@
+﻿@inherits EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession.SurveillanceSessionSectionsBase
+@using EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession
+@using EIDSS.Web.Enumerations
+
+<div id="veterinaryActiveSurveillanceSessionWizard">
+    <div class="content content-collapsed clearfix">
+        <section>
+            <SessionInformationSection />
+        </section>
+        <section>
+            <DetailedInformationSection />
+        </section>
+        <section>
+            <TestsSection />
+        </section>
+        <section>
+            <ActionsSection />
+        </section>
+        <section>
+            <AggregateInformationSection />
+        </section>
+        <section>
+            <DiseaseReportsSection />
+        </section>
+        <section>
+            <h4 style="display: none">@Localizer.GetString(HeadingResourceKeyConstants.ReviewHeading)</h4>
+        </section>
+    </div>
+</div>

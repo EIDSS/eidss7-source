@@ -1,0 +1,91 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Enumerations
+
+@inherits EIDSS.Web.Components.Administration.Deduplication.VeterinaryDiseaseReport.SamplesBase
+
+<div class="form-row">
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord" TValue="int" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.RecordSelection
+                                       Change="@((args) => OnRecordSelectionChangeAsync(Model.ReportType, args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="Samples"></div>
+                <RadzenCheckBox Name="chkCheckAllSamples" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.chkCheckAllSamples TValue="bool" Change="@((args) => OnCheckAllSamplesChangeAsync(args))" />
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllSamples" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord2" TValue="int" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.Record2Selection
+                                       Change="@((args) => OnRecord2SelectionChangeAsync(Model.ReportType, args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="Samples2"></div>
+                <RadzenCheckBox Name="chkCheckAllSamples2" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.chkCheckAllSamples2 TValue="bool" Change="@((args) => OnCheckAllSamples2ChangeAsync(args))" />
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllSamples2" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+</div>
+<div class="form-row">
+    <div class="col-6">
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" 
+            Count="@VeterinaryDiseaseReportDeduplicationService.SamplesCount" 
+            Data="@VeterinaryDiseaseReportDeduplicationService.Samples" 
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@VeterinaryDiseaseReportDeduplicationService.SelectedSamples"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            ExpandMode="DataGridExpandMode.Single" 
+            PageSizeOptions="pageSizeOptions" @ref="SamplesGrid" 
+            ShowPagingSummary="true" TItem="SampleGetListViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="SampleGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool" 
+                            Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedSamples != null && VeterinaryDiseaseReportDeduplicationService.SelectedSamples.Contains(data))" 
+                            Change="@(args => OnSampleRowCheckChangeAsync(args, data, false))" />
+                    </Template> 
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="EIDSSLaboratorySampleID" TItem="SampleGetListViewModel" Title="@LabSampleIdColumnHeadingResourceKey" Width="150px"/>
+                <RadzenDataGridColumn Property="SampleTypeName" TItem="SampleGetListViewModel" Title="@SampleTypeColumnHeadingResourceKey" Width="200px"/>
+                <RadzenDataGridColumn Property="EIDSSLocalOrFieldSampleID" TItem="SampleGetListViewModel" Title="@FieldSampleIdColumnHeadingResourceKey" Width="150px"/>
+                <RadzenDataGridColumn Property="EIDSSAnimalID" TItem="SampleGetListViewModel" Title="@AnimalIdColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Livestock)" Width="150px"/>
+                <RadzenDataGridColumn Property="Species" TItem="SampleGetListViewModel" Title="@SpeciesColumnHeadingResourceKey" Width="250px"/>
+                <RadzenDataGridColumn Property="BirdStatusTypeName" TItem="SampleGetListViewModel" Title="@BirdStatusColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Avian)" Width="150px"/>
+                <RadzenDataGridColumn FormatString="{0:d}" Property="CollectionDate" TItem="SampleGetListViewModel" Title="@CollectionDateColumnHeadingResourceKey" Width="175px"/>
+                <RadzenDataGridColumn FormatString="{0:d}" Property="SentDate" TItem="SampleGetListViewModel" Title="@SentDateColumnHeadingResourceKey" Width="150px"/>
+                <RadzenDataGridColumn Property="SentToOrganizationName" TItem="SampleGetListViewModel" Title="@SentToOrganizationColumnHeadingResourceKey" Width="250px"/>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+    <div class="col-6">
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" 
+            Count="@VeterinaryDiseaseReportDeduplicationService.SamplesCount2" 
+            Data="@VeterinaryDiseaseReportDeduplicationService.Samples2" 
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@VeterinaryDiseaseReportDeduplicationService.SelectedSamples2"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            ExpandMode="DataGridExpandMode.Single" 
+            PageSizeOptions="pageSizeOptions" @ref="SamplesGrid2" 
+            ShowPagingSummary="true" TItem="SampleGetListViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="SampleGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool"  
+                        Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedSamples2 != null && VeterinaryDiseaseReportDeduplicationService.SelectedSamples2.Contains(data))" 
+                        Change="@(args => OnSampleRowCheckChangeAsync(args, data, true))" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="EIDSSLaboratorySampleID" TItem="SampleGetListViewModel" Title="@LabSampleIdColumnHeadingResourceKey" Width="150px"/>
+                <RadzenDataGridColumn Property="SampleTypeName" TItem="SampleGetListViewModel" Title="@SampleTypeColumnHeadingResourceKey" Width="200px"/>
+                <RadzenDataGridColumn Property="EIDSSLocalOrFieldSampleID" TItem="SampleGetListViewModel" Title="@FieldSampleIdColumnHeadingResourceKey" Width="150px"/>
+                <RadzenDataGridColumn Property="EIDSSAnimalID" TItem="SampleGetListViewModel" Title="@AnimalIdColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Livestock)" Width="150px"/>
+                <RadzenDataGridColumn Property="Species" TItem="SampleGetListViewModel" Title="@SpeciesColumnHeadingResourceKey" Width="250px"/>
+                <RadzenDataGridColumn Property="BirdStatusTypeName" TItem="SampleGetListViewModel" Title="@BirdStatusColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Avian)" Width="150px"/>
+                <RadzenDataGridColumn FormatString="{0:d}" Property="CollectionDate" TItem="SampleGetListViewModel" Title="@CollectionDateColumnHeadingResourceKey" Width="175px"/>
+                <RadzenDataGridColumn FormatString="{0:d}" Property="SentDate" TItem="SampleGetListViewModel" Title="@SentDateColumnHeadingResourceKey" Width="150px"/>
+                <RadzenDataGridColumn Property="SentToOrganizationName" TItem="SampleGetListViewModel" Title="@SentToOrganizationColumnHeadingResourceKey" Width="250px"/>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>

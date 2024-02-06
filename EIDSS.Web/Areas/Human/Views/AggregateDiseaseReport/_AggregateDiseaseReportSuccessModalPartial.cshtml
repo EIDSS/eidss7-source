@@ -1,0 +1,48 @@
+﻿<div class="modal fade" id="aggregateDiseaseReportSuccessModal" tabindex="-1" role="dialog" aria-labelledby="warningModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="successModalHeader">EIDSS</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 text-right">
+                        <span class="fas fa-info-circle fa-2x modal-icon"></span>
+                    </div>
+                    <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                        <p id="successMessage"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnReturnToAggregate" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.HumanAggregateDiseaseReportReturnToAggregateDiseaseReportButton"></button>
+                <button id="btnReturnToDashboard" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.ReturnToDashboardButton"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function showAggregateDiseaseReportSuccessModal(message, title = "@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)", size = "medium") {
+        const modal = new Promise(function (resolve, reject) {
+            $("#aggregateDiseaseReportSuccessModal").find(".modal-header > h5").html(title);
+            $("#aggregateDiseaseReportSuccessModal").find("#successMessage").text(message.replace(/&quot;/g, '\"')).end(); // replace HTML &quot to show actual double quotes.
+            $("#aggregateDiseaseReportSuccessModal").modal("show");
+
+            $("#btnReturnToAggregate").click(function () {
+                $("#aggregateDiseaseReportSuccessModal").modal("hide");
+                resolve(false);
+            });
+            $("#btnReturnToDashboard").click(function () {
+                $("#aggregateDiseaseReportSuccessModal").modal("hide");
+                resolve(true);
+            });
+        }).then(response => {
+            return response;
+        });
+
+        return modal;
+    };
+</script>

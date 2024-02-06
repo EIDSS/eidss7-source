@@ -1,0 +1,33 @@
+﻿@model EIDSS.Domain.ViewModels.LoginViewModel
+@using EIDSS.Web.Components.CrossCutting
+@{
+    Layout = "~/Views/Shared/_MinLayout.cshtml";
+
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.LoginPageHeading);
+}
+<script src="~/js/loginValidator.js"></script>
+<div class="row">
+    <div class="col-md-4 offset-md-4">
+        <img src="~/Includes/Images/header_logo.png" width="350" />
+    </div>
+    <div class="col-md-4 offset-md-4">
+        <form method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Username" field-label-for="@FieldLabelResourceKeyConstants.UserNameFieldLabel"></label>
+                <input asp-for="Username" class="form-control" />
+                <span asp-validation-for="Username" cass="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" field-label-for="@FieldLabelResourceKeyConstants.PasswordFieldLabel"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" cass="text-danger"></span>
+            </div>
+            <div class="col-md-3 offset-md-4">
+                <button type="submit" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.LoginButton"></button>
+            </div>
+        </form>
+        <component type="typeof(SessionManager)" render-mode="Server" />
+    </div>
+</div>
+

@@ -1,0 +1,88 @@
+﻿@inherits EIDSS.Web.Components.Administration.Deduplication.Farm.FarmDetailsBase
+
+<div class="form-row">
+    <div class="col-6">
+        <RadzenRadioButtonList class="form-control" Name="rboRecord" TValue="int" @bind-Value=@FarmDeduplicationService.RecordSelection
+                               Change="@((args) => OnRecordSelectionChangeAsync(args))">
+            <Items>
+                <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+            </Items>
+        </RadzenRadioButtonList>
+        <div class="card-header" id="Info"></div>
+        <RadzenCheckBox Name="chkCheckAllInfo" @bind-Value=@FarmDeduplicationService.chkCheckAll TValue="bool" Change="@((args) => OnCheckAllInfoChangeAsync(args))" />
+        <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllInfo" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+    <div class="col-6">
+        <RadzenRadioButtonList class="form-control" Name="rboRecord2" TValue="int" @bind-Value=@FarmDeduplicationService.Record2Selection
+                               Change="@((args) => OnRecord2SelectionChangeAsync(args))">
+            <Items>
+                <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+            </Items>
+        </RadzenRadioButtonList>
+        <div class="card-header" id="Info2"></div>
+        <RadzenCheckBox Name="chkCheckAllInfo2" @bind-Value=@FarmDeduplicationService.chkCheckAll2 TValue="bool" Change="@((args) => OnCheckAllInfo2ChangeAsync(args))" />
+        <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllInfo2" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+</div>
+<div class="row">
+    <div class="col-6 mx-auto">
+        <RadzenCard>
+            @if (FarmDeduplicationService.InfoList != null)
+            {
+                <RadzenDataList WrapItems=false AllowPaging=false Data=FarmDeduplicationService.InfoList TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false >
+                    <Template Context="field">
+                    @if (field.Index < RegionID)
+                    {
+                        <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key TValue="bool" Disabled=@field.Disabled TriState=false Style="vertical-align: top !important;"  Change="@((args) => OnDataListSelectionChangeAsync(args, field.Index))"/>
+                        <div class="ml-2 d-inline-block vertical-align-middle">
+                            <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <RadzenPanel Visible="@(field.Index < RegionID)">
+                        <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key Disabled=@field.Disabled TriState=false Style="vertical-align: top !important;" />
+                        <div class="ml-2 d-inline-block vertical-align-middle">
+                            <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                        </RadzenPanel>
+                    }
+                    </Template>
+                </RadzenDataList>
+            }
+        </RadzenCard>
+    </div>
+    <div class="col-6">
+        <RadzenCard>
+            @if (FarmDeduplicationService.InfoList2 != null)
+            {
+                <RadzenDataList WrapItems=false AllowPaging=false Data=FarmDeduplicationService.InfoList2 TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
+                    <Template Context="field">
+                    @if (field.Index < RegionID)
+                    {
+                        <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key TValue="bool" Disabled=@field.Disabled TriState=false Style="vertical-align: top !important;"  Change="@((args) => OnDataList2SelectionChangeAsync(args, field.Index))"/>
+                        <div class="ml-2 d-inline-block vertical-align-middle">
+                            <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                    }
+                    else
+                    {
+                        <RadzenPanel Visible="@(field.Index < RegionID)">
+                        <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key Disabled=@field.Disabled TriState=false Style="vertical-align: top !important;" />
+                        <div class="ml-2 d-inline-block vertical-align-middle">
+                            <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                        </RadzenPanel>
+                    }
+                    </Template>
+                </RadzenDataList>
+            }
+        </RadzenCard>
+    </div>
+</div>

@@ -1,0 +1,178 @@
+﻿@using EIDSS.Domain.Enumerations
+@using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Services
+
+@inherits EIDSS.Web.Components.Human.Person.PersonInformationSectionBase
+
+@if (StateContainer.IsHeaderVisible)
+{
+    <PersonHeader />
+}
+
+<div class="card">
+    <div class="card-header row">
+        <div class="col-11">
+            <h4 class="title">@Localizer.GetString(HeadingResourceKeyConstants.PersonInformationHeading)</h4>
+        </div>
+        <div class="col-1 text-right">
+            <a id="editPersonInfoSectionButton" href="#personDetailsWizard-h-0" class="edit-section">
+                <span class="fas fa-edit fa-lg"></span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<RadzenTemplateForm @ref="Form" TItem="PersonStateContainer" Data="@StateContainer">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-body">
+
+            <!--Person ID-->
+            <div style="padding-bottom:20px;" hidden="@(StateContainer.EIDSSPersonID is null)">
+                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.PersonInformationPersonIDFieldLabel)</label>
+                <div>@StateContainer.EIDSSPersonID</div>
+            </div>
+            <div class="form-row">
+                <!--Personal ID Type Drop Down-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchPersonPersonalIDTypeLabel" IsRow="false" CssClass="col-3" For="personalIDType">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@StateContainer.PersonalIDType" Change="OnPersonalIDTypeChange" class="form-control" Data="@PersonalIdTypes" Disabled="StateContainer.IsReadOnly" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="personalIDType" LoadData="@GetPersonalIdTypes" Name="personalIDType" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+                </InterfaceEditorResource>
+
+                <!--Personal ID -->
+                <div class="col-3">
+                    @if (StateContainer.PersonalIDType != (long)PersonalIDTypeEnum.Unknown)
+                    {
+                        <i class="fas fa-asterisk text-danger">&nbsp;</i>
+                    }
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.PersonalIDFieldLabel)</label>
+
+                    @if (StateContainer.PersonalIDType is not null)
+                    {
+                        if (PersonalIdentificationTypeMatrices is not null && PersonalIdentificationTypeMatrices.Any(x => x.IdfPersonalIDType == (long)StateContainer.PersonalIDType))
+                        {
+                            if (PersonalIdentificationTypeMatrices.First(x => x.IdfPersonalIDType == (long)StateContainer.PersonalIDType).StrFieldType is not null)
+                            {
+                                <RadzenTextBox @bind-Value="@StateContainer.PersonalID" class="form-control" id="personalID" MaxLength="@PersonalIdentificationTypeMatrices.First(x => x.IdfPersonalIDType == (long)StateContainer.PersonalIDType).Length" Name="personalID" />
+                            }
+                            else
+                            {
+                                <RadzenTextBox @bind-Value="@StateContainer.PersonalID" class="form-control" id="personalID" MaxLength="@PersonalIdentificationTypeMatrices.First(x => x.IdfPersonalIDType == (long)StateContainer.PersonalIDType).Length" Name="personalID" />
+                            }
+                        }
+                        else
+                        {
+                            <RadzenTextBox @bind-Value="@StateContainer.PersonalID" class="form-control" id="personalID" MaxLength="100" Name="personalID" />
+                        }
+                    }
+                    else
+                    {
+                        <RadzenTextBox @bind-Value="@StateContainer.PersonalID" class="form-control" id="personalID" MaxLength="100" Name="personalID" />
+                    }
+
+                    @if (StateContainer.PersonalIDType != (long)PersonalIDTypeEnum.Unknown)
+                    {
+                        <RadzenRequiredValidator Component="personalID" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)" />
+                    }
+
+                    @if (StateContainer.PersonalIDType is not null)
+                    {
+                        if (PersonalIdentificationTypeMatrices is not null && PersonalIdentificationTypeMatrices.Any(x => x.IdfPersonalIDType == (long)StateContainer.PersonalIDType))
+                        {
+                            <RadzenLengthValidator Component="personalID" Max="@PersonalIdentificationTypeMatrices.First(x => x.IdfPersonalIDType == (long)StateContainer.PersonalIDType).Length" Min="@PersonalIdentificationTypeMatrices.First(x => x.IdfPersonalIDType == (long)StateContainer.PersonalIDType).Length" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)" />
+                        }
+                    }
+
+                    @if (StateContainer.PersonalIDType is not null)
+                    {
+                        if (PersonalIdentificationTypeMatrices is not null && PersonalIdentificationTypeMatrices.Any(x => x.IdfPersonalIDType == (long)StateContainer.PersonalIDType))
+                        {
+                            if (PersonalIdentificationTypeMatrices.First(x => x.IdfPersonalIDType == (long)StateContainer.PersonalIDType).StrFieldType is not null)
+                            {
+                                if (PersonalIdentificationTypeMatrices.First(x => x.IdfPersonalIDType == (long)StateContainer.PersonalIDType).StrFieldType == PersonalIDTypeMatriceAttributeTypes.Numeric)
+                                {
+                                    <RadzenRegexValidator Component="personalID"
+                                          Text="@Localizer.GetString(MessageResourceKeyConstants.NumberIsOutOfRangeMessage)"
+                                          Pattern="^[0-9]*$"
+                                          Popup="false" />
+                                }
+                            }
+                        }
+                    }
+                </div>
+                <!--Find in PIN System-->
+                <div class="col-3" style="padding-top: 20px;">
+                    @if (StateContainer.IsFindPINDisabled)
+                    {
+                        <button id="btnFindPIN" disabled class="btn btn-outline-primary btn-sm disabled">@Localizer.GetString(ButtonResourceKeyConstants.FindInPINSystemButton)</button>
+                    }
+                    else
+                    {
+                        <button id="btnFindPIN" class="btn btn-outline-primary btn-sm" @onclick="OnFindPINClick">@Localizer.GetString(ButtonResourceKeyConstants.FindInPINSystemButton)</button>
+                    }
+                </div>
+            </div>
+            <div class="form-row">
+                <!--Person LastName -->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonInformationLastNameFieldLabel" IsRow="false" CssClass="col-4" For="@nameof(StateContainer.PersonLastName)">
+                    <RadzenTextBox @bind-Value="@StateContainer.PersonLastName" class="form-control" id="personLastOrSurName" MaxLength="36" Name="@nameof(StateContainer.PersonLastName)" />
+                </InterfaceEditorResource>
+
+                <!--Person MiddleName -->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonInformationMiddleNameFieldLabel" IsRow="false" CssClass="col-4" For="personMiddleName">
+                    <RadzenTextBox @bind-Value="@StateContainer.PersonMiddleName" class="form-control" id="personMiddleName" MaxLength="36" Name="personMiddleName" />
+                </InterfaceEditorResource>
+
+                <!--Person FirstName -->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonInformationFirstNameFieldLabel" IsRow="false" CssClass="col-4" For="personFirstName">
+                    <RadzenTextBox @bind-Value="@StateContainer.PersonFirstName" class="form-control" id="personFirstName" MaxLength="36" Name="personFirstName" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <!--Date of Birth -->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonInformationDateOfBirthFieldLabel" IsRow="false" CssClass="col-3" For="dateOfBirth"
+                        IsRequiredByDefaultBusinessRule="@StateContainer.IsDateOfBirthRequired">
+                    <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="StateContainer.DateOfBirth" Change="(() => UpdateAge(StateContainer.DateOfBirth))" class="form-control-range" DateFormat="d" id="dateOfBirth" Name="dateOfBirth" TValue="DateTime?" YearRange="@(String.Format("1900:{0}", DateTime.Now.Year))">
+                    </RadzenDatePicker>
+                </InterfaceEditorResource>
+
+                <!--Age-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonInformationAgeFieldLabel" IsRow="false" CssClass="col-3" For="age">
+                    <RadzenNumeric @bind-Value="@StateContainer.ReportedAge" Change="@(() => SetHumanAgeTypeRequired())" class="form-control" Disabled="@IsAgeInputDisabled" id="age" Min="0" Name="age" ReadOnly="false" TValue="int?" />
+                </InterfaceEditorResource>                                
+                <!--Age Type-->
+                <div class="col-6">
+                    <label>&nbsp;</label>
+                    
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@StateContainer.ReportedAgeUOMID" Change="(() => CheckDOBGreaterThan100Years())" class="form-control col-6" Data="@HumanAgeTypes" Disabled="@(StateContainer.IsReadOnly || IsAgeInputDisabled)" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="humanAgeType" LoadData="@GetHumanAgeTypes" Name="humanAgeType" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+
+                    <RadzenRequiredValidator Component="humanAgeType" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)" Visible="@StateContainer.IsHumanAgeTypeRequired" />
+                </div>
+            </div>
+            <div class="form-row" style="margin-top:-15px">                
+                <div class="col-3 offset-3">
+                    <div class="rz-message rz-messages-error @(StateContainer.IsDOBErrorMessageVisible ? "d-show" : "d-none")">
+                        @Localizer.GetString(MessageResourceKeyConstants.PersonInformationDOBErrorMessage)
+                    </div>                    
+                </div>
+            </div>
+            <div class="form-row">
+                <!--Gender Drop Down-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchPersonGenderLabel" IsRow="false" CssClass="col-3" For="genderType">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@StateContainer.GenderType" class="form-control" Data="@GenderTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="genderType" LoadData="@GetGenderTypes" Name="genderType" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" Disabled="StateContainer.IsReadOnly"/>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <!--Citizenship Drop Down-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonInformationCitizenshipFieldLabel" IsRow="false" CssClass="col-3" For="citizenshipType">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@StateContainer.CitizenshipType" class="form-control" Data="@CitizenshipTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="citizenshipType" LoadData="@GetCitizenshipTypes" Name="citizenshipType" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" Disabled="StateContainer.IsReadOnly"/>
+                </InterfaceEditorResource>
+
+                <!--Passport Number-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonInformationPassportNumberFieldLabel" IsRow="false" CssClass="col-3" For="passportNumber">
+                    <RadzenTextBox @bind-Value="@StateContainer.PassportNumber" class="form-control" id="passportNumber" MaxLength="20" Name="passportNumber" />
+                </InterfaceEditorResource>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

@@ -1,0 +1,19 @@
+﻿@inherits EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession.DetailedInformationSectionBase
+
+<SurveillanceSessionHeader />
+<div class="container-fluid">
+    <div class="form-row">
+        <div class="col-md-11">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.VeterinarySessionDetailedInformationHeading)</h4>
+        </div>
+        <div class="col-md-1 text-right">
+            <a id="editDetailedInformationSectionButton" href="#veterinaryActiveSurveillanceSessionWizard-h-1" class="edit-section">
+                <span class="fas fa-edit fa-lg"></span>
+            </a>
+        </div>
+    </div>
+</div>
+<FarmList />
+<FarmDetail />
+<FarmInventory />
+<DetailedAnimalSamplesList />

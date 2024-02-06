@@ -1,0 +1,159 @@
+﻿@using EIDSS.Web.Areas.Veterinary.ViewModels.Veterinary.ActiveSurveillanceSession
+@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits SearchActiveSurveillanceSessionBase
+
+<RadzenTemplateForm Data="@Model" id="activeSurveillanceSessionSearchForm" @ref="Form" Submit="@HandleValidSearchSubmit" TItem="SearchActiveSurveillanceSessionPageViewModel">
+    <div id="accordion">
+        <!--search criteria-->
+        <div class="card">
+            <div class="card-header" id="activeSurveillanceSessionSearchCriteria">
+                <button aria-controls="activeSurveillanceSessionSearchCriteriaBody" aria-expanded="false" class="btn d-inline-block" data-toggle="collapse" @onclick="@(() => AccordionClick(0))" type="button">
+                    <span class="text-left fas @(expandSearchCriteria ? " fa-caret-down" : "fa-caret-right")"></span>
+                    <h4 class="mb-0 d-inline-block"> @Localizer.GetString(HeadingResourceKeyConstants.SearchCriteriaHeading)</h4>
+                </button>
+            </div>
+            <div aria-labelledby="activeSurveillanceSessionSearchCriteria" class="@(expandSearchCriteria ? " collapse show" : "collapse")" data-parent="#accordion" id="activeSurveillanceSessionSearchCriteriaBody">
+                <div class="card-body">
+                    <div class="form-row">
+                        <InterfaceEditorResource CssClass="col-md-6" For="reportID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchVeterinaryActiveSurveillanceSessionsSessionIDFieldLabel" IsRow="false">
+                            <RadzenTextBox @bind-Value="@Model.SearchCriteria.SessionID" class="form-control" Disabled="@LoadingComponentIndicator" id="sessionID" Name="sessionID"/>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource CssClass="col-md-6" For="legacyReportID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchVeterinaryActiveSurveillanceSessionsLegacyIDFieldLabel" IsRow="false">
+                            <RadzenTextBox @bind-Value="@Model.SearchCriteria.LegacySessionID" class="form-control" Disabled="@LoadingComponentIndicator" id="legacySessionID" Name="legacySessionID"/>
+                        </InterfaceEditorResource>
+                    </div>
+                    <div class="form-row">
+                        <!--Session Status Type Drop Down-->
+                        <InterfaceEditorResource CssClass="col-md-6" For="diseaseID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchVeterinaryActiveSurveillanceSessionsSessionStatusFieldLabel" IsRow="false">
+                            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@Model.SearchCriteria.SessionStatusTypeID" class="form-control" Data="@SessionStatuses" Disabled="@LoadingComponentIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="sessionStatusTypeID" LoadData="@GetSessionStatusTypesAsync" Name="sessionStatusTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+                        </InterfaceEditorResource>
+                        <!--Disease Drop Down-->
+                        <InterfaceEditorResource CssClass="col-md-6" For="diseaseID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchVeterinaryActiveSurveillanceSessionsDiseaseFieldLabel" IsRow="false">
+                            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@Model.SearchCriteria.DiseaseID" class="form-control" Data="@Diseases" Disabled="@LoadingComponentIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="diseaseID" LoadData="@GetDiseasesAsync" Name="diseaseID" TextProperty="DiseaseName" TValue="long?" ValueProperty="DiseaseID" />
+                        </InterfaceEditorResource>
+                    </div>
+                    <div class="form-row">
+                        <fieldset class="col-md-12" disabled="@LoadingComponentIndicator">
+                            <LocationView @ref="LocationViewComponent" ParmLocationViewModel="@Model.SearchLocationViewModel"/>
+                        </fieldset>
+                    </div>
+                    <div class="form-row">
+                        <fieldset class="col-md-12">
+                            <legend>@Localizer.GetString(FieldLabelResourceKeyConstants.SearchVeterinaryActiveSurveillanceSessionsDateEnteredRangeFieldLabel)</legend>
+                            <div class="row">
+                                <!--Date Entered Range -->
+                                <InterfaceEditorResource CssClass="col-md-4" For="SearchCriteria_DateEnteredFrom" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FromFieldLabel" IsRow="false">
+                                    <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="@Model.SearchCriteria.DateEnteredFrom" class="form-control-range" DateFormat="d" Disabled="@LoadingComponentIndicator" id="dateEnteredFrom" Name="SearchCriteria_DateEnteredFrom" TValue="DateTime?"/>
+                                    <RadzenCompareValidator Component="SearchCriteria_DateEnteredFrom" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), Localizer.GetString(FieldLabelResourceKeyConstants.DateFromFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.DateToFieldLabel))" Value="@Model.SearchCriteria.DateEnteredTo" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.DateEnteredTo.ToString()))"/>
+                                    <RadzenCompareValidator Component="SearchCriteria_DateEnteredFrom" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="@DateTime.Now"/>
+                                </InterfaceEditorResource>
+                                <InterfaceEditorResource CssClass="col-md-4" For="SearchCriteria_DateEnteredTo" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ToFieldLabel" IsRow="false">
+                                    <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="@Model.SearchCriteria.DateEnteredTo" class="form-control-range" DateFormat="d" Disabled="@LoadingComponentIndicator" id="dateEnteredTo" Name="SearchCriteria_DateEnteredTo" TValue="DateTime?" />
+                                    <RadzenCompareValidator Component="SearchCriteria_DateEnteredTo" Operator="CompareOperator.GreaterThanEqual" Popup="false" Style="display: block" Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.DateToFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.DateFromFieldLabel))" Value="@Model.SearchCriteria.DateEnteredFrom" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.DateEnteredFrom.ToString()))"/>
+                                    <RadzenCompareValidator Component="SearchCriteria_DateEnteredTo" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="@DateTime.Now"/>
+                                </InterfaceEditorResource>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end search criteria-->
+        <!--search criteria buttons-->
+        <div class="card-footer @(showSearchCriteriaButtons ? "d-block" : "d-none")">
+            <div class="row">
+                <div class="col-md-12">
+                    @if (!showSearchResults)
+                    {
+                        <button class="btn btn-outline-primary" id="cancelSearchCriteriaButton" @onclick="@(CancelSearchClicked)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    }
+                    <button class="btn btn-outline-primary" id="clearButton" @onclick="@(ResetSearch)" type="reset">@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)</button>
+                    <button autofocus class="btn btn-primary" id="searchButton" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SearchButton)</button>
+                    @if (!showSearchResults)
+                    {
+                        <button class="btn btn-outline-primary" disabled="@disableAddButton" id="addSearchCriteriaButton" @onclick="OpenAddAsync" type="button">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                    }
+                </div>
+            </div>
+        </div>
+        <!--search criteria buttons-->
+        <!--search results-->
+        <div class="card @(showSearchResults ? "d-block" : "d-none")">
+            <div class="card-header" id="activeSurveillanceSessionSearchResults">
+                <h4 class="d-inline-block" style="line-height: 1.5rem; padding: 0.375rem 0.75rem;">@Localizer.GetString(HeadingResourceKeyConstants.SearchResultsHeading)</h4>
+            </div>
+            <div aria-labelledby="activeSurveillanceSessionSearchResults" class="collapse show" data-parent="#accordion" id="activeSurveillanceSessionSearchResultsBody">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowPaging="true" AllowSorting="true" Count="@count" Data="@Model.SearchResults" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" ExpandMode="DataGridExpandMode.Single" id="searchResults" IsLoading="@isLoading" LoadData="@LoadData" PageSizeOptions="@pageSizeOptions" @ref="Grid" ShowPagingSummary="true" TItem="VeterinaryActiveSurveillanceSessionViewModel" Visible="@showSearchResults">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionViewModel" Property="SessionID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchVeterinaryActiveSurveillanceSessionsSessionIDColumnHeading)" Width="150px" Sortable="true" SortOrder="SortOrder.Descending">
+                                        <Template Context="data">
+                                            <button class="btn btn-link btn-sm" @onclick="@(() => SendReportLinkAsync(data.SessionKey))">@data.SessionID.ToString()</button>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn Property="SessionStatusTypeName" Sortable="true" TItem="VeterinaryActiveSurveillanceSessionViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchVeterinaryActiveSurveillanceSessionsSessionStatusColumnHeading)" Width="100px"/>
+                                    <RadzenDataGridColumn FormatString="{0:d}" Property="EnteredDate" Sortable="true" TItem="VeterinaryActiveSurveillanceSessionViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchVeterinaryActiveSurveillanceSessionsSessionStartDateColumnHeading)" Width="135px"/>
+                                    <RadzenDataGridColumn Property="AdministrativeLevel1Name" Sortable="true" TItem="VeterinaryActiveSurveillanceSessionViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchVeterinaryActiveSurveillanceSessionsAdministrativeLevel1ColumnHeading)" Width="125px"/>
+                                    <RadzenDataGridColumn Property="AdministrativeLevel2Name" Sortable="true" TItem="VeterinaryActiveSurveillanceSessionViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchVeterinaryActiveSurveillanceSessionsAdministrativeLevel2ColumnHeading)" Width="125px"/>
+                                    <RadzenDataGridColumn Property="SettlementName" Sortable="true" TItem="VeterinaryActiveSurveillanceSessionViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchVeterinaryActiveSurveillanceSessionsAdministrativeLevel3ColumnHeading)" Visible="@(Model.BottomAdminLevel >= (long) EIDSSConstants.GISAdministrativeUnitTypes.Settlement)" Width="125px"/>
+                                    <RadzenDataGridColumn Property="DiseaseNames" Sortable="true" TItem="VeterinaryActiveSurveillanceSessionViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchVeterinaryActiveSurveillanceSessionsDiseaseColumnHeading)" Width="150px"/>
+                                    <RadzenDataGridColumn Filterable="false" Property="" Reorderable="false" Sortable="false" TItem="VeterinaryActiveSurveillanceSessionViewModel" Title="" Visible="@Model.ActiveSurveillanceSessionPermissions.Write" Width="50px">
+                                        <Template Context="data">
+                                            @if (data.WritePermissionIndicator)
+                                            {
+                                                <button class="btn btn-sm" @onclick=@(() => OpenEditAsync(data.SessionKey)) type="button">
+                                                    <i class="fas fa-edit fa-lg"></i>
+                                                </button>
+                                            }
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                </Columns>
+                                <!--Expandable Detail Template for Grid for Avian -->
+                                <Template Context="data">
+                                    <RadzenCard>
+                                        <div class="row">
+                                            <InterfaceEditorResource CssClass="col-md-4" For="sessionEndDate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchVeterinaryActiveSurveillanceSessionsModalSessionEndDateFieldLabel" IsRow="false">
+                                                <RadzenTextBox class="form-control" id="sessionEndDate" Name="sessionEndDate" ReadOnly="true" Value="@(data.EndDate.HasValue ? data.EndDate.Value.ToShortDateString() : string.Empty)"/>
+                                            </InterfaceEditorResource>
+                                        </div>
+                                        <div class="row">
+                                            <InterfaceEditorResource CssClass="col-md-4" For="siteName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchVeterinaryActiveSurveillanceSessionsModalSiteFieldLabel" IsRow="false">
+                                                <RadzenTextBox class="form-control" id="siteName" Name="siteName" ReadOnly="true" Value="@data.SiteName"/>
+                                            </InterfaceEditorResource>
+                                            <InterfaceEditorResource CssClass="col-md-4" For="enteredByPersonName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchVeterinaryActiveSurveillanceSessionsOfficerFieldLabel" IsRow="false">
+                                                <RadzenTextBox @bind-Value="@data.EnteredByPersonName" class="form-control" id="enteredByPersonName" Name="enteredByPersonName" ReadOnly="true"/>
+                                            </InterfaceEditorResource>
+                                        </div>
+                                        <div class="row">
+                                            @if (Model.BottomAdminLevel > (long) EIDSSConstants.GISAdministrativeUnitTypes.Rayon)
+                                            {
+                                                <InterfaceEditorResource CssClass="col-md-12" For="administrativeLevel4Name" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchVeterinaryActiveSurveillanceSessionsModalAdministrativeLevel4FieldLabel" IsRow="false">
+                                                    <RadzenTextBox @bind-Value="@data.SettlementName" class="form-control" id="administrativeLevel4Name" Name="administrativeLevel4Name" ReadOnly="true"/>
+                                                </InterfaceEditorResource>
+                                            }
+                                        </div>
+                                    </RadzenCard>
+                                </Template>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-md-12">
+                        <button class="btn btn-outline-primary" id="printButton" @onclick="@(PrintSearchResults)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.PrintButton)</button>
+                        <button class=" btn btn-outline-primary" id="cancelButton" @onclick="@(CancelSearchClicked)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                        <button class="btn btn-primary" disabled="@disableAddButton" id="addButton" @onclick="OpenAddAsync" type="button">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end search results-->
+    </div>
+</RadzenTemplateForm>

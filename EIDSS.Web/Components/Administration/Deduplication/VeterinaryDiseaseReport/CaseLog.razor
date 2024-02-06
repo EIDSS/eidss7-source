@@ -1,0 +1,79 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Enumerations
+
+@inherits EIDSS.Web.Components.Administration.Deduplication.VeterinaryDiseaseReport.CaseLogBase
+
+<div class="form-row">
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord" TValue="int" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.RecordSelection
+                                       Change="@((args) => OnRecordSelectionChangeAsync(Model.ReportType, args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="CaseLog"></div>
+                <RadzenCheckBox Name="chkCheckAllCaseLog" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.chkCheckAllAnimals TValue="bool" Change="@((args) => OnCheckAllCaseLogChangeAsync(args))" />
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllCaseLog" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord2" TValue="int" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.Record2Selection
+                                       Change="@((args) => OnRecord2SelectionChangeAsync(Model.ReportType, args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="CaseLog2"></div>
+                <RadzenCheckBox Name="chkCheckAllCaseLog2" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.chkCheckAllAnimals2 TValue="bool" Change="@((args) => OnCheckAllCaseLog2ChangeAsync(args))" />
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllCaseLog2" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+</div>
+<div class="form-row">
+    <div class="col-6">
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" 
+            Count="@VeterinaryDiseaseReportDeduplicationService.CaseLogsCount" 
+            Data="@VeterinaryDiseaseReportDeduplicationService.CaseLogs" 
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@VeterinaryDiseaseReportDeduplicationService.SelectedCaseLogs"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            PageSizeOptions="pageSizeOptions" @ref="CaseLogGrid" 
+            ShowPagingSummary="true" TItem="CaseLogGetListViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="CaseLogGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool"  
+                        Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedCaseLogs != null && VeterinaryDiseaseReportDeduplicationService.SelectedCaseLogs.Contains(data))" 
+                        Change="@(args => OnCaseLogRowCheckChangeAsync(args, data, false))" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="ActionRequired" TItem="CaseLogGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportCaseLogActionRequiredColumnHeading)" Width="150px"/>
+                <RadzenDataGridColumn FormatString="{0:d}" Property="LogDate" TItem="CaseLogGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportCaseLogDateColumnHeading)" Width="125px"/>
+                <RadzenDataGridColumn Property="EnteredByPersonName" TItem="CaseLogGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportCaseLogEnteredByColumnHeading)" Width="150px"/>
+                <RadzenDataGridColumn Property="LogStatusTypeName" TItem="CaseLogGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportCaseLogStatusColumnHeading)" Width="150px"/>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+    <div class="col-6">
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" 
+            Count="@VeterinaryDiseaseReportDeduplicationService.CaseLogsCount2" 
+            Data="@VeterinaryDiseaseReportDeduplicationService.CaseLogs2" 
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@VeterinaryDiseaseReportDeduplicationService.SelectedCaseLogs2"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            PageSizeOptions="pageSizeOptions" @ref="CaseLogGrid2" 
+            ShowPagingSummary="true" TItem="CaseLogGetListViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="CaseLogGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool"  
+                        Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedCaseLogs2 != null && VeterinaryDiseaseReportDeduplicationService.SelectedCaseLogs2.Contains(data))" 
+                        Change="@(args => OnCaseLogRowCheckChangeAsync(args, data, true))" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="ActionRequired" TItem="CaseLogGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportCaseLogActionRequiredColumnHeading)" Width="150px"/>
+                <RadzenDataGridColumn FormatString="{0:d}" Property="LogDate" TItem="CaseLogGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportCaseLogDateColumnHeading)" Width="125px"/>
+                <RadzenDataGridColumn Property="EnteredByPersonName" TItem="CaseLogGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportCaseLogEnteredByColumnHeading)" Width="150px"/>
+                <RadzenDataGridColumn Property="LogStatusTypeName" TItem="CaseLogGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportCaseLogStatusColumnHeading)" Width="150px"/>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>

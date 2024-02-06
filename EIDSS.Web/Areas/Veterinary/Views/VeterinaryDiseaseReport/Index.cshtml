@@ -1,0 +1,26 @@
+﻿@using EIDSS.Web.Areas.Veterinary.ViewModels.VeterinaryDiseaseReport
+@using EIDSS.Web.Components.Veterinary.SearchDiseaseReport
+@using EIDSS.Web.Enumerations
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model SearchVeterinaryDiseaseReportPageViewModel
+
+@{
+    if (Model.ReportType == VeterinaryReportTypeEnum.Livestock)
+    { ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.LivestockDiseaseReportPageHeading); }
+    else
+    { ViewData["Title"] = @Localizer.GetString(HeadingResourceKeyConstants.AvianDiseaseReportPageHeading); }
+}
+
+<div class="card">
+    <div class="card-header">
+        @if (Model.ReportType == VeterinaryReportTypeEnum.Livestock)
+        { <h3>@Localizer.GetString(HeadingResourceKeyConstants.LivestockDiseaseReportPageHeading)</h3> }
+        else
+        { <h3>@Localizer.GetString(HeadingResourceKeyConstants.AvianDiseaseReportPageHeading)</h3> }
+    </div>
+    <div class="card-body">
+        <component type="typeof(SearchVeterinaryDiseaseReport)" render-mode="Server" param-Mode="@SearchModeEnum.Default" param-CallbackUrl="string.Empty" param-ReportType="@Model.ReportType" param-RefreshResultsIndicator="@Model.RefreshResultsIndicator" />
+    </div>
+    <div class="card-footer">
+    </div>
+</div>

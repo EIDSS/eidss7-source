@@ -1,0 +1,159 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits SamplesSectionBase
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-9">
+            <h4 class="header">@Localizer.GetString(SectionHeadingResourceKey)</h4>
+        </div>
+        <div class="col-3 text-right">
+            @if (Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0)
+            {
+                <button class="btn btn-link add-section" id="addSample" @onclick="OnAddSampleClick" type="button">
+                    <span class="fas fa-plus fa-lg" aria-hidden="true"></span>
+                </button>
+                <button class="btn btn-link add-section" id="importSample" @onclick="OnImportSampleClick" type="button">
+                    <span class="fas fa-file-import fa-lg"></span>
+                </button>
+            }
+            else if (!Model.WritePermissionIndicator || Model.ReportDisabledIndicator)
+            {
+                <button class="btn btn-link add-section disabled" disabled id="addSample" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+                <button class="btn btn-link add-section disabled" disabled id="importSample" type="button">
+                    <span class="fas fa-file-import fa-lg"></span>
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-link add-section" id="addSample" @onclick="OnAddSampleClick" type="button">
+                    <span aria-hidden="true" class="fas fa-plus fa-lg"></span>
+                </button>
+                <button class="btn btn-link add-section" id="importSample" @onclick="OnImportSampleClick" type="button">
+                    <span class="fas fa-file-import fa-lg"></span>
+                </button>
+            }
+            
+            @if (Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0 || (Model.WritePermissionIndicator && Model.DiseaseReportID > 0 && Model.ReportStatusTypeID == (long)DiseaseReportStatusTypeEnum.InProcess && Model.ReportCurrentlyClosedIndicator == false))
+            {
+                if (Model.OutbreakCaseIndicator)
+                {
+                    <a class="edit-section" href="#caseDiseaseReportWizard-h-8" id="editSamplesSectionButton">
+                        <span class="fas fa-edit fa-lg"></span>
+                    </a>
+                }
+                else if (Model.ReportCategoryTypeID == (long) CaseTypeEnum.Avian)
+                {
+                    <a class="edit-section" href="#caseDiseaseReportWizard-h-6" id="editSamplesSectionButton">
+                        <span class="fas fa-edit fa-lg"></span>
+                    </a>
+                }
+                else
+                {
+                    <a class="edit-section" href="#caseDiseaseReportWizard-h-8" id="editSamplesSectionButton">
+                        <span class="fas fa-edit fa-lg"></span>
+                    </a>
+                }
+            }
+        </div>
+    </div>
+<div class="card">
+    <div class="card-header">
+        <h3>@SectionHeadingResourceKey</h3>
+    </div>
+    <div id="divSamplesSection" class="card-body">
+        <div class="form-row">
+            <div class="form-group col-md-12">
+                <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" Count="Count" Data="Model.Samples" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" ExpandMode="DataGridExpandMode.Single" IsLoading="IsLoading" LoadData="args => LoadSampleData(args)" PageSizeOptions="pageSizeOptions" PageSizeText="@Localizer.GetString(FieldLabelResourceKeyConstants.CommonLabelsItemsPerPageFieldLabel)" @ref="SamplesGrid" RowExpand="OnSamplesRowExpand" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="true" TItem="SampleGetListViewModel">
+                    <Columns>
+                        <RadzenDataGridColumn Property="EIDSSLaboratorySampleID" TItem="SampleGetListViewModel" Title="@LabSampleIdColumnHeadingResourceKey" Width="150px"/>
+                        <RadzenDataGridColumn Property="SampleTypeName" TItem="SampleGetListViewModel" Title="@SampleTypeColumnHeadingResourceKey" Width="200px"/>
+                        <RadzenDataGridColumn Property="EIDSSLocalOrFieldSampleID" TItem="SampleGetListViewModel" Title="@FieldSampleIdColumnHeadingResourceKey" Width="175px"/>
+                        <RadzenDataGridColumn Property="EIDSSAnimalID" TItem="SampleGetListViewModel" Title="@AnimalIdColumnHeadingResourceKey" Visible="Model.ReportCategoryTypeID == (long) CaseTypeEnum.Livestock" Width="150px"/>
+                        <RadzenDataGridColumn Property="Species" TItem="SampleGetListViewModel" Title="@SpeciesColumnHeadingResourceKey" Width="250px"/>
+                        <RadzenDataGridColumn Property="BirdStatusTypeName" TItem="SampleGetListViewModel" Title="@BirdStatusColumnHeadingResourceKey" Visible="Model.ReportCategoryTypeID == (long) CaseTypeEnum.Avian" Width="150px"/>
+                        <RadzenDataGridColumn FormatString="{0:d}" Property="CollectionDate" TItem="SampleGetListViewModel" Title="@CollectionDateColumnHeadingResourceKey" Width="175px"/>
+                        <RadzenDataGridColumn FormatString="{0:d}" Property="SentDate" TItem="SampleGetListViewModel" Title="@SentDateColumnHeadingResourceKey" Width="150px"/>
+                        <RadzenDataGridColumn Property="SentToOrganizationName" TItem="SampleGetListViewModel" Title="@SentToOrganizationColumnHeadingResourceKey" Width="250px"/>
+                        <RadzenDataGridColumn Filterable="false" Frozen="true" Property="SampleID" Sortable="false" TextAlign="TextAlign.Center" TItem="SampleGetListViewModel" Title="" Width="55px">
+                            <Template Context="item">
+                                @if (Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)
+                                {
+                                    <button class="btn btn-link disabled" disabled>
+                                        <span class="fas fa-edit disabled"></span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-link" @onclick="_ => OnEditSampleClick(item)">
+                                        <span class="fas fa-edit"></span>
+                                    </button>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn Filterable="false" Frozen="true" Property="SampleID" Sortable="false" TextAlign="TextAlign.Center" TItem="SampleGetListViewModel" Title="" Width="55px">
+                            <Template Context="item">
+                                @if (Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)
+                                {
+                                    <button class="btn btn-link disabled" disabled>
+                                        <span class="fas fa-trash disabled"></span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-link" @onclick="_ => OnDeleteSampleClick(item)">
+                                        <span class="fas fa-trash"></span>
+                                    </button>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                    <!--Expandable Detail Template for Grid -->
+                    <Template Context="item">
+                        <RadzenCard>
+                            <div class="row">
+                                <InterfaceEditorResource CssClass="col-4" For="accessionDate" InterfaceEditorKey="@AccessionDateFieldLabelResourceKey" IsRow="false">
+                                    <RadzenTextBox class="form-control" id="accessionDate" Name="accessionDate" ReadOnly="true" Value="@(item.AccessionDate.HasValue ? item.AccessionDate.Value.ToShortDateString() : string.Empty)"/>
+                                </InterfaceEditorResource>
+                                <InterfaceEditorResource CssClass="col-4" For="sampleConditionReceived" InterfaceEditorKey="@SampleConditionReceivedFieldLabelResourceKey" IsRow="false">
+                                    <RadzenTextBox @bind-Value="item.AccessionConditionTypeName" class="form-control" id="sampleConditionReceived" ReadOnly="true"/>
+                                </InterfaceEditorResource>
+                                <InterfaceEditorResource CssClass="col-4" For="comment" InterfaceEditorKey="@CommentFieldLabelResourceKey" IsRow="false">
+                                    <RadzenTextBox @bind-Value="item.AccessionComment" class="form-control" id="comment" Name="comment" ReadOnly="true"/>
+                                </InterfaceEditorResource>
+                            </div>
+                            <div class="row">
+                                <InterfaceEditorResource CssClass="col-6" For="collectedByOrganization" InterfaceEditorKey="@CollectedByInstitutionFieldLabelResourceKey" IsRow="false">
+                                    <RadzenTextBox @bind-Value="item.CollectedByOrganizationName" class="form-control" id="collectedByOrganization" Name="collectedByOrganization" ReadOnly="true"/>
+                                </InterfaceEditorResource>
+                                <InterfaceEditorResource CssClass="col-6" For="collectedByPerson" InterfaceEditorKey="@CollectedByOfficerFieldLabelResourceKey" IsRow="false">
+                                    <RadzenTextBox @bind-Value="item.CollectedByPersonName" class="form-control" id="collectedByPerson" Name="collectedByPerson" ReadOnly="true"/>
+                                </InterfaceEditorResource>
+                            </div>
+                            <div class="row">
+                                <InterfaceEditorResource CssClass="col-12" For="additionalTestsRequestedAndSampleNotes" InterfaceEditorKey="@AdditionalTestsRequestedAndSampleNotesFieldLabelResourceKey" IsRow="false">
+                                    <RadzenTextBox @bind-Value="item.Comments" class="form-control" id="additionalTestsRequestedAndSampleNotes" Name="additionalTestsRequestedAndSampleNotes" ReadOnly="true"/>
+                                </InterfaceEditorResource>
+                            </div>
+                            <div class="row">
+                                <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="false" AllowSorting="true" @bind-value="AliquotsAndDerivatives" Data="@AliquotsAndDerivatives" @ref="AliquotsAndDerivativesGrid" TItem="SampleGetListViewModel">
+                                    <Columns>
+                                        <RadzenDataGridColumn Property="EIDSSLaboratorySampleID" TItem="SampleGetListViewModel" Title="@AliquotAndDerivativeLabSampleIdColumnHeadingResourceKey" Width="125px"/>
+                                        <RadzenDataGridColumn Property="SampleStatusTypeName" TItem="SampleGetListViewModel" Title="@AliquotAndDerivativeStatusColumnHeadingResourceKey" Width="200px"/>
+                                        <RadzenDataGridColumn Property="SentToOrganizationName" TItem="SampleGetListViewModel" Title="@AliquotAndDerivativeLabColumnHeadingResourceKey" Width="200px"/>
+                                        <RadzenDataGridColumn Property="FunctionalAreaName" TItem="SampleGetListViewModel" Title="@AliquotAndDerivativeFunctionalAreaColumnHeadingResourceKey" Width="200px"/>
+                                    </Columns>
+                                </RadzenDataGrid>
+                            </div>
+                        </RadzenCard>
+                    </Template>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+</div>
+</div>

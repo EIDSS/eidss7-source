@@ -1,0 +1,19 @@
+﻿@using EIDSS.Web
+@using EIDSS.Web.TagHelpers
+@using EIDSS.Web.ViewModels
+@using Microsoft.Extensions.Localization
+@using EIDSS.Localization.Constants 
+@using EIDSS.Localization.Enumerations
+@using EIDSS.Localization.Helpers
+@using EIDSS.Localization
+@using DataTables.AspNetCore.Mvc
+
+@inject IStringLocalizer Localizer
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, EIDSS.Web
+@addTagHelper *, AuthoringTagHelpers
+@addTagHelper *, EIDSS.Localization
+@addTagHelper *, ReferenceEditorModalTagHelpers
+@addTagHelper *, EIDSSGridTagHelper
+@addTagHelper *, EIDSSCalendarTagHelper

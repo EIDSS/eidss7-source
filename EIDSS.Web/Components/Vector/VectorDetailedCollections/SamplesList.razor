@@ -1,0 +1,81 @@
+﻿@using EIDSS.Domain.ViewModels.Vector
+@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Areas.Veterinary.ViewModels.ActiveSurveillanceSession
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Services
+@inherits EIDSS.Web.Components.Vector.VectorDetailedCollections.SamplesListBase
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-md-11">
+                <h4>@Localizer.GetString(HeadingResourceKeyConstants.VectorDetailedCollectionSamplesHeading)</h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a class="edit-section" href="#detailedCollectionWizard-h-3" id="editDetailedCollectionSamplesSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body" id="detailedCollectionSamplesList">
+        <div class="row">
+            <div class="col-12 text-right mb-2">
+                @if (VectorSessionStateContainer.DetailCollectionDisabledIndicator || (VectorSessionStateContainer.VectorDetailedCollectionKey <= 0 && !VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Create)
+                || (VectorSessionStateContainer.VectorDetailedCollectionKey > 0 && !VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Write))
+                {
+                    <button disabled @onclick="@OnAddSampleClick" class="btn btn-sm btn-outline-primary" id="addSample">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                }
+                else
+                {
+                    <button class="btn btn-sm btn-outline-primary" id="addSample" @onclick="@OnAddSampleClick">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" Count="Count" Data="VectorSessionStateContainer.DetailedCollectionsSamplesList" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" id="vectorSampleGrid" IsLoading="IsLoading" LoadData="@(args => LoadVectorSampleGrid(args))" @ref="VectorSampleGrid" SelectionMode="DataGridSelectionMode.Single" ShowExpandColumn="true" TItem="VectorSampleGetListViewModel">
+                    <Columns>
+                        <RadzenDataGridColumn Property="EIDSSLaboratorySampleID" Sortable="true" TItem="VectorSampleGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorDetailedCollectionSamplesLabSampleIDColumnHeading)" Width="150px" />
+                        <RadzenDataGridColumn Property="EIDSSLocalOrFieldSampleID" Sortable="true" TItem="VectorSampleGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorDetailedCollectionSamplesFieldSampleIDColumnHeading)" Width="150px" />
+                        <RadzenDataGridColumn Property="SampleTypeName" Sortable="true" TItem="VectorSampleGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorDetailedCollectionSamplesSampleTypeColumnHeading)" Width="150px" />
+                        <RadzenDataGridColumn Property="TestDiseaseName" Sortable="true" TItem="VectorSampleGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorDetailedCollectionSamplesDiseaseColumnHeading)" Width="200px" />
+                        <RadzenDataGridColumn FormatString="{0:d}" Property="CollectionDate" Sortable="true" TItem="VectorSampleGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorDetailedCollectionSamplesCollectionDateColumnHeading)" Width="175px" />
+                        <RadzenDataGridColumn Property="SentToOrganizationName" Sortable="true" TItem="VectorSampleGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorDetailedCollectionSamplesSentToOrganizationColumnHeading)" Width="200px" />
+                        <RadzenDataGridColumn Property="CollectedByOrganizationName" Sortable="true" TItem="VectorSampleGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorDetailedCollectionSamplesCollectedByInstitutionColumnHeading)" Width="250px" />
+                        <RadzenDataGridColumn Property="AccessionComment" Sortable="true" TItem="VectorSampleGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorDetailedCollectionSamplesCommentColumnHeading)" Width="200px" />
+                        <RadzenDataGridColumn Property="AccessionDate" Sortable="true" TItem="VectorSampleGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorDetailedCollectionSamplesAccessionDateColumnHeading)" Width="150px" />
+                        <RadzenDataGridColumn Property="AccessionConditionTypeName" Sortable="true" TItem="VectorSampleGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorDetailedCollectionSamplesSampleConditionReceivedColumnHeading)" Width="250px" />
+                        <RadzenDataGridColumn Filterable="false" Property="" Reorderable="false" Sortable="false" TItem="VectorSampleGetListViewModel" Title="" Visible="@(VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Write)" Width="50px">
+                            <Template Context="data">
+                                @if (VectorSessionStateContainer.DetailCollectionDisabledIndicator || (VectorSessionStateContainer.VectorDetailedCollectionKey <= 0 && !VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Create)
+                                || (VectorSessionStateContainer.VectorDetailedCollectionKey > 0 && !VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Write))
+                                {
+                                    <button @onclick="@(() => OnEditSampleClick(data))" class="btn btn-sm" type="button" disabled><i class="fas fa-edit fa-lg"></i></button>
+                                }
+                                else
+                                {
+                                    <button @onclick="@(() => OnEditSampleClick(data))" class="btn btn-sm" type="button"><i class="fas fa-edit fa-lg"></i></button>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn Filterable="false" Property="" Reorderable="false" Sortable="false" TItem="VectorSampleGetListViewModel" Title="" Width="50px">
+                            <Template Context="data">
+                                @if (VectorSessionStateContainer.DetailCollectionDisabledIndicator || (VectorSessionStateContainer.VectorDetailedCollectionKey <= 0 && !VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Create)
+                                || (VectorSessionStateContainer.VectorDetailedCollectionKey > 0 && !VectorSessionStateContainer.VectorSurveillanceSessionPermissions.Write))
+                                {
+                                    <button @onclick="@(() => OnDeleteSampleClick(data))" class="btn btn-sm" disabled type="button"><i class="fas fa-trash fa-lg"></i></button>
+                                }
+                                else
+                                {
+                                    <button @onclick="@(() => OnDeleteSampleClick(data))" class="btn btn-sm" type="button"><i class="fas fa-trash fa-lg"></i></button>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+</div>

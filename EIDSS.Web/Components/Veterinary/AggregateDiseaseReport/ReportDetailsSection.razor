@@ -1,0 +1,192 @@
+﻿@inherits ReportDetailsSectionBase
+
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.ViewModels.CrossCutting
+@using Microsoft.AspNetCore.Components
+
+<div class="container-fluid">
+    <div class="form-row">
+        <div class="col-md-11">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.HumanAggregateDiseaseReportReportDetailsHeading)</h4>
+        </div>
+        <div class="col-md-1 text-right">
+            <a id="editReportDetailsSectionButton" href="#aggregateReportWizard-h-0" class="edit-section">
+                <span class="fas fa-edit fa-lg"></span>
+            </a>
+        </div>
+    </div>
+</div>
+<RadzenTemplateForm Data="@Model" id="EditAggregateDiseaseReportDetailsForm" @ref="Form" TItem="AggregateReportDetailsViewModel">
+    <div class="card">
+        <div class="card-body">
+            <div class="form-row">
+                <h5>@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationNotificationSentByHeading)</h5>
+            </div>
+            <div class="form-row">
+                <!--Sent By Organization Drop Down-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationNotificationSentByInstitutionFieldLabel" IsRow="false" CssClass="col-4" For="idfSentByOffice">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@Model.ReportDetailsSection.AggregateDiseaseReportDetails.idfSentByOffice" Change="@LoadSentByOfficers" class="form-control" Data="@Organizations" Disabled="Model.IsReadOnly" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="idfSentByOffice" Name="idfSentByOffice" TextProperty="name" TValue="long?" ValueProperty="idfOffice" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationNotificationSentByOfficerFieldLabel" IsRow="false" CssClass="col-4" For="idfSentByPerson">
+                    <div class="input-group flex-nowrap">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@Model.ReportDetailsSection.AggregateDiseaseReportDetails.idfSentByPerson" class="form-control" Data="@SentByOfficers" Disabled="Model.IsReadOnly" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="idfSentByPerson" Name="idfSentByPerson" TextProperty="FullName" TValue="long?" ValueProperty="idfPerson" />
+                        @if (CanAddEmployee)
+                        {
+                            <button id="AddEmployee" type="button" @onclick=@(() => OpenEmployeeAddModal(Model.ReportDetailsSection.AggregateDiseaseReportDetails.idfSentByOffice)) class="btn btn-outline-secondary btn-sm">
+                                <span class="fas fa-plus" aria-hidden="true"></span>
+                            </button>
+                        }
+                    </div>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationNotificationSentByDateFieldLabel" IsRow="false" CssClass="col-4" For="AggregateDiseaseReportDetails_datSentByDate">
+                    <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="@Model.ReportDetailsSection.AggregateDiseaseReportDetails.datSentByDate" class="form-control-range" DateFormat="d" Disabled="Model.IsReadOnly" id="datSentByDate" Name="AggregateDiseaseReportDetails_datSentByDate" TValue="DateTime?" />
+                    <RadzenCompareValidator Component="AggregateDiseaseReportDetails_datSentByDate" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="@DateTime.Now" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <h5>@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationNotificationReceivedByHeading)</h5>
+            </div>
+            <div class="form-row">
+                <!--Received By Organization Drop Down-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationNotificationReceivedByInstitutionFieldLabel" IsRow="false" CssClass="col-4" For="idfReceivedByOffice">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@Model.ReportDetailsSection.AggregateDiseaseReportDetails.idfReceivedByOffice" Change="@LoadReceivedByOfficers" class="form-control" Data="@Organizations" Disabled="Model.IsReadOnly" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="idfReceivedByOffice" Name="idfReceivedByOffice" TextProperty="name" TValue="long?" ValueProperty="idfOffice" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationNotificationReceivedByOfficerFieldLabel" IsRow="false" CssClass="col-4" For="idfReceivedByPerson">
+                    <div class="input-group flex-nowrap">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@Model.ReportDetailsSection.AggregateDiseaseReportDetails.idfReceivedByPerson" class="form-control" Data="@ReceivedByOfficers" Disabled="Model.IsReadOnly" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="idfReceivedByPerson" Name="idfReceivedByPerson" TextProperty="FullName" TValue="long?" ValueProperty="idfPerson" />
+                        @if (CanAddEmployee)
+                        {
+                            <button id="AddEmployee" type="button" @onclick=@(() => OpenEmployeeAddModal(Model.ReportDetailsSection.AggregateDiseaseReportDetails.idfReceivedByOffice)) class="btn btn-outline-secondary btn-sm">
+                                <span class="fas fa-plus" aria-hidden="true"></span>
+                            </button>
+                        }
+                    </div>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationNotificationReceivedByDateFieldLabel" IsRow="false" CssClass="col-4" For="AggregateDiseaseReportDetails_datReceivedByDate">
+                    <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="@Model.ReportDetailsSection.AggregateDiseaseReportDetails.datReceivedByDate" class="form-control-range" DateFormat="d" Disabled="Model.IsReadOnly" id="datReceivedByDate" Name="AggregateDiseaseReportDetails_datReceivedByDate" TValue="DateTime?" />
+                    <RadzenCompareValidator Component="AggregateDiseaseReportDetails_datReceivedByDate" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="@DateTime.Now" />
+                    <RadzenCompareValidator Component="AggregateDiseaseReportDetails_datReceivedByDate" Operator="CompareOperator.GreaterThanEqual" Popup="false" Style="display: block" Text="@Localizer.GetString(MessageResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationNotificationReceivedByDateMustBeOnOrAfterNotificationSentByDateMessage)" Value="@Model.ReportDetailsSection.AggregateDiseaseReportDetails.datSentByDate" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <h5>@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationEnteredByHeading)</h5>
+            </div>
+            <div class="form-row">
+                <!--Entered By Organization Drop Down-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationEnteredByInstitutionFieldLabel" IsRow="false" CssClass="col-4" For="enteredByOffice">
+                    <RadzenTextBox @bind-Value="@Model.ReportDetailsSection.AggregateDiseaseReportDetails.strEnteredByOffice" class="form-control" Disabled="Model.IsReadOnly" id="strEnteredByOffice" Name="enteredByOffice" ReadOnly="true"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationEnteredByOfficerFieldLabel" IsRow="false" CssClass="col-4" For="strEnteredByPerson">
+                    <RadzenTextBox @bind-Value="@Model.ReportDetailsSection.AggregateDiseaseReportDetails.strEnteredByPerson" class="form-control" Disabled="Model.IsReadOnly" id="strEnteredByPerson" Name="strEnteredByPerson" ReadOnly="true"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationEnteredByDateFieldLabel" IsRow="false" CssClass="col-4" For="AggregateDiseaseReportDetails_datEnteredByDate">
+                    <RadzenDatePicker AllowInput="true" @bind-Value="@Model.ReportDetailsSection.AggregateDiseaseReportDetails.datEnteredByDate" class="form-control-range" DateFormat="d" Disabled="true" id="datEnteredByDate" Name="AggregateDiseaseReportDetails_datEnteredByDate" TValue="DateTime?" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <h5>@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationGeneralInfoHeading)</h5>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationReportIDFieldLabel" IsRow="false" CssClass="col-4" For="strCaseID">
+                    <RadzenTextBox @bind-Value="@Model.ReportDetailsSection.AggregateDiseaseReportDetails.strCaseID" class="form-control" Disabled="Model.IsReadOnly" id="strCaseID" Name="strCaseID" ReadOnly="true"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <RadzenPanel Visible="@Model.ReportDetailsSection.LegacyIDVisibleIndicator">
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportInformationLegacyIDFieldLabel" IsRow="false" CssClass="col-4" For="LegacyID">
+                        <RadzenTextBox @bind-Value="@Model.ReportDetailsSection.LegacyID" class="form-control" Disabled="Model.IsReadOnly" id="LegacyID" Name="LegacyID" ReadOnly="true" Visible="@Model.ReportDetailsSection.LegacyIDVisibleIndicator"></RadzenTextBox>
+                    </InterfaceEditorResource>
+                </RadzenPanel>
+            </div>
+            <div class="form-row">
+                <!--Year Drop Down-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationYearFieldLabel" IsRow="false" CssClass="col-4" For="Year">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@Model.ReportDetailsSection.Year" Change="@ReloadPeriods" class="form-control" Data="@Years" Disabled="Model.IsReadOnly" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="Year" LoadData="@LoadYearsAsync" Name="Year" TextProperty="PeriodName" TValue="int?" ValueProperty="PeriodNumber"></RadzenDropDown>
+                </InterfaceEditorResource>
+
+
+                @if (Model.ReportDetailsSection.QuarterVisibleIndicator)
+                {
+                    <!--Quarter Drop Down-->
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationQuarterFieldLabel" IsRow="false" CssClass="col-4" For="Quarter">
+                        <RadzenDropDown AllowClear="true" AllowVirtualization="false" @bind-Value="@Model.ReportDetailsSection.Quarter" class="form-control" Data="@Quarters" Disabled="Model.IsReadOnly" id="Quarter" LoadData="@LoadQuarters" Name="Quarter" TextProperty="PeriodName" TValue="int?" ValueProperty="PeriodNumber" Visible="@Model.ReportDetailsSection.QuarterVisibleIndicator"></RadzenDropDown>
+                    </InterfaceEditorResource>
+
+                }
+                else
+                {
+                    <RadzenPanel Visible="@Model.ReportDetailsSection.QuarterVisibleIndicator">
+                        <!--Quarter Drop Down-->
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationQuarterFieldLabel" IsRow="false" CssClass="col-4" For="Quarter">
+                            <RadzenDropDown AllowClear="true" AllowVirtualization="false" @bind-Value="@Model.ReportDetailsSection.Quarter" class="form-control" Data="@Quarters" Disabled="Model.IsReadOnly" id="Quarter" Name="Quarter" TextProperty="PeriodName" TValue="int?" ValueProperty="PeriodNumber" Visible="@Model.ReportDetailsSection.QuarterVisibleIndicator"></RadzenDropDown>
+                        </InterfaceEditorResource>
+                    </RadzenPanel>
+                }
+
+                @if (Model.ReportDetailsSection.MonthVisibleIndicator)
+                {
+                    <!--Month Drop Down-->
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationMonthFieldLabel" IsRow="false" CssClass="col-4" For="Month">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@Model.ReportDetailsSection.Month" class="form-control" Data="@Months" Disabled="Model.IsReadOnly" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="Month" LoadData="@LoadMonths" Name="Month" TextProperty="PeriodName" TValue="int?" ValueProperty="PeriodNumber" Visible="@Model.ReportDetailsSection.MonthVisibleIndicator" />
+                    </InterfaceEditorResource>
+                }
+                else
+                {
+                    <RadzenPanel Visible="@Model.ReportDetailsSection.MonthVisibleIndicator">
+                        <!--Month Drop Down-->
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationMonthFieldLabel" IsRow="false" CssClass="col-4" For="Month">
+                            <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@Model.ReportDetailsSection.Month" class="form-control" Data="@Months" Disabled="Model.IsReadOnly" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="Month" LoadData="@LoadMonths" TextProperty="PeriodName" TValue="int?" ValueProperty="PeriodNumber" Visible="@Model.ReportDetailsSection.MonthVisibleIndicator" />
+                        </InterfaceEditorResource>
+                    </RadzenPanel>
+                }
+
+                @if (Model.ReportDetailsSection.WeekVisibleIndicator)
+                {
+                    <!--Week Drop Down-->
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationWeekFieldLabel" IsRow="false" CssClass="col-4" For="Week">
+                        <RadzenDropDown AllowClear="true" AllowVirtualization="false" @bind-Value="@Model.ReportDetailsSection.Week" class="form-control" Data="@Weeks" Disabled="Model.IsReadOnly" id="Week" LoadData="@LoadWeeks" Name="Week" TextProperty="PeriodName" TValue="int?" ValueProperty="PeriodNumber" Visible="@Model.ReportDetailsSection.WeekVisibleIndicator" />
+                    </InterfaceEditorResource>
+                }
+                else
+                {
+                    <RadzenPanel Visible="@Model.ReportDetailsSection.WeekVisibleIndicator">
+                        <!--Week Drop Down-->
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationWeekFieldLabel" IsRow="false" CssClass="col-4" For="Week">
+                            <RadzenDropDown AllowClear="true" AllowVirtualization="false" @bind-Value="@Model.ReportDetailsSection.Week" class="form-control" Data="@Weeks" Disabled="Model.IsReadOnly" id="Week" Name="Week" TextProperty="PeriodName" TValue="int?" ValueProperty="PeriodNumber" Visible="@Model.ReportDetailsSection.WeekVisibleIndicator"></RadzenDropDown>
+                        </InterfaceEditorResource>
+                    </RadzenPanel>
+                }
+
+                @if (Model.ReportDetailsSection.DayVisibleIndicator)
+                {
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationDayFieldLabel" IsRow="false" CssClass="col-4" For="ReportDetailsSection_Day">
+                        <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="@Model.ReportDetailsSection.Day" class="form-control-range" DateFormat="d" Disabled="Model.IsReadOnly" id="Day" Name="ReportDetailsSection_Day" TValue="DateTime?" Visible="@Model.ReportDetailsSection.DayVisibleIndicator" />
+                        <RadzenCompareValidator Component="ReportDetailsSection_Day" Operator="CompareOperator.LessThanEqual" Popup=false Style="display: block" Text=@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage) Value="@DateTime.Now" />
+                    </InterfaceEditorResource>
+                }
+                else
+                {
+                    <RadzenPanel Visible="@Model.ReportDetailsSection.DayVisibleIndicator">
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationDayFieldLabel" IsRow="false" CssClass="col-4" For="ReportDetailsSection_Day">
+                            <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="@Model.ReportDetailsSection.Day" class="form-control-range" DateFormat="d" Disabled="Model.IsReadOnly" id="Day" Name="ReportDetailsSection_Day" TValue="DateTime?" Visible="@Model.ReportDetailsSection.DayVisibleIndicator" />
+                            <RadzenCompareValidator Component="ReportDetailsSection_Day" Operator="CompareOperator.LessThanEqual" Popup=false Style="display: block" Text=@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage) Value="@DateTime.Now" />
+                        </InterfaceEditorResource>
+                    </RadzenPanel>
+                }
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-12" id="divLocation">
+                    <LocationView @ref="LocationViewControl" ParmLocationViewModel="@Model.ReportDetailsSection.DetailsLocationViewModel" LocationViewModelChanged="RefreshLocationViewModelHandlerAsync" />
+                </div>
+            </div>
+            <RadzenPanel Visible="@Model.ReportDetailsSection.OrganizationVisibleIndicator">
+                <div class="form-row">
+                    <!--Organization Drop Down-->
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateDiseaseReportInformationOrganizationFieldLabel" IsRow="false" CssClass="col-4" For="organizationID">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@Model.ReportDetailsSection.AggregateDiseaseReportDetails.Organization" class="form-control" Data="@AdministrativeLevelOrganizations" Disabled="Model.IsReadOnly" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="organizationID" Name="organizationID" TextProperty="AbbreviatedName" TValue="long?" ValueProperty="OrganizationKey" Visible="@Model.ReportDetailsSection.OrganizationVisibleIndicator"></RadzenDropDown>
+                        <RadzenRequiredValidator Component="organizationID" Popup="false" Style="position: absolute" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)" />
+                    </InterfaceEditorResource>
+                </div>
+            </RadzenPanel>
+        </div>
+    </div>
+</RadzenTemplateForm>

@@ -1,0 +1,458 @@
+﻿@model ConfigurationMatrixPagesViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
+@using EIDSS.ClientLibrary.Enumerations;
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.VectorTypeFieldTestMatrixPageHeading);
+    //PageLevel
+    Model.PageName = Localizer.GetString(HeadingResourceKeyConstants.VectorTypeFieldTestMatrixPageHeading);
+    Model.PageLevelAddButtonModalText = Localizer.GetString(ButtonResourceKeyConstants.AddButton);
+    Model.PageLevelAddButtonModal = "AddVectorTypeFieldTestMatrix";
+    Model.PageLevelAddButtonID = "AddVectorTypeFieldTestMatrixButton";
+
+    //DropDowns
+    var select2Configuration = new Select2Configruation
+    {
+        DropDownId = "VectorTypeDD",
+        ControltargetId = "VectorTypeFieldTestMatrixGrid",
+        Label = Localizer.GetString(FieldLabelResourceKeyConstants.VectorTypeFieldLabel),
+        ControlTargetType = DropDownTargetTypes.Table,
+        CustomJsOnClearFunction = "SelectOnClear",
+        CustomJsOnChangeFunction = "ChangeAddButtonActiveStatus",
+        DisabledControls = "AddVectorTypeFieldTestMatrixButton",
+        Endpoint = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = "19000140", intHACode = HACodeList.VectorHACode}),
+        ControlTargetUrl = Url.Action("GetList", "VectorTypeFieldTestMatrixPage"),
+        isVisible = true
+    };
+
+    //Display Add Button Next To DropDown
+    if (Model.UserPermissions.Create)
+        select2Configuration.IncludeAddButton = true;
+    //Modal To Launch When Button is Clicked
+    select2Configuration.AddModalId = "VectorTypeSave";
+    Model.Select2Configurations.Add(select2Configuration);
+
+    //SET UP MODAL
+    var eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.VectorTypeFieldTestDetailsModalHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            //success modal configs
+            SuccessModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+            SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        },
+        ModalId = "AddVectorTypeFieldTestMatrix",
+        SavingControlsCollection = "VectorTypeDD",
+        TargetGridControlID = "VectorTypeFieldTestMatrixGrid", //ID of Grid to Refresh
+        PostAjaxDataUrl = Url.Action("Create", "VectorTypeFieldTestMatrixPage"), //Save Endpoint
+        SaveCompleteMethod = "CheckSuccess"
+    };
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.VectorTypeFieldTestMatrixFieldTestFieldLabel),
+        ControlName = "idfsPensideTestName",
+        ControlType = ControlType.DropDownAddButtonOpenModal,
+        OpenModalName = "AddFieldTest",
+        ClassName = "ddAddFieldTestRequired",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = (long) ReferenceTypes.PensideTestName})
+    });
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //SET UP MODAL2     AddVectorType
+    eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.VectorTypeDetailsModalHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            //success modal configs
+            SuccessModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+            SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        },
+        ModalId = "VectorTypeSave",
+        SavingControlsCollection = "VectorTypeDD",
+        TargetGridControlID = "VectorTypeList", //ID of Grid to Refresh
+        PostAjaxDataUrl = Url.Action("AddVectorType", "VectorTypeFieldTestMatrixPage"),
+        SaveCompleteMethod = "CheckSuccessAddVectorType"
+    };
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "Name",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "DefaultValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ControlName = "Default",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "NationalValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.CodeFieldLabel),
+        ControlName = "Code",
+        Visible = true
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlName = "Order",
+        ControlType = ControlType.Numeric,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidatorMessage = "Number is Out Of Range",
+            ValidationRule = "[-2147483648,2147483647]"
+        },
+        ClassName = "IntOrderRange",
+        Visible = true
+    });
+    var yesNoOptions = new List<RadionCheckBoxOptions>
+    {
+        new() {Value = "1", Key = "", IsChecked = false}
+    };
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        ControlName = "CollectedByPool",
+        ControlType = ControlType.CheckBox,
+        RadioCheckBoxOptions = yesNoOptions,
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.CollectedByPoolFieldLabel)
+    });
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //SET UP MODAL3     AddFieldTest
+    eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.VectorTypeFieldTestMatrixPensideTestNameDetailsModalHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SubmitButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            //success modal configs
+            SuccessModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+            SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        },
+        ModalId = "AddFieldTest",
+        TargetGridControlID = "VectorTypeFieldTestMatrixList", //ID of Grid to Refresh
+        PostAjaxDataUrl = Url.Action("AddFieldTest", "VectorTypeFieldTestMatrixPage"),
+        SaveCompleteMethod = "CheckSuccessAddFieldTest"
+    };
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        VaildationProperty = VaildationRuleType.ValidationRuleType.REQUIRED,
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "StrDefault",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "DefaultValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        VaildationProperty = VaildationRuleType.ValidationRuleType.REQUIRED,
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ControlName = "StrName",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "NationalValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        VaildationProperty = VaildationRuleType.ValidationRuleType.REQUIRED,
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.AccessoryCodeFieldLabel),
+        ControlName = "IntHACode",
+        ControlType = ControlType.DropDown,
+        AllowMultipleDropDownItemSelection = true,
+        ClassName = "modalDropDown",
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = (long) ReferenceTypes.AccessoryCode, intHACode = 226})
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlName = "IntOrder",
+        ControlType = ControlType.Numeric,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.NumberIsOutOfRangeMessage),
+            ValidationRule = "[-2147483648,2147483647]"
+        },
+        ClassName = "IntOrderRange",
+        Visible = true
+    });
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //SETUP GRID
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.GridId = "VectorTypeFieldTestMatrixGrid";
+    Model.eidssGridConfiguration.ControlFilterID = "VectorTypeDD";
+    Model.eidssGridConfiguration.AjaxDataUrl = Url.Action("GetList", "VectorTypeFieldTestMatrixPage");
+    Model.eidssGridConfiguration.EditModalAjaxUrl = Url.Action("Edit", "VectorTypeFieldTestMatrixPage");
+    Model.eidssGridConfiguration.DeleteModalAjaxUrl = Url.Action("Delete", "VectorTypeFieldTestMatrixPage");
+    Model.eidssGridConfiguration.DeleteCompleteMethod = "CheckDeleteSuccess";
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels
+    {
+        DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage),
+        DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+        SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
+        DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton),
+        CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton),
+        YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton),
+        NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton)
+    };
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        ColumnName = "row",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "idfPensideTestTypeForVectorType",
+        ColumnName = "KeyId",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "idfsVectorType",
+        ColumnName = "idfsVectorType",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "idfsPensideTestName",
+        ColumnName = "idfsPensideTestName",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.VectorTypeFieldTestMatrixFieldTestColumnHeading),
+        ColumnName = "strPensideTestName",
+        ColumnType = ColumnType.Default,
+        Visible = true,
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = string.Empty,
+        ColumnName = "name",
+        ColumnType = ColumnType.Delete,
+        Visible = Model.UserPermissions.Delete
+    });
+}
+
+<!-- Modal -->
+<div class="modal fade" id="duplicatesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsg"></span>
+            </div>
+            <div class="modal-footer">
+                <button id="editRecordButton" class="btn btn-primary" onclick="EditDuplicateRecord('AddVectorTypeFieldTest');">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="duplicatesModalAddVectorType" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsgAddVectorType"></span>
+            </div>
+            <div class="modal-footer">
+                <button id="editRecordButton" class="btn btn-primary" onclick="EditDuplicateRecord('AddVectorType');">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="duplicatesModalAddFieldTest" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsgAddFieldTest"></span>
+            </div>
+            <div class="modal-footer">
+                <button id="editRecordButton" class="btn btn-primary" onclick="EditDuplicateRecord('AddFieldTest');">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_ConfigurationPartial"/>
+<partial name="_InformationalModalPartial" for="InformationMessage"/>
+
+@section Scripts
+{
+    <script>
+        ///Load Default Data
+        $(document).ready(function() {
+            $("#AddBaseReferencectrlAdd_2").val(0);
+            $("#AddBaseReferenceButton").prop('disabled', true);
+        });
+
+        // Method called after execution of Save Method Returns Data back from the controller
+        function CheckSuccess(data) {
+
+            var stringifiedData = JSON.stringify(data);
+            var parsedData = JSON.parse(stringifiedData);
+            if (parsedData.returnMessage == "SUCCESS") {
+                $("#AddVectorTypeFieldTestMatrixSuccessModal").modal("show");
+                updateNotificationEnvelopeCount();
+            }
+            if (parsedData.returnMessage == "DOES EXIST") {
+                $("#dupemsg").html(parsedData.strDuplicatedField);
+                $("#duplicatesModal").modal("show");
+            }
+        };
+        
+                function CheckDeleteSuccess(data) {
+            var stringifiedData = JSON.stringify(data);
+            var parsedData = JSON.parse(stringifiedData);
+            if (parsedData.returnMessage === "SUCCESS") {
+                updateNotificationEnvelopeCount();
+                showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+            }
+        };
+
+        function CheckSuccessAddVectorType(data) {
+            var stringifiedData = JSON.stringify(data);
+            var parsedData = JSON.parse(stringifiedData);
+            if (parsedData.returnMessage == "SUCCESS") {
+                $("#AddVectorTypeFieldTestMatrixSuccessModal").modal("show");
+                updateNotificationEnvelopeCount();
+            }
+            if (parsedData.returnMessage == "DOES EXIST") {
+                $("#dupemsgAddVectorType").html(parsedData.strDuplicatedField);
+                $("#duplicatesModalAddVectorType").modal("show");
+            }
+        };
+
+        function CheckSuccessAddFieldTest(data) {
+            var stringifiedData = JSON.stringify(data);
+            var parsedData = JSON.parse(stringifiedData);
+            if (parsedData.returnMessage == "SUCCESS") {
+                $("#AddVectorTypeFieldTestMatrixSuccessModal").modal("show");
+                updateNotificationEnvelopeCount();
+            }
+            if (parsedData.returnMessage == "DOES EXIST") {
+                $("#dupemsgAddFieldTest").html(parsedData.strDuplicatedField);
+                $("#duplicatesModalAddFieldTest").modal("show");
+            }
+        };
+
+        function EditDuplicateRecord(modelType) {
+            switch (modelType) {
+            case "AddVectorType":
+                $("#AddVectorTypeSampleTypeMatrixSuccessModal").modal("hide");
+                $("#duplicatesModalAddVectorType").modal("hide");
+                $("#VectorTypeSave").modal("show");
+                break;
+            case "AddFieldTest":
+                $("#AddVectorTypeSampleTypeMatrixSuccessModal").modal("hide");
+                $("#duplicatesModalAddFieldTest").modal("hide");
+                $("#AddFieldTest").modal("show");
+                break;
+            default:
+                $("#AddVectorTypeSampleTypeMatrixSuccessModal").modal("hide");
+                $("#duplicatesModal").modal("hide");
+                $("#AddVectorTypeSampleTypeMatrix").modal("show");
+                break;
+            }
+        };
+
+        // DropDownChange // Note There is A DropDownChange Event
+        function ChangeAddButtonActiveStatus(data) {
+            switch (parseInt(data.id)) {
+            case 19000140:
+                $("#AddVectorTypeFieldTestMatrixButton").prop('disabled', true);
+                break;
+            default:
+                $("#AddVectorTypeFieldTestMatrixButton").prop('disabled', false);
+            }
+        };
+
+        // Styling to handle stacked modals for the Collection Method  modals.
+        $(document).on("show.bs.modal",
+            ".modal",
+            function(event) {
+                var zIndex = 1040 + (10 * $(".modal:visible").length);
+                $(this).css("z-index", zIndex);
+                setTimeout(function() {
+                        $(".modal-backdrop").not(".modal-stack").css("z-index", zIndex - 1).addClass("modal-stack");
+                    },
+                    0);
+            });
+
+        // When Drop Down Items Are Cleared
+        function SelectOnClear(data) {
+            $("#AddVectorTypeFieldTestMatrixButton").prop('disabled', true);
+        };
+    </script>
+}

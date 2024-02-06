@@ -1,0 +1,249 @@
+﻿@model ConfigurationMatrixPagesViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@using EIDSS.Web.TagHelpers.Models;
+@using EIDSS.ClientLibrary.Enumerations;
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.SampleTypeDerivativeTypeMatrixPageHeading);
+
+    //PageLevel
+    Model.PageName = Localizer.GetString(HeadingResourceKeyConstants.SampleTypeDerivativeTypeMatrixPageHeading);
+    Model.PageLevelAddButtonModalText = Localizer.GetString(ButtonResourceKeyConstants.AddButton);
+    Model.PageLevelAddButtonModal = "AddSampleTypeDerivativeMatrix";
+    Model.PageLevelAddButtonID = "PageLevelAddButton";
+
+    //DropDowns
+    var select2Configuration = new Select2Configruation
+    {
+        DropDownId = "SampleTypeDD",
+        ControltargetId = "SampleTypeDerivativeMatrixGrid",
+        Label = Localizer.GetString(FieldLabelResourceKeyConstants.SampleTypeFieldLabel),
+        ControlTargetType = DropDownTargetTypes.Table,
+        Endpoint = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = (long) ReferenceTypes.SampleType, intHACode = 226}),
+        ControlTargetUrl = Url.Action("GetList", "SampleTypeDerivativeMatrixPage"),
+        isVisible = true,
+        CustomJsOnChangeFunction = "ChangeAddButtonActiveStatus", //Create This Javascript Method Below in the Scripts tag
+        CustomJsOnClearFunction = "SelectOnClear", //Create This Javascript Method Below in the Scripts tag
+        DisabledControls = "PageLevelAddButton"
+    };
+
+    //Display Add Button Next To DropDown
+    if (Model.UserPermissions.Create)
+        select2Configuration.IncludeAddButton = true;
+    //Modal To Launch When Button is Clicked
+    select2Configuration.AddModalId = "AddSampleType";
+    Model.Select2Configurations.Add(select2Configuration);
+
+    //SET UP MODAL2 AddSampleType
+    <partial name="_sampleTypeModalPartial"/>
+
+    //SET UP MODAL
+    var eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.AddSampleTypeModal_SampleTypeDerivativeTypeDetails_Heading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            //success modal configs
+            SuccessModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+            SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        },
+        ModalId = "AddSampleTypeDerivativeMatrix",
+        SavingControlsCollection = "SampleTypeDD",
+        TargetGridControlID = "SampleTypeDerivativeMatrixGrid", //ID of Grid to Refresh
+        PostAjaxDataUrl = Url.Action("Create", "SampleTypeDerivativeMatrixPage"), //Save Endpoint
+        SaveCompleteMethod = "CheckSuccess"
+    };
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DerivativeTypeFieldLabel),
+        ControlName = "idfsDerivativeType",
+        ControlType = ControlType.DropDownAddButtonOpenModal,
+        OpenModalName = "AddSampleType",
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "ddAddDerivativeType",
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = (long) ReferenceTypes.SampleType, intHACode = 226})
+    });
+
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //SETUP GRID
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.GridId = "SampleTypeDerivativeMatrixGrid";
+    Model.eidssGridConfiguration.ControlFilterID = "SampleTypeDD";
+    Model.eidssGridConfiguration.AjaxDataUrl = Url.Action("GetList", "SampleTypeDerivativeMatrixPage");
+    Model.eidssGridConfiguration.EditModalAjaxUrl = Url.Action("Edit", "SampleTypeDerivativeMatrixPage");
+    Model.eidssGridConfiguration.DeleteModalAjaxUrl = Url.Action("Delete", "SampleTypeDerivativeMatrixPage");
+    Model.eidssGridConfiguration.DeleteCompleteMethod = "CheckDeleteSuccess";
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.EnableProcessingMessage = true;
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels
+    {
+        DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage),
+        EditModalMessage = "Are you sure that you want to Edit this record?",
+        DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+        SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
+        DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton),
+        CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton)
+    };
+    Model.eidssGridConfiguration.EditType = EditType.None;
+    Model.eidssGridConfiguration.ControlLabels.CancelInlineEditTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.eidssGridConfiguration.ControlLabels.CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage);
+    Model.eidssGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.eidssGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.eidssGridConfiguration.ControlLabels.SaveInlineEditTitle = "Save Record";
+    Model.eidssGridConfiguration.ControlLabels.SaveInlineEditMessage = "Are you sure that you want to save this record?";
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        ColumnName = "row",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "idfDerivativeForSampleType",
+        ColumnName = "KeyId",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "idfsSampleType",
+        ColumnName = "idfsSampleType",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "idfsDerivativeType",
+        ColumnName = "idfsDerivativeType",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.DerivativeTypeColumnHeading),
+        ColumnName = "strDerivative",
+        ColumnType = ColumnType.DropDown,
+        DisplayDropDownInModalOnly = true,
+        Visible = true,
+        Orderable = true,
+        ColumnAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = (long) ReferenceTypes.SampleType, intHACode = 226})
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = string.Empty,
+        ColumnName = "name",
+        ColumnType = ColumnType.Delete,
+        Visible = Model.UserPermissions.Delete
+    });
+}
+
+<!-- Modal -->
+<div class="modal fade" id="duplicatesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsg"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="EditDuplicateRecord('AddSampleType');">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_ConfigurationPartial"/>
+<partial name="_InformationalModalPartial" for="InformationMessage" />
+
+@section Scripts
+{
+    <script>
+        ///Method called after execution of Save Method Returns Data back from the controller
+        function CheckSuccess(data) {
+            var stringifiedData = JSON.stringify(data);
+            var parsedData = JSON.parse(stringifiedData);
+            if (parsedData.returnMessage == "SUCCESS") {
+                $("#AddSampleTypeSuccessModal").modal("show");
+                updateNotificationEnvelopeCount();
+            } else if (parsedData.returnMessage == "DOES EXIST") {
+                $("#duplicatesModal").modal("show");
+                $("#dupemsg").html(parsedData.strClientPageMessage);
+            }
+        };
+
+        function CheckDeleteSuccess(data) {
+            var stringifiedData = JSON.stringify(data);
+            var parsedData = JSON.parse(stringifiedData);
+            if (parsedData.returnMessage === "SUCCESS") {
+                updateNotificationEnvelopeCount();
+                showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+            }
+        };
+
+        function ChangeAddButtonActiveStatus(data) {
+            switch (parseInt(data.id)) {
+            case 19000140:
+                $("#PageLevelAddButton").prop('disabled', true);
+                break;
+            default:
+                $("#PageLevelAddButton").prop('disabled', false);
+            }
+        };
+
+        // When Drop Down Items Are Cleared
+        function SelectOnClear(data) {
+            $("#PageLevelAddButton").prop('disabled', true);
+        };
+
+        function EditDuplicateRecord(modelType) {
+            switch (modelType) {
+            case "AddSampleType":
+                $("#duplicatesModal").modal("hide");
+                $("#AddSampleType").modal("show");
+                break;
+            }
+        };
+
+        function PrepareNewRecord() {
+            $("#duplicatesModal").modal("hide");
+            $("#PageLevelAddButton").modal("show");
+        };
+
+        function PrepareNewRecordAddSampleType() {
+            $("#AddSampleType").modal("show");
+        };
+
+        $(document).on("show.bs.modal",
+            ".modal",
+            function(event) {
+                var zIndex = 1040 + (10 * $(".modal:visible").length);
+                $(this).css("z-index", zIndex);
+                setTimeout(function() {
+                        $(".modal-backdrop").not(".modal-stack").css("z-index", zIndex - 1).addClass("modal-stack");
+                    },
+                    0);
+            });
+    </script>
+}

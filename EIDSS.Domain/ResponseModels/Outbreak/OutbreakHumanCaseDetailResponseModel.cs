@@ -1,0 +1,74 @@
+﻿using System;
+
+namespace EIDSS.Domain.ResponseModels.Outbreak
+{
+    public class OutbreakHumanCaseDetailResponseModel
+    {
+        public long? idfOutbreak { get; set; }
+        public long? idfHumanActual { get; set; }
+        public DateTime? datNotificationDate { get; set; }
+        public long? idfSentByOffice { get; set; }
+        public string SentByOffice { get; set; }
+        public long? idfSentByPerson { get; set; }
+        public string SentByPerson { get; set; }
+        public long? idfReceivedByOffice { get; set; }
+        public string ReceivedByOffice { get; set; }
+        public long? idfReceivedByPerson { get; set; }
+        public string ReceivedByPerson { get; set; }
+        public long? idfGeoLocation { get; set; }
+        public long? idfsLocation { get; set; }
+        public long? AdminLevel0Value { get; set; }
+        public long? AdminLevel1Value { get; set; }
+        public string AdminLevel1Text { get; set; }
+        public long? AdminLevel2Value { get; set; }
+        public string AdminLevel2Text { get; set; }
+        public long? AdminLevel3Value { get; set; }
+        public string AdminLevel3Text { get; set; }
+        public string strStreetName { get; set; }
+        public string strPostCode { get; set; }
+        public string strBuilding { get; set; }
+        public string strHouse { get; set; }
+        public string strApartment { get; set; }
+        public double? dblLatitude { get; set; }
+        public double? dblLongitude { get; set; }
+        public long? OutbreakCaseStatusID { get; set; }
+        public string OutbreakCaseStatusName { get; set; }
+        public DateTime? datOnSetDate { get; set; }
+        public DateTime? datFinalDiagnosisDate { get; set; }
+        public long? idfHospital { get; set; }
+        public DateTime? datHospitalizationDate { get; set; }
+        public DateTime? datDischargeDate { get; set; }
+        public string strClinicalNotes { get; set; }
+        public string strNote { get; set; }
+        public string Antimicrobials { get; set; }
+        public string Vaccinations { get; set; }
+        public long? idfInvestigatedByOffice { get; set; }
+        public string InvestigatedByOffice { get; set; }
+        public long? idfInvestigatedByPerson { get; set; }
+        public string InvestigatedByPerson { get; set; }
+        public DateTime? datInvestigationStartDate { get; set; }
+        public long? OutbreakCaseClassificationID { get; set; }
+        public string OutbreakCaseClassificationName { get; set; }
+        public string IsPrimaryCaseFlag { get; set; }
+        public string CaseMonitorings { get; set; }
+        public string Contacts { get; set; }
+        public long? idfsYNSpecimenCollected { get; set; }
+        public string Samples { get; set; }
+        public long? idfsYNTestsConducted { get; set; }
+        public string Tests { get; set; }
+        public long? idfsYNAntimicrobialTherapy { get; set; }
+        public long? idfsYNHospitalization { get; set; }
+        public long? idfsYNSpecificVaccinationAdministered { get; set; }
+        public long? OutbreakCaseObservationID { get; set; }
+        public long? OutbreakCaseObservationFormType { get; set; }
+        public long? CaseEPIObservationID { get; set; }
+        public long? CaseEPIObservationFormType { get; set; }
+        public long? idfEpiObservation { get; set; }
+        public long? idfCSObservation { get; set; }
+        public long? idfsDiagnosisOrDiagnosisGroup { get; set; }
+        public long? idfHumanCase { get; set; }
+        public long? OutbreakTypeID { get; set; }
+        public string RelatedToIdentifiers { get; set; }
+        public string RelatedToReportIdentifiers { get; set; }
+    }
+}

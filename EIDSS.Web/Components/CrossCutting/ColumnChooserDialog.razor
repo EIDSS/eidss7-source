@@ -1,0 +1,46 @@
+﻿
+@inherits BaseComponent;
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12">
+                @foreach (var item in Columns)
+                {
+                    <div class="form-check">
+                        <RadzenCheckBox class="form-check-input" @bind-Value="item.Visible" TValue="bool" TriState="false"  />
+                        <label for="@item.Property" class="form-check-label">@item.Title</label>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        <button class="btn btn-primary" @onclick="OnOk">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+    </div>
+</div>
+
+@code {
+
+
+    [Parameter]
+    public List<ChoosableColumn> Columns { get; set; }
+
+    [Parameter]
+    public string DialogName { get; set; }
+
+    //private List<ChoosableColumn> selectedColumns;
+
+    //protected override void OnInitialized()
+    //{
+    //    selectedColumns = new();
+    //    selectedColumns = Columns.Where(c => c.Visible == true).ToList();
+
+    //    base.OnInitialized();
+    //}
+
+    void OnOk()
+    {
+        DiagService.Close(Columns);
+    }
+}

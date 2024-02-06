@@ -1,0 +1,164 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Enumerations
+@using EIDSS.Domain.ViewModels.CrossCutting;
+
+@inherits EIDSS.Web.Components.Administration.Deduplication.VeterinaryDiseaseReport.LabTestsBase
+
+<div class="form-row">
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord" TValue="int" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.RecordSelection
+                                       Change="@((args) => OnRecordSelectionChangeAsync(Model.ReportType, args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="LabTests"></div>
+    </div>
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord2" TValue="int" @bind-Value=@VeterinaryDiseaseReportDeduplicationService.Record2Selection
+                                       Change="@((args) => OnRecord2SelectionChangeAsync(Model.ReportType, args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="LabTests2"></div>
+    </div>
+</div>
+<div class="form-row">
+    <div class="col-6">
+        <div class="row">
+            <div class="col-6">
+                <h4 class="header">@Localizer.GetString(LabTestsSubSectionHeadingResourceKey)</h4>
+            </div>
+        </div>
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" 
+            Count="@VeterinaryDiseaseReportDeduplicationService.LabTestsCount" 
+            Data="@VeterinaryDiseaseReportDeduplicationService.LabTests" 
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@VeterinaryDiseaseReportDeduplicationService.SelectedLabTests"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            PageSizeOptions="pageSizeOptions" @ref="LabTestsGrid" 
+            ShowPagingSummary="true" TItem="LaboratoryTestGetListViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="LaboratoryTestGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" Disabled= "true" 
+                            Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedLabTests != null && VeterinaryDiseaseReportDeduplicationService.SelectedLabTests.Contains(data))" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="EIDSSLocalOrFieldSampleID" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsFieldSampleIdColumnHeadingResourceKey"/>
+                <RadzenDataGridColumn Property="Species" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsSpeciesColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Avian)"/>
+                <RadzenDataGridColumn Property="EIDSSAnimalID" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsAnimalIdColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Livestock)"/>
+                <RadzenDataGridColumn Property="DiseaseName" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsTestDiseaseColumnHeadingResourceKey"/>
+                <RadzenDataGridColumn Property="TestNameTypeName" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsTestNameColumnHeadingResourceKey"/>
+                <RadzenDataGridColumn Property="TestResultTypeName" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsResultObservationColumnHeadingResourceKey"/>
+             </Columns>
+        </RadzenDataGrid>
+        <div class="row">
+            <div class="col-6">
+                <h4 class="header non-section">@ResultsSummaryAndInterpretationSubSectionResourceKey</h4>
+            </div>
+        </div>
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" 
+            Count="@VeterinaryDiseaseReportDeduplicationService.InterpretationsCount" 
+            Data="@VeterinaryDiseaseReportDeduplicationService.Interpretations" 
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@VeterinaryDiseaseReportDeduplicationService.SelectedInterpretations"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            PageSizeOptions="pageSizeOptions" @ref="InterpretationsGrid" 
+            ShowPagingSummary="true" TItem="LaboratoryTestInterpretationGetListViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="LaboratoryTestInterpretationGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" Disabled= "true" 
+                            Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedInterpretations != null && VeterinaryDiseaseReportDeduplicationService.SelectedInterpretations.Contains(data))" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="EIDSSAnimalID" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsAnimalIdColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Livestock)" Width="150px"/>
+                <RadzenDataGridColumn Property="Species" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsSpeciesColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Avian)"/>
+                <RadzenDataGridColumn Property="DiseaseName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsDiseaseColumnHeadingResourceKey" Width="300px"/>
+                <RadzenDataGridColumn Property="TestNameTypeName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsTestNameColumnHeadingResourceKey" Width="250px"/>
+                <RadzenDataGridColumn Property="TestCategoryTypeName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsTestCategoryColumnHeadingResourceKey" Width="200px"/>
+                <RadzenDataGridColumn Property="TestResultTypeName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsTestResultColumnHeadingResourceKey" Width="200px"/>
+                <RadzenDataGridColumn Property="EIDSSLaboratorySampleID" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsLabSampleIdColumnHeadingResourceKey" Width="150px"/>
+                <RadzenDataGridColumn Property="SampleTypeName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsSampleTypeColumnHeadingResourceKey" Width="250px"/>
+                <RadzenDataGridColumn Property="EIDSSLocalOrFieldSampleID" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsFieldSampleIdColumnHeadingResourceKey" Width="150px"/>
+                <RadzenDataGridColumn Property="InterpretedStatusTypeName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsRuleOutRuleInColumnHeadingResourceKey" Width="125px"/>
+                <RadzenDataGridColumn Property="InterpretedComment" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsRuleOutRuleInCommentColumnHeadingResourceKey" Width="200px"/>
+                <RadzenDataGridColumn FormatString="{0:d}" Property="InterpretedDate" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsDateInterpretedColumnHeadingResourceKey" Width="150px"/>
+                <RadzenDataGridColumn Property="InterpretedByPersonName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsRuleOutRuleInCommentColumnHeadingResourceKey" Width="200px"/>
+                <RadzenDataGridColumn Property="ValidatedStatusIndicator" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsValidatedColumnHeadingResourceKey" Width="100px"/>
+                <RadzenDataGridColumn Property="ValidatedComment" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsValidatedCommentColumnHeadingResourceKey" Width="200px"/>
+                <RadzenDataGridColumn FormatString="{0:d}" Property="ValidatedDate" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsDateValidatedColumnHeadingResourceKey" Width="150px"/>
+                <RadzenDataGridColumn Property="ValidatedByPersonName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsValidatedByColumnHeadingResourceKey" Width="200px"/>
+             </Columns>
+        </RadzenDataGrid>
+    </div>
+    <div class="col-6">
+        <div class="row">
+            <div class="col-6">
+                <h4 class="header">@Localizer.GetString(LabTestsSubSectionHeadingResourceKey)</h4>
+            </div>
+        </div>
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" 
+            Count="@VeterinaryDiseaseReportDeduplicationService.LabTestsCount2" 
+            Data="@VeterinaryDiseaseReportDeduplicationService.LabTests2" 
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@VeterinaryDiseaseReportDeduplicationService.SelectedLabTests2"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            PageSizeOptions="pageSizeOptions" @ref="LabTestsGrid" 
+            ShowPagingSummary="true" TItem="LaboratoryTestGetListViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="LaboratoryTestGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" Disabled= "true"
+                            Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedLabTests2 != null && VeterinaryDiseaseReportDeduplicationService.SelectedLabTests2.Contains(data))" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="EIDSSLocalOrFieldSampleID" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsFieldSampleIdColumnHeadingResourceKey"/>
+                <RadzenDataGridColumn Property="Species" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsSpeciesColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Avian)"/>
+                <RadzenDataGridColumn Property="EIDSSAnimalID" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsAnimalIdColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Livestock)"/>
+                <RadzenDataGridColumn Property="DiseaseName" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsTestDiseaseColumnHeadingResourceKey"/>
+                <RadzenDataGridColumn Property="TestNameTypeName" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsTestNameColumnHeadingResourceKey"/>
+                <RadzenDataGridColumn Property="TestResultTypeName" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsResultObservationColumnHeadingResourceKey"/>
+             </Columns>
+        </RadzenDataGrid>
+        <div class="row">
+            <div class="col-6">
+                <h4 class="header non-section">@ResultsSummaryAndInterpretationSubSectionResourceKey</h4>
+            </div>
+        </div>
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" 
+            Count="@VeterinaryDiseaseReportDeduplicationService.InterpretationsCount2" 
+            Data="@VeterinaryDiseaseReportDeduplicationService.Interpretations2" 
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@VeterinaryDiseaseReportDeduplicationService.SelectedInterpretations2"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            PageSizeOptions="pageSizeOptions" @ref="InterpretationsGrid2" 
+            ShowPagingSummary="true" TItem="LaboratoryTestInterpretationGetListViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="LaboratoryTestInterpretationGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" Disabled= "true" 
+                            Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedInterpretations2 != null && VeterinaryDiseaseReportDeduplicationService.SelectedInterpretations2.Contains(data))" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="EIDSSAnimalID" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsAnimalIdColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Livestock)" Width="150px"/>
+                <RadzenDataGridColumn Property="Species" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsSpeciesColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Avian)"/>
+                <RadzenDataGridColumn Property="DiseaseName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsDiseaseColumnHeadingResourceKey" Width="300px"/>
+                <RadzenDataGridColumn Property="TestNameTypeName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsTestNameColumnHeadingResourceKey" Width="250px"/>
+                <RadzenDataGridColumn Property="TestCategoryTypeName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsTestCategoryColumnHeadingResourceKey" Width="200px"/>
+                <RadzenDataGridColumn Property="TestResultTypeName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsTestResultColumnHeadingResourceKey" Width="200px"/>
+                <RadzenDataGridColumn Property="EIDSSLaboratorySampleID" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsLabSampleIdColumnHeadingResourceKey" Width="150px"/>
+                <RadzenDataGridColumn Property="SampleTypeName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsSampleTypeColumnHeadingResourceKey" Width="250px"/>
+                <RadzenDataGridColumn Property="EIDSSLocalOrFieldSampleID" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsFieldSampleIdColumnHeadingResourceKey" Width="150px"/>
+                <RadzenDataGridColumn Property="InterpretedStatusTypeName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsRuleOutRuleInColumnHeadingResourceKey" Width="125px"/>
+                <RadzenDataGridColumn Property="InterpretedComment" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsRuleOutRuleInCommentColumnHeadingResourceKey" Width="200px"/>
+                <RadzenDataGridColumn FormatString="{0:d}" Property="InterpretedDate" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsDateInterpretedColumnHeadingResourceKey" Width="150px"/>
+                <RadzenDataGridColumn Property="InterpretedByPersonName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsRuleOutRuleInCommentColumnHeadingResourceKey" Width="200px"/>
+                <RadzenDataGridColumn Property="ValidatedStatusIndicator" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsValidatedColumnHeadingResourceKey" Width="100px"/>
+                <RadzenDataGridColumn Property="ValidatedComment" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsValidatedCommentColumnHeadingResourceKey" Width="200px"/>
+                <RadzenDataGridColumn FormatString="{0:d}" Property="ValidatedDate" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsDateValidatedColumnHeadingResourceKey" Width="150px"/>
+                <RadzenDataGridColumn Property="ValidatedByPersonName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsValidatedByColumnHeadingResourceKey" Width="200px"/>
+             </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>

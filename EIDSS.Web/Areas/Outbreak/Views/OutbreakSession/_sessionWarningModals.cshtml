@@ -1,0 +1,114 @@
+﻿<div class="modal fade" id="dWarningModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="sWarningMessage">@Localizer.GetString(MessageResourceKeyConstants.CreateOutbreakTheFrequencycannotbelargerthanthedurationMessage)</span>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnOk" class="btn btn-primary" data-dismiss="modal" value="@Localizer.GetString(ButtonResourceKeyConstants.OKButton)" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="dCancelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-content">
+            <div class="modal-body">
+                <span id="sWarningMessage">@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnCancelYes" class="btn btn-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>
+                <button type="button" id="btnCancelNo" class="btn btn-outline-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.NoButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="dSaveSuccessModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div>
+                <div class="modal-body">
+                    <span id="sSuccessMessage">@Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)</span>
+                </div>
+                <div class="row" id="dOutbreakId">
+                    <div class="col-md-12">
+                        <span>@Localizer.GetString(MessageResourceKeyConstants.CreateOutbreakThisrecordIDisMessage)</span> <span id="sRecordId"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnOutbreakSessionReturnToParameters" idfOutbreak="" class="btn btn-primary" data-dismiss="modal" value="@Localizer.GetString(ButtonResourceKeyConstants.OutbreakCasesReturntoOutbreakParametersButtonText)" />
+                <input type="button" id="btnOutbreakProceedToSession" idfOutbreak="" class="btn btn-primary" data-dismiss="modal" value="@Localizer.GetString(ButtonResourceKeyConstants.OutbreakCasesProceedtoOutbreakSessionButtonText)" />
+                <input type="button" id="bntOutbreakReturnToDashboard" idfOutbreak="" class="btn btn-primary" data-dismiss="modal" value="@Localizer.GetString(ButtonResourceKeyConstants.OutbreakCasesReturntoDashboardButtonText)" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function showWarning() {
+        $("#dWarningModal").modal('show');
+    }
+
+    function showCancel() {
+        $("#dCancelModal").modal('show');
+    }
+
+    function showSuccess(strOutbreak, bShowOutbreakId, idfOutbreak) {
+        if (bShowOutbreakId) {
+            $("#dOutbreakId").show();
+            $("#sRecordId").text(strOutbreak);
+        }
+        else {
+            $("#dOutbreakId").hide();
+        }
+        
+        $("#btnOutbreakSessionReturnToParameters").attr("idfOutbreak",idfOutbreak);
+        $("#dSaveSuccessModal").modal('show');
+    }
+
+    $(document).ready(function () {
+        $("#btnOutbreakSessionReturnToParameters").click(function () {
+            $("#dWarningModal").modal('hide');
+        });
+
+        $("#btnOutbreakProceedToSession").click(function () {
+            $("#dWarningModal").modal('hide');
+            var idfOutbreak = $("#idfOutbreak").val();
+            var uri = "@Url.Action("Index","OutbreakCases", new { Area = "Outbreak" })";
+            location.href = uri + "?queryData=" + idfOutbreak;
+        });
+
+        $("#bntOutbreakReturnToDashboard").click(function () {
+            $("#dWarningModal").modal('hide');
+            var idfOutbreak = $("#idfOutbreak").val();
+            location.href = '@Url.Action("Index","Dashboard", new { Area = "Administration" })';
+        });
+
+        $("#btnCancelYes").click(function () {
+            $("#dCancelModal").modal('hide');
+            location.href = "@Url.Action("Index","OutbreakPage", new { Area = "Outbreak" })";
+        });
+
+        $("#btnCancelNo").click(function () {
+            $("#dCancelModal").modal('hide');
+        });
+    });
+</script>

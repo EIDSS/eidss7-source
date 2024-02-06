@@ -1,0 +1,242 @@
+﻿@using EIDSS.Domain.ViewModels.Administration.Security
+@using EIDSS.Domain.ViewModels.Dashboard
+@using EIDSS.Domain.ViewModels.Laboratory
+@using EIDSS.Web.Components.CrossCutting
+@inherits DashboardBase
+
+<div class="row">
+    <div class="col-8 mx-auto">
+        <RadzenDataList AllowPaging="false" Data="@DashboardLinks" ShowPagingSummary="false" TItem="UserGroupDashboardViewModel" WrapItems="true">
+            <Template Context="dashboardLink">
+                <RadzenCard Style="width: 300px; height: 60px; border: none; box-shadow: none; flex-direction: inherit;" Visible="@dashboardLink.ShowLink">
+                    <div class="d-flex flex-row align-items-center">
+                        <RadzenImage Path='@($"Includes/Images/Dashboard/{dashboardLink.IconFileName}.png")' Style="margin-right: 15px;"></RadzenImage>
+                        <div>
+                            <RadzenLink Path="@dashboardLink.PageLink" Style="font-size: 16px;" Text="@dashboardLink.strName"/>
+                        </div>
+                    </div>
+                </RadzenCard>
+            </Template>
+        </RadzenDataList>
+    </div>
+</div>
+<div class="row my-5">
+<div class="col-10 mx-auto" style="border-top: 1.5px solid #2d5b83; border-radius: 0;">
+@*USERS*@
+<RadzenPanel Visible="@UsersGridVisible">
+    <h3>@Localizer.GetString(HeadingResourceKeyConstants.DashboardUsersHeading)</h3>
+
+    <GridExtension OnColumnSave="GridDashBoardClickHandler"></GridExtension>
+    <RadzenDataGrid AllowColumnPicking="true" AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" Count="Count" Data="Users" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" HeaderCellRender="@(args => HeaderCellRender(args.Column.Property))" IsLoading="IsLoading" LoadData="LoadUsersData" PageSizeOptions="pageSizeOptions" @ref="UsersGrid" ShowPagingSummary="true" TItem="DashboardUsersListViewModel" Visible="@UsersGridVisible">
+        <Columns>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" OrderIndex="@FindColumnOrder("FirstName")" Property="FirstName" Reorderable="true" TItem="DashboardUsersListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonFirstNameColumnHeading)" Visible="@GetColumnVisibility("FirstName")" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" OrderIndex="@FindColumnOrder("FamilyName")" Property="FamilyName" Reorderable="true" TItem="DashboardUsersListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonLastNameColumnHeading)" Visible="@GetColumnVisibility("FamilyName")" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" OrderIndex="@FindColumnOrder("SecondName")" Property="SecondName" Reorderable="true" TItem="DashboardUsersListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchEmployeeMiddleNameColumnHeading)" Visible="@GetColumnVisibility("SecondName")" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" OrderIndex="@FindColumnOrder("OrganizationName")" Property="OrganizationName" Reorderable="true" TItem="DashboardUsersListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OrganizationColumnHeading)" Visible="@GetColumnVisibility("OrganizationName")" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" OrderIndex="@FindColumnOrder("OrganizationFullName")" Property="OrganizationFullName" Reorderable="true" TItem="DashboardUsersListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.DepartmentNameColumnHeading)" Visible="@GetColumnVisibility("OrganizationFullName")" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" OrderIndex="@FindColumnOrder("Position")" Property="Position" Reorderable="true" TItem="DashboardUsersListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.PositionColumnHeading)" Visible="@GetColumnVisibility("Position")" Width="150px"/>
+            <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Pickable="false" Property="EmployeeID" Reorderable="true" Sortable="false" TextAlign="TextAlign.Center" TItem="DashboardUsersListViewModel" Visible="IsUserEditVisible" Width="40px">
+                <HeaderTemplate>
+                </HeaderTemplate>
+                <Template Context="item">
+                    <a id="editUserButton" @onclick="_ => OnEditUser(item)" role="button">
+                        <i class="fas fa-edit fa-lg"></i>
+                    </a>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</RadzenPanel>
+
+@*UNACCESSIONED SAMPLES*@
+<RadzenPanel Visible="@UnaccessionedSamplesGridVisible">
+    <h3>@Localizer.GetString(HeadingResourceKeyConstants.DashboardUNACCESSIONEDSAMPLESHeading)</h3>
+
+    <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" Count="Count" Data="UnaccessionedSamples" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="LoadUnaccessionedSamplesData" PageSizeOptions="pageSizeOptions" @ref="UnaccessionedSamplesGrid" ShowPagingSummary="true" TItem="SamplesGetListViewModel" Visible="@UnaccessionedSamplesGridVisible">
+        <Columns>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="EIDSSReportOrSessionID" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesReportSessionIDColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="PatientOrFarmOwnerName" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesPatientFarmOwnerColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="EIDSSLocalOrFieldSampleID" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesLocalFieldSampleIDColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="SampleTypeName" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesSampleTypeColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="DiseaseName" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesDiseaseColumnHeading)" Width="150px"/>
+        </Columns>
+    </RadzenDataGrid>
+</RadzenPanel>
+
+@*APPROVALS*@
+<RadzenPanel Visible="@ApprovalsGridVisible">
+    <h3>@Localizer.GetString(HeadingResourceKeyConstants.LaboratoryApprovalsHeading)</h3>
+    <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="false" AllowSorting="true" Count="Count" Data="Approvals" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="LoadApprovalsData" PageSizeOptions="pageSizeOptions" @ref="ApprovalsGrid" ShowPagingSummary="true" TItem="ApprovalsGetListViewModel" Visible="@ApprovalsGridVisible">
+        <Columns>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="Approval" TItem="ApprovalsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryApprovalsActionRequestedColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="NumberOfRecords" TItem="ApprovalsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryApprovalsNumberOfRecordsColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Property="Action" Sortable="false" TextAlign="TextAlign.Center" TItem="ApprovalsGetListViewModel" Title="" Width="40px">
+                <HeaderTemplate>
+                </HeaderTemplate>
+                <Template Context="item">
+                    <a id="viewApprovalButton" @onclick="_ => OnViewApproval(item)" role="button">
+                        View
+                    </a>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</RadzenPanel>
+
+@*INVESTIGATIONS*@
+<RadzenPanel Visible="@InvestigationsGridVisible">
+    <h3>@Localizer.GetString(HeadingResourceKeyConstants.DashboardINVESTIGATIONSHeading)</h3>
+
+    <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" Count="Count" Data="Investigations" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="LoadInvestigationsData" PageSizeOptions="pageSizeOptions" @ref="InvestigationsGrid" ShowPagingSummary="true" TItem="DashboardInvestigationsListViewModel" Visible="@InvestigationsGridVisible">
+        <Columns>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="ReportID" TItem="DashboardInvestigationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsReportIDColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn FormatString="{0:d}" HeaderCssClass="lab-table-striped-header" Property="DateEntered" TItem="DashboardInvestigationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageInvestigationsGridDateEnteredColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="Species" TItem="DashboardInvestigationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SpeciesColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="DiseaseName" TItem="DashboardInvestigationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageInvestigationsGridDiseaseColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn FormatString="{0:d}" HeaderCssClass="lab-table-striped-header" Property="DateInvestigation" TItem="DashboardInvestigationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageInvestigationsGridInvestigationDateColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="Classification" TItem="DashboardInvestigationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageInvestigationsGridClassificationColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="Address" TItem="DashboardInvestigationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageInvestigationsGridAddressColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Sortable="false" TextAlign="TextAlign.Center" TItem="DashboardInvestigationsListViewModel" Title="" Width="40px">
+                <HeaderTemplate>
+                </HeaderTemplate>
+                <Template Context="item">
+                    <a id="editInvestigationButton" @onclick="_ => OnViewInvestigation(item)" role="button">
+                        View
+                    </a>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</RadzenPanel>
+
+@*MY INVESTIGATIONS*@
+<RadzenPanel Visible="@MyInvestigationsGridVisible">
+    <h3>@Localizer.GetString(HeadingResourceKeyConstants.DashboardMYINVESTIGATIONSHeading)</h3>
+
+    <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" Count="Count" Data="MyInvestigations" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="LoadMyInvestigationsData" PageSizeOptions="pageSizeOptions" @ref="MyInvestigationsGrid" ShowPagingSummary="true" TItem="DashboardInvestigationsListViewModel" Visible="@MyInvestigationsGridVisible">
+        <Columns>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="ReportID" TItem="DashboardInvestigationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchHumanAggregateDiseaseReportsReportIDColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn FormatString="{0:d}" HeaderCssClass="lab-table-striped-header" Property="DateEntered" TItem="DashboardInvestigationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyInvestigationsGridDateEnteredColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="Species" TItem="DashboardInvestigationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SpeciesColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="DiseaseName" TItem="DashboardInvestigationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyInvestigationsGridDiseaseColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn FormatString="{0:d}" HeaderCssClass="lab-table-striped-header" Property="DateInvestigation" TItem="DashboardInvestigationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyInvestigationsGridInvestigationDateColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="Classification" TItem="DashboardInvestigationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyInvestigationsGridClassificationColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="Address" TItem="DashboardInvestigationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyInvestigationsGridAddressColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Sortable="false" TextAlign="TextAlign.Center" TItem="DashboardInvestigationsListViewModel" Title="" Width="40px">
+                <HeaderTemplate>
+                </HeaderTemplate>
+                <Template Context="item">
+                    <a id="viewMyInvestigationButton" @onclick="_ => OnViewMyInvestigation(item)" role="button">
+                        <i class="fas fa-edit fa-lg"></i>
+                    </a>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</RadzenPanel>
+
+@*NOTIFICATIONS*@
+<RadzenPanel Visible="@NotificationsGridVisible">
+    <h3>@Localizer.GetString(HeadingResourceKeyConstants.DashboardNOTIFICATIONSHeading)</h3>
+
+    <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" Count="Count" Data="DashNotifications" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="LoadNotificationsData" PageSizeOptions="pageSizeOptions" @ref="NotificationsGrid" ShowPagingSummary="true" TItem="DashboardNotificationsListViewModel" Visible="@NotificationsGridVisible">
+        <Columns>
+            <RadzenDataGridColumn FormatString="{0:d}" HeaderCssClass="lab-table-striped-header" Property="DateEntered" TItem="DashboardNotificationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyNotificationsGridDateEnteredColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="ReportID" TItem="DashboardNotificationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyNotificationsGridReportIdColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="PersonName" TItem="DashboardNotificationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyNotificationsGridPersonColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="DiseaseName" TItem="DashboardNotificationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyNotificationsGridDiseaseColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="NotifyingOrganizationName" TItem="DashboardNotificationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageNotificationsGridNotifyingOrganisationColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="NotifiedBy" TItem="DashboardNotificationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageNotificationsGridNotifiedByColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Sortable="false" TextAlign="TextAlign.Center" TItem="DashboardNotificationsListViewModel" Width="40px">
+                <HeaderTemplate>
+                </HeaderTemplate>
+                <Template Context="item">
+                    <a id="viewNotificationButton" @onclick='_ => OnViewNotification(item, "view")' role="button">
+                        View
+                    </a>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Sortable="false" TextAlign="TextAlign.Center" TItem="DashboardNotificationsListViewModel" Width="40px">
+                <HeaderTemplate>
+                </HeaderTemplate>
+                <Template Context="item">
+                    <a id="addNotificationButton" @onclick='_ => OnViewNotification(item, "add")' role="button">
+                        Add
+                    </a>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</RadzenPanel>
+
+@*MY NOTIFICATIONS*@
+<RadzenPanel Visible="@MyNotificationsGridVisible">
+    <h3>@Localizer.GetString(HeadingResourceKeyConstants.DashboardMYNOTIFICATIONSHeading)</h3>
+
+    <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" Count="Count" Data="MyNotifications" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="LoadMyNotificationsData" PageSizeOptions="pageSizeOptions" @ref="MyNotificationsGrid" ShowPagingSummary="true" TItem="DashboardNotificationsListViewModel" Visible="@MyNotificationsGridVisible">
+        <Columns>
+            <RadzenDataGridColumn FormatString="{0:d}" HeaderCssClass="lab-table-striped-header" Property="DateEntered" TItem="DashboardNotificationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyNotificationsGridDateEnteredColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="ReportID" TItem="DashboardNotificationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyNotificationsGridReportIdColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="PersonName" TItem="DashboardNotificationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyNotificationsGridPersonColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="DiseaseName" TItem="DashboardNotificationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyNotificationsGridDiseaseColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn FormatString="{0:d}" HeaderCssClass="lab-table-striped-header" Property="DateOfDisease" TItem="DashboardNotificationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyNotificationsGridDiseaseDateColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="Classification" TItem="DashboardNotificationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyNotificationsGridClassificationColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="InvestigatedBy" TItem="DashboardNotificationsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyNotificationsGridInvestigatedByDateColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Sortable="false" TextAlign="TextAlign.Center" TItem="DashboardNotificationsListViewModel" Title="" Width="40px">
+                <HeaderTemplate>
+                </HeaderTemplate>
+                <Template Context="item">
+                    <a id="viewMyNotificationButton" @onclick="_ => OnViewMyNotification(item)" role="button">
+                        View
+                    </a>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</RadzenPanel>
+
+@*MY COLLECTIONS*@
+<RadzenPanel Visible="@MyCollectionsGridVisible">
+    <h3>@Localizer.GetString(HeadingResourceKeyConstants.DashboardMYCOLLECTIONSHeading)</h3>
+
+    <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" Count="Count" Data="MyCollections" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="LoadMyCollectionsData" PageSizeOptions="pageSizeOptions" @ref="MyCollectionsGrid" ShowPagingSummary="true" TItem="DashboardCollectionsListViewModel" Visible="@MyCollectionsGridVisible">
+        <Columns>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="SessionID" TItem="DashboardCollectionsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyCollectionsGridSessionIdColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn FormatString="{0:d}" HeaderCssClass="lab-table-striped-header" Property="DateEntered" TItem="DashboardCollectionsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyCollectionsGridDateEnteredColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="Vectors" TItem="DashboardCollectionsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyCollectionsGridVectorPoolsColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="DiseaseName" TItem="DashboardCollectionsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyCollectionsGridDiseaseColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn FormatString="{0:d}" HeaderCssClass="lab-table-striped-header" Property="DateStarted" TItem="DashboardCollectionsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyCollectionsGridStartDateColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="Region" TItem="DashboardCollectionsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyCollectionsGridRegionColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="Rayon" TItem="DashboardCollectionsListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.MainPageMyCollectionsGridRayonColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Sortable="false" TextAlign="TextAlign.Center" TItem="DashboardCollectionsListViewModel" Title="" Width="40px">
+                <HeaderTemplate>
+                </HeaderTemplate>
+                <Template Context="item">
+                    <a id="viewMyCollectionButton" @onclick='_ => OnViewMyCollection(item, "view")' role="button">
+                        View
+                    </a>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Sortable="false" TextAlign="TextAlign.Center" TItem="DashboardCollectionsListViewModel" Title="" Width="40px">
+                <HeaderTemplate>
+                </HeaderTemplate>
+                <Template Context="item">
+                    <a id="editMyCollectionButton" @onclick='_ => OnViewMyCollection(item, "edit")' role="button">
+                        Edit
+                    </a>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</RadzenPanel>
+</div>
+</div>
+
+@code {
+
+    void GridDashBoardClickHandler()
+    {
+        GridColumnSave("DashBoard");
+    }
+
+}

@@ -1,0 +1,350 @@
+﻿@model EIDSS.Web.Areas.Administration.SubAreas.Security.ViewModels.Site.SiteSearchViewModel
+@{
+    Model.SiteTypeSelect.DropDownId = "SiteTypeSelect";
+    Model.SiteTypeSelect.Label = Localizer.GetString(FieldLabelResourceKeyConstants.SearchSitesSiteTypeFieldLabel);
+    Model.SiteTypeSelect.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.SiteTypeSelect.Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = (long)ReferenceTypes.SiteType });
+    Model.SiteTypeSelect.isVisible = true;
+
+    Model.OrganizationSelect.DropDownId = "OrganizationSelect";
+    Model.OrganizationSelect.Label = Localizer.GetString(FieldLabelResourceKeyConstants.SearchSitesOrganizationFieldLabel);
+    Model.OrganizationSelect.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.OrganizationSelect.Endpoint = @Url.Action("GetOrganizations", "CrossCutting", new { Area = "CrossCutting" });
+    Model.OrganizationSelect.isVisible = true;
+
+    Model.SiteGridConfiguration = new EIDSSGridConfiguration
+    {
+        GridId = "sitesTable",
+        GridClass = "table table-sm table-striped",
+        ControlFilterID = "SearchCriteria_SiteKey,SearchCriteria_SiteID,SearchCriteria_EIDSSSiteID,SearchCriteria_SiteName,SiteTypeSelect,SearchCriteria_HASCSiteID,OrganizationSelect,CountrySelect",
+        AjaxDataUrl = Url.Action("GetSiteList", "SiteSearch", new { Area = "Administration", SubArea = "Security" }),
+        EnablePrintButton = true,
+        EnableServerSide = true,
+        EnableSearching = false,
+        EnableCustomSearching = false,
+        EnableProcessingMessage = true,
+        ControlLabels =
+        {
+            YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton),
+            NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton)
+        },
+        EditType = EIDSS.Web.TagHelpers.Models.EditType.PageRedirect,
+        EditPageRedirectLink = "Details"
+    };
+    Model.SiteGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "SiteID", ColumnTitleHeader = String.Empty, ColumnType = ColumnType.Selection, Visible = Model.RecordSelectionIndicator == true });
+    Model.SiteGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "row", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading), Visible = Model.RecordSelectionIndicator == false, ColumnType = ColumnType.ReadOnly, VisibleInModal = false });
+    Model.SiteGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "SiteID", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchSitesSiteIDColumnHeading), ColumnType = ColumnType.Default, Visible = true, Orderable = true });
+    Model.SiteGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "EIDSSSiteID", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchSitesSiteCodeColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.SiteGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "SiteName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchSitesSiteNameColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.SiteGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "SiteTypeName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchSitesSiteTypeColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.SiteGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "HASCSiteID", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchSitesHASCBasedSiteIDColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.SiteGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "OrganizationName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchSitesOrganizationNameColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.SiteGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "SiteID", ColumnTitleHeader = "", ColumnType = ColumnType.Button, CustomIconClass = "fas fa-edit fa-1x", Visible = Model.SitePermissions.Write, ClientFunction = "showSiteWarningModal" });
+}
+
+<style type="text/css">
+    button.dt-button, button.buttons-print {
+        display: none;
+    }
+</style>
+
+<form id="siteSearchForm">
+    <div id="siteSearchCriteria" class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-11">
+                    <h4 id="searchCriteriaHeader" heading-for="@HeadingResourceKeyConstants.SearchCriteriaHeading"></h4>
+                </div>
+                <div class="col-1 right">
+                    <span id="toggleSiteSearchIcon" class="fas fa-caret-down align-bottom fa-2x" data-toggle="collapse" data-target="#siteSearchCriteriaForm" aria-expanded="true" onclick="toggleSiteSearchCriteria(event);">&nbsp;</span>
+                </div>
+            </div>
+        </div>
+        <div id="siteSearchCriteriaForm" class="card-body show">
+            <div class="form-row">
+                <div class="form-group col-md-6" hidden-if="@(Model.InterfaceEditorSet + FieldLabelResourceKeyConstants.SharedComponentSearchSitesSiteIDFieldLabel)">
+                    <label asp-for="SearchCriteria.SiteID" field-label-for="@FieldLabelResourceKeyConstants.SearchSitesSiteIDFieldLabel"></label>
+                    <input asp-for="SearchCriteria.SiteID" type="number" min="1" class="form-control" />
+                </div>
+                <div class="form-group col-md-6" hidden-if="@(Model.InterfaceEditorSet + FieldLabelResourceKeyConstants.SharedComponentSearchSitesSiteCodeFieldLabel)">
+                    <label asp-for="SearchCriteria.EIDSSSiteID" field-label-for="@FieldLabelResourceKeyConstants.SearchSitesSiteCodeFieldLabel"></label>
+                    <input asp-for="SearchCriteria.EIDSSSiteID" type="text" class="form-control" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-4" hidden-if="@(Model.InterfaceEditorSet + FieldLabelResourceKeyConstants.SharedComponentSearchSitesSiteNameFieldLabel)">
+                    <label asp-for="SearchCriteria.SiteName" field-label-for="@FieldLabelResourceKeyConstants.SearchSitesSiteNameFieldLabel"></label>
+                    <input asp-for="SearchCriteria.SiteName" type="text" class="form-control" />
+                </div>
+                <div class="form-group col-md-4">
+                    <eidss-select2DropDown id="@Model.SiteTypeSelect.DropDownId"
+                                           target-ajax-url="@Model.SiteTypeSelect.ControlTargetUrl"
+                                           selectct2-default-data="@Model.SiteTypeSelect.defaultSelect2Selection"
+                                           end-point="@Model.SiteTypeSelect.Endpoint"
+                                           label-name="@Model.SiteTypeSelect.Label"
+                                           is-visible="@Model.SiteTypeSelect.isVisible">
+                    </eidss-select2DropDown>
+                </div>
+                <div class="form-group col-md-4" hidden-if="@(Model.InterfaceEditorSet + FieldLabelResourceKeyConstants.SharedComponentSearchSitesHASCSiteIDFieldLabel)">
+                    <label asp-for="SearchCriteria.HASCSiteID" field-label-for="@FieldLabelResourceKeyConstants.SearchSitesHASCSiteIDFieldLabel"></label>
+                    <input asp-for="SearchCriteria.HASCSiteID" type="text" class="form-control" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6" hidden-if="@(Model.InterfaceEditorSet + FieldLabelResourceKeyConstants.SharedComponentSearchSitesOrganizationFieldLabel)">
+                    <div class="@string.Concat("dvselect2_", @Model.OrganizationSelect.DropDownId)">
+                        <eidss-select2DropDown id="@Model.OrganizationSelect.DropDownId"
+                                               target-ajax-url="@Model.OrganizationSelect.ControlTargetUrl"
+                                               selectct2-default-data="@Model.OrganizationSelect.defaultSelect2Selection"
+                                               control-target-id="@Model.OrganizationSelect.ControltargetId"
+                                               target-type="@Model.OrganizationSelect.ControlTargetType"
+                                               end-point="@Model.OrganizationSelect.Endpoint"
+                                               label-name="@Model.OrganizationSelect.Label"
+                                               is-visible="@Model.OrganizationSelect.isVisible"
+                                               custom-js-on-change-function="@Model.OrganizationSelect.CustomJsOnChangeFunction"
+                                               custom-js-on-clear-function="@Model.OrganizationSelect.CustomJsOnClearFunction"
+                                               filter-id="@Model.OrganizationSelect.FilteredId">
+                        </eidss-select2DropDown>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="siteSearchCriteriaCommands" class="card-footer">
+            <button id="cancelSearchCriteria" type="button" class="btn btn-outline-primary" onclick="cancelSiteSearch('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)', event)" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+            <button id="clear" type="reset" class="btn btn-outline-primary" onclick="clearSelect2Controls();" button-for="@ButtonResourceKeyConstants.ClearButton"></button>
+            <button id="search" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.SearchButton"></button>
+            <button id="addSiteSearchCriteria" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.AddButton" onclick="addSite();" visible="@Model.SitePermissions.Create"></button>
+        </div>
+    </div>
+    <br />
+    <div id="siteSearchResults" class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-12">
+                    <h4 id="searchResultsHeader" heading-for="@HeadingResourceKeyConstants.SearchResultsHeading"></h4>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="col-12">
+                <eidss-grid id="@Model.SiteGridConfiguration.GridId"
+                            grid-configuration="@Model.SiteGridConfiguration"
+                            enable-server-side="@Model.SiteGridConfiguration.EnableServerSide"
+                            enable-processing="@Model.SiteGridConfiguration.EnableProcessingMessage"
+                            enable-search="@Model.SiteGridConfiguration.EnableSearching"
+                            class-name="@Model.SiteGridConfiguration.GridClass"
+                            end-point="@Model.SiteGridConfiguration.AjaxDataUrl"
+                            filtered-control-ids="@Model.SiteGridConfiguration.ControlFilterID"
+                            control-labels="@Model.SiteGridConfiguration.ControlLabels">
+                </eidss-grid>
+            </div>
+        </div>
+        <div id="siteSearchResultsCommands" class="card-footer">
+            <button id="cancelSearchResults" type="button" class="btn btn-outline-primary" onclick="cancelSiteSearch('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)', event)" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+            <button id="selectSites" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.SelectButton" visible-if="@Model.RecordSelectionIndicator"></button>
+            <button id="selectAllSites" type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.SelectAllButton" visible-if="@Model.RecordSelectionIndicator"></button>
+            <button id="btnPrint" type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.PrintButton"></button>
+            <button id="addSiteSearchResults" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.AddButton" onclick="addSite();"></button>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ('@Model.ShowSearchResults' == "True")
+            hideSiteSearchCriteria();
+        else
+            showSiteSearchCriteria();
+    });
+
+    function cancelSiteSearch(message, event) {
+        event.preventDefault();
+
+        showWarningModal(message).then(function (confirmation) {
+            if (confirmation) {
+                if ('@Model.ShowInModalIndicator' == "True") {
+                    $("#warningModal").hide();
+                    $("#searchSiteModal").hide();
+                    $(".modal-backdrop").remove();
+                }
+                else
+                    location.href = '@Url.Action("Dashboard", "Administration", new { Area = "", SubArea = "" })';
+            }
+        });
+    };
+
+    function toggleSiteSearchCriteria(e) {
+        if ($("#siteSearchCriteriaForm").hasClass("show")) {
+            $("#toggleSiteSearchIcon").removeClass("fa-caret-down").addClass("fa-caret-up");
+            $("#cancelSearchCriteria").hide();
+            $("#clear").hide();
+            $("#search").hide();
+            $("#siteSearchCriteriaForm").collapse("show");
+            $("#siteSearchCriteriaCommands").hide();
+            $("#cancelSearchResults").show();
+        }
+        else {
+            $("#toggleSiteSearchIcon").removeClass("fa-caret-up").addClass("fa-caret-down");
+            $("#cancelSearchCriteria").hide();
+            $("#clear").show();
+            $("#search").show();
+            $("#addSiteSearchCriteria").hide();
+            $("#siteSearchCriteriaForm").collapse("hide");
+            $("#siteSearchCriteriaCommands").show();
+        }
+    };
+
+    function hideSiteSearchCriteria() {
+        $("#toggleSiteSearchIcon").show();
+        $("#siteSearchCriteriaForm").collapse("hide");
+        $("#siteSearchCriteriaCommands").hide();
+        $("#siteSearchResultsCommands").show();
+        $("#siteSearchResults").show();
+    };
+
+    function showSiteSearchCriteria() {
+        $("#toggleSiteSearchIcon").hide();
+        $("#siteSearchCriteriaForm").collapse("show");
+        $("#siteSearchCriteriaCommands").show();
+        $("#siteSearchResults").hide();
+    };
+
+    function clearSelect2Controls() {
+        $("#SiteTypeSelect").val("").trigger("change");
+        $("#OrganizationSelect").val("").trigger("change");
+    };
+
+    function addSite() {
+        if ($("#siteSearchResults").is(":visible")) {
+            $.ajax({
+                url: '@Url.Action("SetSiteSearchPerformedIndicator", "SiteSearch", new { Area = "Administration", SubArea = "Security" })',
+                contentType: "application/json",
+                type: "POST",
+                success: function () {
+                    location.href = '@Url.Action("Details", "Site")'
+                },
+                error: function (reponse) { alert("An error occurred: " + JSON.stringify(reponse)); }
+            });
+        }
+        else
+            location.href = '@Url.Action("Details", "Site")'
+    };
+
+    $("#search").on("click", function (e) {
+        var isValid = false;
+        $("#siteSearchCriteria *").filter(":input:visible").each(function () {
+            if ($(this).attr("type") != undefined) {
+                if ($(this).attr("type") == "checkbox") {
+                    if ($(this).is(":checked")) {
+                        isValid = true;
+                    }
+                }
+                else {
+                    if ($.trim($(this).val()) != "") {
+                        isValid = true;
+                    }
+                }
+            }
+            else {
+                if ($.trim($(this).val()) != "") {
+
+                    isValid = true;
+                }
+            }
+        });
+
+        if (isValid == false)
+            showErrorModal('@Localizer.GetString(MessageResourceKeyConstants.EnterAtLeastOneParameterMessage)');
+        else {
+            $("#sitesTable").DataTable().draw();
+            hideSiteSearchCriteria();
+        }
+    });
+
+    // Handle click on checkbox
+    $("#sitesTable tbody").on("click", 'input[type="checkbox"]', function (e) {
+        var $row = $(this).closest("tr");
+
+        if (this.checked) {
+            $row.addClass("selected");
+        } else {
+            $row.removeClass("selected");
+        }
+
+        // Prevent click event from propagating to parent
+        e.stopPropagation();
+    });
+
+    $("#selectSites").on("click", function (e) {
+        selectSites();
+    });
+
+    $("#selectAllSites").on("click", function (e) {
+        $('#sitesTable tbody input[type="checkbox"]:not(:checked)').trigger("click");
+
+        selectSites();
+    });
+
+    function selectSites() {
+        var sites = [];
+        var existingSites = [];
+            existingSites = $("#siteGroupSitesTable").DataTable().rows().data().toArray();
+        $.each(existingSites, function (index, value) {
+            sites.push(value[1]);
+        });
+        var selectedSites = $("#sitesTable").DataTable().rows([".selected"]).data().toArray();
+        $.each(selectedSites, function (index, value) {
+            sites.push(value[0]);
+        });
+
+        if (validateDuplicateSites(sites) == false) {
+            showErrorModal("@Localizer.GetString(MessageResourceKeyConstants.DuplicateRecordsAreNotAllowedMessage)");
+        }
+        else {
+            sites = [];
+
+            $.each(selectedSites, function (index, value) {
+                site = new Object();
+                site.SiteToSiteGroupID = (($("#siteGroupSitesTable").DataTable().rows().count() + 1) * -1);
+                site.SiteID = value[0];
+                site.SiteName = value[4];
+                site.EIDSSSiteID = value[3];
+                sites.push(site.SiteID);
+
+                $("#siteGroupSitesTable").DataTable().row.add([site.SiteToSiteGroupID.toString(), site.SiteID, site.SiteName, site.EIDSSSiteID, '@Convert.ToInt64(RowStatusTypes.Active)', "I", site.SiteToSiteGroupID.toString()]).draw();
+                $("#siteGroupSitesTable").DataTable().$("tr.selected").removeClass("selected");
+            });
+
+            $("#searchSiteModal").modal("hide");
+            if ($(".modal.show").length == 0) {
+                $(".modal-backdrop").remove();
+            }
+        }
+    };
+
+    function validateDuplicateSites(sites) {
+        var sitesArray = sites.sort();
+        for (var i = 0; i < sitesArray.length - 1; i++) {
+            if (sitesArray[i + 1] == sitesArray[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    ///
+    /// Per use case SAUC53, display a warning message to the user prompting they are certain they
+    /// intend to edit the selected site record.
+    ///
+    function showSiteWarningModal(e, row, data) {
+        event.preventDefault();
+
+        showWarningModal("@Localizer.GetString(MessageResourceKeyConstants.AttentionModifyingTheseSettingsMayDamageIntegrityOfDataMessage)").then(function (confirmation) {
+            if (confirmation) {
+                var url = '@Url.Action("Details", "Site")';
+                url += "/" + data[0];
+                location.href = url;
+            }
+        });
+    };
+</script>

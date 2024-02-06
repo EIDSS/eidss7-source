@@ -1,0 +1,52 @@
+﻿
+@model EIDSS.Web.ViewModels.Human.DiseaseReportContactListPageViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@using EIDSS.Web.Components.Human.SearchPerson;
+
+@{
+
+
+}
+
+<form id="ContactListForm">
+    <div class="card">
+        <div class="card-header"><h3 heading-for="@HeadingResourceKeyConstants.HumanDiseaseReportContactsListHeading"></h3></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <button type="button" id="btnOpenAddModalRole" class="btn btn-primary mt-3" button-for="@ButtonResourceKeyConstants.AddButton" onclick="SelectPerson();"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<div id="mdPersonSearch" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mdUserPermissions" aria-hidden="true" data-backdrop='static' data-keyboard='false'>
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                    @Localizer.GetString(HeadingResourceKeyConstants.PersonPageHeading)
+                </h5>
+                <button type="button" onclick="CloseModal();" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="personSearchDetail">
+                <component type="typeof(SearchPerson)" render-mode="Server" />
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function SelectPerson() {
+
+        var model = {};
+        model.HumanActualID ='@Model.HumanActualID';
+        model.HumanID ='@Model.HumanID';
+        model.idfHumanCase ='@Model.idfHumanCase';
+                 $("#mdPersonSearch").modal('show');
+
+    }
+</script>

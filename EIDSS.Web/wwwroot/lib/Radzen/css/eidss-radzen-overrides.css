@@ -1,0 +1,97 @@
+﻿/*start --> dialog overrides */
+.rz-dialog {
+    top: 110px;
+}
+
+.rz-dialog-wrapper .rz-dialog {
+    max-height: 80%;
+}
+/*end --> dialog overrides */
+
+/*start --> remove background colors so we can use bootstrap defaults */
+.rz-button.btn-primary, .btn-primary.rz-paginator-element {
+    background-color: none;
+}
+
+.rz-button.btn-light, .btn-light.rz-paginator-element {
+    background-color: none;
+    color: none;
+}
+
+.rz-button.btn-secondary, .btn-secondary.rz-paginator-element {
+    background-color: none;
+}
+
+.rz-button.btn-info, .btn-info.rz-paginator-element {
+    background-color: none;
+}
+
+.rz-button.btn-warning, .btn-warning.rz-paginator-element {
+    background-color: none;
+}
+
+.rz-button.btn-error, .btn-error.rz-paginator-element {
+    background-color: none;
+}
+
+.rz-button.btn-danger, .btn-danger.rz-paginator-element {
+    background-color: none;
+}
+
+.rz-button.btn-success, .btn-success.rz-paginator-element {
+    background-color: none;
+}
+/*end --> remove background colors so we can use bootstrap defaults */
+
+/*start --> correct checkbox alignment */
+.rz-checkbox-list-horizontal .rz-checkbox {
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    /*display: inline-flex;*/
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+/*end --> correct checkbox alignment */
+
+.rz-paginator-summary {
+    margin-right: 10px;
+}
+
+.rz-badge-primary {
+    background-color: #2d5b83;
+}
+
+.rz-panel-menu .rz-navigation-item-link {
+    padding: 0 1.25rem 0 1.25rem;
+}
+
+.rz-dropdown-item:hover, .rz-menuitem:hover, .rz-autocomplete-list-item:hover, .rz-multiselect-item:hover, .rz-dropdown-items li:hover, .rz-autocomplete-items li:hover, .rz-multiselect-items li:hover {
+    background-color: #2d5b83;
+}
+
+.rz-multiselect-label-container,
+.rz-dropdown-label {
+    font-weight: 400; 
+}
+
+.rz-splitbutton .rz-button, .rz-splitbutton .rz-paginator-element {
+    background-color: #2d5b83;
+}
+
+.rz-rating .rzi-star {
+    color: #2d5b83;
+}
+
+.rz-rating:not(.rz-state-disabled):not(.rz-state-readonly) .rzi-star-o:hover {
+    color: #2d5b83;
+}
+
+.rz-paginator-last, .rz-paginator-next {
+    background-color: #2d5b83;
+    color: #ffffff;
+}
+
+body:not(.rz-default-scrollbars) ::-webkit-scrollbar-thumb {
+    background: #2d5b83;
+}

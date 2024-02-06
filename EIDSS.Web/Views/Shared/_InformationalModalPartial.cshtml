@@ -1,0 +1,98 @@
+﻿@model string
+
+<div class="modal fade" id="informationalModal" tabindex="-1" role="dialog" data-backdrop='static' data-keyboard='false' aria-labelledby="informationalModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="informationalModalHeader">EIDSS</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 text-right">
+                        <span class="fas fa-info-circle fa-2x modal-icon"></span>
+                    </div>
+                    <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                        <p id="informationalMessage">@Model</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button button-for="@ButtonResourceKeyConstants.OKButton" class="btn btn-primary" data-dismiss="modal" id="btnInformationalModalOK" type="button"></button>
+            </div>
+        </div>
+    </div>
+</div>
+@if (!String.IsNullOrEmpty(Model))
+{
+    <script type="text/javascript">
+        $informationalModal = $("#informationalModal");
+        $informationalModal.modal("show");
+    </script>
+}
+<script type="text/javascript">
+    function showInformationalModal(message) {
+        $("#informationalModal").find("#informationalMessage").text(message.replace(/&quot;/g, '\"')).end(); // replace HTML &quot to show actual double quotes.
+        var localizedString = $("#informationalModal").find("#informationalMessage").text();
+        var decodedLocalizedMessage = $("#informationalModal").find("#informationalMessage").html(localizedString).text();
+
+        $("#informationalModal").find("#informationalMessage").text(decodedLocalizedMessage);
+
+        $informationalModal = $("#informationalModal");
+        $informationalModal.modal("show");
+    };
+
+    function showInformationalModalWait(message, title = "", size = "medium") {
+        $("#informationalModal").find("#informationalMessage").text(message.replace(/&quot;/g, '\"')).end(); // replace HTML &quot to show actual double quotes.
+        var localizedString = $("#informationalModal").find("#informationalMessage").text();
+        var decodedLocalizedMessage = $("#informationalModal").find("#informationalMessage").html(localizedString).text();
+
+        const modal = new Promise(function (resolve, reject) {
+            $("#informationalModal").find(".modal-header > h5").html(title);
+            $("#informationalModal").find("#informationalMessage").html(decodedLocalizedMessage);
+            $("#informationalModal").modal("show");
+
+            $("#informationalModal .btn-primary").click(function () {
+                resolve(true);
+            });
+        }).then(response => {
+            return response;
+        });
+
+        return modal;
+    };
+    function showInformationalModalWaitWithNoCancel(message, title = "", size = "medium") {
+
+        $("#informationalModal").find("#informationalMessage").text(message.replace(/&quot;/g, '\"')).end(); // replace HTML &quot to show actual double quotes.
+        var localizedString = $("#informationalModal").find("#informationalMessage").text();
+        var decodedLocalizedMessage = $("#informationalModal").find("#informationalMessage").html(localizedString).text();
+
+        const modal = new Promise(function (resolve, reject) {
+            $("#informationalModal").find(".modal-header > h5").html(title);
+            $("#informationalModal").find("#informationalMessage").html(decodedLocalizedMessage);
+            $("#informationalModal").modal("show");
+
+            $("#informationalModal").find('.close').click(function () {
+                resolve(true);
+            });
+
+            $("#informationalModal .btn-primary").click(function () {
+                resolve(true);
+            });
+        }).then(response => {
+            return response;
+        });
+
+        return modal;
+    };
+
+    $(document).on("show.bs.modal", ".modal", function (event) {
+        var zIndex = 1040 + (10 * $(".modal:visible").length);
+        $(this).css("z-index", zIndex);
+        setTimeout(function () {
+            $(".modal-backdrop").not(".modal-stack").css("z-index", zIndex - 1).addClass("modal-stack");
+        }, 0);
+    });
+</script>

@@ -1,0 +1,57 @@
+﻿@inherits EIDSS.Web.Components.Administration.AdministrativeUnits.AdministrativeUnitsDetailsBase
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Areas.Administration.ViewModels.Administration;
+
+
+<RadzenTemplateForm @ref="Form" id="EditAggregateDiseaseReportDetailsForm" TItem="AdministrativeUnitsPageDetailViewModel" Data="@Model">
+
+    <div class="card">
+        <div class="card-body">
+            
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.AdministrativeUnitDetailsUniqueCodeFieldLabel" IsRow="false" CssClass="col-md-6" For="uniqueCode" IsRequiredByDefaultBusinessRule="@Model.AdministrativeUnitsDetails.UniqueCodeRequired">
+                    <RadzenTextBox id="uniqueCode" Name="uniqueCode" @bind-Value="@Model.AdministrativeUnitsDetails.UniqueCode" MaxLength="200" AutoComplete="true" class="form-control"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.AdministrativeUnitDetailsHASCCodeFieldLabel" IsRow="false" CssClass="col-md-2" For="hascCode" IsRequiredByDefaultBusinessRule="@Model.AdministrativeUnitsDetails.HascCodeRequired">
+                    <RadzenTextBox id="hascCode" Name="hascCode" @bind-Value="@Model.AdministrativeUnitsDetails.HascCode" MaxLength="6" AutoComplete="true" class="form-control" Disabled="@(DisableByAdminLevel())"></RadzenTextBox>
+                </InterfaceEditorResource>
+            </div>
+
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchAdministrativeUnitsDefaultNameFieldLabel" IsRow="false" CssClass="col-md-4" For="defaultNameId" IsRequiredByDefaultBusinessRule="true">
+                    <RadzenTextBox id="defaultNameId" Name="defaultNameId" @bind-Value="@Model.AdministrativeUnitsDetails.DefaultName" MaxLength="255" AutoComplete="true" class="form-control"></RadzenTextBox>
+                </InterfaceEditorResource>
+
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchAdministrativeUnitsNationalNameFieldLabel" IsRow="false" CssClass="col-md-4" For="nationalNameId" IsRequiredByDefaultBusinessRule="true">
+                    <RadzenTextBox id="nationalNameId" Name="nationalNameId" @bind-Value="@Model.AdministrativeUnitsDetails.NationalName" MaxLength="255" class="form-control"></RadzenTextBox>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.AdministrativeUnitDetailsAdministrativeLevelFieldLabel" IsRow="false" CssClass="col-md-6" For="administrativeLevelId">
+                    <RadzenDropDown id="administrativeLevelId" Name="administrativeLevelId" TValue="long" Data="@AdminLevelUnits" LoadData="@GetAdminLevelUnitsAsync" ValueProperty="IdfsBaseReference" TextProperty="Name" @bind-Value="@Model.AdministrativeUnitsDetails.AdminLevel"
+                                    class="form-control" Count="@AdminLevelCount" Disabled="@(Model.AdministrativeUnitsDetails.DisableAdminLevel)"
+                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@(RefreshAdminUnits)"/>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <div class="col-md-12">
+                    <LocationView ParmLocationViewModel="@Model.AdministrativeUnitsDetails.EditLocationViewModel" LocationViewModelChanged="RefreshLocationViewModelHandlerAsync"/>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-md-12">
+                    <button id="cancel" class="btn btn-outline-primary" type="button" @onclick="@(CancelSaveAdminUnitAsync)">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button id="save" class="btn btn-outline-primary btn-primary " type="button" @onclick="@(SaveAdminUnitAsync)">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+</RadzenTemplateForm>`
+

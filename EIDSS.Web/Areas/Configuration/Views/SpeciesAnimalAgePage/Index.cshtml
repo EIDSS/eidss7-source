@@ -1,0 +1,388 @@
+﻿@model ConfigurationMatrixPagesViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@using EIDSS.Web.TagHelpers.Models;
+@using EIDSS.ClientLibrary.Enumerations;
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.SpeciesAnimalAgeMatrixPageHeading);
+
+    //PageLevel
+    Model.PageName = Localizer.GetString(HeadingResourceKeyConstants.SpeciesAnimalAgeMatrixPageHeading);
+    @if (Model.UserPermissions.Create)
+    {
+        Model.PageLevelAddButtonModalText = Localizer.GetString(ButtonResourceKeyConstants.AddButton);
+        Model.PageLevelAddButtonModal = "AddSpeciesAnimalAge";
+        Model.PageLevelAddButtonID = "PageLevelAddButton";
+    }
+
+    //DropDowns
+    var select2Configuration = new Select2Configruation
+    {
+        DropDownId = "SpeciesDD",
+        ControltargetId = "SpeciesAnimalAgeGrid",
+        Label = Localizer.GetString(FieldLabelResourceKeyConstants.SpeciesFieldLabel),
+        ControlTargetType = DropDownTargetTypes.Table,
+        Endpoint = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = (long) ReferenceTypes.SpeciesList, intHACode = 96}),
+        ControlTargetUrl = Url.Action("GetList", "SpeciesAnimalAgePage", new {Area = "Configuration"}),
+        isVisible = true,
+        CustomJsOnChangeFunction = "ChangeAddButtonActiveStatus", //Create This Javascript Method Below in the Scripts tag
+        CustomJsOnClearFunction = "SelectOnClear", //Create This Javascript Method Below in the Scripts tag
+        DisabledControls = "PageLevelAddButton"
+    };
+
+    //Display Add Button Next To DropDown
+    if (Model.UserPermissions.Create)
+        select2Configuration.IncludeAddButton = true;
+    //Modal To Launch When Button is Clicked
+    select2Configuration.AddModalId = "bAddSpeciesType";
+    Model.Select2Configurations.Add(select2Configuration);
+
+    //SET UP MODAL
+    var eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.SpeciesAnimalAgeDetailsModalHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            //success modal configs
+            SuccessModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+            SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        },
+        ModalId = "AddSpeciesAnimalAge",
+        SavingControlsCollection = "SpeciesDD",
+        TargetGridControlID = "SpeciesAnimalAgeGrid", //ID of Grid to Refresh
+        PostAjaxDataUrl = Url.Action("Create", "SpeciesAnimalAgePage", new {Area = "Configuration"}),
+        SaveCompleteMethod = "CheckSuccessMain"
+    };
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        VaildationProperty = VaildationRuleType.ValidationRuleType.REQUIRED,
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.AnimalAgeFieldLabel),
+        ControlName = "idfsAnimalAge",
+        ControlType = ControlType.DropDownAddButtonOpenModal,
+        OpenModalName = "AddAnimalAge",
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "ddAddAnimalAge",
+        Visible = true,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = "19000005", intHACode = 96})
+    });
+
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //SET UP MODAL2 AddSpeciesType
+    <partial name="_SpeciesTypeModalPartial"/>
+
+    //SET UP MODAL3     AddAnimalAge
+    eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ModalId = "AddAnimalAge",
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.AnimalAgeDetailsModalHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            //success modal configs
+            SuccessModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+            SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+            OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+        },
+        PostAjaxDataUrl = Url.Action("AddAnimalAge", "SpeciesAnimalAgePage", new {Area = "Configuration"}),
+        SaveCompleteMethod = "CheckSuccessAddAnimalAge"
+    };
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        ControlName = "Default",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "AnimalDefaultValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        ControlName = "Name",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "AnimalNationalValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        ControlName = "intOrder",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlType = ControlType.Numeric,
+        Visible = true
+    });
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //SETUP GRID
+    //Model.PageName = "Sample Types List";
+    Model.eidssGridConfiguration.GridId = "SpeciesAnimalAgeGrid";
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.ControlFilterID = "SpeciesDD";
+    Model.eidssGridConfiguration.AjaxDataUrl = Url.Action("GetList", "SpeciesAnimalAgePage", new {Area = "Configuration"});
+    Model.eidssGridConfiguration.EditModalAjaxUrl = Url.Action("Edit", "SpeciesAnimalAgePage", new {Area = "Configuration"});
+    Model.eidssGridConfiguration.DeleteModalAjaxUrl = Url.Action("Delete", "SpeciesAnimalAgePage", new {Area = "Configuration"});
+    Model.eidssGridConfiguration.DeleteCompleteMethod = "CheckDeleteSuccess";
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels
+    {
+        DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage),
+        EditModalMessage = "Are you sure that you want to Edit this record?",
+        DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+        SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
+        DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton),
+        CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton)
+    };
+    Model.eidssGridConfiguration.EditType = EditType.None;
+    Model.eidssGridConfiguration.ControlLabels.CancelInlineEditTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.eidssGridConfiguration.ControlLabels.CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage);
+    Model.eidssGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.eidssGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.eidssGridConfiguration.ControlLabels.SaveInlineEditTitle = "Save Record";
+    Model.eidssGridConfiguration.ControlLabels.SaveInlineEditMessage = "Are you sure that you want to save this record?";
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        ColumnName = "row",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "idfSpeciesTypeToAnimalAge",
+        ColumnName = "KeyId",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "idfsSpeciesType",
+        ColumnName = "idfsSpeciesType",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "Species",
+        ColumnName = "strSpeciesType",
+        ColumnType = ColumnType.DropDown,
+        DisplayDropDownInModalOnly = true,
+        Visible = false,
+        ColumnAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = (long) ReferenceTypes.SpeciesList, intHACode = 96})
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = "idfsAnimalAge",
+        ColumnName = "idfsAnimalAge",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.AnimalAgeColumnHeading),
+        ColumnName = "strAnimalType",
+        ColumnType = ColumnType.DropDown,
+        DisplayDropDownInModalOnly = true,
+        Visible = true,
+        Orderable = true,
+        ColumnAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = "19000005", intHACode = 96})
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnTitleHeader = string.Empty,
+        ColumnName = "name",
+        ColumnType = ColumnType.Delete,
+        Visible = Model.UserPermissions.Delete
+    });
+}
+
+<!-- Modal -->
+<div class="modal fade" id="duplicatesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsg"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="EditDuplicateRecord('AddSpeciesAnimalAge');">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="duplicatesModalAddSpeciesType" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsgAddSpeciesType"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="EditDuplicateRecord('bAddSpeciesType');">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="duplicatesModalAddAnimalAge" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsgAddAnimalAge"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="EditDuplicateRecord('AddAnimalAge');">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_ConfigurationPartial"/>
+<partial name="_InformationalModalPartial" for="InformationMessage"/>
+
+@section Scripts
+{
+    <script>
+        ///Method called after execution of Save Method Returns Data back from the controller
+        function CheckSuccess(response) {
+            if (response.value.returnMessage == "SUCCESS") {
+                $("#bAddSpeciesTypeSuccessModal").modal("show");
+                updateNotificationEnvelopeCount();
+            } else if (response.value.returnMessage == "DOES EXIST") {
+                $("#duplicatesModalAddSpeciesType").modal("show");
+                $("#dupemsgAddSpeciesType").html(response.value.duplicationMessage);
+            }
+        };
+
+        function CheckSuccessMain(data) {
+            var stringifiedData = JSON.stringify(data);
+            var parsedData = JSON.parse(stringifiedData);
+            if (parsedData.returnMessage == "SUCCESS") {
+                $("#AddAnimalAgeSuccessModal").modal("show");
+                updateNotificationEnvelopeCount();
+            } else if (parsedData.returnMessage == "DOES EXIST") {
+                $("#duplicatesModal").modal("show");
+                $("#dupemsg").html(parsedData.strClientPageMessage);
+            }
+        };
+
+        function CheckSuccessAddAnimalAge(data) {
+            var stringifiedData = JSON.stringify(data);
+            var parsedData = JSON.parse(stringifiedData);
+            if (parsedData.returnMessage == "SUCCESS") {
+                $("#AddAnimalAgeSuccessModal").modal("show");
+                updateNotificationEnvelopeCount();
+            } else if (parsedData.returnMessage == "DOES EXIST") {
+                $("#duplicatesModalAddAnimalAge").modal("show");
+                $("#dupemsgAddAnimalAge").html(parsedData.strClientPageMessage);
+            }
+        };
+
+        function CheckDeleteSuccess(data) {
+            var stringifiedData = JSON.stringify(data);
+            var parsedData = JSON.parse(stringifiedData);
+            if (parsedData.returnMessage === "SUCCESS") {
+                updateNotificationEnvelopeCount();
+                showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+            }
+        };
+
+        function EditDuplicateRecord(modelType) {
+            switch (modelType) {
+            case "bAddSpeciesType":
+                $("#bAddSpeciesTypeSuccessModal").modal("hide");
+                $("#duplicatesModalAddSpeciesType").modal("hide");
+                $("#bAddSpeciesType").modal("show");
+                break;
+            case "AddAnimalAge":
+                $("#AddAnimalAgeSuccessModal").modal("hide");
+                $("#duplicatesModalAddAnimalAge").modal("hide");
+                $("#AddAnimalAge").modal("show");
+                break;
+            default:
+                $("#AddAnimalAgeSuccessModal").modal("hide");
+                $("#duplicatesModal").modal("hide");
+                $("#AddSpeciesAnimalAge").modal("show");
+                break;
+            }
+        };
+
+        function PrepareNewRecord() {
+            $("#AddAnimalAgeSuccessModal").modal("hide");
+            $("#duplicatesModal").modal("hide");
+            $("#PageLevelAddButton").modal("show");
+        };
+
+        function PrepareNewRecordAddAnimalAge() {
+            $("#AddAnimalAgeSuccessModal").modal("hide");
+            $("#duplicatesModalAddAnimalAge").modal("hide");
+            $("#AddAnimalAge").modal("show");
+        };
+
+        function ChangeAddButtonActiveStatus(data) {
+            switch (parseInt(data.id)) {
+            case 19000140:
+                $("#PageLevelAddButton").prop('disabled', true);
+                break;
+            default:
+                $("#PageLevelAddButton").prop('disabled', false);
+            }
+        };
+
+        // When Drop Down Items Are Cleared
+        function SelectOnClear(data) {
+            $("#PageLevelAddButton").prop('disabled', true);
+        };
+
+        $(document).on("show.bs.modal",
+            ".modal",
+            function(event) {
+                var zIndex = 1040 + (10 * $(".modal:visible").length);
+                $(this).css("z-index", zIndex);
+                setTimeout(function() {
+                        $(".modal-backdrop").not(".modal-stack").css("z-index", zIndex - 1).addClass("modal-stack");
+                    },
+                    0);
+            });
+    </script>
+}

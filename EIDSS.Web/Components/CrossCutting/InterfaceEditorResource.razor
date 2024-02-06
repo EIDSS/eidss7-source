@@ -1,0 +1,46 @@
+﻿@inherits EIDSS.Web.Components.CrossCutting.InterfaceEditorResourceBase
+
+@if (IsRow)
+{
+    if (!IsHidden())
+    {
+        <div class="form-row">
+            <div class="form-group @CssClass">
+                @if (IsRequired())
+                {
+                    <i class="fas fa-asterisk text-danger">&nbsp;</i>
+                }
+                @if(!IsLabelHidden)
+                {
+                    <label for="@For">@Localizer.GetString(InterfaceEditorKey)</label>
+                }                
+                @ChildContent
+                @if (IsRequired())
+                {
+                    <RadzenRequiredValidator Component="@For" Popup="false" Style="position: absolute" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)" />
+                }
+            </div>
+        </div>
+    }
+}
+else
+{
+    if (!IsHidden())
+    {
+        <div class="form-group @CssClass">
+            @if (IsRequired())
+            {
+                <i class="fas fa-asterisk text-danger">&nbsp;</i>
+            }
+            @if (!IsLabelHidden)
+            {
+                <label for="@For">@Localizer.GetString(InterfaceEditorKey)</label>
+            }
+            @ChildContent
+            @if (IsRequired())
+            {
+                <RadzenRequiredValidator Component="@For" Popup="false" Style="position: relative" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)" />
+            }
+        </div>
+    }
+}

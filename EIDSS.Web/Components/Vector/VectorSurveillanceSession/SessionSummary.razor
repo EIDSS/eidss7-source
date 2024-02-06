@@ -1,0 +1,77 @@
+﻿@inherits EIDSS.Web.Components.Vector.VectorSurveillanceSession.SessionSummaryBase
+@using EIDSS.Localization.Constants
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Services
+@using EIDSS.Web.ViewModels.Vector
+
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-md-11">
+                <h4>@Localizer.GetString(HeadingResourceKeyConstants.VectorSurveillanceSessionSessionSummaryHeading)</h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editSurveillanceSessionSummarySectionButton" href="#vectorWizard-h-0" class="edit-section">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body" id="summaryDetails">
+        <RadzenTemplateForm @ref="Form" TItem="VectorSessionStateContainer" Data="@VectorSessionStateContainer">
+            <div class="form-row">
+                <InterfaceEditorResource For="sessionID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionSessionIDFieldLabel" IsRow="false" CssClass="col-md-4">
+                    <RadzenTextBox class="form-control" id="sessionID" Name="sessionId" @bind-Value="VectorSessionStateContainer.SessionID" ReadOnly="true"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource For="fieldSessionID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionFieldSessionIDFieldLabel" IsRow="false" CssClass="col-md-4">
+                    <RadzenTextBox class="form-control" id="fieldSessionID" Name="fieldSessionID" @bind-Value="VectorSessionStateContainer.FieldSessionID" ReadOnly="ReadOnly"></RadzenTextBox>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource For="outbreakID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionOutbreakIDFieldLabel" IsRow="false" CssClass="col-md-4">
+                    <RadzenTextBox class="form-control" id="outbreakID" Name="outbreakId" @bind-Value="VectorSessionStateContainer.OutbreakID" ReadOnly="true"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource For="sessionStatus" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionStatusFieldLabel" IsRow="false" CssClass="col-md-4" IsRequiredByDefaultBusinessRule="true">
+                    <RadzenDropDown id="sessionStatus" Name="sessionStatus" AllowClear="false" TValue="long?" Data="@SessionStatuses" Change="@VectorStatusChange" LoadData="@LoadStatusDropDown" 
+                                    ValueProperty="IdfsBaseReference" TextProperty="Name" Disabled="VectorSessionStateContainer.ReportDisabledIndicator"
+                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    @bind-Value="@VectorSessionStateContainer.StatusID" class="form-control"></RadzenDropDown>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource For="startDate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionStartDateFieldLabel" IsRow="false" CssClass="col-md-4" IsRequiredByDefaultBusinessRule="true">
+                    <RadzenDatePicker id="startDate" Name="startDate" AllowClear="false" AllowInput="true" class="form-control-range" TValue="DateTime?"
+                                      @bind-Value="@VectorSessionStateContainer.StartDate" DateFormat="d" Disabled="VectorSessionStateContainer.ReportDisabledIndicator" />
+                    <RadzenCompareValidator Value="@DateTime.Now" Component="startDate" Popup="false" Operator="CompareOperator.LessThanEqual"
+                                            Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)"
+                                            Style="display: block" />
+                    </InterfaceEditorResource>
+                <InterfaceEditorResource For="closeDate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionCloseDateFieldLabel" IsRow="false" CssClass="col-md-4">
+                    <RadzenDatePicker id="closeDate" Name="closeDate" AllowClear="false" AllowInput="false" class="form-control-range" TValue="DateTime?"
+                                      @bind-Value="@VectorSessionStateContainer.CloseDate" DateFormat="d" Disabled="VectorSessionStateContainer.ReportDisabledIndicator" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource For="description" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionDescriptionFieldLabel" IsRow="false" CssClass="col-md-12">
+                    <RadzenTextArea id="description" Name="description" class="form-control" @bind-Value="VectorSessionStateContainer.Description" ReadOnly="ReadOnly"></RadzenTextArea>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource For="vectorTypes" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionVectorTypesFieldLabel" IsRow="false" CssClass="col-md-6">
+                    <RadzenTextBox id="vectorTypes" Name="vectorTypes" class="form-control" Value="@VectorSessionStateContainer.VectorTypeString" ReadOnly="true"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource For="diseases" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionDiseasesFieldLabel" IsRow="false" CssClass="col-md-6">
+                    <RadzenTextBox id="diseases" Name="diseases" class="form-control" Value="@VectorSessionStateContainer.DiseaseString" ReadOnly="true"></RadzenTextBox>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource For="collectionEffort" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionCollectionEffortFieldLabel" IsRow="false" CssClass="col-md-6">
+                    <RadzenNumeric id="collectionEffort" Name="collectionEffort" class="form-control" TItem="int?" TValue="int?" @bind-Value="@VectorSessionStateContainer.CollectionEffort" 
+                                   Disabled="VectorSessionStateContainer.ReportDisabledIndicator" />
+                    <RadzenRegexValidator Component="collectionEffort" Text="Negative numbers are not allowed" Pattern="^(\s*|\d+)$" />
+                </InterfaceEditorResource>
+            </div>
+        </RadzenTemplateForm>
+    </div>
+</div>

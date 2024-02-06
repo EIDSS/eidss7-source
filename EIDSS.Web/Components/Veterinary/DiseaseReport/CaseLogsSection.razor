@@ -1,0 +1,99 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Veterinary
+
+@inherits CaseLogsSectionBase
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-9">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryDiseaseReportCaseLogHeading)</h4>
+        </div>
+        <div class="col-3 text-right">
+            @if (Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0)
+            {
+                <button class="btn btn-link add-section" id="addCaseLog" @onclick="OnAddCaseLogClick" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+            }
+            else if (!Model.WritePermissionIndicator || Model.ReportDisabledIndicator)
+            {
+                <button class="btn btn-link add-section disabled" disabled id="addCaseLog" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-link add-section" id="addCaseLog" @onclick="OnAddCaseLogClick" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+            }
+            
+        @if (Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0 || (Model.WritePermissionIndicator && Model.DiseaseReportID > 0 && Model.ReportStatusTypeID == (long) DiseaseReportStatusTypeEnum.InProcess && Model.ReportCurrentlyClosedIndicator == false))
+        {
+            if (Model.ReportCategoryTypeID == (long) CaseTypeEnum.Avian)
+            {
+                <a class="edit-section" href="#caseDiseaseReportWizard-h-9" id="editCaseLogsSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            }
+            else
+            {
+                <a class="edit-section" href="#diseaseReportWizard-h-11" id="editCaseLogsSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            }
+        }
+        </div>
+    </div>
+<div class="card">
+    <div class="card-header">
+        <h3>@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryDiseaseReportCaseLogHeading)</h3>
+    </div>
+    <div id="divCaseLogsSection" class="card-body">
+        <div class="form-row">
+            <div class="form-group col-12">
+                <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" Count="Count" Data="Model.CaseLogs" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="@(args => LoadCaseLogData(args))" PageSizeOptions="pageSizeOptions" PageSizeText="@Localizer.GetString(FieldLabelResourceKeyConstants.CommonLabelsItemsPerPageFieldLabel)" @ref="CaseLogsGrid" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="true" TItem="CaseLogGetListViewModel">
+                    <Columns>
+                        <RadzenDataGridColumn Property="ActionRequired" TItem="CaseLogGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportCaseLogActionRequiredColumnHeading)"/>
+                        <RadzenDataGridColumn FormatString="{0:d}" Property="LogDate" TItem="CaseLogGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportCaseLogDateColumnHeading)" Width="125px"/>
+                        <RadzenDataGridColumn Property="EnteredByPersonName" TItem="CaseLogGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportCaseLogEnteredByColumnHeading)" Width="200px"/>
+                        <RadzenDataGridColumn Property="LogStatusTypeName" TItem="CaseLogGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportCaseLogStatusColumnHeading)" Width="150px"/>
+                        <RadzenDataGridColumn Frozen="true" Property="DiseaseReportLogID" Reorderable="false" Sortable="false" TextAlign="TextAlign.Center" TItem="CaseLogGetListViewModel" Title="" Width="40px">
+                            <Template Context="item">
+                                @if (Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)
+                                {
+                                    <button class="btn btn-link disabled" disabled>
+                                        <span class="fas fa-edit disabled"></span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-link" @onclick="_ => OnEditCaseLogClick(item)">
+                                        <span class="fas fa-edit"></span>
+                                    </button>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn Frozen="true" Property="DiseaseReportLogID" Reorderable="false" Sortable="false" TextAlign="TextAlign.Center" TItem="CaseLogGetListViewModel" Title="" Width="40px">
+                            <Template Context="item">
+                                @if (Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)
+                                {
+                                    <button class="btn btn-link disabled" disabled>
+                                        <span class="fas fa-trash disabled"></span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-link" @onclick="_ => OnDeleteCaseLogClick(item)">
+                                        <span class="fas fa-trash"></span>
+                                    </button>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+</div>
+</div>

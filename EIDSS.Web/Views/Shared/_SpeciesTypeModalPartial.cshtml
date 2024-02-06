@@ -1,0 +1,81 @@
+﻿@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+
+@{
+    EIDSSModalConfiguration eIDSSModalConfigurationSpecies = new EIDSSModalConfiguration();
+    eIDSSModalConfigurationSpecies.ModalId = "bAddSpeciesType";
+    eIDSSModalConfigurationSpecies.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    eIDSSModalConfigurationSpecies.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    eIDSSModalConfigurationSpecies.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    eIDSSModalConfigurationSpecies.ControlLabels.ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.SpeciesTypeDetailsModalHeading);
+    eIDSSModalConfigurationSpecies.PostAjaxDataUrl = @Url.Action("AddEditSpeciesType", "SpeciesTypePage", new { Area = "Administration" });
+    eIDSSModalConfigurationSpecies.TargetGridControlID = "gSpeciesTypes";
+
+    //success modal configs
+    eIDSSModalConfigurationSpecies.ControlLabels.SuccessModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    eIDSSModalConfigurationSpecies.ControlLabels.SuccessMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage);
+    eIDSSModalConfigurationSpecies.ControlLabels.OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton);
+    eIDSSModalConfigurationSpecies.SaveCompleteMethod = "CheckSuccess";
+
+    eIDSSModalConfigurationSpecies.ControlNames.Add(new EIDSSControlNames()
+    {
+        ControlName = "strDefault",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "EnglishValueRequired"
+    });
+    eIDSSModalConfigurationSpecies.ControlNames.Add(new EIDSSControlNames()
+    {
+        ControlName = "strName",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "NationalValueRequired"
+    });
+    eIDSSModalConfigurationSpecies.ControlNames.Add(new EIDSSControlNames()
+    {
+        ControlName = "strCode",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.SpeciesCodeFieldLabel),
+        Visible = true
+    });
+    eIDSSModalConfigurationSpecies.ControlNames.Add(new EIDSSControlNames()
+    {
+        ControlName = "strHACodeNames",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.AccessoryCodeFieldLabel),
+        ClassName = "ddAddAccessoryCode",
+        ControlType = ControlType.DropDown,
+        AllowMultipleDropDownItemSelection = true,
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+        },
+        ControlAjaxDataUrl = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { area = "CrossCutting", referenceTypeID = (long) ReferenceTypes.AccessoryCode, intHACode = 96 })
+    });
+    eIDSSModalConfigurationSpecies.ControlNames.Add(new EIDSSControlNames() {
+        ControlName = "intOrder",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        Visible = true,
+        ControlType = ControlType.Numeric,
+        DefaultContent = "0",
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidationRule = "[0,2147483647]",
+            RangeValidationMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsInvalidValidRangeIsMessage)
+
+        },
+        ClassName = "IntOrderRange"
+    });
+
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfigurationSpecies);
+}

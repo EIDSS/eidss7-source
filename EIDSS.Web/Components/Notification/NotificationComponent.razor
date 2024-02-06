@@ -1,0 +1,53 @@
+﻿@using EIDSS.Domain.ViewModels.Administration
+@using Microsoft.AspNetCore.Components
+@inherits NotificationComponentBase
+
+<div class="card">
+    <div class="card-body">
+        <RadzenDataGrid AllowColumnReorder="true" AllowPaging="true" AllowSorting="true" Count="@Count" Data="@SearchResults" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" ExpandMode="DataGridExpandMode.Single" id="searchResults" IsLoading="@IsLoading" LoadData="@(args => LoadData(args))" PageSizeOptions="@pageSizeOptions" @ref="Grid" RowRender="@RowRender" Style="height: 50vh; min-height: 50vh; overflow-y: scroll;" TItem="EventGetListViewModel">
+            <Columns>
+                <RadzenDataGridColumn Property="EventTypeName" Sortable="true" TItem="EventGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SiteAlertMessengerModalMessageTypeColumnHeading)" Width="200px">
+                    <Template Context="data">
+                        <p style="white-space: pre-wrap">@data.EventTypeName</p>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn FormatString="{0:d}" Property="EventDate" Sortable="true" TItem="EventGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SiteAlertMessengerModalDateColumnHeading)" Width="100px" />
+                <RadzenDataGridColumn Property="EIDSSSiteId" Sortable="true" TItem="EventGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SiteAlertMessengerModalSiteIDColumnHeading)" Width="100px" />
+                <RadzenDataGridColumn Property="AdministrativeLevel2Name" Sortable="true" TItem="EventGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SiteAlertMessengerModalAdministrativeLevel1ColumnHeading)" Width="100px" />
+                <RadzenDataGridColumn Property="AdministrativeLevel3Name" Sortable="true" TItem="EventGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SiteAlertMessengerModalAdministrativeLevel2ColumnHeading)" Width="100px" />
+                <RadzenDataGridColumn Property="DiseaseName" Sortable="true" TItem="EventGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SiteAlertMessengerModalDiseaseColumnHeading)" Width="100px" />
+                <RadzenDataGridColumn Filterable="false" Sortable="false" TItem="EventGetListViewModel" Title="" Width="60px">
+                    <Template Context="data">
+                        @if (data.ProcessedIndicator == 0)
+                        {
+                            <button class="btn btn-sm" @onclick="@(() => OnViewAlertButtonClick(data))" title="@Localizer.GetString(TooltipResourceKeyConstants.SiteAlertMessengerModalClickToMarkTheAlertAsReadToolTip)" type="button">
+                                <i class="fas fa-envelope-open-text fa-lg"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-sm disabled" disabled title="@Localizer.GetString(TooltipResourceKeyConstants.SiteAlertMessengerModalClickToMarkTheAlertAsReadToolTip)" type="button">
+                                <i class="fas fa-envelope-open-text fa-lg"></i>
+                            </button>
+                        }
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Filterable="false" Sortable="false" TItem="EventGetListViewModel" Title="" Width="60px">
+                    <Template Context="data">
+                        <button @onclick="@(() => OnDeleteAlertButtonClick(data))" class="btn btn-sm" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToDeleteToolTip)" type="button">
+                            <i class="fas fa-trash fa-lg"></i>
+                        </button>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+    <div class="card-footer">
+        <div class="row">
+            <div class="col-md-12">
+                <button class="btn btn-outline-primary" id="clearButton" @onclick="@(OnClearAlertsButtonClick)" title="@Localizer.GetString(TooltipResourceKeyConstants.SiteAlertMessengerModalClickToDeleteAllAlertsToolTip)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)</button>
+                <button class="btn btn-primary" id="closeButton" @onclick="@(OnCloseDialogWindowButtonClick)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CloseButton)</button>
+            </div>
+        </div>
+    </div>
+</div>

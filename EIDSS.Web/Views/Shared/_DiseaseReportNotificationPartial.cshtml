@@ -1,0 +1,688 @@
+﻿@model EIDSS.Web.ViewModels.Human.DiseaseReportNotificationPageViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@using System.Text.Encodings.Web;
+
+@{
+    var defaultReference = new Select2DataItem();
+
+    if (Model.idfDisease != 0 && Model.strDisease != null && Model.strDisease != ""){
+        //note: not sure why this encode was put here but it's causing some values to be garbled (devops defects 5445 & 5471) so I'm removing the encode until further investigation... LT 1/11/23
+        //defaultReference = new Select2DataItem() { id = Model.idfDisease.ToString(), text = HtmlEncoder.Default.Encode(Model.strDisease) };
+        defaultReference = new Select2DataItem() { id = Model.idfDisease.ToString(), text = Model.strDisease };
+    }
+        
+    Model.diseaseDD.DropDownId = "diseaseDD";
+    Model.diseaseDD.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.diseaseDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSummaryDiseaseFieldLabel);
+    Model.diseaseDD.Endpoint = Url.Action("GetFilteredDiseaseForLookup", "CrossCutting", new { Area = "CrossCutting", accessoryCode = EIDSSConstants.HACodeList.HumanHACode, usingTypeID = EIDSSConstants.UsingType.StandardCaseType });
+    Model.diseaseDD.CustomJsOnChangeFunction = "ShowDiseaseInSummary";
+    Model.diseaseDD.CustomJsOnLoadFunction = "CheckDiseaseForSyndromic";
+    Model.diseaseDD.isVisible = true;
+    Model.diseaseDD.defaultSelect2Selection = defaultReference;
+
+    defaultReference = new Select2DataItem();
+    if (Model.idfStatusOfPatient != 0 && Model.strStatusOfPatient != null && Model.strStatusOfPatient != "")
+        defaultReference = new Select2DataItem() { id = Model.idfStatusOfPatient.ToString(), text = Model.strStatusOfPatient };
+
+    Model.statusOfPatientAtNotificationDD.DropDownId = "statusOfPatientAtNotificationDD";
+    Model.statusOfPatientAtNotificationDD.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.statusOfPatientAtNotificationDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationStatusOfPatientAtTimeOfNotificationFieldLabel);
+    Model.statusOfPatientAtNotificationDD.Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000035 });
+    Model.statusOfPatientAtNotificationDD.isVisible = true;
+    Model.statusOfPatientAtNotificationDD.defaultSelect2Selection = defaultReference;
+
+    defaultReference = new Select2DataItem();
+    if (Model.idfNotificationSentByFacility != 0 && Model.strNotificationSentByFacility != null && Model.strNotificationSentByFacility != ""){
+        //note: not sure why this encode was put here but it's causing some values to be garbled (devops defects 5445 & 5471) so I'm removing the encode until further investigation... LT 1/11/23
+        //defaultReference = new Select2DataItem() { id = Model.idfNotificationSentByFacility.ToString(), text = HtmlEncoder.Default.Encode(Model.strNotificationSentByFacility) };
+        defaultReference = new Select2DataItem() { id = Model.idfNotificationSentByFacility.ToString(), text = Model.strNotificationSentByFacility };
+    }
+        
+    Model.notificationSentByFacilityDD.DropDownId = "notificationSentByFacilityDD";
+    Model.notificationSentByFacilityDD.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.notificationSentByFacilityDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationSentbyFacilityFieldLabel);
+    Model.notificationSentByFacilityDD.Endpoint = @Url.Action("GetOrganizationsForLookup", "CrossCutting", new { Area = "CrossCutting", organizationSiteAssociation = (int)OrganizationSiteAssociations.OrganizationsWithOrWithoutSite, accessoryCode = EIDSSConstants.HACodeList.HumanHACode });
+    Model.notificationSentByFacilityDD.isVisible = true;
+    Model.notificationSentByFacilityDD.CustomJsOnChangeFunction = "EnableNotificationSentByName";
+    Model.notificationSentByFacilityDD.CustomJsOnClearFunction = "DisableNotificationSentByName";
+    Model.notificationSentByFacilityDD.CustomJsOnUnselectFunction = "DisableNotificationSentByName";
+    Model.notificationSentByFacilityDD.defaultSelect2Selection = defaultReference;
+
+    defaultReference = new Select2DataItem();
+    if (Model.idfNotificationSentByName != 0 && Model.strNotificationSentByName != null && Model.strNotificationSentByName != ""){
+        //note: not sure why this encode was put here but it's causing some values to be garbled (devops defects 5445 & 5471) so I'm removing the encode until further investigation... LT 1/11/23
+        //defaultReference = new Select2DataItem() { id = Model.idfNotificationSentByName.ToString(), text = HtmlEncoder.Default.Encode(Model.strNotificationSentByName) };
+        defaultReference = new Select2DataItem() { id = Model.idfNotificationSentByName.ToString(), text = Model.strNotificationSentByName };
+    }
+        
+    Model.notificationSentByNameDD.DropDownId = "notificationSentByNameDD";
+    Model.notificationSentByNameDD.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.notificationSentByNameDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationSentbyNameFieldLabel);
+    Model.notificationSentByNameDD.Endpoint = Url.Action("GetPersonListForOrg", "HumanDiseaseReport", new { Area = "Human" });
+    Model.notificationSentByNameDD.isVisible = true;
+    Model.notificationSentByNameDD.FilteredId = "notificationSentByFacilityDD";
+
+    @if (Model.PermissionsAccessToNotification.Create && !Model.IsReportClosed)
+    {
+        Model.notificationSentByNameDD.IncludeAddButton = true;
+        Model.notificationSentByNameDD.AddButtonId = "AddNotificationSentByName";
+        Model.notificationSentByNameDD.AddModalId = "NonUserEmployeeSave";
+    }
+
+    Model.notificationSentByNameDD.defaultSelect2Selection = defaultReference;
+
+    defaultReference = new Select2DataItem();
+    if (Model.idfNotificationSentByFacility != 0 && Model.strNotificationSentByFacility != null && Model.strNotificationSentByFacility != ""){
+        //note: not sure why this encode was put here but it's causing some values to be garbled (devops defects 5445 & 5471) so I'm removing the encode until further investigation... LT 1/11/23
+        //defaultReference = new Select2DataItem() { id = Model.idfNotificationSentByFacility.ToString(), text = HtmlEncoder.Default.Encode(Model.strNotificationSentByFacility) };
+        defaultReference = new Select2DataItem() { id = Model.idfNotificationSentByFacility.ToString(), text = Model.strNotificationSentByFacility };
+    }
+	    
+    Model.notificationSentByFacilityDDValidated.DropDownId = "notificationSentByFacilityDDValidated";
+    Model.notificationSentByFacilityDDValidated.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.notificationSentByFacilityDDValidated.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationSentbyFacilityFieldLabel);
+    Model.notificationSentByFacilityDDValidated.Endpoint = @Url.Action("GetOrganizationsForLookup", "CrossCutting", new { Area = "CrossCutting", organizationSiteAssociation = (int)OrganizationSiteAssociations.OrganizationsWithOrWithoutSite, accessoryCode = EIDSSConstants.HACodeList.HumanHACode });
+    Model.notificationSentByFacilityDDValidated.isVisible = true;
+    Model.notificationSentByFacilityDDValidated.CustomJsOnChangeFunction = "EnableNotificationSentByName";
+    Model.notificationSentByFacilityDDValidated.CustomJsOnClearFunction = "DisableNotificationSentByName";
+    Model.notificationSentByFacilityDDValidated.CustomJsOnUnselectFunction = "DisableNotificationSentByName";
+    Model.notificationSentByFacilityDDValidated.defaultSelect2Selection = defaultReference;
+
+    defaultReference = new Select2DataItem();
+    if (Model.idfNotificationSentByName != 0 && Model.strNotificationSentByName != null && Model.strNotificationSentByName != ""){
+        //note: not sure why this encode was put here but it's causing some values to be garbled (devops defects 5445 & 5471) so I'm removing the encode until further investigation... LT 1/11/23
+        //defaultReference = new Select2DataItem() { id = Model.idfNotificationSentByName.ToString(), text = HtmlEncoder.Default.Encode(Model.strNotificationSentByName) };
+        defaultReference = new Select2DataItem() { id = Model.idfNotificationSentByName.ToString(), text = Model.strNotificationSentByName };
+    }
+	    
+    Model.notificationSentByNameDDValidated.DropDownId = "notificationSentByNameDDValidated";
+    Model.notificationSentByNameDDValidated.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.notificationSentByNameDDValidated.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationSentbyNameFieldLabel);
+    Model.notificationSentByNameDDValidated.Endpoint = Url.Action("GetPersonListForOrg", "HumanDiseaseReport", new { Area = "Human" });
+    Model.notificationSentByNameDDValidated.isVisible = true;
+    Model.notificationSentByNameDDValidated.FilteredId = "notificationSentByFacilityDDValidated";
+
+    @if (Model.PermissionsAccessToNotification.Create && !Model.IsReportClosed)
+    {
+	    Model.notificationSentByNameDDValidated.IncludeAddButton = true;
+	    Model.notificationSentByNameDDValidated.AddButtonId = "AddNotificationSentByName";
+	    Model.notificationSentByNameDDValidated.AddModalId = "NonUserEmployeeSave";
+    }
+
+    Model.notificationSentByNameDDValidated.defaultSelect2Selection = defaultReference;
+
+    defaultReference = new Select2DataItem();
+    if (Model.idfNotificationReceivedByFacility != 0 && Model.strNotificationReceivedByFacility != null && Model.strNotificationReceivedByFacility != ""){
+        //note: not sure why this encode was put here but it's causing some values to be garbled (devops defects 5445 & 5471) so I'm removing the encode until further investigation... LT 1/11/23
+        //defaultReference = new Select2DataItem() { id = Model.idfNotificationReceivedByFacility.ToString(), text = HtmlEncoder.Default.Encode(Model.strNotificationReceivedByFacility) };
+        defaultReference = new Select2DataItem() { id = Model.idfNotificationReceivedByFacility.ToString(), text = Model.strNotificationReceivedByFacility };
+    }
+        
+    Model.notificationReceivedByFacilityDD.DropDownId = "notificationReceivedByFacilityDD";
+    Model.notificationReceivedByFacilityDD.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.notificationReceivedByFacilityDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationReceivedbyFacilityFieldLabel);
+    Model.notificationReceivedByFacilityDD.Endpoint = @Url.Action("GetOrganizationsForLookup", "CrossCutting", new { Area = "CrossCutting", organizationSiteAssociation = (int)OrganizationSiteAssociations.OrganizationsWithOrWithoutSite, accessoryCode = EIDSSConstants.HACodeList.HumanHACode });
+    //Model.notificationReceivedByFacilityDD.Endpoint = @Url.Action("GetOrganizationsAdvancedListByAccesssoryCode", "CrossCutting", new { Area = "CrossCutting", accessoryCode = EIDSSConstants.HACodeList.HumanHACode });
+    Model.notificationReceivedByFacilityDD.isVisible = true;
+    Model.notificationReceivedByFacilityDD.CustomJsOnChangeFunction = "EnableNotificationReceivedByName";
+    Model.notificationReceivedByFacilityDD.CustomJsOnClearFunction = "DisableNotificationReceivedByName";
+    Model.notificationReceivedByFacilityDD.CustomJsOnUnselectFunction = "DisableNotificationReceivedByName";
+    Model.notificationReceivedByFacilityDD.defaultSelect2Selection = defaultReference;
+
+    defaultReference = new Select2DataItem();
+    if (Model.idfNotificationReceivedByName != 0 && Model.strNotificationReceivedByName != null && Model.strNotificationReceivedByName != ""){
+        //note: not sure why this encode was put here but it's causing some values to be garbled (devops defects 5445 & 5471) so I'm removing the encode until further investigation... LT 1/11/23
+        //defaultReference = new Select2DataItem() { id = Model.idfNotificationReceivedByName.ToString(), text = HtmlEncoder.Default.Encode(Model.strNotificationReceivedByName) };
+        defaultReference = new Select2DataItem() { id = Model.idfNotificationReceivedByName.ToString(), text = Model.strNotificationReceivedByName };
+    }
+        
+    Model.notificationReceivedByNameDD.DropDownId = "notificationReceivedByNameDD";
+    Model.notificationReceivedByNameDD.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.notificationReceivedByNameDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationReceivedbyNameFieldLabel);
+    Model.notificationReceivedByNameDD.Endpoint = @Url.Action("GetPersonListForOrg", "HumanDiseaseReport", new { Area = "Human" });
+    Model.notificationReceivedByNameDD.FilteredId = "notificationReceivedByFacilityDD";
+
+    @if (Model.PermissionsAccessToNotification.Create && !Model.IsReportClosed)
+    {
+        Model.notificationReceivedByNameDD.IncludeAddButton = true;
+        Model.notificationReceivedByNameDD.AddButtonId = "AddNotificationReceivedByNameDD";
+        Model.notificationReceivedByNameDD.AddModalId = "NonUserEmployeeSave";
+    }
+
+    Model.notificationReceivedByNameDD.isVisible = true;
+    Model.notificationReceivedByNameDD.defaultSelect2Selection = defaultReference;
+
+    defaultReference = new Select2DataItem();
+    if (Model.idfCurrentLocationOfPatient != 0 && Model.strCurrentLocationOfPatient != null && Model.strCurrentLocationOfPatient != "") {
+        //note: not sure why this encode was put here but it's causing some values to be garbled (devops defects 5445 & 5471) so I'm removing the encode until further investigation... LT 1/11/23
+        //defaultReference = new Select2DataItem() { id = Model.idfCurrentLocationOfPatient.ToString(), text = HtmlEncoder.Default.Encode(Model.strCurrentLocationOfPatient) };
+        defaultReference = new Select2DataItem() { id = Model.idfCurrentLocationOfPatient.ToString(), text = Model.strCurrentLocationOfPatient };
+    }        
+
+    Model.currentLocationOfPatientDD.DropDownId = "currentLocationOfPatientDD";
+    Model.currentLocationOfPatientDD.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.currentLocationOfPatientDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationCurrentLocationOfPatientFieldLabel);
+    Model.currentLocationOfPatientDD.Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000041 });
+    Model.currentLocationOfPatientDD.isVisible = true;
+    Model.currentLocationOfPatientDD.CustomJsOnChangeFunction = "ShowHospitalName";
+    Model.currentLocationOfPatientDD.defaultSelect2Selection = defaultReference;
+
+    defaultReference = new Select2DataItem();
+    if (Model.idfHospitalName != 0 && Model.strHospitalName != null && Model.strHospitalName != ""){
+        //note: not sure why this encode was put here but it's causing some values to be garbled (devops defects 5445 & 5471) so I'm removing the encode until further investigation... LT 1/11/23
+        //defaultReference = new Select2DataItem() { id = Model.idfHospitalName.ToString(), text = HtmlEncoder.Default.Encode(Model.strHospitalName) };
+        defaultReference = new Select2DataItem() { id = Model.idfHospitalName.ToString(), text = Model.strHospitalName };
+    }
+        
+    Model.hospitalNameDD.DropDownId = "hospitalNameDD";
+    Model.hospitalNameDD.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.hospitalNameDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsHospitalNameFieldLabel);
+    Model.hospitalNameDD.Endpoint = @Url.Action("GetOrganizationsForLookup", "CrossCutting", new { Area = "CrossCutting", organizationSiteAssociation = (int)OrganizationSiteAssociations.OrganizationsWithOrWithoutSite, organizationTypeID = (long)OrganizationTypes.Hospital });
+    Model.hospitalNameDD.isVisible = true;
+    Model.hospitalNameDD.defaultSelect2Selection = defaultReference;
+
+    <div id="DivAddNonUser">
+    </div>
+}
+
+<form id="NotificationsForm">
+    @functions{
+        string FormatNullableDate(DateTime? value) => value.HasValue ? value.Value.ToString("d") : "";
+    }
+    <div class="card">
+        <div class="card-header"><h4 heading-for="@HeadingResourceKeyConstants.HumanDiseaseReportNotificationHeading"></h4></div>
+        <div class="card-body">
+            @if (!Model.isOutbreakCase)
+            {
+                <div class="row">
+                    <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfCompletionOfPaperFormFieldLabel">
+                        <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfCompletionOfPaperFormFieldLabel"></i>
+                        <label asp-for="dateOfCompletion">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfCompletionOfPaperFormFieldLabel)</label>
+                        <eidss-calendar id="NotificationSection_dateOfCompletion" name="NotificationSection.dateOfCompletion" asp-for="dateOfCompletion" SearchFilter="true" 
+                            value="@FormatNullableDate(Model.dateOfCompletion)" disabled="@Model.IsReportClosed"></eidss-calendar>
+                        <span asp-validation-for="dateOfCompletion" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationLocalIdentifierFieldLabel">
+                        <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationLocalIdentifierFieldLabel"></i>
+                        <label asp-for="@Model.localIdentifier">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationLocalIdentifierFieldLabel)</label>
+                        <input asp-for="localIdentifier" class="form-control" disabled="@Model.IsReportClosed">
+                        <span asp-validation-for="localIdentifier" class="text-danger"></span>
+                    </div>
+                </div>
+            }
+            @if (!Model.isOutbreakCase)
+            {
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <i class="fas fa-asterisk text-danger"></i>
+                        <eidss-select2DropDown id="@Model.diseaseDD.DropDownId"
+                                               name="@Model.diseaseDD.DropDownId"
+                                               control-target-id="@Model.diseaseDD.ControltargetId"
+                                               target-type="@Model.diseaseDD.ControlTargetType"
+                                               target-ajax-url="@Model.diseaseDD.ControlTargetUrl"
+                                               selectct2-default-data="@Model.diseaseDD.defaultSelect2Selection"
+                                               end-point="@Model.diseaseDD.Endpoint"
+                                               label-name="@Model.diseaseDD.Label" 
+                                               is-visible="@Model.diseaseDD.isVisible"
+                                               custom-js-on-change-function="@Model.diseaseDD.CustomJsOnChangeFunction"
+                                               custom-js-on-load-function="@Model.diseaseDD.CustomJsOnLoadFunction"
+                                               is-disabled="@Model.isEdit"
+                                               class-name="form-control"
+                                               asp-for="@Model.diseaseDD">
+                        </eidss-select2DropDown>
+                        <span asp-validation-for="diseaseDD" class="text-danger"></span>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <input type="hidden" id="diseaseDD" />
+            }
+            
+                <div class="row">
+                    @if (!Model.isOutbreakCase)
+                    {
+                        <div class="col-6" hidden-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfDiagnosisFieldLabel">
+                            <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfDiagnosisFieldLabel"></i>
+                            <label asp-for="@Model.dateOfDiagnosis">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfDiagnosisFieldLabel)</label>
+                        <eidss-calendar id="NotificationSection_dateOfDiagnosis" name="NotificationSection.dateOfDiagnosis" asp-for="@Model.dateOfDiagnosis" SearchFilter="true"
+                                        value="@FormatNullableDate(Model.dateOfDiagnosis)" disabled="@Model.IsReportClosed" dates-ids-to_validate="NotificationSection_dateOfNotification"></eidss-calendar>
+                            <span asp-validation-for="dateOfDiagnosis" class="text-danger"></span>
+                        </div>
+                    }
+                    <div class="form-group col-md-6">
+                        @if (Model.isOutbreakCase)
+                        {
+                            <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.CreateHumanCaseDateOfNotificationFieldLabel"></i>
+                            <label asp-for="@Model.datOutbreakNotification" field-label-for="@FieldLabelResourceKeyConstants.CreateHumanCaseDateOfNotificationFieldLabel"></label>
+                            <eidss-calendar id="NotificationSection_datOutbreakNotification" name="NotificationSection.datOutbreakNotification" asp-for="@Model.datOutbreakNotification" SearchFilter="true"
+                                    value="@FormatNullableDate(Model.datOutbreakNotification)"
+                                    disabled="@Model.IsReportClosed" dates-ids-to_validate="HumanCaseClinicalInformation_datFinalDiagnosisDate"></eidss-calendar>
+                            <span asp-validation-for="datOutbreakNotification" class="text-danger"></span>
+                        }
+                        else
+                        {
+                            <div class="col-6" hidden-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfNotificationFieldLabel">
+                                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfNotificationFieldLabel"></i>
+                                <label asp-for="@Model.dateOfNotification">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfNotificationFieldLabel)</label>
+                                <eidss-calendar id="NotificationSection_dateOfNotification" name="NotificationSection.dateOfNotification" asp-for="@Model.dateOfNotification" SearchFilter="true"
+                                            value="@FormatNullableDate(Model.dateOfNotification)" disabled="@Model.IsReportClosed" dates-ids-to_validate="NotificationSection_dateOfDiagnosis"></eidss-calendar>
+                                <span asp-validation-for="dateOfNotification" class="text-danger"></span>
+                            </div>
+                        }
+                </div>
+            </div>
+
+            @if (!Model.isOutbreakCase)
+            {
+                <div class="row">
+                    <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationStatusOfPatientAtTimeOfNotificationFieldLabel">
+                        <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationStatusOfPatientAtTimeOfNotificationFieldLabel"></i>
+                        <eidss-select2DropDown id="@Model.statusOfPatientAtNotificationDD.DropDownId"
+                            name="@Model.statusOfPatientAtNotificationDD.DropDownId"
+                            control-target-id="@Model.statusOfPatientAtNotificationDD.ControltargetId"
+                            target-type="@Model.statusOfPatientAtNotificationDD.ControlTargetType"
+                            target-ajax-url="@Model.statusOfPatientAtNotificationDD.ControlTargetUrl"
+                            selectct2-default-data="@Model.statusOfPatientAtNotificationDD.defaultSelect2Selection"
+                            end-point="@Model.statusOfPatientAtNotificationDD.Endpoint"
+                            label-name="@Model.statusOfPatientAtNotificationDD.Label"
+                            is-visible="@Model.statusOfPatientAtNotificationDD.isVisible"
+                            is-disabled="@Model.IsReportClosed"
+                            class-name="form-control"
+                            asp-for="@Model.statusOfPatientAtNotificationDD">
+                        </eidss-select2DropDown>
+                        <span asp-validation-for="statusOfPatientAtNotificationDD" class="text-danger"></span>
+                    </div>
+                </div>
+            }
+
+            <div class="row" id="dNotificationSent">
+                <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationSentbyFacilityFieldLabel">
+                    @if ((Model.blnInitialSSD != null && Model.blnInitialSSD.Value) || (Model.blnFinalSSD != null && Model.blnFinalSSD.Value))
+                    {
+                        <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationSentbyFacilityFieldLabel"></i>
+                    }
+                    <eidss-select2DropDown id="@Model.notificationSentByFacilityDD.DropDownId"
+                        name="@Model.notificationSentByFacilityDD.DropDownId"
+                        control-target-id="@Model.notificationSentByFacilityDD.ControltargetId"
+                        target-type="@Model.notificationSentByFacilityDD.ControlTargetType"
+                        target-ajax-url="@Model.notificationSentByFacilityDD.ControlTargetUrl"
+                        selectct2-default-data="@Model.notificationSentByFacilityDD.defaultSelect2Selection"
+                        end-point="@Model.notificationSentByFacilityDD.Endpoint"
+                        label-name="@Model.notificationSentByFacilityDD.Label"
+                        custom-js-on-change-function="@Model.notificationSentByFacilityDD.CustomJsOnChangeFunction"
+                        custom-js-on-clear-function="@Model.notificationSentByFacilityDD.CustomJsOnClearFunction"
+                        custom-js-on-unselect-function="@Model.notificationSentByFacilityDD.CustomJsOnUnselectFunction"
+                        is-visible="@Model.notificationSentByFacilityDD.isVisible"
+                        is-disabled="@Model.IsReportClosed"
+                        class-name="form-control"
+                        asp-for="@Model.notificationSentByFacilityDD">
+                    </eidss-select2DropDown>
+                    <span asp-validation-for="notificationSentByFacilityDD" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationSentbyNameFieldLabel">
+                    <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationSentbyNameFieldLabel"></i>
+                    <eidss-select2DropDown id="@Model.notificationSentByNameDD.DropDownId"
+                        name="@Model.notificationSentByNameDD.DropDownId"
+                        control-target-id="@Model.notificationSentByNameDD.ControltargetId"
+                        target-type="@Model.notificationSentByNameDD.ControlTargetType"
+                        target-ajax-url="@Model.notificationSentByNameDD.ControlTargetUrl"
+                        selectct2-default-data="@Model.notificationSentByNameDD.defaultSelect2Selection"
+                        end-point="@Model.notificationSentByNameDD.Endpoint"
+                        filter-id="@Model.notificationSentByNameDD.FilteredId"
+                        label-name="@Model.notificationSentByNameDD.Label"
+                        is-visible="@Model.notificationSentByNameDD.isVisible"
+                        include-add-button="@Model.notificationSentByNameDD.IncludeAddButton"
+                        add-modal-id="@Model.notificationSentByNameDD.AddModalId"
+                        add-button-id="@Model.notificationSentByNameDD.AddButtonId"
+                        is-disabled="@Model.IsReportClosed"
+                        class-name="form-control"
+                        asp-for="@Model.notificationSentByNameDD">
+                    </eidss-select2DropDown>
+                    <span asp-validation-for="notificationSentByNameDD" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row" id="dNotificationSentValidated">
+                <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationSentbyFacilityFieldLabel">
+                    <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationSentbyFacilityFieldLabel"></i>
+                    <eidss-select2DropDown id="@Model.notificationSentByFacilityDDValidated.DropDownId"
+                        name="@Model.notificationSentByFacilityDDValidated.DropDownId"
+                        control-target-id="@Model.notificationSentByFacilityDDValidated.ControltargetId"
+                        target-type="@Model.notificationSentByFacilityDDValidated.ControlTargetType"
+                        target-ajax-url="@Model.notificationSentByFacilityDDValidated.ControlTargetUrl"
+                        selectct2-default-data="@Model.notificationSentByFacilityDDValidated.defaultSelect2Selection"
+                        end-point="@Model.notificationSentByFacilityDDValidated.Endpoint"
+                        label-name="@Model.notificationSentByFacilityDDValidated.Label"
+                        custom-js-on-change-function="@Model.notificationSentByFacilityDDValidated.CustomJsOnChangeFunction"
+                        custom-js-on-clear-function="@Model.notificationSentByFacilityDDValidated.CustomJsOnClearFunction"
+                        custom-js-on-unselect-function="@Model.notificationSentByFacilityDDValidated.CustomJsOnUnselectFunction"
+                        is-visible="@Model.notificationSentByFacilityDDValidated.isVisible"
+                        is-disabled="@Model.IsReportClosed"
+                        class-name="form-control"
+                        asp-for="@Model.notificationSentByFacilityDDValidated">
+                    </eidss-select2DropDown>
+                    <span asp-validation-for="notificationSentByFacilityDDValidated" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6">
+                    <div class="col-6" hidden-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationSentbyNameFieldLabel">
+                        <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationSentbyNameFieldLabel"></i>
+                        <eidss-select2DropDown id="@Model.notificationSentByNameDDValidated.DropDownId"
+                                name="@Model.notificationSentByNameDDValidated.DropDownId"
+                                control-target-id="@Model.notificationSentByNameDDValidated.ControltargetId"
+                                target-type="@Model.notificationSentByNameDDValidated.ControlTargetType"
+                                target-ajax-url="@Model.notificationSentByNameDDValidated.ControlTargetUrl"
+                                selectct2-default-data="@Model.notificationSentByNameDDValidated.defaultSelect2Selection"
+                                end-point="@Model.notificationSentByNameDDValidated.Endpoint"
+                                filter-id="@Model.notificationSentByNameDDValidated.FilteredId"
+                                label-name="@Model.notificationSentByNameDDValidated.Label"
+                                is-visible="@Model.notificationSentByNameDDValidated.isVisible"
+                                include-add-button="@Model.notificationSentByNameDDValidated.IncludeAddButton"
+                                add-modal-id="@Model.notificationSentByNameDDValidated.AddModalId"
+                                add-button-id="@Model.notificationSentByNameDDValidated.AddButtonId"
+                                is-disabled="@Model.IsReportClosed"
+                                class-name="form-control"
+                                asp-for="@Model.notificationSentByNameDDValidated">
+                        </eidss-select2DropDown>
+                        <span asp-validation-for="notificationSentByNameDDValidated" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationReceivedbyFacilityFieldLabel">
+                    <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationReceivedbyFacilityFieldLabel"></i>
+                    <eidss-select2DropDown id="@Model.notificationReceivedByFacilityDD.DropDownId"
+                        name="@Model.notificationReceivedByFacilityDD.DropDownId"
+                        control-target-id="@Model.notificationReceivedByFacilityDD.ControltargetId"
+                        target-type="@Model.notificationReceivedByFacilityDD.ControlTargetType"
+                        target-ajax-url="@Model.notificationReceivedByFacilityDD.ControlTargetUrl"
+                        selectct2-default-data="@Model.notificationReceivedByFacilityDD.defaultSelect2Selection"
+                        end-point="@Model.notificationReceivedByFacilityDD.Endpoint"
+                        label-name="@Model.notificationReceivedByFacilityDD.Label"
+                        custom-js-on-change-function="@Model.notificationReceivedByFacilityDD.CustomJsOnChangeFunction"
+                        custom-js-on-clear-function="@Model.notificationReceivedByFacilityDD.CustomJsOnClearFunction"
+                        custom-js-on-unselect-function="@Model.notificationReceivedByFacilityDD.CustomJsOnUnselectFunction"
+                        is-visible="@Model.notificationReceivedByFacilityDD.isVisible"
+                        is-disabled="@Model.IsReportClosed"
+                        class-name="form-control"
+                        asp-for="@Model.notificationReceivedByFacilityDD">
+                    </eidss-select2DropDown>
+                    <span asp-validation-for="notificationReceivedByFacilityDD" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationReceivedbyNameFieldLabel">
+                    <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationReceivedbyNameFieldLabel"></i>
+                    <eidss-select2DropDown id="@Model.notificationReceivedByNameDD.DropDownId"
+                        name="@Model.notificationReceivedByNameDD.DropDownId"
+                        control-target-id="@Model.notificationReceivedByNameDD.ControltargetId"
+                        target-type="@Model.notificationReceivedByNameDD.ControlTargetType"
+                        target-ajax-url="@Model.notificationReceivedByNameDD.ControlTargetUrl"
+                        selectct2-default-data="@Model.notificationReceivedByNameDD.defaultSelect2Selection"
+                        end-point="@Model.notificationReceivedByNameDD.Endpoint"
+                        filter-id="@Model.notificationReceivedByNameDD.FilteredId"
+                        label-name="@Model.notificationReceivedByNameDD.Label"
+                        include-add-button="@Model.notificationReceivedByNameDD.IncludeAddButton"
+                        add-modal-id="@Model.notificationReceivedByNameDD.AddModalId"
+                        add-button-id="@Model.notificationReceivedByNameDD.AddButtonId"
+                        is-visible="@Model.notificationReceivedByNameDD.isVisible"
+                        is-disabled="@Model.IsReportClosed"
+                        class-name="form-control"
+                        asp-for="@Model.notificationReceivedByNameDD">
+                    </eidss-select2DropDown>
+                    <span asp-validation-for="notificationReceivedByNameDD" class="text-danger"></span>
+                </div>
+            </div>
+
+            @if (!Model.isOutbreakCase)
+            {
+                <div class="row">
+                    <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationCurrentLocationOfPatientFieldLabel">
+                        <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationCurrentLocationOfPatientFieldLabel"></i>
+                        <eidss-select2DropDown id="@Model.currentLocationOfPatientDD.DropDownId"
+                                           name="@Model.currentLocationOfPatientDD.DropDownId"
+                                           control-target-id="@Model.currentLocationOfPatientDD.ControltargetId"
+                                           target-type="@Model.currentLocationOfPatientDD.ControlTargetType"
+                                           target-ajax-url="@Model.currentLocationOfPatientDD.ControlTargetUrl"
+                                           selectct2-default-data="@Model.currentLocationOfPatientDD.defaultSelect2Selection"
+                                           end-point="@Model.currentLocationOfPatientDD.Endpoint"
+                                           label-name="@Model.currentLocationOfPatientDD.Label"
+                                           is-visible="@Model.currentLocationOfPatientDD.isVisible"
+                                           is-disabled="@Model.IsReportClosed"
+                                           custom-js-on-change-function="@Model.currentLocationOfPatientDD.CustomJsOnChangeFunction"
+                                           class-name="form-control"
+                                           asp-for="@Model.currentLocationOfPatientDD">
+                        </eidss-select2DropDown>
+                        <span asp-validation-for="currentLocationOfPatientDD" class="text-danger"></span>
+                    </div>
+
+                    <div style="display:none" id="divHospitalName" class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsHospitalNameFieldLabel">
+                        <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsHospitalNameFieldLabel"></i>
+                        <eidss-select2DropDown id="@Model.hospitalNameDD.DropDownId"
+                            name="@Model.hospitalNameDD.DropDownId"
+                            control-target-id="@Model.hospitalNameDD.ControltargetId"
+                            target-type="@Model.hospitalNameDD.ControlTargetType"
+                            target-ajax-url="@Model.hospitalNameDD.ControlTargetUrl"
+                            selectct2-default-data="@Model.hospitalNameDD.defaultSelect2Selection"
+                            end-point="@Model.hospitalNameDD.Endpoint"
+                            label-name="@Model.hospitalNameDD.Label"
+                            is-visible="@Model.hospitalNameDD.isVisible"
+                            is-disabled="@Model.IsReportClosed"
+                            class-name="form-control"
+                            asp-for="@Model.hospitalNameDD">
+                        </eidss-select2DropDown>
+                        <span asp-validation-for="hospitalNameDD" class="text-danger"></span>
+                    </div>
+
+                    <div style="display:none" id="divOtherLocation" class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.DeduplicationHumanDiseaseReportNotificationOtherLocationFieldLabel">
+                        <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.DeduplicationHumanDiseaseReportNotificationOtherLocationFieldLabel"></i>
+                        <label asp-for="@Model.strOtherLocation" class="control-label">@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationHumanDiseaseReportNotificationOtherLocationFieldLabel)</label>
+                        <input asp-for="@Model.strOtherLocation" class="form-control" disabled="@Model.IsReportClosed">
+                        <span asp-validation-for="strOtherLocation" class="text-danger"></span>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</form>
+
+<partial name="_ValidationScriptsPartial" />
+<partial name="_NonUserEmployeePersonalInfoPartial" for="EmployeeDetails" />
+
+<script>
+     $(document).ready(function () {
+        //Personal Information
+        if ('@Model.idfNotificationReceivedByFacility' != null && '@Model.idfNotificationReceivedByFacility' != 0){
+            EnableNotificationReceivedByName();
+        }
+        else{
+            DisableNotificationReceivedByName();
+        }
+
+        if ('@Model.idfNotificationSentByFacility' != null && '@Model.idfNotificationSentByFacility' != 0){
+            EnableNotificationSentByName();
+        }
+        else{
+            DisableNotificationSentByName();
+        }
+
+        CheckDiseaseForSyndromic();
+    });
+
+    function EnableNotificationSentByName(data) {
+        if ($("#notificationSentByNameDD").is(":visible")) {
+            $("#notificationSentByNameDD").prop("disabled", false);
+            $("#notificationSentByNameDD").val('').trigger('change');
+        }
+        else{
+            $("#notificationSentByNameDDValidated").prop("disabled", false);
+            $("#notificationSentByNameDDValidated").val('').trigger('change');
+        }
+    }
+
+    function DisableNotificationSentByName(data) {
+        if ($("#notificationSentByNameDD").is(":visible")){
+            $("#notificationSentByNameDD").prop("disabled", true);
+        }
+        else{
+            $("#notificationSentByNameDDValidated").prop("disabled", true);
+        }
+    }
+
+    function EnableNotificationReceivedByName(data) {
+        if ($("#notificationReceivedByNameDD").is(":visible")){
+            $("#notificationReceivedByNameDD").prop("disabled", false);
+            $("#notificationReceivedByNameDD").val('').trigger('change');
+        }
+        else{
+            $("#notificationReceivedByNameDDValidated").prop("disabled", false);
+            $("#notificationReceivedByNameDDValidated").val('').trigger('change');
+        }
+    }
+
+    function DisableNotificationReceivedByName(data) {
+        if ($("#notificationReceivedByNameDD").is(":visible")){
+            $("#notificationReceivedByNameDD").prop("disabled", true);
+        }
+        else{
+            $("#notificationReceivedByNameDDValidated").prop("disabled", true);
+        }
+    }
+
+    function ShowDiseaseInSummary(data) {
+        $("#ReportSummary_Disease").val(data.text);
+        var isConnectedDiseaseReport='@Model.isConnectedDiseaseReport';
+        var idfOldDisease='@Model.idfOldDisease';
+
+        if(isConnectedDiseaseReport === 'True' && idfOldDisease === data.id)
+        {
+            showErrorModal('@Localizer.GetString(MessageResourceKeyConstants.HumanDiseaseReportDiseasevalueinoriginalandconnectedDiseaseReportscannotbesameMessage)');
+        }
+        else
+        {
+            CheckDiseaseForGender(data.id);
+            CheckDiseaseForSyndromic(data.id);
+            CheckDiseaseForAgeGroup(data.id);
+        }
+    }
+
+    function CheckDiseaseForGender(disease)
+    {
+        var model={};
+        var Gender='@Model.GenderTypeID';
+
+        model.disease=disease;
+        model.gender=Gender;
+
+        var isInValid=false;
+
+        $.ajax({
+            url: '@Url.Action("CheckDiseaseForGender", "DiseaseReport", new { Area = "Human"})?data=' + JSON.stringify(model),
+            type: 'GET',
+            async:false,
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                if (data == true) {
+                    isInValid=true;
+                    showErrorModal('@Localizer.GetString(MessageResourceKeyConstants.HumanDiseaseReportTheSelectedDiseaseValueDoesNotMatchToPersonGenderMessage)');
+                    $("#diseaseDD").focus;
+                }
+                else {
+                     
+                }
+            },
+            complete: function (data) {
+            },
+            error: function (request, error) {
+                alert("failure" + error);
+            }
+        });
+        return isInValid;
+    }
+
+    function CheckDiseaseForSyndromic(disease){
+        if (disease === undefined){
+            $("#dNotificationSentValidated").hide();
+            $("#dNotificationSent").show();
+        }
+        else{
+            $.ajax({
+                url: '@Url.Action("GetDiseaseDetails","CrossCutting", new { Area = "CrossCutting" })?DiseaseId=' + disease,
+                type: 'GET',
+                async:false,
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data == true) {
+                        $("#dNotificationSentValidated").show();
+                        $("#dNotificationSent").hide();
+                    }
+                    else{
+                        $("#dNotificationSentValidated").hide();
+                        $("#dNotificationSent").show();
+                    }
+                },
+                complete: function (data) {
+                },
+                error: function (request, error) {
+                    $("#dNotificationSentValidated").hide();
+                    $("#dNotificationSent").show();
+                }
+            });
+        }
+    }
+    
+    function CheckDiseaseForAgeGroup(disease)
+    {
+        var model={};
+        var reportedAge='@Model.ReportedAge';
+        var reportedAgeUOMID='@Model.ReportedAgeUOMID';
+
+        model.disease=disease;
+        model.reportedAge = reportedAge;
+        model.reportedAgeUOMID = reportedAgeUOMID;
+
+        var isInValid=false;
+
+        $.ajax({
+            url: '@Url.Action("CheckDiseaseForAgeGroup", "DiseaseReport", new { Area = "Human"})?data=' + JSON.stringify(model),
+            type: 'GET',
+            async:false,
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                if (data == true) {
+                    isInValid=true;
+                    showErrorModal('@Localizer.GetString(MessageResourceKeyConstants.HumanDiseaseReportTheSelectedDiseaseValueDoesNotMatchToPersonAgeMessage)');
+                    $("#diseaseDD").focus;
+                }
+                else {
+                     
+                }
+            },
+            complete: function (data) {
+            },
+            error: function (request, error) {
+                alert("failure" + error);
+            }
+        });
+        return isInValid;
+    }
+
+    function ShowHospitalName(data) {
+        if (data.id == 5350000000) {
+            $("#divHospitalName").prop("style", "display: block;");
+            $("#divOtherLocation").prop("style", "display: none;");
+        }
+        else {
+            $("#divHospitalName").prop("style", "display: none;");
+            if (data.id == "5360000000") {
+                $("#divOtherLocation").prop("style", "display: block;");
+            }
+            else {
+                $("#divOtherLocation").prop("style", "display: none;");
+            }
+        }
+    }
+</script>
+

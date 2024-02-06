@@ -1,0 +1,59 @@
+﻿-- ================================================================================================
+-- NAME: USP_CONF_DISEASEAGEGROUPMATRIX_DEL
+--
+-- DESCRIPTION: Deactivates a vector type to collection type relationships
+
+-- AUTHOR: Ricky Moss
+
+-- Revision History:
+-- Name             Date       Change Detail
+-- ---------------- ---------- -------------------------------------------------------------------
+-- Ricky Moss		03/06/2019 Initial Release
+-- Stephen Long     04/13/2023 Added site alert logic.
+--
+-- exec USP_CONF_DISEASEAGEGROUPMATRIX_DEL 51526220000000
+-- ================================================================================================
+CREATE PROCEDURE [dbo].[USP_CONF_DISEASEAGEGROUPMATRIX_DEL]
+(
+	@idfDiagnosisAgeGroupToDiagnosis BIGINT,
+	@EventTypeId BIGINT,
+    @SiteId BIGINT,
+    @UserId BIGINT,
+    @LocationId BIGINT,
+    @AuditUserName NVARCHAR(200)
+)
+AS
+BEGIN
+        DECLARE @ReturnCode INT = 0,
+                @ReturnMessage NVARCHAR(MAX) = 'SUCCESS';
+        DECLARE @SuppressSelect TABLE
+        (
+            ReturnCode INT,
+            ReturnMessage NVARCHAR(MAX)
+        );
+	BEGIN TRY
+		UPDATE dbo.trtDiagnosisAgeGroupToDiagnosis 
+        SET intRowStatus = 1,
+            AuditUpdateDTM = GETDATE(),
+            AuditUpdateUser = @AuditUserName
+        WHERE idfDiagnosisAgeGroupToDiagnosis= @idfDiagnosisAgeGroupToDiagnosis;
+        
+        INSERT INTO @SuppressSelect
+        EXECUTE dbo.USP_ADMIN_EVENT_SET-1,
+                                       @EventTypeId,
+                                       @UserId,
+                                       @idfDiagnosisAgeGroupToDiagnosis,
+                                       NULL,
+                                       @SiteId,
+                                       NULL,
+                                       @SiteId,
+                                       @LocationId,
+                                       @AuditUserName;
+
+        SELECT @ReturnCode AS ReturnCode,
+               @ReturnMessage AS ReturnMessage;
+	END TRY
+	BEGIN CATCH
+		THROW;
+	END CATCH
+END

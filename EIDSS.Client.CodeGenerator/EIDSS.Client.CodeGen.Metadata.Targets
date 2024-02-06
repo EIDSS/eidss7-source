@@ -1,0 +1,6 @@
+﻿<Project>
+  <ItemGroup>
+    <CompilerVisibleProperty Include="DebugSourceGenerators" />
+    <CompilerVisibleProperty Include="DebugEIDSS.Api.Client.CodeGenerator" />
+  </ItemGroup>
+</Project>

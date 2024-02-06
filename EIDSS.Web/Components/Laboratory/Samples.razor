@@ -1,0 +1,125 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Laboratory
+@using static ClientLibrary.Enumerations.EIDSSConstants
+
+@inherits SamplesBase
+
+<div class="form-inline">
+    <div class="form-row py-1">
+        <Menu AccessionInEvent="OnRefreshSamples" AssignTestEvent="OnAssignTest" CreateAliquotEvent="OnCreateAliquotDerivative" CreateDerivativeEvent="OnCreateAliquotDerivative" DeleteSampleRecordEvent="OnDeleteSampleRecord" DestroySampleByAutoclaveEvent="OnDestroySampleByAutoclave" DestroySampleByIncinerationEvent="OnDestroySampleByIncineration" RegisterNewSampleEvent="OnRegisterNewSample" RestoreDeletedSampleRecordEvent="OnRestoreDeletedSampleRecord" ShowSamplePaperFormReportEvent="OnRefreshSamples" Tab="LaboratoryTabEnum.Samples" TransferOutEvent="OnTransferOut"></Menu>
+        <Actions AccessionInEvent="OnRefreshSamples" AliquotEvent="OnCreateAliquotDerivative" AssignTestEvent="OnAssignTest" SaveEvent="OnReloadSamples" Tab="LaboratoryTabEnum.Samples" />
+        <Search @ref="Search" AdvancedSearchEvent="OnAdvancedSearch" ClearSearchEvent="OnClearSearch" SimpleSearchEvent="OnSimpleSearch" Tab="LaboratoryTabEnum.Samples" TestCompletedSearchEvent="OnTestCompletedSearch" TestUnassignedSearchEvent="OnTestUnassignedSearch" />
+    </div>
+</div>
+<RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" CellRender="OnCellRender" Count="Count" Data="Samples" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="LoadSamplesData" PagerAlwaysVisible="true" PageSize="100" PageSizeOptions="pageSizeOptions" PageSizeText="@Localizer.GetString(FieldLabelResourceKeyConstants.CommonLabelsItemsPerPageFieldLabel)" @ref="SamplesGrid" RowRender="OnRowRender" SelectionMode="DataGridSelectionMode.Multiple" ShowPagingSummary="true" Style="height: 50vh; min-height: 50vh; overflow-y: scroll;" TItem="SamplesGetListViewModel">
+    <Columns>
+        <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Sortable="false" TItem="SamplesGetListViewModel" Width="40px">
+            <HeaderTemplate>
+                <RadzenCheckBox Change="args => HeaderRecordSelectionChange(args)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSelectAllRecordsToolTip)" TriState="false" TValue="bool" Value="IsHeaderRecordSelected()" />
+            </HeaderTemplate>
+            <Template Context="item">
+                <RadzenCheckBox Change="args => RecordSelectionChange(args, item)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSelectToolTip)" TriState="false" TValue="bool" Value="IsRecordSelected(item)" />
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Property="SampleID" Sortable="false" TextAlign="TextAlign.Center" TItem="SamplesGetListViewModel" Title="" Width="40px">
+            <HeaderTemplate>
+            </HeaderTemplate>
+            <Template Context="item">
+                <a id="editSampleButton" @onclick="_ => OnEditSample(item)" role="button" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToEditTheRecordToolTip)">
+                    <i class="fas fa-edit fa-lg"></i>
+                </a>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Property="FavoriteIndicator" Sortable="false" TItem="SamplesGetListViewModel" Width="40px">
+            <HeaderTemplate>
+                <div class="@LaboratoryModuleCSSClassConstants.MyFavoriteNo">
+                </div>
+            </HeaderTemplate>
+            <Template Context="item">
+                <div class="@(item.FavoriteIndicator == false ? LaboratoryModuleCSSClassConstants.MyFavoriteNo : LaboratoryModuleCSSClassConstants.MyFavoriteYes)">
+                    <a id="setMyFavoriteButton" @onclick="_ => OnSetMyFavorite(item)" role="button" title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToShowRecordInMyFavoritesTabToolTip)">&nbsp;</a>
+                </div>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Frozen="true" HeaderCssClass="lab-table-striped-header" Property="EIDSSReportOrSessionID" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesReportSessionIDColumnHeading)" Width="150px" />
+        <RadzenDataGridColumn Frozen="true" HeaderCssClass="lab-table-striped-header" Property="PatientOrFarmOwnerName" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesPatientFarmOwnerColumnHeading)" Width="300px" />
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="EIDSSLocalOrFieldSampleID" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesLocalFieldSampleIDColumnHeading)" Width="175px" />
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="SampleTypeName" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesSampleTypeColumnHeading)" Width="250px" />
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="DisplayDiseaseName" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesDiseaseColumnHeading)" Width="300px" />
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="EIDSSLaboratorySampleID" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesLabSampleIDColumnHeading)" Width="150px" />
+        <RadzenDataGridColumn FormatString="{0:g}" HeaderCssClass="lab-table-striped-header" Property="AccessionDate" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesAccessionDateTimeColumnHeading)" Width="225px">
+            <Template Context="item">
+                <div style="max-height: 35px;">
+                    @{
+                        var componentName = "accessionDate" + item.SampleID;
+                        if (item.AccessionConditionTypeID is (long)AccessionConditionTypeEnum.Rejected or null)
+                        {
+                            <RadzenDatePicker AllowClear="false" @bind-Value="item.AccessionDate" DateFormat="g" Disabled="true" Name="@componentName" ShowTime="false" TValue="DateTime?" />
+                        }
+                        else
+                        {
+                            <RadzenDatePicker AllowClear="@(CanModifyAccessionDatePermissionIndicator)" @bind-Value="item.AccessionDate" Change="_ => OnAccessionDateDatePickerChange(item)" DateFormat="g" Disabled="@(!item.AllowDatesInThePast || !CanModifyAccessionDatePermissionIndicator)" Name="@componentName" ShowTime="false" TValue="DateTime?" />
+                        }
+                        <RadzenCompareValidator Component="@componentName" Operator="CompareOperator.LessThanEqual" Popup="true" Style="z-index: 999;" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="DateTime.Now" />
+                    }
+                </div>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="AccessionConditionOrSampleStatusTypeName" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesSampleStatusColumnHeading)" Width="310px">
+            <Template Context="item">
+                <div style="max-height: 75px;">
+                    <div class="input-group">
+                        @if (WritePermissionIndicator && item.WritePermissionIndicator)
+                        {
+                            if (item.AccessionConditionTypeID is not null && item.RowAction == (int)RowActionTypeEnum.Read)
+                            {
+                                <RadzenDropDown AllowClear="true" @bind-Value="item.AccessionConditionTypeSelect" Change="_ => OnAccessionConditionTypeSelectChange(item)" Data="LaboratoryService.AccessionConditionTypesWithoutUnaccessioned" Disabled="item.AccessionConditionTypeSelectDisabledIndicator" TextProperty="Name" TValue="long" ValueProperty="IdfsBaseReference" Visible="item.DisplayAccessionConditionTypeSelectIndicator" />
+                            }
+                            else
+                            {
+                                <RadzenDropDown AllowClear="true" @bind-Value="item.AccessionConditionTypeSelect" Change="_ => OnAccessionConditionTypeSelectChange(item)" Data="LaboratoryService.AccessionConditionTypes" Disabled="item.AccessionConditionTypeSelectDisabledIndicator" TextProperty="Name" TValue="long" ValueProperty="IdfsBaseReference" Visible="item.DisplayAccessionConditionTypeSelectIndicator" />
+                            }
+                            <RadzenDropDown AllowClear="true" @bind-Value="item.SampleStatusTypeID" Change="_ => OnSampleStatusTypeSelectChange(item)" Data="LaboratoryService.SampleStatusTypes" Disabled="item.SampleStatusTypeSelectDisabledIndicator" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" Visible="item.DisplaySampleStatusTypeSelectIndicator" />
+                            <div class="input-group-append">
+                                <button class="@item.AccessionCommentClass" id="accessionCommentButton" @onclick="_ => OnAccessionCommentClick(item)" title="@item.AccessionComment" type="button"></button>
+                            </div>
+                            <RadzenTextBox @bind-Value="item.AccessionComment" Name="AccessionComment" Visible="false" />
+                            <RadzenLengthValidator Component="AccessionComment" Min="6" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.LaboratorySamplesCommentMustBeAtLeastSixCharactersInLengthMessage)" />
+                        }
+                        else
+                        {
+                            if (item.AccessionConditionTypeID is not null && item.RowAction == (int)RowActionTypeEnum.Read)
+                            {
+                                <RadzenDropDown AllowClear="false" @bind-Value="item.AccessionConditionTypeSelect" Data="LaboratoryService.AccessionConditionTypesWithoutUnaccessioned" Disabled="true" TextProperty="Name" TValue="long" ValueProperty="IdfsBaseReference" Visible="item.DisplayAccessionConditionTypeSelectIndicator" />
+                            }
+                            else
+                            {
+                                <RadzenDropDown AllowClear="false" @bind-Value="item.AccessionConditionTypeSelect" Data="LaboratoryService.AccessionConditionTypes" Disabled="true" TextProperty="Name" TValue="long" ValueProperty="IdfsBaseReference" Visible="item.DisplayAccessionConditionTypeSelectIndicator" />
+                            }
+                            <RadzenDropDown AllowClear="false" @bind-Value="item.SampleStatusTypeID" Data="LaboratoryService.SampleStatusTypes" Disabled="true" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" Visible="item.DisplaySampleStatusTypeSelectIndicator" />
+                            <div class="input-group-append">
+                                <button class="@item.AccessionCommentClass" id="accessionCommentButton" @onclick="_ => OnAccessionCommentClick(item)" title="@item.AccessionComment" type="button"></button>
+                            </div>
+                            <RadzenTextBox @bind-Value="item.AccessionComment" Name="AccessionComment" Visible="false" />
+                        }
+                    </div>
+                </div>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="FunctionalAreaName" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesFunctionalAreaColumnHeading)" Width="250px">
+            <Template Context="item">
+                <div style="max-height: 35px;">
+                    @if (WritePermissionIndicator && item.WritePermissionIndicator)
+                    {
+                        <RadzenDropDown AllowClear="true" @bind-Value="item.FunctionalAreaID" Change="_ => OnFunctionalAreaSelectChange(item)" Data="LaboratoryService.FunctionalAreas" Disabled="item.FunctionalAreaIDDisabledIndicator" TextProperty="DepartmentNameNationalValue" TValue="long?" ValueProperty="DepartmentID" />
+                    }
+                    else
+                    {
+                        <RadzenDropDown AllowClear="false" @bind-Value="item.FunctionalAreaID" Data="LaboratoryService.FunctionalAreas" Disabled="true" TextProperty="DepartmentNameNationalValue" TValue="long?" ValueProperty="DepartmentID" />
+                    }
+                </div>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="EIDSSAnimalID" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesAnimalIDColumnHeading)" Width="150px" />
+    </Columns>
+</RadzenDataGrid>

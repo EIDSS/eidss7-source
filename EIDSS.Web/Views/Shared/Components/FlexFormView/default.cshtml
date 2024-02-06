@@ -1,0 +1,8 @@
+﻿@model EIDSS.Web.ViewModels.CrossCutting.FlexFormQuestionnaireViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+
+
+@Html.Raw(Model.QuestionnaireHTML)
+<script type="text/javascript">
+    @Html.Raw(Model.FlexFormScript)
+</script>

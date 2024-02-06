@@ -1,0 +1,130 @@
+﻿@using EIDSS.Domain.ViewModels.Laboratory
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Domain.Enumerations
+@inherits RegisterNewSampleBase
+
+<RadzenTemplateForm Data="Model" @ref="Form" Submit="OnAddSampleClick" TItem="RegisterNewSampleViewModel">
+    <div class="card">
+        <DataAnnotationsValidator/>
+        <InterfaceEditorResource CssClass="col-12" For="sampleCategoryTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.RegisterNewSampleModalSampleCategoryFieldLabel" IsRow="true">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.SampleCategoryTypeID" Change="OnSampleCategoryTypeChange" class="form-control" Data="FilteredSampleCategoryTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetSampleCategoryTypes" Name="sampleCategoryTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="reportOrSessionTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.RegisterNewSampleModalReportSessionTypeFieldLabel" IsRow="true">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.ReportOrSessionTypeID" Change="OnReportOrSessionTypeChange" class="form-control" Data="ReportOrSessionTypes" Disabled="Model.ReportOrSessionTypeIDDisabledIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetReportOrSessionTypes" Name="reportOrSessionTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="reportOrSessionID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.RegisterNewSampleModalReportSessionIDFieldLabel" IsRequiredByDefaultBusinessRule="Model.EIDSSReportOrSessionIDRequiredIndicator" IsRow="true">
+            <div class="input-group mb-3">
+                <RadzenTextBox @bind-Value="Model.EIDSSReportOrSessionID" class="form-control" Disabled="true" MaxLength="36" Name="reportOrSessionID" Change="OnReportOrSessionTextBoxChange"/>
+                <div class="input-group-append">
+                    @if (Model.EIDSSReportOrSessionIDDisabledIndicator)
+                    {
+                        <button class="btn btn-outline-secondary btn-sm disabled" disabled id="searchReportOrSession" type="button">
+                            <span class="fas fa-search" aria-hidden="true"></span>
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-outline-secondary btn-sm" id="searchReportOrSession" @onclick="OnSearchReportOrSessionIDClick" type="button">
+                            <span class="fas fa-search" aria-hidden="true"></span>
+                        </button>
+                    }
+                </div>
+            </div>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="patientFarmOrFarmOwnerName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.RegisterNewSampleModalPatientFarmFieldLabel" IsRequiredByDefaultBusinessRule="Model.PatientFarmOrFarmOwnerNameRequiredIndicator" IsRow="true">
+            <div class="input-group mb-3">
+                @if (Model.PatientFarmOrFarmOwnerNameDisabledIndicator)
+                {
+                    <RadzenTextBox @bind-Value="Model.PatientFarmOrFarmOwnerName" class="form-control" Disabled="true" MaxLength="200" Name="patientFarmOrFarmOwnerName"/>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary btn-sm disabled" disabled id="searchPatientOrFarmOwner" type="button">
+                            <span class="fas fa-search" aria-hidden="true"></span>
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm disabled" disabled id="addPatientOrFarmOwner" type="button">
+                            <span class="fas fa-plus" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    if (Model.ReportOrSessionTypeID is (long) ReportOrSessionTypeEnum.HumanActiveSurveillanceSession)
+                    {
+                        <RadzenDropDown AllowClear="!Model.PatientFarmOrFarmOwnerNameDisabledIndicator" AllowFiltering="true" @bind-Value="Model.PatientFarmOrFarmOwnerID" Change="OnPatientDropDownChange" class="form-control" Data="Patients" Disabled="Model.PatientFarmOrFarmOwnerNameDisabledIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="patientFarmOrFarmOwnerName" TextProperty="PersonName" TValue="long?" ValueProperty="PersonID" />
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary btn-sm" id="searchPatientOrFarmOwner" @onclick="OnSearchPatientOrFarmOwnerClick" type="button">
+                                <span class="fas fa-search" aria-hidden="true"></span>
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" id="addPatientOrFarmOwner" @onclick="OnAddPatientOrFarmOwnerClick" type="button">
+                                <span class="fas fa-plus" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    }
+                    else if (Model.ReportOrSessionTypeID is (long) ReportOrSessionTypeEnum.VeterinaryAvianActiveSurveillanceSession or (long) ReportOrSessionTypeEnum.VeterinaryLivestockActiveSurveillanceSession)
+                    {
+                        <RadzenDropDown AllowClear="!Model.PatientFarmOrFarmOwnerNameDisabledIndicator" AllowFiltering="true" @bind-Value="Model.FarmMasterID" Change="OnFarmOrFarmOwnerDropDownChange" class="form-control" Data="FarmsOrFarmOwners" Disabled="Model.PatientFarmOrFarmOwnerNameDisabledIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="patientFarmOrFarmOwnerName" TextProperty="FarmOwnerName" TValue="long?" ValueProperty="FarmMasterID"/>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary btn-sm" id="searchPatientOrFarmOwner" @onclick="OnSearchPatientOrFarmOwnerClick" type="button">
+                                <span class="fas fa-search" aria-hidden="true"></span>
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" id="addPatientOrFarmOwner" @onclick="OnAddPatientOrFarmOwnerClick" type="button">
+                                <span class="fas fa-plus" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <RadzenTextBox @bind-Value="Model.PatientFarmOrFarmOwnerName" class="form-control" Disabled="true" MaxLength="200" Name="patientFarmOrFarmOwnerName"/>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary btn-sm" id="searchPatientOrFarmOwner" @onclick="OnSearchPatientOrFarmOwnerClick" type="button">
+                                <span class="fas fa-search" aria-hidden="true"></span>
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" id="addPatientOrFarmOwner" @onclick="OnAddPatientOrFarmOwnerClick" type="button">
+                                <span class="fas fa-plus" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    }
+                }
+            </div>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="collectionDate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.RegisterNewSampleModalCollectionDateFieldLabel" IsRow="true">
+            <br/>
+            <RadzenDatePicker AllowClear="true" @bind-Value="Model.CollectionDate" DateFormat="d" Name="collectionDate" TValue="DateTime"/>
+            <br/>
+            <RadzenCompareValidator Component="collectionDate" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="@DateTime.Now"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="speciesTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.RegisterNewSampleModalSpeciesFieldLabel" IsRequiredByDefaultBusinessRule="Model.SpeciesTypeRequiredIndicator" IsRow="true">
+            @if (Model.SampleCategoryTypeID == (long) CaseTypeEnum.Vector)
+            {
+                <RadzenDropDown @bind-Value="Model.VectorID" AllowClear="true" AllowFiltering="true" class="form-control" Data="Vectors" Disabled="Model.SpeciesTypeIDDisabledIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="speciesTypeID" TextProperty="strVectorType" TValue="long?" ValueProperty="idfVector"/>
+            }
+            else
+            {
+                if (Species is null || Species.Count == 0)
+                {
+                    <RadzenDropDown @bind-Value="Model.SpeciesTypeID" AllowClear="true" AllowFiltering="true" Change="OnSpeciesTypeChange" class="form-control" Data="SpeciesTypes" Disabled="Model.SpeciesTypeIDDisabledIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="speciesTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+                }
+                else
+                {
+                    <RadzenDropDown @bind-Value="Model.SpeciesID" AllowClear="true" AllowFiltering="true" Change="OnSpeciesTypeChange" class="form-control" Data="Species" Disabled="Model.SpeciesTypeIDDisabledIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="speciesTypeID" TextProperty="Species" TValue="long?" ValueProperty="SpeciesID"/>
+                }
+            }
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="sampleTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.RegisterNewSampleModalSampleTypeFieldLabel" IsRow="true">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.SampleTypeID" Change="OnSampleTypeChange" class="form-control" Data="SampleTypes" Disabled="Model.SampleTypeIDDisabledIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="sampleTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="numberOfSamples" InterfaceEditorKey="@FieldLabelResourceKeyConstants.RegisterNewSampleModalNumberOfSamplesFieldLabel" IsRow="true">
+            <RadzenNumeric @bind-Value="Model.NumberOfSamples" class="form-control" Max="1000" Min="1" Name="numberOfSamples" TValue="int?"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-12" For="diseaseID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.RegisterNewSampleModalDiseaseFieldLabel" IsRow="true">
+            <RadzenDropDown @ref="DiseaseDropDown" @bind-Value="Model.DiseaseID" AllowClear="true" AllowFiltering="true" class="form-control" Data="FilteredDiseases" Disabled="Model.DiseaseIDDisabledIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="diseaseID" TextProperty="DiseaseName" TValue="long?" ValueProperty="DiseaseID"/>
+        </InterfaceEditorResource>
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-12">
+                    <button class="btn btn-outline-primary" @onclick="OnCancelClick" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToCancelToolTip)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button class="btn btn-primary" @onsubmit="OnAddSampleClick" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

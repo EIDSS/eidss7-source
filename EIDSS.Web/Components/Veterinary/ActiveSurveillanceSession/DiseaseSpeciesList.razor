@@ -1,0 +1,95 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Areas.Veterinary.ViewModels.ActiveSurveillanceSession
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Services
+
+@inherits EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession.DiseaseSpeciesListBase
+
+<div class="card">
+    <div class="card-body">
+        <div class="form-row justify-content-end mb-3">
+            <div class="col-1">
+                <button class="btn btn-outline-primary" type="button" disabled="@(AddButtonIsDisabled || StateContainer.HasLinkedCampaign)" @onclick="@OnAddDiseaseSpeciesSampleClick">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-12">
+                <RadzenDataGrid TItem="VeterinaryActiveSurveillanceSessionDiseaseSpeciesViewModel"
+                                Data="@StateContainer.DiseaseSpeciesSamples"
+                                @ref="SessionDiseaseSpeciesSampleGrid"
+                                LoadData="@LoadDiseaseSpeciesSampleGrid"
+                                Count="@StateContainer.DiseaseSpeciesCount"
+                                EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)"
+                                AllowPaging="true" 
+                                PageSize="10" 
+                                AllowSorting="true" 
+                                AllowColumnResize="true"
+                                RowUpdate="OnUpdateRow"
+                                RowCreate="OnCreateRow"
+                                EditMode="DataGridEditMode.Single">
+                                
+                    <Columns>
+                        <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionDiseaseSpeciesViewModel" Property="RowNumber" Visible="false" />
+                        <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionDiseaseSpeciesViewModel" Property="DiseaseName"
+                                              Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SessionInformationDiseaseColumnHeading)">
+                            <EditTemplate Context="data">
+                                <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.SessionInformationDiseaseColumnHeading" IsLabelHidden="true" IsRow="false" CssClass="col-6" For="diseaseID">
+                                    <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
+                                                FilterOperator="StringFilterOperator.StartsWith" 
+                                                Data="@StateContainer.Diseases" Name="diseaseID" TextProperty="DiseaseName" ValueProperty="DiseaseID" 
+                                                @bind-Value="@data.DiseaseID" Change="@OnDiseaseChange" LoadData="GetDiseasesAsync" />
+                                </InterfaceEditorResource>
+                            </EditTemplate>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionDiseaseSpeciesViewModel" Property="SpeciesTypeName"
+                                              Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SessionInformationSpeciesColumnHeading)">
+                            <EditTemplate Context="data">
+                                <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.SessionInformationSampleTypeColumnHeading" IsLabelHidden="true" IsRow="false" CssClass="col-6" For="speciesTypeID">
+                                    <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
+                                                FilterOperator="StringFilterOperator.StartsWith" 
+                                                Data="@StateContainer.Species" TValue="long?" LoadData="GetSpeciesAsync" Name="speciesTypeID"
+                                                TextProperty="strName" ValueProperty="idfsBaseReference" @bind-Value="@data.SpeciesTypeID" />
+                                </InterfaceEditorResource>
+                            </EditTemplate>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionDiseaseSpeciesViewModel" Property="SampleTypeName"
+                                              Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SessionInformationSampleTypeColumnHeading)">
+                            <EditTemplate Context="data">
+                                <InterfaceEditorResource InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.SessionInformationSampleTypeColumnHeading" IsLabelHidden="true" IsRow="false" CssClass="col-6" For="sampleTypeID">
+                                    <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                Data="@StateContainer.SampleTypes" TValue="long?" Name="sampleTypeID" FilterOperator="StringFilterOperator.StartsWith"
+                                                TextProperty="strSampleType" ValueProperty="idfsSampleType" @bind-Value="@data.SampleTypeID" LoadData="@(args => GetSampleTypesByDiseaseAsync(args, data.DiseaseID))"/>
+                                </InterfaceEditorResource>
+                            </EditTemplate>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionDiseaseSpeciesViewModel" Property="" Title="" Sortable="false" Filterable="false"
+                                              Visible="@(StateContainer.ActiveSurveillanceSessionPermissions.Write)" Width="100px">
+                            <Template Context="data">
+                                <button @onclick="@(() => OnEditDiseaseSpeciesClick(data))" class="btn btn-sm" disabled="@EditIsDisabled" type="button">
+                                    <i class="fas fa-edit fa-lg"></i>
+                                </button>
+                            </Template>
+                            <EditTemplate Context="data">
+                                <button @onclick="@(() => OnSaveDiseaseSpeciesClick(data))" class="btn btn-sm" type="button">
+                                    <i class="fas fa-save fa-lg"></i>
+                                </button>
+                                <button @onclick="@(() => OnCancelDiseaseSpeciesEditClick(data))" class="btn btn-sm" type="button">
+                                    <i class="fas fa-ban fa-lg"></i>
+                                </button>
+                            </EditTemplate>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionDiseaseSpeciesViewModel" Property="" Title="" Sortable="false" Filterable="false" Width="50px">
+                            <Template Context="data">
+                                <button @onclick="@(() => OnDeleteDiseaseSpeciesClick(data))" class="btn btn-sm" disabled="@DeleteIsDisabled" type="button">
+                                    <i class="fas fa-trash fa-lg"></i>
+                                </button>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+</div>
+

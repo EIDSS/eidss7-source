@@ -1,0 +1,463 @@
+﻿@model EIDSS.Web.ViewModels.Human.ILIAggregatePageViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@using EIDSS.Web.TagHelpers.Models
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.ILIAggregatePageHeading);
+}
+
+<style type="text/css">
+    button.dt-button, button.buttons-print { display: none; }
+</style>
+
+@{
+    Model.eidssGridConfiguration.GridId = "gILIAggregateSearchResults";
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.ControlFilterID = "txtFormID,txtLegacyFormID,WeeksFrom,WeeksTo,ddlHospitalList,ddlDataEntrySiteList";
+    Model.eidssGridConfiguration.AjaxDataUrl = Url.Action("GetList", "ILIAggregateSearchPage");
+    Model.eidssGridConfiguration.CustomSearchBtnID = "btnSearch";
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.EnableProcessingMessage = false;
+    Model.eidssGridConfiguration.DefaultSortDirection = SortDirection.Descending;
+    Model.eidssGridConfiguration.EnableShowHideColumns = false;
+    Model.eidssGridConfiguration.EnableCustomSearching = false;
+    Model.eidssGridConfiguration.EnablePrintButton = false;
+    Model.eidssGridConfiguration.EditType = EditType.Inline;
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels
+    {
+        DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage),
+        EditModalMessage = Localizer.GetString((int) InterfaceEditorResourceSetEnum.WarningMessages + "Are you sure that you want to Edit this record?" + (long) InterfaceEditorTypeEnum.Message),
+        DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+        SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+        DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton),
+        CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton),
+        CancelInlineEditTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)
+    };
+    Model.eidssGridConfiguration.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.eidssGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.eidssGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "AggregateHeaderKey",
+        ColumnTitleHeader = string.Empty,
+        ColumnType = ColumnType.Default,
+        Visible = false
+    });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "FormID",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchILIAggregateFormIDColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.HyperLink,
+        ColumnHyperlinkURL = Url.Action("Index", "ILIAggregateAddEditPage", new {Area = "Human"}),
+        Orderable = true
+    });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "LegacyFormID",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchILIAggregateLegacyIDColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        Orderable = true
+    });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "StartDate",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchILIAggregateWeekColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        Orderable = true
+    });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "ILITablesList",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchILIAggregateNameOfHospitalSentinelStationColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        Orderable = true
+    });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnType = ColumnType.HyperLink,
+        ColumnHyperlinkURL = Url.Action("Index", "ILIAggregateAddEditPage", new {Area = "Human"}),
+        CustomLinkText = "",
+        ClassName = "ILIAggregateEditLink",
+        HyperLinkDataFieldCSSImage = "fas fa-edit fa-lg",
+        HyperLinkDataFieldText = "",
+        ColumnTitleHeader = "",
+        Visible = true,
+        Orderable = true
+    });
+}
+
+<partial name="_WarningModalPartial"/>
+<form id="iliSearchForm">
+    <div class="card">
+        <div class="card-header">
+            <h3>@Localizer.GetString(HeadingResourceKeyConstants.ILIAggregatePageHeading)</h3>
+        </div>
+        <div class="card-body">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-lg-11">
+                            <h4>@Localizer.GetString(HeadingResourceKeyConstants.SearchCriteriaHeading)</h4>
+                        </div>
+                        <div class="col-lg-1">
+                            <span id="sSearchCriteriaToggle" class="fas fa-caret-up align-bottom fa-2x e-dark-blue" data-toggle="collapse" data-target="#dSearchCriteria" aria-expanded="true" onclick="toggleSearchCriteria();">&nbsp;</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="dSearchCriteria" class="card-body show">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label asp-for="FormID">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchILIAggregateFormIDFieldLabel)</label>
+                            <input id="txtFormID" type="text" asp-for="FormID" class="form-control" SearchFilter="true"/>
+                            <br/>
+                        </div>
+                        <div class="col-md-3"></div>
+                        <div class="col-md-3"></div>
+                        <div class="col-md-3"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label asp-for="LegacyFormID">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchILIAggregateLegacyIDFieldLabel)</label>
+                            <input id="txtLegacyFormID" type="text" asp-for="LegacyFormID" class="form-control" SearchFilter="true"/>
+                            <br/>
+                        </div>
+                        <div class="col-md-3"></div>
+                        <div class="col-md-3"></div>
+                        <div class="col-md-3"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label asp-for="WeeksFrom">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchILIAggregateWeeksFromFieldLabel)</label>
+                            <eidss-calendar id="WeeksFrom" name="WeeksFrom" asp-for="@Model.WeeksFrom" class="form-control" SearchFilter="true" date-format="d" shortdate="true" dates-ids-to_validate="WeeksTo"></eidss-calendar>
+                            <span asp-validation-for="WeeksFrom" class="text-danger"></span>
+                            <br/>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="WeeksTo">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchILIAggregateWeeksToFieldLabel)</label>
+                            <eidss-calendar id="WeeksTo" name="WeeksTo" asp-for="@Model.WeeksTo" class="form-control" SearchFilter="true" date-format="d" shortdate="true" dates-ids-to_validate="WeeksFrom"></eidss-calendar>
+                            <span asp-validation-for="WeeksTo" class="text-danger"></span>
+                            <br/>
+                        </div>
+                        <div class="col-md-3"></div>
+                        <div class="col-md-3"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label asp-for="HospitalList">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchILIAggregateNameOfHospitalSentinelStationFieldLabel)</label>
+                            <br/>
+                            <select asp-for="HospitalList" asp-items="@(new SelectList(Model.HospitalList, "OrganizationKey", "AbbreviatedName"))" class="form-control" id="ddlHospitalList" SearchFilter="true">
+                            </select>
+                            <br/><br/>
+                        </div>
+                        <div class="col-md-3"></div>
+                        <div class="col-md-3"></div>
+                        <div class="col-md-3"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label asp-for="DataEntrySiteList">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchILIAggregateDataEntrySiteFieldLabel)</label>
+                            <br/>
+                            <select asp-for="DataEntrySiteList" asp-items="@(new SelectList(Model.DataEntrySiteList, "OrganizationKey", "AbbreviatedName"))" class="form-control" id="ddlDataEntrySiteList" SearchFilter="true">
+                            </select>
+                            <br/>
+                        </div>
+                        <div class="col-md-3"></div>
+                        <div class="col-md-3"></div>
+                        <div class="col-md-3"></div>
+                    </div>
+                    <div class="row mt-5">
+                        <div class="col-md-3">
+                            <br/>
+                            <button id="btnClear" type="button" class="btn btn-default">@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)</button>
+                            <button id="btnSearch" type="button" class="btn btn-primary" onclick="toggleSearchCriteria();" data-toggle="collapse" data-target="#dSearchCriteria" aria-expanded="true" aria-controls="dSearchCriteria dAngleDown dAngleUp">@Localizer.GetString(ButtonResourceKeyConstants.SearchButton)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="dResults" class="card" style="display: none">
+                <div class="card-header">
+                    <h4>@Localizer.GetString(HeadingResourceKeyConstants.SearchResultsHeading)</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row justify-content-center m-3">
+                        <div class="col-md-12">
+                            <eidss-grid class-name="@Model.eidssGridConfiguration.GridClass" control-labels="@Model.eidssGridConfiguration.ControlLabels" custom-search-btn-id="@Model.eidssGridConfiguration.CustomSearchBtnID" enable-processing="@Model.eidssGridConfiguration.EnableProcessingMessage" enable-search="@Model.eidssGridConfiguration.EnableSearching" enable-server-side="@Model.eidssGridConfiguration.EnableServerSide" enable-top-header-search-button="@Model.eidssGridConfiguration.EnableCustomSearching" end-point="@Model.eidssGridConfiguration.AjaxDataUrl" filtered-control-ids="@Model.eidssGridConfiguration.ControlFilterID" grid-configuration="@Model.eidssGridConfiguration" id="@Model.eidssGridConfiguration.GridId">
+                            </eidss-grid>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <br/>
+                            <button button-for="@ButtonResourceKeyConstants.CancelButton" class="btn btn-default" id="btnCancelSearchCriteria" onclick="cancelILIAggregateFormSearch('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)', event)" type="button"></button>
+                            <button button-for="@ButtonResourceKeyConstants.PrintButton" class="btn btn-default" id="btnPrint2" type="button"></button>
+                            <button button-for="@ButtonResourceKeyConstants.AddButton" class="btn btn-primary" id="btnAddILIAggregate" onclick="addILIAggregate();" type="button" visible="@Model.UserPermissions.Create"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Modal code -->
+<div class="modal fade" id="verifyDateModal" tabindex="-1" role="dialog" aria-labelledby="warningModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="warningModalHeader">EIDSS</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 text-right">
+                        <span class="fas fa-info-circle fa-2x modal-icon"></span>
+                    </div>
+                    <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                        <p id="warningMessage"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Barcode Print Modal -->
+<div class="modal fade" id="printModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-lg modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@(Localizer.GetString(HeadingResourceKeyConstants.ILIAggregatePageHeading))</h5>
+                <button type="button" class="close" data-dismiss="modal" onclick="refreshPage();" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="printModalBarCode"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        
+        $("#ddlHospitalList, #ddlDataEntrySiteList").removeAttr("multiple");        
+
+        $("#ddlHospitalList, #ddlDataEntrySiteList").select2();
+
+        $("#txtFormID,#txtLegacyFormID").on("keyup", function () {
+            checkPopulatedFields();
+        });
+
+        $("#WeeksFrom,#WeeksTo,#ddlHospitalList,#ddlDataEntrySiteList").on("change", function () {
+            checkPopulatedFields();
+        });        
+
+        // Enter keypress
+        $(document).keypress(function (e) {
+            var key = e.which;
+            if (key == 13 && !$("#btnSearch").is(":disabled"))  // the enter key code
+            {
+                $("#btnSearch").trigger('click');
+                return false;
+            }
+        });
+
+        // Clear button
+        $("#btnClear").click(function () {
+
+            //$("#txtFormID,#txtLegacyFormID,#WeeksFrom,#WeeksTo").val("");
+            $("#txtFormID,#txtLegacyFormID").val("");
+
+            //$("#ddlHospitalList,#ddlDataEntrySiteList").val(-1);            
+            $("#ddlHospitalList").val(null).trigger('change');
+            $("#ddlDataEntrySiteList").val(null).trigger('change');
+
+            $("#ddlHospitalList").val(-1);
+            $("#ddlDataEntrySiteList").val(-1);
+            
+            //$("#btnSearch").prop("disabled", true);
+            
+            // set us back to startup values
+            //resetDates();         
+            //Since Weeks From and Weeks To in ILI Aggregate FSearch are not required fields so Clear button shall allow to clear the default dates.
+            $("#WeeksFrom,#WeeksTo").val("");
+        });
+    });
+
+    // reset the dates to the "hidden" values
+    function resetDates() {
+        var objDateFrom = new Date($("#WeeksFrom").val())
+        var dayFrom = ("0" + objDateFrom.getDate()).slice(-2);
+        var monthFrom = ("0" + (objDateFrom.getMonth() + 1)).slice(-2);
+        var dateFrom = objDateFrom.getFullYear()+"-"+(monthFrom)+"-"+(dayFrom) ;
+                        
+        $("#WeeksFrom").val(dateFrom);
+
+        var objDateTo = new Date($("#WeeksTo").val())            
+        var dayTo = ("0" + objDateTo.getDate()).slice(-2);
+        var monthTo = ("0" + (objDateTo.getMonth() + 1)).slice(-2);
+        var dateTo = objDateTo.getFullYear()+"-"+(monthTo)+"-"+(dayTo) ;
+            
+        $("#WeeksTo").val(dateTo);
+    };
+
+    // Check for populated fields to allow Search
+    function checkPopulatedFields() {
+        var bOneFieldPopulated = false;
+
+        $("input[SearchFilter]").each(function (i, j) {
+            if ($(j).val() != "") {
+                bOneFieldPopulated = true;
+                return false;
+            }
+        });
+
+        $("select[SearchFilter]").each(function (i, j) {
+            if ($(j).val() > 0) {
+                bOneFieldPopulated = true;
+                return false;
+            }
+        });
+
+        $("#btnSearch").prop("disabled", !bOneFieldPopulated);
+    };
+
+    // display the modal
+    function showverifyDateModal(message, title = "@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)", size = "medium") {
+        const modal = new Promise(function (resolve, reject) {
+            $("#verifyDateModal").find(".modal-header > h5").text(title).end();
+            $("#verifyDateModal").find("#warningMessage").text(message.replace(/&quot;/g, '\"')).end(); // replace HTML &quot to show actual double quotes.
+            $("#verifyDateModal").modal("show");
+
+            $("#verifyDateModal .btn-primary").click(function () {
+                $("#verifyDateModal").modal("hide");
+                resolve(true);
+            });
+        }).then(response => {
+            return response;
+        });
+
+        return modal;
+    };
+
+    // Toggle Search button
+    function toggleSearchCriteria() {
+        if ($("#dSearchCriteria").hasClass("show")) {
+            $("#dResults").show();
+            $("#sSearchCriteriaToggle").removeClass("fa-caret-up").addClass("fa-caret-down");
+        }
+        else {
+            $("#sSearchCriteriaToggle").removeClass("fa-caret-down").addClass("fa-caret-up");
+        }
+    };
+
+    // Cancel Button
+    function cancelILIAggregateFormSearch(message, event) {
+        event.preventDefault();
+
+        showWarningModal(message).then(response => {
+            if (response) {                    
+                location.href = '@Url.Action("Index", "ILIAggregateSearchPage")';                 
+            }
+        });
+    };
+
+    // Add Button
+    function addILIAggregate() {               
+        location.href = '@Url.Action("Index", "ILIAggregateAddEditPage")'; 
+    };
+
+    // Print Button
+    function printILIAggregateFormSearch(message, event) {
+        event.preventDefault();
+
+        showWarningModal(message).then(response => {
+            if (response) {                    
+                location.href = '@Url.Action("Index", "ILIAggregateSearchPage")';                 
+            }
+        });
+    };
+</script>
+
+<script>
+      //Show the detail modal for fixed
+    //or reference types
+    $("#btnPrint2").on('click', function() {
+
+        //set the currently selected item
+        //  SetSeletedParameter(data);
+
+        //retrieve the current item into a model
+        var model = GetSelectedParameter();
+
+        //go get the detail partial view for the modal
+        $.ajax({
+            url: '@Url.Action("ShowPrintBarCodeScreen", "ILIAggregateSearchPage", new {Area = "Human"})',
+            type: 'POST',
+            data: JSON.stringify(model),
+            dataType: "HTML",
+            contentType: "application/json: charset=utf-8",
+            success: function (resp) {
+                $("#printModalBarCode").html(resp);
+                $("#printModal").modal('show');
+            },
+            complete: function (resp) {
+            },
+            error: function (request, error) {
+            }
+        });
+    })
+
+    //Get properties to retrieve
+    function GetSelectedParameter() {
+        //ddlDataEntrySiteList
+        var table = $('#gILIAggregateSearchResults').DataTable();
+        var rowCount = table.rows().count();
+        var pageNo = table.page() + 1;
+       
+        var model = {};
+        model.LangID = $("#SelectedDetail_LanguageId").val();
+        model.ReportTitle = 'SearchForILIAggregateForm';
+        model.pageNo = pageNo;
+        model.pageSize = 10;
+        model.SortColumn = 'FormID';
+        model.SortOrder = 'desc';
+        model.ApplySiteFiltrationIndicator = false;
+        model.FormID = '';
+        model.LegacyFormID =$('#txtLegacyFormID').val();
+        model.AggregateHeaderId = '';
+        model.HospitalId= $("#ddlHospitalList").select2().val();
+        model.FinishDate =$('#WeeksTo').val();
+        model.startDate = $('#WeeksFrom').val();
+        model.printDateTime = localDate();
+        
+        model.UserSiteId = '';
+        model.UserOrganizationId = '';
+        model.UserEmployeeId='';
+        model.PersonId = '';
+        return model;
+    };
+</script>
+
+<partial name="_ValidationScriptsPartial"/>

@@ -1,0 +1,22 @@
+﻿.outbreakNoteAlterLow {
+    background-color: green;
+}
+
+.outbreakNoteAlterMedium {
+    background-color: yellow;
+}
+
+.outbreakNoteAlterHigh {
+    background-color: red;
+}
+
+.flex-container-sm > .divider-panel-outbreak-note {
+    background-image: url(../Images/pipe.png);
+    background-size: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: white;
+    vertical-align: middle;
+    border-top: solid 1px gray;
+    border-bottom: solid 1px gray;
+}

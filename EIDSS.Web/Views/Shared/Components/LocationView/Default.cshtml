@@ -1,0 +1,1354 @@
+﻿@model EIDSS.Domain.ViewModels.CrossCutting.LocationViewModel
+@{
+    string closeMapModalControlID = "btn" + Model.CallingObjectID + "CloseMapModal";
+    //string elevationControlID = Model.CallingObjectID + "Elevation";
+    //string latitudeControlID = Model.CallingObjectID + "Latitude";
+    //string longitudeControlID = Model.CallingObjectID + "Longitude";
+}
+<script type="text/javascript">
+
+    var callingObjectID;
+    var adminLevel0ID;
+    var adminLevel1ID;
+    var adminLevel2ID;
+    var adminLevel3ID;
+    var adminLevel4ID;
+    var adminLevel5ID;
+    var adminLevel6ID;
+    var settlementTypeID;
+    //var settlementID;
+    var apartmentID;
+    var buildingID;
+    var houseID;
+    var bottomAdminLevel;
+    var bottomAdminValueID;
+
+    var bottomAdminLevelID;
+    var selectedAdminLevel;
+    var selectedAdminLevelID;
+    var streetID;
+    var newStreetID;
+    var postalCodeID;
+    var newPostalCodeID;
+    var userAdminLevel1ID;
+    var userAdminLevel2ID;
+    var closeMapModalControlID;
+    var elevationControlID;
+    var latitudeControlID;
+    var longitudeControlID;
+    var mapControlID;
+    var mapUrlID;
+    var zoomID;
+
+    var map;
+    var defaultLat;
+    var defaultLong;
+    var inputLat;
+    var inputLng;
+    var photonUrl;
+    var query;
+    var zoomValue;
+    var tiles;
+    var latLongCoordinates = new Object();
+    latLongCoordinates.lat = "";
+    latLongCoordinates.long = "";
+    var adminLevel1IDType;
+    var adminLevel2IDType;
+    var adminLevel3IDType;
+    var adminLevel4IDType;
+    var adminLevel5IDType;
+    var adminLevel6IDType;
+    var selectedSettlementType = null;
+    var disableAtElementLevelId;
+
+    $.validator.unobtrusive.adapters.add("localizedrequiredwhentrue", ["otherproperty", "otherpropertyvalue"], function (options) {
+        options.rules["localizedrequiredwhentrue"] = options.params;
+        options.messages["localizedrequiredwhentrue"] = options.message
+    });
+
+    $.validator.addMethod("localizedrequiredwhentrue", function (value, element, parameters) {
+        var targetId = parameters.otherproperty;
+        var targetValue = parameters.otherpropertyvalue;
+        var otherpropertyvalue = (targetValue == null || targetValue == undefined ? "false" : targetValue).toString();
+        //var otherpropertyElement = $("#" + callingObjectID + targetId);
+        var otherpropertyElement = $("#" + targetId);
+
+        if (!value)
+            value = "";
+
+        if ((value.trim() == "" || value.trim() == null) && otherpropertyElement.val().toString().toLowerCase() == otherpropertyvalue.toString().toLowerCase()) {
+            var isValid = $.validator.methods.required.call(this, value, element, parameters);
+            return isValid;
+        }
+        return true;
+    });
+
+    function setCallingObjectElements(callingObjectId) {
+
+        adminLevel0ID = $("#" + callingObjectId + "AdminLevel0Value");
+        adminLevel1ID = $("#" + callingObjectId + "AdminLevel1Value");
+        adminLevel2ID = $("#" + callingObjectId + "AdminLevel2Value");
+        adminLevel3ID = $("#" + callingObjectId + "AdminLevel3Value");
+        adminLevel4ID = $("#" + callingObjectId + "AdminLevel4Value");
+        adminLevel5ID = $("#" + callingObjectId + "AdminLevel5Value");
+        adminLevel6ID = $("#" + callingObjectId + "AdminLevel6Value");
+        userAdminLevel1ID = $("#" + callingObjectId + "UserAdministrativeLevel1");
+        userAdminLevel2ID = $("#" + callingObjectId + "UserAdministrativeLevel2");
+        settlementTypeID = $("#" + callingObjectId + "SettlementType");
+        streetID = $("#" + callingObjectId + "StreetText")
+        postalCodeID = $("#" + callingObjectId + "PostalCodeText")
+        newPostalCodeID = $("#" + callingObjectId + "NewPostalCode");
+        apartmentID = $("#" + callingObjectId + "Apartment");
+        buildingID = $("#" + callingObjectId + "Building");
+        houseID = $("#" + callingObjectId + "House");
+        elevationControlID = $("#" + callingObjectId + "Elevation");
+        latitudeControlID = $("#" + callingObjectId + "Latitude");
+        longitudeControlID = $("#" + callingObjectId + "Longitude");
+        closeMapModalControlID = $("#" + callingObjectId + "CloseMapModal");
+        mapControlID = $("#" + callingObjectId + "ShowMap");
+        newStreetID = $("#" + callingObjectId + "NewStreet");
+        newPostalCodeID = $("#" + callingObjectId + "NewPostalCode");
+        mapUrlID = $("#" + callingObjectId + "MapUrl");
+        bottomAdminLevelID = $("#" + callingObjectId + "BottomAdminLevel");
+        zoomID = $("#" + callingObjectId + "Zoom");
+
+        selectedAdminLevelID = $("#" + callingObjectId + "SelectedAdminLevel");
+
+        disableAtElementLevelId = $("#" + callingObjectId + "DisableAtElementLevel");
+
+
+    }
+
+    $(document).ready(function () {
+
+        adminLevel0ID = $('select[id$=AdminLevel0Value]')[0];
+        adminLevel0ID = $("#" + adminLevel0ID.id);
+        adminLevel1ID = $('select[id$=AdminLevel1Value]')[0];
+        adminLevel1ID = $("#" + adminLevel1ID.id);
+        adminLevel2ID = $('select[id$=AdminLevel2Value]')[0];
+        adminLevel2ID = $("#" + adminLevel2ID.id);
+        adminLevel3ID = $('select[id$=AdminLevel3Value]')[0];
+        adminLevel3ID = $("#" + adminLevel3ID.id);
+        adminLevel4ID = $('select[id$=AdminLevel4Value]')[0];
+        adminLevel4ID = $("#" + adminLevel4ID.id);
+        adminLevel5ID = $('select[id$=AdminLevel5Value]')[0];
+        adminLevel5ID = $("#" + adminLevel5ID.id);
+        adminLevel6ID = $('select[id$=AdminLevel6Value]')[0];
+        adminLevel6ID = $("#" + adminLevel6ID.id);
+        userAdminLevel1ID = $('input[id$=UserAdministrativeLevel1]')[0];
+        userAdminLevel1ID = $("#" + userAdminLevel1ID.id);
+        userAdminLevel2ID = $('input[id$=UserAdministrativeLevel2]')[0];
+        userAdminLevel2ID = $("#" + userAdminLevel2ID.id);
+        settlementTypeID = $('select[id$=SettlementType]')[0];
+        settlementTypeID = $("#" + settlementTypeID.id);
+        streetID = $('select[id$=StreetText]')[0];
+        streetID = $("#" + streetID.id)
+        newStreetID = $("input[type='hidden'][id$=NewStreet]")[0];
+        newStreetID = $("#" + newStreetID.id);
+        postalCodeID = $('select[id$=PostalCodeText]')[0];
+        postalCodeID = $("#" + postalCodeID.id)
+        newPostalCodeID = $("input[type='hidden'][id$=NewPostalCode]")[0];
+        newPostalCodeID = $("#" + newPostalCodeID.id);
+        apartmentID = $("input[type='text'][id$=Apartment]")[0];
+        apartmentID = $("#" + apartmentID.id);
+        buildingID = $("input[type='text'][id$=Building]")[0];
+        buildingID = $("#" + buildingID.id);
+        houseID = $("input[type='text'][id$=House]")[0];
+        houseID = $("#" + houseID.id);
+        mapUrlID = $("input[type='hidden'][id$=MapUrl]")[0];
+        mapUrlID = $("#" + mapUrlID.id);
+        zoomID = $("input[type='hidden'][id$=Zoom]")[0];
+        zoomID = $("#" + zoomID.id);
+        bottomAdminLevelID = $("input[type='hidden'][id$=BottomAdminLevel]")[0];
+        bottomAdminLevelID = $("#" + bottomAdminLevelID.id);
+        bottomAdminLevel = bottomAdminLevelID.val();
+        selectedAdminLevelID = $("input[type='hidden'][id$=SelectedAdminLevel]")[0];
+        selectedAdminLevelID = $("#" + selectedAdminLevelID.id);
+        selectedAdminLevel = selectedAdminLevelID.val();
+
+        disableAtElementLevelId = $("input[type='hidden'][id$=DisableAtElementLevel]")[0];
+        disableAtElementLevelId = $("#" + disableAtElementLevelId.id);
+
+        elevationControlID = $("input[type='number'][id$=Elevation]")[0];
+        elevationControlID = $("#" + elevationControlID.id);
+        latitudeControlID = $("input[type='number'][id$=Latitude]")[0];
+        latitudeControlID = $("#" + latitudeControlID.id);
+        longitudeControlID = $("input[type='number'][id$=Longitude]")[0];
+        longitudeControlID = $("#" + longitudeControlID.id);
+
+        mapControlID = $('[id$=ShowMap]')[0];
+        mapControlID = $("#" + mapControlID.id);
+
+        initializeSelect2DropDowns();
+
+        $(function () {
+            $("[id*='ShowMap']").dblclick(false);
+        });
+
+
+    });
+
+    function setTile(mapQuery, mapZoom, callingObjectObjectId) {
+        query = mapQuery;
+        zoomValue = mapZoom;
+        getCoordinates(callingObjectObjectId);
+    };
+
+    function getCoordinates(callingObjectObjectId) {
+        if (query != undefined) {
+            var latLongLoaded = new Promise(function (resolve, reject) {
+                if (query != undefined) {
+                    photonUrl = query;
+                    $.ajax({
+                        url: photonUrl,
+                        type: "GET",
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.features[0] == undefined) {
+                                //alert("Unable to get the map for the requested location; getting the country's map.");
+                                photonUrl = '@Model.LeafletAPIUrl' + 'api/?q=' +'@Model.DefaultCountry' + '&osm_tag=place:country';
+                                $.ajax({
+                                    url: photonUrl,
+                                    type: "GET",
+                                    dataType: "json",
+                                    success: function (data2) {
+                                        if (data2.features[0] == undefined) {
+                                            alert("Unable to get the country's map.");
+                                        }
+                                        else {
+                                            //Forcing map to show Epi Center of country, when nothing has been stated by the user, for location
+                                            defaultLat = data2.features[0].geometry.coordinates[1];
+                                            defaultLong = data2.features[0].geometry.coordinates[0];
+                                            //Setting a common zoom to get some perspective on the area.
+                                            zoomValue = 6;
+                                            latLongCoordinates.lat = defaultLat;
+                                            latLongCoordinates.long = defaultLong;
+                                            resolve(latLongCoordinates);
+                                        }
+                                    },
+                                    headers: {
+                                        'Access-Control-Allow-Origin': '*',
+                                        'Access-Control-Allow-Credentials': true,
+                                    },
+                                    error: function (request, error) {
+                                        alert("Request: " + JSON.stringify(request) + '.' + ' Error: ' + JSON.stringify(error));
+                                        reject();
+                                    }
+                                });
+                            }
+                            else {
+                                defaultLat = data.features[0].geometry.coordinates[1];
+                                defaultLong = data.features[0].geometry.coordinates[0];
+                                latLongCoordinates.lat = defaultLat;
+                                latLongCoordinates.long = defaultLong;
+                                resolve(latLongCoordinates);
+                            }
+                        },
+                        headers: {
+                            'Access-Control-Allow-Origin': '*',
+                            'Access-Control-Allow-Credentials': true,
+                        },
+                        error: function (request, error) {
+                            alert("Request: " + JSON.stringify(request) + "." + " Error: " + JSON.stringify(error));
+                            reject();
+                        }
+                    });
+                }
+                else
+                    resolve(latLongCoordinates);
+            });
+
+            latLongLoaded.then(function (fulfilled) {
+                populateCoordinates(callingObjectObjectId);
+            }).catch(function (error) {
+                console.log(error);
+            });
+        }
+        else {
+            populateCoordinates(callingObjectObjectId);
+        }
+    };
+
+    function populateCoordinates(callingObjectId) {
+
+        latitudeControlID = $("#" + callingObjectId + "Latitude");
+        longitudeControlID = $("#" + callingObjectId + "Longitude");
+        elevationControlID = $("#" + callingObjectId + "Elevation");
+        var latitude;
+        var longitude;
+        var elevation;
+        var divMapContainer;
+        var divMapModal;
+        latitude =latitudeControlID;
+        longitude = longitudeControlID;
+        elevation = elevationControlID;
+        divMapContainer = "divMapContainer";
+        divMapModal = "#divMapModal";
+        inputLat = $(latitude).val();
+        inputLng = $(longitude).val();
+        elevation  =$(elevation).val();
+
+        if (defaultLat !== "" | defaultLat != undefined) {
+            if (inputLat === "" | inputLat == undefined) {
+                inputLat = defaultLat;
+                $(latitude).val(inputLat);
+            }
+        }
+
+        if (defaultLong !== "" | defaultLong != undefined) {
+            if (inputLng === "" | inputLng == undefined) {
+                inputLng = defaultLong;
+                $(longitude).val(inputLng);
+            }
+        }
+
+        // Initialize the map and set the type.
+        //var layer = new L.StamenTileLayer("terrain");
+        var layer = new L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+        });
+
+        if (map == undefined) {
+            map = new L.Map(divMapContainer, {
+                center: new L.LatLng(inputLat, inputLng),
+                zoom: zoomValue
+            })
+            map.addLayer(layer);
+
+            var marker = L.marker([inputLat, inputLng], { draggable: "true" }).addTo(map);
+
+            marker.on("drag", function (e) {
+                var marker = e.target;
+                var position = marker.getLatLng();
+                map.panTo(new L.LatLng(position.lat, position.lng));
+                $(latitude).val(position.lat);
+                $(longitude).val(position.lng);
+            });
+        } else {
+            map.remove();
+            map = new L.Map(divMapContainer, {
+                center: new L.LatLng(inputLat, inputLng),
+                zoom: zoomValue
+            })
+            map.addLayer(layer);
+            var marker = L.marker([inputLat, inputLng], { draggable: "true" }).addTo(map);
+            marker.on("drag", function (e) {
+                var marker = e.target;
+                var position = marker.getLatLng();
+                map.panTo(new L.LatLng(position.lat, position.lng));
+                $(latitude).val(position.lat);
+                $(longitude).val(position.lng);
+            });
+        };
+        $(divMapModal).on("shown.bs.modal", function (e) {
+            setTimeout(function () {
+                map.invalidateSize();
+            }, 1);
+            
+        }).modal("show");
+        $('[id="mapCancelButton"]').prop("disabled", false);
+        $(divMapModal).appendTo("body");
+
+    };
+
+    function setCoordinates(control) {
+        var latitude;
+        var longitude;
+        latitude = latitudeControlID;
+        longitude = longitudeControlID;
+        var hdfLatitude = latitude;
+        var hdfLongitude = longitude;
+        var shortLat = parseFloat($(latitude).val());
+        var shortLong = parseFloat($(longitude).val());
+        var strShortLat = shortLat.toFixed(6);
+        var strShortLong = shortLong.toFixed(6);
+        $(latitude).val(strShortLat.toLocaleString("en-US"));
+        $(longitude).val(strShortLong.toLocaleString("en-US"));
+        $(hdfLatitude).val(strShortLat.toLocaleString("en-US"));
+        $(hdfLongitude).val(strShortLong.toLocaleString("en-US"));
+
+        var btnMap = "ShowMap";
+
+        // Reset the on click attribute to reflect the updated latitude and longitude.  Use the reverse look up API call.
+        if (strShortLat != null && strShortLat != "NaN" && strShortLong != null && strShortLong != "NaN") {
+            document.getElementById(btnMap).setAttribute("onclick", "setTile('@Model.LeafletAPIUrl" +"reverse?lat=" + strShortLat.toLocaleString("en-US") + "&lon=" + strShortLong.toLocaleString("en-US") + "', '12')");
+        }
+    };
+
+    //function latLongChanged(obj) {
+    //    var control = obj.id.split("_");
+    //    var latitude = "#Latitude";
+    //    var longitude = "#Longitude";
+
+    //    // Determine the ID of the control to get or set for pages that have multiple instances of the location control.
+    //    if (parseFloat($(latitude).val()) && parseFloat($(longitude).val()))
+    //        setCoordinates(control);
+    //};
+
+
+    //$(document).on('onclick', '#ShowMap', function () {
+    function setMapDetails(callingObjectObjectId) {
+        setMapUrl(callingObjectObjectId);
+
+        var mapQuery = $("#" + callingObjectObjectId + "MapUrl").val();
+        var mapZoom= $("#" + callingObjectObjectId + "Zoom").val();
+
+        setTile(mapQuery, mapZoom, callingObjectObjectId);
+    };
+
+    function setMapUrl(callingObjectId) {
+        ///Need to write Code to update Url in callingObjectObjectId MapUrl
+
+        latitudeControlID = $("#" + callingObjectId + "Latitude");
+        longitudeControlID = $("#" + callingObjectId + "Longitude");
+        elevationControlID = $("#" + callingObjectId + "Elevation");
+        adminLevel0ID = $("#" + callingObjectId + "AdminLevel0Value");
+        adminLevel1ID = $("#" + callingObjectId + "AdminLevel1Value");
+        adminLevel2ID = $("#" + callingObjectId + "AdminLevel2Value");
+        adminLevel3ID = $("#" + callingObjectId + "AdminLevel3Value");
+        adminLevel4ID = $("#" + callingObjectId + "AdminLevel4Value");
+        adminLevel5ID = $("#" + callingObjectId + "AdminLevel5Value");
+        adminLevel6ID = $("#" + callingObjectId + "AdminLevel6Value");
+
+        var query = '';
+        var zoom = '';
+
+        query = '@Model.LeafletAPIUrl' + 'api/?q=';
+
+        if (adminLevel3ID.val() != null && adminLevel3ID.val() !='') {
+            query += $(adminLevel3ID).find('option:selected').text();
+            zoom = '12';
+        }
+        if (adminLevel2ID.val() != null && adminLevel2ID.val() !='') {
+            if (query != '') {
+                query += '+';
+            }
+            query += $(adminLevel2ID).find('option:selected').text();
+            if (zoom == '') {
+                zoom = '10';
+            }
+        }
+        if (adminLevel1ID.val() != null && adminLevel1ID.val() !='') {
+            if (query != '') {
+                query += '+';
+            }
+            query += $(adminLevel1ID).find('option:selected').text();
+            if (zoom == '') {
+                zoom = '8';
+            }
+        }
+        if (query == '@Model.LeafletAPIUrl' + 'api/?q=') {
+            if (adminLevel0ID.val() != null && adminLevel0ID.val() !='') {
+                zoom = '6';
+                query += $(adminLevel0ID).find('option:selected').text() + "&osm_tag=place:country'";
+            }
+        }
+
+        if (latitudeControlID.val() != null && latitudeControlID.val() != '' && longitudeControlID.val() != null && longitudeControlID.val() != '') {
+            zoom = '12';
+            var culture = 'en-US';
+            query = '@Model.LeafletAPIUrl' + 'reverse?lat=' +parseFloat($(latitudeControlID).val()) + '&lon=' + parseFloat($(longitudeControlID).val());
+        }
+
+        $("#" + callingObjectId + "MapUrl").val(query);
+        $("#" + callingObjectId + "Zoom").val(zoom);
+
+    };
+
+    function setUserPreferredAdministrativeLevels() {
+        if (userAdminLevel1ID.val()) {
+            adminLevel1ID.val(userAdminLevel1ID.val());
+            bottomAdminLevel = userAdminLevel1ID.val();
+            refreshAdminLevel2(adminLevel1ID.val(), true);
+        }
+    };
+
+    function clearAll() {
+        adminLevel0ID.prop("disabled", false);
+        adminLevel0ID.empty();
+        clearAtAdminLevel1();
+    };
+
+    function clearAtAdminLevel1() {
+        adminLevel1ID.prop("disabled", true);
+        adminLevel1ID.empty();
+        clearAtAdminLevel2();
+    };
+
+    function clearAtAdminLevel2() {
+        adminLevel2ID.prop("disabled", true);
+        adminLevel2ID.empty();
+        clearAtAdminLevel3();
+
+    };
+
+    function clearAtAdminLevel3() {
+        adminLevel3ID.prop("disabled", true);
+        adminLevel3ID.empty();
+        clearAtAdminLevel4();
+    };
+
+    function clearAtAdminLevel4() {
+        adminLevel4ID.prop("disabled", true);
+        adminLevel4ID.empty();
+        clearAtAdminLevel5();
+    };
+
+    function clearAtAdminLevel5() {
+        adminLevel5ID.prop("disabled", true);
+        adminLevel5ID.empty();
+        clearAtAdminLevel6();
+    };
+
+    function clearAtAdminLevel6() {
+        adminLevel6ID.prop("disabled", true);
+        adminLevel6ID.empty();
+        refreshElementsAtBottomAdminSelection();
+    };
+
+    //To maintain the Selected level Value
+    function UpdateSelectedLevelValue(element, parentElement) {
+
+        var elementIdArr = $(element).attr('id').split("_");
+        var callingObjectId = $(element).attr('id').replace(elementIdArr[elementIdArr.length - 1], "");
+        selectedAdminLevelID = $("#" + callingObjectId + "SelectedAdminLevel");
+        selectedAdminLevelID.val(element.val());
+        selectedAdminLevel = selectedAdminLevelID.val();
+        var adminLevelIdType = null;
+        $.ajax({
+                url: '@Url.Action("GetGisLocationChildLevel", "LocationControl",new { Area = "CrossCutting", SubArea = "" })' + "?parentId=" + parentElement.val(),
+                type: "GET",
+                async: false, // Do not set to true as lower administrative levels setting to the correct value depend on the correct items being in the select control.
+                contentType: "application/json; charset=utf-8"
+            })
+            .done(function (data) {
+                $.each(data, function (i, level) {
+                    adminLevelIdType = level.levelType;
+                });
+                if (data.length > 0) {
+                    if (adminLevelIdType != null) {
+                        bottomAdminLevel = selectedAdminLevelID.val();
+                        bottomAdminLevelID.val(selectedAdminLevelID.val());
+                        refreshElementsAtBottomAdminSelection();
+                    }
+                }
+                refreshElementsAtBottomAdminSelection();
+            });
+        @Model.AdminLevelRefreshJavascriptFunction
+    }
+
+    function AdminLevel0Change(element) {
+        initializeSelect2DropDowns();
+        var elementIdArr = $(element).attr('id').split("_");
+        var callingObjectId = $(element).attr('id').replace(elementIdArr[elementIdArr.length - 1], "");
+        setCallingObjectElements(callingObjectId);
+        bottomAdminLevel = "";
+        if (adminLevel0ID.val()) {
+            //update query params
+            refreshAdminLevel1(adminLevel0ID, false,adminLevel0ID);
+        }
+        else {
+            clearAtAdminLevel1();
+            //refreshElementsAtBottomAdminSelection();
+        }
+
+    };
+
+    function refreshAdminLevel1(level0Element, clearedIndicator,level0ElementparentLevel) {
+        if (adminLevel1ID && level0Element) {
+            $.ajax({
+                    url: '@Url.Action("GetGisLocationChildLevel", "LocationControl", new { Area = "CrossCutting", SubArea = "" })' + "?parentId=" + level0Element.val(),
+                    type: "GET",
+                    async: false, // Do not set to true as lower administrative levels setting to the correct value depend on the correct items being in the select control.
+                    contentType: "application/json; charset=utf-8"
+                })
+                .done(function (data) {
+                    adminLevel1ID.empty();
+                    var items = '<option value=""></option>';
+                    $.each(data, function (i, level) {
+                        items += "<option value='" + level.idfsReference + "'>" + level.name + "</option>";
+                        adminLevel1IDType = level.levelType;
+                    });
+                    adminLevel1ID.html(items);
+                    if (data.length > 0) {
+                        adminLevel1ID.prop("disabled", false);
+                        clearAtAdminLevel2();
+                    }
+                    else {
+                        clearAtAdminLevel1();
+                    }
+
+                    UpdateSelectedLevelValue(level0Element, level0ElementparentLevel);
+
+                });
+        }
+        else {
+            UpdateSelectedLevelValue(level0Element, level0ElementparentLevel);
+
+        }
+
+    };
+
+    function AdminLevel1Change(element) {
+        var elementId = $(element).attr('id');
+        var elementIdArr = $(element).attr('id').split("_");
+        var callingObjectId = $(element).attr('id').replace(elementIdArr[elementIdArr.length - 1], "");
+        setCallingObjectElements(callingObjectId);
+        bottomAdminLevel = "";
+        bottomAdminLevelID.val('');
+        if (adminLevel1ID.val()) {
+            refreshAdminLevel2(adminLevel1ID,adminLevel0ID);
+        }
+        else {
+            clearAtAdminLevel2();
+            //refreshElementsAtBottomAdminSelection();
+
+        }
+
+        setMapUrl(callingObjectId);
+    };
+
+    function refreshAdminLevel2(level1Element,parentElement) {
+        if (adminLevel2ID && level1Element) {
+
+            $.ajax({
+                    url: '@Url.Action("GetGisLocationChildLevel", "LocationControl",new { Area = "CrossCutting", SubArea = "" })' + "?parentId=" + level1Element.val(),
+                    type: "GET",
+                    async: false, // Do not set to true as lower administrative levels setting to the correct value depend on the correct items being in the select control.
+                    contentType: "application/json; charset=utf-8"
+                })
+                .done(function (data) { 
+                    adminLevel2ID.empty();
+                    var items = '<option value=""></option>';
+                    $.each(data, function (i, level) {
+                        items += "<option value='" + level.idfsReference + "'>" + level.name + "</option>";
+                        adminLevel2IDType = level.levelType;
+
+                    });
+                    adminLevel2ID.html(items);
+                    if (data.length > 0) {
+                        adminLevel2ID.prop("disabled", false);
+                        clearAtAdminLevel3();
+                        updateSettlementType(adminLevel2ID, false);
+                    }
+                    else {
+                        clearAtAdminLevel2();
+                    }
+
+                    UpdateSelectedLevelValue(level1Element, parentElement);
+
+
+                });
+        }
+        else {
+            UpdateSelectedLevelValue(level1Element, parentElement);
+        }
+
+    };
+
+    function AdminLevel2Change(element) { 
+        var elementIdArr = $(element).attr('id').split("_");
+        var callingObjectId = $(element).attr('id').replace(elementIdArr[elementIdArr.length - 1], "");
+        bottomAdminLevel = "";
+        bottomAdminLevelID.val('');
+        setCallingObjectElements(callingObjectId);
+        if (adminLevel2ID.val()) {
+            refreshAdminLevel3(adminLevel2ID, null, adminLevel1ID);
+        }
+        else {
+            clearAtAdminLevel3();
+            //refreshElementsAtBottomAdminSelection();
+        }
+        setMapUrl(callingObjectId);
+    };
+
+    function refreshAdminLevel3(level2Element, filterValue, parentElement) {
+        if (adminLevel3ID && level2Element) {
+            $.ajax({
+                    url: '@Url.Action("GetGisLocationChildLevel", "LocationControl", new { Area = "CrossCutting", SubArea = "" })' + "?parentId=" + level2Element.val(),
+                    type: "GET",
+                    async: false, // Do not set to true as lower administrative levels setting to the correct value depend on the correct items being in the select control.
+                    contentType: "application/json; charset=utf-8"
+                })
+                .done(function (data) {
+                    var filteredData = data;
+                    adminLevel3ID.empty();
+                    var items = '<option value=""></option>';
+                    if (filterValue !== "null" && filterValue != null) {
+                        if (data.length > 0) {
+                            filteredData = data.filter(function (obj) {
+                                return (obj.levelType == filterValue);
+                            });
+
+                        }
+                    }
+                    $.each(filteredData, function (i, level) {
+                        items += "<option value='" + level.idfsReference + "'>" + level.name + "</option>";
+                        adminLevel3IDType = level.levelType;
+                    });
+
+                    adminLevel3ID.html(items);
+                    if (data.length > 0) {
+                        adminLevel3ID.prop("disabled", false);
+                        clearAtAdminLevel4();
+                        updateSettlementType(level2Element, false);
+
+                        settlementTypeID.val(filterValue);
+                    }
+                    else {
+                        clearAtAdminLevel3();
+                    }
+                    UpdateSelectedLevelValue(level2Element, parentElement);
+
+                });
+        }
+        else {
+            UpdateSelectedLevelValue(level2Element, parentElement);
+        }
+
+    };
+
+    function AdminLevel3Change(element) { 
+        var elementIdArr = $(element).attr('id').split("_");
+        var callingObjectId = $(element).attr('id').replace(elementIdArr[elementIdArr.length - 1], "");
+        setCallingObjectElements(callingObjectId);
+        selectedSettlementType = settlementTypeID.val();
+        bottomAdminLevel = "";
+        bottomAdminLevelID.val('');
+        if (adminLevel3ID.val()) {
+            refreshAdminLevel4(adminLevel3ID,adminLevel2ID);
+        }
+        else {
+            bottomAdminLevelID = adminLevel3ID;
+            clearAtAdminLevel4();
+            //refreshElementsAtBottomAdminSelection();
+
+        }
+        setMapUrl(callingObjectId);
+    };
+
+
+    function SettlementTypeChange(element) {
+
+        var elementIdArr = $(element).attr('id').split("_");
+        var callingObjectId = $(element).attr('id').replace(elementIdArr[elementIdArr.length - 1], "");
+        setCallingObjectElements(callingObjectId);
+        selectedSettlementType = settlementTypeID.val();
+
+        refreshAdminLevel3(adminLevel2ID, settlementTypeID.val());
+
+        //if ($(bottomAdminLevelID).val() == $(adminLevel1ID).val()) {
+        //    refreshAdminLevel1($(adminLevel0ID).val());
+        //} else if ($(bottomAdminLevelID).val() == $(adminLevel2ID).val()) {
+        //    refreshAdminLevel2($(adminLevel1ID).val());
+        //} else if ($(bottomAdminLevelID).val()== $(adminLevel3ID).val()) {
+        //    refreshAdminLevel3($(adminLevel2ID).val());
+        //} else if ($(bottomAdminLevelID).val() == $(adminLevel4ID).val()) {
+        //    refreshAdminLevel4($(adminLevel3ID).val());
+        //} else if ($(bottomAdminLevelID).val() == $(adminLevel5ID).val()) {
+        //    refreshAdminLevel5($(adminLevel4ID).val());
+        //} else if ($(bottomAdminLevelID).val() == $(adminLevel6ID).val()) {
+        //    refreshAdminLevel6($(adminLevel5ID).val());
+        if (element != null) {
+
+        }
+
+    }
+
+
+    function refreshAdminLevel4(level3Element, level3ElementParentElement) {
+        if (adminLevel4ID & level3Element) {
+            $.ajax({
+                    url: '@Url.Action("GetGisLocationChildLevel", "LocationControl",new { Area = "CrossCutting", SubArea = "" })' + "?parentId=" + level3Element.val(),
+                    type: "GET",
+                    async: false, // Do not set to true as lower administrative levels setting to the correct value depend on the correct items being in the select control.
+                    contentType: "application/json; charset=utf-8"
+                })
+                .done(function (data) {
+                    adminLevel4ID.empty();
+                    var items = '<option value=""></option>';
+                    $.each(data, function (i, level) {
+                        items += "<option value='" + level.idfsReference + "'>" + level.name + "</option>";
+                        adminLevel4IDType = level.levelType;
+                    });
+                    adminLevel4ID.html(items);
+                    if (data.length > 0) {
+                        adminLevel4ID.prop("disabled", false);
+                        clearAtAdminLevel5();
+                    }
+                    else {
+
+                        clearAtAdminLevel4();
+                    }
+
+                    UpdateSelectedLevelValue(level3Element, level3ElementParentElement);
+                });
+        }
+        else {
+            UpdateSelectedLevelValue(level3Element, level3ElementParentElement);
+        }
+    };
+
+    function AdminLevel4Change(element) {
+        var elementIdArr = $(element).attr('id').split("_");
+        var callingObjectId = $(element).attr('id').replace(elementIdArr[elementIdArr.length - 1], "");
+        setCallingObjectElements(callingObjectId);
+        bottomAdminLevel = "";
+        bottomAdminLevelID.val('');
+        if (adminLevel4ID.val()) {
+            refreshAdminLevel5($(element).val(),adminLevel3ID);
+        }
+        else {
+            clearAtAdminLevel5();
+            //refreshElementsAtBottomAdminSelection();
+        }
+
+    };
+
+    function refreshAdminLevel5(level4Element, level4ElementParentElement) {
+        if (adminLevel5ID && level4Element) {
+            $.ajax({
+                    url: '@Url.Action("GetGisLocationChildLevel", "LocationControl",new { Area = "CrossCutting", SubArea = "" })' + "?parentId=" + level4Element.val(),
+                    type: "GET",
+                    async: false, // Do not set to true as lower administrative levels setting to the correct value depend on the correct items being in the select control.
+                    contentType: "application/json; charset=utf-8"
+                })
+                .done(function (data) {
+                    adminLevel5ID.empty();
+                    var items = '<option value=""></option>';
+                    $.each(data, function (i, level) {
+                        items += "<option value='" + level.idfsReference + "'>" + level.name + "</option>";
+                        adminLevel5IDType = level.levelType;
+                    });
+                    adminLevel5ID.html(items);
+                    if (data.length > 0) {
+                        adminLevel5ID.prop("disabled", false);
+                        clearAtAdminLevel6();
+                    }
+                    else {
+                        clearAtAdminLevel5();
+                    }
+
+                    UpdateSelectedLevelValue(level4Element, level4ElementParentElement);
+                });
+        }
+        else {
+            UpdateSelectedLevelValue(level4Element, level4ElementParentElement);
+        }
+    };
+
+    function AdminLevel5Change(element) {
+        var elementIdArr = $(element).attr('id').split("_");
+        var callingObjectId = $(element).attr('id').replace(elementIdArr[elementIdArr.length - 1], "");
+        setCallingObjectElements(callingObjectId);
+        bottomAdminLevel = "";
+        bottomAdminLevelID.val('');
+        if (adminLevel5ID.val()) {
+            refreshAdminLevel6(adminLevel5ID, adminLevel4ID);
+        }
+        else {
+            clearAtAdminLevel6();
+            // refreshElementsAtBottomAdminSelection();
+        }
+
+    };
+
+    function refreshAdminLevel6(level5Element, level5ElementParentElement) {
+
+        if (adminLevel6ID && level5Element) {
+            $.ajax({
+                    url: '@Url.Action("GetGisLocationChildLevel", "LocationControl",new { Area = "CrossCutting", SubArea = "" })' + "?parentId=" + level5Element.val(),
+                    type: "GET",
+                    async: false, // Do not set to true as lower administrative levels setting to the correct value depend on the correct items being in the select control.
+                    contentType: "application/json; charset=utf-8"
+                })
+                .done(function (data) {
+                    adminLevel6ID.empty();
+                    var items = '<option value=""></option>';
+                    $.each(data, function (i, level) {
+                        items += "<option value='" + level.idfsReference + "'>" + level.name + "</option>";
+                        adminLevel6IDType = level.levelType;
+                    });
+                    adminLevel6ID.html(items);
+                    if (data.length > 0) {
+                        adminLevel6ID.prop("disabled", false);
+                    }
+                    else {
+
+
+                    }
+                    UpdateSelectedLevelValue(level5Element, level5ElementParentElement);
+
+                });
+
+        }
+        else {
+            UpdateSelectedLevelValue(level5Element, level5ElementParentElement);
+        }
+    };
+
+    function AdminLevel6Change(element) {
+        var elementId = $(element).attr('id');
+        var elementIdArr = $(element).attr('id').split("_");
+        var callingObjectId = $(element).attr('id').replace(elementIdArr[elementIdArr.length - 1], "");
+        setCallingObjectElements(callingObjectId);
+        if (adminLevel6ID.val())
+        {
+            bottomAdminLevel = "";
+            bottomAdminLevelID.val('');
+            UpdateSelectedLevelValue(adminLevel6ID, adminLevel5ID);
+
+        }
+        else {
+            //clearAtAdminLevel6();
+            UpdateSelectedLevelValue(adminLevel5ID, adminLevel5ID);
+
+        }
+
+    };
+
+    function updateSettlementType(parentAdminLevel, settlementTypeChangedIndicator) {
+        var parentAdminLevelValue = parentAdminLevel.val();
+        //if ($(settlementElement).val() == $(adminLevel1ID).val()) {
+        //    parentAdminLevelValue = $(adminLevel0ID).val();
+        //} else if ($(settlementElement).val() == $(adminLevel2ID).val()) {
+        //    parentAdminLevelValue = $(adminLevel1ID).val();
+        //} else if ($(settlementElement).val() == $(adminLevel3ID).val()) {
+        //    parentAdminLevelValue = $(adminLevel2ID).val();
+        //} else if ($(settlementElement).val() == $(adminLevel4ID).val()) {
+        //    parentAdminLevelValue = $(adminLevel3ID).val();
+        //} else if ($(settlementElement).val() == $(adminLevel5ID).val()) {
+        //    parentAdminLevelValue = $(adminLevel4ID).val();
+        //} else if ($(settlementElement).val() == $(adminLevel6ID).val()) {
+        //    parentAdminLevelValue = $(adminLevel5ID).val();
+        //}
+
+        $.ajax({
+                url: '@Url.Action("GetGisLocationChildLevel", "LocationControl",new { Area = "CrossCutting", SubArea = "" })' + "?parentId=" + parentAdminLevelValue,
+                type: "GET",
+                contentType: "application/json; charset=utf-8"
+            })
+            .done(function (data) {
+                if (data.length > 0) {
+                    $.ajax({
+                            url: '@Url.Action("GetSettlementTypeList", "LocationControl", new { Area = "CrossCutting" , SubArea = "" })',
+                            type: "GET",
+                            contentType: "application/json; charset=utf-8"
+                        })
+                        .done(function(settlementTypeList) {
+                            if (settlementTypeChangedIndicator === false) {
+                                var filteredSettlementTypeList = new Array();
+                                if (settlementTypeList.length > 0) {
+                                    if (data != null && data !== "") {
+                                        settlementTypeList.forEach(function(item) {
+                                            if (data.find(x => x.levelType === item.idfsReference)) {
+                                                filteredSettlementTypeList.push(item);
+                                            }
+                                        });
+                                    } else {
+                                        filteredSettlementTypeList = settlementTypeList;
+                                    }
+                                }
+                                settlementTypeID.empty();
+                                var settlementTypeItems = "";
+                                if (filteredSettlementTypeList.length>0) {
+                                    $.each(filteredSettlementTypeList,
+                                        function(i, settlementType) {
+                                            settlementTypeItems += "<option value='" + settlementType.idfsReference + "'>" + settlementType.name + "</option > ";
+                                        });
+
+                                    settlementTypeID.html(settlementTypeItems);
+                                    settlementTypeID.prepend("<option value=null>" + '@Localizer.GetString(FieldLabelResourceKeyConstants.LocationAllFieldLabel)' + "</option>");
+                                    if (selectedSettlementType != null) {
+                                        $(settlementTypeID).val(selectedSettlementType);
+                                        selectedSettlementType = null;
+                                    } else {
+                                        settlementTypeID[0].selectedIndex = 0;
+                                    } 
+                                    var showSettlementType = '@Model.ShowSettlementType';
+                                    if(showSettlementType != 'False') {
+                                        settlementTypeID.prop("disabled", false);
+                                        $("#divSettlementType").show();
+                                    }
+                                }
+                            }
+                        });
+                }
+            });
+
+    }
+
+    function refreshStreet() {
+        $.ajax({
+                url: '@Url.Action("GetStreetList", "LocationControl", new { Area = "CrossCutting", SubArea = "" })' + '?settlementId=' + bottomAdminLevel,
+                type: "GET",
+                contentType: "application/json; charset=utf-8"
+            })
+            .done(function (data) {
+
+                streetID.empty();
+                var streetItmes = '<option value=""></option>';
+                $.each(data, function (i, item) {
+                    streetItmes += "<option value='" + item.streetName + "'>" + item.streetName + "</option>";
+                });
+                if (data.length > 0) {
+                    streetID.html(streetItmes);
+                    streetID.prop("disabled", false);
+                }
+                else {
+                    //streetID.prop("disabled", true);
+                }
+            });
+    };
+
+    function refreshPostalCode() {
+        $.ajax({
+                url: '@Url.Action("GetPostalCodeList", "LocationControl", new { Area = "CrossCutting", SubArea = "" })' + '?settlementId=' + bottomAdminLevel,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+            .done(function (data) {
+
+                postalCodeID.empty();
+                var postalCodeItems = '<option value=""></option>';
+                $.each(data, function (i, item) {
+                    postalCodeItems += "<option value='" + item.postalCodeString + "'>" + item.postalCodeString + "</option>";
+                });
+                if (data.length > 0) {
+                    postalCodeID.html(postalCodeItems);
+                    postalCodeID.prop("disabled", false);
+                }
+                else {
+                    // postalCodeID.prop("disabled", true);
+                }
+            });
+    };
+
+    function refreshElementsAtBottomAdminSelection() {
+
+        if (bottomAdminLevelID.val() === "" || bottomAdminLevelID.val() == null) {
+            if (bottomAdminLevelID  !== adminLevel3ID)
+            {
+                settlementTypeID.prop("disabled", true);
+                settlementTypeID.empty();
+            }
+            $("#divSettlementType").hide();
+            streetID.prop("disabled", true);
+            streetID.empty();
+            houseID.prop("disabled", true);
+            houseID.val("");
+            buildingID.prop("disabled", true);
+            buildingID.val("");
+            apartmentID.prop("disabled", true);
+            apartmentID.val("");
+            postalCodeID.prop("disabled", true);
+            postalCodeID.empty();
+        } else {
+            settlementTypeID.prop("disabled", false);
+            $("#divSettlementType").show();
+            streetID.prop("disabled", false);
+            postalCodeID.prop("disabled", false);
+            houseID.prop("disabled", false);
+            houseID.val("");
+            buildingID.prop("disabled", false);
+            buildingID.val("");
+            apartmentID.prop("disabled", false);
+            apartmentID.val("");
+            // UpdateSelectedLevelValue(bottomAdminLevelID);
+            updateSettlementType(bottomAdminLevelID, false);
+            refreshStreet();
+            refreshPostalCode();
+        }
+
+
+    };
+
+    function initializeSelect2DropDowns() {
+
+        adminLevel0ID.select2({ width: '100%' , allowClear: true ,placeholder: ''});
+        adminLevel1ID.select2({ width: '100%' , allowClear: true ,placeholder: ''});
+        adminLevel2ID.select2({ width: '100%' , allowClear: true ,placeholder: ''});
+        adminLevel3ID.select2({ width: '100%' , allowClear: true ,placeholder: ''});
+        adminLevel4ID.select2({ width: '100%' , allowClear: true ,placeholder: ''});
+        adminLevel5ID.select2({ width: '100%' , allowClear: true ,placeholder: ''});
+        adminLevel6ID.select2({ width: '100%' , allowClear: true ,placeholder: ''});
+        settlementTypeID.select2({ width: '100%' , allowClear: true});
+
+        var streetElements = $("select[id$='StreetText']");
+
+        streetElements.each(function (index, element) {
+            $(this).select2({
+                width: "100%",
+                tags: true,
+                allowClear: true,
+                placeholder: '',
+                createTag: function (tag) {
+                    return {
+                        id: tag.term,
+                        text: tag.term,
+                        isNew: true
+                    };
+                }
+            }).on("select2:select", function (e) {
+                if (e.params.data.isNew) {
+                    newStreetID.val(e.params.data.text);
+                }
+            });
+        });
+
+        var postalCodeElements = $("select[id$='PostalCodeText']");
+
+        postalCodeElements.each(function (index, element) {
+            $(this).select2({
+                width: "100%",
+                tags: true,
+                allowClear: true,
+                placeholder: '',
+                createTag: function (tag) {
+                    return {
+                        id: tag.term,
+                        text: tag.term,
+                        isNew: true
+                    };
+                }
+            }).on("select2:select", function (e) {
+                if (e.params.data.isNew) {
+                    newPostalCodeID.val(e.params.data.text);
+                }
+            });
+        });
+
+    };
+
+    function mapCancel() {
+        $("[id*='divMapModal']").modal('hide');
+
+    };
+</script>
+<div>
+<div>
+    <input type="hidden" asp-for="@Model.CallingObjectID" />
+    <input type="hidden" asp-for="@Model.BottomAdminLevel" />
+    <input type="hidden" asp-for="@Model.SelectedAdminLevel" />
+    <input type="hidden" asp-for="@Model.DisableAtElementLevel" />
+</div>
+<div id="divAdminLevel0" class="form-group" style="@(Model.DivAdminLevel0 ? "display:block;" : "display:none;")">
+    <div class="form-row">
+        <div id="divAdminLevel0Col" class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+            <input asp-for="IsDbRequiredAdminLevel0" />
+            <span id="reqAdminLevel0" class="text-danger @(Model.IsDbRequiredAdminLevel0 ? "show-element" : "hide-element") "><i class="fas fa-asterisk" aria-hidden="true"></i></span>
+            <label asp-for="AdminLevel0Value" field-label-for="@FieldLabelResourceKeyConstants.CountryFieldLabel"></label>
+            <select asp-for="AdminLevel0Value" onchange="AdminLevel0Change(this)"
+                    asp-items="@(new SelectList(Model.AdminLevel0List,"idfsReference","Name"))" asp-disabled="@(!Model.EnableAdminLevel0)" class="form-control">
+            </select>
+            <span asp-validation-for="AdminLevel0Value" cass="text-danger"></span>
+        </div>
+    </div>
+</div>
+<div class="form-group">
+    <div class="form-row">
+        <div id="divAdminLevel1" class="col-lg-6 col-md-6 col-sm-12 col-xs-12 @(Model.ShowAdminLevel1 ? "show-element" : "hide-element")">
+            <input asp-for="IsDbRequiredAdminLevel1" />
+            <input asp-for="UserAdministrativeLevel1" type="hidden" />
+            <span id="reqAdminLevel1" class="text-danger @(Model.IsDbRequiredAdminLevel1 ?  "show-element" : "hide-element")"><i class="fas fa-asterisk" aria-hidden="true"></i></span>
+            <label asp-for="AdminLevel1Value" field-label-for="@FieldLabelResourceKeyConstants.LocationAdministrativeLevel1FieldLabel"></label>
+            <select asp-for="AdminLevel1Value" onchange="AdminLevel1Change(this)"
+                    asp-items="@(new SelectList(Model.AdminLevel1List, "idfsReference", "Name"))" asp-disabled="@(!Model.EnableAdminLevel1)" class="form-control">
+            </select>
+            <span asp-validation-for="AdminLevel1Value" class="text-danger"></span>
+        </div>
+        <div id="divAdminLevel2" class="col-lg-6 col-md-6 col-sm-12 col-xs-12 @(Model.ShowAdminLevel2 ?  "show-element" : "hide-element")">
+            <input asp-for="IsDbRequiredAdminLevel2" />
+            <input asp-for="UserAdministrativeLevel2" type="hidden" />
+            <span id="reqAdminLevel2" class="text-danger @(Model.IsDbRequiredAdminLevel2 ? "show-element" : "hide-element")"><i class="fas fa-asterisk" aria-hidden="true"></i></span>
+            <label asp-for="AdminLevel2Value" field-label-for="@FieldLabelResourceKeyConstants.LocationAdministrativeLevel2FieldLabel"></label>
+            <select asp-for="AdminLevel2Value" onchange="AdminLevel2Change(this)"
+                    asp-items="@(new SelectList(Model.AdminLevel2List, "idfsReference", "Name"))" asp-disabled="@(!Model.EnableAdminLevel2)" class="form-control">
+            </select>
+            <span asp-validation-for="AdminLevel2Value" class="text-danger"></span>
+        </div>
+    </div>
+    <div id="divSettlementGroup" class="form-row  @(Model.DivSettlementGroup ? "show-element" : "hide-element")">
+        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+            <div id="divSettlementType" class="@(Model.DivSettlementType ? "show-element" : "hide-element")">
+                <input asp-for="IsDbRequiredSettlementType" />
+                <span id="reqSettlementType" class="text-danger @(Model.IsDbRequiredSettlementType ? "show-element" : "hide-element")"><i class="fas fa-asterisk" aria-hidden="true"></i></span>
+                <label asp-for="SettlementType" field-label-for="@FieldLabelResourceKeyConstants.SettlementTypeFieldLabel"></label>
+                <select asp-for="SettlementType" onchange="SettlementTypeChange(this)"
+                        asp-items="@(new SelectList(Model.SettlementTypeList, "idfsReference", "name"))" asp-disabled="@(!Model.EnableSettlementType)" class="form-control">
+                </select>
+                <span asp-validation-for="SettlementType" class="text-danger"></span>
+            </div>
+        </div>
+        <div  class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+            <div id="divAdminLevel3" class="@(Model.ShowAdminLevel3 ? "show-element" : "hide-element")">
+                <input asp-for="IsDbRequiredAdminLevel3"/>
+                <span id="reqAdminLevel3" class="text-danger @(Model.IsDbRequiredAdminLevel3 ? "show-element" : "hide-element")"><i class="fas fa-asterisk" aria-hidden="true"></i></span>
+                <label asp-for="AdminLevel3Value" field-label-for="@FieldLabelResourceKeyConstants.LocationAdministrativeLevel3FieldLabel"></label>
+                <select asp-for="AdminLevel3Value" onchange="AdminLevel3Change(this)"
+                        asp-items="@(new SelectList(Model.AdminLevel3List, "idfsReference", "Name"))" asp-disabled="@(!Model.EnableAdminLevel3)" class="form-control">
+                </select>
+                <span asp-validation-for="AdminLevel3Value" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-row">
+        <div id="divAdminLevel4" class="col-lg-6 col-md-6 col-sm-12 col-xs-12 @(Model.ShowAdminLevel4 ?  "show-element" : "hide-element")">
+            <input asp-for="IsDbRequiredAdminLevel4" />
+            <span id="reqAdminLevel4" class="text-danger @(Model.IsDbRequiredAdminLevel4 ? "show-element" : "hide-element")"><i class="fas fa-asterisk" aria-hidden="true"></i></span>
+            <label asp-for="AdminLevel4Value" field-label-for="@FieldLabelResourceKeyConstants.LocationAdministrativeLevel4FieldLabel"></label>
+            <select asp-for="AdminLevel4Value" onchange="AdminLevel4Change(this)"
+                    asp-items="@(new SelectList(Model.AdminLevel4List, "idfsReference", "Name"))" asp-disabled="@(!Model.EnableAdminLevel4)" class="form-control">
+            </select>
+            <span asp-validation-for="AdminLevel4Value" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div id="divAdminLevel5" class="col-lg-6 col-md-6 col-sm-12 col-xs-12 @(Model.ShowAdminLevel5 ? "show-element" : "hide-element")">
+            <input asp-for="IsDbRequiredAdminLevel5" />
+            <span id="reqAdminLevel5" class="text-danger @(Model.IsDbRequiredAdminLevel5 ?  "show-element" : "hide-element")"><i class="fas fa-asterisk" aria-hidden="true"></i></span>
+            <label asp-for="AdminLevel5Value" field-label-for="@FieldLabelResourceKeyConstants.LocationAdministrativeLevel5FieldLabel"></label>
+            <select asp-for="AdminLevel5Value" onchange="AdminLevel5Change(this)"
+                    asp-items="@(new SelectList(Model.AdminLevel5List, "idfsReference", "Name"))" asp-disabled="@(!Model.EnableAdminLevel5)" class="form-control">
+            </select>
+            <span asp-validation-for="AdminLevel3Value" class="text-danger"></span>
+        </div>
+        <div id="divAdminLevel6" class="col-lg-6 col-md-6 col-sm-12 col-xs-12 @(Model.ShowAdminLevel6 ?  "show-element" : "hide-element")">
+            <input asp-for="IsDbRequiredAdminLevel6" />
+            <span id="reqAdminLevel6" class="text-danger @(Model.IsDbRequiredAdminLevel6 ? "show-element" : "hide-element")"><i class="fas fa-asterisk" aria-hidden="true"></i></span>
+            <label asp-for="AdminLevel6Value" field-label-for="@FieldLabelResourceKeyConstants.LocationAdministrativeLevel6FieldLabel"></label>
+            <select asp-for="AdminLevel6Value" onchange="AdminLevel6Change(this)"
+                    asp-items="@(new SelectList(Model.AdminLevel6List, "idfsReference", "Name"))" asp-disabled="@(!Model.EnableAdminLevel6)" class="form-control">
+            </select>
+            <span asp-validation-for="AdminLevel6Value" class="text-danger"></span>
+        </div>
+    </div>
+</div>
+
+<div id="divStreet" class="form-group @(Model.DivStreet ? "show-element" : "hide-element")">
+    <div class="row">
+        <div id="divStreetCol" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <input asp-for="IsDbRequiredStreet" />
+            <span id="reqStreet" class="text-danger @(Model.IsDbRequiredStreet ? "show-element" : "hide-element")"><i class="fas fa-asterisk" aria-hidden="true"></i></span>
+            <label asp-for="StreetText" field-label-for="@FieldLabelResourceKeyConstants.StreetFieldLabel"></label>
+            <select asp-for="StreetText"
+                    asp-items="@(new SelectList(Model.StreetList, "StreetName", "StreetName"))" asp-disabled="@(!Model.EnableStreet)">
+            </select>
+            <span asp-validation-for="StreetText" class="text-danger"></span>
+            <input asp-for="NewStreet" type="hidden" />
+        </div>
+    </div>
+</div>
+<div id="divBuildingHouseApartment" class="form-group @(Model.DivBuildingHouseApartmentGroup ? "show-element" : "hide-element")">
+    <div class="row">
+        <div id="divHouse" class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+            <input asp-for="IsDbRequiredHouse" />
+            <span id="reqHouse" class="text-danger @(Model.IsDbRequiredHouse ? "show-element" : "hide-element")"><i class="fas fa-asterisk"></i></span>
+            <label asp-for="House" field-label-for="@FieldLabelResourceKeyConstants.HouseFieldLabel"></label>
+            <input asp-for="House" class="form-control" disabled="@(!Model.EnableHouse)" />
+            <span asp-validation-for="House" class="text-danger"></span>
+        </div>
+        <div id="divBuilding" class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+            <input asp-for="IsDbRequiredBuilding" />
+            <span id="reqBuilding" class="text-danger @(Model.IsDbRequiredBuilding ? "show-element" : "hide-element")"><i class="fas fa-asterisk"></i></span>
+            <label asp-for="Building" field-label-for="@FieldLabelResourceKeyConstants.BuildingFieldLabel"></label>
+            <input asp-for="Building" class="form-control" disabled="@(!Model.EnableBuilding)" />
+            <span asp-validation-for="Building" class="text-danger"></span>
+        </div>
+        <div id="divApartment" class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+            <input asp-for="IsDbRequiredApartment" />
+            <span id="reqApartment" class="text-danger @(Model.IsDbRequiredApartment ? "show-element" : "hide-element")"><i class="fas fa-asterisk"></i></span>
+            <label asp-for="Apartment" field-label-for="@FieldLabelResourceKeyConstants.ApartmentUnitFieldLabel"></label>
+            <input asp-for="Apartment" class="form-control" disabled="@(!Model.EnableApartment)" />
+            <span asp-validation-for="Apartment" class="text-danger"></span>
+        </div>
+    </div>
+</div>
+<div id="divPostalCode" class="form-group @(Model.DivPostalCode ? "show-element" : "hide-element")">
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+            <input asp-for="IsDbRequiredPostalCode" />
+            <span id="reqPostalCode" class="text-danger @(Model.IsDbRequiredPostalCode ? "show-element" : "hide-element")"><i class="fas fa-asterisk"></i></span>
+            <label asp-for="PostalCodeText" field-label-for="@FieldLabelResourceKeyConstants.PostalCodeFieldLabel"></label>
+            <select asp-for="PostalCodeText"
+                    asp-items="@(new SelectList(Model.PostalCodeList, "PostalCodeString", "PostalCodeString"))" asp-disabled="@(!Model.EnablePostalCode)">
+            </select>
+            <span asp-validation-for="PostalCodeText" class="text-danger"></span>
+            <input asp-for="NewPostalCode" type="hidden" />
+        </div>
+    </div>
+</div>
+<div id="divCoordinates" class="form-group @(Model.DivCoordinates ? "show-element" : "hide-element")">
+    <div class="row">
+        <div id="divLatitude" class="col-lg-3 col-md-3 col-sm-11 col-xs-11  @(Model.DivLatitude ? "show-element" : "hide-element")">
+            <input asp-for="IsDbRequiredLatitude" />
+            <span id="reqLatitude" class="text-danger @(Model.IsDbRequiredLatitude ? "show-element" : "hide-element")"><i class="fas fa-asterisk"></i></span>
+                <label asp-for="Latitude" field-label-for="@FieldLabelResourceKeyConstants.AdministrativeUnitDetailsLatitudeFieldLabel"></label>
+            @{
+                var lattitueId = Model.CallingObjectID + "Latitude";
+                var latitudeVale = Model.Latitude;
+
+            }
+            <eidss-numericSpinner id="@lattitueId" class-name="form-control" max-value="85" min-value="-85" step-property=".000001" value="@latitudeVale" disabled="@(!Model.EnabledLatitude)"></eidss-numericSpinner>
+            <span asp-validation-for="Latitude" class="text-danger"></span>
+        </div>
+        <div id="divLongitude" class="col-lg-3 col-md-3 col-sm-11 col-xs-11  @(Model.DivLongitude ? "show-element" : "hide-element")">
+            <input asp-for="IsDbRequiredLongitude" />
+            <span id="reqLongitude" class="text-danger @(Model.IsDbRequiredLongitude ? "show-element" : "hide-element")"><i class="fas fa-asterisk"></i></span>
+                <label asp-for="Longitude" field-label-for="@FieldLabelResourceKeyConstants.AdministrativeUnitDetailsLongitudeFieldLabel"></label>
+            @{
+                var longitudeId = Model.CallingObjectID + "Longitude";
+                var longtitudeVale = Model.Longitude;
+            }
+            <eidss-numericSpinner id="@longitudeId" class-name="form-control" max-value="85" min-value="-85" step-property=".000001" value="@longtitudeVale" disabled="@(!Model.EnabledLongitude)"></eidss-numericSpinner>
+            <span asp-validation-for="Longitude" class="text-danger"></span>
+        </div>
+        <div id="divElevation" class="col-lg-3 col-md-3 col-sm-11 col-xs-11  @(Model.DivElevation ? "show-element" : "hide-element")">
+            <input asp-for="IsDbRequiredElevation" />
+            <span id="reqElevation" class="text-danger @(Model.IsDbRequiredElevation ? "show-element" : "hide-element")"><i class="fas fa-asterisk"></i></span>
+            <label asp-for="Elevation" field-label-for="@FieldLabelResourceKeyConstants.AdministrativeUnitDetailsElevationFieldLabel"></label>
+            @{
+                var elevationId = Model.CallingObjectID + "Elevation";
+                var elevationValue = Model.Elevation;
+            }
+            <eidss-numericSpinner id="@elevationId" class-name="form-control" max-value="11000" min-value="-1000" value="@elevationValue" disabled="@(!Model.EnabledElevation)"></eidss-numericSpinner>
+            <span asp-validation-for="Elevation" class="text-danger"></span>
+        </div>
+        <div id="divMap" class="col-lg-1 col-md-1 col-sm-1 col-xs-1 @(Model.DivMap ? "show-element" : "hide-element")">
+            <label id="lblMap" asp-for="ShowMap" field-label-for="@FieldLabelResourceKeyConstants.LocationMapFieldLabel"></label>
+                @{
+                    var mapId = Model.CallingObjectID + "ShowMap";
+                    var zoomId = Model.CallingObjectID + "Zoom";
+                    var zoomValue = Model.Zoom;
+                    var mapUrl = Model.CallingObjectID + "MapUrl";
+                    var mapUrlValue = Model.MapUrl;
+
+
+                }
+                @if (Model.IsLocationDisabled)
+                {
+                    <a id="@mapId" disabled="disabled" class="btn btn-default"><i class="fas fa-map-marker"></i></a>
+                }
+                else{
+                    <a id="@mapId" onclick="setMapDetails('@Model.CallingObjectID');" class="btn btn-default"><i class="fas fa-map-marker"></i></a>
+                }
+            <input id="@mapUrl" value="@mapUrlValue"  type="hidden" asp-for="MapUrl" />
+            <input id="@zoomId" value="@zoomValue" type="hidden" asp-for="Zoom" />
+
+        </div>
+    </div>
+</div>
+<div id="divMapModal" class="modal container fade in" role="dialog" aria-hidden="true" aria-labelledby="divMapModal" tabindex="-1" style="z-index: 10000 !important;">
+    <div class="modal-dialog" style="max-width: 600px; max-height: 600px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@Localizer.GetString(HeadingResourceKeyConstants.LocationSelectLocationHeading)</h4>
+                <button type="button" id="mapCancelButton" class="close" onclick="mapCancel()">×</button>
+            </div>
+            <div class="modal-body" style="width: 600px; height: 600px;">
+                <div id="divMapContainer" style="width: 100%; height: 100%;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>

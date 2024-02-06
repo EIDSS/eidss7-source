@@ -1,0 +1,122 @@
+﻿@using EIDSS.Web.Areas.Veterinary.ViewModels.ActiveSurveillanceSession
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Services
+@inherits EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession.SessionInformationSectionBase
+
+
+<div class="container-fluid">
+    <div class="form-row">
+        <div class="col-md-11">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.SessionInformationSessionInformationHeading)</h4>
+        </div>
+        <div class="col-md-1 text-right">
+            <a id="editSessionInformationSectionButton" href="#veterinaryActiveSurveillanceSessionWizard-h-0" class="edit-section">
+                <span class="fas fa-edit fa-lg"></span>
+            </a>
+        </div>
+    </div>
+</div>
+<RadzenTemplateForm @ref="Form" TItem="VeterinaryActiveSurveillanceSessionStateContainerService" Data="@StateContainer">
+    <div class="card">
+        <div class="card-body">
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationSessionIDFieldLabel" IsRow="false" CssClass="col-3" For="sessionID">
+                    <RadzenTextBox @ref="SessionID" Name="sessionID" class="form-control" @bind-Value="@StateContainer.SessionID" ReadOnly="true" ></RadzenTextBox>
+                </InterfaceEditorResource>
+                @if (StateContainer.LegacySessionID is not null)
+                {
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationLegacyIDFieldLabel" IsRow="false" CssClass="col-3" For="legacySessionID">
+                        <RadzenTextBox @ref="LegacySessionID" Name="legacySessionID" class="form-control" @bind-Value="@StateContainer.LegacySessionID" ReadOnly=true ></RadzenTextBox>
+                    </InterfaceEditorResource>
+                }
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationStatusFieldLabel" IsRow="false" CssClass="col-6" For="sessionStatusTypeID">
+                    <RadzenDropDown @ref="SessionStatusTypeID" Name="sessionStatusTypeID" class="form-control" @bind-Value="@StateContainer.SessionStatusTypeID" Disabled="@StateContainer.IsReadOnly"
+                                    Data="@StateContainer.SessionStatuses" ValueProperty="IdfsBaseReference" TextProperty="Name" AllowClear="false" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationCampaignIDFieldLabel" IsRow="false" CssClass="col-3" For="campaignID">
+                    <div class="input-group">
+                        <RadzenTextBox @ref="CampaignID" Name="campaignID" class="form-control" @bind-Value="@StateContainer.CampaignID" ReadOnly="true"></RadzenTextBox>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary btn-sm" type="button" @onclick="@OnCampaignClearClick">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" type="button" @onclick="@OnCampaignSearchClick">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationCampaignNameFieldLabel" IsRow="false" CssClass="col-3" For="campaignName">
+                    <RadzenTextBox @ref="CampaignName" Name="campaignName" class="form-control" @bind-Value="@StateContainer.CampaignName"  ReadOnly="true"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationCampaignTypeFieldLabel" IsRow="false" CssClass="col-3" For="campaignType">
+                    <RadzenTextBox @ref="CampaignType" Name="campaignType" class="form-control" @bind-Value="@StateContainer.CampaignType"  ReadOnly="true"></RadzenTextBox>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <fieldset class="col-md-12">
+                    <div class="row">
+                        <!--Date Entered Range -->
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationSesionStartDateFieldLabel" IsRow="false" CssClass="col-4" For="sessionStartDate">
+                            <RadzenDatePicker @ref="SessionStartDate" id="sessionStartDate" Name="sessionStartDate" AllowClear="true" AllowInput="true" class="form-control-range" TValue="DateTime?" @bind-Value="@StateContainer.SessionStartDate" DateFormat="d" Disabled="@StateContainer.IsReadOnly" />
+                            <br />
+                            <RadzenCompareValidator Value="@StateContainer.SessionEndDate" Component="sessionStartDate" Popup="false" Operator="CompareOperator.LessThanEqual"
+                                                    Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), Localizer.GetString(FieldLabelResourceKeyConstants.SessionInformationSesionStartDateFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.SessionInformationSesionEndDateFieldLabel))"
+                                                    Style="display: block" Visible="@(!string.IsNullOrEmpty(StateContainer.SessionEndDate.ToString()))" />
+                            <RadzenCompareValidator Value="@StateContainer.CampaignStartDate" Component="sessionStartDate" Popup="false" Operator="CompareOperator.GreaterThanEqual"
+                                                    Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.SessionInformationSesionStartDateFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.CampaignInformationCampaignStartDateFieldLabel))"
+                                                    Style="display: block" Visible="@(!string.IsNullOrEmpty(StateContainer.CampaignStartDate.ToString()))" />
+                            <RadzenCompareValidator Value="@DateTime.Now" Component="sessionStartDate" Popup="false" Operator="CompareOperator.LessThanEqual"
+                                                    Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)"
+                                                    Style="display: block" />
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationSesionEndDateFieldLabel" IsRow="false" CssClass="col-4" For="sessionEndDate">
+                            <RadzenDatePicker @ref="SessionEndDate" id="sessionEndDate" class="form-control-range" TValue="DateTime?" AllowInput="true" @bind-Value="@StateContainer.SessionEndDate" Name="sessionEndDate" AllowClear="true" DateFormat="d" Disabled="@StateContainer.IsReadOnly" />
+                            <br />
+                            <RadzenCompareValidator Value="@StateContainer.SessionStartDate" Component="sessionEndDate" Popup="false" Operator="CompareOperator.GreaterThanEqual"
+                                                    Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.SessionInformationSesionEndDateFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.SessionInformationSesionStartDateFieldLabel))"
+                                                    Style="display: block" Visible="@(!string.IsNullOrEmpty(StateContainer.SessionStartDate.ToString()))" />
+                            <RadzenCompareValidator Value="@StateContainer.CampaignEndDate" Component="sessionEndDate" Popup="false" Operator="CompareOperator.LessThanEqual"
+                                                    Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), Localizer.GetString(FieldLabelResourceKeyConstants.SessionInformationSesionEndDateFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.CampaignInformationCampaignEndDateFieldLabel))"
+                                                    Style="display: block" Visible="@(!string.IsNullOrEmpty(StateContainer.CampaignEndDate.ToString()) && !string.IsNullOrEmpty(StateContainer.SessionEndDate.ToString()))" />
+                            <RadzenCompareValidator Value="@StateContainer.CampaignStartDate" Component="sessionEndDate" Popup="false" Operator="CompareOperator.GreaterThan"
+                                                    Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.SessionInformationSesionEndDateFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.CampaignInformationCampaignStartDateFieldLabel))"
+                                                    Style="display: block" Visible="@(!string.IsNullOrEmpty(StateContainer.CampaignStartDate.ToString()) && !string.IsNullOrEmpty(StateContainer.SessionEndDate.ToString()))" />
+
+                        </InterfaceEditorResource>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationSpeciesTypeFieldLabel" IsRow="false" CssClass="col-6" For="reportTypeID">
+                    <RadzenDropDown @ref="ReportTypeID" Name="reportTypeID" class="form-control" @bind-Value="@StateContainer.ReportTypeID" Change="@OnReportTypeChange"
+                                    LoadData="@GetReportTypesAsync" Data="@StateContainer.ReportTypes" Count="@ReportTypesCount" AllowClear="true" Disabled="@StateContainer.ReportTypeDisabled"
+                                    ValueProperty="IdfsBaseReference" TextProperty="Name" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationSiteFieldLabel" IsRow="false" CssClass="col-4" For="siteName">
+                    <RadzenTextBox @ref="SiteName" Name="siteName" class="form-control" @bind-Value="@StateContainer.SiteName" ReadOnly="true"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationOfficerFieldLabel" IsRow="false" CssClass="col-4" For="officerName">
+                    <RadzenTextBox @ref="OfficerName" Name="officerName" class="form-control" @bind-Value="@StateContainer.OfficerName" ReadOnly="true"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SessionInformationDateEnteredFieldLabel" IsRow="false" CssClass="col-4" For="dateEntered">
+                    <RadzenDatePicker @ref="DateEntered" Name="dateEntered" class="form-control-range" AllowClear="false" AllowInput="false" @bind-Value="@StateContainer.DateEntered" DateFormat="d" ReadOnly="true"></RadzenDatePicker>
+                </InterfaceEditorResource>
+            </div>
+            <div>
+                <h5>@Localizer.GetString(HeadingResourceKeyConstants.SessionInformationLocationHeading)</h5>
+                <LocationView ParmLocationViewModel="@StateContainer.LocationModel"></LocationView>
+            </div>
+            <div class="row">
+                <DiseaseSpeciesList />
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>
+
+

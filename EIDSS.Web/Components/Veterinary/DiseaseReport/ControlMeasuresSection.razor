@@ -1,0 +1,21 @@
+﻿@using EIDSS.Web.Components.FlexForm
+@using EIDSS.Domain.Enumerations
+
+@inherits ControlMeasuresSectionBase
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-9">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.LivestockDiseaseReportControlMeasuresHeading)</h4>
+        </div>
+        <div class="col-3 text-right">
+            @if (Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0 || (Model.WritePermissionIndicator && Model.DiseaseReportID > 0 && Model.ReportStatusTypeID == (long)DiseaseReportStatusTypeEnum.InProcess && Model.ReportCurrentlyClosedIndicator == false))
+            {
+                <a class="edit-section" href="#caseDiseaseReportWizard-h-6" id="editControlMeasuresSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            }
+        </div>
+    </div>
+    <FlexForm FormDisabledIndicator="@(Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)" @ref="ControlMeasures" Request="Model.ControlMeasuresFlexForm"/>
+</div>

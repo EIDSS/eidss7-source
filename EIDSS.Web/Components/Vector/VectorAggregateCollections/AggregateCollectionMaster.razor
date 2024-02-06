@@ -1,0 +1,194 @@
+﻿@inherits AggregateCollectionMasterBase
+@using EIDSS.Localization.Constants
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Services
+@using EIDSS.Web.ViewModels.Vector
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Components.Vector.Common
+@using EIDSS.Web.Components.Vector.VectorAggregateCollections
+
+<div class="card">
+    <div class="card-body">
+        <div id="aggregateCollectionWizard">
+            <div class="content content-collapsed clearfix">
+                <div class="form-row">
+                    <SessionSummaryHeader />
+                </div>
+                <section>
+                    <RadzenTemplateForm id="AggregateCollectionForm" @ref="AggregateMasterForm" TItem="VectorSessionStateContainer" Data="@VectorSessionStateContainer">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="row">
+                                    <div class="col-md-11">
+                                        <h4>@Localizer.GetString(@HeadingResourceKeyConstants.VectorAggregateCollectionHeading)</h4>
+                                    </div>
+                                    <div class="col-md-1 text-right">
+                                        <a id="editAggregateCollectionInformationSectionButton" href="#aggregateCollectionWizard-h-0" class="edit-section">
+                                            <span class="fas fa-edit fa-lg"></span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body show" id="aggregatecollection">
+                                <div class="form-row">
+                                    <InterfaceEditorResource For="recordID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorAggregateCollectionRecordIDFieldLabel" IsRow="false" CssClass="col-md-6">
+                                        <RadzenTextBox class="form-control" id="recordID" Name="recordID" @bind-Value="VectorSessionStateContainer.SummaryRecordID" ReadOnly="true"></RadzenTextBox>
+                                    </InterfaceEditorResource>
+                                </div>
+                                <div class="form-row">
+                                    <InterfaceEditorResource For="summaryCollectionDate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorAggregateCollectionCollectionDateFieldLabel" IsRow="false" CssClass="col-md-6">
+                                        <RadzenDatePicker @bind-Value="@VectorSessionStateContainer.SummaryCollectionDateTime"
+                                                          DateFormat="d"
+                                                          Name="summaryCollectionDate"
+                                                          class="form-control-range" 
+                                                          Disabled="VectorSessionStateContainer.AggregateCollectionDisabledIndicator"/>
+                                        <RadzenCompareValidator Value="@VectorSessionStateContainer.StartDate.GetValueOrDefault().Date"
+                                                                Component="summaryCollectionDate"
+                                                                Popup="false"
+                                                                Operator="CompareOperator.GreaterThanEqual"
+                                                                Text="@(string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message),
+                                                                         Localizer.GetString(FieldLabelResourceKeyConstants.VectorDetailedCollectionSampleDetailsModalCollectionDateFieldLabel),
+                                                                         Localizer.GetString(FieldLabelResourceKeyConstants.VectorSurveillanceSessionStartDateFieldLabel)))"
+                                                                Style="display: block"
+                                                                Visible="@(!string.IsNullOrEmpty(VectorSessionStateContainer.StartDate.GetValueOrDefault().ToShortDateString()))" />
+                                    </InterfaceEditorResource>
+                                    <InterfaceEditorResource For="vectorTypes" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorTypeFieldLabel" IsRow="false" CssClass="col-md-6" IsRequiredByDefaultBusinessRule="true">
+                                        <RadzenDropDown id="vectorTypes" Name="vectorTypes" AllowClear="true" TValue="long?" Data="@VectorSessionStateContainer.VectorTypesList" LoadData="@LoadVectorTypes" AllowVirtualization="false" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" ValueProperty="IdfsVectorType" TextProperty="StrName"
+                                                        class="form-control" Change="SelectVector" @bind-Value="VectorSessionStateContainer.SummaryVectorTypeID" 
+                                                        Disabled="VectorSessionStateContainer.AggregateCollectionDisabledIndicator"/>
+                                    </InterfaceEditorResource>
+                                </div>
+                                <div class="form-row">
+                                    <InterfaceEditorResource For="species" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionAggregateInformationDetailsModalSpeciesFieldLabel" IsRow="false" CssClass="col-md-4">
+                                        <RadzenDropDown id="species" Name="species" Change="SelectSpecies" Data="@VectorSessionStateContainer.SpeciesList" AllowClear="true" TValue="long?" ValueProperty="KeyId" TextProperty="StrName"
+                                                        @bind-Value="VectorSessionStateContainer.SummaryInfoSpeciesID" LoadData="@LoadSpeciesVectorTypesList" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
+                                                        AllowVirtualization="false" class="form-control"  Disabled="VectorSessionStateContainer.AggregateCollectionDisabledIndicator"/>
+                                    </InterfaceEditorResource>
+                                    <InterfaceEditorResource For="sex" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorAggregateCollectionSexFieldLabel" IsRow="false" CssClass="col-md-4">
+                                        <RadzenDropDown id="sex" Name="sex" Change="SelectAnimalSex" AllowClear="true" Data="@VectorSessionStateContainer.AnimalSexList" 
+                                                        LoadData="@LoadAnimalSex" TValue="long?" ValueProperty="IdfsBaseReference" TextProperty="Name" class="form-control"
+                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                        @bind-Value="VectorSessionStateContainer.SummaryInfoSexID" Disabled="VectorSessionStateContainer.AggregateCollectionDisabledIndicator"/>
+                                    </InterfaceEditorResource>
+                                    <InterfaceEditorResource For="numberOfPoolsVectors" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorAggregateCollectionNumberOfPoolsVectorsCollectedFieldLabel" IsRow="false" CssClass="col-md-4">
+                                        <RadzenNumeric id="numberOfPoolsVectors" Name="numberOfPoolsVectors" class="form-control" TValue="int?" 
+                                                       @bind-Value="@VectorSessionStateContainer.PoolsAndVectors" ReadOnly="@(!IsSpeciesSelected)"  Disabled="VectorSessionStateContainer.AggregateCollectionDisabledIndicator"/>
+                                        <RadzenRegexValidator Component="numberOfPoolsVectors" Text="Negative numbers are not allowed" Pattern="^(\s*|\d+)$" />
+                                    </InterfaceEditorResource>
+                                </div>
+                            </div>
+                        </div>
+                    </RadzenTemplateForm>
+                </section>
+                <section>
+                    <RadzenTemplateForm id="AggregateCollectionLocationForm" @ref="AggregateLocationForm" TItem="VectorSessionStateContainer" Data="@VectorSessionStateContainer">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="row">
+                                    <div class="col-md-11">
+                                        <h4>@Localizer.GetString(@HeadingResourceKeyConstants.VectorAggregateCollectionCollectionLocationHeading)</h4>
+                                    </div>
+                                    <div class="col-md-1 text-right">
+                                        <a id="editAggregateCollectionLocationSectionButton" href="#aggregateCollectionWizard-h-1" class="edit-section">
+                                            <span class="fas fa-edit fa-lg"></span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body show" id="sessionLocation">
+                                <div class="form-row">
+                                    <div class="col-12">
+                                        <InterfaceEditorResource For="summaryLocationType" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorAggregateCollectionCollectionLocationTypeFieldLabel" IsRow="false" CssClass="col-md-12">
+                                            <RadzenRadioButtonList id="summaryLocationType"
+                                                                   Name="summaryLocationType"
+                                                                   @bind-Value="@VectorSessionStateContainer.SummaryGeoLocationTypeID"
+                                                                   TValue="long?"
+                                                                   @ref="SummaryLocationTypeSelection"
+                                                                   Change="@OnLocationTypeChangeAsync"
+                                                                   Orientation="Orientation.Horizontal"
+                                                                   Data="@VectorSessionStateContainer.GeoTypes"
+                                                                   TextProperty="Name"
+                                                                   ValueProperty="IdfsBaseReference"
+                                                                   Disabled="VectorSessionStateContainer.AggregateCollectionDisabledIndicator">
+                                            </RadzenRadioButtonList>
+                                        </InterfaceEditorResource>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-md-12">
+                                        <LocationView ParmLocationViewModel="@VectorSessionStateContainer.SummaryLocationViewModel" Refresh="true" LocationViewModelChanged="UpdateAggregateCollectionLocationHandlerAsync" @ref="AggregateLocationViewComponent" />
+                                    </div>
+                                </div>
+                                @if (VectorSessionStateContainer.SummaryLocationViewModel.ShowGroundTypes)
+                                {
+                                    <div class="form-row">
+                                        <InterfaceEditorResource For="summaryGroundType" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorAggregateCollectionGroundTypeFieldLabel" IsRow="false" CssClass="col-md-4">
+                                            <RadzenDropDown id="summaryGroundType" Name="summaryGroundType" AllowClear="true" TValue="long?" Data="@VectorSessionStateContainer.GroundTypes"
+                                                        LoadData="@LoadGroundTypes" AllowVirtualization="false"
+                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" ValueProperty="IdfsBaseReference" TextProperty="Name" class="form-control"
+                                                        Change="SelectGroundType" @bind-Value="@VectorSessionStateContainer.SummaryLocationGroundTypeID"
+                                                        Disabled="VectorSessionStateContainer.AggregateCollectionDisabledIndicator"/>
+                                        </InterfaceEditorResource>
+                                    </div>
+                                }
+                                <div class="form-row">
+                                    @if (VectorSessionStateContainer.SummaryLocationViewModel.ShowLocationDistance)
+                                    {
+                                        <InterfaceEditorResource For="summaryDistance" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorAggregateCollectionDistanceFieldLabel" IsRow="false" CssClass="col-md-4">
+                                            <RadzenNumeric class="form-control" id="summaryDistance" Name="summaryDistance" @bind-Value="VectorSessionStateContainer.SummaryLocationDistance"  Disabled="VectorSessionStateContainer.AggregateCollectionDisabledIndicator"/>
+                                        </InterfaceEditorResource>
+                                    }
+                                    @if (VectorSessionStateContainer.SummaryLocationViewModel.ShowLocationDirection)
+                                    {
+                                        <InterfaceEditorResource For="summaryDirection" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorAggregateCollectionDirectionFieldLabel" IsRow="false" CssClass="col-md-4">
+                                            <RadzenNumeric class="form-control" id="summaryDirection" Name="summaryDirection" @bind-Value="VectorSessionStateContainer.SummaryLocationDirection" Disabled="VectorSessionStateContainer.AggregateCollectionDisabledIndicator" />
+                                        </InterfaceEditorResource>
+                                    }
+                                </div>
+                                @if (VectorSessionStateContainer.SummaryLocationViewModel.ShowLocationAddress)
+                                {
+                                    <div class="form-row">
+                                        <InterfaceEditorResource For="summaryForeignAddress" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorAggregateCollectionAddressFieldLabel" IsRow="false" CssClass="col-md-12">
+                                            <RadzenTextArea Rows="10" Cols="10" class="form-control" id="summaryForeignAddress" Name="summaryForeignAddress" @bind-Value="VectorSessionStateContainer.SummaryForeignAddress" Disabled="VectorSessionStateContainer.AggregateCollectionDisabledIndicator" />
+                                        </InterfaceEditorResource>
+                                    </div>
+                                }
+                                @if (VectorSessionStateContainer.SummaryLocationViewModel.ShowLocationDescription)
+                                {
+                                    <div class="form-row">
+                                        <InterfaceEditorResource For="summaryLocationDescription" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorAggregateCollectionDescriptionFieldLabel" IsRow="false" CssClass="col-md-12">
+                                            <RadzenTextArea Rows="10" Cols="10" class="form-control" id="summaryLocationDescription" Name="summaryLocationDescription" @bind-Value="VectorSessionStateContainer.SummaryLocationDescription" Disabled="VectorSessionStateContainer.AggregateCollectionDisabledIndicator"/>
+                                        </InterfaceEditorResource>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </RadzenTemplateForm>
+                </section>
+                <section>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-md-11">
+                                    <h4>@Localizer.GetString(@HeadingResourceKeyConstants.VectorAggregateCollectionListofDiseasesHeading)</h4>
+                                </div>
+                                <div class="col-md-1 text-right">
+                                    <a id="editAggregateCollectionDiseaseSectionButton" href="#aggregateCollectionWizard-h-2" class="edit-section">
+                                        <span class="fas fa-edit fa-lg"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body show" id="diseaseListing">
+                            <DiseaseList />
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <h4 style="display: none">@Localizer.GetString(@HeadingResourceKeyConstants.ReviewHeading)</h4>
+                </section>
+            </div>
+        </div>
+
+    </div>
+</div>

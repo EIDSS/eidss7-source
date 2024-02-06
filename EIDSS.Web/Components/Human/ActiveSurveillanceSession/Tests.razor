@@ -1,0 +1,96 @@
+﻿@using EIDSS.Domain.ResponseModels.Human
+@using EIDSS.Web.Components.CrossCutting
+@inherits TestsBase
+
+<div class="card">
+    <div class="card-body">
+        <div class="col-2 pull-right mb-3 text-right">
+            <button type="button" class="btn btn-outline-primary" @onclick="OpenTestModal" disabled="@model.RecordReadOnly">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+            <button type="button" class="btn btn-outline-primary" @onclick="OnPrintTestsButtonClick">@Localizer.GetString(ButtonResourceKeyConstants.PrintButton)</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <GridExtension OnColumnSave="GridTestClickHandler"></GridExtension>
+        <RadzenDataGrid AllowColumnPicking="true" AllowColumnReorder="true" AllowColumnResize="true" AllowGrouping="false" AllowPaging="true" AllowSorting="true" Count="@count" Data="@model.TestsInformation.List" ExpandMode="DataGridExpandMode.Single" HeaderCellRender="@(args => HeaderCellRender(args.Column.Property))" IsLoading="@isLoading" LoadData="@(args => LoadTestsGridView(args))" Name="testsResults" PageSize="10" @ref="_testsGrid" TItem="ActiveSurveillanceSessionTestsResponseModel">
+            <Columns>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("LabSampleID")" Property="LabSampleID" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionTestsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionTestsLabSampleIDColumnHeading)" Visible="@GetColumnVisibility("LabSampleID")" Width="225px">
+                    <Template Context="data">
+                        @data.LabSampleID
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("FieldSampleID")" Property="FieldSampleID" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionTestsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionTestsFieldSampleIDColumnHeading)" Visible="@GetColumnVisibility("FieldSampleID")" Width="225px">
+                    <Template Context="data">
+                        @data.FieldSampleID
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("SampleType")" Property="SampleType" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionTestsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionTestsSampleTypeColumnHeading)" Visible="@GetColumnVisibility("SampleType")" Width="225px">
+                    <Template Context="data">
+                        @data.SampleType
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("EIDSSPersonID")" Property="EIDSSPersonID" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionTestsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionTestsPersonIDColumnHeading)" Visible="@GetColumnVisibility("EIDSSPersonID")" Width="225px">
+                    <Template Context="data">
+                        @data.EIDSSPersonID
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("TestName")" Property="TestName" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionTestsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionTestsTestNameColumnHeading)" Visible="@GetColumnVisibility("TestName")" Width="225px">
+                    <Template Context="data">
+                        @data.TestName
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("Diagnosis")" Property="Diagnosis" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionTestsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionTestsTestDiseaseColumnHeading)" Visible="@GetColumnVisibility("Diagnosis")" Width="225px">
+                    <Template Context="data">
+                        @data.Diagnosis
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("TestCategory")" Property="TestCategory" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionTestsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionTestsTestCategoryColumnHeading)" Visible="@GetColumnVisibility("TestCategory")" Width="225px">
+                    <Template Context="data">
+                        @data.TestCategory
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("TestResult")" Property="TestResult" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionTestsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionTestsTestResultColumnHeading)" Visible="@GetColumnVisibility("TestResult")" Width="225px">
+                    <Template Context="data">
+                        @data.TestResult
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn FormatString="{0:d}" OrderIndex="@FindColumnOrder("ResultDate")" Property="ResultDate" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionTestsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionTestsResultDateColumnHeading)" Visible="@GetColumnVisibility("ResultDate")" Width="150px"/>
+                <RadzenDataGridColumn Filterable="false" Property="" Sortable="false" TItem="ActiveSurveillanceSessionTestsResponseModel" Title="" Width="50px">
+                    <Template Context="data">
+                        @if (data.ID > -1 && data.Indicative == true)
+                        {
+                            <button @onclick="@(() => OnLinkDiseaseReportClick(data))" class="btn btn-sm" disabled=@(!model.ActiveSurveillanceSessionPermissions.Create || data.HumanCaseID != null) type="button">
+                                @if (data.HumanCaseID != null)
+                                {
+                                    <i class="fas fa-link fa-lg" style="color: lightgrey"></i>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-link fa-lg"></i>
+                                }
+                            </button>
+                        }
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Context="data" Filterable="false" Pickable="false" Reorderable="false" Sortable="false" TextAlign="TextAlign.Center" TItem="ActiveSurveillanceSessionTestsResponseModel" Width="120px">
+                    <Template Context="data">
+                        <button @onclick="@(() => EditTest(data))" class="btn btn-sm" disabled="@(!model.ActiveSurveillanceSessionPermissions.Create)" type="button">
+                            <i class="fas fa-edit fa-lg"></i>
+                        </button>
+                        <button @onclick="@(() => DeleteRow(data))" class="btn btn-sm" disabled="@(!model.ActiveSurveillanceSessionPermissions.Delete)" type="button">
+                            <i class="fas fa-trash fa-lg"></i>
+                        </button>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>
+
+@code {
+
+    void GridTestClickHandler()
+    {
+        GridColumnSave("ActiveSurveillanceSessionTests");
+    }
+
+}

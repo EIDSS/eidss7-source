@@ -1,0 +1,29 @@
+﻿@model EIDSS.Web.Areas.Administration.SubAreas.Security.ViewModels.SystemFunctions.SearchPersonAndEmployeeGroupViewModel
+
+@{
+    Model.ActorsGridConfiguration = new EIDSSGridConfiguration();
+    Model.ActorsGridConfiguration.GridId = "systemFunctionActorsTable";
+    Model.ActorsGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.ActorsGridConfiguration.AjaxDataUrl = Url.Action("GetSystemFunctionActorList", "SystemFunctionActor", new { area = "CrossCutting" , subArea = "" });
+    Model.ActorsGridConfiguration.ControlFilterID = "SearchPersonAndEmployeeGroupViewModel_SystemFunctionId,SearchPersonAndEmployeeGroupViewModel_SearchCriteria_ActorTypeID,SearchPersonAndEmployeeGroupViewModel_SearchCriteria_ActorName,SearchPersonAndEmployeeGroupViewModel_SearchCriteria_OrganizationName,SearchPersonAndEmployeeGroupViewModel_SearchCriteria_Description";
+    Model.ActorsGridConfiguration.EnableServerSide = true;
+    Model.ActorsGridConfiguration.EnableCustomSearching = false;
+    Model.ActorsGridConfiguration.EnableProcessingMessage = true;
+    Model.ActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ActorID", ColumnTitleHeader = String.Empty, ColumnType = ColumnType.Selection, Visible = true });
+    Model.ActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ActorTypeID", ColumnTitleHeader = String.Empty, ColumnType = ColumnType.ReadOnly, Visible = false });
+    Model.ActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ActorTypeName", ColumnTitleHeader = "Type", ColumnType = ColumnType.Default, Visible = true, Orderable = true });
+    Model.ActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ActorName", ColumnTitleHeader = "Name", ColumnType = ColumnType.Default, Visible = true, Orderable = true });
+    Model.ActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "OrganizationName", ColumnTitleHeader = "Organization", ColumnType = ColumnType.Default, Visible = true, Orderable = true });
+    Model.ActorsGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "Description", ColumnTitleHeader = "Description", ColumnType = ColumnType.Default, Visible = true });
+
+}
+<eidss-grid id="@Model.ActorsGridConfiguration.GridId"
+            grid-configuration="@Model.ActorsGridConfiguration"
+            class-name="@Model.ActorsGridConfiguration.GridClass"
+            enable-server-side="true"
+            enable-processing="@Model.ActorsGridConfiguration.EnableProcessingMessage"
+            enable-search="false"
+            end-point="@Model.ActorsGridConfiguration.AjaxDataUrl"
+            filtered-control-ids="@Model.ActorsGridConfiguration.ControlFilterID"
+            control-labels="@Model.ActorsGridConfiguration.ControlLabels">
+</eidss-grid>

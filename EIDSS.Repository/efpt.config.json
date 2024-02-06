@@ -1,0 +1,2377 @@
+﻿{
+  "CodeGenerationMode": 1,
+  "ContextClassName": "EIDSSContext",
+  "ContextNamespace": null,
+  "DefaultDacpacSchema": null,
+  "FilterSchemas": false,
+  "IncludeConnectionString": false,
+  "ModelNamespace": "",
+  "OutputContextPath": "Contexts",
+  "OutputPath": "ReturnModels",
+  "PreserveCasingWithRegex": true,
+  "ProjectRootNamespace": "EIDSS.Repository",
+  "Schemas": null,
+  "SelectedHandlebarsLanguage": 0,
+  "SelectedToBeGenerated": 0,
+  "Tables": [
+    {
+      "Name": "[dbo].[AccessRule]",
+      "ObjectType": 0
+    },
+    {
+      "Name": "[dbo].[AspNetUsers]",
+      "ObjectType": 0
+    },
+    {
+      "Name": "[dbo].[EmployeeToInstitution]",
+      "ObjectType": 0
+    },
+    {
+      "Name": "[dbo].[tlbEmployee]",
+      "ObjectType": 0
+    },
+    {
+      "Name": "[dbo].[tlbEmployeeGroupMember]",
+      "ObjectType": 0
+    },
+    {
+      "Name": "[dbo].[tlbOffice]",
+      "ObjectType": 0
+    },
+    {
+      "Name": "[dbo].[tlbPerson]",
+      "ObjectType": 0
+    },
+    {
+      "Name": "[dbo].[trtBaseReference]",
+      "ObjectType": 0
+    },
+    {
+      "Name": "[dbo].[trtReferenceType]",
+      "ObjectType": 0
+    },
+    {
+      "Name": "[dbo].[trtStringNameTranslation]",
+      "ObjectType": 0
+    },
+    {
+      "Name": "[dbo].[trtVectorType]",
+      "ObjectType": 0
+    },
+    {
+      "Name": "[dbo].[tstObjectAccess]",
+      "ObjectType": 0
+    },
+    {
+      "Name": "[dbo].[tstUserTable]",
+      "ObjectType": 0
+    },
+    {
+      "Name": "[dbo].[spObjectAccess_SelectDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[spUserGroupDetail_SelectDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_ACCESS_RULE_ACTOR_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_ACCESS_RULE_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_ACCESS_RULE_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_ACCESS_RULE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_ACTOR_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_ADMINLEVEL_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_BASEREF_GET_KeyValueByReferenceId]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_BASEREF_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_CONF_DataArchiveSettings_Get]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_DATAAUDITLOG_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_DATAAUDITLOG_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_DEDUPLICATION_FARM_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_DEDUPLICATION_HUMAN_DISEASE_Report_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_DEDUPLICATION_PERSON_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_DEDUPLICATION_PERSONID_FARM_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_DEDUPLICATION_PERSONID_HUMAN_DISEASE_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_DEDUPLICATION_VET_DISEASE_Report_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_DEPARTMENT_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMP_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMP_NEW_DEFAULT_ORGANIZATION_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMP_ORGANIZATION_ACTIVATE_DEACTIVATE_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMP_ORGANIZATION_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMP_ORGANIZATION_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMP_ORGANIZATION_STATUS_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMP_ORGANIZATION_USER_GROUP_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMP_ORGANIZATION_USER_GROUP_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMP_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMPLOYEE_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMPLOYEE_GETCOUNT]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMPLOYEE_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMPLOYEEGROUP_BYUSER_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMPLOYEEGROUP_DASHBOARD_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMPLOYEEGROUP_DASHBOARD_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMPLOYEEGROUP_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMPLOYEEGROUP_GETDETAIL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMPLOYEEGROUP_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMPLOYEEGROUP_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMPLOYEEGROUP_SYSTEMFUNCTION_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMPLOYEES_IN_USERGROUP_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EMPLOYEESFOREMPLOYEEGROUP_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EVENT_GETCount]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EVENT_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EVENT_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EVENT_STATUS_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EVENT_SUBSCRIPTION_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_EVENT_SUBSCRIPTION_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_ActivityParameters_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_ActivityParameters_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Copy_Template]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Determinant_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_DIAGNOSISREFERENCE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_FlexForm_Get]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_FormTemplate_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_FormTypes_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Parameter_Copy]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Parameter_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Parameter_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_ParameterFixedPresetValue_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_ParameterFixedPresetValue_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_ParameterFixedPresetValue_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_ParameterInUse]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_ParameterReferenceTypes_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_ParameterReferenceTypes_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Parameters_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Parameters_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_ParameterSelectList_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_ParameterTemplate_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_ParameterTemplate_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_ParameterTypeEditorMapping_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_ParameterTypes_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_ParameterTypes_FILTER]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_ParameterTypes_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_ParameterTypes_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_RequiredParameter_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Rule_GetDetails]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_RuleParameterForAction_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Rules_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Rules_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Rules_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Section_Copy]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Section_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_SectionParameterTree_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Sections_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Sections_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Template_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Template_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Template_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_TemplateDesign_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_TemplateDeterminantValues_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_TemplateParameterOrder_Set]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_Templates_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_TemplatesByParameter_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_FF_TemplateSectionOrder_Set]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_GISDATA_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_GISDATA_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_IE_DownloadTemplate_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_IE_Language_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_IE_Module_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_IE_Resource_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_IE_Resource_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_IE_Section_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_NEIGHBORING_SITE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_OBJECT_ACCESS_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_OBJECT_ACCESS_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_ORG_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_ORG_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_ORG_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_ORG_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_SITE_ACTOR_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_SITE_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_SITE_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_SITE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_SITE_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_STAT_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_STAT_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_STAT_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_STAT_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_STLE_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_STLE_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_SYSTEM_PREFERENCE_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_SYSTEM_PREFERENCE_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_SYSTEMEVENT_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_SYSTEMFUNCTION_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_SYSTEMFUNCTION_PersonANDEmployeeGroup_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_Admin_SystemFunction_PersonANDEmployeeGroup_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_SYSTEMFUNCTION_USERPERMISSION_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_Admin_UserGoupAndUser_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_USERGROUP_SYSTEMFUNCTION_PERMISSION_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_USERGROUPTOEMPLOYEE_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_UserListGetForUtility]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_USR_GROUPMEMBER_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_USR_GROUPMEMBER_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_USR_LOGININFO_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ADMIN_USR_LOGININFO_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_AGG_CASE_DELETE]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_AGG_CASE_GETDETAIL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_AGG_CASE_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_AGG_REPORT_DELETE]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_AGG_REPORT_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_AGG_REPORT_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_AS_CAMPAIGN_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_AS_CAMPAIGN_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_AS_CAMPAIGN_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_AS_CAMPAIGN_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_AS_CAMPAIGN_TO_DIAGNOSIS_SPECIES_SAMPLE_TYPE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_AS_DISASSOCITE SESSION_FROM_CAMPAIGN_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ASPNetUser_GetAccessRulesAndPermissions]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ASPNetUser_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ASPNetUser_GetRolesAndPermissions]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ASPNetUserGetPermissionByRole_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ASPNetUserSetSessionContext]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_AVR_UserPermissionsGet]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_ADMIN_AggregateHumanCaseMatrixReport_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_ADMIN_AggregateVetCaseMatrixReport_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_ADMIN_ProphylacticMatrixReportGet_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_ADMIN_SanitaryMatrixReportGet_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_ADMIN_VetDiagnosisInvesitgationMatrixReport_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_AGEGROUPSTATISTICALAGEGROUPMATRIX_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_AGEGROUPSTATISTICALAGEGROUPMATRIX_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_AGEGROUPSTATISTICALAGEGROUPMATRIX_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_AggregateSetting_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_AggregateSetting_GetList_WithName]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_AggregateSetting_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_CUSTOMREPORT_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_CUSTOMREPORT_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_CUSTOMREPORT_ROWORDER_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_CUSTOMREPORT_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASEAGEGROUPMATRIX_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASEAGEGROUPMATRIX_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASEAGEGROUPMATRIX_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASEGROUPDISEASEMATRIX_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASEGROUPDISEASEMATRIX_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASEGROUPDISEASEMATRIX_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASEHUMANGENDERMATRIX_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASEHUMANGENDERMATRIX_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASEHUMANGENDERMATRIX_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASELABTESTMATRIX_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASELABTESTMATRIX_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASELABTESTMATRIX_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASEPENSIDETESTMATRIX_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASEPENSIDETESTMATRIX_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASEPENSIDETESTMATRIX_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASESAMPLETYPEMATRIX_BY_DISEASE_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASESAMPLETYPEMATRIX_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASESAMPLETYPEMATRIX_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_DISEASESAMPLETYPEMATRIX_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_GetInvestigationTypes_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_GetProphylacticMeasures_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_GetSanitaryActions_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_GetSpeciesList_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_GetVetDiseaseList_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_HumanAggregateCaseMatrixReport_DELETE]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_HumanAggregateCaseMatrixReport_POST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_HumanAggregateCaseMatrixReport_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_HumanAggregateCaseMatrixReportRecord_DELETE]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_HumanAggregateCaseMatrixVersion_DELETE]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_HumanAggregateCaseMatrixVersion_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_HumanAggregateCaseMatrixVersion_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_HumanAggregateCaseMatrixVersionByMatrixType_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_HumanAggregateCaseMatrixVersionDiseaseList_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_LKUP_DISEASE_GENDER_MATRIX]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_PERSONALIDTYPEMATRIX_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_PERSONALIDTYPEMATRIX_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_PERSONALIDTYPEMATRIX_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_ProphylacticMatrixReportRecord_DELETE]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_REPORTDISEASEGROUPDISEASEMATRIX_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_REPORTDISEASEGROUPDISEASEMATRIX_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_REPORTDISEASEGROUPDISEASEMATRIX_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_SAMPLETYPEDERIVATIVEMATRIX_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_SAMPLETYPEDERIVATIVEMATRIX_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_SAMPLETYPEDERIVATIVEMATRIX_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_SanitaryMatrixReportRecord_DELETE]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_SPECIESTYPEANIMALAGEMATRIX_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_SPECIESTYPEANIMALAGEMATRIX_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_SPECIESTYPEANIMALAGEMATRIX_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_TESTTOTESTRESULTMATRIX_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_TESTTOTESTRESULTMATRIX_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_TESTTOTESTRESULTMATRIX_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_UNIQUENUMBERINGSCHEMA_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_UNIQUENUMBERINGSCHEMA_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_USER_GRIDS_GETDETAIL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_USER_GRIDS_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_VECTORTYPECOLLECTIONMETHODMATRIX_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_VECTORTYPECOLLECTIONMETHODMATRIX_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_VECTORTYPECOLLECTIONMETHODMATRIX_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_VECTORTYPEFIELDTESTMATRIX_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_VECTORTYPEFIELDTESTMATRIX_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_VECTORTYPEFIELDTESTMATRIX_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_VECTORTYPESAMPLETYPEMATRIX_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_VECTORTYPESAMPLETYPEMATRIX_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_VECTORTYPESAMPLETYPEMATRIX_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_VETAggregateCaseMatrixReportRecord_DELETE]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_VetDiagnosisMatrixReportRecord_DELETE]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_VeterinaryAggregateCaseMatrixReport_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_VeterinaryDiagnosticInvestigationMatrixReport_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_VeterinaryProphylacticMatrixReport_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_CONF_VeterinarySanitaryActionMatrixReport_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[usp_Country_GetLookup]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_DAS_APPROVALS_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_DAS_DASHBOARD_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_DAS_INVESTIGATIONS_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_DAS_MYCOLLECTIONS_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_DAS_MYINVESTIGATIONS_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_DAS_MYNOTIFICATIONS_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_DAS_NOTIFICATIONS_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_DAS_USERS_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_DataAudit_AuditEvents_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[usp_Employee_Validate]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_AuditEventSystemLog_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_BASE_REFERENCE_Advanced_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_BASE_REFERENCE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_BaseReferenceTranslation_Get]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_DataAuditEvent_Delete]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_DataAuditEvent_Restore]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_DataAuditEvent_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_DataAuditEvent_Update]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_Department_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_DISEASE_MTX_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_DISEASE_MTX_GET_BY_UsingType]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_EMPLOYEE_GROUP_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_EMPLOYEEGROUPSFOREMPLOYEE_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_EMPLOYEESITE_GETDETAIL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_GIS_Location_ChildLevel_Get]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_GIS_Location_CurrentLevel_Get]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_GIS_Location_Levels_Get]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_GIS_LocationAncestry_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_Languages_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_LKUP_DISEASE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_LKUP_DISEASE_GETList_Paged]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_LKUP_ORG_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_LKUP_PERSON_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_LKUP_REFERENCETYPE_BY_IDS_GETLIST_Paged]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_LKUP_REFERENCETYPE_FILTERED_PAGED_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_LKUP_REFERENCETYPE_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_LKUP_SAMPLESFORDISEASES]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_LKUP_SITE_FROM_ORG]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_LogSecurityEvent_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_MENU_ByUser_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_MENU_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_OBSERVATION_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_PERSON_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_POSTAL_CODE_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_POSTALCODE_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_ReportForm_DELETE]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_ReportForm_GETDETAIL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_ReportForm_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_ReportForm_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_ReportFormSummary_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_Resource_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_SAMPLE_IMPORT_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_SecurityEventLog_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_Site_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_SITE_GROUP_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_SITE_GROUP_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_SITE_GROUP_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_SITE_GROUP_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_STREET_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_STREET_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_TEST_DISEASE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_TEST_INTERPRETATION_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_USER_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_USER_PREFERENCE_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_GBL_USER_PREFERENCE_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HACode_GetCheckList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HAS_CAMPAIGN_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HAS_CAMPAIGN_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HAS_CAMPAIGN_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HAS_CAMPAIGN_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HAS_CAMPAIGN_TO_SAMPLE_TYPE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HAS_DetailedInformation_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HAS_DISEASE_REPORT_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HAS_MONITORING_SESSION_ACTION_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HAS_MONITORING_SESSION_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HAS_MONITORING_SESSION_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HAS_MONITORING_SESSION_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HAS_MONITORING_SESSION_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HAS_MONITORING_SESSION_TO_DISEASE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HAS_MONITORING_SESSION_TO_SAMPLE_TYPE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HAS_Tests_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_DISEASE_AdvanceSearch_REPORT_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_DISEASE_ANTIVIRALTHERAPIES_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_DISEASE_CONTACTS_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_DISEASE_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_DISEASE_REPORT_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_DISEASE_REPORT_PERMISSION_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_DISEASE_VACCINATIONS_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_HUMAN_DISEASE_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_HUMAN_DISEASE_INVESTIGATEDBY_UPDATE]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_HUMAN_DISEASE_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_HUMAN_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_HUMAN_MASTER_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_HUMAN_MASTER_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_HUMAN_MASTER_GETDetail_FROM_HUMAN_ID]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_HUMAN_MASTER_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_HUMAN_MASTER_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_REP_WHOEXPORT]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_SAMPLES_GetList_With_Derivates]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUM_TESTS_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_HUMAN_DISEASELABTESTMATRIX_BY_DISEASE_GETLIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ILI_Aggregate_Delete]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ILI_Aggregate_Detail_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ILI_Aggregate_Detail_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ILI_Aggregate_Form_Delete]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ILI_Aggregate_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_ILI_Aggregate_Set]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_APPROVAL_ADVANCED_SEARCH_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_APPROVAL_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_APPROVAL_SEARCH_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_BATCH_ADVANCED_SEARCH_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_BATCH_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_FAVORITE_ADVANCED_SEARCH_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_FAVORITE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_FAVORITE_SEARCH_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_FREEZER_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_FREEZER_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_FREEZER_SUBDIVISION_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_SAMPLE_ADVANCED_SEARCH_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_SAMPLE_BAR_CODE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_SAMPLE_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_SAMPLE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_SAMPLE_GetListByBarCodes]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_SAMPLE_GROUP_ACCESSION_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_SAMPLE_ID_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_SAMPLE_SEARCH_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_TAB_COUNTS_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_TEST_ADVANCED_SEARCH_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_TEST_AMENDMENT_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_TEST_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_TEST_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_TEST_SEARCH_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_TRANSFER_ADVANCED_SEARCH_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_TRANSFER_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_TRANSFER_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_LAB_TRANSFER_SEARCH_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_Case_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_Case_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_CASE_MONITORING_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_Case_QuickSet]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_Case_Set]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_CaseSummary_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_Contact_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_Contact_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_Contact_Set]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_FlexForm_Set]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_HeatMap]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_Herd_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_HerdSpecies_Set]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_HUMAN_Case_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_Note_File_Get]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_Session_Del]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_Session_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_Session_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_SESSION_Note_Delete]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_Session_Note_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_Session_Note_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_SESSION_Note_Set]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_Session_Parameters_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_Session_Set]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_Species_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_Vector_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_OMM_VET_CASE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[usp_PersonGetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_PIN_Audit_Set]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_AccessRule_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_AGEGROUP_CANDEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_AGEGROUP_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_AGEGROUP_DOESEXIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_AGEGROUP_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_AGEGROUP_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_BASEREFERENCE_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_BASEREFERENCE_Filtered_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_BASEREFERENCE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_BASEREFERENCE_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_CASECLASSIFICATION_CANDEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_CASECLASSIFICATION_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_CASECLASSIFICATION_DOESEXIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_CASECLASSIFICATION_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_CASECLASSIFICATION_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_DIAGNOSISREFERENCE_CANDEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_DIAGNOSISREFERENCE_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_DIAGNOSISREFERENCE_DOESEXIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_DIAGNOSISREFERENCE_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_DIAGNOSISREFERENCE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_DIAGNOSISREFERENCE_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_LKUP_BASE_REFERENCE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_LKUP_CASECLASSIFICATION]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_MEASURELIST_DOESEXIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_MEASURELIST_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_MEASUREREFEFENCE_CANDEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_MEASUREREFEFENCE_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_MEASUREREFERENCE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_MEASUREREFERENCE_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_REPORTDIAGNOSISGROUP_CANDEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_REPORTDIAGNOSISGROUP_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_REPORTDIAGNOSISGROUP_DOESEXIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_ReportDiagnosisGroup_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_REPORTDIAGNOSISGROUP_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_SampleType_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_SAMPLETYPEREFERENCE_CANDEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_SAMPLETYPEREFERENCE_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_SAMPLETYPEREFERENCE_DOESEXIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_SampleTypeReference_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_SAMPLETYPEREFERENCE_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_SearchDuplicates_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_SPECIESTYPE_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_SPECIESTYPE_DOESEXIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_SPECIESTYPE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_SPECIESTYPE_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_SPECIESTYPEREFERENCE_CANDEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_SPECIESTYPEREFERENCE_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_SPECIETYPE_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_STATISTICDATATYPE_CANDEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_STATISTICDATATYPE_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_STATISTICDATATYPE_DOESEXIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_STATISTICDATATYPE_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_STATISTICDATATYPE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_STATISTICDATATYPE_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_StatisticType_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_VectorSubType_CANDEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_VectorSubType_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_VECTORSUBTYPE_DOESEXIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_VectorSubType_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_VectorSubType_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_VECTORTYPE_DOESEXIST]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_VECTORTYPEREFERENCE_CANDEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_VECTORTYPEREFERENCE_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_VectorTypeReference_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_VECTORTYPEREFERENCE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REF_VECTORTYPEREFERENCE_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REP_Languages_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REP_MonthNames_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REP_REPORT_AUDIT_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REP_SpeciesType_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_REP_Years_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_SecurityConfiguration_Get]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_SecurityConfiguration_Set]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[usp_SecuritySetConfig]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[usp_Settlement_GetLookup]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[usp_SettlementType_GetLookup]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[usp_SettlementType_Set]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VAS_MONITORING_SESSION_ACTION_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VAS_MONITORING_SESSION_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VAS_MONITORING_SESSION_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VAS_MONITORING_SESSION_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VAS_MONITORING_SESSION_SAMPLE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VAS_MONITORING_SESSION_SAMPLE_TO_DISEASE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VAS_MONITORING_SESSION_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VAS_MONITORING_SESSION_SPECIES_TO_SAMPLE_TYPE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VAS_MONITORING_SESSION_SUMMARY_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VAS_MONITORING_SESSION_SUMMARY_TO_DISEASE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VAS_MONITORING_SESSION_TEST_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VAS_MONITORING_SESSION_TO_DISEASE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_DetailedCollections_Copy]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_FIELDTEST_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_FIELDTEST_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_FIELDTEST_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_LABTEST_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_SAMPLE_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_SAMPLE_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_SAMPLE_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_SESSIONSUMMARY_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_SESSIONSUMMARY_DIAGNOSIS_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_SESSIONSUMMARY_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_SESSIONSUMMARY_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_SESSIONSUMMARY_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_SESSIONSUMMARYDIAGNOSIS_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_SESSIONSUMMARYDIAGNOSIS_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_SESSIONSUMMARYDIAGNOSIS_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_SURVEILLANCE_SESSION_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_SURVEILLANCE_SESSION_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_SURVEILLANCE_SESSION_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_VECT_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_VECT_FIELDTEST_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_VECT_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_VECT_GetSampleType]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_VECT_RW_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_VECT_SAMPLES_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_VECT_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_VECT_STRUCTURED_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_VECTCollection_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_VSSESSION_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_VSSESSION_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VCTS_VSSESSION_New_GetDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_ANIMAL_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_CASE_LOG_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_DISEASE_REPORT_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_DISEASE_REPORT_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_DISEASE_REPORT_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_DISEASE_REPORT_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_DISEASE_REPORT_SPECIES_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_FARM_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_FARM_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_FARM_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_FARM_INVENTORY_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_FARM_MASTER_DEL]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_FARM_MASTER_GETDetail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_FARM_MASTER_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_FARM_MASTER_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_PENSIDE_TEST_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_SAMPLE_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_TEST_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_VET_VACCINATION_GETList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USP_xSiteDocumentListGet]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USSP_HAS_CampaignToDiagnosis_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USSP_VAS_MONITORING_SESSION_ACTION_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USSP_VCT_AGGREGATE_DISEASEDIAGNOSIS_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[dbo].[USSP_VCT_SAMPLE_DETAILEDCOLLECTIONS_SET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_CurrentCountry_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_GetCurrentCountry]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_HUM_ComparitiveCounter_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_HUM_ComparitiveCounter_GET_GG]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_HUM_DateFieldSource_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_HUM_TuberculosisDiagnosisSelectLookup]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_HUM_WhoMeaslesRubella_Diagnosis]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_Human_Aggregate_Disease_Summary_Report_Detail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_LAB_AssignmentDiagnosticAZSendToLookup]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_LAB_TestingResultsDepartmentLookup]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_Organization_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_Quarter_GG]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_ReportingPeriod]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_ReportingPeriodType]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_Reports_GetList]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_VET_DateFieldSource_GET]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_VET_NameOfInvestigationOrMeasureSelectLookup]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_VET_SummarySurveillanceType]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_Veterinary_Aggregate_DiagnosticAction_Summary_Report_Detail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_Veterinary_Aggregate_Disease_Summary_Report_Detail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_Veterinary_Aggregate_ProphylacticAction_Summary_Report_Detail]",
+      "ObjectType": 1
+    },
+    {
+      "Name": "[Report].[USP_REP_Veterinary_Aggregate_SanitaryAction_Summary_Report_Detail]",
+      "ObjectType": 1
+    }
+  ],
+  "UiHint": "devdata\\ngsqldev1.EIDSS7_GG_DT.dbo",
+  "UncountableWords": null,
+  "UseBoolPropertiesWithoutDefaultSql": false,
+  "UseDatabaseNames": false,
+  "UseDateOnlyTimeOnly": false,
+  "UseDbContextSplitting": false,
+  "UseFluentApiOnly": true,
+  "UseHandleBars": false,
+  "UseHierarchyId": false,
+  "UseInflector": false,
+  "UseLegacyPluralizer": false,
+  "UseManyToManyEntity": false,
+  "UseNoDefaultConstructor": false,
+  "UseNoObjectFilter": false,
+  "UseNodaTime": false,
+  "UseNullableReferences": false,
+  "UseSchemaFolders": false,
+  "UseSpatial": false,
+  "UseT4": false
+}

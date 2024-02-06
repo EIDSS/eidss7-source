@@ -1,0 +1,36 @@
+﻿@model EIDSS.Web.ViewModels.Human.DiseaseReportCaseInvestigationRiskFactorsPageViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+
+<form id="RiskFactorsForm">
+    <div class="card">
+        <div class="card-header"><h4 heading-for="@HeadingResourceKeyConstants.HumanDiseaseReportCaseInvestigationRiskFactorsHeading"></h4></div>      
+        <div class="card-body">
+            <div id="divRiskFactorsList">
+                @if (Model.RiskFactors != null)
+                    {@await Component.InvokeAsync("FlexFormView", Model.RiskFactors)}
+            </div>
+        </div>
+        @if (Model.isOutbreakCase)
+            {
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label asp-for="@Model.AdditionalComments" field-label-for="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationCommentsFieldLabel" class="control-label"></label>
+                        @if (Model.IsReportClosed)
+                        {
+                            <input asp-for="@Model.AdditionalComments" name="AdditionalComments" class="form-control" disabled>
+                        }
+                        else
+                        {
+                            <input asp-for="@Model.AdditionalComments" name="AdditionalComments" class="form-control">
+                        }
+                    </div>
+                </div>
+            }
+    </div>
+</form>
+
+
+
+ 

@@ -1,0 +1,110 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Administration
+@using EIDSS.Domain.ViewModels.Administration.Security;
+@using EIDSS.Web.Components.CrossCutting
+@using PermissionLevelEnum = EIDSS.Domain.Enumerations.PermissionLevelEnum
+
+@inherits PermissionsSectionBase
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-9">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.SiteDetailsPermissionsHeading)</h4>
+        </div>
+        <div class="col-3 text-right">
+            @if (Model.WritePermissionIndicator == false)
+            {
+                <button class="btn btn-link add-section disabled" disabled id="addActor" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-link add-section" id="addActor" @onclick="OnAddActorClick" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+            }
+            <a class="edit-section" href="#siteWizard-h-2" id="editPermissionsSectionButton">
+                <span class="fas fa-edit fa-lg"></span>
+            </a>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header">
+        <h3>@Localizer.GetString(HeadingResourceKeyConstants.SiteDetailsPermissionsHeading)</h3>
+    </div>
+    <div id="divPermisionsSection" class="card-body">
+        <div class="form-row">
+            <div class="form-group col-12">
+                <h4 class="header non-section">@Localizer.GetString(HeadingResourceKeyConstants.SiteDetailsActorsHeading)</h4>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-12">
+                <RadzenDataGrid @bind-Value="SelectedActor" AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" Count="Count" Data="Model.PermissionsSection.Actors" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="@(args => LoadActorData(args))" PageSizeOptions="pageSizeOptions" @ref="ActorsGrid" RowSelect="OnRowSelect" RowRender="args => OnRowRender(args)" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="true" TItem="SiteActorGetListViewModel">
+                    <Columns>
+                        <RadzenDataGridColumn Property="ActorTypeName" TItem="SiteActorGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.ActorTypeNameColumnHeading)"/>
+                        <RadzenDataGridColumn Property="ActorName" TItem="SiteActorGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.NameColumnHeading)" Width="125px"/>
+                        <RadzenDataGridColumn TItem="SiteActorGetListViewModel" Property="ActorID" Frozen="true" Reorderable="false" Sortable="false" Title="" TextAlign="TextAlign.Center" Width="40px">
+                            <Template Context="item">
+                                @if (Model.WritePermissionIndicator && item.DefaultEmployeeGroupIndicator == false)
+                                {
+                                    <button class="btn btn-link" @onclick="_ => OnDeleteActorClick(item)">
+                                        <span class="fas fa-trash"></span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-link disabled" disabled>
+                                        <span class="fas fa-trash disabled"></span>
+                                    </button>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                    <Template Context="actor">
+                        @if (actor.ActorTypeID == (long) ActorTypeEnum.EmployeeGroup)
+                        {
+                            <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="false" AllowSorting="true" ColumnWidth="300px" Count="Count" Data="actor.Employees" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" PageSizeOptions="pageSizeOptions" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="false" TItem="EmployeesForUserGroupViewModel">
+                                <Columns>
+                                    <RadzenDataGridColumn Property="TypeName" TItem="EmployeesForUserGroupViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.ActorTypeNameColumnHeading)"/>
+                                    <RadzenDataGridColumn Property="Name" TItem="EmployeesForUserGroupViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.NameColumnHeading)" Width="125px"/>
+                                </Columns>
+                            </RadzenDataGrid>
+                        }
+                    </Template>
+                </RadzenDataGrid>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-12">
+                <h4 class="header non-section">@Localizer.GetString(HeadingResourceKeyConstants.SiteDetailsPermissionsHeading)</h4>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-12">
+                @if (ActorId is not null && Model.PermissionsSection.Actors is not null && Model.PermissionsSection.Actors.Any(x => x.ActorID == ActorId))
+                {
+                    <RadzenDataGrid AllowFiltering="false" AllowPaging="false" AllowSorting="false" Data="Model.PermissionsSection.Actors.First(x => x.ActorID == ActorId).Permissions" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" TItem="ObjectAccessGetListViewModel">
+                        <Columns>
+                            <RadzenDataGridColumn Filterable="false" Sortable="false" TItem="ObjectAccessGetListViewModel">
+                                <Template Context="item">
+                                    @if (Model.WritePermissionIndicator == false || (Model.PermissionsSection.Actors.First(x => x.ActorID == ActorId).ExternalActorIndicator && item.ObjectOperationTypeID == (long) PermissionLevelEnum.Create))
+                                    {
+                                        <RadzenCheckBox @bind-Value="item.PermissionIndicator" class="form-check-inline" Disabled="true" Name="permissionIndicator" TriState="false" TValue="bool"/>
+                                    }
+                                    else
+                                    {
+                                        <RadzenCheckBox @bind-Value="item.PermissionIndicator" Change="_ => ChangePermission(item)" class="form-check-inline" Name="permissionIndicator" TriState="false" TValue="bool"/>
+                                    }
+                                    <RadzenLabel Text="@item.ObjectOperationTypeName" Component="permissionIndicator" Style="margin-left: 8px; vertical-align: middle;"/>
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                }
+            </div>
+        </div>
+    </div>
+</div>

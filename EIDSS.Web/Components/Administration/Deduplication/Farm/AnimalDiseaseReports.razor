@@ -1,0 +1,78 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary;
+
+@inherits EIDSS.Web.Components.Administration.Deduplication.Farm.AnimalDiseaseReportsBase
+
+<div class="form-row">
+    <div class="col-6">
+            <RadzenRadioButtonList class="form-control" Name="rboRecordAnimalDiseaseReports" TValue="int" @bind-Value=@FarmDeduplicationService.RecordSelection
+                                       Change="@((args) => OnRecordSelectionChangeAsync(args))">
+                <Items>
+                    <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                    <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                </Items>
+            </RadzenRadioButtonList>
+        <div class="card-header" id="Report"></div>
+    </div>
+    <div class="col-6">
+            <RadzenRadioButtonList class="form-control" Name="rboRecordAnimalDiseaseReports2" TValue="int" @bind-Value=@FarmDeduplicationService.Record2Selection
+                                       Change="@((args) => OnRecord2SelectionChangeAsync(args))">
+                <Items>
+                    <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                    <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                </Items>
+            </RadzenRadioButtonList>
+        <div class="card-header" id="Report2"></div>
+    </div>
+</div>
+<div class="form-row">
+    <div class="col-6">
+            <RadzenDataGrid @ref="DiseaseReportGrid"
+                        Name="diseaseReports"
+                        TItem="VeterinaryDiseaseReportViewModel"
+                        Count="@FarmDeduplicationService.DiseaseReportCount"
+                        Data="@FarmDeduplicationService.DiseaseReports"
+                        AllowPaging="true"
+                        PageSize="10"
+                        AllowSorting="true"
+                        AllowColumnResize="true"
+                        ExpandMode="DataGridExpandMode.Single"
+                        AllowColumnReorder="true"
+                        EditMode="DataGridEditMode.Single" >
+                <Columns>
+                    <RadzenDataGridColumn Width="150px" TItem="VeterinaryDiseaseReportViewModel" Property="ReportID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmDiseaseReportsReportIDColumnHeading)" Sortable="true" />
+                    <RadzenDataGridColumn Width="150px" TItem="VeterinaryDiseaseReportViewModel" Property="DiseaseName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmDiseaseReportsDiseaseColumnHeading)" Sortable="true" />
+                    <RadzenDataGridColumn Width="150px" TItem="VeterinaryDiseaseReportViewModel" Property="EnteredDate" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmDiseaseReportsDateEnteredColumnHeading)" Sortable="true" FormatString="{0:d}"  />
+                    <RadzenDataGridColumn Width="175px" TItem="VeterinaryDiseaseReportViewModel" Property="ClassificationTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmDiseaseReportsCaseClassificationColumnHeading)" Sortable="true" />
+                    <RadzenDataGridColumn Width="150px" TItem="VeterinaryDiseaseReportViewModel" Property="FarmName" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchAvianDiseaseReportsFarmNameColumnHeading) Sortable="true" />
+                    <RadzenDataGridColumn Width="150px" TItem="VeterinaryDiseaseReportViewModel" Property="FarmAddress" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchAvianDiseaseReportsFarmAddressColumnHeading) Sortable="true" />
+                    <RadzenDataGridColumn Width="150px" TItem="VeterinaryDiseaseReportViewModel" Property="ReportStatusTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmDiseaseReportsReportStatusColumnHeading)" Sortable="true" />
+                    <RadzenDataGridColumn Width="125px" TItem="VeterinaryDiseaseReportViewModel" Property="ReportTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchAvianDiseaseReportsReportTypeColumnHeading)" Sortable="true" />
+                </Columns>
+            </RadzenDataGrid>
+    </div>
+    <div class="col-6">
+            <RadzenDataGrid @ref="DiseaseReportGrid2"
+                        Name="diseaseReports2"
+                        TItem="VeterinaryDiseaseReportViewModel"
+                        Count="@FarmDeduplicationService.DiseaseReportCount2"
+                        Data="@FarmDeduplicationService.DiseaseReports2"
+                        AllowPaging="true"
+                        PageSize="10"
+                        AllowSorting="true"
+                        AllowColumnResize="true"
+                        ExpandMode="DataGridExpandMode.Single"
+                        AllowColumnReorder="true"
+                        EditMode="DataGridEditMode.Single" >
+                <Columns>
+                    <RadzenDataGridColumn Width="150px" TItem="VeterinaryDiseaseReportViewModel" Property="ReportID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmDiseaseReportsReportIDColumnHeading)" Sortable="true" />
+                    <RadzenDataGridColumn Width="150px" TItem="VeterinaryDiseaseReportViewModel" Property="DiseaseName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmDiseaseReportsDiseaseColumnHeading)" Sortable="true" />
+                    <RadzenDataGridColumn Width="150px" TItem="VeterinaryDiseaseReportViewModel" Property="EnteredDate" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmDiseaseReportsDateEnteredColumnHeading)" Sortable="true" FormatString="{0:d}"  />
+                    <RadzenDataGridColumn Width="175px" TItem="VeterinaryDiseaseReportViewModel" Property="ClassificationTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmDiseaseReportsCaseClassificationColumnHeading)" Sortable="true" />
+                    <RadzenDataGridColumn Width="150px" TItem="VeterinaryDiseaseReportViewModel" Property="FarmName" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchAvianDiseaseReportsFarmNameColumnHeading) Sortable="true" />
+                    <RadzenDataGridColumn Width="150px" TItem="VeterinaryDiseaseReportViewModel" Property="FarmAddress" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchAvianDiseaseReportsFarmAddressColumnHeading) Sortable="true" />
+                    <RadzenDataGridColumn Width="150px" TItem="VeterinaryDiseaseReportViewModel" Property="ReportStatusTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.FarmDiseaseReportsReportStatusColumnHeading)" Sortable="true" />
+                    <RadzenDataGridColumn Width="125px" TItem="VeterinaryDiseaseReportViewModel" Property="ReportTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchAvianDiseaseReportsReportTypeColumnHeading)" Sortable="true" />
+                </Columns>
+            </RadzenDataGrid>
+    </div>
+</div>

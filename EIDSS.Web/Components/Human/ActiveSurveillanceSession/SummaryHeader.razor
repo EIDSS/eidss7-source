@@ -1,0 +1,22 @@
+﻿@using EIDSS.Localization.Constants
+
+@inherits EIDSS.Web.Components.Human.ActiveSurveillanceSession.SummaryHeaderBase
+
+<div class="card">
+    <div name="dSummaryHeader" class="card-body show">
+        <div class="form-row">
+        <div class="col-4">
+            <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanActiveSurveillanceSessionSessionIDFieldLabel)"></RadzenLabel>
+            <RadzenTextBox Name="SessionSummary_SessionID" class="form-control" @bind-Value="model.Summary.SessionID" Disabled="true"></RadzenTextBox>
+        </div>
+        <div class="col-4">
+            <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanActiveSurveillanceSessionSessionStatusFieldLabel)"></RadzenLabel>
+            <RadzenTextBox Name="SessionSummary_SessionStatus" class="form-control" @bind-Value="model.Summary.Status" Disabled="true"></RadzenTextBox>
+        </div>
+            <div class="col-4">
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanActiveSurveillanceSessionDiseaseFieldLabel)"></RadzenLabel>
+                <RadzenTextBox Name="SessionSummary_Disease" class="form-control" @bind-Value="model.Summary.Disease" Disabled="true"></RadzenTextBox>
+            </div>
+        </div>
+    </div>
+</div>

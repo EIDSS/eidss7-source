@@ -1,0 +1,256 @@
+﻿@model EIDSS.Web.Areas.Administration.ViewModels.Administration.InterfaceEditorResourcePageViewModel
+
+
+@{
+
+    Model.InterfaceEditorResourceGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.InterfaceEditorResourceGridConfiguration.GridId = "InterfaceEditorResourceGrid";
+    Model.InterfaceEditorResourceGridConfiguration.AjaxDataUrl = @Url.Action("GetResourceList", "InterfaceEditorPage", new { idfsResourceSet = Model.IdfsResourceSet, moduleId = Model.ModuleId });
+    Model.InterfaceEditorResourceGridConfiguration.ConfigureForPartial = true;
+    Model.InterfaceEditorResourceGridConfiguration.ControlFilterID = "SearchCriteria_SearchText,SearchCriteria_AllModules,SearchCriteria_InterfaceEditorSelectedTypes,SearchCriteria_Required,SearchCriteria_Hidden";
+    Model.InterfaceEditorResourceGridConfiguration.EditModalAjaxUrl = Url.Action("SaveResource", "InterfaceEditorPage", new { Area = "Administration" });
+    Model.InterfaceEditorResourceGridConfiguration.EnableServerSide = true;
+    Model.InterfaceEditorResourceGridConfiguration.EnableProcessingMessage = true;
+    Model.InterfaceEditorResourceGridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.Inline;
+    //Model.InterfaceEditorResourceGridConfiguration.RowCallbackFunction = "InterfaceEditor.resourceRowClick(row, data)";
+
+    Model.InterfaceEditorResourceGridConfiguration.ControlLabels = new EIDSSControlLabels();
+    Model.InterfaceEditorResourceGridConfiguration.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    Model.InterfaceEditorResourceGridConfiguration.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    Model.InterfaceEditorResourceGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.InterfaceEditorResourceGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.InterfaceEditorResourceGridConfiguration.ControlLabels.DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton);
+    Model.InterfaceEditorResourceGridConfiguration.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton);
+    Model.InterfaceEditorResourceGridConfiguration.ControlLabels.CancelInlineEditTitle = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    Model.InterfaceEditorResourceGridConfiguration.ControlLabels.CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage);
+
+
+    Model.InterfaceEditorResourceGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        ColumnName = "row",
+        Visible = false,
+        Orderable = false,
+        ColumnType = ColumnType.ReadOnly,
+        VisibleInModal = false
+    });
+    Model.InterfaceEditorResourceGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = "IdfsResourceSet",
+        ColumnName = "IdfsResourceSet",
+        Visible = false,
+        ColumnType = ColumnType.ReadOnly,
+        Orderable = false,
+        VisibleInModal = false
+    });
+    Model.InterfaceEditorResourceGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = "Resource",
+        ColumnName = "IdfsResource",
+        Visible = false,
+        ColumnType = ColumnType.ReadOnly,
+        Orderable = false,
+        VisibleInModal = false
+    });
+    Model.InterfaceEditorResourceGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = "StrResourceSet",
+        ColumnName = "StrResourceSet",
+        Visible = false,
+        ColumnType = ColumnType.ReadOnly,
+        Orderable = false,
+        VisibleInModal = false
+    });
+    Model.InterfaceEditorResourceGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = "IdfsResourceType",
+        ColumnName = "IdfsResourceType",
+        Visible = false,
+        ColumnType = ColumnType.ReadOnly,
+        Orderable = false,
+        VisibleInModal = false
+    });
+    Model.InterfaceEditorResourceGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = "BaseReferenceId",
+        ColumnName = "BaseReferenceId",
+        Visible = false,
+        ColumnType = ColumnType.ReadOnly,
+        Orderable = false,
+        VisibleInModal = false
+    });
+    Model.InterfaceEditorResourceGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.DefaultValueColumnHeading),
+        ColumnName = "StrResourceName",
+        Visible = false,
+        ColumnType = ColumnType.ReadOnly,
+        Orderable = true,
+        VisibleInModal = false,
+    });
+    Model.InterfaceEditorResourceGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorTypeFieldLabel),
+        ColumnName = "StrResourceType",
+        Visible = true,
+        ColumnType = ColumnType.ReadOnly,
+        Orderable = true,
+        VisibleInModal = false,
+    });
+    Model.InterfaceEditorResourceGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.DefaultValueColumnHeading),
+        ColumnName = "StrResourceName",
+        Visible = true,
+        ColumnType = ColumnType.ReadOnly,
+        Orderable = true,
+        VisibleInModal = false,
+    });
+    Model.InterfaceEditorResourceGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.NationalValueColumnHeading),
+        ColumnName = "NationalName",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        Orderable = true,
+        VisibleInModal = false,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "NationalValueRequired"
+    });
+
+    //Model.InterfaceEditorResourceGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    //{
+    //    ColumnTitleHeader = "Module ID",
+    //    ColumnName = "ModuleId",
+    //    Visible = true,
+    //    ColumnType = ColumnType.ReadOnly,
+    //    Orderable = true,
+    //    VisibleInModal = false,
+    //});
+
+    Model.InterfaceEditorResourceGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorModuleFieldLabel),
+        ColumnName = "ModuleName",
+        Visible = true,
+                ColumnType = ColumnType.ReadOnly,
+        Orderable = true,
+        VisibleInModal = false,
+
+    });
+
+
+    Model.InterfaceEditorResourceGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorSectionFieldLabel),
+        ColumnName = "StrResourceSet",
+        Visible = true,
+                ColumnType = ColumnType.ReadOnly,
+        Orderable = true,
+        VisibleInModal = false,
+    });
+
+
+    Model.InterfaceEditorResourceGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorRequiredFieldLabel),
+        ColumnName = "IsRequired",
+        Visible = true,
+        ColumnType = ColumnType.CheckBox,
+        Orderable = false,
+        VisibleInModal = false
+    });
+    Model.InterfaceEditorResourceGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(FieldLabelResourceKeyConstants.InterfaceEditorHiddenFieldLabel),
+        ColumnName = "IsHidden",
+        Visible = true,
+        ColumnType = ColumnType.CheckBox,
+        Orderable = false,
+        VisibleInModal = false
+    });
+    Model.InterfaceEditorResourceGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = string.Empty,
+        ColumnName = "editCommand",
+        ColumnType = ColumnType.Edit,
+        Orderable = false,
+        Visible = Model.UserPermissions.Write
+    });
+
+}
+
+
+<div class="row">
+    <div class="col-12">
+        <eidss-grid id="@Model.InterfaceEditorResourceGridConfiguration.GridId" grid-configuration="@Model.InterfaceEditorResourceGridConfiguration"
+                    filtered-control-ids="@Model.InterfaceEditorResourceGridConfiguration.ControlFilterID"
+                    enable-server-side="@Model.InterfaceEditorResourceGridConfiguration.EnableServerSide"
+                    enable-processing="@Model.InterfaceEditorResourceGridConfiguration.EnableProcessingMessage"
+                    enable-search="@Model.InterfaceEditorResourceGridConfiguration.EnableSearching"
+                    end-point="@Model.InterfaceEditorResourceGridConfiguration.AjaxDataUrl"
+                    class-name="@Model.InterfaceEditorResourceGridConfiguration.GridClass"
+                    details-ajax-url="@Url.Action("EditModalData", "BaseReferencePage")"
+                    enable-top-header-search-button="@Model.InterfaceEditorResourceGridConfiguration.EnableCustomSearching"
+                    control-labels="@Model.InterfaceEditorResourceGridConfiguration.ControlLabels">
+        </eidss-grid>
+    </div>
+</div>
+
+<script>
+
+    $("#InterfaceEditorResourceGrid").on('eidssGrid:editInLineInit',
+        function (e, rowData, rowElement) {
+            
+            var isRequiredCheckBox = $(rowElement).find('[id^=IsRequired_]');
+            var isHiddenCheckBox = $(rowElement).find('[id^=IsHidden_]');
+  
+            //required check box logic
+            if (rowData[7] != "Field Label") {
+                console.log("disabling IsRequired");
+                $(isRequiredCheckBox).prop('disabled', true);
+            }
+
+            //hidden check box logic
+            if ((rowData[7] == "Field Label" || rowData[7] == "Tooltip") && $(isRequiredCheckBox).is(":not(:checked)")) {
+                console.log("enabling IsHidden");
+                $(isHiddenCheckBox).prop('disabled', false);
+            }
+            else {
+                $(isHiddenCheckBox).prop('disabled', true);
+            }
+            
+            if ($(isHiddenCheckBox).is(":not(:checked)")) {
+                $(isRequiredCheckBox).prop('disabled', false);
+            } else {
+                $(isRequiredCheckBox).prop('disabled', true);
+                $(isRequiredCheckBox).prop('checked', false);
+            }
+        });
+        
+    // Handle click on checkbox of is required or is hidden
+    $("#InterfaceEditorResourceGrid tbody").on("click", 'input[type="checkbox"]', function (e) {
+        var rowElement = $("#InterfaceEditorResourceGrid").DataTable().row($(this).closest("tr")).node();
+        var isRequiredCheckBox = $(rowElement).find('[id^=IsRequired_]');
+        var isHiddenCheckBox = $(rowElement).find('[id^=IsHidden_]');
+        
+        if ($(isHiddenCheckBox).is(":not(:checked)")) {
+                $(isRequiredCheckBox).prop('disabled', false);
+            } else {
+                $(isRequiredCheckBox).prop('disabled', true);
+                $(isRequiredCheckBox).prop('checked', false);
+            }
+            
+        if ($(isRequiredCheckBox).is(":not(:checked)")) {
+                $(isHiddenCheckBox).prop('disabled', false);
+            } else {
+                $(isHiddenCheckBox).prop('disabled', true);
+                $(isHiddenCheckBox).prop('checked', false);
+            }
+    });
+
+</script>

@@ -1,0 +1,28 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Web.Components.Human.Person
+@using EIDSS.Web.Enumerations
+
+@inherits EIDSS.Web.Components.Human.Person.PersonSectionsBase
+
+<div id="personDetailsWizard">
+    <div class="content content-collapsed clearfix">
+
+        <section>
+            <PersonInformationSection />
+        </section>
+        <section>
+            <PersonAddressSection @ref="PersonAddressSectionComponent" />
+        </section>
+        <section>
+            <PersonEmploymentSchool />
+        </section>
+        <section>
+            <h4 style="display: none">@Localizer.GetString(HeadingResourceKeyConstants.ReviewHeading)</h4>
+            @if (StateContainer.HumanMasterID != null && StateContainer.HumanMasterID > 0)
+            {
+                <DiseaseReportList />
+                <OutbreakCaseList />
+            }
+        </section>
+    </div>
+</div>

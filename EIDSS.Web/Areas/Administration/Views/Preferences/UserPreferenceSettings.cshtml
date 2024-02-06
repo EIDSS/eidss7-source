@@ -1,0 +1,108 @@
+﻿@model EIDSS.Web.Areas.Administration.ViewModels.Administration.UserPreferencePageViewModel
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.UserPreferencesPageHeading);
+}
+
+<partial name="_InformationalModalPartial" model="Model.InformationalMessage" />
+<partial name="_WarningModalPartial" />
+<partial name="_ErrorModalPartial" />
+
+<form method="post">
+
+    <div class="card">
+        <div class="card-header">
+            <h3 heading-for="@HeadingResourceKeyConstants.UserPreferencesPageHeading"></h3>
+        </div>
+        <div class="card-body">
+            <input asp-for="UserPreferences.UserPreferencesId" />
+
+                <fieldset class="border p-2">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <i class="fas fa-asterisk text-danger"></i>
+                                <label asp-for="UserPreferences.StartupLanguage"class="control-label" field-label-for="@FieldLabelResourceKeyConstants.StartupLanguageFieldLabel"></label>
+                                <select asp-for="UserPreferences.StartupLanguage"
+                                        asp-items="@(new SelectList(Model.UserPreferences.LanguageList,"CultureName","DisplayName"))" class="form-control">
+                                </select>
+                                <span asp-validation-for="UserPreferences.StartupLanguage" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="UserPreferences.DefaultMapProject" class="control-label" field-label-for="@FieldLabelResourceKeyConstants.DefaultMapProjectFieldLabel"></label>
+                                <select asp-for="UserPreferences.DefaultMapProject"
+                                        asp-items="@(new SelectList(Model.UserPreferences.MapProjects,"Value","MapText"))" class="form-control">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset> 
+                <fieldset class="border p-2">
+                    <legend class="w-auto">@Localizer.GetString(HeadingResourceKeyConstants.AdditionalHeading)</legend>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                                <input asp-for="UserPreferences.DefaultRegionInSearchPanels" />
+                                <label asp-for="UserPreferences.DefaultRegionInSearchPanels" class="control-label" field-label-for="@FieldLabelResourceKeyConstants.DefaultAdministrativeLevel1InSearchPanelsFieldLabel"></label>
+                                <span asp-validation-for="UserPreferences.DefaultRegionInSearchPanels" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                                <input asp-for="UserPreferences.DefaultRayonInSearchPanels" />
+                                <label asp-for="UserPreferences.DefaultRayonInSearchPanels" class="control-label" field-label-for="@FieldLabelResourceKeyConstants.DefaultAdministrativeLevel2InSearchPanelsFieldLabel"></label>
+                                <span asp-validation-for="UserPreferences.DefaultRayonInSearchPanels" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                                <input asp-for="UserPreferences.PrintMapInVetInvestigationForms" />
+                                <label asp-for="UserPreferences.PrintMapInVetInvestigationForms" class="control-label" field-label-for="@FieldLabelResourceKeyConstants.PrintMapInVeterinaryInvestigationFormsFieldLabel"></label>
+                                <span asp-validation-for="UserPreferences.PrintMapInVetInvestigationForms" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                    
+
+        </div>
+        <div class="card-footer">
+            <button type="button" class="btn btn-outline-primary"  button-for="@ButtonResourceKeyConstants.ChangePasswordButton" onclick="location.href='@Url.Action("ChangePassword","Security")'"></button>
+            <button type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.CancelButton" onclick="cancelDetails('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)', event)"></button>
+            <button type="submit" class="btn btn-primary" value="Save" button-for="@ButtonResourceKeyConstants.SaveButton" asp-area="Administration" asp-action="UserPreferenceSettings" asp-controller="Preferences"></button>
+
+        </div>
+     </div>
+</form>
+
+    @section Scripts {
+
+        @if (!string.IsNullOrEmpty(Model.InformationalMessage))
+        {
+            <script type="text/javascript">
+                $(function () {
+                    showInformationalModal("@Model.InformationalMessage");
+                });
+            </script>
+        }
+
+        <partial name="_ValidationScriptsPartial" />
+
+        <script type="text/javascript">
+
+            function cancelDetails(message, event) {
+                event.preventDefault();
+
+                showWarningModal(message).then(response => {
+                    if (response) {
+                        location.href = '@Url.Action("Index", "Dashboard", new { area = "Administration" })';
+                    }
+                });
+            };
+
+        </script>
+    }

@@ -1,0 +1,80 @@
+﻿@model EIDSS.Web.Areas.Outbreak.ViewModels.OutbreakCasesViewModel;
+@using EIDSS.Web.Components.Human.SearchDiseaseReport
+@using EIDSS.Web.Components.Veterinary.SearchDiseaseReport
+@using EIDSS.Web.Enumerations
+
+<div id="dHumanImport" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog" style="display: none">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">@Localizer.GetString(HeadingResourceKeyConstants.OutbreakCasesImportHumanDiseaseReportHeading)</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <component type="typeof(SearchHumanDiseaseReport)" render-mode="Server" param-Mode="@SearchModeEnum.Import" param-CancelUrl="@Model.CancelURL"
+                           param-DiseaseId="@Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup" param-callbackKey="@Model.idfOutbreak"
+                           param-CallbackUrl='@Url.Action("ImportHuman", "OutbreakCases", new {Area = "Outbreak"})'/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dVetImport" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog" style="display: none">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">@Localizer.GetString(HeadingResourceKeyConstants.OutbreakCasesImportVeterinaryDiseaseReportHeading)</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <component type="typeof(SearchVeterinaryDiseaseReport)" render-mode="Server" param-Mode="@SearchModeEnum.Import" param-DiseaseId="@Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup" param-callbackKey="@Model.idfOutbreak" param-CallbackUrl='@Url.Action("ImportVet", "OutbreakCases", new {Area = "Outbreak"})'/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dOutbreakDecisionImport" class="outbreakDecision" mode="Import" style="display: none">
+    <img src="@Url.Content("~/Includes/Images/outbreakDecision.png")"/>
+    <div class="typeOfCaseSelection">
+        <input type="radio" onclick="ImportCase('Human');" id="humanImportCaseRadioButton" name="ImportCase" value="Human"/><label for="humanImportCaseRadioButton">@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakCasesHumanFieldLabel)</label>
+        <input type="radio" onclick="ImportCase('Veterinary');" id="veterinaryImportCaseRadioButton" name="ImportCase" value="Veterinary"/><label for="veterinaryImportCaseRadioButton">@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakCasesVeterinaryFieldLabel)</label>
+    </div>
+    <div class="typeOfCaseTitle">
+        <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakTypeOfCaseFieldLabel)</label>
+    </div>
+</div>
+<div id="dOutbreakDecisionCreate" class="outbreakDecision" mode="Create" style="display: none">
+    <img src="@Url.Content("~/Includes/Images/outbreakDecision.png")"/>
+    <div class="typeOfCaseSelection">
+        <input type="radio" onclick="outbreakCreate.createCase('Human');" id="humanCreateCaseRadioButton" name="CreateCase" value="Human"/><label for="humanCreateCaseRadioButton">@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakCasesHumanFieldLabel)</label>
+        <input type="radio" onclick="createVeterinaryCase();" id="veterinaryCreateCaseRadioButton" name="CreateCase" value="Veterinary"/><label for="veterinaryCreateCaseRadioButton">@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakCasesVeterinaryFieldLabel)</label>
+    </div>
+    <div class="typeOfCaseTitle">
+        <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakTypeOfCaseFieldLabel)</label>
+    </div>
+</div>
+<script>
+    function createVeterinaryCase() {
+        $("#dOutbreakDecisionImport").hide();
+        location.href = '@Url.Action("VeterinaryDetails", "OutbreakCases", new {Area = "Outbreak", outbreakId = Model.idfOutbreak})';
+    };
+
+    function ImportCase(module) {
+        $("#dOutbreakDecisionImport").hide();
+
+        switch (module) {
+            case "Human":
+                var callBackUrl = "@Url.Action("ImportHuman", "OutbreakCases", new {Area = "Outbreak"})";
+                importCase("Human", "@Model.idfOutbreak", callBackUrl, "@Model.CancelURL", "@Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup");
+                break;
+            case "Veterinary":
+                var callBackUrl = "@Url.Action("ImportVet", "OutbreakCases", new {Area = "Outbreak"})";
+                importCase("Veterinary", "@Model.idfOutbreak", callBackUrl, "@Model.CancelURL", "@Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup");
+                break;
+        }
+    };
+</script>

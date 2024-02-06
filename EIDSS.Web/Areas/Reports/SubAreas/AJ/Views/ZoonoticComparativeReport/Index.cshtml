@@ -1,0 +1,246 @@
+﻿@model EIDSS.Web.Areas.Reports.SubAreas.AJ.ViewModels.ZoonoticComparativeReportViewModel
+@using EIDSS.ReportViewer
+@{
+    ViewBag.Title = Localizer.GetString(HeadingResourceKeyConstants.ComparativeReportPageHeading);
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@(HeadingResourceKeyConstants.ZoonoticComparativeReportByMonthsPageHeading + "," + Model.LanguageId)"></h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            <div class="form-row">
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="LanguageId" field-label-for="@(FieldLabelResourceKeyConstants.LanguageFieldLabel + "," + Model.LanguageId)"></label>
+                        <div class="input-group">
+                            <select asp-for="LanguageId"
+                                    asp-items="@(new SelectList(Model.ReportLanguageModels, "LangID", "Language"))" class="form-control">
+                            </select>
+                        </div>
+                    </div>
+                <div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="Year" field-label-for="@(FieldLabelResourceKeyConstants.YearFieldLabel + "," + Model.LanguageId)"></label>
+                        <div class="input-group">
+                            <select asp-for="Year"
+                                    asp-items="@(new SelectList(Model.ReportYearModels, "Year", "Year"))" class="form-control">
+                            </select>
+                            <span asp-validation-for="Year" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                        <label asp-for="RegionId" field-label-for="@(FieldLabelResourceKeyConstants.RegionFieldLabel + "," + Model.LanguageId)"></label>
+                        <div class="input-group">
+                            <select asp-for="RegionId" style="width: 150px;"
+                                    asp-items="@(new SelectList(Model.GisRegionList, "idfsReference", "Name"))" class="form-control">
+                                <option value="0"></option>
+                            </select>
+                            <span class="input-group-append">
+                                <button type="button" id="btnRegion" class="btn btn-outline-secondary btn-sm border-left-0 border"><i class="fa fa-times fa-sm"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                        <label asp-for="RayonId" field-label-for="@(FieldLabelResourceKeyConstants.RayonFieldLabel + "," + Model.LanguageId)"></label>
+                        <div class="input-group">
+                            <select asp-for="RayonId" style="width: 150px;"
+                                    asp-items="@(new SelectList(Model.GisRayonList, "idfsReference", "Name"))" class="form-control">
+                                <option value="0"></option>
+                            </select>
+                            <span class="input-group-append">
+                                <button type="button" id="btnRayon" class="btn btn-outline-secondary btn-sm border-left-0 border"><i class="fa fa-times fa-sm"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4 text-right">
+                        <button type="submit" id="submitReport" class="btn btn-primary" button-for="@(ButtonResourceKeyConstants.GenerateReportButton + "," + Model.LanguageId)"></button>
+                    </div>
+                </div>
+            <div class="form-row">
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="DiagnosisId" field-label-for="@(FieldLabelResourceKeyConstants.DiagnosisFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="DiagnosisId" style="width: 150px;"
+                                asp-items="@(new SelectList(Model.DiagnosisList,"IdfsBaseReference","Name"))" class="form-control">
+                            <option value="0"></option>
+                        </select>
+                        <span class="input-group-append">
+                            <button type="button" id="btnDiagnosis" class="btn btn-outline-secondary btn-sm border-left-0 border"><i class="fa fa-times fa-sm"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group col-md-2 form-check form-check-inline" style="@(Model.ShowIncludeSignature ? "display:block;" : "display:none;")padding-top: 25px;">
+                    <input asp-for="IncludeSignature" class="form-check-input" type="checkbox" />
+                    <label asp-for="IncludeSignature" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.IncludeSignatureFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+                <div class="form-group col-md-4 form-check form-check-inline" style="@(Model.ShowUseArchiveData ? "display:block;" : "display:none;")padding-top: 25px;">
+                    <input asp-for="UseArchiveData" class="form-check-input" type="checkbox" />
+                    <label asp-for="UseArchiveData" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.UseArchivedDataFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+            </div>
+        </form>
+        <div class="col-xs-4 col-xs-offset-4" id="divLoading"></div>
+        <div id="ReportView"></div>
+    </div>
+</div>
+@section runreport {
+    <script type="text/javascript">
+
+        function submitReport() {
+                $("#ReportView").html("");
+                onBegin();
+                $.ajax({
+                    url: '@Url.Action("GenerateReport", "ZoonoticComparativeReport", new { Area = "Reports", SubArea = "AJ" })',//controller name and action
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(getFormData())  //information for search
+                })
+                    .done(function (result) {
+                        $('#ReportView').html(result); //write returned partial view to empty div
+                        onComplete();
+                    })
+            };
+
+        function onBegin() {
+                $("#divLoading").html('<image  src="@Url.Content("~/Includes/Images/ajax-loader.gif")"  alt="Loading, please wait" />');
+        };
+
+            function onComplete() {
+                var jsonData = {
+                    "strReportName": '@Model.ReportName',
+                    "idfIsSignatureIncluded": $("#IncludeSignature").is(':checked') ? 'true' : 'false'
+                };
+                //Save ReportAudit
+                $.ajax({
+                    url: '@Url.Action("SaveReportAudit", "ZoonoticComparativeReport", new { Area = "Reports", SubArea = "AJ" })',//controller name and action
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(jsonData)  //information for search
+                })
+                    .done(function (result) {
+                        $("#divLoading").html("");
+                    })
+            };
+
+            function getFormData() {
+                var jsonData = {
+                    "languageId": $("#LanguageId").val(),
+                    "year": $("#Year").val(),
+                    "RegionId": $("#RegionId").val(),
+                    "RayonId": $("#RayonId").val(),
+                    "diagnosisId": $("#DiagnosisId").val(),
+                    "useArchiveData": $("#UseArchiveData").is(':checked') ? 'true' : 'false',
+                    "includeSignature": $("#IncludeSignature").is(':checked') ? 'true' : 'false',
+                    "PrintDateTime": localDate()
+                };
+
+                return jsonData;
+            };
+
+
+        $(document).ready(function () {
+            //To clear dropdown texts
+            $("#btnRayon").click(function () {
+                $("#RayonId").val("0").change();
+            });
+
+            var ClearDisease = function () {
+                $("#DiagnosisId").val("0").change();
+            };
+            $("#btnDiagnosis").on("click", ClearDisease);
+
+            var ClearMonths = function () {
+                $('#idfsReference_FromMonth').val('0');
+                $('#idfsReference_ToMonth').val('0');
+            };
+            $('#btnFromMonth').on('click', ClearMonths)
+            $('#btnToMonth').on('click', ClearMonths)
+
+            var ClearRegion = function () {
+                $("#RegionId").val("0").change();
+                $("#RayonId").val("0").change();
+            };
+            $("#btnRegion").on("click", ClearRegion);
+
+            $("#RegionId").on("change", function () {
+                if ($("#RegionId").val() != '0') {
+                    $('#EnterByOrganizationId').val('0');
+                    $('#EnterByOrganizationId').prop("disabled", true)
+                }
+                else {
+                    $('#EnterByOrganizationId').prop("disabled", false)
+                }
+
+                RefreshRayon()
+            });
+        });
+
+        function RefreshRegion() {
+            var langId = $("#LanguageId").val();
+            var selectedRegion = $('#RegionId').val();
+            $.ajax({
+                url: '@Url.Action("GetRegionList", "ZoonoticComparativeReport", new { Area = "Reports", SubArea = "AJ" })' +"?langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#RegionId').empty();
+                    var items = '<option value="0"></option>';
+                    $.each(data, function (i, region) {
+                        items += "<option value='" + region.idfsReference + "'>" + region.name + "</option>";
+                    });
+                    $('#RegionId').html(items);
+                    $('#RegionId').val(selectedRegion);
+                    RefreshRayon();
+                });
+        };
+
+        function RefreshRayon() {
+            var nodeValue = $("#RegionId").val();
+            var langId = $("#LanguageId").val();
+            var selectedRayonId = $("#RayonId").val();
+            $.ajax({
+                url: '@Url.Action("GetRayonList", "ZoonoticComparativeReport", new { Area = "Reports", SubArea = "AJ" })' +"?node=" + nodeValue + "&langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#RayonId').empty();
+                    var items = '<option value="0"></option>';
+                    $.each(data, function (i, rayon) {
+                        items += "<option value='" + rayon.idfsReference + "'>" + rayon.name + "</option>";
+                    });
+                    $('#RayonId').html(items);
+                    $("#RayonId").val(selectedRayonId);
+                });
+        };
+
+        function RefreshDiagnosisList() {
+            var langId = $("#LanguageId").val();
+            var selectedOrg = $('#DiagnosisId').val();
+
+            $.ajax({
+                url: '@Url.Action("GetDiagnosisList", "ZoonoticComparativeReport", new { Area = "Reports", SubArea = "AJ" })' + "?langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#DiagnosisId').empty();
+                    var items = '<option value="0"></option>';
+                    $.each(data, function (i, diagnosis) {
+                        items += "<option value='" + diagnosis.idfsBaseReference + "'>" + diagnosis.name + "</option>";
+                    });
+                    $('#DiagnosisId').html(items);
+                    $('#DiagnosisId').val(selectedOrg);
+                });
+        };
+    </script>
+    @if (@Model.JavascriptToRun != null)
+    {
+        <script type="text/javascript">
+            @Html.Raw(@Model.JavascriptToRun)
+        </script>
+    }
+}

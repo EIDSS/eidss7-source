@@ -1,0 +1,1137 @@
+﻿@model EIDSS.Web.ViewModels.Administration.EmployeeUserPermissionsPageViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+
+@{
+    //DropDowns
+    Select2Configruation select2Configruation = new Select2Configruation();
+
+    var defaultReference = new Select2DataItem() { id = Model.OrganizationID.ToString(), text = Model.OrganizationFullName };
+
+
+    Model.OrganizationDD = new Select2Configruation();
+    Model.OrganizationDD.DropDownId = "UPOrganizationDD";
+    Model.OrganizationDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeOrganizationFieldLabel);
+    Model.OrganizationDD.Endpoint = @Url.Action("GetOrganizationsForLookup", "CrossCutting", new { Area = "CrossCutting", organizationSiteAssociation = (int)OrganizationSiteAssociations.OrganizationsWithOrWithoutSite, accessoryCode = EIDSSConstants.HACodeList.All });
+    Model.OrganizationDD.isVisible = true;
+    Model.OrganizationDD.CustomJsOnChangeFunction = "FillSiteDetailsUP";
+    Model.OrganizationDD.CustomJsOnClearFunction = "ResetOrganizationUP";
+    Model.OrganizationDD.CustomJsOnUnselectFunction = "ResetOrganizationUP";
+    Model.OrganizationDD.ConfigureForPartial = true;
+    Model.OrganizationDD.defaultSelect2Selection = defaultReference;
+    Model.OrganizationDD.isRequired = true;
+    Model.OrganizationDD.RequiredErrorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage);
+
+    defaultReference = new Select2DataItem() { id = Model.DepartmentID.ToString(), text = Model.DepartmentName };
+    select2Configruation = new Select2Configruation();
+    select2Configruation.DropDownId = "UPDepartmentDD";
+    select2Configruation.FilteredId = "UPOrganizationDD";
+    select2Configruation.Label = Localizer.GetString(FieldLabelResourceKeyConstants.DepartmentFieldLabel);
+    select2Configruation.Endpoint = @Url.Action("GetDepartmentList", "EmployeePage", new { Area = "Administration" });
+    select2Configruation.isVisible = true;
+    select2Configruation.IncludeAddButton = true;
+    select2Configruation.defaultSelect2Selection = defaultReference;
+    select2Configruation.AddButtonId = "DepartmentAdd";
+    select2Configruation.AddModalId = "UPDepartmentSave";
+    select2Configruation.ConfigureForPartial = true;
+    Model.Select2Configurations.Add(select2Configruation);
+
+
+    defaultReference = new Select2DataItem() { id = Model.PositionTypeID.ToString(), text = Model.PositionTypeName };
+    select2Configruation = new Select2Configruation();
+    select2Configruation.DropDownId = "UPPositionDD";
+    select2Configruation.Label = Localizer.GetString(FieldLabelResourceKeyConstants.PositionFieldLabel);
+    select2Configruation.Endpoint = @Url.Action("GetPositionList", "EmployeePage", new { Area = "Administration" });
+    //select2Configruation.Endpoint = @Url.Action("GetPositionList", "EmployeePage", new { Area = "Administration"});
+    select2Configruation.isVisible = true;
+    select2Configruation.IncludeAddButton = true;
+    select2Configruation.AddButtonId = "PositionAdd";
+    select2Configruation.AddModalId = "UPPositionSave";
+    select2Configruation.defaultSelect2Selection = defaultReference;
+    select2Configruation.ConfigureForPartial = true;
+    Model.Select2Configurations.Add(select2Configruation);
+
+    defaultReference = new Select2DataItem() { id = Model.UserGroupID.ToString(), text = Model.UserGroupName };
+    Model.UserGroupDD = new Select2Configruation();
+    Model.UserGroupDD.DropDownId = "UPSingleUserGroupDD";
+    Model.UserGroupDD.FilteredId = "UPSiteDD";
+    Model.UserGroupDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.UserGroupFieldLabel);
+    Model.UserGroupDD.Endpoint =@Url.Action("GetUserGroupList", "EmployeePage", new { Area = "Administration" });
+    Model.UserGroupDD.isVisible = true;
+    Model.UserGroupDD.CustomJsOnChangeFunction = "ChangeRenderSystemFunctionsComponent";
+    Model.UserGroupDD.CustomJsOnClearFunction = "ChangeRenderSystemFunctionsComponent";
+    Model.UserGroupDD.CustomJsOnUnselectFunction = "ChangeRenderSystemFunctionsComponent";
+    Model.UserGroupDD.ConfigureForPartial = true;
+    Model.UserGroupDD.defaultSelect2Selection = defaultReference;
+
+
+
+    
+
+    //SET UP MODAL1     AddDepartment
+    EIDSSModalConfiguration eIDSSModalConfiguration = new EIDSSModalConfiguration();
+    eIDSSModalConfiguration.ControlLabels.ModalTitle = @Localizer.GetString(HeadingResourceKeyConstants.DepartmentDetailsModalHeading);
+    eIDSSModalConfiguration.ModalId = "UPDepartmentSave";
+    eIDSSModalConfiguration.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    eIDSSModalConfiguration.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    eIDSSModalConfiguration.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    eIDSSModalConfiguration.ControlLabels.SuccessModalTitle = @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    eIDSSModalConfiguration.ControlLabels.SuccessMessage = @Localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage);
+    eIDSSModalConfiguration.ControlLabels.OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton);
+    eIDSSModalConfiguration.SaveCompleteMethod = "CheckSuccessUP";
+    eIDSSModalConfiguration.TargetGridControlID = "GetDepartmentList"; //ID of Grid to Refresh
+    eIDSSModalConfiguration.SavingControlsCollection = "UPOrganizationDD";
+    eIDSSModalConfiguration.PostAjaxDataUrl = @Url.Action("SaveDepartment", "EmployeePage");
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "Default",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "DefaultValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ControlName = "Name",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "NationalValueRequired"
+    });
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlName = "Order",
+        ControlType = ControlType.Numeric,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidatorMessage = "Number is Out Of Range",
+            ValidationRule = "[-2147483648,2147483647]"
+        },
+        ClassName = "IntOrderRange",
+        Visible = true
+    });
+
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+
+    //SET UP MODAL2     AddPosition
+    eIDSSModalConfiguration = new EIDSSModalConfiguration();
+    eIDSSModalConfiguration.ControlLabels.ModalTitle = @Localizer.GetString(HeadingResourceKeyConstants.AddPositionModalHeading);
+    eIDSSModalConfiguration.ModalId = "UPPositionSave";
+    eIDSSModalConfiguration.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    eIDSSModalConfiguration.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    eIDSSModalConfiguration.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    eIDSSModalConfiguration.ControlLabels.SuccessModalTitle = @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    eIDSSModalConfiguration.ControlLabels.SuccessMessage = @Localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage);
+    eIDSSModalConfiguration.ControlLabels.OkButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton);
+    eIDSSModalConfiguration.SaveCompleteMethod = "CheckSuccessUP";
+    eIDSSModalConfiguration.TargetGridControlID = "GePositionList"; //ID of Grid to Refresh
+    eIDSSModalConfiguration.PostAjaxDataUrl = @Url.Action("SavePosition", "EmployeePage");
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "Default",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "DefaultValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ControlName = "Name",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "NationalValueRequired"
+    });
+
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlName = "Order",
+        ControlType = ControlType.Numeric,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsInvalidValidRangeIsMessage),
+            ValidationRule = "[-2147483648,2147483647]"
+        },
+        ClassName = "IntOrderRange",
+        Visible = true
+    });
+
+
+
+
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+    <form id="SearchForm" method="post"> 
+                <div class="card">            
+                    <div class="card-body">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="hidden" id="hdfOrganization" />
+                                <i class="fas fa-asterisk text-danger"></i>
+                                <eidss-select2DropDown id="@Model.OrganizationDD.DropDownId"
+                                               name="@Model.OrganizationDD.DropDownId"
+                                               target-type="@Model.OrganizationDD.ControlTargetType"
+                                               target-ajax-url="@Model.OrganizationDD.ControlTargetUrl"
+                                               selectct2-default-data="@Model.OrganizationDD.defaultSelect2Selection"
+                                               end-point="@Model.OrganizationDD.Endpoint"
+                                               label-name="@Model.OrganizationDD.Label"
+                                               custom-js-on-change-function="@Model.OrganizationDD.CustomJsOnChangeFunction"
+                                               custom-js-on-clear-function="@Model.OrganizationDD.CustomJsOnClearFunction"
+                                               custom-js-on-unselect-function="@Model.OrganizationDD.CustomJsOnUnselectFunction"
+                                               is-visible="@Model.OrganizationDD.isVisible"
+                                               configure-for-partial="@Model.OrganizationDD.ConfigureForPartial"                                           
+                                               asp-for="@Model.OrganizationID"
+                                                       >
+                                </eidss-select2DropDown>
+                                <span asp-validation-for="@Model.OrganizationID" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label asp-for="@Model.OtherSiteName" field-label-for="@FieldLabelResourceKeyConstants.SiteIDFieldLabel" class="control-label"></label>
+                                <input asp-for="@Model.OtherSiteName" class="form-control" disabled>
+                                <input type="hidden" id="UPSiteDD"  value="@Model.idfsSite"/>
+                            </div>                  
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.DepartmentFieldLabel"></i>
+                                <eidss-select2DropDown id="@Model.Select2Configurations[0].DropDownId"
+                                               control-target-id="@Model.Select2Configurations[0].ControltargetId"
+                                               name="@Model.Select2Configurations[0].DropDownId"
+                                               target-type="@Model.Select2Configurations[0].ControlTargetType"
+                                               target-ajax-url="@Model.Select2Configurations[0].ControlTargetUrl"
+                                               selectct2-default-data="@Model.Select2Configurations[0].defaultSelect2Selection"
+                                               end-point="@Model.Select2Configurations[0].Endpoint"
+                                               label-name="@Model.Select2Configurations[0].Label"
+                                               is-visible="@Model.Select2Configurations[0].isVisible"
+                                               filter-id="@Model.Select2Configurations[0].FilteredId"
+                                               include-add-button="@Model.Select2Configurations[0].IncludeAddButton"
+                                               add-button-id="@Model.Select2Configurations[0].AddButtonId"
+                                               add-modal-id="@Model.Select2Configurations[0].AddModalId"
+                                               configure-for-partial="@Model.Select2Configurations[0].ConfigureForPartial"
+                                               asp-for="@Model.DepartmentID"
+                                                       >
+                                </eidss-select2DropDown>
+                                <span asp-validation-for="@Model.DepartmentID" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.PositionFieldLabel"></i>
+                                <eidss-select2DropDown id="@Model.Select2Configurations[1].DropDownId"
+                                               control-target-id="@Model.Select2Configurations[1].ControltargetId"
+                                               name="@Model.Select2Configurations[1].DropDownId"
+                                               target-type="@Model.Select2Configurations[1].ControlTargetType"
+                                               target-ajax-url="@Model.Select2Configurations[1].ControlTargetUrl"
+                                               selectct2-default-data="@Model.Select2Configurations[1].defaultSelect2Selection"
+                                               end-point="@Model.Select2Configurations[1].Endpoint"
+                                               label-name="@Model.Select2Configurations[1].Label"
+                                               is-visible="@Model.Select2Configurations[1].isVisible"
+                                               include-add-button="@Model.Select2Configurations[1].IncludeAddButton"
+                                               add-button-id="@Model.Select2Configurations[1].AddButtonId"
+                                               add-modal-id="@Model.Select2Configurations[1].AddModalId"
+                                               configure-for-partial="@Model.Select2Configurations[1].ConfigureForPartial"
+                                               asp-for="@Model.PositionTypeID"
+                                                       >
+                                                        
+                                </eidss-select2DropDown>
+                                <span asp-validation-for="@Model.PositionTypeID" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.PhoneFieldLabel"></i>
+                                <label asp-for="@Model.OtherContactPhone" field-label-for="@FieldLabelResourceKeyConstants.PhoneFieldLabel" class="control-label"></label>
+                                <input asp-for="@Model.OtherContactPhone" class="form-control" onchange="validatePhoneUP();" />
+                                <span asp-validation-for="@Model.OtherContactPhone" class="text-danger"></span>
+                                <div id="ValOtherContactPhone" class="text-danger"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                             <eidss-select2DropDown id="@Model.UserGroupDD.DropDownId"
+                                               name="@Model.UserGroupDD.DropDownId"
+                                               target-type="@Model.UserGroupDD.ControlTargetType"
+                                               target-ajax-url="@Model.UserGroupDD.ControlTargetUrl"
+                                               selectct2-default-data="@Model.UserGroupDD.defaultSelect2Selection"
+                                               end-point="@Model.UserGroupDD.Endpoint"
+                                               label-name="@Model.UserGroupDD.Label"
+                                               custom-js-on-change-function="@Model.UserGroupDD.CustomJsOnChangeFunction"
+                                               custom-js-on-clear-function="@Model.UserGroupDD.CustomJsOnClearFunction"
+                                               custom-js-on-unselect-function="@Model.UserGroupDD.CustomJsOnUnselectFunction"
+                                               is-visible="@Model.UserGroupDD.isVisible"
+                                               filter-id="@Model.UserGroupDD.FilteredId"
+                                               configure-for-partial="@Model.UserGroupDD.ConfigureForPartial"                                           
+                                               asp-for="@Model.UserGroupDD"
+                                                       >
+                                </eidss-select2DropDown>
+                            </div>
+                          
+                            </div>
+                        </div>
+                    </div>
+                <input type="hidden" id="hdfEmployeeID" />
+
+                <div id="SystemFunctionsPermissions" class="card">
+
+
+                    <div class="card-header"><h3 heading-for="@HeadingResourceKeyConstants.SystemFunctionsHeading"></h3></div>
+                    <div class="card-body">
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-default" type="button" id="submitbtn">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                    <button class="btn btn-default" id="cancelBtn" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                </div>
+    </form>
+
+
+}
+
+
+<!-- Modal -->
+<!-- Missing required fields-->
+<div class="modal fade" id="mdInvalidFields" tabindex="-1" aria-labelledby="mdRequiredFieldsMissingLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                    @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)
+            </div>
+            <div class="modal-footer">
+                <button id="btnRequiredFieldsMissingOk" type="button" class="btn-sm btn-primary" data-dismiss="modal">
+                    @Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="successModalUP" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" id="btnClose" class="close" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="CloseSuccessModal();">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)
+            </div>
+            <div class="modal-footer">
+                <button id="successBtnNo" type="button" class="btn btn-secondary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.NoButton)</button>
+                <button id="successBtnYes" type="button" class="btn btn-primary" onclick="HistoryRedirect();"> @Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+
+
+
+<div class="modal fade" id="duplicatesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupemsg"></span>
+            </div>
+            <div class="modal-footer">              
+                <button id="createNewYesButtonUP" class="btn btn-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"> @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+              
+                @Localizer.GetString(MessageResourceKeyConstants.ProblemHasOccurredMessage);
+            </div>
+            <div class="modal-footer">
+                <button id="createNewYesButton" class="btn btn-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@{
+    for (int i = 0; i < @Model.eIDSSModalConfiguration.Count(); i++)
+    {
+    <eidss-reference-editors-modal control-labels="@Model.eIDSSModalConfiguration[i].ControlLabels" ajax-save-url="@Model.eIDSSModalConfiguration[i].PostAjaxDataUrl" modal-configuration="@Model.eIDSSModalConfiguration[i]" modal-id="@Model.eIDSSModalConfiguration[i].ModalId"></eidss-reference-editors-modal>
+    }
+}
+<partial name="_ErrorModalPartial" />
+<partial name="_WarningModalPartial" />
+
+
+<script>
+    $(document).ready(function () {
+        if ($("#UPOrganizationDD").val() == null || $("#UPOrganizationDD").val() == "") {
+            $("#UPSiteDD").prop('disabled', true);
+            $("#UPDepartmentDD").prop('disabled', true);
+            $("#DepartmentAdd").prop('disabled', true);
+        }
+        else {
+            if ($("#UPSiteDD").val() == null || $("#UPSiteDD").val() == "" || $("#UPSiteDD").val() == 0 ) {
+                $("#UPSingleUserGroupDD").prop('disabled', true);
+            }
+            else {
+                $("#UPSingleUserGroupDD").prop('disabled', false);
+                $("#hdfOrganization").val($("#UPOrganizationDD").val());
+              //  if ($("#UPSiteDD").val() != null && $("#UPSiteDD").val() != "" && $("#UPSiteDD").val() != "0")
+                    RenderSystemFunctionsComponent(false);
+            }
+        }
+
+
+    });
+
+
+    function CheckSuccessUP(data) {
+
+            var stringified_data = JSON.stringify(data);
+        var parsed_data = JSON.parse(stringified_data);
+
+        if (parsed_data.returnMessage == "SUCCESS") {
+
+            //$("#successModalUP").modal("show");
+                showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)');
+
+            }
+        if (parsed_data.returnMessage == "DOES EXIST") {
+            showErrorModal(parsed_data.strDuplicateField);
+            //$("#dupemsg").html(parsed_data.strDuplicateField);
+            //$("#duplicatesModal").modal("show");
+            //$('.modal-backdrop').remove();
+
+            }
+    }
+    function CloseSuccessModal() {
+        $("#successModalUP").modal("hide");
+        //$('.modal-backdrop').remove();
+    }
+
+    //function CheckSuccess(data) {
+    //    var stringified_data = JSON.stringify(data);
+    //    var parsed_data = JSON.parse(stringified_data);
+    //    if (parsed_data.returnMessage == "SUCCESS") {
+    //        $("#successModal").modal("show");
+    //    }
+    //    if (parsed_data.returnMessage == "DOES EXIST") {
+    //        $("#duplicatesModal").modal("show");
+    //    }
+    //}
+
+     function validatePhoneUP() {
+        var isValidPhone = true;
+         var a = $("#OtherContactPhone").val();
+         var filter = /^[0-9]{8,15}$/;
+        //var filter = /^((\+[1-9]{1,4}[ \-]*)|(\([0-9]{2,3}\)[ \-]*)|([0-9]{2,4})[ \-]*)*?[0-9]{3,4}?[ \-]*[0-9]{3,4}?$/;
+        if (filter.test(a)) {
+            isValidPhone = true;
+            $("#ValOtherContactPhone").html("");
+        }
+        else {
+            if (a == null && a == "") {
+                isValidPhone = true;
+            }
+            else {
+                $("#ValOtherContactPhone").html('@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)');
+                isValidPhone = false;
+            }
+        }
+        return isValidPhone;
+    }
+    function ResetOrganizationUP() {
+        debugger;
+        $("#UPSiteDD").val("");
+        $("#OtherSiteName").val("");
+        $("#UPOrganizationDD").val('').trigger('change');
+    }
+
+
+    $("#ContactPhone").on('change', function () {
+        if (!validatePhoneUP()) {
+            $('#mdInvalidFields').modal('show');
+        }
+    });
+    $("#UPDepartmentSavebtnCancel").on('click', function () {
+        $("#UPDepartmentSave").modal('hide');
+    });
+
+
+    $("#UPPositionSavebtnCancel").on('click', function () {
+        $("#UPPositionSave").modal('hide');
+    });
+
+    $("#UPDepartmentSavebtnClose").on('click', function () {
+        $("#UPDepartmentSave").modal('hide');
+    });
+    //$("#submitbtn").on('click', function () {
+    //    ValidateEmployeePromise();
+    //});
+
+    $("#submitbtn").on('click', function () {
+        jQuery.validator.setDefaults({
+        debug: true,
+        success: "valid"
+    });
+
+
+
+
+    $("#SearchForm").validate({
+        rules: {
+            @Model.OrganizationDD.DropDownId: {
+        required: true
+    },
+    @Model.Select2Configurations[1].DropDownId: {
+        required: true
+    }
+    }
+
+
+
+
+    });
+
+        
+        if ($("#SearchForm").valid()) {
+            ValidateEmployeePromise();
+        }
+        else {
+            return false;
+        }
+
+    });
+
+
+
+    //function SubmitForm() {
+    //    alert($("#SearchForm").valid());
+    //    if ($("#SearchForm").valid()) {
+    //        ValidateEmployeePromise();
+    //    }
+    //    else
+    //        return false;
+    //}
+
+
+     function ValidateEmployeePromise() {
+        var category = '@Model.PersonalInformation.idfsEmployeeCategory';
+        var idfPerson = $("#hdfEmployeeIDDetail").val();
+        var hdfUserPermissionsSaveDone = $("#hdfUserPermissionsSaveDone").val();
+        if (hdfUserPermissionsSaveDone == null || hdfUserPermissionsSaveDone == "")
+             hdfUserPermissionsSaveDone = false;
+
+         var isAddEmployee='@Model.IsAddEmployee';
+         var contactPhone = '@Model.PersonalInformation.strContactPhone';
+         var isFirstNameValid = false;
+         var isFamilyNameValid = false;
+        // var IsidfInstitutionValid = false;
+         var isUserNameValid = false;
+         var isPasswordValid = false;
+         var IsOrganizationSelected = false;
+         var isPhoneValid = true;
+         var comparePasswordValid = comparePassword();
+         var isValidPassword = true;
+         var isPassword = false;
+         var errorList = "";
+         var uorg = $("#UPOrganizationDD").val();
+         var defaultOrg = '@Model.PersonalInformation.idfInstitution';
+
+
+        if ('@Model.PersonalInformation.strFirstName' != null && '@Model.PersonalInformation.strFirstName' != "") {
+                isFirstNameValid = true;
+            }
+            if ('@Model.PersonalInformation.strFamilyName' != null && '@Model.PersonalInformation.strFamilyName' != "") {
+                isFamilyNameValid = true;
+         }
+            if (contactPhone != null && contactPhone != "")
+                isPhoneValid = validatePhone(true);
+            if ('@Model.RegisterViewModel.Username' != null && '@Model.RegisterViewModel.Username' != "") {
+                isUserNameValid = true;
+            }
+            if ('@Model.RegisterViewModel.Password' != null && '@Model.RegisterViewModel.Password' != "") {
+                  isPassword = true;
+            }
+            if (uorg != null && uorg != 0 && uorg != "")
+                IsOrganizationSelected = true;
+
+
+        if (category == 10526001 && !hdfUserPermissionsSaveDone && (idfPerson==null || idfPerson=="" || idfPerson==0)) {
+            $.when(validateUser(true), validatePasswordUP(true), validatePersonalID(true)).then(function (o1, o2, o3) {
+
+                if (o2 != null && o2.status == "Error") {
+                    isValidPassword = false;
+                    errorList = o2.errorList;
+                }
+
+
+                if (o1 == false && isValidPassword == true && o3 == true && isPhoneValid == true && comparePasswordValid == true && IsOrganizationSelected == true && isFirstNameValid && isFamilyNameValid  && isUserNameValid && isPassword) {
+                    SaveEmployeeData();
+                }
+                else
+                {
+                    var message = "";
+                    var newline = "<br>";
+
+
+
+                    if (o3 == false) {
+                        message += '@Localizer.GetString(FieldLabelResourceKeyConstants.PersonalIDFieldLabel)' +":" + '@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)';
+                        message += newline;
+                    }
+                    if (isFirstNameValid == false) {
+                        message += '@Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeFirstNameFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                        message += newline;
+                    }
+                    if (isFamilyNameValid == false) {
+                        message += '@Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeLastNameFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                        message += newline;
+                    }
+
+                    if (isPhoneValid == false) {
+                        message +=  '@Localizer.GetString(FieldLabelResourceKeyConstants.PhoneFieldLabel)' +":" + '@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)';
+                        message += newline;
+                    }
+                    if (isUserNameValid == false) {
+                        message += '@Localizer.GetString(FieldLabelResourceKeyConstants.UserNameFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                        message += newline;
+                    }
+                    if (o1 == true) {
+                        message += '@Localizer.GetString(MessageResourceKeyConstants.DuplicateRecordsAreNotAllowedMessage)';
+                        message += newline;
+                    }
+                    if (isPassword == false) {
+                        message += '@Localizer.GetString(FieldLabelResourceKeyConstants.PasswordFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                        message += newline;
+                    }
+                    if (isValidPassword == false) {
+                        message += errorList;
+                        message += newline;
+                    }
+                    if (comparePasswordValid == false) {
+                         message += '@Localizer.GetString(FieldLabelResourceKeyConstants.PasswordFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.PasswordsDoNotMatchMessage)';
+                         message += newline;
+                    }
+
+                    if (IsOrganizationSelected == false) {
+                        message += '@Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeOrganizationFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                    }
+
+                    showErrorModal(message);
+                }
+            });
+        }
+        else if (category == 10526001 && (hdfUserPermissionsSaveDone || (idfPerson!=null && idfPerson!="" && idfPerson!=0))) {
+            $.when(validatePasswordUP(true), validatePersonalID(true)).then(function (o2, o3) {
+
+                  if (o2 != null && o2.status == "Error") {
+                    isValidPassword = false;
+                    errorList = o2.errorList;
+                }
+                if (isValidPassword == true && o3 == true && isPhoneValid == true && comparePasswordValid == true && IsOrganizationSelected == true && isFirstNameValid && isFamilyNameValid  && isUserNameValid && isPassword) {
+                    SaveEmployeeData();
+                }
+                else {
+                    var message = "";
+                    var newline = "<br>";
+
+
+                    if (o3 == false) {
+                        message += '@Localizer.GetString(FieldLabelResourceKeyConstants.PersonalIDFieldLabel)' +":" + '@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)';
+                        message += newline;
+                    }
+                    if (isFirstNameValid == false) {
+                        message += '@Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeFirstNameFieldLabel)'+":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                        message += newline;
+                    }
+                    if (isFamilyNameValid == false) {
+                        message += '@Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeLastNameFieldLabel)'+":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                        message += newline;
+                    }
+                    if (isPhoneValid == false) {
+                        message +=  '@Localizer.GetString(FieldLabelResourceKeyConstants.PhoneFieldLabel)' +":" + '@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)';
+                        message += newline;
+                    }
+                     if (isUserNameValid == false) {
+                        message += '@Localizer.GetString(FieldLabelResourceKeyConstants.UserNameFieldLabel)'+":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                        message += newline;
+                    }
+                    if (isPassword== false) {
+                        message += '@Localizer.GetString(FieldLabelResourceKeyConstants.PasswordFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                        message += newline;
+                    }
+                    if (isValidPassword == false) {
+                        message += errorList;
+                        message += newline;
+                    }
+                    if (comparePasswordValid == false) {
+                         message += '@Localizer.GetString(FieldLabelResourceKeyConstants.PasswordFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.PasswordsDoNotMatchMessage)';
+                         message += newline;
+                    }
+
+                     if (IsOrganizationSelected == false) {
+                         message += '@Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeOrganizationFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                    }
+                    showErrorModal(message);
+                }
+            });
+        }
+    };
+
+
+    function SaveEmployeeData() {
+
+        $("#submitbtn").prop('disabled', true);
+        model = [];
+        var model = new Object();
+        model.isEditOrg = '@Model.isEditOrg';
+        model.idfsStaffPosition = '@Model.PersonalInformation.idfsStaffPosition';
+        model.idfInstitution = '@Model.PersonalInformation.idfInstitution';
+        model.idfDepartment = '@Model.PersonalInformation.idfDepartment';
+        model.idfsSite = '@Model.PersonalInformation.idfsSite';
+        model.idfPersonalIDType = '@Model.PersonalInformation.idfPersonalIDType';
+        model.strPersonalID = '@Model.PersonalInformation.strPersonalID';
+        model.idfsEmployeeCategory = '@Model.PersonalInformation.idfsEmployeeCategory';
+        model.strFamilyName = '@Model.PersonalInformation.strFamilyName';
+        model.strFirstName = '@Model.PersonalInformation.strFirstName';
+        model.strSecondName = '@Model.PersonalInformation.strSecondName';
+        model.strContactPhone =  '@Model.PersonalInformation.strContactPhone';
+        model.idfPerson = '@Model.PersonalInformation.idfPerson';
+        model.Username = '@Model.RegisterViewModel.Username';
+        model.Password = '@Model.RegisterViewModel.Password';
+        model.IsPasswordResetRequired = '@Model.RegisterViewModel.IsPasswordResetRequired';
+        model.Disabled = '@Model.RegisterViewModel.Disabled';
+        model.blnLocked = '@Model.RegisterViewModel.blnLocked';
+        model.Reason = '@Model.RegisterViewModel.Reason';
+        model.IsDefault = '@Model.isDefault';
+        model.UPidfInstitution = $("#UPOrganizationDD").val();
+        model.UPidfsSite = $("#UPSiteDD").val();
+        model.UPidfDepartment = $("#UPDepartmentDD").val();
+        model.UPidfsStaffPosition = $("#UPPositionDD").val();
+        model.UPstrContactPhone = $("#OtherContactPhone").val();
+        model.finalSubmit = false;
+        model.idfUserID='@Model.idfUserID';
+        model.UPUserGroup=$("#UPSingleUserGroupDD").val();
+        var EmployeeGroups="";
+
+        $("#UPUserGroupDD option[value='']").remove();
+        $("#UPUserGroupDD :selected").each(function () {
+            EmployeeGroups += "," + this.value ;
+        });
+        model.idfEmployeeGroups = EmployeeGroups;
+        if (model.idfEmployeeGroups == null || model.idfEmployeeGroups=="" ) {
+            model.idfEmployeeGroups = "-1";
+
+        }
+        if (model.idfPerson!=null && model.idfPerson!=0) {
+            model.isEditEmployee = true;
+        }
+        model.isAddEmployee = '@Model.IsAddEmployee';
+        model.LastLogin = $("#hdfLastLogin").val();
+        $.ajax({
+            url: '@Url.Action("SaveAdminEmployeeDetails", "EmployeePage", new { Area = "Administration" })',
+            type: 'POST',
+            data: JSON.stringify(model),
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+        })
+            .done(function (data) {
+                if (data != null && data.retunMessage != null && data.retunMessage == "Duplicate Record") {
+                    showErrorModal(data.duplicateMessage);
+                }
+                else if (data != null && data.idfPerson != null && data.idfPerson != 0 && data.retunMessage == "Success") {
+                    $("#hdfEmployeeID").val(data.idfPerson);
+                    $("#hdfEmployeeIDDetail").val(data.idfPerson);
+                    $("#hdfUserPermissionsSaveDone").val(true);
+                    SaveSystemFunctions(data.idfPerson);
+                }
+                else if (data != null && data.idfPerson != 0 && data.idfPerson != null && data.retunMessage == "ChangeUserToNonUser") {
+                    $("#hdfEmployeeID").val(data.idfPerson);
+                    $("#hdfEmployeeIDDetail").val(data.idfPerson);
+                    $("#hdfUserPermissionsSaveDone").val(true);
+                    $(".modal").modal('hide');
+                    $('body').removeClass('modal-open');
+                    $('.modal-backdrop').remove();
+                    $("#successModal").modal('show');
+                    //Call HideUnhideSections
+                    $('input[name="PersonalInfoSection.EmployeeCategoryList"]').val(['@EmployeeCategory.NonUser']);
+                    $("#employeeWizard").steps("setStep", 0);
+                    HideUnhideSections('@EmployeeCategory.NonUser');
+                }
+                else {
+                    if (data != null && data.retunMessage != null) {
+
+                        showErrorModal(data.retunMessage);
+                    }
+                }
+
+            });
+
+    }
+
+    function SaveSystemFunctions(idfPerson) {
+
+        model = [];
+        var model = new Object();
+        model.isEditOrg = '@Model.isEditOrg';
+        model.idfsStaffPosition = '@Model.PersonalInformation.idfsStaffPosition';
+        model.idfInstitution = '@Model.PersonalInformation.idfInstitution';
+        model.idfDepartment = '@Model.PersonalInformation.idfDepartment';
+        model.idfsSite = '@Model.PersonalInformation.idfsSite';
+        model.idfPersonalIDType = '@Model.PersonalInformation.idfPersonalIDType';
+        model.strPersonalID = '@Model.PersonalInformation.strPersonalID';
+        model.idfsEmployeeCategory = '@Model.PersonalInformation.idfsEmployeeCategory';
+        model.strFamilyName = '@Model.PersonalInformation.strFamilyName';
+        model.strFirstName = '@Model.PersonalInformation.strFirstName';
+        model.strSecondName = '@Model.PersonalInformation.strSecondName';
+        model.strContactPhone = '@Model.PersonalInformation.strContactPhone';
+        model.idfPerson = '@Model.PersonalInformation.idfPerson';
+        model.Username = '@Model.RegisterViewModel.Username';
+        model.Password = '@Model.RegisterViewModel.Password';
+        model.IsPasswordResetRequired = '@Model.RegisterViewModel.IsPasswordResetRequired';
+        model.Disabled = '@Model.RegisterViewModel.Disabled';
+        model.blnLocked = '@Model.RegisterViewModel.blnLocked';
+        model.Reason = '@Model.RegisterViewModel.Reason';
+        model.idfUserID='@Model.idfUserID';
+
+        model.UPidfInstitution = $("#UPOrganizationDD").val();
+        model.UPidfsSite = $("#UPSiteDD").val();
+        model.UPidfDepartment = $("#UPDepartmentDD").val();
+        model.UPidfsStaffPosition = $("#UPPositionDD").val();
+        model.UPstrContactPhone = $("#OtherContactPhone").val();
+        model.finalSubmit = false;
+        model.IsDefault = '@Model.isDefault';
+        var EmployeeGroups = "";
+
+        $("#UPUserGroupDD option[value='']").remove();
+        $("#UPUserGroupDD :selected").each(function () {
+            EmployeeGroups += "," + this.value;
+        });
+        model.idfEmployeeGroups = EmployeeGroups;
+        if (model.idfEmployeeGroups == null || model.idfEmployeeGroups == "") {
+            model.idfEmployeeGroups = "-1";
+
+        }
+        model.isAddEmployee = '@Model.IsAddEmployee';
+        model.LastLogin = $("#hdfLastLogin").val();
+        PermissionObjectList = [];
+        var table = $('#tblPermission').DataTable({
+            searching: false,
+            lengthChange: false,
+            paging: false,
+            orderable: false,
+            rowReorder: false
+        });
+        if (table.rows().eq(0) != null) {
+            var intNumRow = 1;
+            table.rows().eq(0).each(function (index) {
+                var row = table.row(index);
+                permissionItem = new Object();
+                permissionItem.IsEmpty = false;
+                permissionItem.IntNumRow = intNumRow;
+                permissionItem.RoleID = idfPerson;
+                permissionItem.SystemFunctionID = row.nodes().to$().find('input:hidden').val();
+                permissionItem.Permission = row.nodes().to$().find('.functions').val();
+                permissionItem.CreatePermission = row.nodes().to$().find('.Create').prop('checked');
+                permissionItem.ReadPermission = row.nodes().to$().find('.Read').prop('checked');
+                permissionItem.WritePermission = row.nodes().to$().find('.Write').prop('checked');
+                permissionItem.ExecutePermission = row.nodes().to$().find('.Execute').prop('checked');
+                permissionItem.DeletePermission = row.nodes().to$().find('.DeletePer').prop('checked');
+                permissionItem.AccessToPersonalDataPermission = row.nodes().to$().find('.PersonalData').prop('checked');
+                permissionItem.AccessToGenderAndAgeDataPermission = row.nodes().to$().find('.GenderData').prop('checked');
+                PermissionObjectList.push(permissionItem);
+            });
+        }
+        model.systemFunctions = PermissionObjectList;
+        $.ajax({
+            url: '@Url.Action("SaveSystemFunctions", "EmployeePage", new { Area = "Administration" })',
+            type: 'POST',
+            data: JSON.stringify(model),
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8"
+        })
+            .done(function (data) {
+                if (data != null && data.returnMessage == "ChangeUserToNonUser") {
+                    $(".modal").modal('hide');
+                    $('body').removeClass('modal-open');
+                    $('.modal-backdrop').remove();
+                    $("#successModal").modal('show');
+                    //Call HideUnhideSections
+                    $('input[name="PersonalInfoSection.EmployeeCategoryList"]').val(['@EmployeeCategory.NonUser']);
+                    $("#employeeWizard").steps("setStep", 0);
+                    HideUnhideSections('@EmployeeCategory.NonUser');
+                }
+                else {
+                    $.ajax({
+                        url:'@Url.Action("ReloadAccountManagement", "EmployeePage", new { Area = "Administration" })' + "?data=" + idfPerson,
+                        type: 'GET',
+                        contentType: "text/html; charset=utf-8"
+                    })
+                        .done(function (data) {
+                            $("#LoginSection_Password").val("Password999");
+                             $("#LoginSection_ConfirmPassword").val("Password999");
+                            
+                            if(model.IsDefault=="True")
+                                ReloadPersonalInfo();
+
+                            $(".modal").modal('hide');
+                            $('body').removeClass('modal-open');
+                            $('.modal-backdrop').remove();
+                            $("#DivAccountMgtSection").html(data);
+                            $("#successModal").modal('show');
+
+                        })
+                        .fail(function (error) {
+                            alert("ReloadAccount Failure " + error);
+                        });
+                }
+
+                });
+    }
+
+    function ChangeRenderSystemFunctionsComponent()
+    {
+        RenderSystemFunctionsComponent(true);
+    }
+    function RenderSystemFunctionsComponent(isChange) {
+        // Render System Functions Component
+        selectedDataList = [];
+        var selectedData = new Object();
+
+         if ($("#UPSingleUserGroupDD").val() != null && $("#UPSingleUserGroupDD").val() != "" && $("#UPSingleUserGroupDD").val() != undefined)
+                selectedData.UserGroupDD=$("#UPSingleUserGroupDD").val();
+         else
+                selectedData.UserGroupDD=-1;
+        selectedData.EmployeeID = '@Model.EmployeeID';
+        selectedData.isChange=isChange;
+        selectedDataList.push(selectedData);
+        var urlPath = '@Url.Action("ReloadSystemFunctionsControl", "EmployeePage", new { Area = "Administration" })?data=' + encodeURIComponent(JSON.stringify(selectedDataList));
+        $.ajax({
+            url: urlPath,
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+        })
+            .done(function (data) {
+                $("#SystemFunctionsPermissions").show();
+                $("#SystemFunctionsPermissions").html(data);
+            });
+    }
+
+    function FillSiteDetailsUP(data) {
+        var employeeId=$("#hdfEmployeeIDDetail").val();
+        info = [];
+        info.push(data);
+        $.ajax({
+            url: '@Url.Action("GetExistingOrg", "EmployeePage", new { Area = "Administration" })?employeeId='+employeeId+'&data=' + encodeURIComponent(JSON.stringify(info)),
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            success: function (resultData) {
+                if (resultData != undefined  && resultData != null && resultData != "") {
+                    showInformationalModalWaitWithNoCancel(resultData.value.orgName).then(response => {
+                        if (response) {
+                            $("#UPOrganizationDD").empty().trigger('change');
+                        }
+                    });
+                    
+                }
+                else {
+                      
+                    $("#UPUserGroupDD").val('').trigger('change');
+                    $("#UPDepartmentDD").prop('disabled', false);
+                    $("#DepartmentAdd").prop('disabled', false);
+                    info = [];
+                    info.push(data);
+                    $.ajax({
+                        url: '@Url.Action("GetSiteDetails", "EmployeePage", new { Area = "Administration" })?page=1&data=' + encodeURIComponent(JSON.stringify(info)),
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            if (data == undefined || data == null || data == "") {
+                                $("#OtherSiteName").val("");
+                                $("#UPSiteDD").val("");
+                                $("#UPSingleUserGroupDD").prop('disabled', true);
+                                $("#SystemFunctionsPermissions").hide();
+                                $("#SystemFunctionsPermissions").html("");
+                            }
+                            else {
+                                $("#UPSingleUserGroupDD").prop('disabled', false);
+                                $("#OtherSiteName").val(data.strSiteID);
+                                $("#UPSiteDD").val(data.idfsSite);
+                                RenderSystemFunctionsComponent(false);
+                            }
+                        },
+                        complete: function (data) {
+                        },
+                        error: function (request, error) {
+                            alert("failure getsitelist");
+                        }
+                    });
+                }
+            },
+            complete: function (data) {
+            },
+            error: function (request, error) {
+                alert("failure GetExistingOrg");
+            }
+        });
+
+     
+        }
+
+    //Set the model for changes in the Reference Type
+    function GetSiteList(data) {
+        $("#hdfOrganization").val(data);
+        info = [];
+        info.push(data)
+        var siteID = 0;
+        //Begin
+        $.ajax({
+            url: '@Url.Action("GetSiteID", "EmployeePage", new { Area = "Administration" })?page=1&data=' + JSON.stringify(info),
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                if (data == undefined || data == null || data == 0) {
+                    $("#UPSiteDD").prop('disabled', true);
+                    $("#UPSiteDD").empty();
+                    $("#UPUserGroupDD").prop('disabled', true);
+                    $("#UPDepartmentDD").prop('disabled', true);
+                    $("#DepartmentAdd").prop('disabled', true);
+                }
+                else {
+                    $("#UPSiteDD").prop('disabled', false);
+
+                    $("#UPUserGroupDD").prop('disabled', false);
+                    $("#UPDepartmentDD").prop('disabled', false);
+                    $("#DepartmentAdd").prop('disabled', false);
+                    siteID = data;
+
+                    $.ajax({
+                        url: 'GetSiteList?page=1&data=' + JSON.stringify(info),
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            if (data != undefined) {
+                                if (data.results == "") {
+                                    $("#UPSiteDD").prop('disabled', true);
+                                    $("#UPSiteDD").empty();
+                                }
+                                else if (data.results != "" && data.results.length > 0) {
+                                    $("#UPSiteDD").prop('disabled', false);
+                                    $("#UPSiteDD").empty();
+                                    var items = '<option></option>';
+                                    $.each(data.results, function (i, item) {
+                                        items += "<option value='" + item.id + "' > " + item.text + "</option > ";
+                                    });
+                                    $('#UPSiteDD').html(items);
+                                    $('#UPSiteDD').val(siteID);
+                                }
+                            }
+                        },
+                        complete: function (data) {
+                        },
+                        error: function (request, error) {
+                            alert("failure getsitelist");
+                        }
+                    });
+
+                }
+            }
+            ,
+            complete: function (data) {
+            },
+            error: function (request, error) {
+
+            }
+        });
+    }
+    function CloseModalDetails() {
+        $("#successModalDetails").modal('hide');
+    }
+
+    function CancelPage() {
+        $("#cancelModalDetails").modal('show');
+    }
+    function CancelCloseModalDetails() {
+        $("#cancelModalDetails").modal('hide');
+    }
+    ///
+    /// Styling to handle stacked modals for the Collection Method  modals.
+    ///
+    $(document).on("show.bs.modal", ".modal", function (event) {
+        var zIndex = 1040 + (10 * $(".modal:visible").length);
+        $(this).css("z-index", zIndex);
+        setTimeout(function () {
+            $(".modal-backdrop").not(".modal-stack").css("z-index", zIndex - 1).addClass("modal-stack");
+        }, 0);
+    });
+</script>
+

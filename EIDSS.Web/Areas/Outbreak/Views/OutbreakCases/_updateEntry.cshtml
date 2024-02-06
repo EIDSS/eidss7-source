@@ -1,0 +1,122 @@
+﻿@model EIDSS.Web.Areas.Outbreak.ViewModels.OutbreakCasesViewModel;
+<link href="@Url.Content("~/css/Outbreak/sessionUpdates.css")" rel="stylesheet" />
+
+<div id="dOutbreakNoteForm" modal="OutbreakNoteForm" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="fUpdateEntry">
+                <div class="modal-header">
+                    <h3 id="hNewRecord" style="display:none" class="modal-title" id="hNewNoteRecord">@Localizer.GetString(HeadingResourceKeyConstants.OutbreakUpdatesNewRecordHeading)</h3>
+                    <h3 id="hEditRecord" style="display:none" class="modal-title" id="hNewNoteRecord">@Localizer.GetString(HeadingResourceKeyConstants.OutbreakUpdatesEditRecordHeading)</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="row form-group">
+                        <div class="col-sm-4 text-right">
+                            <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakUpdatesRecordIDFieldLabel)</label>
+                        </div>
+                        <div class="col-sm-6 pull-left">
+                            <input type="hidden" ID="idfOutbreakNote" class="form-control" />
+                            <input type="text" ID="NoteRecordUID" class="form-control" ReadOnly="readonly" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-4 text-right">
+                            <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakUpdatesEmployeeNameFieldLabel)</label>
+                        </div>
+                        <div class="col-sm-6 pull-left">
+                            <input type="text" ID="UserName" class="form-control" ReadOnly="readonly" initValue="@Model.User.FirstName @Model.User.LastName" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-4 text-right">
+                            <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakUpdatesOrganizationFieldLabel)</label>
+                        </div>
+                        <div class="col-sm-6 pull-left">
+                            <input type="text" ID="Organization" class="form-control" ReadOnly="readonly" initValue="@Model.User.Organization" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-8">
+                            @{
+                                Select2Configruation OutbreakType = new Select2Configruation();
+                                OutbreakType.DropDownId = "UpdatePriorityID";
+                                OutbreakType.Label = @Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakUpdatesPriorityFieldLabel);
+                                OutbreakType.ControlTargetType = DropDownTargetTypes.DropDown;
+                                OutbreakType.Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000518 });
+                                OutbreakType.isVisible = true;
+                                //OutbreakType.defaultSelect2Selection = new Select2DataItem { id = Model.Update.UpdatePriorityID.ToString(), text = Model.Update.strPriority };
+                                OutbreakType.RequiredErrorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage);
+                            }
+                            <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OutbreakUpdatesPriorityFieldLabel"></i>
+                            <eidss-select2DropDown id="@OutbreakType.DropDownId"
+                                                   name="@OutbreakType.DropDownId"
+                                                   control-target-id=""
+                                                   target-type="@OutbreakType.ControlTargetType"
+                                                   target-ajax-url="@OutbreakType.Endpoint"
+                                                   selectct2-default-data="@OutbreakType.defaultSelect2Selection"end-point="@OutbreakType.Endpoint"
+                                                   custom-js-on-change-function="@OutbreakType.CustomJsOnChangeFunction"
+                                                   label-name="@OutbreakType.Label"
+                                                   is-visible="@OutbreakType.isVisible"
+                                                   asp-for="@Model.Update.UpdatePriorityID"
+                                                   filter-sort-enable="false">
+                            </eidss-select2DropDown>
+                            <span asp-validation-for="Update.UpdatePriorityID" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row form-group" hidden-if="@FieldLabelResourceKeyConstants.OutbreakUpdatesDateTimeFieldLabel">
+                        <div class="col-sm-4 text-right">
+                            <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OutbreakUpdatesDateTimeFieldLabel"></i>
+                            <label asp-for="Update.datNoteDate">@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakUpdatesDateTimeFieldLabel)</label>
+                        </div>
+                        <div class="col-sm-6 pull-left">
+                            <eidss-calendar id="datNoteDate" name="Update.datNoteDate" asp-for="Update.datNoteDate" class="form-control" SearchFilter="true"></eidss-calendar>
+                            <span asp-validation-for="Update.datNoteDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row form-group" hidden-if="@FieldLabelResourceKeyConstants.OutbreakUpdatesRecordTitleFieldLabel">
+                        <div class="col-sm-4 text-right">
+                            <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OutbreakUpdatesRecordTitleFieldLabel"></i>
+                            <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakUpdatesRecordTitleFieldLabel)</label>
+                        </div>
+                        <div class="col-sm-6 pull-left">
+                            <input type="text" id="UpdateRecordTitle" asp-for="Update.UpdateRecordTitle" MaxLength="50" class="form-control" />
+                            <span asp-validation-for="Update.UpdateRecordTitle" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row form-group" hidden-if="@FieldLabelResourceKeyConstants.OutbreakUpdatesRecordDetailsFieldLabel">
+                        <div class="col-sm-4 text-right">
+                            <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OutbreakUpdatesRecordDetailsFieldLabel"></i>
+                            <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakUpdatesRecordDetailsFieldLabel)</label>
+                        </div>
+                        <div class="col-sm-6 pull-left">
+                            <input type="text" id="strNote" asp-for="Update.strNote" MaxLength="500" class="form-control" TextMode="MultiLine" Rows="5" />
+                            <span asp-validation-for="Update.strNote" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-4 text-right">
+                            <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakUpdatesUploadFileFieldLabel)</label>
+                        </div>
+                        <div class="col-sm-6 pull-left">
+                            <input type="file" ID="FileUpload" class="form-control" onchange="javascript:checkExtensions();" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-4 text-right">
+                            <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakUpdatesFileDescriptionFieldLabel)</label>
+                        </div>
+                        <div class="col-sm-6 pull-left">
+                            <input type="text" ID="UploadFileDescription" MaxLength="2000" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button ID="btnSaveNote" class="btn btn-primary" idfOutbreak="@Model.idfOutbreak">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                    <input type="button" id="btnCancelNote" class="btn btn-default" value="@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)" onclick="$('#dOutbreakNoteForm').modal('hide');" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<partial name="_ValidationScriptsPartial" />

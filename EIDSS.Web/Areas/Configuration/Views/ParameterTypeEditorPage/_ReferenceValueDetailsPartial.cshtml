@@ -1,0 +1,148 @@
+﻿@model EIDSS.Web.Areas.Configuration.ViewModels.ParameterTypeEditorDetailsPageViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+
+@{
+
+    var defaultReference = new Select2DataItem() { id = Model.IdfsReferenceType.ToString(), text = Model.BaseReferenceListName };
+
+    Model.PageLevelAddButtonModalText = string.Empty;
+    Model.PageLevelAddButtonID = string.Empty;
+    Model.PageLevelAddButtonModal = string.Empty;
+
+    //Reference parameter detail drop down
+    Select2Configruation refValueDetailsSelect2Configruation = new Select2Configruation();
+    refValueDetailsSelect2Configruation.DropDownId = "ReferenceDD";
+    refValueDetailsSelect2Configruation.defaultSelect2Selection = defaultReference;
+    refValueDetailsSelect2Configruation.ControltargetId = "ParameterReferenceValueDetailsGrid";
+    refValueDetailsSelect2Configruation.Label = @Localizer.GetString(FieldLabelResourceKeyConstants.ReferenceTypeFieldLabel);
+    refValueDetailsSelect2Configruation.ControlTargetType = DropDownTargetTypes.Table;
+    refValueDetailsSelect2Configruation.ConfigureForPartial = true;
+    refValueDetailsSelect2Configruation.CustomJsOnChangeFunction = "ReferenceDDOnChange";
+    refValueDetailsSelect2Configruation.Endpoint = @Url.Action("GetParameterReferenceList", "ParameterTypeEditorPage", new { Area = "Configuration" });
+    refValueDetailsSelect2Configruation.ControlTargetUrl = @Url.Action("GetParameterReferenceValueList", "ParameterTypeEditorPage", new { Area = "Configuration" });
+    refValueDetailsSelect2Configruation.isVisible = true;
+    Model.SelectConfigurations.Add(refValueDetailsSelect2Configruation);
+
+    //Reference parameter detail grid
+    Model.GridConfiguration.GridClass = "table table-sm table-striped";
+    Model.GridConfiguration.GridId = "ParameterReferenceValueDetailsGrid";
+    Model.GridConfiguration.EnableCustomSearching = false;
+    Model.GridConfiguration.AjaxDataUrl = @Url.Action("GetParameterReferenceValueList", "ParameterTypeEditorPage", new { Area = "Configuration" });
+    Model.GridConfiguration.EnableServerSide = true;
+    Model.GridConfiguration.EnableProcessingMessage = true;
+    Model.GridConfiguration.ConfigureForPartial = true;
+    Model.GridConfiguration.ControlFilterID = "ReferenceDD";
+
+    Model.GridConfiguration.ControlLabels = new EIDSSControlLabels();
+
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = @Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        ColumnName = "row",
+        Visible = true,
+        Orderable = false,
+        ColumnType = ColumnType.Default,
+        VisibleInModal = false
+    });
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = "IdfsBaseReference",
+        ColumnName = "IdfsBaseReference",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        Orderable = false,
+        VisibleInModal = false
+    });
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.DefaultValueColumnHeading),
+        ColumnName = "DefaultName",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        Orderable = true,
+        VisibleInModal = true
+    });
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.NationalValueColumnHeading),
+        ColumnName = "NationalName",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        Orderable = true,
+        VisibleInModal = true
+    });
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = "IdfsReferenceType",
+        ColumnName = "IdfsReferenceType",
+        Visible = false,
+        ColumnType = ColumnType.Default,
+        Orderable = false,
+        VisibleInModal = false
+    });
+}
+
+<div class="card">
+    <div class="card-header">
+        @*card header always an h3!*@
+        <h3>@(Localizer.GetString(FieldLabelResourceKeyConstants.ReferenceTypeFieldLabel))</h3>
+    </div>
+    <div class="card-body">
+        <div class="row align-items-end pb-2">
+            <div class="col-auto flex-nowrap">
+                @*no add button on the reference details*@
+            </div>
+            <div class="col-6 flex-nowrap">
+                @*select2 drop down*@
+                @{
+                    if (@Model.SelectConfigurations != null)
+                    {
+                        if (@Model.SelectConfigurations.Count() > 0)
+                        {
+                            <eidss-select2DropDown id="@Model.SelectConfigurations[0].DropDownId"
+                                                   control-target-id="@Model.SelectConfigurations[0].ControltargetId"
+                                                   target-type="@Model.SelectConfigurations[0].ControlTargetType"
+                                                   target-ajax-url="@Model.SelectConfigurations[0].ControlTargetUrl"
+                                                   selectct2-default-data="@Model.SelectConfigurations[0].defaultSelect2Selection"
+                                                   end-point="@Model.SelectConfigurations[0].Endpoint"
+                                                   label-name="@Model.SelectConfigurations[0].Label"
+                                                   is-visible="@Model.SelectConfigurations[0].isVisible"
+                                                   include-add-button="@Model.SelectConfigurations[0].IncludeAddButton"
+                                                   add-modal-id="@Model.SelectConfigurations[0].AddModalId"
+                                                   custom-js-on-change-function="@Model.SelectConfigurations[0].CustomJsOnChangeFunction"
+                                                   custom-js-on-clear-function="@Model.SelectConfigurations[0].CustomJsOnClearFunction"
+                                                   disabled-controls="@Model.SelectConfigurations[0].DisabledControls"
+                                                   filter-id="@Model.SelectConfigurations[0].FilteredId"
+                                                   configure-for-partial="@Model.SelectConfigurations[0].ConfigureForPartial">
+                            </eidss-select2DropDown>
+
+                        }
+                    }
+                }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <eidss-grid id="@Model.GridConfiguration.GridId" grid-configuration="@Model.GridConfiguration"
+                            filtered-control-ids="@Model.GridConfiguration.ControlFilterID"
+                            enable-server-side="@Model.GridConfiguration.EnableServerSide"
+                            enable-processing="@Model.GridConfiguration.EnableProcessingMessage"
+                            enable-search="@Model.GridConfiguration.EnableSearching"
+                            end-point="@Model.GridConfiguration.AjaxDataUrl"
+                            class-name="@Model.GridConfiguration.GridClass"
+                            details-ajax-url="@Url.Action("EditModalData", "BaseReferencePage")"
+                            control-labels="@Model.GridConfiguration.ControlLabels"
+                            configure-for-partial="@Model.GridConfiguration.ConfigureForPartial">
+                </eidss-grid>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modals -->
+@{
+
+    for (int i = 0; i < @Model.ModalConfigurations.Count(); i++)
+    {
+        <eidss-reference-editors-modal control-labels="@Model.ModalConfigurations[i].ControlLabels" ajax-save-url="@Model.ModalConfigurations[i].PostAjaxDataUrl" modal-configuration="@Model.ModalConfigurations[i]" modal-id="@Model.ModalConfigurations[i].ModalId"></eidss-reference-editors-modal>
+    }
+}

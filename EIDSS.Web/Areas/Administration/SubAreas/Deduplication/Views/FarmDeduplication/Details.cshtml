@@ -1,0 +1,15 @@
+﻿@model EIDSS.Web.Areas.Administration.SubAreas.Deduplication.ViewModels.FarmDeduplication.FarmDeduplicationDetailsViewModel
+@using EIDSS.Web.Components.Administration.Deduplication.Farm
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.FarmRecordDeduplicationFarmDeduplicationDetailsHeading);
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3>@Localizer.GetString(HeadingResourceKeyConstants.FarmRecordDeduplicationFarmDeduplicationDetailsHeading)</h3>
+    </div>
+    <div class="card-body">
+        <component type="typeof(FarmDeduplicationDetails)" render-mode="Server" param-Model="Model" />
+    </div>
+</div>

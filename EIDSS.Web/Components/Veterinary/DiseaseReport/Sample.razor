@@ -1,0 +1,118 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits SampleBase
+
+<RadzenTemplateForm Data="Model" @ref="Form" Submit="OnSaveClick" TItem="SampleGetListViewModel">
+    <div class="card">
+        <DataAnnotationsValidator/>
+        <div class="form-row">
+            <RadzenCheckBox @bind-Value="FilterSamplesByDiseaseIndicator" Change="_ => OnFilterByDiseaseChange()" class="form-check-inline" Disabled="Model.LabModuleSourceIndicator == 1" Name="filterSamplesByDiseaseIndicator" TriState="false" TValue="bool"/>
+            <label>@Localizer.GetString(FieldLabelResourceKeyConstants.FilterSamplesByDiseaseLabel)</label>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource CssClass="col-4" For="labSampleID" InterfaceEditorKey="@LabSampleIdFieldLabelResourceKey" IsRow="false">
+                <RadzenTextBox @bind-Value="Model.EIDSSLaboratorySampleID" class="form-control" Disabled="true" MaxLength="200" Name="labSampleID"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-4" For="sampleType" InterfaceEditorKey="@SampleTypeFieldLabelResourceKey" IsRow="false">
+                <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.SampleTypeID" class="form-control" Data="SampleTypes" Disabled="Model.LabModuleSourceIndicator == 1" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetSampleTypes" Name="sampleType" TextProperty="Name" TValue="long" ValueProperty="IdfsBaseReference"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-4" For="fieldSampleID" InterfaceEditorKey="@FieldSampleIdFieldLabelResourceKey" IsRow="false">
+                <RadzenTextBox @bind-Value="Model.EIDSSLocalOrFieldSampleID" class="form-control" MaxLength="200" Name="fieldSampleID"/>
+            </InterfaceEditorResource>
+        </div>
+        @if (DiseaseReport.ReportCategoryTypeID == (long) CaseTypeEnum.Avian)
+        {
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-8" For="species" InterfaceEditorKey="@SpeciesFieldLabelResourceKey" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.SpeciesID" class="form-control" Data="DiseaseReport.Species" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="species" TextProperty="Species" TValue="long?" ValueProperty="SpeciesID"/>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-4" For="birdStatus" InterfaceEditorKey="@BirdStatusFieldLabelResourceKey" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.BirdStatusTypeID" class="form-control" Data="BirdStatusTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetBirdStatusTypes" Name="birdStatus" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"/>
+                </InterfaceEditorResource>
+            </div>
+        }
+        else
+        {
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-6" For="animalID" InterfaceEditorKey="@AnimalIdFieldLabelResourceKey" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.AnimalID" Change="OnAnimalChange" class="form-control" Data="DiseaseReport.Animals.Where(x => x.RowStatus == (int) RowStatusTypeEnum.Active)" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="animalID" TextProperty="EIDSSAnimalID" TValue="long?" ValueProperty="AnimalID"/>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-6" For="species" InterfaceEditorKey="@SpeciesFieldLabelResourceKey" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.SpeciesID" class="form-control" Data="DiseaseReport.Species" Disabled="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="species" TextProperty="Species" TValue="long?" ValueProperty="SpeciesID"/>
+                </InterfaceEditorResource>
+            </div>
+        }
+        <div class="form-row">
+            <InterfaceEditorResource CssClass="col-3" For="accessionDate" InterfaceEditorKey="@AccessionDateFieldLabelResourceKey" IsRow="false">
+                <br/>
+                <RadzenDatePicker @bind-Value="Model.AccessionDate" DateFormat="d" Disabled="true" Name="accessionDate" TValue="DateTime?"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-9" For="sampleConditionReceived" InterfaceEditorKey="@SampleConditionReceivedFieldLabelResourceKey" IsRow="false">
+                <RadzenTextBox @bind-Value="Model.AccessionConditionTypeName" class="form-control" Disabled="true" Name="sampleConditionReceived"/>
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource CssClass="col-4" For="collectionDate" InterfaceEditorKey="@CollectionDateFieldLabelResourceKey" IsRow="false">
+                <br/>
+                <RadzenDatePicker AllowClear="true" @bind-Value="Model.CollectionDate" DateFormat="d" Disabled="Model.LabModuleSourceIndicator == 1" Name="collectionDate" TValue="DateTime?"/>
+                <RadzenCompareValidator Value="DateTime.Now" Component="collectionDate" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Popup="false" Operator="CompareOperator.LessThanEqual"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-4" For="collectedByInstitutionID" InterfaceEditorKey="@CollectedByInstitutionFieldLabelResourceKey" IsRow="false">
+                <RadzenDropDownDataGrid AllowClear="true" AllowColumnResize="true" AllowFiltering="true" @bind-Value="Model.CollectedByOrganizationID" Change="_ => OnCollectedByOrganizationChange()" class="form-control" Data="@CollectedByOrganizations" Disabled="Model.LabModuleSourceIndicator == 1" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="collectedByInstitutionID" TextProperty="name" TValue="long?" ValueProperty="idfOffice">
+                    <Columns>
+                        <RadzenDropDownDataGridColumn Property="name" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.AbbreviationColumnHeading)" Width="200px"/>
+                        <RadzenDropDownDataGridColumn Property="FullName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OrganizationColumnHeading)" Width="300px"/>
+                    </Columns>
+                </RadzenDropDownDataGrid>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-4" For="collectedByOfficerID" InterfaceEditorKey="@CollectedByOfficerFieldLabelResourceKey" IsRow="false">
+                <div class="input-group mb-3">
+                    <RadzenDropDownDataGrid AllowClear="true" AllowFiltering="true" @bind-Value="Model.CollectedByPersonID" class="form-control" Data="@CollectedByPersons" Disabled="Model.LabModuleSourceIndicator == 1" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="collectedByOfficerID" TextProperty="FullName" TValue="long?" ValueProperty="idfPerson">
+                        <Columns>
+                            <RadzenDropDownDataGridColumn Property="FullName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.NameColumnHeading)" Width="175px"/>
+                            <RadzenDropDownDataGridColumn Property="Organization" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OrganizationColumnHeading)" Width="200px"/>
+                            <RadzenDropDownDataGridColumn Property="Position" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.PositionColumnHeading)" Width="200px"/>
+                        </Columns>
+                    </RadzenDropDownDataGrid>
+                    @if (DiseaseReport.CreateEmployeePermissionIndicator)
+                    {
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary btn-sm" id="addCollectedByOfficer" @onclick="@(OnAddCollectedByPersonClick)" type="button">
+                                <span class="fas fa-plus" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    }
+                </div>
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource CssClass="col-3" For="sentDate" InterfaceEditorKey="@SentDateFieldLabelResourceKey" IsRow="false">
+                <br/>
+                <RadzenDatePicker AllowClear="true" @bind-Value="Model.SentDate" DateFormat="d" Name="sentDate" TValue="DateTime?"/>
+                <RadzenCompareValidator Component="sentDate" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="DateTime.Now"/>
+                <RadzenCompareValidator Component="sentDate" Operator="CompareOperator.GreaterThanEqual" Popup="false" Text="@Localizer.GetString(CollectionDateSentDateCompareValidatorResourceKey)" Value="Model.CollectionDate"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-9" For="sentToOrganization" InterfaceEditorKey="@SentToOrganizationFieldLabelResourceKey" IsRow="false">
+                <RadzenDropDownDataGrid AllowClear="true" AllowColumnResize="true" AllowFiltering="true" @bind-Value="Model.SentToOrganizationID" class="form-control" Data="@SentToOrganizations" Disabled="Model.LabModuleSourceIndicator == 1" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="sentToOrganization" TextProperty="name" TValue="long?" ValueProperty="idfOffice">
+                    <Columns>
+                        <RadzenDropDownDataGridColumn Property="name" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.AbbreviationColumnHeading)" Width="200px"/>
+                        <RadzenDropDownDataGridColumn Property="FullName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OrganizationColumnHeading)" Width="300px"/>
+                    </Columns>
+                </RadzenDropDownDataGrid>
+            </InterfaceEditorResource>
+        </div>
+        <InterfaceEditorResource CssClass="col-12" For="additionalTestsRequestedAndSampleNotes" InterfaceEditorKey="@AdditionalTestsRequestedAndSampleNotesFieldLabelResourceKey" IsRow="true">
+            <RadzenTextBox @bind-Value="Model.Comments" class="form-control" MaxLength="200" Name="additionalTestsRequestedAndSampleNotes"/>
+        </InterfaceEditorResource>
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-12">
+                    <button class="btn btn-outline-primary" @onclick="OnCancelClick" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button class="btn btn-primary" @onsubmit="OnSaveClick" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

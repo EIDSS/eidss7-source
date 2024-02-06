@@ -1,0 +1,264 @@
+﻿@model EIDSS.Web.Areas.Configuration.ViewModels.ParameterTypeEditorDetailsPageViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+
+@{
+    //Page level fixed value parameter detail
+    Model.PageLevelAddButtonModalText = Localizer.GetString(ButtonResourceKeyConstants.AddButton);
+    Model.PageLevelAddButtonID = "AddFixedValueParameterDetailButton";
+    Model.PageLevelAddButtonModal = "AddFixedValueParameterDetailModal";
+
+    //Modal to add fixed value parameter detail
+    EIDSSModalConfiguration fixedValueDetailsModal = new EIDSSModalConfiguration();
+    fixedValueDetailsModal.ControlLabels.ModalTitle = Localizer.GetString(FieldLabelResourceKeyConstants.ParameterTypeFieldLabel);
+    fixedValueDetailsModal.ModalId = "AddFixedValueParameterDetailModal";
+    fixedValueDetailsModal.SavingControlsCollection = "KeyId";
+    fixedValueDetailsModal.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    fixedValueDetailsModal.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    fixedValueDetailsModal.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    fixedValueDetailsModal.TargetGridControlID = "FixedValueParameterDetailGrid"; //ID of Grid to Refresh
+    fixedValueDetailsModal.PostAjaxDataUrl = Url.Action("CreateParameterFixedValue", "ParameterTypeEditorPage", new { Area = "Configuration" });
+    fixedValueDetailsModal.SaveCompleteMethod = "SaveHandler";
+    fixedValueDetailsModal.SuccessConfirmationMessage = Localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage);
+    fixedValueDetailsModal.ControlNames.Add(new EIDSSControlNames()
+    {
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+        },
+        ClassName = "ptfvDefaultName",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "DefaultName",
+        ControlType = ControlType.Default,
+        Visible = true
+    });
+    fixedValueDetailsModal.ControlNames.Add(new EIDSSControlNames()
+    {
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+        },
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ClassName = "ptfvNationalName",
+        ControlName = "NationalName",
+        ControlType = ControlType.Default,
+        Visible = true
+    });
+    fixedValueDetailsModal.ControlNames.Add(new EIDSSControlNames()
+    {
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidationRule = "[-2147483648,2147483647]",
+            RangeValidationMessage = Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)
+        },
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlName = "Order",
+        ControlType = ControlType.Numeric,
+        ClassName = "ptfvOrder",
+        Visible = true
+    });
+
+    Model.ModalConfigurations.Add(fixedValueDetailsModal);
+
+    //Fixed value parameter detail grid
+    Model.GridConfiguration.GridClass = "table table-sm table-striped";
+    Model.GridConfiguration.GridId = "FixedValueParameterDetailGrid";
+    Model.GridConfiguration.EnableCustomSearching = false;
+    Model.GridConfiguration.ConfigureForPartial = true;
+    Model.GridConfiguration.AjaxDataUrl = Url.Action("GetParameterFixedValueList", "ParameterTypeEditorPage", new { id = Model.KeyId, Area = "Configuration" });
+    Model.GridConfiguration.DeleteModalAjaxUrl = Url.Action("DeleteParameterFixedValue", "ParameterTypeEditorPage", new { Area = "Configuration" });
+    Model.GridConfiguration.EditModalAjaxUrl = Url.Action("SaveParameterFixedValue", "ParameterTypeEditorPage", new { Area = "Configuration" });
+    Model.GridConfiguration.DeleteCompleteMethod = "FixedValueParameterDeleteHandler";
+    Model.GridConfiguration.EnableServerSide = true;
+    Model.GridConfiguration.EnableProcessingMessage = true;
+    Model.GridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.Inline;
+
+    Model.GridConfiguration.ControlLabels = new EIDSSControlLabels();
+    Model.GridConfiguration.ControlLabels.DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage);
+    Model.GridConfiguration.ControlLabels.DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.GridConfiguration.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.GridConfiguration.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.GridConfiguration.ControlLabels.DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteMatrixVersionButton);
+    Model.GridConfiguration.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton);
+    Model.GridConfiguration.ControlLabels.CancelInlineEditTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.GridConfiguration.ControlLabels.CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage);
+    Model.GridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.GridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.GridConfiguration.ControlLabels.SaveInlineEditTitle = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+
+
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = "IdfsParameterType",
+        ColumnName = "IdfsParameterType",
+        Visible = false,
+        ColumnType = ColumnType.ReadOnly,
+        Orderable = false,
+        VisibleInModal = false
+    });
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = "IdfsReferenceType",
+        ColumnName = "IdfsReferenceType",
+        Visible = false,
+        ColumnType = ColumnType.ReadOnly,
+        Orderable = false,
+        VisibleInModal = false
+    });
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = "IdfsParameterFixedPresetValue",
+        ColumnName = "IdfsParameterFixedPresetValue",
+        Visible = false,
+        ColumnType = ColumnType.ReadOnly,
+        Orderable = false,
+        VisibleInModal = false
+    });
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.DefaultValueColumnHeading),
+        ColumnName = "DefaultName",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        Orderable = true,
+        VisibleInModal = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "DefaultValueRequired"
+    });
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.NationalValueColumnHeading),
+        ColumnName = "NationalName",
+        Visible = true,
+        ColumnType = ColumnType.Default,
+        Orderable = true,
+        VisibleInModal = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "DefaultValueRequired"
+    });
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OrderColumnHeading),
+        ColumnName = "IntOrder",
+        Visible = true,
+        ColumnType = ColumnType.Numeric,
+        Orderable = true,
+        DefaultContent = "0",
+        VisibleInModal = true,
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+            ValidatorMessage = "[-2147483648 - 2147483647]",
+            ValidationRule = "[-2147483648,2147483647]",
+            RangeValidationMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsInvalidValidRangeIsMessage)
+
+        },
+        ClassName = "IntOrderRange"
+    });
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = String.Empty,
+        ColumnName = "editCommand",
+        ColumnType = ColumnType.Edit,
+        Orderable = false,
+        Visible = Model.UserPermissions.Write
+    }); ;
+    Model.GridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnTitleHeader = String.Empty,
+        ColumnName = "delCommand",
+        ColumnType = ColumnType.Delete,
+        Orderable = false,
+        ClientFunction = "VerifyDelete",
+        Visible = Model.UserPermissions.Delete
+    });
+}
+
+<div class="card">
+    <div class="card-header">
+        @*card header always an h3!*@
+        <h3>@Localizer.GetString(FieldLabelResourceKeyConstants.FixedPresetValuesLabel)</h3>
+    </div>
+    <div class="card-body ">
+        <div class="row align-items-end pb-2">
+            <div class="col-auto flex-nowrap">
+                @*add button*@
+                @if (@Model.UserPermissions != null && @Model.UserPermissions.Create)
+                {
+                    <button type="button" id="@Model.PageLevelAddButtonID" class="btn btn-primary" data-toggle='modal' data-target='#@Model.PageLevelAddButtonModal'>@Model.PageLevelAddButtonModalText</button>
+                }
+                else
+                {
+
+                }
+            </div>
+            <div class="col-6 flex-nowrap">
+                @*select2 drop down*@
+                @{
+                    if (@Model.SelectConfigurations != null)
+                    {
+                        if (@Model.SelectConfigurations.Count() > 0)
+                        {
+                            <eidss-select2DropDown id="@Model.SelectConfigurations[0].DropDownId"
+                                                   control-target-id="@Model.SelectConfigurations[0].ControltargetId"
+                                                   target-type="@Model.SelectConfigurations[0].ControlTargetType"
+                                                   target-ajax-url="@Model.SelectConfigurations[0].ControlTargetUrl"
+                                                   selectct2-default-data="@Model.SelectConfigurations[0].defaultSelect2Selection"
+                                                   end-point="@Model.SelectConfigurations[0].Endpoint"
+                                                   label-name="@Model.SelectConfigurations[0].Label"
+                                                   is-visible="@Model.SelectConfigurations[0].isVisible"
+                                                   include-add-button="@Model.SelectConfigurations[0].IncludeAddButton"
+                                                   add-modal-id="@Model.SelectConfigurations[0].AddModalId"
+                                                   custom-js-on-change-function="@Model.SelectConfigurations[0].CustomJsOnChangeFunction"
+                                                   custom-js-on-clear-function="@Model.SelectConfigurations[0].CustomJsOnClearFunction"
+                                                   disabled-controls="@Model.SelectConfigurations[0].DisabledControls"
+                                                   filter-id="@Model.SelectConfigurations[0].FilteredId"
+                                                   configure-for-partial="@Model.SelectConfigurations[0].ConfigureForPartial">
+                            </eidss-select2DropDown>
+
+                        }
+                    }
+                }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <eidss-grid id="@Model.GridConfiguration.GridId" grid-configuration="@Model.GridConfiguration"
+                            filtered-control-ids="@Model.GridConfiguration.ControlFilterID"
+                            enable-server-side="@Model.GridConfiguration.EnableServerSide"
+                            enable-processing="@Model.GridConfiguration.EnableProcessingMessage"
+                            enable-search="@Model.GridConfiguration.EnableSearching"
+                            end-point="@Model.GridConfiguration.AjaxDataUrl"
+                            class-name="@Model.GridConfiguration.GridClass"
+                            details-ajax-url="@Url.Action("EditModalData", "BaseReferencePage")"
+                            control-labels="@Model.GridConfiguration.ControlLabels"
+                            configure-for-partial="@Model.GridConfiguration.ConfigureForPartial">
+                </eidss-grid>
+            </div>
+        </div>
+        <input asp-for="KeyId" aria-hidden="true" hidden />
+        <input asp-for="ParameterTypeName" aria-hidden="true" hidden />
+        <!-- Modals -->
+        @{
+
+            for (int i = 0; i < @Model.ModalConfigurations.Count(); i++)
+            {
+                <eidss-reference-editors-modal control-labels="@Model.ModalConfigurations[i].ControlLabels" ajax-save-url="@Model.ModalConfigurations[i].PostAjaxDataUrl" modal-configuration="@Model.ModalConfigurations[i]" modal-id="@Model.ModalConfigurations[i].ModalId"></eidss-reference-editors-modal>
+            }
+        }
+    </div>
+</div>
+
+               
+

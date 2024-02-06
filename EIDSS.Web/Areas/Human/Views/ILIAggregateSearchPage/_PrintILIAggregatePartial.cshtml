@@ -1,0 +1,111 @@
+﻿
+@model EIDSS.Web.ViewModels.Human.ILIAggregatePageViewModel;
+
+@using EIDSS.Web.Components.CrossCutting;
+
+
+<div class="row">
+    
+  
+</div>
+
+<div class="row">
+
+</div>
+
+<div class="row">
+
+</div>
+
+
+
+<div style="height:480px">
+
+        <component type="typeof(DisplayReport)"
+                   render-mode="ServerPrerendered"
+                   param-ReportHeader="@Model.ReportHeader"
+                   param-ReportName="@Model.ReportName"
+                   param-ParametersJSON="@Model.PrintParameters"
+                   param-CancelButtonVisibleIndicator="false"/>
+</div>
+
+
+
+<script type="text/javascript">
+
+    function showPrintReport() {
+
+
+        var model = {};
+
+        //go get the detail partial view for the modal
+        $.ajax({
+            url: '@Url.Action("PrintBarCode", "UniqueNumberingSchemaPage", new { Area = "Configuration" })',
+            type: 'POST',
+            data: JSON.stringify(model),
+            dataType: "HTML",
+            contentType: "application/json: charset=utf-8",
+            success: function (resp) {
+
+                $("#printModalBarCode").html(resp);
+                $("#printModal").modal('show');
+
+                $("#divShowPrint").css("display", "block");
+
+            },
+            complete: function (resp) {
+            },
+            error: function (request, error) {
+            }
+        });
+
+    }
+
+    $("#LanguageId").on("change", function () {
+        var model = {};
+        model.prefix = $("#Prefix").val();
+        model.site = $("#Site").val();
+        model.year = $("#Year").val();
+        model.noOfLabelsToPrint = $("#NoOfLabelsToPrint").val();
+        model.typeOfBarCodeLabel = $("#TypeOfBarCodeLabel").val();
+        model.typeOfBarCodeLabelName = $("#TypeOfBarCodeLabelName").val();
+        model.isPrefixChecked = $("#isPrefixChecked").prop('checked');
+        model.isSiteChecked = $("#isSiteChecked").prop('checked');
+        model.isYearChecked = $("#isYearChecked").prop('checked');
+        model.isDateChecked = $("#isDateChecked").prop('checked');
+        model.showBarCodePrintArea = "false";
+        model.languageId = $("#LanguageId").val();
+        printDateTime = localDate();
+
+        //go get the detail partial view for the modal
+        $.ajax({
+            url: '@Url.Action("PrintBarCode", "UniqueNumberingSchemaPage", new { Area = "Configuration" })',
+            type: 'POST',
+            data: JSON.stringify(model),
+            dataType: "HTML",
+            contentType: "application/json: charset=utf-8",
+            success: function (resp) {
+
+                $("#printModalBarCode").html(resp);
+                $("#printModal").modal('show');
+
+                $("#divShowPrint").css("display", "none");
+
+            },
+            complete: function (resp) {
+                //alert('complete');
+            },
+            error: function (request, error) {
+                //alert(error);
+            }
+        });
+
+    });
+    
+    function numberOnly(id) {
+        var element = document.getElementById(id);
+        element.value = element.value.replace(/[^0-9]/gi, "");
+    }
+
+</script>
+  

@@ -1,0 +1,1176 @@
+﻿@model EIDSS.Web.ViewModels.Administration.EmployeeDetailsPageViewModel
+<partial name="_ErrorModalPartial" />
+<partial name="_InformationalModalPartial" for="InformationalMessage" />
+<partial name="_WarningModalPartial" />
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@HeadingResourceKeyConstants.EmployeeDetailsModalHeading"></h3>
+    </div>
+    <div class="card-body">
+        <div id="employeeWizard">
+            <h4 heading-for="@HeadingResourceKeyConstants.EmployeePersonalInformationHeading"></h4>
+            <section id="PersonalInfoSection">
+                <div id="DivPersonalInfoSection">
+                    <partial name="_EmployeePersonalInformationPartial" for="PersonalInfoSection" />
+                </div>
+            </section>
+            @if (Model.UserPermissions.Read)
+            {
+                <h4 heading-for="@HeadingResourceKeyConstants.LoginHeading"></h4>
+                <section id="LoginSection">
+                    <partial name="_EmployeeLoginPartial" for="LoginSection" />
+                </section>
+                <h4 heading-for="@HeadingResourceKeyConstants.AccountManagementHeading"></h4>
+                <section id="AccountMgtSection">
+                    <div id="DivAccountMgtSection">
+                        <partial name="_AccountManagementPartial" for="AccountManagementSection" />
+                    </div>
+                </section>
+            }
+            <h4 heading-for="@HeadingResourceKeyConstants.ReviewHeading"></h4>
+            <section>
+            </section>
+        </div>
+        <input type="hidden" id="hdfEmployeeIDDetail" value="@Model.EmployeeID" />
+        <input type="hidden" id="hdfUserPermissionsSaveDone" />
+        <input type="hidden" id="hdfAddEmployee" />
+        <input type="hidden" id="hdfLastLogin"  value="@Model.LoginSection.LastLogin"/>
+        
+    </div>
+</div>
+
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" id="btnClose" class="close" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="CloseModal();">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="successModalFinal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" id="btnClose" class="close" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="CloseModalFinal();">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="cancelModalDetails" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)
+            </div>
+            <div class="modal-footer">
+                <button id="successBtnNo" type="button" class="btn btn-secondary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.NoButton)</button>
+                <button id="successBtnYes" type="button" class="btn btn-primary" onclick="HistoryRedirect();"> @Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@{
+
+    for (int i = 0; i < @Model.PersonalInfoSection.eIDSSModalConfiguration.Count(); i++)
+    {
+        <eidss-reference-editors-modal control-labels="@Model.PersonalInfoSection.eIDSSModalConfiguration[i].ControlLabels" ajax-save-url="@Model.PersonalInfoSection.eIDSSModalConfiguration[i].PostAjaxDataUrl" modal-configuration="@Model.PersonalInfoSection.eIDSSModalConfiguration[i]" modal-id="@Model.PersonalInfoSection.eIDSSModalConfiguration[i].ModalId"></eidss-reference-editors-modal>
+    }
+
+
+
+}
+<partial name="_ErrorModalPartial" />
+<partial name="_WarningModalPartial" />
+
+@section Scripts {
+    <script type="text/javascript">
+
+
+         function UpdateDefaultOrg(employeeID, rowId) {
+        var model = {};
+        model.idfPerson = employeeID;
+        var row = tableUserPerm.row(rowId - 1);
+        $.ajax({
+            url: '@Url.Action("UpdateNewDefaultOrganization", "EmployeePage", new { Area = "Administration" })',
+            type: 'POST',
+            data: JSON.stringify(model),
+            contentType: "application/json: charset=utf-8"
+        })
+            .done(function (data) {
+                $.ajax({
+                    url: '@Url.Action("ReloadAccountManagement", "EmployeePage", new { Area = "Administration" })' + "?data=" + model.idfPerson,
+                    type: 'GET',
+                    contentType: "text/html; charset=utf-8"
+                })
+                    .done(function (data) {
+                        $("#DivAccountMgtSection").html(data);
+                        //ReloadPersonalInfo();
+                        var url = '@Url.Action("LoadPersonalInfo", "EmployeePage", new { Area = "Administration" })' + "?queryData=" + model.idfPerson;
+
+                         $.ajax({
+                             url: url,
+                            type: 'GET',
+                            contentType: "text/html; charset=utf-8"
+                        })
+                             .done(function (data) {
+                                 var orgId = data.organizationID;
+                                 var orgName = data.abbreviatedName;
+                                 var siteId = data.siteID;
+                                 var siteName = data.siteName;
+                                 var departmentID = data.departmentID;
+                                 var departmentName = data.departmentName;
+                                 var positionId = data.positionTypeID;
+                                 var positionName = data.positionTypeName;
+                                 var contactPhone = data.contactPhone;
+                                 if (orgId!="" && orgId!=0 && orgId!=null && orgName!=null && orgName!="")
+                                     $("#OrganizationDD").append(new Option(orgName, orgId, false, true));
+                                 if (departmentID != 0 && departmentID != null && departmentID != "" && departmentName != null && departmentName != "")
+                                     $("#DepartmentDD").append(new Option(departmentName, departmentID, false, true));
+                                 else if (departmentID == 0 || departmentID == "" || departmentID==null)
+                                     $("#DepartmentDD").val('').trigger('change');
+                                 if (positionId != 0 && positionId != null && positionId != "" && positionName != null && positionName != "")
+                                     $("#PositionDD").append(new Option(positionName, positionId, false, true));
+                                 else if (positionId == null || positionId == 0 || positionId == "")
+                                     $("#PositionDD").val('').trigger('change');
+                                 $("#PersonalInfoSection_ContactPhone").val(contactPhone);
+                                 $('#SiteDD').val(siteId);
+                                 $('#PersonalInfoSection_SiteName').val(siteName);
+                        })
+                        .fail(function (error) {
+                            alert("Failure here " + error);
+                        });
+                        showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)');
+                    })
+                    .fail(function (error) {
+                        alert("Failure here " + error);
+                    });
+            })
+            .fail(function (error) {
+                alert("Failure here " + error);
+            });
+    }
+
+    function CloseModal() {
+        $("#mdUserPermissions").modal('hide');
+    }
+
+
+
+     function HistoryRedirect() {
+         var referrer = document.referrer;
+        //If the referrer is the same page or view in the same controller
+        //we redirect to dashboard else we redirect to the referrer
+        if (referrer.search("EmployeePage") > -1) {
+            window.location.replace('@Url.Action("Index", "EmployeePage", new { Area = "Administration" })');
+        }
+        if (referrer.search("EmployeePage/Details") > -1) {
+            window.location.replace('@Url.Action("Details", "EmployeePage", new { Area = "Administration" })');
+        }
+        else {
+            window.location.replace(referrer);
+        }
+    }
+
+
+        initializeSideBar_Immediate();
+
+        var category = $("input[name='PersonalInfoSection.EmployeeCategoryList']:checked").val();
+        HideUnhideSections(category);
+
+    $(document).ready(function () {
+        //Personal Information
+        var orgId = '@Model.PersonalInfoSection.OrganizationID';
+        if (orgId == null || orgId== "") {
+            $("#AddDepartment").prop("disabled", true);
+        }
+        else {
+            $("#AddDepartment").prop("disabled", false);
+        }
+
+
+        var personalTypeID = $("#PersonalInfoSection_PersonalIDType").val();
+        if(personalTypeID !=null )
+            CheckPersonalIDRequired(personalTypeID, true);
+
+
+    });
+
+    
+    $("#PersonalIdTypeDD").on("select2:unselecting", function(e) {
+       
+        removeRequiredClass();
+        $("#PersonalInfoSection_PersonalID-error").text('');
+        $("#PersonalInfoSection_PersonalID").valid();
+        $("#PersonalInfoSection_PersonalID").prop('disabled', true);
+        $("#PersonalInfoSection_PersonalID").val('');
+    });
+
+  
+    function initializeSideBar_Immediate() {
+        $("#employeeWizard").steps({
+            headerTag: "h4",
+            titleTemplate: '<span id="erroredStep" class="fa-stack text-danger" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-times fa-stack-1x fa-inverse"></i></span><span id="step" class="fa-stack text-muted" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span><span id="completedStep" class="fa-stack text-success" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span><span id="reviewStep" class="fa-stack text-muted" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-clipboard-list fa-stack-1x fa-inverse"></i></span> <span class="stepTitleText">#title#</span>',
+            bodyTag: "section",
+            transitionEffect: "none",
+            stepsOrientation: "vertical",
+            enableAllSteps: true,
+            enableCancelButton: true,
+            enableKeyNavigation: true,
+            labels: {
+                cancel: "@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)",
+                finish: "@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)",
+                next: "@Localizer.GetString(ButtonResourceKeyConstants.NextButton)",
+                previous: "@Localizer.GetString(ButtonResourceKeyConstants.PreviousButton)",
+                loading: "@Localizer.GetString(MessageResourceKeyConstants.PleaseWaitWhileWeProcessYourRequestMessage)"
+            },
+            onInit: function (event) { initPersonalInfoSection(); initLoginSection(); initAccountManagementSection(); },
+            onCanceled: function (event) { cancelEmployeeDetails('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)', event); },
+            onStepChanging: function (event, currentIndex, newIndex) {
+                switch (currentIndex) {
+                    case 0:
+                        var personalTypeID = $("#PersonalInfoSection_PersonalIDType").val();
+                        if(personalTypeID!=null && personalTypeID!="")
+                            CheckPersonalIDRequired(personalTypeID, true);
+                        $("#PersonalInfoForm").validate({
+                            ignore: null
+                        });
+
+                        if ($("#PersonalInfoForm").valid()) {
+                            return true;
+                        }
+                break;
+                case 1:
+                        var personalTypeID = $("#PersonalInfoSection_PersonalIDType").val();
+                        if (personalTypeID != null && personalTypeID != "")
+                        CheckPersonalIDRequired(personalTypeID, true);
+                        var person = $("#hdfEmployeeIDDetail").val();
+                            LoadDefaultOrgDetails();
+                        $("#LoginForm").validate({
+                            ignore: null
+                        });
+                        if ($("#LoginForm").valid()) {
+                            return true;
+                        }
+                        break;
+                    case 2:
+                        var personalTypeID = $("#PersonalInfoSection_PersonalIDType").val();
+                        if (personalTypeID != null && personalTypeID != "")
+                            CheckPersonalIDRequired(personalTypeID, true);
+                        $("#AccountManagementForm").validate({
+                            ignore: null
+                        });
+
+                        if ($("#AccountManagementForm").valid()) {
+                            return true;
+                        }
+                        break;
+                    case 3:
+                        var personalTypeID = $("#PersonalInfoSection_PersonalIDType").val();
+                        if (personalTypeID != null && personalTypeID != "")
+                        CheckPersonalIDRequired(personalTypeID,true);
+                        return true;
+                        break;
+                }
+            },
+            onFinished: function (event) {
+
+                ValidateEmployeePromiseDetail();
+
+
+
+            }
+        });
+        }
+
+
+        function ValidateEmployeePromiseDetail() {
+
+            var employeeID = $("#hdfEmployeeIDDetail").val();
+            var isEdit = false;
+            if (employeeID != null && employeeID != "" && employeeID != 0) {
+               isEdit  = true;
+            }
+            
+            var PersonalInfovalid = $("#employeeWizard").steps("validateStep", $("#PersonalInfoForm"));
+            var LoginInfovalid = $("#employeeWizard").steps("validateStep", $("#LoginForm"));
+
+            var AccoutnMgtInfovalid = $("#employeeWizard").steps("validateStep", $("#AccountManagementForm"));
+
+        var category = $("#hdfCategory").val();
+        if (category == null || category == "") {
+                category = $("#PersonalInfoSection_EmployeeCategoryList").val();
+            }
+        var idfPerson = $("#hdfEmployeeIDDetail").val();
+        var hdfUserPermissionsSaveDone = $("#hdfUserPermissionsSaveDone").val();
+        if (hdfUserPermissionsSaveDone == null || hdfUserPermissionsSaveDone == "")
+             hdfUserPermissionsSaveDone = false;
+
+         var contactPhone = $("#PersonalInfoSection_ContactPhone").val();
+         var isFirstNameValid = false;
+         var isFamilyNameValid = false;
+         var IsidfInstitutionValid = false;
+         var isUserNameValid = false;
+         var isPasswordValid = false;
+         var IsOrganizationSelected = false;
+         var isPhoneValid = true;
+         var comparePasswordValid = comparePassword();
+         var isValidPassword = true;
+         var isPassword = false;
+         var errorList = "";
+         var uorg = $("#UPOrganizationDD").val();
+         var defaultOrg = $("#OrganizationDD").val();
+
+        if ($("#PersonalInfoSection_FirstOrGivenName").val() != null && $("#PersonalInfoSection_FirstOrGivenName").val() != "") {
+                isFirstNameValid = true;
+            }
+            if ($("#PersonalInfoSection_LastOrSurName").val() != null && $("#PersonalInfoSection_LastOrSurName").val() != "") {
+                isFamilyNameValid = true;
+         }
+        if (defaultOrg != null && defaultOrg != "") {
+                IsidfInstitutionValid = true;
+        }
+            if (contactPhone != null && contactPhone != "")
+                isPhoneValid = validatePhone(true);
+            if ($("#LoginSection_Login").val() != null && $("#LoginSection_Login").val() != "") {
+                isUserNameValid = true;
+            }
+            if ($("#LoginSection_Password").val() != null && $("#LoginSection_Password").val() != "") {
+                  isPassword = true;
+            }
+            if (uorg != null && uorg != 0 && uorg != "")
+                IsOrganizationSelected = true;
+
+
+            if (category == '10526001' && !hdfUserPermissionsSaveDone && (idfPerson == null || idfPerson == "" || idfPerson == 0)) {
+                $.when(validateUser(true), validatePassword(true), validatePersonalID(true)).then(function (o1, o2, o3) {
+                    if (o2 != null && o2.status == "Error") {
+                        isValidPassword = false;
+                        errorList = o2.errorList;
+                    }
+                   
+                    
+
+                    if (o1 == false && isValidPassword == true && o3 == true && isPhoneValid == true && comparePasswordValid == true  && isFirstNameValid && isFamilyNameValid && isUserNameValid && isPassword) {
+                        submitEmployeeDetails(event);
+                    }
+                    else {
+                        var message = "";
+                        var newline = "<br>";
+
+
+
+                        if (o3 == false) {
+                            message += '@Localizer.GetString(FieldLabelResourceKeyConstants.PersonalIDFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)';
+                            message += newline;
+                        }
+                        if (isFirstNameValid == false) {
+                            message += '@Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeFirstNameFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                            message += newline;
+                        }
+                        if (isFamilyNameValid == false) {
+                            message += '@Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeLastNameFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                            message += newline;
+                        }
+                        if (IsidfInstitutionValid == false) {
+                            message += '@Localizer.GetString(FieldLabelResourceKeyConstants.OrganizationDefaultFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                            message += newline;
+                        }
+
+                        if (isPhoneValid == false) {
+                            message += '@Localizer.GetString(FieldLabelResourceKeyConstants.PhoneFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)';
+                            message += newline;
+                        }
+                        if (isUserNameValid == false) {
+                            message += '@Localizer.GetString(FieldLabelResourceKeyConstants.UserNameFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                            message += newline;
+                        }
+                        if (o1 == true) {
+                            message += '@Localizer.GetString(MessageResourceKeyConstants.DuplicateRecordsAreNotAllowedMessage)';
+                            message += newline;
+                        }
+                        if (isPassword == false) {
+                            message += '@Localizer.GetString(FieldLabelResourceKeyConstants.PasswordFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                            message += newline;
+                        }
+                        if (isValidPassword == false) {
+                            message += errorList;
+                            message += newline;
+                        }
+                        if (comparePasswordValid == false) {
+                            message += '@Localizer.GetString(FieldLabelResourceKeyConstants.PasswordFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.PasswordsDoNotMatchMessage)';
+                            message += newline;
+                        }
+
+                        if (!PersonalInfovalid)
+                            $("#employeeWizard").steps("setStep", 0);
+                        else if (!LoginInfovalid)
+                            $("#employeeWizard").steps("setStep", 1);
+                        else if (!AccoutnMgtInfovalid)
+                            $("#employeeWizard").steps("setStep", 2);
+                        if (message != null || message != "")
+                        showErrorModal(message);
+                    }
+                });
+            }
+            else if (category == '10526001' && (hdfUserPermissionsSaveDone || (idfPerson != null && idfPerson != "" && idfPerson != 0))) {
+                $.when(validatePersonalID(true)).then(function (o3) {
+            
+                   
+                    
+                    if (o3 == true && isPhoneValid == true  && isFirstNameValid && isFamilyNameValid) {              
+                        submitEmployeeDetails(event);
+                    }
+                    else {
+                        var message = "";
+                        var newline = "<br>";
+
+
+                        if (o3 == false) {
+                            message += '@Localizer.GetString(FieldLabelResourceKeyConstants.PersonalIDFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)';
+                            message += newline;
+                        }
+                        if (isFirstNameValid == false) {
+                            message += '@Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeFirstNameFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                            message += newline;
+                        }
+                        if (isFamilyNameValid == false) {
+                            message += '@Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeLastNameFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                            message += newline;
+                        }
+                        @*if (IsidfInstitutionValid == false) {
+                            message += '@Localizer.GetString(FieldLabelResourceKeyConstants.OrganizationDefaultFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                            message += newline;
+                        }*@
+                        if (isPhoneValid == false) {
+                            message += '@Localizer.GetString(FieldLabelResourceKeyConstants.PhoneFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)';
+                            message += newline;
+                        }
+                        if (isUserNameValid == false) {
+                            message += '@Localizer.GetString(FieldLabelResourceKeyConstants.UserNameFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                            message += newline;
+                        }
+                        if (isPassword == false) {
+                            message += '@Localizer.GetString(FieldLabelResourceKeyConstants.PasswordFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                            message += newline;
+                        }
+                        if (isValidPassword == false) {
+                            message += errorList;
+                            message += newline;
+                        }
+                        if (comparePasswordValid == false) {
+                            message += '@Localizer.GetString(FieldLabelResourceKeyConstants.PasswordFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.PasswordsDoNotMatchMessage)';
+                            message += newline;
+                        }
+
+                        if (!PersonalInfovalid)
+                            $("#employeeWizard").steps("setStep", 0);
+                        else if (!LoginInfovalid)
+                            $("#employeeWizard").steps("setStep", 1);
+                        else if (!AccoutnMgtInfovalid)
+                            $("#employeeWizard").steps("setStep", 2);
+                        if(message!=null || message!="")
+                            showErrorModal(message);
+                    }
+                });
+            }
+            else {
+              $.when(validatePersonalID(true)).then(function (o3) {
+                var isPhoneValid = false;
+                var contactPhone = $("#PersonalInfoSection_ContactPhone").val();
+                if (contactPhone != null && contactPhone != "")
+                    isPhoneValid = validatePhone(true);
+                else
+                    isPhoneValid = true;
+
+
+                  if (defaultOrg != null && defaultOrg != "") {
+                      IsidfInstitutionValid = true;
+                  }
+
+                  if (o3 == true && isPhoneValid == true && isFamilyNameValid && isFirstNameValid && IsidfInstitutionValid) {
+                    submitEmployeeDetails(event);
+                }
+                else {
+                    var message = "";
+                    var newline = "<br>";
+                    if (isFirstNameValid == false) {
+                        message += '@Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeFirstNameFieldLabel)'+":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                        message += newline;
+                    }
+                    if (isFamilyNameValid == false) {
+                        message += '@Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeLastNameFieldLabel)'+":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                        message += newline;
+                    }
+                    if (IsidfInstitutionValid == false) {
+                        message += '@Localizer.GetString(FieldLabelResourceKeyConstants.OrganizationDefaultFieldLabel)'+":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                        message += newline;
+                    }
+                    if (isPhoneValid == false) {
+                        message +=  '@Localizer.GetString(FieldLabelResourceKeyConstants.PhoneFieldLabel)' +":" + '@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)';
+                        message += newline;
+                    }
+                    if (o3 == false) {
+                        message += "Personal ID:" + '@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)';
+                        message += newline;
+                    }
+                      if (!PersonalInfovalid)
+                          $("#employeeWizard").steps("setStep", 0);
+                      if (message != null || message != "")
+                    showErrorModal(message);
+                }
+            });
+        }
+
+    };
+        function ReloadPersonalInfo() {
+            var model = {};
+
+            model.idfPerson = $("#hdfEmployeeIDDetail").val();
+             var url = '@Url.Action("LoadPersonalInfo", "EmployeePage", new { Area = "Administration" })' + "?queryData=" + model.idfPerson;
+            $.ajax({
+                url: url,
+                type: 'GET',
+                contentType: "text/html; charset=utf-8"
+            })
+                .done(function (data) {
+                    var orgId = data.organizationID;
+                    var orgName = data.abbreviatedName;
+                    var siteId = data.siteID;
+                    var siteName = data.siteName;
+                    var departmentID = data.departmentID;
+                    var departmentName = data.departmentName;
+                    var positionId = data.positionTypeID;
+                    var positionName = data.positionTypeName;
+                    var contactPhone = data.contactPhone;
+                    if (orgId != "" && orgId != 0 && orgId != null && orgName != null && orgName != "")
+                        $("#OrganizationDD").append(new Option(orgName, orgId, false, true));
+                    if (departmentID != 0 && departmentID != null && departmentID != "" && departmentName != null && departmentName != "")
+                        $("#DepartmentDD").append(new Option(departmentName, departmentID, false, true));
+                    else if (departmentID == 0 || departmentID == "" || departmentID == null)
+                        $("#DepartmentDD").val('').trigger('change');
+                    if (positionId != 0 && positionId != null && positionId != "" && positionName != null && positionName != "")
+                        $("#PositionDD").append(new Option(positionName, positionId, false, true));
+                    else if (positionId == null || positionId == 0 || positionId == "")
+                        $("#PositionDD").val('').trigger('change');
+                    $("#PersonalInfoSection_ContactPhone").val(contactPhone);
+                    $('#SiteDD').val(siteId);
+                    $('#PersonalInfoSection_SiteName').val(siteName);
+                })
+                .fail(function (error) {
+                    alert("Failure here " + error);
+                });
+        }
+
+    $("#DepartmentSavebtnCancel").on('click', function () {
+        $("#DepartmentSave").modal('hide');
+    });
+
+    $("#PositionSavebtnCancel").on('click', function () {
+        $("#PositionSave").modal('hide');
+    });
+
+     function cancelEmployeeDetails(message, event) {
+         showWarningModal(message).then(response => {
+             if (response)
+                   location.href = '@Url.Action("Index", "EmployeePage")';
+         });
+
+    };
+
+    function CloseModalFinal() {
+        $("#successModalFinal").modal('hide');
+        location.href = '@Url.Action("Index", "EmployeePage")';
+    }
+
+    function validateUser(isUserPermission) {
+        var isValidUser = false;
+        var userName = $("#LoginSection_Login").val();
+        if (/[^a-zA-Z0-9\-\_\.\u0040]/.test(userName)) {
+            $("#ValLogin").html('Login is invalid, can only contain alphanumeric characters, hyphens(-), underscore(_), period(.) and at sign(\u0040).');
+            return isValidUser;
+        }
+
+        info = {};
+
+        info.username = userName;
+        var urlPath = '@Url.Action("UserExists", "EmployeePage", new { Area = "Administration" })' + "?data=" + JSON.stringify(info);
+        $.ajax({
+            url: urlPath,
+            type: 'GET',
+            async:false,
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                if (data == true) {
+                    if (!isUserPermission)
+                        $("#ValLogin").html('@Localizer.GetString(MessageResourceKeyConstants.DuplicateRecordsAreNotAllowedMessage)');
+                    isValidUser = data;
+                }
+                else if (data == false) {
+                        $("#ValLogin").html("");
+                }
+            },
+            complete: function (data) {
+            },
+            error: function (request, error) {
+
+            }
+        });
+        return isValidUser;
+    }
+        function validatePassword(isUserPermission) {
+        var userName = $("#LoginSection_Login").val();
+        var password = $("#LoginSection_Password").val();
+        info = {};
+        info.username = userName;
+        info.password = password;
+        var urlPath = '@Url.Action("ValidatePassword", "EmployeePage", new { Area = "Administration" })' + "?data=" + JSON.stringify(info);
+        var isValidPassword = true;
+            if (password != "Password999") {
+                $.ajax({
+                    url: urlPath,
+                    type: 'GET',
+                    async: false,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (data != null) {
+                            if (data.status == "Error") {
+                                isValidPassword = false;
+                                var errorList = "";
+                                errorList = data.message + "<ul>";
+                                if (data.errors != null && data.errors.length > 0) {
+                                    for (i = 0; i < data.errors.length; i++) {
+                                        errorList += "<li>"+data.errors[i] + "</li>";
+                                    }
+                                }
+                                errorList +="</ul>";
+                                if (!isUserPermission)
+                                {
+                                    $("#ValPassword").html(errorList);
+                                }
+                                else {
+                                    $("#ValPassword").html(errorList);
+                                    showErrorModal(errorList);
+                                }
+                            }
+                            else if (data.status == "Success") {
+                                $("#ValPassword").html("");
+                            }
+                        }
+                    },
+                    complete: function (data) {
+                    },
+                    error: function (request, error) {
+                        alert("failure" + error);
+                    }
+                });
+            }
+            else
+                isValidPassword = true;
+        return isValidPassword;
+    }
+
+    function validatePasswordUP(isUserPermission) {
+        var userName = $("#LoginSection_Login").val();
+        var password = $("#LoginSection_Password").val();
+        info = {};
+        info.username = userName;
+        info.password = password;
+        var isValidPassword = true;
+        var urlPath = '@Url.Action("ValidatePassword", "EmployeePage", new { Area = "Administration" })' + "?data=" + JSON.stringify(info);
+        model = {};
+        if (password != "Password999") {
+            $.ajax({
+                url: urlPath,
+                type: 'GET',
+                async: false,
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data != null) {
+                        if (data.status == "Error") {
+
+                            model.IsValidPassword = false;
+                            model.status = data.status;
+
+                            isValidPassword = false;
+                            var errorList = "";
+                            errorList = data.message + "<ul>";
+                            if (data.errors != null && data.errors.length > 0) {
+                                for (i = 0; i < data.errors.length; i++) {
+                                    errorList += "<li>"+data.errors[i] + "</li>";
+                                }
+                            }
+                            errorList += "</ul>";
+                            model.errorList = errorList;
+                            if (!isUserPermission)
+                            {
+                                $("#ValPassword").html(errorList);
+                            }
+                            else {
+                                $("#ValPassword").html(errorList);
+                            }
+                        }
+                       else if (data.status == "Success") {
+                            model.isValidPassword = true;
+                            model.status = data.message;
+                            $("#ValPassword").html("");
+                        }
+                    }
+                },
+                complete: function (data) {
+                },
+                error: function (request, error) {
+                    alert("failure" + error);
+                }
+
+            });
+        }
+        else {
+            model.isValidPassword = true;
+        }
+        return model;
+    }
+
+    function validatePersonalID(isUserPermission) {
+        model = {};
+        var isValid = false;
+        model.PersonalIDType = $("#PersonalIdTypeDD").val();
+        model.PersonalID = $("#PersonalInfoSection_PersonalID").val();
+    
+
+         if ((model.PersonalIDType != null && model.PersonalIDType != "" && model.PersonalIDType == 51577280000000) || ((model.PersonalIDType == null || model.PersonalIDType == "") && (model.PersonalID == "" || model.PersonalID == null))) {
+            isValid = true;
+        }
+        else if (model.PersonalIDType != null && model.PersonalIDType != "" && model.PersonalID != null && model.PersonalID != "" && model.PersonalIDType != 51577280000000) {
+           
+        var urlPath = '@Url.Action("ValidatePersonalID", "EmployeePage", new { Area = "Administration" })' + "?data=" + JSON.stringify(model);
+            $.ajax({
+                url: urlPath,
+                type: 'GET',
+                async:false,
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data == false) {
+                        if (!isUserPermission)
+                            $("#ValPersonalID").html('@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)');
+                    }
+                    else if (data == true) {
+                        $("#ValPersonalID").html("");
+                    }
+
+                    isValid = data;
+                },
+                complete: function (data) {
+                },
+                error: function (request, error) {
+                    alert("failure" + error);
+                }
+            });
+        }
+        return isValid;
+    }
+    function comparePassword() {
+        var isCompare = true;
+        if ($("#LoginSection_Password").val() != $("#LoginSection_ConfirmPassword").val()) {
+            $("#ValConfirmPassword").html('@Localizer.GetString(MessageResourceKeyConstants.PasswordsDoNotMatchMessage)');
+            isCompare = false;
+        }
+        else {
+            $("#ValConfirmPassword").html("");
+            isCompare = true;
+        }
+        return isCompare;
+    }
+
+    function initPersonalInfoSection() {
+    };
+
+        function FillSiteDetails(data)
+        {
+            $("#AddDepartment").prop("disabled", false);
+            info = [];
+            info.push(data)
+
+            $.ajax({
+                url: '@Url.Action("GetSiteDetails", "EmployeePage", new { Area = "Administration" })?page=1&data=' +encodeURIComponent(JSON.stringify(info)),
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data == undefined || data == null || data == "") {
+                        $("#PersonalInfoSection_SiteName").val("");
+                        $("#SiteDD").val("");
+                        $("#DepartmentDD").val('').trigger('change');
+                        $("#PositionDD").val('').trigger('change');
+
+                    }
+                    else {
+                        var siteDetail = JSON.stringify(data);
+                        $("#PersonalInfoSection_SiteName").val(data.strSiteID);
+                        $("#SiteDD").val(data.idfsSite);
+                        $("#DepartmentDD").val('').trigger('change');
+                        $("#PositionDD").val('').trigger('change');
+                        }
+                },
+                complete: function (data) {
+                },
+                error: function (request, error) {
+                    alert("failure getsitelist");
+                }
+            });
+        }
+
+        function CheckPersonalIDRequired(data, flag) {
+            if (data != null && data != "") {
+                var stringified_data = JSON.stringify(data);
+                var parsed_data = JSON.parse(stringified_data);
+                var PersonalId = "";
+                if (!flag) {
+                    $("#PersonalInfoSection_PersonalIDType").val(parsed_data.id);
+                }
+                PersonalId = $("#PersonalInfoSection_PersonalIDType").val();
+                if (PersonalId == "51577280000000" || PersonalId == null || PersonalId == "") {
+
+                    removeRequiredClass();
+                   $("#checkRequired").addClass('d-none');
+               $("#PersonalInfoSection_PersonalID").valid();
+                    $("#PersonalInfoSection_PersonalID").prop('disabled', true);
+                    $("#PersonalInfoSection_PersonalID").val('');
+                    if ($("#PersonalInfoSection_PersonalID-error") != null) {
+                        $("#PersonalInfoSection_PersonalID-error").html('');
+
+                    }
+                }
+                else {
+                    $("#checkRequired").removeClass('d-none');
+                    addRequiredClass();
+                    $("#PersonalInfoSection_PersonalID").valid();
+                    $("#PersonalInfoSection_PersonalID").prop('disabled', false);
+                }
+            }
+            else {
+                $("#checkRequired").addClass('d-none');
+                removeRequiredClass();
+                $("#PersonalInfoSection_PersonalID").valid();
+                $("#PersonalInfoSection_PersonalID").prop('disabled', true);
+                $("#PersonalInfoSection_PersonalID").val('');
+                if ($("#PersonalInfoSection_PersonalID-error") != null) {
+                    $("#PersonalInfoSection_PersonalID-error").html('');
+
+                }
+            }
+        }
+
+        function disablePersonalID() {
+           $("#checkRequired").addClass('d-none');
+            removeRequiredClass();
+            $("#PersonalInfoSection_PersonalID").valid();
+            $("#PersonalInfoSection_PersonalID").prop('disabled', true);
+            $("#PersonalInfoSection_PersonalID").val('');
+            if ($("#PersonalInfoSection_PersonalID-error") != null) {
+                $("#PersonalInfoSection_PersonalID-error").html('');
+
+            }
+        }
+
+
+    function removeRequiredClass() {
+        if ($("#PersonalInfoSection_PersonalID-error") != null) {
+            $("#PersonalInfoSection_PersonalID-error").html('');
+
+        }
+
+        var x= $("#PersonalInfoSection_PersonalID").siblings('i');
+        if (x.hasClass("fas fa-asterisk text-danger")) {
+            x.removeClass("fas fa-asterisk text-danger");
+
+        }
+    }
+
+    function addRequiredClass() {
+        var x= $("#PersonalInfoSection_PersonalID").siblings('i');
+        if (!x.hasClass("fas fa-asterisk text-danger")) {
+            x.addClass("fas fa-asterisk text-danger");
+
+        }
+    }
+
+    function HideUnhideSections(cat)
+    {
+        if (cat === '10526001') {
+            $("#employeeWizard").steps("show", 1);
+            $("#employeeWizard").steps("show", 2);
+        }
+        else {
+            $("#employeeWizard").steps("hide", 1);
+            $("#employeeWizard").steps("hide", 2);
+        }
+    }
+
+
+
+    function submitEmployeeDetails() {
+        var model = {};
+        model.idfPerson = $("#hdfEmployeeIDDetail").val();
+        if (model.idfPerson != null && model.idfPerson != "" && model.idfPerson != 0) {
+            model.isEdit = true;
+        }
+        else {
+            model.isEdit = false;
+        }
+        model.idfsStaffPosition = $("#PositionDD").val();
+        model.idfInstitution = $("#OrganizationDD").val();
+        model.idfDepartment = $("#DepartmentDD").val();
+        model.idfsSite = $("#SiteDD").val();
+        model.idfPersonalIDType = $("#PersonalIdTypeDD").val();
+        model.idfPersonalIDTypeText = $("#PersonalIdTypeDD").find("option:selected").text();
+        model.strPersonalID = $("#PersonalInfoSection_PersonalID").val();
+        if ($("#hdfCategory").val() != null && $("#hdfCategory").val() != "") {
+            model.idfsEmployeeCategory = $("#hdfCategory").val();
+        }
+        else {
+            model.idfsEmployeeCategory = $("input[name='PersonalInfoSection.EmployeeCategoryList']:checked").val();
+        }
+
+        model.strFamilyName = $("#PersonalInfoSection_LastOrSurName").val();
+        model.strFirstName = $("#PersonalInfoSection_FirstOrGivenName").val();
+        model.strSecondName = $("#PersonalInfoSection_SecondName").val();
+        model.strContactPhone = $("#PersonalInfoSection_ContactPhone").val();
+        model.Username = $("#LoginSection_Login").val();
+        model.Password = $("#LoginSection_Password").val();
+        model.IsPasswordResetRequired = $("input[name='LoginSection.MustChangePassword']:checked").val();
+        model.Disabled = $("input[name='AccountManagementSection.blnLocked']:checked").val();
+        model.blnLocked = $("input[name='AccountManagementSection.Disabled']:checked").val();
+        model.Reason = $("#AccountManagementSection_Reason").val();
+        model.finalSubmit = true;
+        model.UserPermissionsSaveDone = $("#hdfUserPermissionsSaveDone").val();
+        if (!model.UserPermissionsSaveDone && model.finalSubmit && model.isEdit) {
+            model.isEditEmployee = true;
+        }
+        model.isAddEmployee = '@Model.IsAddEmployee';
+        model.LastLogin = $("#hdfLastLogin").val();
+
+        $.ajax({
+            url: '@Url.Action("SaveAdminEmployeeDetails", "EmployeePage", new { Area = "Administration" })',
+            type: 'POST',
+            async:false,
+            data: JSON.stringify(model),
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+        })
+            .done(function (data) {
+                if (data != null && data.retunMessage != null && data.retunMessage == "Duplicate Record") {
+                    showErrorModal(data.duplicateMessage);
+                }
+                else if (data != null && data.idfPerson != 0 && data.idfPerson != null && data.retunMessage=="Success") {
+
+                    $("#hdfEmployeeID").val(data.idfPerson);
+                    $("#successModalFinal").modal('show');
+                }
+                else if (data != null && data.idfPerson != 0 && data.idfPerson != null && data.retunMessage == "ChangeUserToNonUser") {
+                    $("#hdfEmployeeID").val(data.idfPerson);
+                    var idfsEmployeeCategory = $("#hdfCategory").val();
+                    HideUnhideSections('@EmployeeCategory.NonUser');
+                    $('input[name="PersonalInfoSection.EmployeeCategoryList"]').val(['@EmployeeCategory.User']);
+                    showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)');
+                }
+
+            });
+    }
+
+
+        function initLoginSection() {
+            var writeAllow = '@Model.UserPermissions.Write';
+            if (!writeAllow) {
+
+                $("#LoginSection_Login").prop("disabled", true);
+                $("#LoginSection_Password").prop("disabled", true);
+                $("#LoginSection_ConfirmPassword").prop("disabled", true);
+                $("#LoginSection_MustChangePassword").prop("disabled", true);
+
+            }
+            else {
+                $("#LoginSection_Login").prop("disabled", false);
+                $("#LoginSection_Password").prop("disabled", false);
+                $("#LoginSection_ConfirmPassword").prop("disabled", false);
+                $("#LoginSection_MustChangePassword").prop("disabled", false);
+            }
+        }
+
+         function initAccountManagementSection() {
+             var writeAllow = '@Model.UserPermissions.Write';
+            if (!writeAllow) {
+                $("#AccountManagementSection_blnLocked").prop("disabled", true);
+                $("#AccountManagementSection_blnDisabled").prop("disabled", true);
+                $("#AccountManagementSection_Reason").prop("disabled", true);
+
+            }
+            else {
+                var isLocked=false;
+                if('@Model.AccountManagementSection'!=null && '@Model.AccountManagementSection.blnLocked'!=null)
+                    isLocked = '@Model.AccountManagementSection.blnLocked';
+                if(isLocked)
+                    $("#AccountManagementSection_blnLocked").prop("disabled", false);
+                else
+                    $("#AccountManagementSection_blnLocked").prop("disabled", true);
+                $("#AccountManagementSection_blnDisabled").prop("disabled", false);
+                $("#AccountManagementSection_Reason").prop("disabled", false);
+            }
+        }
+        function LoadDefaultOrgDetails() {
+
+            var employeeID = $("#hdfEmployeeIDDetail").val();
+
+            //Account Management
+            var model = {};
+            model.idfInstitution = $("#OrganizationDD").val();
+            model.idfInstitutionText=$("#OrganizationDD").find("option:selected").text();
+            model.idfsSite = $("#SiteDD").val();
+            model.idfsSiteText = $("#PersonalInfoSection_SiteName").val();
+            model.idfPerson = employeeID;
+
+
+           var url = '@Url.Action("LoadDefaultOrgDetails", "EmployeePage", new { Area = "Administration" })';
+            $.ajax({
+                url: "LoadDefaultOrgDetails",
+                type: 'POST',
+                data: JSON.stringify(model),
+                contentType: "application/json; charset=utf-8",
+            })
+                .done(function (data) {
+                    $("#DivAccountMgtSection").html(data);
+                })
+                .fail(function (error) {
+
+                });
+    }
+
+
+        function CallMe(e) {
+            $("#hdfCategory").val(e.value);
+            if (e.value == '@EmployeeCategory.NonUser' && '@Model.EmployeeID' != null && '@Model.EmployeeID' != "" && '@Model.EmployeeID' != 0) {
+                        showWarningModal('@Localizer.GetString(MessageResourceKeyConstants.ChangeEmployeeCategoryConfirmationMessage)').then(response => {
+                            if (response) {
+                                HideUnhideSections(e.value);
+                                $("#OrganizationDD").val('').trigger('change');
+                                $("#PersonalInfoSection_SiteName").val('');
+                                $("#SiteDD").val('');
+                            }
+                            else {
+                                $('input[name="PersonalInfoSection.EmployeeCategoryList"]').val(['@EmployeeCategory.User']);
+                            }
+                });
+            }
+            else {
+                HideUnhideSections(e.value);
+                $("#OrganizationDD").val('').trigger('change');
+                $("#PersonalInfoSection_SiteName").val('');
+                $("#SiteDD").val('');
+            }
+
+
+        }
+        function LoadOrganization(userType)
+        {
+            var url = '@Url.Action("GetOrganizationsAdvancedListUser", "EmployeePage")?page=1&data=' + userType + "&term=null";
+            $.ajax({
+                url: url,
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+            })
+                .done(function (data) {
+                    $("#OrganizationDD").html(data);
+                })
+                .fail(function (error) {
+
+                });
+
+        }
+    $("#btnOpenAddModalRole").on('click', function () {
+
+        OpenAddEditModalRole('@Model.EmployeeID');
+
+    });
+
+        function CheckSuccess(data) {
+
+            var stringified_data = JSON.stringify(data);
+            var parsed_data = JSON.parse(stringified_data);
+            if (parsed_data.retunMessage == "SUCCESS") {
+               showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)');
+            }
+            if (parsed_data.retunMessage == "DOES EXIST") {
+               $("#duplicatesModal").modal("show");
+                $("#dupemsg").html(parsed_data.strDuplicateField);
+            }
+        }
+
+         function CheckSuccessModal(data) {
+
+            var stringified_data = JSON.stringify(data);
+            var parsed_data = JSON.parse(stringified_data);
+             if (parsed_data.returnMessage == "SUCCESS") {
+               showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)');
+            }
+            if (parsed_data.returnMessage == "DOES EXIST") {
+                 showErrorModal(parsed_data.strDuplicateField);
+            }
+        }
+
+
+
+    function validatePhone(IsUserPermission) {
+        var isValidPhone = true;
+        var a = $("#PersonalInfoSection_ContactPhone").val();
+        var filter = /^[0-9]{8,15}$/;
+        if (filter.test(a)) {
+            isValidPhone = true;
+            $("#ValContactPhone").html("");
+        }
+        else {
+            if (a == null && a == "") {
+                isValidPhone = true;
+            }
+            else {
+                $("#ValContactPhone").html('@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)');
+                isValidPhone = false;
+            }
+        }
+        return isValidPhone;
+    }
+
+
+
+    //Set the model for changes in the Reference Type
+
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+}

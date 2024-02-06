@@ -1,0 +1,62 @@
+﻿@using EIDSS.Domain.ResponseModels.Human
+@using EIDSS.Web.Components.CrossCutting
+@inherits ActionsBase
+
+<div class="card">
+    <div class="card-body">
+        <div class="col-1 pull-right mb-3 text-right">
+            <button class="btn btn-outline-primary" disabled="@model.RecordReadOnly" @onclick="OpenActionsModal" type="button">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <GridExtension OnColumnSave="GridActionsClickHandler"></GridExtension>
+        <RadzenDataGrid AllowColumnPicking="true" AllowColumnReorder="true" AllowColumnResize="true" AllowPaging="true" AllowSorting="true" Count="@count" Data="@model.ActionsInformation.List" ExpandMode="DataGridExpandMode.Single" HeaderCellRender="@(args => HeaderCellRender(args.Column.Property))" IsLoading="@isLoading" LoadData="@(args => LoadActionsGridView(args))" Name="actionsResults" PageSize="10" @ref="_actionsGrid" TItem="ActiveSurveillanceSessionActionsResponseModel">
+            <Columns>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("MonitoringSessionActionTypeName")" Property="MonitoringSessionActionTypeName" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionActionsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionActionsActionRequiredColumnHeading)" Visible="@GetColumnVisibility("MonitoringSessionActionTypeName")" Width="225px">
+                    <Template Context="data">
+                        @data.MonitoringSessionActionTypeName
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("ActionDate")" Property="ActionDate" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionActionsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionActionsDateColumnHeading)" Visible="@GetColumnVisibility("ActionDate")" Width="225px">
+                    <Template Context="data">
+                        @data.ActionDate
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("EnteredByPersonName")" Property="EnteredByPersonName" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionActionsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionActionsEnteredByColumnHeading)" Visible="@GetColumnVisibility("EnteredByPersonName")" Width="225px">
+                    <Template Context="data">
+                        @data.EnteredByPersonName
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("Comments")" Property="Comments" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionActionsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionActionsCommentColumnHeading)" Visible="@GetColumnVisibility("Comments")" Width="225px">
+                    <Template Context="data">
+                        @data.Comments
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("MonitoringSessionActionStatusTypeName")" Property="MonitoringSessionActionStatusTypeName" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionActionsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionActionsStatusColumnHeading)" Visible="@GetColumnVisibility("MonitoringSessionActionStatusTypeName")" Width="225px">
+                    <Template Context="data">
+                        @data.MonitoringSessionActionStatusTypeName
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Context="data" Filterable="false" Pickable="false" Reorderable="false" Sortable="false" TextAlign="TextAlign.Center" TItem="ActiveSurveillanceSessionActionsResponseModel" Width="120px">
+                    <Template Context="data">
+                        <button @onclick="@(() => EditAction(data))" class="btn btn-sm" disabled="@(!model.ActiveSurveillanceSessionPermissions.Create)" type="button">
+                            <i class="fas fa-edit fa-lg"></i>
+                        </button>
+                        <button @onclick="@(() => DeleteRow(data))" class="btn btn-sm" disabled="@(!model.ActiveSurveillanceSessionPermissions.Delete)" type="button">
+                            <i class="fas fa-trash fa-lg"></i>
+                        </button>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>
+
+@code{
+
+    void GridActionsClickHandler()
+    {
+        GridColumnSave("ActiveSurveillanceSessionActions");
+    }
+
+}

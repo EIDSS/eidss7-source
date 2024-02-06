@@ -1,0 +1,152 @@
+﻿@using EIDSS.Domain.ViewModels.Human
+@using EIDSS.Web.Components.CrossCutting
+@inherits EIDSS.Web.Components.Human.ILIAggregateFormEditBase
+@implements IDisposable
+
+<div class="row mb-3">
+    <div class="col-3"> 
+        <InterfaceEditorResource CssClass="col-md-6 p-0" For="FormID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ILIAggregateDetailsFormIDFieldLabel" IsRow="false">
+            <RadzenTextBox @bind-Value="@Header.FormID" Disabled="true" id="txtFormID" /> 
+        </InterfaceEditorResource>       
+    </div>
+    <div class="col-3"> 
+        <InterfaceEditorResource CssClass="col-md-6 p-0" For="DateEntered" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ILIAggregateDetailsDateEnteredFieldLabel" IsRow="false">
+            <RadzenDatePicker @bind-Value="@Header.DateEntered" DateFormat="d" Disabled="true" />
+        </InterfaceEditorResource>       
+    </div>
+    <div class="col-3"> 
+        <InterfaceEditorResource CssClass="col-md-6 p-0" For="DateLastSaved" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ILIAggregateDetailsDateLastUpdatedFieldLabel" IsRow="false">
+            <RadzenDatePicker @bind-Value="@Header.DateLastSaved" DateFormat="d" Disabled="true" />
+        </InterfaceEditorResource>
+    </div>
+    <div class="col-3">
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-3"> 
+        <InterfaceEditorResource CssClass="col-md-6 p-0" For="EnteredBy" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ILIAggregateDetailsEnteredByFieldLabel" IsRow="false">
+            <RadzenTextBox @bind-Value="Header.EnteredBy" Disabled="true" />
+        </InterfaceEditorResource>       
+    </div>
+    <div class="col-3"> 
+        <InterfaceEditorResource CssClass="col-md-3 p-0" For="Site" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ILIAggregateDetailsSiteFieldLabel" IsRow="false">
+            <RadzenTextBox @bind-Value="Header.Site" Disabled="true" />
+        </InterfaceEditorResource>       
+    </div>
+    <div class="col-3">
+    </div>
+    <div class="col-3">
+    </div>
+</div>
+<div class="row mb-3">
+    <div class="col-3">        
+        <InterfaceEditorResource CssClass="col-md-6 p-0" For="ddlYear" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ILIAggregateDetailsYearFieldLabel" IsRow="false">
+            <RadzenDropDown AllowClear="false" @bind-Value="Header.Year" Change="UpdateWeekNumbers" Data="@Years" id="ddlYear" TValue="int" />
+        </InterfaceEditorResource>
+    </div>
+    <div class="col-3">
+        <InterfaceEditorResource CssClass="col-md-6 p-0" For="ddlWeekNumber" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ILIAggregateDetailsWeekFieldLabel" IsRow="false">
+            <RadzenDropDown AllowClear="false" @bind-Value="Header.Week" Data="@Weeks" id="ddlWeekNumber" Style="width:280px" TextProperty="WeekDate" ValueProperty="WeekNumber" />
+        </InterfaceEditorResource>
+    </div>
+    <div class="col-3"></div>
+    <div class="col-3"></div>
+</div>
+
+<button class="btn btn-primary text-right my-5" id="btnAddHospital" @onclick="OpenAddModal" type="button">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+
+<RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" Count="@Count" Data="@ILIAggregateDetails" EditMode="DataGridEditMode.Single" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="@IsLoading" LoadData="@LoadData" PageSize="10" @ref="ILIAggregateDetailsGrid" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="true" TItem="ILIAggregateDetailViewModel">
+    <Columns>
+        <RadzenDataGridColumn Property="IdfHospital" TItem="ILIAggregateDetailViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchILIAggregateNameOfHospitalSentinelStationColumnHeading)" Width="265px">
+            <EditTemplate Context="data">
+                <RadzenDropDown AllowClear="true" @bind-Value="data.IdfHospital" class="form-control" Data="@Hospitals" LoadData="@GetHospitals" TextProperty="FullName" ValueProperty="OrganizationKey">
+                </RadzenDropDown>
+            </EditTemplate>
+            <Template Context="data">
+                @data.HospitalName
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="IntAge0_4" TItem="ILIAggregateDetailViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.ILIAggregateDetails0To4ColumnHeading)">
+            <EditTemplate Context="data">
+                <RadzenNumeric @bind-value="data.IntAge0_4" Change="(()=> CalculateTotalILI(data))" class="form-control" Min="0" TValue="int?">
+                </RadzenNumeric>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="IntAge5_14" TItem="ILIAggregateDetailViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.ILIAggregateDetails5To14ColumnHeading)">
+            <EditTemplate Context="data">
+                <RadzenNumeric @bind-value="data.IntAge5_14" Change="(()=> CalculateTotalILI(data))" class="form-control" Min="0" TValue="int?">
+                </RadzenNumeric>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="IntAge15_29" TItem="ILIAggregateDetailViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.ILIAggregateDetails15To29ColumnHeading)">
+            <EditTemplate Context="data">
+                <RadzenNumeric @bind-value="data.IntAge15_29" Change="(()=> CalculateTotalILI(data))" class="form-control" Min="0" TValue="int?">
+                </RadzenNumeric>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="IntAge30_64" TItem="ILIAggregateDetailViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.ILIAggregateDetails30To64ColumnHeading)">
+            <EditTemplate Context="data">
+                <RadzenNumeric @bind-value="data.IntAge30_64" Change="(()=> CalculateTotalILI(data))" class="form-control" Min="0" TValue="int?">
+                </RadzenNumeric>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="IntAge65" TItem="ILIAggregateDetailViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.ILIAggregateDetailsGreaterThanOrEqualTo65ColumnHeading)">
+            <EditTemplate Context="data">
+                <RadzenNumeric @bind-value="data.IntAge65" Change="(()=> CalculateTotalILI(data))" class="form-control" Min="0" TValue="int?">
+                </RadzenNumeric>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="InTotalILI" TItem="ILIAggregateDetailViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.ILIAggregateDetailsTotalILIColumnHeading)">
+            <EditTemplate Context="data">
+                <RadzenNumeric @bind-value="data.InTotalILI" class="form-control" Min="0" TValue="int?">
+                </RadzenNumeric>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="IntTotalAdmissions" TItem="ILIAggregateDetailViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.ILIAggregateDetailsTotalAdmissionsColumnHeading)">
+            <EditTemplate Context="data">
+                <RadzenNumeric @bind-value="data.IntTotalAdmissions" class="form-control" Min="0" TValue="int?">
+                </RadzenNumeric>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="IntILISamples" TItem="ILIAggregateDetailViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.ILIAggregateDetailsILISamplesColumnHeading)">
+            <EditTemplate Context="data">
+                <RadzenNumeric @bind-value="data.IntILISamples" class="form-control" Min="0" TValue="int?">
+                </RadzenNumeric>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Filterable="false" Sortable="false" TextAlign="TextAlign.Center" TItem="ILIAggregateDetailViewModel" Width="100px">
+            <Template Context="data">
+                <button class="btn btn-sm" @onclick="_ => OpenEdit(data)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToEditTheRecordToolTip)" type="button">
+                    <i class="fas fa-edit fa-lg"></i>
+                </button>
+            </Template>
+            <EditTemplate Context="data">
+                <button class="btn btn-sm" @onclick="_ => SaveRow(data)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToUpdateToolTip)" type="button">
+                    <i class="fas fa-save fa-lg"></i>
+                </button>
+                <button class="btn btn-sm" @onclick="_ => CancelEdit(data)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToCancelToolTip)" type="button">
+                    <i class="fas fa-ban fa-lg"></i>
+                </button>
+            </EditTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Context="order" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" TItem="ILIAggregateDetailViewModel" Width="70px">
+            <Template Context="data">
+                <button class="btn btn-sm" @onclick="_ => DeleteRow(data)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToDeleteToolTip)" type="button">
+                    <i class="fas fa-trash fa-lg"></i>
+                </button>
+            </Template>
+            <EditTemplate Context="data">
+                <button class="btn btn-sm" @onclick="_ => DeleteRow(data)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToDeleteToolTip)" type="button">
+                    <i class="fas fa-trash fa-lg"></i>
+                </button>
+            </EditTemplate>
+        </RadzenDataGridColumn> 
+    </Columns>
+</RadzenDataGrid>
+<div class="mt-5">
+    <button class="btn btn-default" id="btnPrint" @onclick="@(PrintReport)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.PrintButton)</button>
+    <button class="btn btn-default" id="btnCancel" @onclick="Cancel" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+    <button class="btn btn-default" disabled="@IsDeleteDisabled" id="btnDeleteILIAggregate" @onclick="DeleteAll" type="button">@Localizer.GetString(ButtonResourceKeyConstants.DeleteButton)</button>
+    <button class="btn btn-primary" disabled="@IsSaveDisabled" id="btnSubmit" @onclick="SaveAll" type="button">@Localizer.GetString(ButtonResourceKeyConstants.SubmitButton)</button>
+</div>

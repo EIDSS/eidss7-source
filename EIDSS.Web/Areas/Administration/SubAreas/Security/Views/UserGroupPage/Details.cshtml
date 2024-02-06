@@ -1,0 +1,24 @@
+﻿@using EIDSS.Web.Components.Administration.Security.UserGroup;
+
+@model EIDSS.Web.Administration.Security.ViewModels.UserGroupPageDetailsViewModel
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.UserGroupDetailsPageHeading);
+}
+
+<partial name="_ErrorModalPartial" />
+<partial name="_InformationalModalPartial" for="InformationalMessage" />
+<partial name="_WarningModalPartial" />
+
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@HeadingResourceKeyConstants.UserGroupDetailsPageHeading"></h3>
+    </div>
+    <div class="card-body">
+        @await Component.InvokeAsync("UserGroupDetails", new { id = Model.UserGroupKey })
+    </div>
+</div>
+
+
+
+

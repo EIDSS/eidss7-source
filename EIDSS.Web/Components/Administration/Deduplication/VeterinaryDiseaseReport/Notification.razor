@@ -1,0 +1,56 @@
+﻿@inherits NotificationBase
+
+<div class="form-row">
+    <div class="col-6">
+        <RadzenRadioButtonList @bind-Value="@VeterinaryDiseaseReportDeduplicationService.RecordSelection" Change="@(args => OnRecordSelectionChangeAsync(Model.ReportType, args))" class="form-control" Name="rboRecord" TValue="int">
+            <Items>
+                <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1"/>
+                <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2"/>
+            </Items>
+        </RadzenRadioButtonList>
+        <div class="card-header" id="Notification"></div>
+    </div>
+    <div class="col-6">
+        <RadzenRadioButtonList @bind-Value="@VeterinaryDiseaseReportDeduplicationService.Record2Selection" Change="@(args => OnRecord2SelectionChangeAsync(Model.ReportType, args))" class="form-control" Name="rboRecord2" TValue="int">
+            <Items>
+                <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1"/>
+                <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2"/>
+            </Items>
+        </RadzenRadioButtonList>
+        <div class="card-header" id="Notification2"></div>
+    </div>
+</div>
+<div class="form-row">
+    <div class="col-6 mx-auto">
+        <RadzenCard>
+            @if (VeterinaryDiseaseReportDeduplicationService.NotificationList != null)
+            {
+                <RadzenDataList AllowPaging="false" Data="VeterinaryDiseaseReportDeduplicationService.NotificationList.Where(x => x.Index < ReportedByOrganizationId)" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="false" TItem="Field" WrapItems="false">
+                    <Template Context="field">
+                        <RadzenCheckBox @bind-Value="field.Checked" Change="@(args => OnDataListNotificationSelectionChangeAsync(args, field.Index))" Disabled="@field.Disabled" Name="@field.Key" Style="vertical-align: top !important;" TriState=false TValue="bool"/>
+                        <div class="ml-2 d-inline-block vertical-align-middle">
+                            <RadzenLabel Component="@field.Key" Style="@($"vertical-align: middle; {field.Color}")" Text="@field.Label"/>
+                            <span>@(field.Value)</span>
+                        </div>
+                    </Template>
+                </RadzenDataList>
+            }
+        </RadzenCard>
+    </div>
+    <div class="col-6">
+        <RadzenCard>
+            @if (VeterinaryDiseaseReportDeduplicationService.NotificationList2 != null)
+            {
+                <RadzenDataList AllowPaging="false" Data="VeterinaryDiseaseReportDeduplicationService.NotificationList2.Where(x => x.Index < ReportedByOrganizationId)" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="false" TItem="Field" WrapItems="false">
+                    <Template Context="field">
+                        <RadzenCheckBox @bind-Value="field.Checked" Change="@(args => OnDataListNotification2SelectionChangeAsync(args, field.Index))" Disabled="@field.Disabled" Name="@field.Key" Style="vertical-align: top !important;" TriState="false" TValue="bool"/>
+                        <div class="ml-2 d-inline-block vertical-align-middle">
+                            <RadzenLabel Text="@field.Label" Component="@field.Key" Style="@($"vertical-align: middle; {field.Color}")"/>
+                            <span>@(field.Value)</span>
+                        </div>
+                    </Template>
+                </RadzenDataList>
+            }
+        </RadzenCard>
+    </div>
+</div>

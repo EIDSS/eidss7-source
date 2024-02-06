@@ -1,0 +1,14 @@
+﻿@using System.Collections.Generic;
+@using EIDSS.Web.ViewModels;
+
+@typeparam TItem
+@inherits ColumnChooserBase<TItem>;
+
+<div class="row">
+    <div class="col-4 justify-content-end">
+        <button class="btn btn-link btn-sm" @onclick=@ShowColumnChooser>
+            <i class="fas fa-th fa-lg"></i>
+        </button>
+    </div>
+</div>
+

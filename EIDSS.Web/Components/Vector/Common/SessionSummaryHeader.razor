@@ -1,0 +1,26 @@
+﻿@using EIDSS.Web.Components.CrossCutting
+
+@inherits EIDSS.Web.Components.Vector.Common.SessionSummaryHeaderBase
+
+<div class="card">
+    <div class="card-body" id="headersummaryDetails">
+        <div class="row">
+            <InterfaceEditorResource For="headerSessionID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionSessionIDFieldLabel" IsRow="false" CssClass="col-md-4">
+                <RadzenLink id="headerSessionID" class="form-control" Text="@VectorSessionStateContainer.SessionID" @onclick="@NavigateToSession" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource For="headerFieldSessionID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionFieldSessionIDFieldLabel" IsRow="false" CssClass="col-md-4">
+                <RadzenTextBox class="form-control" id="headerFieldSessionID" Name="headerFieldSessionID" @bind-Value="VectorSessionStateContainer.FieldSessionID" ReadOnly="true" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource For="headerSessionStatus" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorSurveillanceSessionStatusFieldLabel" IsRow="false" CssClass="col-md-4" IsRequiredByDefaultBusinessRule="true">
+                <RadzenDropDown id="headerSessionStatus" Name="headerSessionStatus" AllowClear="false" TValue="long?" 
+                                Data="@SessionStatuses" LoadData="@LoadStatusDropDown" ValueProperty="IdfsBaseReference" TextProperty="Name"
+                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                @bind-Value="@VectorSessionStateContainer.StatusID" class="form-control" Disabled="@(VectorSessionStateContainer.ReportDisabledIndicator 
+                                                                                                                     || VectorSessionStateContainer.AggregateCollectionDisabledIndicator 
+                                                                                                                     || VectorSessionStateContainer.DetailCollectionDisabledIndicator)" />
+            </InterfaceEditorResource>
+        </div>
+    </div>
+</div>
+
+

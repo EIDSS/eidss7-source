@@ -1,0 +1,36 @@
+﻿
+<!-- this is called from EIDSS.Web.Components.Views.Shared.Components.MenuView - Default.cshtml -->
+@inherits EIDSS.Web.Components.HelpFiles.HelpFileComponentBase
+
+@if (Model.XSiteDocumentList.Count > 0)
+{
+    <!-- set the icon size and padding -->
+    <i class="fa fa-question-circle" style="font-size: 18px; padding-left: 15px"></i>
+
+    <!-- make the drop down automatically fly-down -->
+    <ul class="dropdown-menu dropdown-menu-right">
+        <!-- make sure we have fully loaded first -->
+        @if (!IsLoading)
+        {
+            @foreach (var item in Model.XSiteDocumentList)
+            {
+                // get this from the config so we are more flexible
+                var strLink = HttpProtocol + @item.FileName;
+
+                //var strLink = "file:" + @item.FileName;
+                var index = @strLink.LastIndexOf(".", StringComparison.Ordinal);
+                <!-- use a range indexer -->
+                var ext = @strLink[(index + 1)..];
+
+                if (ext == "pdf")
+                {
+                    <li class="dropdown"><a class="dropdown-item" href="@strLink" target="_blank"><span class="fa fa-book"></span> @item.DocumentName</a></li>
+                }
+                else
+                {
+                    <li class="dropdown"><a class="dropdown-item" href="@strLink" target="_blank"><span class="fa fa-video"></span> @item.DocumentName</a></li>
+                }
+            }
+        }
+    </ul>
+}

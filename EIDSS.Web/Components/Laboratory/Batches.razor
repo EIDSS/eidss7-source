@@ -1,0 +1,107 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Laboratory
+@using static ClientLibrary.Enumerations.EIDSSConstants
+
+@inherits BatchesBase
+
+<div class="form-inline">
+    <div class="form-row py-1">
+        <Menu Tab="LaboratoryTabEnum.Batches" ValidateTestResultEvent="OnValidateTestResult"></Menu>
+        <Actions AddGroupResultEvent="OnRefreshBatches" SaveEvent="OnReloadBatches" Tab="LaboratoryTabEnum.Batches"/>
+        <Search @ref="Search" AdvancedSearchEvent="OnAdvancedSearch" ClearSearchEvent="OnClearSearch" SimpleSearchEvent="OnSimpleSearch" Tab="LaboratoryTabEnum.Batches" />
+    </div>
+</div>
+<RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" Count="Count" Data="Batches" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" ExpandMode="DataGridExpandMode.Multiple" IsLoading="IsLoading" LoadData="LoadBatchesData" PageSize="100" PageSizeOptions="pageSizeOptions" PageSizeText="@Localizer.GetString(FieldLabelResourceKeyConstants.CommonLabelsItemsPerPageFieldLabel)" @ref="BatchesGrid" RowExpand="OnRowExpand" RowRender="OnRowRender" SelectionMode="DataGridSelectionMode.Multiple" ShowPagingSummary="true" Style="height: calc(100vh - 425px)" TItem="BatchesGetListViewModel">
+    <Columns>
+        <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Sortable="false" TItem="BatchesGetListViewModel" Width="40px">
+            <HeaderTemplate>
+                <RadzenCheckBox Change="args => HeaderRecordSelectionChange(args)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSelectAllRecordsToolTip)" TriState="false" TValue="bool" Value="IsHeaderRecordSelected()" />
+            </HeaderTemplate>
+            <Template Context="item">
+                <RadzenCheckBox Change="args => RecordSelectionChange(args, item)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSelectToolTip)" TriState="false" TValue="bool" Value="IsRecordSelected(item)" />
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Property="BatchTestID" Sortable="false" TextAlign="TextAlign.Center" TItem="BatchesGetListViewModel" Title="" Width="40px">
+            <Template Context="item">
+                <a id="editBatchButton" @onclick="_ => OnEditBatch(item)" role="button" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToEditTheRecordToolTip)">
+                    <i class="fas fa-edit fa-lg"></i>
+                </a>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="EIDSSBatchTestID" TItem="BatchesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryBatchesBatchIDColumnHeading)" Width="20%"/>
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="BatchStatusTypeName" TItem="BatchesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryBatchesBatchStatusColumnHeading)" Width="80%"/>
+    </Columns>
+    <Template Context="batch">
+        <RadzenDataGrid AllowFiltering="false" AllowPaging="true" AllowSorting="true" Data="Batches.First(x => x.BatchTestID == batch.BatchTestID).Tests" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsTestsLoading" @ref="TestsGrid" RowRender="OnTestRowRender" TItem="TestingGetListViewModel">
+            <Columns>
+                <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Sortable="false" TItem="TestingGetListViewModel" Width="40px">
+                    <HeaderTemplate>
+                        <RadzenCheckBox Change="args => TestHeaderRecordSelectionChange(args, batch)" TriState="false" TValue="bool" Value="IsTestHeaderRecordSelected(batch)"/>
+                    </HeaderTemplate>
+                    <Template Context="item">
+                        <RadzenCheckBox Change="args => TestRecordSelectionChange(args, item)" TriState="false" TValue="bool" Value="IsTestRecordSelected(item)"/>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Property="TestID" Sortable="false" TextAlign="TextAlign.Center" TItem="TestingGetListViewModel" Title="" Width="40px">
+                    <Template Context="item">
+                        <div>
+                            <a id="editTestButton" @onclick="_ => OnEditTest(item)" role="button" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToEditTheRecordToolTip)">
+                                <i class="fas fa-edit fa-lg"></i>
+                            </a>
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Property="TestID" Sortable="false" TItem="TestingGetListViewModel" Title="" Width="40px">
+                    <HeaderTemplate>
+                        <div class="@LaboratoryModuleCSSClassConstants.MyFavoriteNo"></div>
+                    </HeaderTemplate>
+                    <Template Context="item">
+                        <div class="@(item.FavoriteIndicator == false ? LaboratoryModuleCSSClassConstants.MyFavoriteNo : LaboratoryModuleCSSClassConstants.MyFavoriteYes)">
+                            <a id="setMyFavoriteButton" @onclick="_ => OnSetMyFavorite(item)" role="button" title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToShowRecordInMyFavoritesTabToolTip)">&nbsp;</a>
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Frozen="true" HeaderCssClass="lab-table-striped-header" Property="EIDSSReportOrSessionID" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryBatchesReportSessionIDColumnHeading)" Width="175px"/>
+                <RadzenDataGridColumn Frozen="true" HeaderCssClass="lab-table-striped-header" Property="PatientOrFarmOwnerName" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryBatchesPatientFarmOwnerColumnHeading)" Width="300px"/>
+                <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="SampleTypeName" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryBatchesSampleTypeColumnHeading)" Width="250px"/>
+                <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="DiseaseName" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryBatchesDiseaseColumnHeading)" Width="300px"/>
+                <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="EIDSSLaboratorySampleID" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryBatchesLabSampleIDColumnHeading)" Width="175px"/>
+                <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="TestNameTypeName" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryBatchesTestNameColumnHeading)" Width="250px"/>
+                <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="TestStatusTypeName" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryBatchesTestStatusColumnHeading)" Width="225px">
+                    <Template Context="item">
+                        <div class="form-group">
+                            @if (item.TestStatusTypeID == (long) TestStatusTypeEnum.Final || item.TestStatusTypeSelectDisabledIndicator)
+                            {
+                                <RadzenTextBox @bind-Value="item.TestStatusTypeName" Disabled="true"/>
+                            }
+                            else
+                            {
+                                <RadzenDropDown AllowClear="true" @bind-Value="item.TestStatusTypeID" Change="_ => OnTestStatusDropDownChange(item)" Data="LaboratoryService.RestrictedTestStatusTypes" LoadData="GetTestStatusTypes" TextProperty="Name" TValue="long" ValueProperty="IdfsBaseReference"/>
+                            }
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn FormatString="{0:d}" HeaderCssClass="lab-table-striped-header" Property="StartedDate" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryBatchesTestStartedDateColumnHeading)" Width="160px"/>
+                <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="TestResultTypeName" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTestingTestResultColumnHeading)" Width="225px">
+                    <Template Context="item">
+                        <div class="form-group">
+                            @if (item.TestStatusTypeID == (long) TestStatusTypeEnum.Final)
+                            {
+                                <RadzenTextBox @bind-Value="item.TestResultTypeName" Disabled="true"/>
+                            }
+                            else
+                            {
+                                <RadzenDropDown AllowClear="true" @bind-Value="item.TestResultTypeID" Change="_ => OnTestResultDropDownChange(item)" class="form-control" Data="LaboratoryService.TestResultTypes.Where(x => item.TestNameTypeID != null && x.idfsTestName == item.TestNameTypeID).AsODataEnumerable()" LoadData="args => GetTestResultTypesByTestName(args, item.TestNameTypeID)" Name="testResultTypeID" TextProperty="strTestResultName" TValue="long?" ValueProperty="idfsTestResult"/>
+                            }
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn FormatString="{0:d}" HeaderCssClass="lab-table-striped-header" Property="ResultDate" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryBatchesResultDateColumnHeading)" Width="180px"/>
+                <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="TestCategoryTypeName" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryBatchesTestCategoryColumnHeading)" Width="225px"/>
+                <RadzenDataGridColumn FormatString="{0:g}" HeaderCssClass="lab-table-striped-header" Property="AccessionDate" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryBatchesAccessionDateTimeColumnHeading)" Width="190px"/>
+                <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="FunctionalAreaName" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryBatchesFunctionalAreaColumnHeading)" Width="250px"/>
+                <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="AccessionConditionOrSampleStatusTypeName" TItem="TestingGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryBatchesSampleStatusColumnHeading)" Width="225px"/>
+            </Columns>
+        </RadzenDataGrid>
+    </Template>
+</RadzenDataGrid>

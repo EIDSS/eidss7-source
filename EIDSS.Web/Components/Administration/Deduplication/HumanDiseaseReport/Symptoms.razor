@@ -1,0 +1,101 @@
+﻿@inherits EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport.SymptomsBase
+
+@using EIDSS.Web.Components.FlexForm
+
+<div class="form-row">
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecordSymptoms" TValue="int" @bind-Value=@HumanDiseaseReportDeduplicationService.RecordSelection
+                                       Change="@((args) => OnRecordSelectionChangeAsync(args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="Symptoms"></div>
+                <RadzenCheckBox Name="chkCheckAllSymptoms" @bind-Value=@HumanDiseaseReportDeduplicationService.chkCheckAllSymptoms TValue="bool" Change="@((args) => OnCheckAllSymptomsChangeAsync(args))" />
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllSymptoms" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord2" TValue="int" @bind-Value=@HumanDiseaseReportDeduplicationService.Record2Selection
+                                       Change="@((args) => OnRecord2SelectionChangeAsync(args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="Symptoms2"></div>
+                <RadzenCheckBox Name="chkCheckAllSymptoms2" @bind-Value=@HumanDiseaseReportDeduplicationService.chkCheckAllSymptoms2 TValue="bool" Change="@((args) => OnCheckAllSymptoms2ChangeAsync(args))" />
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllSymptoms2" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+</div>
+<div class="form-row">
+    <div class="col-6 mx-auto">
+        <RadzenCard>
+                @if (HumanDiseaseReportDeduplicationService.SymptomsList != null)
+                {                 
+                     <RadzenDataList WrapItems=false AllowPaging=false Data=HumanDiseaseReportDeduplicationService.SymptomsList TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
+                    <Template Context="field">
+                          @if (field.Index==idfCSObservation)
+                    {
+                      <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key TValue="bool" Disabled=@field.Disabled 
+                            TriState=false Style="vertical-align: top !important;"  Change="@((args) => OnDataListSymptomsSelectionChangeAsync(args, field.Index))"/>
+                            <div class="ml-2 d-inline-block vertical-align-middle">
+                                <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            </div>       
+                    }
+                    else if (field.Index < idfsInitialCaseStatus)
+                    {
+                            <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key TValue="bool" Disabled=@field.Disabled 
+                            TriState=false Style="vertical-align: top !important;" Change="@((args) => OnDataListSymptomsSelectionChangeAsync(args, field.Index))" />
+                            <div class="ml-2 d-inline-block vertical-align-middle">
+                                <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                  }
+                    </Template>
+                </RadzenDataList>
+                  <div class="card">
+        <div id="divSymptomsList">          
+           <FlexForm @ref="HumanDiseaseReportDeduplicationService.SymptomsDetails" FormDisabledIndicator="HumanDiseaseReportDeduplicationService.FlexFormDisabledIndicator" Request="@HumanDiseaseReportDeduplicationService.SymptomsFlexFormRequest"/>
+        </div>
+    </div>
+                }
+               
+        </RadzenCard>
+    </div>
+    <div class="col-6">
+        <RadzenCard>
+                @if (HumanDiseaseReportDeduplicationService.SymptomsList2 != null)
+                {
+
+                     <RadzenDataList WrapItems=false AllowPaging=false Data=HumanDiseaseReportDeduplicationService.SymptomsList2 TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
+                    <Template Context="field">
+                        @if (field.Index==idfCSObservation)
+                    {
+                      <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key TValue="bool" Disabled=@field.Disabled 
+                            TriState=false Style="vertical-align: top !important;"  Change="@((args) => OnDataListSymptoms2SelectionChangeAsync(args, field.Index))"/>
+                            <div class="ml-2 d-inline-block vertical-align-middle">
+                                <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            </div>       
+                    }
+                    else if (field.Index < idfsInitialCaseStatus)
+                    {
+                            <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key TValue="bool" Disabled=@field.Disabled 
+                            TriState=false Style="vertical-align: top !important;"  Change="@((args) => OnDataListSymptoms2SelectionChangeAsync(args, field.Index))"/>
+                            <div class="ml-2 d-inline-block vertical-align-middle">
+                                <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                                <span>@(field.Value)</span>
+                            </div>
+                        }
+                    </Template>
+                </RadzenDataList>
+                 <div class="card">
+        <div id="divSymptomsList2">          
+           <FlexForm @ref="HumanDiseaseReportDeduplicationService.SymptomsDetails2" FormDisabledIndicator="HumanDiseaseReportDeduplicationService.FlexFormDisabledIndicator" Request="@HumanDiseaseReportDeduplicationService.SymptomsFlexFormRequest2"/>
+        </div>
+    </div>
+                }
+                 
+        </RadzenCard>
+    </div>
+</div>

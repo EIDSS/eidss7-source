@@ -1,0 +1,37 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits CaseLogBase
+
+<RadzenTemplateForm Data="Model" @ref="Form" Submit="OnSubmit" TItem="CaseLogGetListViewModel">
+    <div class="card">
+        <DataAnnotationsValidator/>
+        <InterfaceEditorResource CssClass="col-12" For="actionRequired" InterfaceEditorKey="@FieldLabelResourceKeyConstants.CaseLogDetailsModalActionRequiredFieldLabel" IsRow="true">
+            <RadzenTextBox @bind-Value="Model.ActionRequired" class="form-control" MaxLength="200" Name="actionRequired"/>
+        </InterfaceEditorResource>
+        <div class="form-row">
+            <InterfaceEditorResource CssClass="col-4" For="logDate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.CaseLogDetailsModalDateFieldLabel" IsRow="false">
+                <br/>
+                <RadzenDatePicker AllowClear="true" @bind-Value="Model.LogDate" DateFormat="d" Name="logDate" TValue="DateTime?"/>
+                <RadzenCompareValidator Component="logDate" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="DateTime.Now"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource CssClass="col-6" For="enteredByPersonID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.CaseLogDetailsModalEnteredByFieldLabel" IsRow="false">
+                <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.EnteredByPersonID" class="form-control" Data="EnteredByPersons" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetEnteredByPersons" Name="enteredByPersonID" TextProperty="FullName" TValue="long?" ValueProperty="idfPerson"/>
+            </InterfaceEditorResource>
+        </div>
+        <InterfaceEditorResource CssClass="col-12" For="comments" InterfaceEditorKey="@FieldLabelResourceKeyConstants.CaseLogDetailsModalCommentFieldLabel" IsRow="true">
+            <RadzenTextBox @bind-Value="Model.Comments" class="form-control" MaxLength="200" Name="comments"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-6" For="logStatusTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.CaseLogDetailsModalStatusFieldLabel" IsRow="true">
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="Model.LogStatusTypeID" class="form-control" Data="LogStatusTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetLogStatusTypes" Name="logStatusTypeID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"/>
+        </InterfaceEditorResource>
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-12">
+                    <button class="btn btn-outline-primary" @onclick="OnCancel" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button class="btn btn-primary" @onsubmit="OnSubmit" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

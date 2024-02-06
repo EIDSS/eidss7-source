@@ -1,0 +1,71 @@
+﻿@model EIDSS.Web.TagHelpers.Models.EIDSSGrid.EIDSSGridConfiguration
+@{
+    Model.GridId = "actorsTable";
+    Model.GridClass = "table table-sm table-striped";
+    Model.AjaxDataUrl = Url.Action("GetActorList", "EmployeeActor", new { Area = "Administration" });
+    Model.ControlFilterID = "UsersAndGroupsSection_SearchEmployeeActorViewModel_SearchCriteria_Type,UsersAndGroupsSection_SearchEmployeeActorViewModel_SearchCriteria_Name,UsersAndGroupsSection_SearchEmployeeActorViewModel_SearchCriteria_Organization,UsersAndGroupsSection_SearchEmployeeActorViewModel_SearchCriteria_Description,UsersAndGroupsSection_idfEmployeeGroup";
+    Model.EnableServerSide = true;
+    Model.EnableCustomSearching = false;
+    Model.EnableProcessingMessage = true;
+    Model.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "idfEmployee",
+        ColumnTitleHeader = String.Empty,
+        ColumnType = ColumnType.Selection,
+        Visible = true
+    });
+    Model.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "idfEmployeeGroup",
+        ColumnTitleHeader = String.Empty,
+        ColumnType = ColumnType.Details,
+        Visible = false
+    });
+    Model.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "TypeID",
+        ColumnTitleHeader = String.Empty,
+        ColumnType = ColumnType.ReadOnly,
+        Visible = false
+    });
+    Model.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "TypeName",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.ActorTypeNameColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.Default
+    });
+    Model.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "Name",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.NameColumnHeading),
+        Visible = true,
+        VisibleInModal = true
+    });
+    Model.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "Organization",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.UserGroupDetailsOrganizationColumnHeading),
+        ColumnType = ColumnType.Default,
+        Visible = true,
+        Orderable = true
+    });
+    Model.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "Description",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.UserGroupDetailsDescriptionColumnHeading),
+        ColumnType = ColumnType.Default,
+        Visible = true,
+        Orderable = true
+    });
+}
+<eidss-grid id="@Model.GridId"
+            grid-configuration="@Model"
+            class-name="@Model.GridClass"
+            enable-server-side="true"
+            enable-processing="@Model.EnableProcessingMessage"
+            enable-search="false"
+            end-point="@Model.AjaxDataUrl"
+            filtered-control-ids="@Model.ControlFilterID"
+            control-labels="@Model.ControlLabels">
+</eidss-grid>

@@ -1,0 +1,23 @@
+﻿@inherits EIDSS.Web.Components.Veterinary.Farm.FarmSectionsBase
+
+<div id="farmDetailsWizard">
+    <div class="content content-collapsed clearfix">
+        <section>
+            <FarmInformationSection Mode="Mode" />
+        </section>
+        <section>
+            <FarmAddressSection @ref="@FarmAddressSectionComponent" />
+            <FarmDetails />
+        </section>
+        <section>
+            <h4 style="display: none">@Localizer.GetString(HeadingResourceKeyConstants.ReviewHeading)</h4>
+            <div class="sidebar-do-not-disable">
+                @if (StateContainer.FarmMasterID is > 0)
+                {
+                    <DiseaseReportList />
+                    <OutbreakCaseList />
+                }
+            </div>
+        </section>
+    </div>
+</div>

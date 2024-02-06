@@ -1,0 +1,31 @@
+﻿@using EIDSS.Domain.ViewModels.Human;
+
+@inherits EIDSS.Web.Components.Human.Person.PINSearchBase
+
+<div class="row my-4">
+    <div class="col-md-12">
+        <RadzenDataGrid AllowFiltering="false" AllowPaging="true" AllowSorting="true" Class="mt-3" ColumnWidth="200px" Data="@_PINSearchResults" IsLoading="@_isLoading" TItem="PersonViewModel" Visible="@(!_displayErrorMessage)">
+            <Columns>
+                <RadzenDataGridColumn Property="FirstOrGivenName" TItem="PersonViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonFirstNameColumnHeading)" />
+                <RadzenDataGridColumn Property="LastOrSurname" TItem="PersonViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonLastNameColumnHeading)" />
+                <RadzenDataGridColumn FormatString="{0:d}" Property="DateOfBirth" TItem="PersonViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonDateOfBirthColumnHeading)" />
+                <RadzenDataGridColumn Property="GenderTypeName" TItem="PersonViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.GenderColumnHeading)" />
+                <RadzenDataGridColumn Property="PersonalID" TItem="PersonViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonModalPersonalIDColumnHeading)" />
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>
+<div class="row my-3">
+    <div class="col-md-12">
+        <RadzenLabel Text="@Localizer.GetString(MessageResourceKeyConstants.PersonInformationAccordingToTheSearchCriteriaNoRecordsFoundPleaseUpdateSearchCriteriaAndTryToFindPersonAgainMessage)" Visible="@_displayErrorMessage"></RadzenLabel>       
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 text-center">
+        <button class="btn btn-outline-primary" @onclick="@(args => DiagService.Close(null))">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+        @if (!_displayErrorMessage)
+        {
+            <button class="btn btn-primary" @onclick="@OnOkClick">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+        }
+    </div>
+</div>

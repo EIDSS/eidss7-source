@@ -1,0 +1,70 @@
+﻿@using EIDSS.Domain.ResponseModels.Human;
+@using EIDSS.Web.Components.CrossCutting
+@inherits DetailedInformationBase
+
+<div class="card">
+    <div class="card-body">
+        <div class="col-2 pull-right mb-3 text-right">
+            <button class="btn btn-outline-primary " disabled="@model.RecordReadOnly" @onclick="OpenDetailsModal" type="button">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+            <button class="btn btn-outline-primary" @onclick="OnPrintSamplesButtonClick" type="button">@Localizer.GetString(ButtonResourceKeyConstants.PrintButton)</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <GridExtension OnColumnSave="GridClickActiveSurveillanceSessionDetailedInformationHandler"></GridExtension>
+        <RadzenDataGrid AllowColumnPicking="true" AllowColumnReorder="true" AllowColumnResize="true" AllowPaging="true" AllowSorting="true" Count="@count" Data="@model.DetailedInformation.List" ExpandMode="DataGridExpandMode.Single" HeaderCellRender="@(args => HeaderCellRender(args.Column.Property))" IsLoading="@isLoading" LoadData="@(args => LoadDetailsGridView(args))" id="detailsResults" PageSize="10" @ref="_detailsGrid" TItem="ActiveSurveillanceSessionDetailedInformationResponseModel">
+            <Columns>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("EIDSSPersonID")" Property="EIDSSPersonID" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionDetailedInformationResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.DeduplicationSearchHumanDiseaseReportsPersonIDColumnHeading)" Visible="@GetColumnVisibility("EIDSSPersonID")" Width="225px">
+                    <Template Context="data">
+                        @data.EIDSSPersonID
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("PersonAddress")" Property="PersonAddress" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionDetailedInformationResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionDetailedSamplesPersonAddressColumnHeading)" Visible="@GetColumnVisibility("PersonAddress")" Width="225px">
+                    <Template Context="data">
+                        @data.PersonAddress
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("FieldSampleID")" Property="FieldSampleID" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionDetailedInformationResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionDetailedSamplesFieldSampleIDColumnHeading)" Visible="@GetColumnVisibility("FieldSampleID")" Width="225px">
+                    <Template Context="data">
+                        @data.FieldSampleID
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("Disease")" Property="Disease" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionDetailedInformationResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.DeduplicationSearchLivestockDiseaseReportsDiseaseColumnHeading)" Visible="@GetColumnVisibility("Disease")" Width="225px">
+                    <Template Context="data">
+                        @data.Disease
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("SampleType")" Property="SampleType" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionDetailedInformationResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SampleTypeColumnHeading)" Visible="@GetColumnVisibility("SampleType")" Width="225px">
+                    <Template Context="data">
+                        @data.SampleType
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn FormatString="{0:d}" OrderIndex="@FindColumnOrder("CollectionDate")" Property="CollectionDate" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionDetailedInformationResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionDetailedSamplesCollectionDateColumnHeading)" Visible="@GetColumnVisibility("CollectionDate")" Width="225px">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("SentToOrganization")" Property="SentToOrganization" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionDetailedInformationResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionDetailedSamplesSentToOrganizationColumnHeading)" Visible="@GetColumnVisibility("SentToOrganization")" Width="225px">
+                    <Template Context="data">
+                        @data.SentToOrganization
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="ActiveSurveillanceSessionDetailedInformationResponseModel" Context="data" Pickable="false" Reorderable="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="120px">
+                    <Template Context="data">
+                        <button @onclick="@(() => EditDetail(data))" class="btn btn-sm" disabled="@(!model.ActiveSurveillanceSessionPermissions.Create)" type="button">
+                            <i class="fas fa-edit fa-lg"></i>
+                        </button>
+                        <button @onclick="@(() => DeleteRow(data))" class="btn btn-sm" disabled="@(!model.ActiveSurveillanceSessionPermissions.Delete)" type="button">
+                            <i class="fas fa-trash fa-lg"></i>
+                        </button>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>
+
+@code{
+
+    void GridClickActiveSurveillanceSessionDetailedInformationHandler()
+    {
+        GridColumnSave("ActiveSurveillanceSessionDetailedInformation");
+    }
+
+}

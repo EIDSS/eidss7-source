@@ -1,0 +1,84 @@
+﻿@using EIDSS.Domain.ResponseModels.Administration
+@using EIDSS.Web.ViewModels.Administration
+@using EIDSS.Web.Components.CrossCutting
+
+
+@inherits EIDSS.Web.Components.Administration.NonUserEmployeeAddModalBase
+
+<RadzenTemplateForm id="AddEmployeeForm" @ref="_form" TItem="EmployeePersonalInfoPageViewModel" Data="@Model" Context="NonUserEmployee" Submit="@HandleValidEmployeeSubmit" OnInvalidSubmit="@HandleInvalidEmployeeSubmit">
+    <div class="card">
+        <div class="card-header">
+        </div>
+
+        <div class="card-body">
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonalIDTypeFieldLabel" IsRow="false" CssClass="col-md-6" For="PersonalTypeDD">
+                    <RadzenDropDown AllowClear="true"
+                                    AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    Name="PersonalTypeDD"
+                                    TValue="long?"
+                                    Data="@lstPersonalIDType"
+                                    LoadData="@LoadPersonalTypeIDs"
+                                    ValueProperty="KeyId"
+                                    TextProperty="StrName"
+                                    @bind-Value="@Model.PersonalIDType"
+                                    Count="@personalIDTypeCount"
+                                    Change="@(args =>ClearPersonalID(args))"
+                                    class="form-control">
+                    </RadzenDropDown>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonalIDFieldLabel" IsRow="false" CssClass="col-md-6" For="PersonalID" IsRequiredByDefaultBusinessRule="@IsPersonalIDRequired">
+                    <div class="form-group">
+                        <RadzenTextBox @bind-Value="@Model.PersonalID" Name="PersonalID" TValue="string" class="form-control" Change="@(args =>ValidatePersonalID(args))" Disabled="@DisablePersonalID"></RadzenTextBox>
+                    </div>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.EmployeeFirstNameFieldLabel" IsRow="false" CssClass="col-md-6" For="FirstOrGivenName">
+                    <RadzenTextBox @bind-Value="@Model.FirstOrGivenName" Name="FirstOrGivenName" class="form-control"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.EmployeeMiddleNameFieldLabel" IsRow="false" CssClass="col-md-6" For="SecondName">
+                    <RadzenTextBox @bind-Value="@Model.SecondName" Name="SecondName" class="form-control"></RadzenTextBox>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.EmployeeLastNameFieldLabel" IsRow="false" CssClass="col-md-6" For="LastOrSurName">
+                    <RadzenTextBox @bind-Value="@Model.LastOrSurName" Name="LastOrSurName" class="form-control"></RadzenTextBox>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchEmployeePhoneFieldLabel" IsRow="false" CssClass="col-md-6" For="ContactPhone">
+                    <RadzenTextBox @bind-Value="@Model.ContactPhone" Name="ContactPhone" class="form-control"></RadzenTextBox>
+                    <RadzenRegexValidator Component="ContactPhone" Text="@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)" Pattern="\d{8,15}" Popup="false" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.OrganizationDefaultFieldLabel" IsRow="false" CssClass="col-md-6" For="OrganizationID">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="OrganizationID" TValue="long?" Data="@lstOrganizations" LoadData="@LoadOrganizations" ValueProperty="idfOffice" TextProperty="name" @bind-Value="@Model.OrganizationID" Count="@orgCount" class="form-control" Change="@(args => GetSiteNameAndDepartments(args))"></RadzenDropDown>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SiteIDFieldLabel" IsRow="false" CssClass="col-md-6" For="SiteName">
+                    <RadzenTextBox @bind-Value="@Model.SiteName" Name="SiteName" class="form-control" Disabled="true"></RadzenTextBox>
+                    <input type="hidden" id="SiteID" value="@Model.SiteID" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.DepartmentFieldLabel" IsRow="false" CssClass="col-md-6" For="DepartmentID">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="DepartmentID" TValue="long?" Data="@lstDepartment" ValueProperty="DepartmentID" TextProperty="DepartmentNameNationalValue" @bind-Value="@Model.DepartmentID" Count="@departmentCount" class="form-control" Disabled="@EnableDepartment"></RadzenDropDown>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PositionFieldLabel" IsRow="false" CssClass="col-md-6" For="PositionTypeID">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="PositionTypeID" TValue="long?" Data="@lstPositions" LoadData="@LoadPositions" ValueProperty="KeyId" TextProperty="StrName" @bind-Value="@Model.PositionTypeID" Count="@positionsCount" class="form-control"></RadzenDropDown>
+                </InterfaceEditorResource>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <button type="button" class="btn btn-secondary"
+                    @onclick="((args) => DiagService.Close(null))">
+                @Localizer.GetString(ButtonResourceKeyConstants.CancelButton)
+            </button>
+
+            <button type="submit" class="btn btn-primary">
+                @Localizer.GetString(ButtonResourceKeyConstants.SaveButton)
+            </button>
+        </div>
+    </div>
+</RadzenTemplateForm>

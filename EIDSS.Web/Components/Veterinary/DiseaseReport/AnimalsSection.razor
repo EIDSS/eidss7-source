@@ -1,0 +1,94 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Domain.Enumerations
+
+@inherits AnimalsSectionBase
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-9">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.LivestockDiseaseReportAnimalsHeading)</h4>
+        </div>
+        <div class="col-3 text-right">
+            @if (Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0)
+            {
+                <button class="btn btn-link add-section" id="addAnimal" @onclick="OnAddAnimalClick" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+            }
+            else if (!Model.WritePermissionIndicator || Model.ReportDisabledIndicator)
+            {
+                <button class="btn btn-link add-section disabled" disabled id="addAnimal" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-link add-section" id="addAnimal" @onclick="OnAddAnimalClick" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+            }
+
+            @if (Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0 || (Model.WritePermissionIndicator && Model.DiseaseReportID > 0 && Model.ReportStatusTypeID == (long) DiseaseReportStatusTypeEnum.InProcess && Model.ReportCurrentlyClosedIndicator == false))
+            {
+            <a class="edit-section" href="#caseDiseaseReportWizard-h-7" id="editAnimalsSectionButton">
+                <span class="fas fa-edit fa-lg"></span>
+            </a>
+            }
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h3>@Localizer.GetString(HeadingResourceKeyConstants.LivestockDiseaseReportAnimalsHeading)</h3>
+        </div>
+        <div id="divAnimalsSection" class="card-body">
+            <div class="row">
+                <div class="col-12">
+                    <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" Count="Count" Data="Model.Animals" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="args => LoadAnimalData(args)" PageSizeOptions="pageSizeOptions" PageSizeText="@Localizer.GetString(FieldLabelResourceKeyConstants.CommonLabelsItemsPerPageFieldLabel)" @ref="AnimalsGrid" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="true" TItem="AnimalGetListViewModel">
+                        <Columns>
+                            <RadzenDataGridColumn Property="EIDSSHerdID" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsHerdIDColumnHeading)" Width="150px"/>
+                            <RadzenDataGridColumn Property="EIDSSAnimalID" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsAnimalIDColumnHeading)" Width="150px"/>
+                            <RadzenDataGridColumn Property="SpeciesTypeName" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsSpeciesColumnHeading)" Width="175px"/>
+                            <RadzenDataGridColumn Property="AgeTypeName" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsAgeColumnHeading)" Width="175px"/>
+                            <RadzenDataGridColumn Property="SexTypeName" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsSexColumnHeading)" Width="150px"/>
+                            <RadzenDataGridColumn Property="ConditionTypeName" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsStatusColumnHeading)" Width="175px"/>
+                            <RadzenDataGridColumn Property="AnimalDescription" TItem="AnimalGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LivestockDiseaseReportAnimalsNoteAdditionalInfoColumnHeading)"/>
+                            <RadzenDataGridColumn Filterable="false" Frozen="true" Property="AnimalID" Sortable="false" TextAlign="TextAlign.Center" TItem="AnimalGetListViewModel" Title="" Width="55px">
+                                <Template Context="item">
+                                    @if (Model.ReportDisabledIndicator || (Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0) || (Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0))
+                                    {
+                                        <button class="btn btn-link disabled" disabled>
+                                            <span class="fas fa-edit disabled"></span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-link" @onclick="_ => OnEditAnimalClick(item)">
+                                            <span class="fas fa-edit"></span>
+                                        </button>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn Filterable="false" Frozen="true" Property="AnimalID" Sortable="false" TextAlign="TextAlign.Center" TItem="AnimalGetListViewModel" Title="" Width="55px">
+                                <Template Context="item">
+                                    @if (Model.ReportDisabledIndicator || (Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0) || (Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0))
+                                    {
+                                        <button class="btn btn-link disabled" disabled>
+                                            <span class="fas fa-trash disabled"></span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-link" @onclick="_ => OnDeleteAnimalClick(item)">
+                                            <span class="fas fa-trash"></span>
+                                        </button>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

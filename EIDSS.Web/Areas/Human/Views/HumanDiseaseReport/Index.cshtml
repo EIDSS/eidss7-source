@@ -1,0 +1,19 @@
+﻿@using EIDSS.Web.Enumerations
+@using EIDSS.Web.Components.Human.SearchDiseaseReport
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportHumanDiseaseReportHeading);
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3>@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportHumanDiseaseReportHeading)</h3>
+    </div>
+    <div class="card-body">
+        @*
+        The component tag below shows how to include the HDR search component in "Import Mode" so you can select a report and have it callback the url you supply"
+        <component type="typeof(HumanDiseaseReportSearch)" render-mode="ServerPrerendered" param-Mode=@HumanDiseaseReportSearch.SearchMode.Import param-CallbackUrl='@Url.Action("Import", "OutbreakCases", new { Area = "Outbreak" })'  />
+        *@
+        <component type="typeof(SearchHumanDiseaseReport)" render-mode="Server" param-OutbreakCasesIndicator="null" param-Mode="@SearchModeEnum.Default" param-CallbackUrl="string.Empty"/>
+    </div>
+</div>

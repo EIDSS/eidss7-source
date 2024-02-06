@@ -1,0 +1,462 @@
+﻿@model EIDSS.Web.Areas.Human.ViewModels.Person.PersonEmploymentSchoolViewModel
+
+@{
+    //Radio Buttons
+    Model.PersonDetails.IsThisPersonCurrentlyAttendSchool = new Dictionary<string, string>();
+    Model.PersonDetails.IsThisPersonCurrentlyAttendSchool.Add("10100001", "Yes");
+    Model.PersonDetails.IsThisPersonCurrentlyAttendSchool.Add("10100002", "No");
+    Model.PersonDetails.IsThisPersonCurrentlyAttendSchool.Add("10100003", "UnKnown");
+
+    Model.PersonDetails.IsThisPersonCurrentlyEmployed = new Dictionary<string, string>();
+    Model.PersonDetails.IsThisPersonCurrentlyEmployed.Add("10100001", "Yes");
+    Model.PersonDetails.IsThisPersonCurrentlyEmployed.Add("10100002", "No");
+    Model.PersonDetails.IsThisPersonCurrentlyEmployed.Add("10100003", "UnKnown");
+}
+
+<form id="PersonEmploymentSchoolForm">
+    <div class="container-fluid">
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4 heading-for="@HeadingResourceKeyConstants.PersonEmploymentSchoolInformationHeading"></h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editPersonEmploymentSchoolSectionButton" href="#personWizard-h-2" class="edit-section"><span class="fas fa-edit fa-lg"></span></a>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-12">
+                <input type="hidden" id="hdfEmployed" value="@Model.PersonDetails.IsEmployedTypeID" />
+                <label asp-for="@Model.PersonDetails.IsEmployedTypeID" field-label-for="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationIsThisPersonCurrentlyEmployedFieldLabel" class="control-label"></label>
+                @if (Model.PersonDetails.IsThisPersonCurrentlyEmployed != null)
+                {
+                    if (Model.PersonDetails.IsThisPersonCurrentlyEmployed.Count() > 0)
+                    {
+
+                        foreach (var item in Model.PersonDetails.IsThisPersonCurrentlyEmployed)
+                        {
+                            @if (Model.PersonDetails.IsEmployedTypeID.ToString() == EIDSSConstants.YesNoValueList.Yes && item.Key == EIDSSConstants.YesNoValueList.Yes)
+                            {
+                                <input asp-for="@Model.PersonDetails.IsThisPersonCurrentlyEmployed" onclick="CheckEmployed(this)" type="radio" value="@item.Key" checked /> @item.Value
+                            }
+                            else if (Model.PersonDetails.IsEmployedTypeID.ToString() == EIDSSConstants.YesNoValueList.No && item.Key == EIDSSConstants.YesNoValueList.No)
+                            {
+                                <input asp-for="@Model.PersonDetails.IsThisPersonCurrentlyEmployed" onclick="CheckEmployed(this)" type="radio" value="@item.Key" checked /> @item.Value
+                            }
+                            else if ((Model.PersonDetails.IsEmployedTypeID == null || Model.PersonDetails.IsEmployedTypeID.ToString() == "") || (Model.PersonDetails.IsEmployedTypeID.ToString() == EIDSSConstants.YesNoValueList.Unknown && item.Key == EIDSSConstants.YesNoValueList.Unknown))
+                            {
+                                <input asp-for="@Model.PersonDetails.IsThisPersonCurrentlyEmployed" onclick="CheckEmployed(this)" type="radio" value="@item.Key" checked /> @item.Value
+                            }
+                            else
+                            {
+                                <input asp-for="@Model.PersonDetails.IsThisPersonCurrentlyEmployed" onclick="CheckEmployed(this)" type="radio" value="@item.Key" /> @item.Value
+                            }
+                        }
+                    }
+                }
+            </div>
+        </div>
+        <div id="DivPersonEmployed" style="display:none">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label asp-for="@Model.PersonDetails.OccupationTypeID" field-label-for="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationOccupationFieldLabel" class="control-label"></label>
+                    <select id="OccupationType" asp-for="@Model.PersonDetails.OccupationTypeID" asp-items="@(new SelectList(Model.OccupationTypeList,"IdfsBaseReference","StrDefault"))" class="form-control"></select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label asp-for="@Model.PersonDetails.EmployerName" field-label-for="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationEmployerNameFieldLabel" class="control-label"></label>
+                    <input asp-for="@Model.PersonDetails.EmployerName " class="form-control" value="@Model.PersonDetails.EmployerName" />
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="PersonDetails.EmployedDateLastPresent" field-label-for="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationDateofLastPresenceatWorkFieldLabel"></label>
+                    <eidss-calendar id="PersonDetails.EmployedDateLastPresent" asp-for="PersonDetails.EmployedDateLastPresent" css-class="form-control" date-format="d"></eidss-calendar>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    @if (Model.PersonDetails.YNWorkSameAddress != null && Model.PersonDetails.YNWorkSameAddress == "Yes")
+                    {
+                        <input type="checkbox" class="form-check-inline" id="YNWorkSameAddress" value="@Model.PersonDetails.YNWorkSameAddress" checked />
+                    }
+                    else
+                    {
+                        <input type="checkbox" class="form-check-inline" id="YNWorkSameAddress" value="@Model.PersonDetails.YNWorkSameAddress" />
+                    }
+                    <label asp-for="@Model.PersonDetails.YNWorkSameAddress" field-label-for="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationWorkAddresssameasCurrentAddressFieldLabel" class="control-label"></label>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label asp-for="@Model.PersonDetails.EmployerPhone" field-label-for="@FieldLabelResourceKeyConstants.PersonEmployerSchoolInformationWorkAddressCountryCodeAndNumberFieldLabel" class="control-label"></label>
+                    <input asp-for="@Model.PersonDetails.EmployerPhone " class="form-control" value="@Model.PersonDetails.EmployerPhone" onchange="validateWorkPhone(false);"/>
+                    <div id="ValWorkPhone" class="text-danger"></div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    @if (Model.PersonDetails.EmployerForeignAddressIndicator != null && Model.PersonDetails.EmployerForeignAddressIndicator.Value)
+                    {
+                        <input type="checkbox" class="form-check-inline" id="EmployerForeignAddressIndicator" value="@Model.PersonDetails.EmployerForeignAddressIndicator" checked />
+                    }
+                    else
+                    {
+                        <input type="checkbox" class="form-check-inline" id="EmployerForeignAddressIndicator" value="@Model.PersonDetails.EmployerForeignAddressIndicator" />
+                    }
+                    <label asp-for="PersonDetails.EmployerForeignAddressIndicator" field-label-for="@FieldLabelResourceKeyConstants.ForeignAddressLabel" class="control-label"></label>
+                </div>
+            </div>
+            <div id="divWorkForeignAddress">
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label asp-for="@Model.PersonDetails.EmployeridfsCountry" field-label-for="@FieldLabelResourceKeyConstants.PersonEmployerSchoolInformationWorkAddressCountryFieldLabel" class="control-label"></label>
+                        <select id="EmployerForeignidfsCountry" asp-for="@Model.PersonDetails.EmployeridfsCountry" asp-items="@(new SelectList(Model.WorkCountryList,"idfsCountry","strCountryName"))" class="form-control"></select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label asp-for="@Model.PersonDetails.EmployerForeignAddressString" field-label-for="@FieldLabelResourceKeyConstants.PersonEmployerSchoolInformationWorkAddressAddressFieldLabel" class="control-label"></label>
+                        <input asp-for="@Model.PersonDetails.EmployerForeignAddressString " class="form-control" value="@Model.PersonDetails.EmployerForeignAddressString" />
+                    </div>
+                </div>
+            </div>
+            <div id="divWorkAddress">
+                <partial name="_PersonLocationPartial" for="@Model.WorkAddress" />
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-12">
+                <input type="hidden" id="hdfAttendSchool" value="@Model.PersonDetails.IsStudentTypeID" />
+                <label asp-for="@Model.PersonDetails.IsStudentTypeID" field-label-for="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationDoesthePersonCurrentlyAttendCchoolFieldLabel" class="control-label"></label>
+                @if (Model.PersonDetails.IsThisPersonCurrentlyAttendSchool != null)
+                {
+                    if (Model.PersonDetails.IsThisPersonCurrentlyAttendSchool.Count() > 0)
+                    {
+
+                        foreach (var item in Model.PersonDetails.IsThisPersonCurrentlyAttendSchool)
+                        {
+                            @if (Model.PersonDetails.IsStudentTypeID != null && item.Key == EIDSSConstants.YesNoValueList.Yes && item.Key == Model.PersonDetails.IsStudentTypeID.ToString())
+                            {
+                                <input asp-for="@Model.PersonDetails.IsThisPersonCurrentlyAttendSchool" onclick="CheckAttendSchool(this)" type="radio" value="@item.Key" checked /> @item.Value
+                            }
+                            else if (Model.PersonDetails.IsStudentTypeID != null && item.Key == EIDSSConstants.YesNoValueList.No && item.Key == Model.PersonDetails.IsStudentTypeID.ToString())
+                            {
+                                <input asp-for="@Model.PersonDetails.IsThisPersonCurrentlyAttendSchool" onclick="CheckAttendSchool(this)" type="radio" value="@item.Key" checked /> @item.Value
+                            }
+                            else if ((Model.PersonDetails.IsStudentTypeID == null || Model.PersonDetails.IsEmployedTypeID.ToString() == "") || (Model.PersonDetails.IsStudentTypeID != null && item.Key == EIDSSConstants.YesNoValueList.Unknown && item.Key == Model.PersonDetails.IsStudentTypeID.ToString()))
+                            {
+                                <input asp-for="@Model.PersonDetails.IsThisPersonCurrentlyAttendSchool" onclick="CheckAttendSchool(this)" type="radio" value="@item.Key" checked /> @item.Value
+                            }
+                            else
+                            {
+                                <input asp-for="@Model.PersonDetails.IsThisPersonCurrentlyAttendSchool" onclick="CheckAttendSchool(this)" type="radio" value="@item.Key" /> @item.Value
+                            }
+                        }
+                    }
+                }
+            </div>
+        </div>
+        <div id="DivPersonAttendingSchool" style="display:none">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label asp-for="@Model.PersonDetails.SchoolName" field-label-for="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationSchoolNameFieldLabel" class="control-label"></label>
+                    <input asp-for="@Model.PersonDetails.SchoolName " class="form-control" value="@Model.PersonDetails.SchoolName" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label asp-for="PersonDetails.SchoolDateLastAttended" field-label-for="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationDateofLastPresenceatSchoolFieldLabel"></label>
+                    <eidss-calendar id="PersonDetails.SchoolDateLastAttended" asp-for="PersonDetails.SchoolDateLastAttended" css-class="form-control" date-format="d"></eidss-calendar>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label asp-for="@Model.PersonDetails.SchoolPhone" field-label-for="@FieldLabelResourceKeyConstants.PersonEmployerSchoolInformationSchoolAddressCountryCodeAndNumberFieldLabel" class="control-label"></label>
+                    <input asp-for="@Model.PersonDetails.SchoolPhone " class="form-control" value="@Model.PersonDetails.SchoolPhone" onchange="validateSchoolPhone(false);"/>
+                    <div id="ValSchoolPhone" class="text-danger"></div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    @if (Model.PersonDetails.SchoolForeignAddressIndicator != null && Model.PersonDetails.SchoolForeignAddressIndicator == true)
+                    {
+                        <input type="checkbox" class="form-check-inline" id="SchoolForeignAddressIndicator" value="@Model.PersonDetails.SchoolForeignAddressIndicator" checked />
+                    }
+                    else
+                    {
+                        <input type="checkbox" class="form-check-inline" id="SchoolForeignAddressIndicator" value="@Model.PersonDetails.SchoolForeignAddressIndicator" />
+                    }
+                    <label asp-for="@Model.PersonDetails.SchoolForeignAddressIndicator" field-label-for="@FieldLabelResourceKeyConstants.PersonEmployerSchoolInformationSchoolAddressForeignAddressFieldLabel" class="control-label"></label>
+                </div>
+            </div>
+            <div id="divSchoolForeignAddress">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label asp-for="@Model.PersonDetails.SchoolidfsCountry" field-label-for="@FieldLabelResourceKeyConstants.PersonEmployerSchoolInformationSchoolAddressCountryFieldLabel" class="control-label"></label>
+                        <select id="SchoolForeignidfsCountry" asp-for="@Model.PersonDetails.SchoolidfsCountry" asp-items="@(new SelectList(Model.SchoolCountryList,"idfsCountry","strCountryName"))" class="form-control"></select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label asp-for="@Model.PersonDetails.SchoolForeignAddressString" field-label-for="@FieldLabelResourceKeyConstants.PersonEmployerSchoolInformationSchoolAddressAddressFieldLabel" class="control-label"></label>
+                        <input asp-for="@Model.PersonDetails.SchoolForeignAddressString " class="form-control" value="@Model.PersonDetails.SchoolForeignAddressString" />
+                    </div>
+                </div>
+            </div>
+            <div id="divSchoolAddress">
+                <partial name="_PersonLocationPartial" for="@Model.SchoolAddress" />
+            </div>
+        </div>
+        <div id="divDiseaseReports" visible-if="@Model.ReportsVisibleIndicator">
+            <partial name="_DiseaseReportsPartial" for="@Model.DiseaseReports" />
+        </div>
+        <div id="divOutbreakCaseReports" visible-if="@Model.ReportsVisibleIndicator">
+            <partial name="_OutbreakCaseReportsPartial" for="@Model.OutbreakCaseReports" />
+        </div>
+    </div>
+</form>
+<partial name="_ValidationScriptsPartial" />
+
+<script type="text/javascript">
+        $(document).ready(function () {
+            IsEmployedTypeID = $("input[name='PersonEmploymentSchoolSection.PersonDetails.IsThisPersonCurrentlyEmployed']:checked").val();
+            if (IsEmployedTypeID != null && IsEmployedTypeID != "" && IsEmployedTypeID == '@EIDSSConstants.YesNoValueList.Yes') {
+                $("#DivPersonEmployed").prop("style", "display: block;");    //Show
+                if ($("#EmployerForeignAddressIndicator").is(':checked')) {
+                    $("#divWorkAddress").hide();
+                    $("#divWorkForeignAddress").show();
+                }
+                else {
+                    $("#divWorkAddress").show();
+                    $("#divWorkForeignAddress").hide();
+                }
+            }
+            else {
+                $("#DivPersonEmployed").prop("style", "display: none;");   //Hide
+            }
+
+            YNWorkSameAddress = $("#YNWorkSameAddress").val();
+            if (YNWorkSameAddress == 'Yes') {
+                $('#divWorkAddress').find('*').attr('disabled', true);
+            }
+            else {
+                $("#divWorkAddress").prop("style", "display: block;");
+            }
+
+            IsThisPersonCurrentlyAttendSchool = $("input[name='PersonEmploymentSchoolSection.PersonDetails.IsThisPersonCurrentlyAttendSchool']:checked").val();
+            if (IsThisPersonCurrentlyAttendSchool != null && IsThisPersonCurrentlyAttendSchool != "" && IsThisPersonCurrentlyAttendSchool == '@EIDSSConstants.YesNoValueList.Yes') {
+                $("#DivPersonAttendingSchool").prop("style", "display: block;");    //Show
+                if ($("#SchoolForeignAddressIndicator").is(':checked')) {
+                        $("#divSchoolAddress").hide();
+                        $("#divSchoolForeignAddress").show();
+                    }
+                    else {
+                        $("#divSchoolAddress").show();
+                        $("#divSchoolForeignAddress").hide();
+                    }
+            }
+            else {
+                $("#DivPersonAttendingSchool").prop("style", "display: none;");   //Hide
+            }
+
+            if ($("#EmployerForeignAddressIndicator").is(':checked')) {
+                $("#divWorkAddress").hide();
+                $("#divWorkForeignAddress").show();
+            }
+            else {
+                $("#divWorkAddress").show();
+                $("#divWorkForeignAddress").hide();
+            }
+
+            if ($("#SchoolForeignAddressIndicator").is(':checked')) {
+                $("#divSchoolAddress").hide();
+                $("#divSchoolForeignAddress").show();
+            }
+            else {
+                $("#divSchoolAddress").show();
+                $("#divSchoolForeignAddress").hide();
+            }
+
+        });
+
+    function CheckEmployed(e) {
+        $("#hdfEmployed").val(e.value);
+        Item = e.value;
+        if (Item != null && Item != "" && Item == '10100001') {
+            $("#DivPersonEmployed").prop("style", "display: block;");    //Show
+            $("#divWorkAddress").show();
+            $("#divWorkForeignAddress").hide();
+        }
+        else {
+            $("#DivPersonEmployed").prop("style", "display: none;");   //Hide
+        };
+    };
+
+    function CheckAttendSchool(e) {
+        $("#hdfAttendSchool").val(e.value);
+        Item = e.value;
+        if (Item != null && Item != "" && Item == '10100001') {
+            $("#DivPersonAttendingSchool").prop("style", "display: block;");    //Show
+            $("#divSchoolAddress").show();
+            $("#divSchoolForeignAddress").hide();
+        }
+        else {
+            $("#DivPersonAttendingSchool").prop("style", "display: none;");   //Hide
+        };
+    };
+
+    $("#EmployerForeignAddressIndicator").click(function () {
+        if ($(this).is(':checked')) {
+            $("#divWorkAddress").hide();
+            $("#divWorkForeignAddress").show();
+        }
+        else {
+            $("#divWorkAddress").show();
+            $("#divWorkForeignAddress").hide();
+        }
+    });
+
+    $("#SchoolForeignAddressIndicator").click(function () {
+        if ($(this).is(':checked')) {
+            $("#divSchoolAddress").hide();
+            $("#divSchoolForeignAddress").show();
+        }
+        else {
+            $("#divSchoolAddress").show();
+            $("#divSchoolForeignAddress").hide();
+        }
+    });
+
+    $("#YNWorkSameAddress").change(function () {
+        if ($(this).is(':checked')) {
+            // copy current address to work Address
+            $("#PersonInformationSection_PersonDetails_EmployerGeoLocationID").val($("#PersonInformationSection_PersonDetails_HumanGeoLocationID").val());
+
+            var request = {};
+            request.HumanGeoLocationID = $("#PersonInformationSection_PersonDetails_EmployerGeoLocationID").val();
+            request.HumanidfsCountry = $("#PersonAddressSection_CurrentAddress_AdminLevel0Value").val();
+            request.HumanidfsRegion = $("#PersonAddressSection_CurrentAddress_AdminLevel1Value").val();
+            request.HumanidfsRayon = $("#PersonAddressSection_CurrentAddress_AdminLevel2Value").val();
+            request.HumanidfsSettlement = $("#PersonAddressSection_CurrentAddress_AdminLevel3Value").val();
+            request.HumanidfsSettlementType = $("#PersonAddressSection_CurrentAddress_SettlementType").val();
+
+            request.HumanstrStreetName = $("#PersonAddressSection_CurrentAddress_StreetText").val();
+            request.HumanstrApartment = $("#PersonAddressSection_CurrentAddress_Apartment").val();
+            request.HumanstrBuilding = $("#PersonAddressSection_CurrentAddress_Building").val();
+            request.HumanstrHouse = $("#PersonAddressSection_CurrentAddress_House").val();
+            request.HumanidfsPostalCode = $("#PersonAddressSection_CurrentAddress_PostalCodeText").val();
+            var addressDiv = $('#divWorkAddress');
+            $.ajax({
+                url: '@Url.Action("CopyCurrentAddressToWorkAddress", "PersonDetails", new { Area = "Human" })',
+                data: JSON.stringify(request),
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                dataType: "html",
+                type: "POST",
+                success: function (response) {
+                    addressDiv.html(response);
+                    $('#divWorkAddress').find('*').attr('disabled', true);
+                }
+            });
+        }
+        else {
+            $('#divWorkAddress').find('*').attr('disabled', false);
+            // work Address data fields shall be cleared and available for data entry
+
+            $("#PersonInformationSection_PersonDetails_EmployerGeoLocationID").prop("disabled", false);
+            $("#PersonInformationSection_PersonDetails_EmployerGeoLocationID").val('');
+
+            $("#PersonEmploymentSchoolSection_WorkAddress_AdminLevel1Value").val('');
+            $("#PersonEmploymentSchoolSection_WorkAddress_AdminLevel2Value").val('');
+            $("#PersonEmploymentSchoolSection_WorkAddress_AdminLevel3Value").val('');
+            $("#PersonEmploymentSchoolSection_WorkAddress_SettlementType").val('');
+
+            $("#PersonEmploymentSchoolSection_WorkAddress_StreetText").val('');
+            $("#PersonEmploymentSchoolSection_WorkAddress_Apartment").val('');
+            $("#PersonEmploymentSchoolSection_WorkAddress_Building").val('');
+            $("#PersonEmploymentSchoolSection_WorkAddress_House").val('');
+            $("#PersonEmploymentSchoolSection_WorkAddress_PostalCodeText").val('');
+
+            var request = {};
+            request.HumanGeoLocationID = $("#PersonInformationSection_PersonDetails_EmployerGeoLocationID").val();
+
+            request.HumanidfsCountry = $("#PersonEmploymentSchoolSection_WorkAddress_AdminLevel0Value").val();
+            request.HumanidfsRegion = $("#PersonEmploymentSchoolSection_WorkAddress_AdminLevel1Value").val();
+            request.HumanidfsRayon = $("#PersonEmploymentSchoolSection_WorkAddress_AdminLevel2Value").val();
+            request.HumanidfsSettlement = $("#PersonEmploymentSchoolSection_WorkAddress_AdminLevel3Value").val();
+            request.HumanidfsSettlementType = $("#PersonEmploymentSchoolSection_WorkAddress_SettlementType").val();
+
+            request.HumanstrStreetName = $("#PersonEmploymentSchoolSection_WorkAddress_StreetText").val();
+            request.HumanstrApartment = $("#PersonEmploymentSchoolSection_WorkAddress_Apartment").val();
+            request.HumanstrBuilding = $("#PersonEmploymentSchoolSection_WorkAddress_Building").val();
+            request.HumanstrHouse = $("#PersonEmploymentSchoolSection_WorkAddress_House").val();
+            request.HumanidfsPostalCode = $("#PersonEmploymentSchoolSection_WorkAddress_PostalCodeText").val();
+            var addressDiv = $('#divWorkAddress');
+             $.ajax({
+                url: '@Url.Action("CopyCurrentAddressToWorkAddress", "PersonDetails", new { Area = "Human" })',
+                data: JSON.stringify(request),
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                dataType: "html",
+                type: "POST",
+                success: function (response) {
+                    addressDiv.html(response);
+                }
+            });
+        }
+    });
+
+    $("#PersonEmploymentSchoolSection_PersonDetails_EmployerPhone").on("change", function () {
+        var contactPhone = $("#PersonEmploymentSchoolSection_PersonDetails_EmployerPhone").val();
+        if (contactPhone != null && contactPhone != "")
+            validateWorkPhone(false);
+    });
+
+    function validateWorkPhone(IsUserPermission) {
+        var isValidPhone = true;
+        var a = $("#PersonEmploymentSchoolSection_PersonDetails_EmployerPhone").val();
+        var filter = /^[0-9]{8,15}$/;
+
+        if (filter.test(a)) {
+            isValidPhone = true;
+            $("#ValWorkPhone").html("");
+        }
+        else {
+            if (a == null && a == "") {
+                isValidPhone = true;
+            }
+            else {
+                $("#ValWorkPhone").html('@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)');
+                isValidPhone = false;
+            }
+        }
+        return isValidPhone;
+    };
+
+    $("#PersonEmploymentSchoolSection_PersonDetails_SchoolPhone").on("change", function () {
+        var contactPhone = $("#PersonEmploymentSchoolSection_PersonDetails_EmployerPhone").val();
+        if (contactPhone != null && contactPhone != "")
+            validateSchoolPhone(false);
+    });
+
+    function validateSchoolPhone(IsUserPermission) {
+        var isValidPhone = true;
+        var a = $("#PersonEmploymentSchoolSection_PersonDetails_SchoolPhone").val();
+        var filter = /^[0-9]{8,15}$/;
+
+        if (filter.test(a)) {
+            isValidPhone = true;
+            $("#ValSchoolPhone").html("");
+        }
+        else {
+            if (a == null && a == "") {
+                isValidPhone = true;
+            }
+            else {
+                $("#ValSchoolPhone").html('@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)');
+                isValidPhone = false;
+            }
+        }
+        return isValidPhone;
+    };
+
+</script>

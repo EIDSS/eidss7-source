@@ -1,0 +1,108 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Areas.Veterinary.ViewModels.ActiveSurveillanceSession
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Services
+@using EIDSS.Domain.ViewModels.Common
+
+@inherits EIDSS.Web.Components.Shared.ActiveSurveillanceCampaign.DiseaseSpeciesSampleListBase
+
+<div class="card">
+    <div class="card-body">
+        <div class="form-row justify-content-end mb-3">
+            <div class="col-1">
+                <button class="btn btn-outline-primary" type="button" disabled="@(AddButtonIsDisabled || @permissions.Write ==false || @IsReadOnly)" @onclick=@OnAddDiseaseSpeciesSampleClick>@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-12">
+                <RadzenDataGrid TItem="ActiveSurveillanceCampaignDiseaseSpeciesSamplesViewModel"
+                                Data="@DiseaseSpeciesSamples"
+                                @ref="DiseaseSpeciesSampleGrid"
+                                LoadData="@LoadDiseaseSpeciesSampleGrid"
+                                Count="@DiseaseSpeciesCount"
+                                EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)"
+                                AllowPaging="true" 
+                                PageSize="10" 
+                                AllowSorting="true" 
+                                AllowColumnResize="true"
+                                RowUpdate="OnUpdateRow"
+                                RowCreate="OnCreateRow" AllowFiltering="true"
+                                EditMode="DataGridEditMode.Single">
+                                
+                    <Columns>
+                        <RadzenDataGridColumn TItem="ActiveSurveillanceCampaignDiseaseSpeciesSamplesViewModel" Property="RowNumber" Visible="false" />
+                        <RadzenDataGridColumn TItem="ActiveSurveillanceCampaignDiseaseSpeciesSamplesViewModel" Property="Disease"
+                                              Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SessionInformationDiseaseColumnHeading)">
+                            <EditTemplate Context="data">
+                                <RadzenDropDown AllowClear=true AllowFiltering=true FilterCaseSensitivity=FilterCaseSensitivity.CaseInsensitive 
+                                                Data=@DiseaseList Name="diseaseID" TextProperty="DiseaseName" ValueProperty="DiseaseID" 
+                                                @bind-Value=@data.idfsDiagnosis Change=@(() => OnDiseaseChange(data.idfsDiagnosis)) LoadData="GetDiseasesAsync" />
+                                <RadzenRequiredValidator Component="diseaseID" Text=@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage) />
+                            </EditTemplate>
+                        </RadzenDataGridColumn>
+                        @if (CampaignCategoryId ==  Convert.ToInt64(EIDSSConstants.CampaignCategory.Veterinary))
+                        {
+                        <RadzenDataGridColumn TItem="ActiveSurveillanceCampaignDiseaseSpeciesSamplesViewModel" Property="SpeciesTypeName"
+                                              Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SessionInformationSpeciesColumnHeading)">
+                            <EditTemplate Context="data">
+                                <RadzenDropDown AllowClear=true AllowFiltering=true FilterCaseSensitivity=FilterCaseSensitivity.CaseInsensitive
+                                                Data=@SpeciesTypes TValue=long?  Name="speciesTypeID"
+                                                TextProperty="strName" ValueProperty="idfsBaseReference" @bind-Value=@data.idfsSpeciesType />
+                                <RadzenRequiredValidator Component="speciesTypeID" Text=@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage) />
+                            </EditTemplate>
+                        </RadzenDataGridColumn>
+                        }
+                        <RadzenDataGridColumn TItem="ActiveSurveillanceCampaignDiseaseSpeciesSamplesViewModel" Property="SampleTypeName"
+                                              Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SessionInformationSampleTypeColumnHeading)">
+                            <EditTemplate Context="data">
+                                <RadzenDropDown AllowClear=true AllowFiltering=true FilterCaseSensitivity=FilterCaseSensitivity.CaseInsensitive
+                                                Data=@SamplesTypes TValue=long? Name="sampleTypeID"
+                                                TextProperty="strSampleType" ValueProperty="idfsSampleType" @bind-Value=@data.idfsSampleType/>
+                                <RadzenRequiredValidator Component="sampleTypeID" Text=@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage) />
+                            </EditTemplate>
+                        </RadzenDataGridColumn >
+                        <RadzenDataGridColumn TItem="ActiveSurveillanceCampaignDiseaseSpeciesSamplesViewModel" Property="intPlannedNumber"
+                                              Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.CampaignInformationPlannedNumberColumnHeading)">
+                            <EditTemplate Context="data">
+                                <RadzenNumeric TValue="int?" @bind-Value=@data.intPlannedNumber Min=0 Max=2147483647 />
+                            </EditTemplate>
+
+                        </RadzenDataGridColumn>
+                         <RadzenDataGridColumn TItem="ActiveSurveillanceCampaignDiseaseSpeciesSamplesViewModel" Property="Comments"
+                                              Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.CampaignInformationCommentsDescriptionsColumnHeading)">
+                            <EditTemplate Context="data">
+                                <RadzenTextBox @bind-Value=@data.Comments  MaxLength=100 />
+                            </EditTemplate>
+
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ActiveSurveillanceCampaignDiseaseSpeciesSamplesViewModel" Property="" Title="" Sortable="false" Filterable="false"
+                                              Visible=@(permissions.Write) Width="100px">
+                            <Template Context="data">
+                                <button @onclick=@(() => OnEditDiseaseSpeciesClick(data)) class="btn btn-sm" disabled="@data.IsEditDisabled" type="button">
+                                    <i class="fas fa-edit fa-lg"></i>
+                                </button>
+                            </Template>
+                            <EditTemplate Context="data">
+                                <button @onclick=@(() => OnSaveDiseaseSpeciesClick(data)) class="btn btn-sm" type="button">
+                                    <i class="fas fa-save fa-lg"></i>
+                                </button>
+                                <button @onclick=@(() => OnCancelDiseaseSpeciesEditClickAsync(data)) class="btn btn-sm" type="button">
+                                    <i class="fas fa-ban fa-lg"></i>
+                                </button>
+                            </EditTemplate>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ActiveSurveillanceCampaignDiseaseSpeciesSamplesViewModel" Property="" Title="" Sortable="false" Filterable="false" Width="50px">
+                            <Template Context="data">
+                                <button @onclick=@(() => OnDeleteDiseaseSpeciesClick(data)) class="btn btn-sm" type="button">
+                                    <i class="fas fa-trash fa-lg"></i>
+                                </button>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+</div>
+

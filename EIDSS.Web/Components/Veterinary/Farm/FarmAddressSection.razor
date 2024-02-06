@@ -1,0 +1,34 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Areas.Veterinary.ViewModels.Farm
+@using EIDSS.Web.Services
+
+@inherits FarmAddressSectionBase
+
+@if (!StateContainer.IsReview)
+{
+    <FarmHeader/>
+}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-11">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.FarmDetailsFarmAddressHeading)</h4>
+        </div>
+        <div class="col-1 text-right">
+            @if (StateContainer.FarmAddSessionPermissions.Create && StateContainer.FarmMasterID is null || StateContainer.FarmAddSessionPermissions.Write && StateContainer.FarmMasterID > 0)
+            {
+                <a class="edit-section" href="#farmDetailsWizard-h-1" id="editFarmAddressSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            }
+        </div>
+    </div>
+</div>
+<RadzenTemplateForm Data="@StateContainer" @ref="Form" TItem="FarmStateContainer">
+    <div class="form-row">
+        <div class="col-md-12">
+            <LocationView Id="FarmAddress" LocationViewModelChanged="UpdateAddressHandlerAsync" ParmLocationViewModel="@StateContainer.FarmLocationModel" @ref="@LocationComponent" />
+        </div>
+    </div>
+</RadzenTemplateForm>

@@ -1,0 +1,106 @@
+﻿
+@model EIDSS.Web.ViewModels.Administration.SystemFunctionsPagesViewModel;
+
+
+<div id="permissions"  style="padding:0px;height:300px;overflow:auto;" >
+    <table id="tblPermission" class="table">
+        <thead>
+            <tr>
+                <th style="position: -webkit-sticky;position: sticky;top: 0;z-index: 2;">
+                    @Localizer.GetString(ColumnHeadingResourceKeyConstants.EmployeesFunctionsColumnHeading)
+                </th>
+                <th style="position: -webkit-sticky;position: sticky;top: 0;z-index: 2;">
+                    @Localizer.GetString(ColumnHeadingResourceKeyConstants.UserGroupDetailsCreateColumnHeading)
+                </th>
+                <th style="position: -webkit-sticky;position: sticky;top: 0;z-index: 2;">
+                    @Localizer.GetString(ColumnHeadingResourceKeyConstants.UserGroupDetailsReadColumnHeading)
+                </th>
+                <th style="position: -webkit-sticky;position: sticky;top: 0;z-index: 2;">
+                    @Localizer.GetString(ColumnHeadingResourceKeyConstants.UserGroupDetailsWriteColumnHeading)
+                </th>
+                <th style="position: -webkit-sticky;position: sticky;top: 0;z-index: 2;">
+                    @Localizer.GetString(ColumnHeadingResourceKeyConstants.UserGroupDetailsDeleteColumnHeading)
+                </th>
+                <th style="position: -webkit-sticky;position: sticky;top: 0;z-index: 2;">
+                    @Localizer.GetString(ColumnHeadingResourceKeyConstants.UserGroupDetailsExecuteColumnHeading)
+                </th>
+                <th style="position: -webkit-sticky;position: sticky;top: 0;z-index: 2;">
+                    @Localizer.GetString(ColumnHeadingResourceKeyConstants.UserGroupDetailsAccessToPersonalDataColumnHeading)
+                </th>
+                <th style="position: -webkit-sticky;position: sticky;top: 0;z-index: 2;">
+                    @Localizer.GetString(ColumnHeadingResourceKeyConstants.UserGroupDetailsAccessToGenderAndAgeDataColumnHeading)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @for(int i=0;i<=Model.PermissionViewModel.Count()-1;i++)
+            {
+            <tr>
+                <td>
+                    <input id="@(String.Format("hf_{0}", Model.PermissionViewModel[i].SystemFunctionId))" type="hidden" class="SystemFunctionID" value="@Model.PermissionViewModel[i].SystemFunctionId" />
+                    <label id="@(String.Format("functions_{0}", Model.PermissionViewModel[i].Permission))"
+                           class="functions">
+                        @Html.DisplayFor(modelItem => Model.PermissionViewModel[i].Permission)
+                    </label>
+                </td>
+                <td>
+                    @if(Model.PermissionViewModel[i].HasCreatePermission)
+                    {
+                    <input asp-for="PermissionViewModel[i].CreatePermission" type="checkbox" class="Create" />
+                    }
+                </td>
+                <td>
+                    @if(Model.PermissionViewModel[i].HasReadPermission)
+                    {
+                    <input asp-for="PermissionViewModel[i].ReadPermission" type="checkbox" class="Read" />
+                    }
+                </td>
+                <td>
+                    @if(Model.PermissionViewModel[i].HasWritePermission)
+                    {
+                    <input asp-for="PermissionViewModel[i].WritePermission" type="checkbox" class="Write" />
+                    }
+                </td>
+                <td>
+                    @if(Model.PermissionViewModel[i].HasDeletePermission)
+                    {
+                    <input asp-for="PermissionViewModel[i].DeletePermission" type="checkbox" class="DeletePer" />
+                    }
+                </td>
+                <td>
+                    @if(Model.PermissionViewModel[i].HasExecutePermission)
+                    {
+                    <input asp-for="PermissionViewModel[i].ExecutePermission" type="checkbox" class="Execute" />
+                    }
+                </td>
+                <td>
+                    @if(Model.PermissionViewModel[i].HasAccessToPersonalDataPermission)
+                    {
+                    <input asp-for="PermissionViewModel[i].AccessToPersonalDataPermission" type="checkbox" class="PersonalData" />
+                    }
+                </td>
+                <td>
+                    @if(Model.PermissionViewModel[i].HasAccessToGenderAndAgeDataPermission)
+                    {
+                    <input asp-for="PermissionViewModel[i].AccessToGenderAndAgeDataPermission" type="checkbox" class="GenderData" />
+                    }
+                </td>
+            </tr>
+            }
+        </tbody>
+        </table>
+</div>
+   <script type="text/javascript">  
+    //$(document).ready(function () {
+        //################################
+        // Initialize datatable
+        //################################
+        //var table = $('#tblPermission').DataTable({
+        //    searching: false,
+        //    lengthChange: false,
+        //    paging: false,
+        //    orderable: false,
+        //    rowReorder:false
+        //});
+    //});
+    </script>

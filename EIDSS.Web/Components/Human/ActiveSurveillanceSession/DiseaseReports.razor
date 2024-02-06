@@ -1,0 +1,31 @@
+﻿@using EIDSS.Domain.ResponseModels.Human
+@using EIDSS.Web.Components.CrossCutting
+@inherits DiseaseReportsBase
+
+<div class="card">
+    <div class="card-body">
+        <GridExtension OnColumnSave="GridActiveSurveillanceSessionDiseaseClickHandler"></GridExtension>
+        <RadzenDataGrid AllowColumnPicking="true" AllowColumnReorder="true" AllowColumnResize="true" AllowPaging="true" AllowSorting="true" Count="@count" Data="@model.DiseaseReports.List" ExpandMode="DataGridExpandMode.Single" HeaderCellRender="@(args => HeaderCellRender(args.Column.Property))" IsLoading="@isLoading" LoadData="@(args => LoadDiseaseReportsGridView(args))" Name="testsResults" PageSize="10" @ref="_diseaseReportsGrid" render-mode="Server" TItem="ActiveSurveillanceSessionDiseaseReportsResponseModel">
+            <Columns>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("ReportID")" Property="ReportID" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionDiseaseReportsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionDiseaseReportsReportIDColumnHeading)" Visible="@GetColumnVisibility("ReportID")" Width="175px">
+                    <Template Context="data">
+                        <button class="btn btn-link btn-sm" @onclick="@(() => SendReportLink(data.ReportKey))">@data.ReportID.ToString()</button>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("EnteredDate")" Property="EnteredDate" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionDiseaseReportsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionDiseaseReportsCaseDateColumnHeading)" Visible="@GetColumnVisibility("EnteredDate")" Width="175px"/>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("ClassificationTypeName")" Property="ClassificationTypeName" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionDiseaseReportsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionDiseaseReportsCaseClassificationColumnHeading)" Visible="@GetColumnVisibility("ClassificationTypeName")" Width="175px"/>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("DiseaseName")" Property="DiseaseName" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionDiseaseReportsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionDiseaseReportsDiseaseColumnHeading)" Visible="@GetColumnVisibility("DiseaseName")" Width="175px"/>
+                <RadzenDataGridColumn OrderIndex="@FindColumnOrder("PersonLocation")" Property="PersonLocation" Reorderable="true" Sortable="true" TItem="ActiveSurveillanceSessionDiseaseReportsResponseModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanSessionDiseaseReportsLocationColumnHeading)" Visible="@GetColumnVisibility("PersonLocation")" Width="175px"/>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>
+
+@code{
+
+    void GridActiveSurveillanceSessionDiseaseClickHandler()
+    {
+        GridColumnSave("ActiveSurveillanceSessionDisease");
+    }
+
+}

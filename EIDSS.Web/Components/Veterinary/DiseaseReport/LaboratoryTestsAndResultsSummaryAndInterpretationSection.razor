@@ -1,0 +1,413 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.CrossCutting;
+@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits LaboratoryTestsAndResultsSummaryAndInterpretationSectionBase
+
+<Loading IsLoading="IsProcessing" />
+
+<div id="divLabTestsAndResultsSummaryAndInterpretationSection" class="container-fluid">
+    <div class="row">
+        <div class="col-9">
+            <h4 class="header">@Localizer.GetString(LabTestsSubSectionHeadingResourceKey)</h4>
+        </div>
+        <div class="col-3 text-right">
+            @if (Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0)
+            {
+                if (Model.TestsConductedIndicator == (long)YesNoUnknownEnum.Yes && (Model.Samples is not null && Model.Samples.Any(x => x.RowStatus == (int)RowStatusTypeEnum.Active) || Model.PendingSaveSamples is not null && Model.PendingSaveSamples.Any(x => x.RowStatus == (int)RowStatusTypeEnum.Active)))
+                {
+                    <button class="btn btn-link add-section" id="addLaboratoryTest" @onclick="OnAddLaboratoryTestClick" type="button">
+                        <span class="fas fa-plus fa-lg"></span>
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-link add-section disabled" disabled id="addLaboratoryTest" type="button">
+                        <span class="fas fa-plus fa-lg"></span>
+                    </button>
+                }
+                <button class="btn btn-link add-section" id="printLaboratoryTests" @onclick="OnPrintLaboratoryTestsButtonClick" type="button">
+                    <span class="fas fa-print fa-lg"></span>
+                </button>
+            }
+            else if (!Model.WritePermissionIndicator || Model.ReportDisabledIndicator)
+            {
+                <button class="btn btn-link add-section disabled" disabled id="addLaboratoryTest" type="button">
+                    <span class="fas fa-plus fa-lg"></span>
+                </button>
+            }
+            else
+            {
+                if (Model.TestsConductedIndicator == (long)YesNoUnknownEnum.Yes && (Model.Samples is not null && Model.Samples.Any(x => x.RowStatus == (int)RowStatusTypeEnum.Active) || Model.PendingSaveSamples is not null && Model.PendingSaveSamples.Any(x => x.RowStatus == (int)RowStatusTypeEnum.Active)))
+                {
+                    <button class="btn btn-link add-section" id="addLaboratoryTest" @onclick="OnAddLaboratoryTestClick" type="button">
+                        <span class="fas fa-plus fa-lg"></span>
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-link add-section disabled" disabled id="addLaboratoryTest" type="button">
+                        <span class="fas fa-plus fa-lg"></span>
+                    </button>
+                }
+                <button class="btn btn-link add-section" id="printLaboratoryTests" @onclick="OnPrintLaboratoryTestsButtonClick" type="button">
+                    <span class="fas fa-print fa-lg"></span>
+                </button>
+            }
+
+            @if ((Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0) || (Model.WritePermissionIndicator && Model.DiseaseReportID > 0 && Model.ReportStatusTypeID == (long)DiseaseReportStatusTypeEnum.InProcess && Model.ReportCurrentlyClosedIndicator == false))
+            {
+                if (Model.OutbreakCaseIndicator)
+                {
+                    <a class="edit-section" href="#caseDiseaseReportWizard-h-10" id="editTestsSectionButton" role="button">
+                        <span class="fas fa-edit fa-lg"></span>
+                    </a>
+                }
+                else if (Model.ReportCategoryTypeID == (long)CaseTypeEnum.Avian)
+                {
+                    <a class="edit-section" href="#caseDiseaseReportWizard-h-8" id="editTestsSectionButton" role="button">
+                        <span class="fas fa-edit fa-lg"></span>
+                    </a>
+                }
+                else
+                {
+                    <a class="edit-section" href="#caseDiseaseReportWizard-h-10" id="editTestsSectionButton" role="button">
+                        <span class="fas fa-edit fa-lg"></span>
+                    </a>
+                }
+            }
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            @if (Model.LaboratoryTests == null || Model.LaboratoryTests.Count(x => x.RowStatus == 0) == 0)
+            {
+                <RadzenRadioButtonList @bind-Value="Model.TestsConductedIndicator" Change="OnTestsConductedChange" Disabled="@(Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)" TValue="long?">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.YesFieldLabel)" TValue="long?" Value="@((long) YesNoUnknownEnum.Yes)" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.NoFieldLabel)" TValue="long?" Value="@((long) YesNoUnknownEnum.No)" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.CommonLabelsUnknownFieldLabel)" TValue="long?" Value="@((long) YesNoUnknownEnum.Unknown)" />
+                    </Items>
+                </RadzenRadioButtonList>
+            }
+            else
+            {
+                <RadzenRadioButtonList @bind-Value="Model.TestsConductedIndicator" Disabled="true" TValue="long?">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.YesFieldLabel)" TValue="long?" Value="@((long) YesNoUnknownEnum.Yes)" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.NoFieldLabel)" TValue="long?" Value="@((long) YesNoUnknownEnum.No)" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.CommonLabelsUnknownFieldLabel)" TValue="long?" Value="@((long) YesNoUnknownEnum.Unknown)" />
+                    </Items>
+                </RadzenRadioButtonList>
+            }
+        </div>
+    </div>
+    <div class="card">
+        <div id="divLabTestsSubSection" class="card-body">
+            <div class="row">
+                <div class="col-12">
+                    <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" Count="LaboratoryTestsCount" Data="Model.LaboratoryTests" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" ExpandMode="DataGridExpandMode.Single" IsLoading="LaboratoryTestsIsLoading" LoadData="args => LoadLaboratoryTestData(args)" PageSizeOptions="pageSizeOptions" PageSizeText="@Localizer.GetString(FieldLabelResourceKeyConstants.CommonLabelsItemsPerPageFieldLabel)" @ref="LaboratoryTestsGrid" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="true" TItem="LaboratoryTestGetListViewModel">
+                        <Columns>
+                            <RadzenDataGridColumn Property="EIDSSLocalOrFieldSampleID" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsFieldSampleIdColumnHeadingResourceKey" />
+                            <RadzenDataGridColumn Property="Species" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsSpeciesColumnHeadingResourceKey" Visible="Model.ReportCategoryTypeID == (long) CaseTypeEnum.Avian" />
+                            <RadzenDataGridColumn Property="EIDSSAnimalID" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsAnimalIdColumnHeadingResourceKey" Visible="Model.ReportCategoryTypeID == (long) CaseTypeEnum.Livestock" />
+                            <RadzenDataGridColumn Property="DiseaseName" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsTestDiseaseColumnHeadingResourceKey" />
+                            <RadzenDataGridColumn Property="TestNameTypeName" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsTestNameColumnHeadingResourceKey" />
+                            <RadzenDataGridColumn Property="TestResultTypeName" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsResultObservationColumnHeadingResourceKey" />
+                            <RadzenDataGridColumn Filterable="false" Frozen="true" Property="TestID" Sortable="false" TextAlign="TextAlign.Center" TItem="LaboratoryTestGetListViewModel" Title="" Width="55px">
+                                <Template Context="item">
+                                    @if (Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0)
+                                    {
+                                        if (CanInterpretTestResultPermissionIndicator
+                                            && item.TestResultTypeID is not null
+                                            && Model.LaboratoryTestInterpretations is not null
+                                            && Model.ReportStatusTypeID == (long)DiseaseReportStatusTypeEnum.InProcess && Model.ReportCurrentlyClosedIndicator == false)
+                                        {
+                                            if (Model.ReportCategoryTypeID == (long)CaseTypeEnum.Avian
+                                                && Model.LaboratoryTestInterpretations.Count(
+                                                    x => x.SpeciesID == item.SpeciesID
+                                                && x.SpeciesID is not null
+                                                && item.SpeciesID is not null
+                                                && x.DiseaseID == item.DiseaseID
+                                                && x.DiseaseID is not null
+                                                && x.RowStatus == (int)RowStatusTypeEnum.Active) == 0)
+                                            {
+                                                <button class="btn btn-link" @onclick="_ => OnAddLaboratoryTestInterpretationClick(item)">
+                                                    <span class="fas fa-file"></span>
+                                                </button>
+                                            }
+                                            else if (Model.ReportCategoryTypeID == (long)CaseTypeEnum.Livestock
+                                                    && Model.LaboratoryTestInterpretations.Count(
+                                                        x => x.AnimalID == item.AnimalID
+                                                    && x.AnimalID is not null
+                                                    && item.AnimalID is not null
+                                                    && x.DiseaseID == item.DiseaseID
+                                                    && x.DiseaseID is not null
+                                                    && x.RowStatus == (int)RowStatusTypeEnum.Active) == 0)
+                                            {
+                                                <button class="btn btn-link" @onclick="_ => OnAddLaboratoryTestInterpretationClick(item)">
+                                                    <span class="fas fa-file"></span>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button class="btn btn-link disabled" disabled>
+                                                    <span class="fas fa-file disabled"></span>
+                                                </button>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-link disabled" disabled>
+                                                <span class="fas fa-file disabled"></span>
+                                            </button>
+                                        }
+                                    }
+                                    else if (!Model.WritePermissionIndicator || Model.ReportDisabledIndicator)
+                                    {
+                                        <button class="btn btn-link disabled" disabled>
+                                            <span class="fas fa-file disabled"></span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        if (CanInterpretTestResultPermissionIndicator
+                                            && item.TestResultTypeID is not null
+                                            && Model.LaboratoryTestInterpretations is not null
+                                            && Model.ReportStatusTypeID == (long)DiseaseReportStatusTypeEnum.InProcess && Model.ReportCurrentlyClosedIndicator == false)
+                                        {
+                                            if (Model.ReportCategoryTypeID == (long)CaseTypeEnum.Avian
+                                                && Model.LaboratoryTestInterpretations.Count(
+                                                    x => x.SpeciesID == item.SpeciesID
+                                                && x.SpeciesID is not null
+                                                && item.SpeciesID is not null
+                                                && x.DiseaseID == item.DiseaseID
+                                                && x.DiseaseID is not null
+                                                && x.RowStatus == (int)RowStatusTypeEnum.Active) == 0)
+                                            {
+                                                <button class="btn btn-link" @onclick="_ => OnAddLaboratoryTestInterpretationClick(item)">
+                                                    <span class="fas fa-file"></span>
+                                                </button>
+                                            }
+                                            else if (Model.ReportCategoryTypeID == (long)CaseTypeEnum.Livestock
+                                                && Model.LaboratoryTestInterpretations.Count(
+                                                    x => x.AnimalID == item.AnimalID
+                                                && x.AnimalID is not null
+                                                && item.AnimalID is not null
+                                                && x.DiseaseID == item.DiseaseID
+                                                && x.DiseaseID is not null
+                                                && x.RowStatus == (int)RowStatusTypeEnum.Active) == 0)
+                                            {
+                                                <button class="btn btn-link" @onclick="_ => OnAddLaboratoryTestInterpretationClick(item)">
+                                                    <span class="fas fa-file"></span>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button class="btn btn-link disabled" disabled>
+                                                    <span class="fas fa-file disabled"></span>
+                                                </button>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-link disabled" disabled>
+                                                <span class="fas fa-file disabled"></span>
+                                            </button>
+                                        }
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn Filterable="false" Frozen="true" Property="TestID" Sortable="false" TextAlign="TextAlign.Center" TItem="LaboratoryTestGetListViewModel" Title="" Width="55px">
+                                <Template Context="item">
+                                    @if ((Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0 || Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0) && item.NonLaboratoryTestIndicator)
+                                    {
+                                        <button class="btn btn-link disabled" disabled>
+                                            <span class="fas fa-edit disabled"></span>
+                                        </button>
+                                    }
+                                    else if (item.NonLaboratoryTestIndicator)
+                                    {
+                                        <button class="btn btn-link" @onclick="_ => OnEditLaboratoryTestClick(item)">
+                                            <span class="fas fa-edit"></span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-link disabled" disabled>
+                                            <span class="fas fa-edit disabled"></span>
+                                        </button>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn Filterable="false" Frozen="true" Property="TestID" Sortable="false" TextAlign="TextAlign.Center" TItem="LaboratoryTestGetListViewModel" Title="" Width="55px">
+                                <Template Context="item">
+                                    @if (Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)
+                                    {
+                                        <button class="btn btn-link disabled" disabled>
+                                            <span class="fas fa-trash disabled"></span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-link" @onclick="_ => OnDeleteLaboratoryTestClick(item)">
+                                            <span class="fas fa-trash"></span>
+                                        </button>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                        <!--Expandable Detail Template for Grid -->
+                        <Template Context="item">
+                            <RadzenCard>
+                                <div class="row">
+                                    <InterfaceEditorResource CssClass="col-4" For="labSampleID" InterfaceEditorKey="@LabSampleIdFieldLabelResourceKey" IsRow="false">
+                                        <RadzenTextBox @bind-Value="item.EIDSSLaboratorySampleID" class="form-control" Name="labSampleID" ReadOnly="true" />
+                                    </InterfaceEditorResource>
+                                    <InterfaceEditorResource CssClass="col-8" For="sampleType" InterfaceEditorKey="@SampleTypeFieldLabelResourceKey" IsRow="false">
+                                        <RadzenTextBox @bind-Value="item.SampleTypeName" class="form-control" id="sampleType" Name="sampleType" ReadOnly="true" />
+                                    </InterfaceEditorResource>
+                                </div>
+                                <div class="row">
+                                    <InterfaceEditorResource CssClass="col-4" For="testStatus" InterfaceEditorKey="@TestStatusFieldLabelResourceKey" IsRow="false">
+                                        <RadzenTextBox @bind-Value="item.TestStatusTypeName" class="form-control" id="testStatus" Name="testStatus" ReadOnly="true" />
+                                    </InterfaceEditorResource>
+                                    <InterfaceEditorResource CssClass="col-4" For="testCategory" InterfaceEditorKey="@TestCategoryFieldLabelResourceKey" IsRow="false">
+                                        <RadzenTextBox @bind-Value="item.TestCategoryTypeName" class="form-control" id="testCategory" Name="testCategory" ReadOnly="true" />
+                                    </InterfaceEditorResource>
+                                    <InterfaceEditorResource CssClass="col-4" For="resultDate" InterfaceEditorKey="@ResultDateFieldLabelResourceKey" IsRow="false">
+                                        <br />
+                                        <RadzenDatePicker @bind-Value="item.ResultDate" DateFormat="d" Disabled="true" id="resultDate" Name="resultDate" ReadOnly="true" TValue="DateTime?" />
+                                    </InterfaceEditorResource>
+                                </div>
+                            </RadzenCard>
+                        </Template>
+                    </RadzenDataGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h4 class="header non-section">@ResultsSummaryAndInterpretationSubSectionResourceKey</h4>
+        </div>
+    </div>
+    <div class="card">
+        <div id="divResultsSummaryAndInterpretationSubSection" class="card-body">
+            <div class="row">
+                <div class="col-12">
+                    <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" Count="LaboratoryTestInterpretationsCount" Data="Model.LaboratoryTestInterpretations" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" ExpandMode="DataGridExpandMode.Single" IsLoading="LaboratoryTestInterpretationsIsLoading" LoadData="args => LoadLaboratoryTestInterpretationsData(args)" PageSizeOptions="pageSizeOptions" PageSizeText="@Localizer.GetString(FieldLabelResourceKeyConstants.CommonLabelsItemsPerPageFieldLabel)" @ref="LaboratoryTestInterpretationsGrid" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="true" TItem="LaboratoryTestInterpretationGetListViewModel">
+                        <Columns>
+                            <RadzenDataGridColumn Property="EIDSSAnimalID" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsAnimalIdColumnHeadingResourceKey" Visible="Model.ReportCategoryTypeID == (long) CaseTypeEnum.Livestock" Width="150px" />
+                            <RadzenDataGridColumn Property="Species" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsSpeciesColumnHeadingResourceKey" Visible="Model.ReportCategoryTypeID == (long) CaseTypeEnum.Avian" />
+                            <RadzenDataGridColumn Property="DiseaseName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsDiseaseColumnHeadingResourceKey" Width="300px" />
+                            <RadzenDataGridColumn Property="TestNameTypeName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsTestNameColumnHeadingResourceKey" Width="250px" />
+                            <RadzenDataGridColumn Property="TestCategoryTypeName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsTestCategoryColumnHeadingResourceKey" Width="200px" />
+                            <RadzenDataGridColumn Property="TestResultTypeName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsTestResultColumnHeadingResourceKey" Width="200px" />
+                            <RadzenDataGridColumn Property="EIDSSLaboratorySampleID" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsLabSampleIdColumnHeadingResourceKey" Width="150px" />
+                            <RadzenDataGridColumn Property="SampleTypeName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsSampleTypeColumnHeadingResourceKey" Width="250px" />
+                            <RadzenDataGridColumn Property="EIDSSLocalOrFieldSampleID" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsFieldSampleIdColumnHeadingResourceKey" Width="150px" />
+                            <RadzenDataGridColumn Property="InterpretedStatusTypeName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsRuleOutRuleInColumnHeadingResourceKey" Width="175px" />
+                            <RadzenDataGridColumn Property="InterpretedComment" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsRuleOutRuleInCommentColumnHeadingResourceKey" Width="250px" />
+                            <RadzenDataGridColumn FormatString="{0:d}" Property="InterpretedDate" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsDateInterpretedColumnHeadingResourceKey" Width="175px" />
+                            <RadzenDataGridColumn Property="InterpretedByPersonName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsInterpretedByColumnHeadingResourceKey" Width="250px" />
+                            <RadzenDataGridColumn Property="ValidatedStatusIndicator" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsValidatedColumnHeadingResourceKey" Width="125px">
+                                <Template Context="item">
+                                    @{
+                                        var validatedString = Localizer.GetString(item.ValidatedStatusIndicator ? FieldLabelResourceKeyConstants.YesFieldLabel : FieldLabelResourceKeyConstants.NoFieldLabel);
+                                    }
+                                    <RadzenLabel Text="@validatedString" Style="font-weight: normal;" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn Property="ValidatedComment" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsValidatedCommentColumnHeadingResourceKey" Width="250px" />
+                            <RadzenDataGridColumn FormatString="{0:d}" Property="ValidatedDate" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsDateValidatedColumnHeadingResourceKey" Width="150px" />
+                            <RadzenDataGridColumn Property="ValidatedByPersonName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsValidatedByColumnHeadingResourceKey" Width="200px" />
+                            <RadzenDataGridColumn Filterable="false" Frozen="true" Property="TestInterpretationID" Sortable="false" TextAlign="TextAlign.Center" TItem="LaboratoryTestInterpretationGetListViewModel" Title="" Width="55px">
+                                <Template Context="item">
+                                    @if (Model.CreatePermissionIndicator && Model.DiseaseReportID <= 0)
+                                    {
+                                        if (Model.DiseaseID != null
+                                        && item.DiseaseID != null
+                                        && Model.DiseaseID != item.DiseaseID
+                                        && item.CanCreateConnectedDiseaseReportIndicator
+                                        && item.IndicativeIndicator
+                                        && Model.DiseaseReportID > 0
+                                        && Model.ReportStatusTypeID == (long)DiseaseReportStatusTypeEnum.InProcess
+                                        && Model.ReportCurrentlyClosedIndicator == false)
+                                        {
+                                            <button class="btn btn-link" @onclick="_ => OnCreateConnectedDiseaseReportClick(item)">
+                                                <span class="fas fa-link"></span>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-link disabled" disabled>
+                                                <span class="fas fa-link"></span>
+                                            </button>
+                                        }
+                                    }
+                                    else if (!Model.WritePermissionIndicator || Model.ReportDisabledIndicator)
+                                    {
+                                        <button class="btn btn-link disabled" disabled>
+                                            <span class="fas fa-link"></span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        if (Model.DiseaseID != null && item.DiseaseID != null && Model.DiseaseID != item.DiseaseID && item.CanCreateConnectedDiseaseReportIndicator && item.IndicativeIndicator && Model.DiseaseReportID > 0 && Model.ReportStatusTypeID == (long)DiseaseReportStatusTypeEnum.InProcess && Model.ReportCurrentlyClosedIndicator == false)
+                                        {
+                                            <button class="btn btn-link" @onclick="_ => OnCreateConnectedDiseaseReportClick(item)">
+                                                <span class="fas fa-link"></span>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-link disabled" disabled>
+                                                <span class="fas fa-link"></span>
+                                            </button>
+                                        }
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn Filterable="false" Frozen="true" Property="TestInterpretationID" Sortable="false" TextAlign="TextAlign.Center" TItem="LaboratoryTestInterpretationGetListViewModel" Title="" Width="55px">
+                                <Template Context="item">
+                                    @if (Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)
+                                    {
+                                        <button class="btn btn-link disabled" disabled>
+                                            <span class="fas fa-edit disabled"></span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-link" @onclick="_ => OnEditLaboratoryTestInterpretationClick(item)">
+                                            <span class="fas fa-edit"></span>
+                                        </button>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn Filterable="false" Frozen="true" Property="TestInterpretationID" Sortable="false" TextAlign="TextAlign.Center" TItem="LaboratoryTestInterpretationGetListViewModel" Title="" Width="55px">
+                                <Template Context="item">
+                                    @if (Model.ReportDisabledIndicator || Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0 || Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0)
+                                    {
+                                        <button class="btn btn-link disabled" disabled>
+                                            <span class="fas fa-trash disabled"></span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-link" @onclick="_ => OnDeleteLaboratoryTestInterpretationClick(item)">
+                                            <span class="fas fa-trash"></span>
+                                        </button>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

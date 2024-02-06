@@ -1,0 +1,71 @@
+﻿@using Domain.ViewModels.Vector
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits EIDSS.Web.Components.Vector.VectorDetailedCollections.TestModalBase
+
+<RadzenTemplateForm Data="VectorSessionStateContainer.FieldTestDetail" @ref="Form" Submit="OnSubmit" TItem="FieldTestGetListViewModel">
+    <div class="card">
+        <div class="card-body">
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-6" For="fieldSampleID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionFieldTestDetailsModalFieldSampleIDFieldLabel" IsRow="false">
+                    <RadzenDropDown @bind-Value="VectorSessionStateContainer.FieldTestDetail.SampleID" Change="@OnSampleChange" class="form-control" Data="Samples" LoadData="GetSamples" Name="fieldSampleID" TextProperty="EIDSSLocalOrFieldSampleID" TValue="long?" ValueProperty="SampleID" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-6" For="sampleType" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionFieldTestDetailsModalSampleTypeFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="VectorSessionStateContainer.FieldTestDetail.SampleTypeName" class="form-control" Name="sampleType" ReadOnly="true"></RadzenTextBox>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-6" For="collectionDate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionFieldTestDetailsModalCollectionDateFieldLabel" IsRow="false">
+                    <RadzenDatePicker @bind-Value="VectorSessionStateContainer.FieldTestDetail.CollectionDate" class="form-control-range" DateFormat="d" Name="collectionDate" ReadOnly="true" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-6" For="testName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionFieldTestDetailsModalTestNameFieldLabel" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="VectorSessionStateContainer.FieldTestDetail.TestNameTypeID" Change="OnTestNameChange" class="form-control" Data="TestNameTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetTestNameTypes" Name="testName" TextProperty="strPensideTestName" TValue="long?" ValueProperty="idfsPensideTestName" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-6" For="testCategory" InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalTestCategoryFieldLabel" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="VectorSessionStateContainer.FieldTestDetail.TestCategoryTypeID" class="form-control" Data="TestCategoryTypes" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetTestCategoryTypes" Name="testCategory" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-md-6" For="testedByInstitution" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionFieldTestDetailsModalTestedByInstitutionFieldLabel" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@VectorSessionStateContainer.FieldTestDetail.TestedByOrganizationID" Change="@OnTestedByOrganizationChange" class="form-control" Data="@TestedByInstitutions" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="@GetTestedByInstitution" Name="testedByInstitution" TextProperty="name" TValue="long?" ValueProperty="idfOffice" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-md-6" For="testedByPersonID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionFieldTestDetailsModalTestedByFieldLabel" IsRow="false">
+                    <div class="input-group flex-nowrap">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowSorting="true" @bind-Value="@VectorSessionStateContainer.FieldTestDetail.TestedByPersonID" class="form-control" Data="@TestedByEmployees" Disabled="@IsTestedByPersonDisabled" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="@GetTestedByEmployees" Name="testedByPersonID" TextProperty="FullName" TValue="long?" ValueProperty="idfPerson" />
+                        @if (VectorSessionStateContainer.EmployeeRecordPermissions.Create)
+                        {
+                            <button class="btn btn-outline-secondary btn-sm" id="AddEmployee" @onclick="@OpenEmployeeAddModal" type="button"><span aria-hidden="true" class="fas fa-plus"></span></button>
+                        }
+                    </div>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-6" For="testResult" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionFieldTestDetailsModalTestResultFieldLabel" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="VectorSessionStateContainer.FieldTestDetail.TestResultTypeID" class="form-control" Data="TestResultTypes" Disabled="@Disabled" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetTestResultTypes" Name="testResult" TextProperty="strTestResultName" TValue="long?" ValueProperty="idfsTestResult" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-6" For="resultDate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.VectorDetailedCollectionFieldTestDetailsModalResultDateFieldLabel" IsRow="false">
+                    <RadzenDatePicker @bind-Value="VectorSessionStateContainer.FieldTestDetail.ResultDate" class="form-control-range" DateFormat="d" Disabled="@Disabled" Name="resultDate" />
+                    <RadzenCompareValidator Component="resultDate" Operator="CompareOperator.GreaterThanEqual" Popup="false" Style="display: block" Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), Localizer.GetString(FieldLabelResourceKeyConstants.TestDetailsModalResultDateFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.TransferOutModalDateSentFieldLabel))" Value="@VectorSessionStateContainer.FieldTestDetail.CollectionDate" Visible="@(!string.IsNullOrEmpty(VectorSessionStateContainer.FieldTestDetail.ResultDate.ToString()))" />
+                    <RadzenCompareValidator Component="resultDate" Operator="CompareOperator.GreaterThanEqual" Popup="false" Style="display: block" Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), Localizer.GetString(FieldLabelResourceKeyConstants.TestDetailsModalResultDateFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.TransferOutModalDateSentFieldLabel))" Value="@VectorSessionStateContainer.FieldTestDetail.AccessionDate" Visible="@(!string.IsNullOrEmpty(VectorSessionStateContainer.FieldTestDetail.ResultDate.ToString()))" />
+                    <RadzenCompareValidator Component="resultDate" Operator="CompareOperator.GreaterThanEqual" Popup="false" Style="display: block" Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), Localizer.GetString(FieldLabelResourceKeyConstants.TestDetailsModalResultDateFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.TransferOutModalDateSentFieldLabel))" Value="@VectorSessionStateContainer.FieldTestDetail.IdentifiedDate" Visible="@(!string.IsNullOrEmpty(VectorSessionStateContainer.FieldTestDetail.ResultDate.ToString()))" />
+                    <RadzenCompareValidator Component="resultDate" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="@DateTime.Now" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-6" For="testDisease" InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalTestDiseaseFieldLabel" IsRow="false">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="VectorSessionStateContainer.FieldTestDetail.DiseaseID" class="form-control" Data="TestDiseases" Disabled="@Disabled" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="GetDiseases" Name="testDisease" TextProperty="DiseaseName" TValue="long?" ValueProperty="DiseaseID" />
+                </InterfaceEditorResource>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-md-12">
+                    <button class="btn btn-outline-primary" @onclick="OnCancel" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button class="btn btn-primary" @onsubmit="OnSubmit" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

@@ -1,0 +1,197 @@
+﻿@using EIDSS.Domain.ViewModels.Laboratory
+@using EIDSS.Domain.Enumerations
+@using EIDSS.Web.Areas.Laboratory.ViewModels
+
+@inherits CreateAliquotDerivativeBase
+
+<div class="row">
+    <div class="col-4">
+        @if (AliquotDerivative.FormationType == (int) SampleDivisionTypeEnum.Derivative && Samples != null && Samples.GroupBy(x => x.SampleTypeID).Count() > 1)
+        {
+            <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="false" AllowSorting="true" Count="SamplesCount" Data="Samples" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="LoadSamplesData" @ref="SamplesGrid" SelectionMode="@DataGridSelectionMode.Single" TItem="SamplesGetListViewModel">
+                <Columns>
+                    <RadzenDataGridColumn Filterable="false" Frozen="true" Sortable="false" TItem="SamplesGetListViewModel" Width="40px">
+                        <HeaderTemplate>
+                        </HeaderTemplate>
+                        <Template Context="item">
+                            <RadzenCheckBox Change="args => OnRecordSelectionChange(args, item)" TriState="false" TValue="bool" Value="IsRecordSelected(item)"/>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Property="EIDSSLaboratorySampleID" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesLabSampleIDColumnHeading)"/>
+                    <RadzenDataGridColumn Property="SampleTypeName" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesSampleTypeColumnHeading)"/>
+                </Columns>
+            </RadzenDataGrid>
+        }
+        else
+        {
+            <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="false" AllowSorting="true" Count="SamplesCount" Data="Samples" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="LoadSamplesData" @ref="SamplesGrid" SelectionMode="@DataGridSelectionMode.Multiple" TItem="SamplesGetListViewModel">
+                <Columns>
+                    <RadzenDataGridColumn Filterable="false" Frozen="true" Sortable="false" TItem="SamplesGetListViewModel" Width="40px">
+                        <HeaderTemplate>
+                            <RadzenCheckBox Change="args => SelectedSamples = args ? Samples.ToList() : null" TriState="false" TValue="bool" Value="IsSelected"/>
+                        </HeaderTemplate>
+                        <Template Context="item">
+                            <RadzenCheckBox Change="args => OnRecordSelectionChange(args, item)" TriState="false" TValue="bool" Value="IsRecordSelected(item)"/>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Property="EIDSSLaboratorySampleID" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesLabSampleIDColumnHeading)"/>
+                    <RadzenDataGridColumn Property="SampleTypeName" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesSampleTypeColumnHeading)"/>
+                </Columns>
+            </RadzenDataGrid>
+        }
+    </div>
+    <div class="col-8">
+        <RadzenTemplateForm Data="AliquotDerivative" Submit="OnFormSubmit" TItem="AliquotDerivativeViewModel">
+            <div class="row">
+                <div class="col-4">
+                    <RadzenRadioButtonList @bind-Value="AliquotDerivative.FormationType" Change="OnFormationTypeChange" Name="rboFormationType" Orientation="Orientation.Vertical" TValue="int">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryCreateAliquotButtonText)" Value="(int) SampleDivisionTypeEnum.Aliquot" />
+                            <RadzenRadioButtonListItem Text="@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryCreateDerivativeButtonText)" Value="(int) SampleDivisionTypeEnum.Derivative" />
+                        </Items>
+                    </RadzenRadioButtonList>
+                    <RadzenRequiredValidator Component="rboFormationType" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)" />
+                </div>
+                <div class="col-4">
+                    <label>
+                        <span style="color: #ff0000;">*</span> @Localizer.GetString(FieldLabelResourceKeyConstants.AliquotDerivativeModalNewSamplesFieldLabel)
+                    </label><br />
+                    <RadzenNumeric AutoComplete="false" @bind-Value="AliquotDerivative.NewSampleCount" Max="1000" Min="1" Name="nmNewSampleCount" />
+                    <RadzenNumericRangeValidator Component="nmNewSampleCount" Max="1000" Min="1" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)" />
+                </div>
+                <div class="col-4">
+                    <label>
+                        <span style="color: #ff0000;">*</span> @Localizer.GetString(FieldLabelResourceKeyConstants.AliquotDerivativeModalTypeofDerivativeFieldLabel)
+                    </label><br />
+                    <RadzenDropDown AllowClear="true" @bind-Value="AliquotDerivative.SelectedDerivativeID" class="form-control" Data="DerivativeTypes" Disabled="IsDerivativeTypesDisabled" LoadData="GetDerivatives" Name="ddlDerivativeTypes" TextProperty="strDerivative" TValue="long?" ValueProperty="idfsDerivativeType" />
+                    <RadzenRequiredValidator Component="ddlDerivativeTypes" DefaultValue="0" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)" Visible="IsDerivativeTypesValidationVisible" />
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    @if (IsOkDisabled)
+                    {
+                        <button class="btn btn-primary" type="button" disabled>@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-primary" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+                    }
+                </div>
+            </div>
+        </RadzenTemplateForm>
+    </div>
+</div>
+<div class="row py-5">
+    <div class="col-12">
+        <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" Data="AliquotDerivativeSamples" ExpandMode="DataGridExpandMode.Multiple" IsLoading="IsAliquotDerivativeLoading" PageSize="10" @ref="AliquotDerivativeGrid" TItem="SamplesGetListViewModel">
+            <Template Context="sample">
+                <div class="row">
+                    <div class="col-6" style="border-right:1px solid #ddd;">
+                        <RadzenTree Change="args => OnStorageLocationChange(args, sample)" Data="StorageLocations" Style="width: 100%; height: 300px;">
+                            <RadzenTreeLevel ChildrenProperty="Children" Expanded="data => ShouldSelectThisNode(data, sample)" HasChildren="data => ((StorageLocationViewModel)data).Children != null" TextProperty="StorageLocationName" Selected="data => ShouldSelectThisNode(data, sample)" />
+                        </RadzenTree>
+                    </div>
+                    <div class="col-6">
+                        @if (!string.IsNullOrEmpty(sample.BoxSizeTypeName))
+                        {
+                            var boxSize = sample.BoxSizeTypeName.Split("X");
+                            var columns = Convert.ToInt32(boxSize[0]);
+                            var rows = Convert.ToInt32(boxSize[1]);
+
+                            <table border="0">
+                                <tr>
+                                    @for (var c = 0; c <= columns; c++)
+                                    {
+                                        var id = "tc_" + c + "_0";
+
+                                        <td id="@id" style="padding: 15px;">
+                                            @if (c > 0)
+                                            {
+                                                <strong>@c.ToString()</strong>
+                                            }
+                                        </td>
+                                    }
+                                </tr>
+                                @for (var r = 1; r <= rows; r++)
+                                {
+                                    <tr>
+                                        @for (var c = 0; c <= columns; c++)
+                                        {
+                                            var id = "tc_" + c + "_" + r;
+                                            var radioId = "rad_" + GetLetter(r) + "_" + c + "_Box_" + sample.SelectedStorageLocationId;
+                                            var radioTooltip = GetLetter(r) + "-" + c;
+                                            var cssClass = "";
+
+                                            <td id="@id" style="padding: 15px;">
+                                                @if (c == 0)
+                                                {
+                                                    <strong>@GetLetter(r)</strong>
+                                                }
+                                                else
+                                                {
+                                                    if (sample.BoxLocationAvailability.First(x => x.BoxLocation == radioTooltip.Replace("-", "")).AvailabilityIndicator)
+                                                    {
+                                                        <input class="@cssClass" id="@radioId" name="boxGroup" title="@radioTooltip" type="radio" @onclick="_ => SetStorageBoxPlace(sample, radioTooltip)" />
+                                                    }
+                                                    else
+                                                    {
+                                                        cssClass = sample.StorageBoxPlace == radioTooltip && sample.FreezerSubdivisionID == sample.SelectedStorageLocationId ? CssDisabledBoxLocationCurrent : CssDisabledBoxLocation;
+
+                                                        <input class="@cssClass" disabled id="@radioId" name="boxGroup" title="@radioTooltip" type="radio"/>
+                                                    }
+                                                }
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </table>
+                        }
+                    </div>
+                </div>
+            </Template>
+            <Columns>
+                <RadzenDataGridColumn Property="ParentEIDSSLaboratorySampleID" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesLabSampleIDColumnHeading)"></RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="EIDSSLaboratorySampleID" TItem="SamplesGetListViewModel" Title="NEW LAB SAMPLE ID"></RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="SampleTypeName" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesSampleTypeColumnHeading)"></RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="FunctionalAreaName" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesFunctionalAreaColumnHeading)">
+                    <Template Context="item">
+                        <div style="max-height: 35px;">
+                            <RadzenDropDown AllowClear="true" @bind-Value="item.FunctionalAreaID" Data="LaboratoryService.FunctionalAreas" TextProperty="DepartmentNameNationalValue" TValue="long?" ValueProperty="DepartmentID" />
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="Comment" TItem="SamplesGetListViewModel" Title="COMMENT">
+                    <Template Context="item">
+                        <div>
+                            <RadzenTextBox @bind-Value="item.Comment" />
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Context="order" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" TItem="SamplesGetListViewModel" Width="70px">
+                    <Template Context="item">
+                        <button class="btn btn-sm" @onclick="_ => DeleteRow(item)" type="button">
+                            <i class="fas fa-trash fa-lg"></i>
+                        </button>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>
+<div class="row pt-4" style="border-top: 1px solid #ccc;">
+    <div class="col-12 text-center">
+        <RadzenCheckBox @bind-Value="PrintBarcodes" Name="chkPrintBarcode" TValue="bool" />
+        <label>@Localizer.GetString(FieldLabelResourceKeyConstants.AliquotDerivativeModalPrintBarcodesFieldLabel)</label>
+
+        <button class="btn btn-outline-primary" @onclick="@(_ => DiagService.Close())" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToCancelToolTip)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+        @if (IsSaveDisabled)
+        {
+            <button disabled class="btn btn-primary disabled" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+        }
+        else
+        {
+            <button class="btn btn-primary" id="saveAliquotDerivativeButton" onclick="showSampleDivisionProcessingIndicator();"><i id="sampleDivisionProcessing"></i> @Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+        }
+    </div>
+</div>

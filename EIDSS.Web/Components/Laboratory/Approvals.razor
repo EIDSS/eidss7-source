@@ -1,0 +1,45 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Laboratory
+
+@inherits ApprovalsBase
+
+<div class="form-inline">
+    <div class="form-row py-1">
+        <Menu ApproveRecordDeletionEvent="OnRefreshApprovals" ApproveSampleDestructionEvent="OnRefreshApprovals" RejectRecordDeletionEvent="OnRefreshApprovals" RejectSampleDestructionEvent="OnRefreshApprovals" RestoreDeletedSampleRecordEvent="OnRefreshApprovals" Tab="LaboratoryTabEnum.Approvals" ValidateTestResultEvent="OnRefreshApprovals"></Menu>
+        <Actions ApproveEvent="OnRefreshApprovals" RejectEvent="OnRefreshApprovals" SaveEvent="OnReloadApprovals" Tab="LaboratoryTabEnum.Approvals"/>
+        <Search @ref="Search" AdvancedSearchEvent="OnAdvancedSearch" ClearSearchEvent="OnClearSearch" SimpleSearchEvent="OnSimpleSearch" Tab="LaboratoryTabEnum.Approvals" />
+    </div>
+</div>
+<RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" CellRender="OnCellRender" Count="Count" Data="Approvals" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="LoadApprovalsData" PageSize="100" PageSizeOptions="pageSizeOptions" PageSizeText="@Localizer.GetString(FieldLabelResourceKeyConstants.CommonLabelsItemsPerPageFieldLabel)" @ref="ApprovalsGrid" RowRender="OnRowRender" SelectionMode="DataGridSelectionMode.Multiple" ShowPagingSummary="true" Style="height: calc(100vh - 425px)" TItem="ApprovalsGetListViewModel">
+    <Columns>
+        <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Sortable="false" TItem="ApprovalsGetListViewModel" Width="40px">
+            <HeaderTemplate>
+                <RadzenCheckBox Change="args => HeaderRecordSelectionChange(args)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSelectAllRecordsToolTip)" TriState="false" TValue="bool" Value="IsHeaderRecordSelected()" />
+            </HeaderTemplate>
+            <Template Context="item">
+                <RadzenCheckBox Change="args => RecordSelectionChange(args, item)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSelectToolTip)" TriState="false" TValue="bool" Value="IsRecordSelected(item)" />
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Property="SampleID" Sortable="false" TextAlign="TextAlign.Center" TItem="ApprovalsGetListViewModel" Title="" Width="40px">
+            <HeaderTemplate>
+            </HeaderTemplate>
+            <Template Context="item">
+                <a id="editApprovalButton" @onclick="_ => OnEditApproval(item)" role="button" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToEditTheRecordToolTip)">
+                    <i class="fas fa-edit fa-lg"></i>
+                </a>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Frozen="true" HeaderCssClass="lab-table-striped-header" Property="ActionRequested" TItem="ApprovalsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryApprovalsActionRequestedColumnHeading)" Width="250px"/>
+        <RadzenDataGridColumn Frozen="true" HeaderCssClass="lab-table-striped-header" Property="EIDSSReportOrSessionID" TItem="ApprovalsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryApprovalsReportSessionIDColumnHeading)" Width="150px"/>
+        <RadzenDataGridColumn Frozen="true" HeaderCssClass="lab-table-striped-header" Property="PatientOrFarmOwnerName" TItem="ApprovalsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryApprovalsPatientFarmOwnerColumnHeading)" Width="300px"/>
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="SampleTypeName" TItem="ApprovalsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryApprovalsSampleTypeColumnHeading)" Width="250px"/>
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="DisplayDiseaseName" TItem="ApprovalsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryApprovalsDiseaseColumnHeading)" Width="300px"/>
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="EIDSSLaboratorySampleID" TItem="ApprovalsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesLabSampleIDColumnHeading)" Width="150px"/>
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="AccessionConditionOrSampleStatusTypeName" TItem="ApprovalsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryApprovalsSampleStatusColumnHeading)" Width="250px"/>
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="TestNameTypeName" TItem="ApprovalsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryApprovalsTestNameColumnHeading)" Width="250px"/>
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="TestStatusTypeName" TItem="ApprovalsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryApprovalsTestStatusColumnHeading)" Width="225px"/>
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="TestResultTypeName" TItem="ApprovalsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryApprovalsTestResultColumnHeading)" Width="225px"/>
+        <RadzenDataGridColumn FormatString="{0:d}" HeaderCssClass="lab-table-striped-header" Property="ResultDate" TItem="ApprovalsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryApprovalsResultDateColumnHeading)" Width="160px"/>
+        <RadzenDataGridColumn FormatString="{0:g}" HeaderCssClass="lab-table-striped-header" Property="AccessionDate" TItem="ApprovalsGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesAccessionDateTimeColumnHeading)" Width="190px"/>
+    </Columns>
+</RadzenDataGrid>

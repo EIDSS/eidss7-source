@@ -1,0 +1,165 @@
+﻿@model EIDSS.Web.ViewModels.Human.HumanActiveSurveillanceCampaignCreateAndEditViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+
+@{
+    //SETUP GRID
+    Model.eidssGridConfiguration.GridId = "SampleTypeGrid";
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.Inline;
+
+    // Model.eidssGridConfiguration.SaveCompleteMethod = "SaveSampleType";
+    //Model.eidssGridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.Inline;
+    // Model.eidssGridConfiguration.ControlFilterID = "RefereceTypeDD";
+    //Model.eidssGridConfiguration.EditModalAjaxUrl = @Url.Action("EditAgeGroup", "AgeGroupReferenceEditorPage");
+    Model.eidssGridConfiguration.DeleteModalAjaxUrl = @Url.Action("DeleteSampleType", "AgeGroupReferenceEditorPage");
+    Model.eidssGridConfiguration.AjaxDataUrl = @Url.Action("GetDiseaseToSampleTypePartial", "HumanActiveSurveillanceCampaignPage" , new { campaignID = Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignID });
+    Model.eidssGridConfiguration.ControlFilterID = "CampaignName,CampaignStartDate,CampaignEndDate,DiseaseDD,CampaignStatusDD,CampaignTypeDD,CampaignID,Conclusions,rowDataHidden";
+    //  Model.eidssGridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.Inline;
+    // Model.eidssGridConfiguration.EnableCustomSearching = true;
+
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels();
+    Model.eidssGridConfiguration.ControlLabels.DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage);
+    // Model.eidssGridConfiguration.ControlLabels.EditModalMessage = Localizer.GetString((int)InterfaceEditorResourceSetEnum.WarningMessages + "Are you sure that you want to Edit this record?" + (long)InterfaceEditorTypeEnum.Message);
+    Model.eidssGridConfiguration.ControlLabels.DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    //  Model.eidssGridConfiguration.ControlLabels.EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.eidssGridConfiguration.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    // Model.eidssGridConfiguration.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    // Model.eidssGridConfiguration.ControlLabels.DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton);
+    // Model.eidssGridConfiguration.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton);
+    Model.eidssGridConfiguration.ControlLabels.CancelInlineEditTitle = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    Model.eidssGridConfiguration.ControlLabels.CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage);
+    Model.eidssGridConfiguration.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    // Model.eidssGridConfiguration.DeleteCompleteMethod = "DeleteSampleTypeRow";
+    Model.eidssGridConfiguration.DeleteCustomMethod = "DeleteRow";
+    Model.eidssGridConfiguration.EditCustomMethod = "EditRow";
+
+    Model.eidssGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.eidssGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "Row",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.ReadOnly,
+        VisibleInModal = false,
+        Orderable = true,
+        //ClientFunction = "BuildRowId",
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "IdfCampainToDiagnosis",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        Visible = false,
+        ColumnType = ColumnType.ReadOnly,
+        VisibleInModal = false,
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "Disease",
+        ColumnTitleHeader = "Disease",
+        Visible = true,
+        ColumnType = ColumnType.DropDown,
+        DisplayDropDownInModalOnly = true,
+        VisibleInModal = false,
+        Orderable = true,
+        ColumnAjaxDataUrl = @Url.Action("GetDiseasesForSelect2DropDownFilteredAndPaged", "CrossCutting", new { Area = "CrossCutting" }),
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+        },
+        AssociatedFieldId = "DiagnosisId",
+        SplitCsvValues = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "DiagnosisId",
+        Visible = false,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "SampleTypeName",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SampleTypeColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.DropDown,
+        DisplayDropDownInModalOnly = true,
+        VisibleInModal = true,
+        ClassName = "SampleTypeName",
+        Orderable = true,
+        ColumnAjaxDataUrl = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDownWithSorting", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000087, sortColumn = "IntOrder" }),
+        ValidationSetting = new ValidatorSettings()
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage),
+        },
+        AssociatedFieldId = "SampleTypeId",
+        SplitCsvValues = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "SampleTypeId",
+        Visible = false,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "PlannedNumber",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.CampaignInformationPlannedNumberColumnHeading),
+        Visible = true,
+        VisibleInModal = true,
+        //ClientFunction = "AddPlannedNumberTextField",
+        ClassName = "PlannedNumber",
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "CommentsDescriptions",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.CampaignInformationCommentsDescriptionsColumnHeading),
+        Visible = true,
+        //  ClientFunction = "AddCommentsTextField",
+        VisibleInModal = true,
+        ClassName = "CommentsDescriptions",
+        Orderable = true
+    });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "Delete",
+        Visible = (Model.ReadOnlyMode == true | Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStatusTypeID == 10140002) ? false : true,
+        DisplayDropDownInModalOnly = true,
+        ColumnType = ColumnType.Delete,
+
+        // ClientFunction = "DeleteSampleTypeRow"
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    {
+        ColumnName = "Edit",
+        Visible = (Model.ReadOnlyMode == true | Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStatusTypeID == 10140002) ? false : true,
+            ColumnType = ColumnType.Edit,
+
+            CustomLinkText = "Edit"
+            // ClientFunction = "DeleteRow"
+        });
+
+}
+
+
+
+<eidss-grid id="@Model.eidssGridConfiguration.GridId" grid-configuration="@Model.eidssGridConfiguration"
+            filtered-control-ids="@Model.eidssGridConfiguration.ControlFilterID"
+            controls-that-refresh-the-grid="@Model.eidssGridConfiguration.ControlIdThatRefreshGrid"
+            enable-server-side="@Model.eidssGridConfiguration.EnableServerSide"
+            enable-processing="@Model.eidssGridConfiguration.EnableProcessingMessage"
+            enable-search="@Model.eidssGridConfiguration.EnableSearching"
+            end-point="@Model.eidssGridConfiguration.AjaxDataUrl"
+            class-name="@Model.eidssGridConfiguration.GridClass"
+            enable-top-header-search-button="@Model.eidssGridConfiguration.EnableCustomSearching"
+            control-labels="@Model.eidssGridConfiguration.ControlLabels"
+            custom-search-btn-id="@Model.eidssGridConfiguration.CustomSearchBtnID" >
+
+</eidss-grid>

@@ -1,0 +1,9 @@
+﻿@model EIDSS.Web.ViewModels.Administration.AddStatisticalDataViewModel;
+@using EIDSS.Web.Components.Administration.StatisticalData;
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.StatisticalDataDetailsPageHeading);
+}
+
+<component type="typeof(AddStatisticalData)" render-mode="Server" param-Model="Model"  />
+ 
+<script src="@Url.Content("~/js/Administration/StatisticalData.js")"></script>

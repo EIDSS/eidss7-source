@@ -1,0 +1,364 @@
+﻿@model EIDSS.Web.Areas.Reports.SubAreas.AJ.ViewModels.FormVET1AViewModel
+@using EIDSS.ReportViewer
+@{
+    ViewBag.Title = Localizer.GetString(HeadingResourceKeyConstants.VeterinaryReportFormVet1APageHeading);
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@(HeadingResourceKeyConstants.VeterinaryReportFormVet1APageHeading + "," + Model.LanguageId)"></h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            <div class="form-row">
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="LanguageId" field-label-for="@(FieldLabelResourceKeyConstants.LanguageFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="LanguageId"
+                                asp-items="@(new SelectList(Model.ReportLanguageModels, "LangID", "Language"))" class="form-control">
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="FromYear" field-label-for="@(FieldLabelResourceKeyConstants.FromYearFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="FromYear"
+                                asp-items="@(new SelectList(Model.ReportFromYearModels, "Year", "Year"))" class="form-control">
+                        </select>
+                        <span asp-validation-for="FromYear" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="FromMonth" field-label-for="@(FieldLabelResourceKeyConstants.FromMonthFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="FromMonth" style="width: 150px;"
+                                asp-items="@(new SelectList(Model.ReportFromMonthNameModels, "intOrder", "strTextString"))" class="form-control">
+                            <option></option>
+                        </select>
+                        <span class="input-group-append">
+                            <button type="button" id="btnFromMonth" class="btn btn-outline-secondary btn-sm border-left-0 border"><i class="fa fa-times fa-sm"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="ToYear" field-label-for="@(FieldLabelResourceKeyConstants.ToYearFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="ToYear"
+                                asp-items="@(new SelectList(Model.ReportToYearModels, "Year", "Year"))" class="form-control">
+                        </select>
+                        <span asp-validation-for="ToYear" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="ToMonth" field-label-for="@(FieldLabelResourceKeyConstants.ToMonthFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="ToMonth" style="width: 150px;"
+                                asp-items="@(new SelectList(Model.ReportToMonthNameModels, "intOrder", "strTextString"))" class="form-control">
+                            <option></option>
+                        </select>
+                        <span class="input-group-append">
+                            <button type="button" id="btnToMonth" class="btn btn-outline-secondary btn-sm border-left-0 border"><i class="fa fa-times fa-sm"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4 text-right">
+                    <button type="submit" id="submitReport" class="btn btn-primary" button-for="@(ButtonResourceKeyConstants.GenerateReportButton + "," + Model.LanguageId)"></button>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="RegionId" field-label-for="@(FieldLabelResourceKeyConstants.RegionFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="RegionId" style="width: 150px;"
+                                asp-items="@(new SelectList(Model.GisRegionList, "idfsReference", "Name"))" class="form-control">
+                            <option value="0"></option>
+                        </select>
+                        <span class="input-group-append">
+                            <button type="button" id="btnRegion" class="btn btn-outline-secondary btn-sm border-left-0 border"><i class="fa fa-times fa-sm"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <label asp-for="RayonId" field-label-for="@(FieldLabelResourceKeyConstants.RayonFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="RayonId" style="width: 150px;"
+                                asp-items="@(new SelectList(Model.GisRayonList, "idfsReference", "Name"))" class="form-control">
+                            <option value="0"></option>
+                        </select>
+                        <span class="input-group-append">
+                            <button type="button" id="btnRayon" class="btn btn-outline-secondary btn-sm border-left-0 border"><i class="fa fa-times fa-sm"></i></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group col-lg-4 col-md-4 col-sm-6 col-xs-6">
+                    <label asp-for="EnterByOrganizationId" field-label-for="@(FieldLabelResourceKeyConstants.EnteredByOrganizationFieldLabel + "," + Model.LanguageId)"></label>
+                    <div class="input-group">
+                        <select asp-for="EnterByOrganizationId" style="width: 150px;" disabled
+                                asp-items="@(new SelectList(Model.OrganizationList, "IdfsBaseReference", "Name"))" class="form-control">
+                            <option value="0"></option>
+                        </select>
+                        <span class="input-group-append">
+                            <button type="button" id="btnOrganization" class="btn btn-outline-secondary btn-sm border-left-0 border"><i class="fa fa-times fa-sm"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-2 form-check form-check-inline" style="@(Model.ShowIncludeSignature ? "display:block;" : "display:none;")">
+                    <input asp-for="IncludeSignature" class="form-check-input" type="checkbox" />
+                    <label asp-for="IncludeSignature" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.IncludeSignatureFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+                <div class="form-group col-md-4 form-check form-check-inline" style="@(Model.ShowUseArchiveData ? "display:block;" : "display:none;")">
+                    <input asp-for="UseArchiveData" class="form-check-input" type="checkbox" />
+                    <label asp-for="UseArchiveData" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.UseArchivedDataFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+            </div>
+        </form>
+        <div class="col-xs-4 col-xs-offset-4" id="divLoading"></div>
+        <div id="ReportView"></div>
+    </div>
+</div>
+@section runreport {
+    <script type="text/javascript">
+        function submitReport() {
+                $("#ReportView").html("");
+                onBegin();
+                $.ajax({
+                    url: '@Url.Action("GenerateReport", "FormVET1A", new { Area = "Reports", SubArea = "AJ" })',//controller name and action
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(getFormData())  //information for search
+                })
+                    .done(function (result) {
+                        $('#ReportView').html(result); //write returned partial view to empty div
+                        onComplete();
+                    })
+        }
+
+        function onBegin() {
+            $("#divLoading").html('<image  src="@Url.Content("~/Includes/Images/ajax-loader.gif")"  alt="Loading, please wait" />');
+        };
+
+        function onComplete() {
+            var jsonData = {
+                strReportName: '@Model.ReportName',
+                idfIsSignatureIncluded: $("#IncludeSignature").is(':checked') ? 'true' : 'false'
+            };
+            //Save ReportAudit
+            $.ajax({
+                url: '@Url.Action("SaveReportAudit", "FormVET1A", new { Area = "Reports", SubArea = "AJ" })',//controller name and action
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(jsonData)
+            })
+                .done(function (result) {
+                    $("#divLoading").html("");
+                })
+        };
+
+        function getFormData() {
+            var jsonData = {
+                "languageId": $("#LanguageId").val(),
+                "fromYear": $("#FromYear").val(),
+                "toYear": $("#ToYear").val(),
+                "fromMonth": $("#FromMonth").val(),
+                "toMonth": $("#ToMonth").val(),
+                "regionId": $("#RegionId").val(),
+                "rayonId": $("#RayonId").val(),
+                "enterByOrganizationId": $("#EnterByOrganizationId").val(),
+                "useArchiveData": $("#UseArchiveData").is(':checked') ? 'true' : 'false',
+                "includeSignature": $("#IncludeSignature").is(':checked') ? 'true' : 'false',
+                "PrintDateTime": localDate()
+            };
+
+            return jsonData;
+        };
+
+        $(document).ready(function () {
+            //Years validation
+            $("#FromYear").on("change", function () {
+                $(this).valid();
+                $('#ToYear').valid();
+            });
+
+            $("#ToYear").on("change", function () {
+                $(this).valid();
+                $('#FromYear').valid();
+            });
+
+            //Months Validation
+            $("#FromMonth").on("change", function () {
+                FromMonthValidation();
+            });
+
+            $("#ToMonth").on("change", function () {
+                ToMonthValidation();
+            });
+
+            //To clear dropdown texts
+            $("#btnRayon").click(function () {
+                $("#RayonId").val("0").change();
+            });
+
+            $("#btnOrganization").on("click", function () {
+                if ($("#EnterByOrganizationId").val() != '0') {
+                    $('#EnterByOrganizationId').val('0').change();
+                    $("#RegionId").prop("disabled", false);
+                    $("#RayonId").prop("disabled", false);
+                }
+                else {
+                    $('#EnterByOrganizationId').prop("disabled", false)
+                    $('#RegionId').val('0').change();
+                    $('#RayonId').val('0').change();
+                }
+            });
+
+            var ClearMonths = function () {
+                $("#FromMonth").val("").change();
+                $("#ToMonth").val("").change();
+            };
+            $("#btnFromMonth").on("click", ClearMonths);
+            $("#btnToMonth").on("click", ClearMonths);
+
+            var ClearRegion = function () {
+                $("#RegionId").val("0").change();
+                $("#RayonId").val("0").change();
+                $("#EnterByOrganizationId").prop("disabled", false)
+            };
+            $("#btnRegion").on("click", ClearRegion);
+
+            $("#RegionId").on("change", function () {
+                if ($("#RegionId").val() != '0') {
+                    $('#EnterByOrganizationId').val('0');
+                    $('#EnterByOrganizationId').prop("disabled", true)
+                }
+                else {
+                    $('#EnterByOrganizationId').prop("disabled", false)
+                }
+
+                RefreshRayon()
+            });
+
+            $("#EnterByOrganizationId").on("change", function () {
+                if ($("#EnterByOrganizationId").val() != '0') {
+                    $('#RegionId').val('0');
+                    $('#RegionId').prop("disabled", true);
+                    $('#RayonId').val('0');
+                    $('#RayonId').prop("disabled", true);
+                }
+                else {
+                    $('#RegionId').prop("disabled", false);
+                    $('#RayonId').prop("disabled", true);
+                }
+            });
+        });
+
+        function RefreshFromMonths(monthId) {
+            var langId = $("#LanguageId").val();
+            var selectedMonth = $(monthId).val();
+
+            $.ajax({
+                url: '@Url.Action("GetMonthNameList", "FormVET1A", new { Area = "Reports", SubArea = "AJ" })' +"?langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $(monthId).empty();
+                    var items = '<option></option>';
+                    $.each(data, function (i, monthNames) {
+                        items += "<option value='" + monthNames.intOrder + "'>" + monthNames.strTextString + "</option>";
+                    });
+                    $(monthId).html(items)
+                    $(monthId).val(selectedMonth);
+                });
+        };
+
+        function RefreshRegion() {
+            var langId = $("#LanguageId").val();
+            var selectedRegion = $('#RegionId').val();
+            $.ajax({
+                url: '@Url.Action("GetRegionList", "FormVET1A", new { Area = "Reports", SubArea = "AJ" })' +"?langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#RegionId').empty();
+                    var items = '<option value="0"></option>';
+                    $.each(data, function (i, region) {
+                        items += "<option value='" + region.idfsReference + "'>" + region.name + "</option>";
+                    });
+                    $('#RegionId').html(items);
+                    $('#RegionId').val(selectedRegion);
+                    RefreshRayon();
+                });
+        };
+
+        function RefreshRayon() {
+            var nodeValue = $("#RegionId").val();
+            var langId = $("#LanguageId").val();
+            var selectedRayonId = $("#RayonId").val();
+            $.ajax({
+                url: '@Url.Action("GetRayonList", "FormVET1A", new { Area = "Reports", SubArea = "AJ" })' +"?node=" + nodeValue + "&langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#RayonId').empty();
+                    var items = '<option value="0"></option>';
+                    $.each(data, function (i, rayon) {
+                        items += "<option value='" + rayon.idfsReference + "'>" + rayon.name + "</option>";
+                    });
+                    $('#RayonId').html(items);
+                    $("#RayonId").val(selectedRayonId);
+                });
+        };
+
+        function RefreshOrganizatioList() {
+            var langId = $("#LanguageId").val();
+            var selectedOrg = $('#EnterByOrganizationId').val();
+
+            $.ajax({
+                url: '@Url.Action("GetOrganizationList", "FormVET1A", new { Area = "Reports", SubArea = "AJ" })' + "?langId=" + langId,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8'
+            })
+                .done(function (data) {
+                    $('#EnterByOrganizationId').empty();
+                    var items = '<option value="0"></option>';
+                    $.each(data, function (i, organization) {
+                        items += "<option value='" + organization.idfsBaseReference + "'>" + organization.name + "</option>";
+                    });
+                    $('#EnterByOrganizationId').html(items);
+                    $('#EnterByOrganizationId').val(selectedOrg);
+                });
+        };
+
+        //From Month shall be less than or equel to To Month
+        function FromMonthValidation() {
+            var ddlFromMonth = $("#idfsReference_FromMonth").val();
+            var ddlToMonth = $("#idfsReference_ToMonth").val();
+            if ((parseInt(ddlFromMonth) > parseInt(ddlToMonth)) || parseInt(ddlFromMonth) == 0) {
+                $('#idfsReference_ToMonth').val(ddlFromMonth).trigger('change');
+            }
+        };
+        function ToMonthValidation() {
+            var ddlFromMonth = $("#idfsReference_FromMonth").val();
+            var ddlToMonth = $("#idfsReference_ToMonth").val();
+            if (parseInt(ddlFromMonth) > parseInt(ddlToMonth)) {
+                $('#idfsReference_FromMonth').val(ddlToMonth).trigger('change');
+            }
+        };
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+
+    @if (@Model.JavascriptToRun != null)
+    {
+        <script type="text/javascript">
+            @Html.Raw(@Model.JavascriptToRun)
+        </script>
+    }
+}

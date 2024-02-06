@@ -1,0 +1,76 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Areas.Veterinary.ViewModels.ActiveSurveillanceSession
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Services
+@inherits EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession.DetailedAnimalSamplesAggregateListBase
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-6">
+                <h5>@Localizer.GetString(HeadingResourceKeyConstants.VeterinarySessionAggregateInformationAggregateAnimalsAndSamplesHeading)</h5>
+            </div>
+            <div class="col-6 text-right mb-2">
+                <button class="btn btn-sm btn-outline-primary" id="printSample" disabled="@PrintSampleButtonDisabled" @onclick="@OnPrintAggregateSampleClick">@Localizer.GetString(ButtonResourceKeyConstants.PrintButton)</button>
+                <button class="btn btn-sm btn-outline-primary" id="addSample" disabled="@AddSampleButtonDisabled" @onclick="@OnAddAggregateSampleClick">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="form-row">
+            <div class="col-12">
+                <RadzenDataGrid id="animalSampleAggregateGrid"
+                                TItem="VeterinaryActiveSurveillanceSessionAggregateViewModel"
+                                Data="@StateContainer.AnimalSamplesAggregate"
+                                @ref="AnimalSampleAggregateGrid"
+                                LoadData="@LoadAnimalSampleAggregateGrid"
+                                Count="@Count"
+                                EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)"
+                                SelectionMode="DataGridSelectionMode.Single"
+                                ShowExpandColumn="true"
+                                ShowPagingSummary="true"
+                                AllowPaging="true">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionAggregateViewModel" Property="EIDSSFarmID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionAggregateInformationFarmIDColumnHeading)" Width="175px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionAggregateViewModel" Property="SpeciesTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionAggregateInformationSpeciesColumnHeading)" Width="175px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionAggregateViewModel" Property="AnimalGenderTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionAggregateInformationSexColumnHeading)" Width="125px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionAggregateViewModel" Property="SampledAnimalsQuantity" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionAggregateInformationAnimalsSampledColumnHeading)" Width="175px" Sortable="true">
+                            <FooterTemplate>
+                                @Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionAggregateInformationTotalColumnHeading): <b>@(StateContainer.AnimalSamplesAggregate is null ? 0 : StateContainer.AnimalSamplesAggregate.Sum(x => x.SampledAnimalsQuantity))</b>
+                            </FooterTemplate>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionAggregateViewModel" Property="SampleTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionAggregateInformationSampleTypeColumnHeading)" Width="200px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionAggregateViewModel" Property="SamplesQuantity" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionAggregateInformationNumberOfSamplesColumnHeading)" Width="175px" Sortable="true">
+                            <FooterTemplate>
+                                @Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionAggregateInformationTotalColumnHeading): <b>@(StateContainer.AnimalSamplesAggregate is null ? 0 : StateContainer.AnimalSamplesAggregate.Sum(x => x.SamplesQuantity))</b>
+                            </FooterTemplate>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionAggregateViewModel" Property="CollectionDate" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionAggregateInformationCollectionDateColumnHeading)" Width="175px" Sortable="true" FormatString="{0:d}" />
+                        <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionAggregateViewModel" Property="PositiveAnimalsQuantity" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionAggregateInformationPositiveNumberColumnHeading)" Width="175px" Sortable="true">
+                            <FooterTemplate>
+                                @Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionAggregateInformationTotalColumnHeading): <b>@(StateContainer.AnimalSamplesAggregate is null ? 0 : StateContainer.AnimalSamplesAggregate.Sum(x => x.PositiveAnimalsQuantity))</b>
+                            </FooterTemplate>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionAggregateViewModel" Property="DiseaseName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionAggregateInformationDiseaseColumnHeading)" Width="200px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionAggregateViewModel" Property="" Title="" Sortable="false" Filterable="false"
+                                              Visible="@(StateContainer.ActiveSurveillanceSessionPermissions.Write)" Width="50px">
+                            <Template Context="data">
+                                <button @onclick="@(() => OnEditAggregateSampleClick(data))" class="btn btn-sm" type="button">
+                                    <i class="fas fa-edit fa-lg"></i>
+                                </button>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionAggregateViewModel" Property="" Title="" Sortable="false" Filterable="false" Width="50px">
+                            <Template Context="data">
+                                <button @onclick="@(() => OnDeleteAggregateSampleClick(data))" class="btn btn-sm" disabled="@(StateContainer.ActiveSurveillanceSessionPermissions.Write ? false: true)" type="button">
+                                    <i class="fas fa-trash fa-lg"></i>
+                                </button>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+</div>

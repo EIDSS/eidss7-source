@@ -1,0 +1,295 @@
+﻿@using EIDSS.Web.TagHelpers.Models
+@model BaseReferenceEditorPagesViewModel;
+
+<h2 heading-for="@HeadingResourceKeyConstants.GenericStatisticalTypesReferenceEditorPageHeading"></h2>
+
+<div class="card">
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.GenericStatisticalTypesReferenceEditorPageHeading);
+
+    @if (Model.UserPermissions.Create)
+    {
+        Model.PageLevelAddButtonModalText = Localizer.GetString(ButtonResourceKeyConstants.AddButton);
+        Model.PageLevelAddButtonModal = "bAddStaticalalDataType";
+    }
+
+    //SET UP MODAL
+    var eIDSSModalConfiguration = new EIDSSModalConfiguration
+    {
+        ModalId = "bAddStaticalalDataType",
+        ControlLabels =
+        {
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.GenericStatisticalTypeDetailsModalHeading)
+        },
+        TargetGridControlID = "gStatisticalTypes",
+        SaveCompleteMethod = "CheckSuccess",
+        PostAjaxDataUrl = Url.Action("AddEditStatisticalType", "StatisticalTypePage", new {Area = "Administration"})
+    };
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        ControlName = "strDefault",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "EnglishValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        ControlName = "strName",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "NationalValueRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        ControlName = "strParameterType",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.StatisticalParameterTypeFieldLabel),
+        Visible = true,
+        ClassName = "ReferenceType",
+        ControlType = ControlType.DropDown,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceAdvanceListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", ReferenceType = "Reference Type Name"})
+    });
+
+    var
+        trueFalseOptions = new List<RadionCheckBoxOptions>
+        {
+            new() {Value = "false", Key = string.Empty, IsChecked = false}
+        };
+
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        ControlName = "blnStatisticalAgeGroup",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.StatisticalAgeGroupFieldLabel),
+        Visible = true,
+        ClassName = "RelatedWithAgeGroup",
+        ControlType = ControlType.CheckBox,
+        RadioCheckBoxOptions = trueFalseOptions
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        ControlName = "strStatisticAreaType",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.AreaTypeFieldLabel),
+        Visible = true,
+        ControlType = ControlType.DropDown,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceAdvanceListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", ReferenceType = "Statistical Area Type"}),
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "StatisticalAreaTypeRequired"
+    });
+    eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames
+    {
+        ControlName = "strStatisticPeriodType",
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.PeriodTypeFieldLabel),
+        Visible = true,
+        ControlType = ControlType.DropDown,
+        ControlAjaxDataUrl = Url.Action("BaseReferenceAdvanceListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", ReferenceType = "Statistical Period Type"}),
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "StatisticalPeriodRequired"
+    });
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
+
+    //Set up Grid
+    Model.eidssGridConfiguration.GridId = "gStatisticalTypes";
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.AjaxDataUrl = Url.Action("GetList", "StatisticalTypePage", new {Area = "Administration"});
+    Model.eidssGridConfiguration.EditModalAjaxUrl = Url.Action("AddEditStatisticalType", "StatisticalTypePage", new {Area = "Administration"});
+    Model.eidssGridConfiguration.DeleteModalAjaxUrl = Url.Action("DeleteStatisticalType", "StatisticalTypePage", new {Area = "Administration"});
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.EnableCustomSearching = true;
+    Model.eidssGridConfiguration.EditType = EditType.Inline;
+    Model.eidssGridConfiguration.SaveCompleteMethod = "CheckSuccess";
+    Model.eidssGridConfiguration.DeleteCompleteMethod = "CheckDeleteSuccess";
+
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels
+    {
+        DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage),
+        EditModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage),
+        DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading),
+        CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+        SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
+        DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton),
+        CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton),
+        CancelInlineEditTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+    };
+    Model.eidssGridConfiguration.ControlLabels.CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage);
+    Model.eidssGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.eidssGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.eidssGridConfiguration.ControlLabels.SaveInlineEditTitle = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    Model.eidssGridConfiguration.ControlLabels.SaveInlineEditMessage = "Are you sure that you want to save this record?";
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "row",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.ReadOnly,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "idfsStatisticDataType",
+        ColumnTitleHeader = string.Empty,
+        Visible = false,
+        ColumnType = ColumnType.Default
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "strDefault",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.DefaultValueColumnHeading),
+        Visible = true,
+        VisibleInModal = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "DefaultValueRequired",
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "strName",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.NationalValueColumnHeading),
+        Visible = true,
+        VisibleInModal = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "NationalValueRequired",
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "idfsParameterType",
+        ColumnTitleHeader = string.Empty,
+        Visible = false,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "strParameterType",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.ParameterTypeColumnHeading),
+        Visible = true,
+        VisibleInModal = true,
+        ColumnType = ColumnType.DropDown,
+        DisplayDropDownInModalOnly = true,
+        AssociatedFieldId = "idfsParameterType",
+        ColumnAjaxDataUrl = Url.Action("BaseReferenceAdvanceListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", ReferenceType = "Reference Type Name"}),
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "blnStatisticalAgeGroup",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.StatisticalAgeGroupColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.CheckBox
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "idfsStatisticAreaType",
+        ColumnTitleHeader = string.Empty,
+        Visible = false,
+        VisibleInModal = false,
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "strStatisticAreaType",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.AreaTypeColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.DropDown,
+        VisibleInModal = true,
+        DisplayDropDownInModalOnly = true,
+        AssociatedFieldId = "idfsStatisticAreaType",
+        ColumnAjaxDataUrl = Url.Action("BaseReferenceAdvanceListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", ReferenceType = "Statistical Area Type"}),
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "StatisticAreaTypeRequired",
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "idfsStatisticPeriodType",
+        ColumnTitleHeader = string.Empty,
+        Visible = false,
+        VisibleInModal = false
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "strStatisticPeriodType",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.PeriodTypeColumnHeading),
+        Visible = true,
+        ColumnType = ColumnType.DropDown,
+        VisibleInModal = true,
+        DisplayDropDownInModalOnly = true,
+        AssociatedFieldId = "idfsStatisticPeriodType",
+        ColumnAjaxDataUrl = Url.Action("BaseReferenceAdvanceListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", ReferenceType = "Statistical Period Type"}),
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        },
+        ClassName = "PeriodTypeRequired",
+        Orderable = true
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "name",
+        ColumnTitleHeader = string.Empty,
+        ColumnType = ColumnType.Edit,
+        Visible = Model.UserPermissions.Create
+    });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "name",
+        ColumnTitleHeader = string.Empty,
+        ColumnType = ColumnType.Delete,
+        Visible = Model.UserPermissions.Delete
+    });
+}
+
+    <partial name="_InformationalModalPartial" for="InformationMessage" />
+<partial name="_BaseReferenceEditorsPartial"/>
+<partial name="_SuccessDuplicateModalPartial"/>
+
+<script type="text/javascript">
+    $("#bAddStaticalalDataTypebtnSave").click(function() {
+        storeAnswers("bAddStaticalalDataType");
+    });
+
+    function CheckDeleteSuccess(data) {
+        var stringifiedData = JSON.stringify(data);
+        var parsedData = JSON.parse(stringifiedData);
+        if (parsedData.returnMessage === "SUCCESS") {
+            updateNotificationEnvelopeCount();
+            showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+        }
+    };
+</script>
+</div>

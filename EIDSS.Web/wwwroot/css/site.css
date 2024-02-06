@@ -1,0 +1,807 @@
+/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+:root {
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+body {
+    /* Margin bottom by footer height */
+    font-size: 14px;
+    margin-bottom: 60px;
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+.container-fluid {
+    width: 90%;
+}
+
+footer {
+    z-index: 1000;
+    background-color: #2d5b83;
+    color: #fff;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    line-height: 5px;
+    position: fixed;
+    height: 15px;
+}
+
+    footer a, footer a:hover, footer a:visited {
+        color: #fff;
+    }
+
+/*.navbar {
+    background-color: #f2f2f2;
+    border-bottom: 1.5px solid #2d5b83;
+}
+*/
+a.navbar-brand {
+    white-space: normal;
+    text-align: center;
+    word-break: break-all;
+}
+
+label {
+    display: inline-block;
+    font-size: 14px;
+    max-width: 100%;
+    margin-bottom: 2px;
+    font-weight: bold;
+    color: #2d5b83;
+}
+
+input {
+    font-size: 14px;
+}
+
+*:focus,
+*:active {
+    box-shadow: none !important;
+}
+
+.form-control {
+    display: block;
+    width: 100%;
+    height: calc(1.2em + 0.75rem + 2px);
+    padding: 0.2rem 0.75rem;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control-sm {
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    box-shadow: none;
+}
+
+.row {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+vline {
+    border-left: 1.5px solid #ced4da;
+    height: 300px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.custom-select {
+    padding: 0.375rem 1.75rem 0.375rem 0.75rem !important;
+}
+
+.page-item .page-link {
+    z-index: 0;
+    color: #2d5b83;
+}
+
+.page-item.active .page-link {
+    z-index: 0;
+    color: #fff;
+    background-color: #2d5b83;
+    border-color: #2d5b83;
+}
+
+/* Buttons, links, icons */
+
+a, a:hover, a:visited {
+    color: #2d5b83;
+    text-decoration: none;
+}
+
+    a.disabled, a:disabled {
+        color: #ccc;
+        text-decoration: none;
+    }
+
+.btn-default,
+.btn-default:hover {
+    color: #2d5b83;
+    background-color: #fff;
+    border: 1.5px solid #2d5b83;
+    font-weight: normal;
+    margin-right: 5px;
+    margin-left: 5px;
+}
+
+.btn-link {
+    color: #2d5b83;
+}
+
+.btn-outline-primary,
+.btn-outline-primary:hover {
+    color: #2d5b83;
+    background-color: #fff;
+    border: 2px solid #2d5b83;
+    font-weight: normal;
+    margin-right: 5px;
+    margin-left: 5px;
+}
+
+    .btn-outline-primary:focus,
+    .btn-outline-primary:active {
+        background-color: #fff !important;
+        border-color: #2d5b83 !important;
+        background-image: none !important;
+    }
+
+
+.btn-default.disabled, .btn-default:disabled {
+    color: #ccc;
+    background-color: #fff;
+    border-color: #ccc;
+}
+
+.btn-primary,
+.btn-primary:hover {
+    color: #fff;
+    background-color: #2d5b83;
+    border-color: #2d5b83;
+    font-weight: normal;
+    margin-right: 5px;
+    margin-left: 5px;
+}
+
+    .btn-primary:focus,
+    .btn-primary:active {
+        background-color: #2d5b83 !important;
+        border-color: #2d5b83 !important;
+        background-image: none !important;
+    }
+
+    .btn-primary.disabled, .btn-primary:disabled {
+        color: #fff;
+        background-color: #ccc;
+        border-color: #ccc;
+    }
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    color: #fff;
+    background-color: #2d5b83;
+    border-color: #2d5b83;
+}
+
+
+input:focus, select:focus, select.focus {
+    outline: 1px solid #2d5b83;
+}
+
+.border-top {
+    border-top: 1px solid #e5e5e5;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+    font-size: 1rem;
+    line-height: inherit;
+}
+
+nav .container-fluid {
+    width: 100%;
+}
+
+.eidsslogo {
+    background-image: url(../Includes/Images/EIDSS_logo.png);
+    float: left;
+    background-size: 210px;
+    background-repeat: no-repeat;
+    width: 210px;
+    height: 90px;
+}
+
+.messages {
+    padding-right: 15px;
+    font-size: 18px;
+}
+
+    .messages sup {
+        margin-left: -8px;
+    }
+
+    .messages .badge {
+        background: rgb(191, 32, 38);
+        color: #fff;
+        font-family: Arial;
+        font-size: 10px;
+        margin-top: -5px;
+    }
+
+.user {
+    display: inline-flex;
+    width: max-content
+}
+
+.fa-user {
+    padding-right: 5px;
+    font-size: 18px;
+}
+
+.languageNavLink {
+    border: none;
+    background-color: transparent;
+    width: 100%;
+    text-transform: uppercase;
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: normal;
+    text-align: right;
+    padding: 2px 20px;
+}
+
+    .languageNavLink:hover {
+        background: #f2f2f2;
+    }
+
+.dropdown-menu {
+    margin-top: 0;
+}
+
+nav ul {
+    list-style-type: none;
+}
+
+nav .dropdown-content {
+    display: none;
+    position: absolute;
+}
+
+u.nav .dropdown-content a {
+    color: black;
+}
+
+.nav .dropdown:hover > .dropdown-content {
+    display: block;
+}
+
+/*MJK - commented out to bring all grids
+    in line with Radzen and provide standard
+    alignment
+*/
+/*table  td {
+   vertical-align: top;
+}
+*/
+
+.dataTableError {
+    color: red;
+    font-weight: bold;
+}
+
+.eidss-no-cell-radius {
+    border-radius: 0;
+}
+
+.RequiredValidator {
+}
+
+@media (min-width: 992px) {
+    .dropdown-menu .dropdown-toggle:after {
+        border-top: .3em solid transparent;
+        border-right: 0;
+        border-bottom: .3em solid transparent;
+        border-left: .3em solid;
+    }
+
+    .dropdown-menu .dropdown-menu {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .dropdown-menu li {
+        position: relative;
+    }
+
+    .nav-item .submenu {
+        display: none;
+        position: absolute;
+        left: 100%;
+        top: -7px;
+    }
+
+    .nav-item .submenu-left {
+        right: 100%;
+        left: auto;
+    }
+
+    .dropdown-menu > li:hover {
+        background-color: #f1f1f1
+    }
+
+        .dropdown-menu > li:hover > .submenu {
+            display: block;
+        }
+}
+
+/********************
+EIDSS Select2 Overrides        
+
+Overrides for Select2 DropDowns
+
+********************/
+ul.select2-selection__rendered {
+    padding-right: 30px !important;
+}
+
+    ul.select2-selection__rendered:after {
+        font-family: Arial;
+        content: "\25BC";
+        color: #2d5b83;
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        /*border-top: 5px solid #333;*/
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+    }
+
+/********************
+EIDSS Colors        
+
+These colors match the EIDSS defaults. 
+Add any here that are part of the EIDSS 
+color palette.
+
+********************/
+.e-dark-blue {
+    color: #2d5b83;
+}
+
+/*  Dashboard */
+.db-title {
+    font-size: 22px;
+    text-transform: uppercase;
+    text-align: center;
+    color: #2d5b83;
+    margin-bottom: 0;
+}
+
+.dashboard-grid {
+    background-color: #e7e7e7;
+    margin-top: 10px;
+    border-top: 1.5px solid #2d5b83;
+}
+
+.rz-panel-content h3 {
+    color: #2d5b83;
+}
+
+.dashboard-grid th {
+    background-color: #fff;
+}
+
+.dashboard-grid tr {
+    background-color: #f2f2f2;
+}
+
+.dashboard-grid h3 {
+    color: #2d5b83;
+    width: 100%;
+    margin-top: 20px;
+    margin-bottom: -20px;
+}
+
+.dashboard-group {
+    height: 50px;
+}
+
+    .dashboard-group h4 {
+        font-size: 14px;
+        color: #2d5b83;
+        font-weight: bold;
+    }
+
+    .dashboard-group a {
+        color: #2d5b83;
+    }
+
+
+/********************
+EIDSS Cards        
+
+Bootstrap Card Overrides
+
+********************/
+.card {
+    border: none;
+    border-radius: 0;
+}
+
+.card-header {
+    background-color: #2d5b83;
+    border: none;
+    padding: 1px 15px;
+    border-radius: 4px !important;
+    margin-bottom: 8px;
+}
+
+    .card-header h3 {
+        color: #fff;
+        font-size: 24px;
+        padding-top: 5px;
+    }
+
+    .card-header fa-angle-down, fa-angle-up {
+        color: #fff;
+    }
+
+.card-body .card-header {
+    background-color: #fff;
+    border-bottom: 1.5px solid #2d5b83;
+    padding: 0;
+    border-radius: 0px !important;
+    margin-bottom: 15px;
+}
+
+    .card-body .card-header h4 {
+        color: #2d5b83;
+        margin-bottom: 2px;
+    }
+
+.accordion-item {
+    background-color: #fff;
+    border-bottom: 1px solid #2d5b83;
+    padding: 4px 10px;
+    border-radius: 0px !important;
+    color: #2d5b83;
+    margin-bottom: 2px;
+}
+
+.right {
+    text-align: right;
+    color: #2d5b83;
+}
+
+.required-info {
+    width: 100%;
+    padding-bottom: 10px;
+}
+
+    .required-info label {
+        font-size: 12px;
+    }
+
+.card-footer {
+    background-color: #fff;
+    text-align: center;
+    /*display: inline-block;*/
+}
+
+div.dataTables_length {
+    padding-top: 0.5em;
+}
+
+
+.modal-header {
+    background-color: #2d5b83;
+    padding: 10px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+    .modal-header .close {
+        float: right;
+        font-size: 26px;
+        font-weight: bold;
+        color: #fff;
+        text-shadow: 0 1px 0 #fff;
+        filter: alpha(opacity=80);
+        opacity: .8;
+    }
+
+.modal-title {
+    margin: 0;
+    color: #fff;
+    font-size: 24px;
+}
+
+.modal-footer {
+    text-align: center;
+    padding: 10px;
+    border-top: 1px solid #e5e5e5;
+    justify-content: center;
+}
+
+.modal-body {
+    position: relative;
+    padding: 15px;
+}
+
+fieldset {
+    border: 1px solid #ddd !important;
+    margin-bottom: 15px;
+    min-width: 0;
+    padding: 5px 5px 0 5px;
+    border-radius: 4px;
+}
+
+    fieldset .form-group {
+        font-size: 12px !important;
+        padding-left: 10px;
+    }
+
+legend {
+    color: #2d5b83;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    text-align: left !important;
+    width: auto !important;
+    padding-right: 0 5px !important;
+    margin: 5px !important;
+    border-bottom: 0px none transparent;
+}
+
+/*Outbreak specifics*/
+.outbreaklDecision {
+    display: none;
+}
+
+.typeOfCaseSelection {
+    position: relative;
+    top: -35px;
+    left: 44px;
+    font-size: 16px;
+}
+
+    .typeOfCaseSelection label {
+        padding-left: 4px;
+        padding-right: 15px;
+    }
+
+.typeOfCaseTitle {
+    position: relative;
+    top: -90px;
+    left: 44px;
+    font-size: 14px;
+    border-bottom: solid .5px #ccc;
+    padding-bottom: 3px;
+    max-width: 210px;
+}
+
+.outbreakNoteContainer-left {
+    border-top: solid 1px gray;
+    border-bottom: solid 1px gray;
+    background-color: white;
+}
+
+.outbreakNoteContainer-right {
+    border-top: solid 1px gray;
+    border-right: solid 1px gray;
+    border-bottom: solid 1px gray;
+    background-color: white;
+}
+
+.outbreakLabel {
+    font-weight: bold;
+    font-size: 18pt;
+    color: gray;
+}
+
+.outbreakNoteAlterLow {
+    background-color: green;
+}
+
+.outbreakNoteAlterMedium {
+    background-color: yellow;
+}
+
+.outbreakNoteAlterHigh {
+    background-color: red;
+}
+
+.divider-panel-outbreak-note {
+    background-image: url(.../wwwroot/Includes/Images/pipe.png);
+    background-size: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: white;
+    vertical-align: middle;
+    border-top: solid 1px gray;
+    border-bottom: solid 1px gray;
+}
+
+.modal-wrapper {
+    max-height: 800px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+/* Datepicker Styles */
+
+.ui-datepicker-trigger {
+    /*border: none;
+    background: none;*/
+    /*float: right;*/
+}
+
+input.hasDatepicker {
+    /* float: left;*/
+    /*width: 73%;*/
+}
+
+button.ui-datepicker-trigger {
+    background: #FFF;
+    color: #2d5b83;
+    border: 1px solid #ced4da;
+}
+
+
+
+/********************
+        Tab Styles
+    ********************/
+.tab-content {
+    padding-bottom: 5px;
+    padding-top: 15px;
+    padding-left: 15px !important;
+    padding-right: 15px;
+    margin-top: 0px;
+    height: fit-content;
+    background-color: #f2f2f2;
+    border-left: 1px solid #f2f2f2;
+    border-right: 1px solid #f2f2f2;
+}
+
+.nav-tabs {
+    margin: 0;
+}
+
+    .nav-tabs > a, .nav-tabs > a:hover, .nav-tabs > a:focus {
+        border-left-color: transparent;
+        border-right-color: transparent;
+        border-bottom-color: transparent;
+        border-radius: 0 0 0 0;
+        background-color: #f2f2f2;
+    }
+
+.nav-link.active {
+    border-top: 3px solid #2d5b83 !important;
+}
+
+.nav-link label {
+    font-weight: normal;
+    font-size: 16px;
+}
+
+.nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+    border-left-color: transparent;
+    border-top: 3px solid #336699;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    border-radius: 0 0 0 0;
+    background-color: #f2f2f2;
+    color: #2d5b83;
+}
+
+.nav-tabs {
+    border-bottom: 1.5px solid #f2f2f2;
+    font-size: 16px;
+}
+
+.nav-item {
+    width: fit-content;
+}
+
+.upper-left {
+    margin-top: 0;
+    padding-bottom: 10px;
+}
+
+
+.dropdown-menu label {
+    font-weight: normal
+}
+
+#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }
+
+.flex-form-icon {
+    font-size: 12px;
+    height: 35px;
+    margin-left: 10px;
+    text-align: center;
+    background-color: #fff;
+    padding-top: 3px;
+    padding-right: 4px;
+    border-radius: 4px;
+}
+
+    .flex-form-icon img {
+        padding-left: 5px;
+    }
+
+        .flex-form-icon img.disabled {
+            opacity: .5;
+            cursor: default;
+        }
+
+    .flex-form-icon label {
+        line-height: 8px;
+        margin-left: -10px;
+    }
+
+
+    .flex-form-icon .divider-panel {
+        border-right: 2px solid #2d5b83;
+        font-size: 18px;
+        padding: 0;
+        margin-top: 5px;
+        vertical-align: sub;
+    }
+
+.treeview-label {
+    padding-left: 8px;
+    padding-top: 5px;
+}
+
+/*.fas .fa-trash.disabled, fas fa-trash:disabled {
+    color: #ccc;
+    cursor: default;
+}*/

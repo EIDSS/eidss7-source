@@ -1,0 +1,120 @@
+﻿@using EIDSS.Domain.ResponseModels.Human
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Domain.ViewModels.CrossCutting
+@using EIDSS.Web.Areas.Human.ViewModels.ActiveSurveillanceSession
+
+@inherits SessionInformationBase
+
+<RadzenTemplateForm Data="Model" @ref="Form" TItem="ActiveSurveillanceSessionViewModel">
+    <div class="row">
+        <div class="col-4">
+            <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanActiveSurveillanceSessionSessionIDFieldLabel)"></RadzenLabel>
+            <RadzenTextBox @bind-Value="Model.SessionInformation.EIDSSSessionID" class="form-control" Disabled="true" Name="SessionID"></RadzenTextBox>
+        </div>
+        <InterfaceEditorResource CssClass="col-md-4" For="Status" InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanActiveSurveillanceSessionSessionStatusFieldLabel" IsRow="false">
+            <RadzenDropDown AllowClear="true" @bind-Value="Model.SessionInformation.MonitoringSessionStatusTypeID" Change=@(args => OnChange(args, "Status")) class="form-control" Data="@Statuses" Disabled="@Model.RecordReadOnly" LoadData="@(args => GetBaseReferenceItems(args, EIDSSConstants.BaseReferenceConstants.ASSessionStatus))" Name="Status" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference">
+            </RadzenDropDown>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-md-4" For="CampaignID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanActiveSurveillanceSessionCampaignIDFieldLabel" IsRow="false">
+            <RadzenTextBox class="form-control" Disabled="true" Name="CampaignID" Value="@Model.SessionInformation.strCampaignID"></RadzenTextBox>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-md-4" For="CampaignName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanActiveSurveillanceSessionCampaignNameFieldLabel" IsRow="false">
+            <RadzenTextBox class="form-control" Disabled="true" Name="CampaignName" Value="@Model.SessionInformation.CampaignName"></RadzenTextBox>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-md-4" For="CampaignType" InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanActiveSurveillanceSessionCampaignTypeFieldLabel" IsRow="false">
+            <RadzenTextBox class="form-control" Disabled="true" Name="CampaignType" Value="@Model.SessionInformation.CampaignTypeName"></RadzenTextBox>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-md-4" For="StartDate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanActiveSurveillanceSessionSessionStartDateFieldLabel" IsRow="false">
+            <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="Model.SessionInformation.StartDate" class="form-control-range" DateFormat="d" Disabled="@Model.RecordReadOnly" Name="StartDate" TValue="DateTime?"/>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-md-4" For="EndDate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanActiveSurveillanceSessionSessionEndDateFieldLabel" IsRow="false">
+            <RadzenDatePicker AllowClear="true" AllowInput="true" @bind-Value="Model.SessionInformation.EndDate" class="form-control-range" DateFormat="d" Disabled="@Model.RecordReadOnly" Name="EndDate" TValue="DateTime?"/>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-md-4" For="Site" InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanActiveSurveillanceSessionSiteFieldLabel" IsRow="false">
+            <RadzenTextBox @bind-Value="Model.SessionInformation.Site" class="form-control" Disabled="true" Name="Site"></RadzenTextBox>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-md-4" For="Officer" InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanActiveSurveillanceSessionOfficerFieldLabel" IsRow="false">
+            <RadzenTextBox Name="Officer" class="form-control" @bind-Value="Model.SessionInformation.Officer" Disabled="true"></RadzenTextBox>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-md-4" For="DateEntered" InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanActiveSurveillanceSessionDateEnteredFieldLabel" IsRow="false">
+            <RadzenDatePicker @bind-Value="Model.SessionInformation.EnteredDate" class="form-control-range" DateFormat="d" Disabled="true" Name="DateEntered"></RadzenDatePicker>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row form-group">
+        <label>@Localizer.GetString(FieldLabelResourceKeyConstants.HumanActiveSurveillanceSessionLocationFieldLabel)</label>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <LocationView ParmLocationViewModel="@Model.SessionInformation.LocationViewModel" LocationViewModelChanged="UpdateLocationHandlerAsync" @ref="SessionLocationComponent"/>
+        </div>
+    </div>
+    <div class="form-row justify-content-end mb-3">
+        <div class="col-1 pull-right text-right">
+            <button class="btn btn-outline-primary" type="button" @onclick="@AddSample" disabled="@(!Model.ActiveSurveillanceSessionPermissions.Create || Model.RecordReadOnly)">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+        </div>
+    </div>
+    <div class="form-row">
+        <GridExtension OnColumnSave="GridSessionInformationClickHandler"></GridExtension>
+        <div class="col-12">
+            <RadzenDataGrid AllowColumnPicking="true" AllowColumnReorder="true" Data="@Model.DiseasesSampleTypes" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" HeaderCellRender="@(args => HeaderCellRender(args.Column.Property))" id="ActiveSurveillanceSessionDisease" @ref="DiseasesSampleTypes" RowCreate="@OnCreateRow" TItem="ActiveSurveillanceSessionDiseaseSampleType">
+                <Columns>
+                    <RadzenDataGridColumn Pickable="false" Property="RowNumber" Reorderable="true" TItem="ActiveSurveillanceSessionDiseaseSampleType" Visible="false"/>
+                    <RadzenDataGridColumn OrderIndex="@FindColumnOrder("DiseaseName")" Property="DiseaseName" Reorderable="true" TItem="ActiveSurveillanceSessionDiseaseSampleType" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SessionInformationDiseaseColumnHeading)" Visible="@GetColumnVisibility("DiseaseName")" Width="225px">
+                        <EditTemplate Context="data">
+                            <InterfaceEditorResource CssClass="col-4" For="diseaseID" InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.SessionInformationDiseaseColumnHeading" IsLabelHidden="true" IsRow="false">
+                                <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@data.DiseaseID" Change=@(args => OnChange(args, "Disease")) Data="@DiseasesFiltered" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="diseaseID" TextProperty="DiseaseName" ValueProperty="DiseaseID"/>
+                            </InterfaceEditorResource>
+                        </EditTemplate>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn OrderIndex="@FindColumnOrder("SampleTypeName")" Property="SampleTypeName" Reorderable="true" TItem="ActiveSurveillanceSessionDiseaseSampleType" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SessionInformationSampleTypeColumnHeading)" Visible="@GetColumnVisibility("SampleTypeName")" Width="200px">
+                        <EditTemplate Context="data">
+                            <InterfaceEditorResource CssClass="col-4" For="SampleTypeID" InterfaceEditorKey="@ColumnHeadingResourceKeyConstants.SessionInformationSampleTypeColumnHeading" IsLabelHidden="true" IsRow="false">
+                                <RadzenDropDown AllowClear="true" AllowFiltering="true" @bind-Value="@data.SampleTypeID" Data="@SampleTypesFiltered" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="SampleTypeID" TextProperty="SampleTypeName" ValueProperty="SampleTypeID"/>
+                            </InterfaceEditorResource>
+                        </EditTemplate>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Filterable="false" Pickable="false" Property="" Sortable="false" TItem="ActiveSurveillanceSessionDiseaseSampleType" Title="" Visible="@(Model.ActiveSurveillanceSessionPermissions.Write)" Width="100px">
+                        <Template Context="data">
+                            <button @onclick="@(() => EditSample(data))" class="btn btn-sm" type="button" disabled="@Model.RecordReadOnly">
+                                <i class="fas fa-edit fa-lg"></i>
+                            </button>
+                        </Template>
+                        <EditTemplate Context="data">
+                            <button @onclick="@(() => SaveSample(data))" class="btn btn-sm" type="button">
+                                <i class="fas fa-save fa-lg"></i>
+                            </button>
+                            <button @onclick="@(() => CancelSampleEdit(data))" class="btn btn-sm" type="button">
+                                <i class="fas fa-ban fa-lg"></i>
+                            </button>
+                        </EditTemplate>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Pickable="false" TItem="ActiveSurveillanceSessionDiseaseSampleType" Property="" Title="" Sortable="false" Filterable="false" Width="50px">
+                        <Template Context="data">
+                            <button @onclick="@(() => DeleteSample(data))" class="btn btn-sm" disabled="@(!Model.ActiveSurveillanceSessionPermissions.Write || Model.SessionInformation.CampaignID != null)" type="button">
+                                <i class="fas fa-trash fa-lg"></i>
+                            </button>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+            <RadzenNumeric @bind-Value="Model.DiseasesSampleTypesCount" hidden="hidden" Name="ActiveSurveillanceSessionDiseaseCount"></RadzenNumeric>
+            <RadzenCompareValidator Component="ActiveSurveillanceSessionDiseaseCount" Operator="CompareOperator.GreaterThanEqual" Popup="false" Style="display: block" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)" Value="1"/>
+        </div>
+    </div>
+</RadzenTemplateForm>
+
+@code{
+
+    void GridSessionInformationClickHandler()
+    {
+        GridColumnSave("ActiveSurveillanceSessionSessionInformation");
+    }
+
+}

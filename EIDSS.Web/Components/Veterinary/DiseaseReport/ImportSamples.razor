@@ -1,0 +1,51 @@
+﻿@using EIDSS.Domain.RequestModels.Veterinary
+@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits ImportSamplesBase
+
+<div class="card">
+    <RadzenTemplateForm Data="@ImportSamplesRequest" @ref="Form" Submit="OnSearchClick" TItem="@ImportSampleGetListRequestModel">
+        <InterfaceEditorResource CssClass="col-12" For="@ImportSamplesRequest.EIDSSLocalOrFieldSampleID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LivestockDiseaseReportSampleDetailsModalFieldSampleIDFieldLabel" IsRow="true">
+            <div class="input-group-append">
+                <RadzenTextBox @bind-Value="@ImportSamplesRequest.EIDSSLocalOrFieldSampleID" class="form-control" MaxLength="36" Name="@ImportSamplesRequest.EIDSSLocalOrFieldSampleID"></RadzenTextBox>
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary btn-sm" id="searchSamples" type="submit">
+                        <span class="fas fa-search" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </div>
+            <RadzenRequiredValidator Component="@ImportSamplesRequest.EIDSSLocalOrFieldSampleID" Popup="false" Style="position: absolute" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)"/>
+        </InterfaceEditorResource>
+    </RadzenTemplateForm>
+    <RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" @bind-value="Samples" Count="Count" Data="@Samples" IsLoading="IsLoading" PageSizeOptions="pageSizeOptions" @ref="SamplesGrid" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="true" TItem="SampleGetListViewModel">
+        <Columns>
+            <RadzenDataGridColumn Filterable="false" Frozen="true" Sortable="false" TItem="SampleGetListViewModel" Width="40px">
+                <HeaderTemplate>
+                    <RadzenCheckBox TriState="false" TValue="bool" Value="IsHeaderRecordSelected()" Change="args => OnHeaderRecordSelectionChange(args)"/>
+                </HeaderTemplate>
+                <Template Context="item">
+                    <RadzenCheckBox TriState="false" TValue="bool" Value="IsRecordSelected(item)" Change="args => OnRecordSelectionChange(args, item)"/>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="SampleTypeName" TItem="SampleGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.GroupAccessionInModalSampleTypeColumnHeading)" Width="225px"/>
+            <RadzenDataGridColumn FormatString="{0:d}" Property="CollectionDate" TItem="SampleGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.GroupAccessionInModalCollectionDateColumnHeading)" Width="150px"/>
+            <RadzenDataGridColumn Property="PatientOrFarmOwnerName" TItem="SampleGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.GroupAccessionInModalPatientFarmOwnerColumnHeading)" Width="300px"/>
+        </Columns>
+    </RadzenDataGrid>
+</div>
+<div class="card-footer">
+    <div class="form-row">
+        <div class="col-12">
+            <button class="btn btn-secondary" @onclick="OnCancel" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+            @if (AllowImportIndicator)
+            {
+                <button class="btn btn-primary" @onclick="OnImportClick" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.ImportButton)</button>
+            }
+            else
+            {
+                <button class="btn btn-primary disabled" disabled type="submit">@Localizer.GetString(ButtonResourceKeyConstants.ImportButton)</button>
+            }
+        </div>
+    </div>
+</div>

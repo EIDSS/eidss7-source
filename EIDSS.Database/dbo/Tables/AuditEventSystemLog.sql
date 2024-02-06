@@ -1,0 +1,26 @@
+﻿CREATE TABLE [dbo].[AuditEventSystemLog] (
+    [AuditEventSystemLogUID] BIGINT           NOT NULL,
+    [AuditObjectID]          BIGINT           NOT NULL,
+    [AuditPrimaryTable]      VARCHAR (200)    NOT NULL,
+    [AppSessionLogID]        BIGINT           NULL,
+    [idfObjectID]            BIGINT           NOT NULL,
+    [idfAppUserID]           BIGINT           NULL,
+    [idfSiteID]              BIGINT           NULL,
+    [rowguid]                UNIQUEIDENTIFIER CONSTRAINT [DF_AuditEventSystemLog_rowguid] DEFAULT (newid()) ROWGUIDCOL NOT NULL,
+    [SourceSystemNameID]     BIGINT           NULL,
+    [SourceSystemKeyValue]   NVARCHAR (MAX)   NULL,
+    [AuditCreateUser]        NVARCHAR (200)   NOT NULL,
+    [AuditCreateDTM]         DATETIME         NOT NULL,
+    [AuditUpdateUser]        NVARCHAR (200)   NULL,
+    [AuditUpdateDTM]         DATETIME         NULL,
+    [idfsModule]             BIGINT           NULL,
+    [PageName]               NVARCHAR (255)   NULL,
+    CONSTRAINT [XPKAuditEvent] PRIMARY KEY CLUSTERED ([AuditEventSystemLogUID] ASC),
+    CONSTRAINT [FK_AuditEventSystemLog_AppSessionLog] FOREIGN KEY ([AppSessionLogID]) REFERENCES [dbo].[AppSessionLog] ([AppSessionLogUID]),
+    CONSTRAINT [FK_AuditEventSystemLog_BaseRef_AuditObjectID] FOREIGN KEY ([AuditObjectID]) REFERENCES [dbo].[trtBaseReference] ([idfsBaseReference]),
+    CONSTRAINT [FK_AuditEventSystemLog_idfsModule] FOREIGN KEY ([idfsModule]) REFERENCES [dbo].[trtBaseReference] ([idfsBaseReference]),
+    CONSTRAINT [FK_AuditEventSystemLog_trtBaseReference_SourceSystemNameID] FOREIGN KEY ([SourceSystemNameID]) REFERENCES [dbo].[trtBaseReference] ([idfsBaseReference]),
+    CONSTRAINT [FK_AuditEventSystemLog_tstSite_idfSiteID] FOREIGN KEY ([idfSiteID]) REFERENCES [dbo].[tstSite] ([idfsSite]),
+    CONSTRAINT [FK_AuditEventSystemLog_UserTable_idfAppUserID] FOREIGN KEY ([idfAppUserID]) REFERENCES [dbo].[tstUserTable] ([idfUserID])
+);
+

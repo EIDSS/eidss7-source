@@ -1,0 +1,86 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Services
+@using EIDSS.Web.Areas.Veterinary.ViewModels.Farm
+
+@inherits FarmInformationSectionBase
+
+<FarmHeader/>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-11">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.FarmDetailsFarmInformationHeading)</h4>
+        </div>
+        <div class="col-1 text-right">
+            @if (StateContainer.FarmAddSessionPermissions.Create && StateContainer.FarmMasterID is null || StateContainer.FarmAddSessionPermissions.Write && StateContainer.FarmMasterID > 0)
+            {
+                <a class="edit-section" href="#farmDetailsWizard-h-0" id="editFarmInfoSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            }
+        </div>
+    </div>
+</div>
+<RadzenTemplateForm @ref="Form" TItem="FarmStateContainer" Data="@StateContainer">
+    <DataAnnotationsValidator/>
+    <div class="card">
+        <div class="card-body">
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-4" For="eidssFarmID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmInformationFarmIDFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="@StateContainer.EidssFarmID" class="form-control" Disabled="true" MaxLength="36" Name="eidssFarmID" @ref="EidssFarmIdControl"></RadzenTextBox>
+                </InterfaceEditorResource>
+                @if (StateContainer.LegacyID is not null)
+                {
+                    <InterfaceEditorResource CssClass="col-4" For="legacyId" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmInformationLegacyIDFieldLabel" IsRow="false">
+                        <RadzenTextBox @bind-Value="@StateContainer.LegacyID" class="form-control" Disabled="true" MaxLength="200" Name="legacyId" @ref="LegacyIdControl"></RadzenTextBox>
+                    </InterfaceEditorResource>
+                }
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-4" For="farmTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmInformationFarmTypeFieldLabel" IsRow="false">
+                    <RadzenCheckBoxList @bind-Value="@StateContainer.SelectedFarmTypes" Change="@OnFarmTypeChange" class="form-control" Disabled="@(StateContainer.IsReview || (!StateContainer.FarmAddSessionPermissions.Create && StateContainer.FarmMasterID is null || !StateContainer.FarmAddSessionPermissions.Write && StateContainer.FarmMasterID > 0))" id="farmTypeID" Name="farmTypeID" Orientation="Orientation.Horizontal" @ref="FarmTypeCheckBoxList" TextProperty="Name" TValue="long" ValueProperty="IdfsBaseReference" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-12" For="farmName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmInformationFarmNameFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="@StateContainer.FarmName" class="form-control" Disabled="@(!StateContainer.FarmAddSessionPermissions.Create && StateContainer.FarmMasterID is null || !StateContainer.FarmAddSessionPermissions.Write && StateContainer.FarmMasterID > 0)" MaxLength="200" Name="farmName" @ref="FarmNameControl"></RadzenTextBox>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-12" For="farmOwnerID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmInformationFarmOwnerFieldLabel" IsRow="false">
+                    <div class="input-group">
+                        <RadzenTextBox @bind-Value="@StateContainer.FarmOwner" class="form-control" Disabled="true" Name="farmOwnerName" @ref="FarmOwnerIdControl"></RadzenTextBox>
+                        <div class="input-group-append">
+                            @if (!StateContainer.FarmAddSessionPermissions.Create && StateContainer.FarmMasterID is null || !StateContainer.FarmAddSessionPermissions.Write && StateContainer.FarmMasterID > 0)
+                            {
+                                <button id="personSearch" name="personSearch" class="btn btn-outline-secondary btn-sm disabled" type="button" disabled>
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-outline-secondary btn-sm" id="personSearch" name="personSearch" @onclick="@OnPersonSearchClicked" type="button">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-4" For="phone" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmInformationPhoneFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="@StateContainer.Phone" Change="@OnPhoneFaxTextBoxChange" class="form-control" Disabled="@(!StateContainer.FarmAddSessionPermissions.Create && StateContainer.FarmMasterID is null || !StateContainer.FarmAddSessionPermissions.Write && StateContainer.FarmMasterID > 0)" MaxLength="15" Name="phone" @ref="PhoneControl"></RadzenTextBox>
+                    <RadzenRegexValidator Component="phone" Pattern="^\+?[- .0-9]{8,15}$" Style="position: absolute" Text="@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-4" For="fax" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmInformationFaxFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="@StateContainer.Fax" Change="OnPhoneFaxTextBoxChange" class="form-control" Disabled="@(!StateContainer.FarmAddSessionPermissions.Create && StateContainer.FarmMasterID is null || !StateContainer.FarmAddSessionPermissions.Write && StateContainer.FarmMasterID > 0)" MaxLength="15" Name="fax" @ref="FaxControl"></RadzenTextBox>
+                    <RadzenRegexValidator Component="fax" Pattern="^\+?[- .0-9]{8,15}$" Style="position: absolute" Text="@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-4" For="email" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmInformationEmailFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="@StateContainer.Email" class="form-control" Disabled="@(!StateContainer.FarmAddSessionPermissions.Create && StateContainer.FarmMasterID is null || !StateContainer.FarmAddSessionPermissions.Write && StateContainer.FarmMasterID > 0)" MaxLength="200" Name="email" @ref="EmailControl"></RadzenTextBox>
+                    <RadzenEmailValidator Component="email" Style="position: absolute" Text="@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)"/>
+                </InterfaceEditorResource>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

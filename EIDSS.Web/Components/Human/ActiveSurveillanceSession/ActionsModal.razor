@@ -1,0 +1,42 @@
+﻿@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Areas.Human.ViewModels.ActiveSurveillanceSession;
+
+@inherits ActionsModalBase
+
+<RadzenTemplateForm Data="model" OnInvalidSubmit="@HandleInvalidEmployeeSubmit" @ref="_form" Submit="@HandleValidEmployeeSubmit" TItem="ActiveSurveillanceSessionViewModel">
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-6" For="ActionRequiredID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ActionDetailsModalActionRequiredFieldLabel" IsRow="false">
+            <RadzenDropDown AllowClear="true" @bind-value="@model.ActionsInformation.ActionRequiredID" class="form-control" Data="@Actions" Disabled="@model.RecordReadOnly" LoadData="@(args => GetBaseReferenceItems(args, EIDSSConstants.BaseReferenceConstants.ASSessionActionType))" Name="ActionRequiredID" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference"></RadzenDropDown>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-6" For="DateOfAction" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ActionDetailsModalDateFieldLabel" IsRow="false">
+            <RadzenDatePicker @bind-Value="model.ActionsInformation.DateOfAction" class="form-control-range" Disabled="@model.RecordReadOnly" Name="DateOfAction"></RadzenDatePicker>
+        </InterfaceEditorResource>
+        <InterfaceEditorResource CssClass="col-6" For="EnteredBy" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ActionDetailsModalEnteredByFieldLabel" IsRow="false">
+            <RadzenTextBox @bind-Value="model.ActionsInformation.EnteredBy" class="form-control" Disabled="true" Name="EnteredBy"></RadzenTextBox>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-12" For="Comment" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ActionDetailsModalCommentFieldLabel" IsRow="false">
+            <RadzenTextArea @bind-Value="model.ActionsInformation.Comment" class="form-control" Disabled="@model.RecordReadOnly" Name="Comment"></RadzenTextArea>
+        </InterfaceEditorResource>
+    </div>
+    <div class="row">
+        <InterfaceEditorResource CssClass="col-6" For="Status" InterfaceEditorKey="@FieldLabelResourceKeyConstants.ActionDetailsModalStatusFieldLabel" IsRow="false">
+            <RadzenDropDown AllowClear="true" @bind-value="@model.ActionsInformation.StatusID" class="form-control" Data="@ActionStatuses" Disabled="@model.RecordReadOnly" LoadData="@(args => GetBaseReferenceItems(args, EIDSSConstants.BaseReferenceConstants.ASSessionActionStatus))" Name="Status" TextProperty="Name" TValue="long" ValueProperty="IdfsBaseReference"></RadzenDropDown>
+        </InterfaceEditorResource>
+    </div>
+    <div class="card-footer">
+        <div class="form-row">
+            <div class="col-12">
+                <button class="btn btn-outline-primary" @onclick="_ => DiagService.Close()" type="button">
+                    @Localizer.GetString(ButtonResourceKeyConstants.CancelButton)
+                </button>
+                <button class="btn btn-primary" disabled="@model.RecordReadOnly" type="submit">
+                    @Localizer.GetString(ButtonResourceKeyConstants.SaveButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

@@ -1,0 +1,23 @@
+﻿@using EIDSS.Domain.ViewModels.Laboratory
+@inherits AccessionInCommentBase
+<RadzenTemplateForm Data="AccessionInAction" @ref="Form" TItem="AccessionInViewModel">
+    @if (AccessionInAction.WritePermissionIndicator != null && (bool) AccessionInAction.WritePermissionIndicator)
+    {
+        <RadzenTextArea @bind-Value="AccessionInAction.AccessionInComment" class="form-control" Cols="70" Disabled="false" MaxLength="200" Name="accessionInComment" Rows="10"/>
+    }
+    else
+    {
+        <RadzenTextArea @bind-Value="AccessionInAction.AccessionInComment" class="form-control" Cols="70" Disabled="true" MaxLength="200" Name="accessionInComment" Rows="10"/>
+    }
+    <div class="card-footer">
+        <div class="form-row">
+            <div class="col-12">
+                <button class="btn btn-outline-primary" id="accessionInCommentCancel" @onclick="OnCancelClick" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToCancelToolTip)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                @if (AccessionInAction.WritePermissionIndicator != null && (bool) AccessionInAction.WritePermissionIndicator)
+                {
+                    <button class="btn btn-primary" @onclick="OnOKClick" id="accessionInCommentOK" type="button">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+                }
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

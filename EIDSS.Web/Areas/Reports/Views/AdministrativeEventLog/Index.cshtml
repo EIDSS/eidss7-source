@@ -1,0 +1,131 @@
+﻿@model EIDSS.Web.Areas.Reports.ViewModels.AdministrativeEventLogViewModel
+@using EIDSS.ReportViewer
+
+@{
+    ViewBag.Title = Localizer.GetString(HeadingResourceKeyConstants.AdministrativeEventLogPageHeading);
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@(HeadingResourceKeyConstants.AdministrativeEventLogPageHeading + "," + Model.LanguageId)"></h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            <div class="form-row">
+                <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <label asp-for="LanguageId" field-label-for="@(FieldLabelResourceKeyConstants.LanguageFieldLabel + "," + Model.LanguageId)"></label>
+                        <div class="input-group">
+                            <select asp-for="LanguageId"
+                                    asp-items="@(new SelectList(Model.ReportLanguageModels,"LangID","Language"))" class="form-control">
+                            </select>
+                            <input type="hidden" asp-for="PriorLanguageId" />
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                        <i class="fas fa-asterisk text-danger"></i>
+                        <label asp-for="StartIssueDate" field-label-for="@(FieldLabelResourceKeyConstants.StartIssueDateFieldLabel + "," + Model.LanguageId)"></label>
+                        <eidss-calendar id="StartIssueDate" name="StartIssueDate" class="form-control" asp-for="StartIssueDate" linked-picker-end-id="EndIssueDate"></eidss-calendar>
+                        <span asp-validation-for="StartIssueDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4">
+                        <i class="fas fa-asterisk text-danger"></i>
+                        <label asp-for="EndIssueDate" field-label-for="@(FieldLabelResourceKeyConstants.EndIssueDateFieldLabel + "," + Model.LanguageId)"></label>
+                        <eidss-calendar id="EndIssueDate" name="EndIssueDate" class="form-control" asp-for="EndIssueDate" linked-picker-start-id="StartIssueDate"></eidss-calendar>
+                        <span asp-validation-for="EndIssueDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-lg-2 col-md-2 col-sm-4 col-xs-4 text-right">
+                        <button type="submit" id="submitReport" class="btn btn-primary" button-for="@(ButtonResourceKeyConstants.GenerateReportButton + "," + Model.LanguageId)"></button>
+                    </div>
+                </div>
+            <div class="form-row">
+                <div class="form-group col-md-2 form-check form-check-inline" style="@(Model.ShowIncludeSignature ? "display:block;" : "display:none;")">
+                    <input asp-for="IncludeSignature" class="form-check-input" type="checkbox" />
+                    <label asp-for="IncludeSignature" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.IncludeSignatureFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+                <div class="form-group col-md-4 form-check form-check-inline" style="@(Model.ShowUseArchiveData ? "display:block;" : "display:none;")">
+                    <input asp-for="UseArchiveData" class="form-check-input" type="checkbox" />
+                    <label asp-for="UseArchiveData" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.UseArchivedDataFieldLabel + "," + Model.LanguageId)"></label>
+                </div>
+            </div>
+        </form>
+        <div class="col-xs-4 col-xs-offset-4" id="divLoading"></div>
+        <div id="ReportView"></div>
+    </div>
+</div>
+
+@section runreport {
+    <script type="text/javascript">
+        function submitReport() {
+                $("#ReportView").html("");
+                onBegin();
+                $.ajax({
+                    url: '@Url.Action("GenerateReport", "AdministrativeEventLog", new { Area = "Reports", SubArea = "" })',//controller name and action
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(getFormData())  //information for search
+                })
+                    .done(function (result) {
+                        $('#ReportView').html(result); //write returned partial view to empty div
+                        onComplete();
+                    })
+        };
+
+        function onBegin() {
+            $("#divLoading").html('<image  src="@Url.Content("~/Includes/Images/ajax-loader.gif")"  alt="Loading, please wait" />');
+         };
+
+        function onComplete() {
+            var jsonData = {
+                "strReportName": '@Model.ReportName',
+                "idfIsSignatureIncluded": $("#IncludeSignature").is(':checked') ? 'true' : 'false'
+            };
+            //Save ReportAudit
+            $.ajax({
+                url: '@Url.Action("SaveReportAudit", "AdministrativeEventLog", new { Area = "Reports", SubArea = "" })',//controller name and action
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(jsonData)  //information for search
+            })
+                .done(function (result) {
+                    $("#divLoading").html("");
+                })
+        };
+
+        function getFormData() {
+            var jsonData = {
+                "LanguageId": $("#LanguageId").val(),
+                "PriorLanguageId": $("#PriorLanguageId").val(),
+                "StartIssueDate": $("#StartIssueDate").val(),
+                "EndIssueDate": $("#EndIssueDate").val(),
+                "UseArchiveData": $("#UseArchiveData").is(":checked") ? "true" : "false",
+                "IncludeSignature": $("#IncludeSignature").is(":checked") ? "true" : "false",
+                "PrintDateTime": localDate()
+            };
+
+            return jsonData;
+        };
+
+        $(document).ready(function () {
+            $("#LanguageId").on("change", function () {
+                $.ajax({
+                    url: '@Url.Action("ChangeLanguage", "AdministrativeEventLog", new { Area = "Reports", SubArea = "" })',
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(getFormData())  //information for search
+                })
+                    .done(function (response) {
+                        $("body").html(response);
+                    });
+            });
+        });
+    </script>
+
+    @if (@Model.JavascriptToRun != null)
+    {
+        <script type="text/javascript">
+            @Html.Raw(@Model.JavascriptToRun)
+        </script>
+    }
+}

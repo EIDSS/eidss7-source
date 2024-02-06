@@ -1,0 +1,50 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@inherits EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession.FarmDetailAggregateBase
+
+<div class="card">
+    <div class="card-header">
+        <h5>@Localizer.GetString(HeadingResourceKeyConstants.FarmDetailsFarmDetailsHeading)</h5>
+    </div>
+    <div class="card-body">
+        <RadzenTemplateForm @ref="form" TItem="FarmMasterGetDetailViewModel" Data=@StateContainer.FarmDetailAggregate>
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-row">
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionAggregateInformationFarmIDFieldLabel" IsRow="false" CssClass="col-4" For="farmID">
+                            <RadzenTextBox Name="farmID" class="form-control" @bind-Value="@StateContainer.FarmDetailAggregate.EIDSSFarmID" Disabled="true" MaxLength="36"></RadzenTextBox>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionAggregateInformationFarmNameFieldLabel" IsRow="false" CssClass="col-8" For="farmName">
+                            <RadzenTextBox Name="farmName" class="form-control" @bind-Value="@StateContainer.FarmDetailAggregate.FarmName" Disabled="true" MaxLength="200"></RadzenTextBox>
+                        </InterfaceEditorResource>
+                    </div>
+                    <div class="form-row">
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionAggregateInformationFarmOwnerIDFieldLabel" IsRow="false" CssClass="col-3" For="farmOwnerID">
+                            <RadzenTextBox Name="farmOwnerID" class="form-control" @bind-Value="@StateContainer.FarmDetailAggregate.EIDSSFarmOwnerID" Disabled="true" MaxLength="36"></RadzenTextBox>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionAggregateInformationFarmOwnerLastNameFieldLabel" IsRow="false" CssClass="col-3" For="farmOwnerLastName">
+                            <RadzenTextBox Name="farmOwnerLastName" class="form-control" @bind-Value="@StateContainer.FarmDetailAggregate.FarmOwnerLastName" Disabled="true" MaxLength="200"></RadzenTextBox>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionAggregateInformationFarmOwnerFirstNameFieldLabel" IsRow="false" CssClass="col-3" For="farmOwnerFirstName">
+                            <RadzenTextBox Name="farmOwnerFirstName" class="form-control" @bind-Value="@StateContainer.FarmDetailAggregate.FarmOwnerFirstName" Disabled="true" MaxLength="200"></RadzenTextBox>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionAggregateInformationFarmOwnerMiddleNameFieldLabel" IsRow="false" CssClass="col-3" For="farmOwnerSecondName">
+                            <RadzenTextBox Name="farmOwnerSecondName" class="form-control" @bind-Value="@StateContainer.FarmDetailAggregate.FarmOwnerSecondName" Disabled="true" MaxLength="200"></RadzenTextBox>
+                        </InterfaceEditorResource>
+                    </div>
+                    <div class="form-row">
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionAggregateInformationPhoneFieldLabel" IsRow="false" CssClass="col-4" For="phone">
+                            <RadzenTextBox Name="phone" class="form-control" @bind-Value="@StateContainer.FarmDetailAggregate.Phone" Disabled="true" MaxLength="200"></RadzenTextBox>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionAggregateInformationEmailFieldLabel" IsRow="false" CssClass="col-8" For="email">
+                            <RadzenTextBox Name="email" class="form-control" @bind-Value="@StateContainer.FarmDetailAggregate.Email" Disabled="true" MaxLength="200"></RadzenTextBox>
+                        </InterfaceEditorResource>
+                    </div>
+                    <h6>@Localizer.GetString(HeadingResourceKeyConstants.FarmDetailsFarmAddressHeading)</h6>
+                    <LocationView Id="FarmLocationDetailAggegate" ParmLocationViewModel="StateContainer.FarmLocationModelAggregate"></LocationView>
+                </div>
+            </div>
+        </RadzenTemplateForm>
+    </div>
+</div>

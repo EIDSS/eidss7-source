@@ -1,0 +1,109 @@
+﻿@model EIDSS.Web.Areas.Outbreak.ViewModels.OutbreakPageViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@{
+    Model.EidssGridConfiguration.GridId = "gOutbreaks";
+    Model.EidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.EidssGridConfiguration.AjaxDataUrl = Url.Action("GetList", "OutbreakPage", new {Area = "Outbreak"});
+    Model.EidssGridConfiguration.EnableServerSide = true;
+    Model.EidssGridConfiguration.EnableCustomSearching = true;
+    Model.EidssGridConfiguration.Order = 0;
+    Model.EidssGridConfiguration.DefaultSortDirection = "desc";
+
+    Model.EidssGridConfiguration.ControlLabels = new EIDSSControlLabels();
+
+    Model.EidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "idfOutbreak",
+        ColumnTitleHeader = string.Empty,
+        Visible = false,
+        ClassName = "idfOutbreak"
+    });
+    Model.EidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "OutbreakID",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakManagementListOutbreakIDColumnHeading),
+        Visible = true,
+        ClassName = "OutbreakID",
+        ColumnType = ColumnType.HyperLink,
+        HyperLinkDataField = "idfOutbreak",
+        ColumnHyperlinkURL = Url.Action("Index", "OutbreakCases", new {Area = "Outbreak"}),
+        Orderable = true
+    });
+    Model.EidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "OutbreakStatusTypeName",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakManagementListStatusColumnHeading),
+        Visible = true,
+        ClassName = "OutbreakStatusTypeName",
+        Orderable = true
+    });
+    Model.EidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "OutbreakTypeName",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakManagementListTypeColumnHeading),
+        Visible = true,
+        ClassName = "OutbreakTypeName",
+        Orderable = true
+    });
+    Model.EidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "AdministrativeLevel2Name",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakManagementListAdministrativeLevel2ColumnHeading),
+        Visible = true,
+        ClassName = "AdministrativeLevel2Name",
+        Orderable = true
+    });
+    Model.EidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "AdministrativeLevel3Name",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakManagementListAdministrativeLevel3ColumnHeading),
+        Visible = true,
+        ClassName = "AdministrativeLevel3Name",
+        Orderable = true
+    });
+    Model.EidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "DiseaseName",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakManagementListDiseaseColumnHeading),
+        Visible = true,
+        ClassName = "DiseaseName",
+        Orderable = true
+    });
+    Model.EidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "StartDate",
+        ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakManagementListStartDateColumnHeading),
+        Visible = true,
+        ClassName = "StartDate",
+        Orderable = true
+    });
+
+    Model.EidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames
+    {
+        ColumnName = "editOutbreak",
+        ColumnTitleHeader = string.Empty,
+        Visible = Model.OutbreakPermissions.Write,
+        ColumnType = ColumnType.HyperLink,
+        ColumnHyperlinkURL = Url.Action("Edit", "OutbreakSession", new {Area = "Outbreak"}),
+        HyperLinkDataFieldCSSImage = "fa fa-edit",
+        HyperLinkDataField = "idfOutbreak",
+        ClassName = "editOutbreak"
+    });
+
+    Model.EidssGridConfiguration.ControlFilterID = "OutbreakId,OutbreakTypeId,idfsDiagnosisOrDiagnosisGroup,SearchCriteria_StartDateFrom,SearchCriteria_StartDateTo,idfsOutbreakStatus,AdminLevel1Value,AdminLevel2Value,Settlement,AdvancedSearchIndicator";
+    Model.EidssGridConfiguration.CustomSearchBtnID = "btnSearchList";
+
+    <eidss-grid id="@Model.EidssGridConfiguration.GridId"
+                grid-configuration="@Model.EidssGridConfiguration"
+                filtered-control-ids="@Model.EidssGridConfiguration.ControlFilterID"
+                enable-server-side="@Model.EidssGridConfiguration.EnableServerSide"
+                enable-processing="@Model.EidssGridConfiguration.EnableProcessingMessage"
+                enable-search="@Model.EidssGridConfiguration.EnableSearching"
+                end-point="@Model.EidssGridConfiguration.AjaxDataUrl"
+                class-name="@Model.EidssGridConfiguration.GridClass"
+                details-ajax-url="@Model.EidssGridConfiguration.AjaxDataUrl"
+                enable-top-header-search-button="@Model.EidssGridConfiguration.EnableCustomSearching"
+                control-labels="@Model.EidssGridConfiguration.ControlLabels"
+                controls-that-refresh-the-grid="@Model.EidssGridConfiguration.ControlIdThatRefreshGrid">
+    </eidss-grid>
+}

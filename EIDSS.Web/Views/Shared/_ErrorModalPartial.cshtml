@@ -1,0 +1,51 @@
+﻿    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" data-backdrop='static' data-keyboard='false' aria-labelledby="errorModal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorModalHeader">EIDSS</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 text-right">
+                            <span class="fas fa-times-circle fa-2x modal-icon"></span>
+                        </div>
+                        <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                            <div id="errorMessage"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="$('#errorModal').modal('hide');" button-for="@ButtonResourceKeyConstants.OKButton"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        function showErrorModal(message, title = "", size = "medium") {
+            $("#errorModal").find("#errorMessage").text(message.replace(/&quot;/g, '\"')).end(); // replace HTML &quot to show actual double quotes.
+            var localizedString = $("#errorModal").find("#errorMessage").text();
+            var decodedLocalizedMessage = $("#errorModal").find("#errorMessage").html(localizedString).text();
+
+            const modal = new Promise(function (resolve, reject) {
+                $("#errorModal").find('.modal-header > h5').text(title).end();
+                $("#errorModal").find('#errorMessage').html(decodedLocalizedMessage).end();
+                $("#errorModal").modal('show');
+
+                $('#errorModal .btn-primary').click(function () {
+                    resolve(true);
+                });
+            });
+
+            return modal;
+        };
+        $(document).on("show.bs.modal", ".modal", function (event) {
+            var zIndex = 1040 + (10 * $(".modal:visible").length);
+            $(this).css("z-index", zIndex);
+            setTimeout(function () {
+                $(".modal-backdrop").not(".modal-stack").css("z-index", zIndex - 1).addClass("modal-stack");
+            }, 0);
+        });
+    </script>

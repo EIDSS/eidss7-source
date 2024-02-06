@@ -1,0 +1,36 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary;
+
+@inherits EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession.ActionsBase
+
+<div class="card">
+    <div class="card-header">
+        <div class="col-1 pull-right mb-3">
+            <button type="button" class="btn btn-outline-primary" @onclick="OnAddActionClick">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowPaging="true" AllowSorting="true" Count="@ActionsCount" Data="@StateContainer.Actions" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" ExpandMode="DataGridExpandMode.Single" IsLoading="@IsLoading" LoadData=@(args => LoadActionsGridView(args)) Name="actionsResults" PageSize="10" @ref="ActionsGrid" TItem="VeterinaryActiveSurveillanceSessionActionsViewModel">
+            <Columns>
+                <RadzenDataGridColumn Width="150px" TItem="VeterinaryActiveSurveillanceSessionActionsViewModel" Property="MonitoringSessionActionTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionActionsActionRequiredColumnHeading)" Sortable="true" />
+                <RadzenDataGridColumn Width="75px" TItem="VeterinaryActiveSurveillanceSessionActionsViewModel" Property="ActionDate" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionActionsDateColumnHeading)" Sortable="true" FormatString="{0:d}" />
+                <RadzenDataGridColumn Width="200px" TItem="VeterinaryActiveSurveillanceSessionActionsViewModel" Property="EnteredByPersonName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionActionsEnteredByColumnHeading)" Sortable="true" />
+                <RadzenDataGridColumn Width="200px" TItem="VeterinaryActiveSurveillanceSessionActionsViewModel" Property="Comments" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionActionsCommentColumnHeading)" Sortable="true" />
+                <RadzenDataGridColumn Width="75px" TItem="VeterinaryActiveSurveillanceSessionActionsViewModel" Property="MonitoringSessionActionStatusTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionActionsStatusColumnHeading)" Sortable="true" />
+                <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionActionsViewModel" Context="data" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="60px">
+                    <Template Context="data">
+                        <button @onclick=@(() => OnEditActionClick(data)) class="btn btn-sm" disabled=@(StateContainer.ActiveSurveillanceSessionPermissions.Write ? false: true) type="button">
+                            <i class="fas fa-edit fa-lg"></i>
+                        </button>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="VeterinaryActiveSurveillanceSessionActionsViewModel" Context="data" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="60px">
+                    <Template Context="data">
+                        <button @onclick=@(() => OnDeleteActionClick(data)) class="btn btn-sm" disabled=@(StateContainer.ActiveSurveillanceSessionPermissions.Write ? false: true) type="button">
+                            <i class="fas fa-trash fa-lg"></i>
+                        </button>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>

@@ -1,0 +1,777 @@
+﻿@model EIDSS.Web.Areas.Outbreak.ViewModels.HumanCaseViewModel;
+@using EIDSS.Web.Components.Human;
+@using EIDSS.Web.Components.CrossCutting;
+@using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
+@using EIDSS.Web.Components.Human.HumanDiseaseReport;
+@using EIDSS.Web.Components.Outbreak.Case;
+@using Newtonsoft.Json;
+
+<partial name="_ErrorModalPartial" />
+<partial name="_InformationalModalPartial" , model="String.Empty" />
+<partial name="_WarningModalPartial" />
+<partial name="_SuccessDuplicateModalPartial" />
+
+<div class="card">
+    <div class="card-body">
+        <div id="diseaseReportWizard">
+            <h4 heading-for="@HeadingResourceKeyConstants.HumanDiseaseReportNotificationHeading"></h4>
+            <section id="NotificationSection">
+                <div id="DivNotificationSection">
+                    <partial name="_DiseaseReportNotificationPartial" for="@Model.diseaseReportComponentViewModel.NotificationSection" />
+                </div>
+            </section>
+
+            <h4 heading-for="@HeadingResourceKeyConstants.CreateHumanCaseCaseLocationHeading"></h4>
+            <section id="CaseLocationSection">
+                <div id="DivCaseLocationSection">
+                    <form id="CaseLocationForm">
+                        <div class="card">
+                            <div class="card-header"><h4 heading-for="@HeadingResourceKeyConstants.CreateHumanCaseCaseLocationHeading"></h4></div>
+                            <div class="card-body">
+                                <input type="hidden" id="hidfGeoLocation" value="@Model.diseaseReportComponentViewModel.CaseidfGeoLocation" />
+                                @await Component.InvokeAsync("LocationView", Model.diseaseReportComponentViewModel.HumanCaseLocation)
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <h4 heading-for="@HeadingResourceKeyConstants.CreateHumanCaseClinicalInformationHeading"></h4>
+            <section id="ClinicalLocationSection">
+                <div id="DivClinicalLocationSection">
+                    <partial name="_HumanCaseClinicalInformationPartial" for="@Model.diseaseReportComponentViewModel" />
+                </div>
+            </section>
+
+            <h4 heading-for="@HeadingResourceKeyConstants.CreateHumanCaseOutbreakInvestigationHeading"></h4>
+            <section id="CaseInvestigationSection">
+                <div id="DivCaseInvestigationSection">
+                    <partial name="_DiseaseReportCaseInvestigationPartial" for="@Model.diseaseReportComponentViewModel.CaseInvestigationSection" />
+                    <partial name="_DiseaseReportRiskFactorsPartial" for="@Model.diseaseReportComponentViewModel.RiskFactorsSection" />
+                </div>
+            </section>
+
+            <h4 heading-for="@HeadingResourceKeyConstants.CreateHumanCaseCaseMonitoringHeading"></h4>
+            <section id="CaseMonitoringSection">
+                <div id="DivCaseMonitoringSection">
+                    <component type="typeof(CaseMonitoringSection)" param-Model="@Model.diseaseReportComponentViewModel.CaseDetails" param-DiseaseReportId="@Model.diseaseReportComponentViewModel.idfHumanCase" param-isHumanCase="true" render-mode="Server" />
+                </div>
+            </section>
+
+            <h4 heading-for="@HeadingResourceKeyConstants.CreateHumanCaseContactsHeading"></h4>
+            <section id="ContactListSection">
+                <div id="DivContactListSection">
+                    <component type="typeof(ContactsSection)" param-model=@Model.diseaseReportComponentViewModel.CaseDetails param-DiseaseReportId="@Model.diseaseReportComponentViewModel.idfHumanCase" param-isHumanCase="true" render-mode="Server" />
+                </div>
+            </section>
+
+            <h4 heading-for="@HeadingResourceKeyConstants.HumanDiseaseReportSamplesHeading"></h4>
+            <section id="SamplesSection">
+                <div id="DivSamplesSection">
+                    <component type="typeof(DiseaseReportSample)" param-Model="@Model.diseaseReportComponentViewModel.SamplesSection" param-IsReportClosed="@Model.diseaseReportComponentViewModel.IsReportClosed" render-mode="Server" />
+                </div>
+            </section>
+
+            <h4 heading-for="@HeadingResourceKeyConstants.HumanDiseaseReportTestsHeading"></h4>
+            <section id="TestSection">
+                <div id="DivTestSection">
+                    <component type="typeof(DiseaseReportTest)" param-Model="@Model.diseaseReportComponentViewModel.TestsSection" param-IsReportClosed="@Model.diseaseReportComponentViewModel.IsReportClosed" render-mode="Server" />
+                </div>
+            </section>
+
+            <h4 heading-for="@HeadingResourceKeyConstants.ReviewHeading"></h4>
+            <section></section>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="DiseaseReportSuccessModal" tabindex="-1" role="dialog" aria-labelledby="warningModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+				<h4 class="modal-title" heading-for="@HeadingResourceKeyConstants.EIDSSSuccessModalHeading"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 text-right">
+                        <span class="fas fa-info-circle fa-2x modal-icon"></span>
+                    </div>
+                    <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                        <p id="successMessage"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnGoToHumanCase" type="button" class="btn btn-primary">@Localizer.GetString(ButtonResourceKeyConstants.OutbreakCasesReturnToOutbreakCaseReportButtonText)</button>           
+                <button id="btnReturnToOutbreakSession" type="button" class="btn btn-primary">@Localizer.GetString(ButtonResourceKeyConstants.OutbreakCasesReturnToOutbreakSessionButtonText)</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="printModal" tabindex="-1" role="dialog" aria-labelledby="printModal">
+    <div class="modal-dialog" style="top: 150px; left: 150px; max-width: 1050px; max-height: 600px; resize: both">
+        <div class="modal-content">
+			<div class="modal-header">
+                <h4 class="modal-title">@Localizer.GetString(@HeadingResourceKeyConstants.CommonHeadingsPrintHeading)</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" style="width: 1050px; height: 600px;">
+                <div id="divNotification">
+                    <component type="typeof(DisplayReport)" param-ReportHeader="@Model.CaseReportPrintViewModal.ReportHeading" param-ReportName="@Model.CaseReportPrintViewModal.ReportName" param-Parameters="@Model.CaseReportPrintViewModal.Parameters" render-mode="Server"/>
+                </div>
+                <div id="divCaseInvestigation">
+                    <component type="typeof(DisplayReport)" param-ReportHeader="@Model.CaseReportPrintViewModal.ReportHeading" param-ReportName="@Model.CaseReportPrintViewModal.ReportName" param-Parameters="@Model.CaseReportPrintViewModal.Parameters" render-mode="Server"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="hdnHumanActual" value="@Model.diseaseReportComponentViewModel.HumanActualID" />
+<input type="hidden" id="hdnHumanID" value="@Model.diseaseReportComponentViewModel.HumanID" />
+<input type="hidden" id="hdnHumanCase" value="@Model.diseaseReportComponentViewModel.idfHumanCase" />
+<input type="hidden" id="hdnHumanStrCase" value="@Model.diseaseReportComponentViewModel.strCaseId" />
+<input type="hidden" id="hdnidfHumanCaseRelatedTo" value="@Model.diseaseReportComponentViewModel.idfHumanCaseRelatedTo" />
+<input type="hidden" id="hdnGoToDiseaseReport" value="false" />
+<input type="hidden" id="hdnPendingSaveNotifications" value="@Model.diseaseReportComponentViewModel.PendingSaveEvents"/>
+
+@{
+    for (int i = 0; i < @Model.diseaseReportComponentViewModel.NotificationSection.EmployeeDetails.eIDSSModalConfiguration.Count(); i++)
+    {
+	<eidss-reference-editors-modal control-labels="@Model.diseaseReportComponentViewModel.NotificationSection.EmployeeDetails.eIDSSModalConfiguration[i].ControlLabels" ajax-save-url="@Model.diseaseReportComponentViewModel.NotificationSection.EmployeeDetails.eIDSSModalConfiguration[i].PostAjaxDataUrl" modal-configuration="@Model.diseaseReportComponentViewModel.NotificationSection.EmployeeDetails.eIDSSModalConfiguration[i]" modal-id="@Model.diseaseReportComponentViewModel.NotificationSection.EmployeeDetails.eIDSSModalConfiguration[i].ModalId"></eidss-reference-editors-modal>
+    }
+}
+
+<script type="text/javascript">
+    var Steps_Notification = 0;
+	var Steps_CaseLocation = 1;
+	var Steps_ClinicalInformation = 2;
+	var Steps_OutbreakInvestigation = 3;
+	var Steps_CaseMonitoring = 4;
+	var Steps_Contacts = 5;
+	var Steps_Samples = 6;
+	var Steps_Tests = 7;
+	var Steps_Review = 8;
+
+	///Load Default Data
+	$(document).ready(function() {
+		localStorage.removeItem("vaccionationAntiViralTherapiesData");
+		localStorage.removeItem("caseMonitoringsModel");
+		localStorage.removeItem("contactsModel");
+		localStorage.removeItem("sampleModel");
+		localStorage.removeItem("testModel");
+		localStorage.removeItem("finalOutcomeModel");
+
+		//Notification
+		$("#notificationSentByNameDD").prop("disabled", true);
+		$("#notificationReceivedByNameDD").prop("disabled", true);
+		var currentlocation = '@Model.diseaseReportComponentViewModel.NotificationSection.idfCurrentLocationOfPatient';
+		if (currentlocation == 5350000000) {
+			$("#divHospitalName").prop("style", "display: block;");
+			$("#divOtherLocation").prop("style", "display: none;");
+		} else {
+			$("#divHospitalName").prop("style", "display: none;");
+			if (currentlocation == "5360000000") {
+				$("#divOtherLocation").prop("style", "display: block;");
+			} else {
+				$("#divOtherLocation").prop("style", "display: none;");
+			}
+		}
+		var exposureValue = $("input[name='CaseInvestigationSection.idfsYNExposureLocationKnown']:checked").val();
+		ShowLocationExposureSection(exposureValue);
+
+		var geoLocationType = $("input[name='CaseInvestigationSection.idfsPointGeoLocationType']:checked").val();
+		ShowSpecificSection(geoLocationType);
+
+		//Notification
+		var disease = '@Model.diseaseReportComponentViewModel.NotificationSection.idfDisease';
+
+		if ('@Model.diseaseReportComponentViewModel.isEdit' && '@Model.diseaseReportComponentViewModel.NotificationSection.idfDisease' != 0 && '@Model.diseaseReportComponentViewModel.NotificationSection.idfDisease' != null) {
+			$("#diseaseDD").prop("disabled", true);
+		} else {
+			$("#diseaseDD").prop("disabled", false);
+		}
+		var reportStatus = '@Model.diseaseReportComponentViewModel.IsReportClosed';
+		if (reportStatus == 'True') {
+			$('#divRiskFactorsList *').attr('disabled', true);
+			$('#divSymptomsList *').attr('disabled', true);
+		}
+
+		$(".text-danger.field-validation-valid").each(function(i, j) {
+			if (($(j).attr("data-valmsg-for")).indexOf("diseaseReportComponentViewModel") == 0) {
+				$(j).attr("data-valmsg-for", $(j).attr("data-valmsg-for").replace("diseaseReportComponentViewModel.", ""));
+			}
+		});
+	});
+
+	function disableAllControls() {
+		//Notification
+		$("#diseaseDD").prop("disabled", true);
+		$("#statusOfPatientAtNotificationDD").prop("disabled", true);
+	}
+
+	function cancelDiseaseReportDetails(message, event) {
+		showWarningModal(message).then(response => {
+			if (response)
+				location.href = '@Url.Action("Index", "OutbreakCases", new { queryData = @Model.idfOutbreak })';
+		});
+	};
+
+	function disableDeleteButton(enableDelete) {
+		if (enableDelete == "True") {
+			$('#deleteButton').removeClass("disabled").attr("aria-disabled", "false");
+		} else {
+			$('#deleteButton').addClass("disabled").attr("aria-disabled", "true");
+		}
+	}
+
+	initializeSideBar_Immediate();
+
+	function checkSection(id, currentStep) {
+		var bValid = false;
+
+		$("#" + id).validate({
+			ignore: null
+		});
+
+		if ($("#" + id).valid()) {
+			bValid = true;
+		}
+
+		return bValid;
+	}
+
+	function disablePrintButton(enablePrint) {
+		if (enablePrint == "True") {
+			$('#printButton').removeClass("disabled").attr("aria-disabled", "false");
+		} else {
+			$('#printButton').addClass("disabled").attr("aria-disabled", "true");
+		}
+	}
+
+	function initializeSideBar_Immediate() {
+		var saveEnabled = true;
+
+		if ("@Model.diseaseReportComponentViewModel.IsReportClosed" == "True"){
+			saveEnabled = false;
+		}
+
+		var stepsWizard = $("#diseaseReportWizard").steps({
+			headerTag: "h4",
+			titleTemplate: '<span id="erroredStep" class="fa-stack text-danger" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-times fa-stack-1x fa-inverse"></i></span><span id="step" class="fa-stack text-muted" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span><span id="completedStep" class="fa-stack text-success" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span><span id="reviewStep" class="fa-stack text-muted" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-clipboard-list fa-stack-1x fa-inverse"></i></span> <span class="stepTitleText">#title#</span>',
+			bodyTag: "section",
+			transitionEffect: "none",
+			stepsOrientation: "vertical",
+			startIndex: 0,
+			enableAllSteps: true,
+			enableCancelButton: true,
+			enableKeyNavigation: true,
+			enableDeleteButton: true,
+			enableSaveButton: saveEnabled,
+			enablePrintButton: true,
+			labels: {
+				cancel: "@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)",
+				finish: "@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)",
+				next: "@Localizer.GetString(ButtonResourceKeyConstants.NextButton)",
+				previous: "@Localizer.GetString(ButtonResourceKeyConstants.PreviousButton)",
+				delete: "@Localizer.GetString(ButtonResourceKeyConstants.DeleteButton)",
+				print: "@Localizer.GetString(ButtonResourceKeyConstants.PrintButton)",
+				loading: "@Localizer.GetString(MessageResourceKeyConstants.PleaseWaitWhileWeProcessYourRequestMessage)"
+			},
+			onInit: function(event) {
+				disableDeleteButton('@Model.diseaseReportComponentViewModel.isDeleteEnabled');
+				//disablePrintButton("true");
+				if (!saveEnabled){
+					$("#saveButton").remove();
+				}
+			},
+			onCanceled: function(event) {
+				cancelDiseaseReportDetails('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)', event);
+			},
+			onStepChanging: function(event, currentIndex, newIndex) {
+				if (currentIndex == 1){
+					if ($("#caseLocation_Latitude").val() != ''){
+						document.getElementById("caseLocation_Latitude").stepUp();
+						document.getElementById("caseLocation_Latitude").stepDown();
+					}
+					if ($("#caseLocation_Longitude").val() != ''){
+						document.getElementById("caseLocation_Longitude").stepUp();
+						document.getElementById("caseLocation_Longitude").stepDown();
+					}
+				}
+
+				return checkSection(getSectionId(currentIndex), currentIndex);
+			},
+			onStepChanged: function(event, currentIndex, priorIndex) {
+				//If steps were skipped, then validate all sections up to current section
+				for(i = 0; i< currentIndex; i++){
+					$($("#diseaseReportWizard #step")[i]).hide();
+					$($("#diseaseReportWizard #erroredStep")[i]).hide();
+					$($("#diseaseReportWizard #completedStep")[i]).hide();
+
+					$("#diseaseReportWizard-p-" + i).show();
+					if(checkSection(getSectionId(i), i)){
+						$($("#diseaseReportWizard #completedStep")[i]).show();
+					}
+					else{
+						$($("#diseaseReportWizard #erroredStep")[i]).show();
+					}
+					$("#diseaseReportWizard-p-" + i).hide();
+				}
+			},
+			onFinished: function(event) {
+				$("#saveButton").removeAttr("href");
+				$("#processing").addClass("fas fa-sync fa-spin");
+
+				getFlexFormAnswers10034010();
+			},
+			onDeleting: function(event) {
+				DeleteHumanDiseaseReport();
+			},
+		});
+
+		if ('@Model.diseaseReportComponentViewModel.StartIndex' > 1) {
+			if ('@Model.diseaseReportComponentViewModel.isEdit' == 'True' && '@Model.diseaseReportComponentViewModel.NotificationSection.idfDisease' != 0 && '@Model.diseaseReportComponentViewModel.NotificationSection.idfDisease' != null) {
+				$("#diseaseDD").prop("disabled", true);
+			} else {
+				$("#diseaseDD").prop("disabled", false);
+			}
+			wizardMoveLast();
+		}
+	}
+
+	function getSectionId(index){
+		switch (index) {
+			case Steps_Notification:
+				sectionId = "NotificationsForm";
+				break;
+			case Steps_CaseLocation:
+				sectionId = "CaseLocationForm";
+				break;
+			case Steps_ClinicalInformation:
+				sectionId = "ClinicalInformationForm";
+				break;
+			case Steps_OutbreakInvestigation:
+				sectionId = "CaseInvestigationForm";
+				break;
+			case Steps_CaseMonitoring:
+				sectionId = "CaseMonitoringForm";
+				break;
+			case Steps_Contacts:
+				sectionId = "ContactsForm";
+				break;
+			case Steps_Samples:
+				sectionId = "DiseaseReportSamplesForm";
+				break;
+			case Steps_Tests:
+				sectionId = "DiseaseReportTestsForm";
+				break;
+			case Steps_Review:
+				break;
+		}
+
+		return sectionId;
+	}
+
+	function SaveHDR() {
+		//var isDiseaseInvalid = CheckDiseaseForGender(diseaseID);
+		var isNotificationValid = $("#diseaseReportWizard").steps("validateStep", $("#NotificationsForm"));
+		var isCaseLocationValid = $("#diseaseReportWizard").steps("validateStep", $("#CaseLocationForm"));
+		var isClinicalInformationValid = $("#diseaseReportWizard").steps("validateStep", $("#ClinicalInformationForm"));
+		var isCaseInvestigationValid = $("#diseaseReportWizard").steps("validateStep", $("#CaseInvestigationForm"));
+		//var isCaseMonitoringValid = $("#diseaseReportWizard").steps("validateStep", $("#CaseMonitoringForm"));
+		var isCaseMonitoringValid = true;
+		var isCaseInvestigationValid = $("#diseaseReportWizard").steps("validateStep", $("#CaseInvestigationForm"));
+		var isContactListValid = $("#diseaseReportWizard").steps("validateStep", $("#ContactsForm"));
+		var isDiseaseReportSamplesValid = $("#diseaseReportWizard").steps("validateStep", $("#DiseaseReportSamplesForm"));
+		var isDiseaseReportTestsValid = $("#diseaseReportWizard").steps("validateStep", $("#DiseaseReportTestsForm"));
+		if (isNotificationValid &&
+			isCaseLocationValid &&
+			isClinicalInformationValid &&
+			isCaseInvestigationValid &&
+			isCaseMonitoringValid &&
+			isContactListValid &&
+			isDiseaseReportSamplesValid &&
+			isDiseaseReportTestsValid) {
+			
+			$("#saveButton").attr("style","pointer-events: none;background-color:#aaaaaa;border-color:#aaaaaa;");
+			$("#processing").addClass("fas fa-sync fa-spin");
+			submitCase();
+		} else {
+			$("#saveButton").attr("href", "#finish");
+			$("#processing").removeClass("fas fa-sync fa-spin");
+
+			if (!isNotificationValid) {
+				$("#diseaseReportWizard").steps("setStep", Steps_Notification);
+			} else if (!isCaseLocationValid) {
+				$("#diseaseReportWizard").steps("setStep", Steps_CaseLocation);
+			} else if (!isClinicalInformationValid) {
+				$("#diseaseReportWizard").steps("setStep", Steps_ClinicalInformation);
+			} else if (!isCaseInvestigationValid) {
+				$("#diseaseReportWizard").steps("setStep", Steps_OutbreakInvestigation);
+			} else if (!isCaseMonitoringValid) {
+				$("#diseaseReportWizard").steps("setStep", Steps_OutbreakInvestigation);
+			} else if (!isContactListValid) {
+				$("#diseaseReportWizard").steps("setStep", Steps_Contacts);
+			} else if (!isDiseaseReportSamplesValid) {
+				$("#diseaseReportWizard").steps("setStep", Steps_Samples);
+			} else if (!isDiseaseReportTestsValid) {
+				$("#diseaseReportWizard").steps("setStep", Steps_Tests);
+			} else {
+				$("#diseaseReportWizard").steps("setStep", Steps_Notification);
+			}
+		}
+	}
+
+	function wizardMoveLast() {
+		var $steps = $("#diseaseReportWizard").find('.steps li');
+		var currentStep = $steps.filter('.active').index() + 1;
+		var distance = $steps.length - currentStep;
+
+		for (var i = 0; i < distance; i++) {
+			$("#diseaseReportWizard").steps('next');
+		}
+	}
+
+  //  function validateSections(step) {
+		//bBypassStepChanged = true;
+
+		//$("#diseaseReportWizard").steps("setStep", 0);
+
+  //      for (var i = 0; i < step; i++) {
+  //          $("#diseaseReportWizard").steps('next');
+  //      }
+
+		//bBypassStepChanged = false;
+  //  }
+
+	function ReloadCaseSymptoms(disease) {
+		var model = {};
+		model.SymptomsOnsetDate = $("#SymptomsSection_OutBreakSymptomsOnsetDate").val();
+		model.caseClassficationDD = $("#caseClassficationDD").val();
+		model.strCaseClassification = $("#caseClassficationDD").text();
+		model.diseaseId = disease;
+		model.idfHumanCase = '@Model.diseaseReportComponentViewModel.idfHumanCase';
+		model.isEdit = '@Model.diseaseReportComponentViewModel.isEdit';
+		model.isReportClosed = '@Model.diseaseReportComponentViewModel.IsReportClosed';
+
+		if (model.SymptomsOnsetDate == null || model.SymptomsOnsetDate === '') {
+			var url = '@Url.Action("ReloadSymptoms", "HumanCase")';
+			$.ajax({
+					url: url,
+					type: 'POST',
+					data: JSON.stringify(model),
+					contentType: "application/json; charset=utf-8",
+					dataType: "html"
+				})
+				.done(function(data) {
+					$("#DivSymptomsSection").html(data);
+					var $form = $("#SymptomsForm");
+					$form.removeData('validator');
+                    $form.removeData('unobtrusiveValidation');
+                    $.validator.unobtrusive.parse($form);
+					$form.validate();
+				})
+				.fail(function(error) {
+					alert("fail" + error);
+				});
+		}
+	}
+
+	function SetVaccionationAntiViralTherapiesData(vaccionationAntiViralTherapiesData) {
+		localStorage.setItem("vaccionationAntiViralTherapiesData", JSON.stringify(vaccionationAntiViralTherapiesData));
+	}
+
+	function SetCaseMonitoringData(caseMonitoringModel) {
+		localStorage.setItem("caseMonitoringsModel", JSON.stringify(caseMonitoringModel));
+	}
+
+	function SetContactsData(contactsModel) {
+		localStorage.setItem("contactsModel", JSON.stringify(contactsModel));
+	}
+
+	function SetSampleData(sampleModel) {
+		localStorage.setItem("sampleModel", JSON.stringify(sampleModel));
+	}
+
+	function SetTestData(testModel) {
+		localStorage.setItem("testModel", JSON.stringify(testModel));
+	}
+
+	function SetFinalOutcomeData(finalOutcomeModel) {
+		localStorage.setItem("finalOutcomeModel", JSON.stringify(finalOutcomeModel));
+	}
+
+	function GetDateOfDiagnosis() {
+		var dateOfDiagnosis = $("#NotificationSection_dateOfDiagnosis").val();
+		return dateOfDiagnosis;
+	}
+
+	function ReloadCaseRiskFactors(disease) {
+		var url = '@Url.Action("ReloadRiskFactors", "HumanCase")?diseaseId=' + disease + "&isEdit=" + '@Model.diseaseReportComponentViewModel.isEdit' + "&idfHumanCase=" + '@Model.diseaseReportComponentViewModel.idfHumanCase' + "&isReportClosed=" + '@Model.diseaseReportComponentViewModel.IsReportClosed';
+		$.ajax({
+				url: url,
+				type: 'GET',
+				//data: JSON.stringify(model),
+				contentType: "application/json; charset=utf-8",
+				dataType: "html"
+			})
+			.done(function(data) {
+				$("#DivRiskFactorsSection").html(data);
+			})
+			.fail(function(error) {
+				alert("fail" + error);
+			});
+	}
+
+	function submitCase() {
+		var model = {};
+
+		//Summary Section
+		model.DiseaseReportTypeID = $("#ReportTypeDD").val();
+		model.idfsCaseProgressStatus = $("#ReportStatusDD").val();
+
+		model.OutbreakCaseReportUID = $("#hdnOutbreakCaseReportUID").val();
+		model.idfHuman = $("#hdnHumanID").val();
+		model.strHumanCaseId = $("#hdnHumanStrCase").val();
+
+		//Outbreak Case Details
+		model.idfOutbreak = $("#idfOutbreak").val();
+		model.idfHumanCase = $("#hdnHumanCase").val();
+
+		//Human Disease related items for creation
+		model.idfHumanActual = $("#hdnHumanActual").val();
+		model.idfsDiagnosisOrDiagnosisGroup = $("#idfsDiagnosisOrDiagnosisGroup").val();
+
+		//Notification Section (Outbreak/Human)
+		model.datNotificationDate = $("#NotificationSection_datOutbreakNotification").val()
+		model.notificationSentByFacilityDD = $("#notificationSentByFacilityDD").val();
+		model.notificationSentByNameDD = $("#notificationSentByNameDD").val();
+		model.notificationReceivedByFacilityDD = $("#notificationReceivedByFacilityDD").val();
+		model.notificationReceivedByNameDD = $("#notificationReceivedByNameDD").val();
+
+		//Case Location
+		model.idfsGeoLocationType = $("input[name='CaseInvestigationSection.idfsPointGeoLocationType']:checked").val();
+		model.idfPointGeoLocation = $("#hdnidfGeoLocation").val();
+		model.idfGeoLocation = $("#hidfGeoLocation").val();
+		model.idfsLocationGroundType = $("#hdnidfLocation").val();
+		model.AdminLevel0Value = $("#AdminLevel0Value").val();
+		model.AdminLevel1Value = $("#AdminLevel1Value").val();
+		model.AdminLevel2Value = $("#AdminLevel2Value").val();
+		model.AdminLevel3Value = $("#AdminLevel3Value").val();
+		model.AdminLevel4Value = $("#AdminLevel4Value").val();
+		model.AdminLevel5Value = $("#AdminLevel5Value").val();
+		model.AdminLevel6Value = $("#AdminLevel6Value").val();
+		model.intLocationLatitude = $("#caseLocation_Latitude").val();
+		model.intLocationLongitude = $("#caseLocation_Longitude").val();
+		model.intElevation = $("#caseLocation_levation").val();
+		model.idfsLocationGroundType = $("#GroundTypeDD").val();
+		model.intLocationDistance = $("#caseLocation_dblPointDistance").val();
+		model.intLocationDirection = $("#caseLocation_dblPointDirection").val();
+		model.strForeignAddress = $("#caseLocation_strPointForeignAddress").val();
+		model.House = $("#House").val();
+		model.Building = $("#Building").val();
+		model.Apartment = $("#Apartment").val();
+		//model.Street = $('option:selected', $("#StreetText")).attr('data-select2-id');
+		//model.PostalCode = $('option:selected', $("#PostalCodeText")).attr('data-select2-id');
+		model.Street = $('option:selected', $("#StreetText")).val();
+		model.PostalCode = $('option:selected', $("#PostalCodeText")).val();
+
+		//Clinical Information
+		model.CaseStatusID = $("#caseClassficationDD").val();
+		model.SymptomsOnsetDate = $("#SymptomsSection_OutBreakSymptomsOnsetDate").val();
+		model.datFinalDiagnosisDate = $("#HumanCaseClinicalInformation_datFinalDiagnosisDate").val();
+		model.idfHospital = $("#HospitalSelect").val();
+		model.datHospitalizationDate = $("#HospitalizationDate").val();
+		model.datOutbreakHospitalizationDate = $("#FacilityDetailsSection_OutbreakHospitalizationDate").val();
+		model.datDischargeDate = $("#DateOfDischarge").val();
+
+		var vaccionationAntiViralTherapies = localStorage.getItem("vaccionationAntiViralTherapiesData");
+		var parsedVaccionationAntiViralTherapies = JSON.parse(vaccionationAntiViralTherapies);
+		model.vaccionationAntiViralTherapies = parsedVaccionationAntiViralTherapies;
+
+		model.additionalInforMation = $("[name='ClinicalInformation_AdditionalInforMation']").val()
+		model.idfsYNHospitalization = $('input:radio[name="FacilityDetailsSection.Hospitalized"]:checked').val();
+		model.idfsYNAntimicrobialTherapy = $('.rz-radiobutton-box.rz-state-active').parent().find("[name='idfsYNAntimicrobialTherapy']").val();
+		model.idfsYNSpecificVaccinationAdministered = $('.rz-radiobutton-box.rz-state-active').parent().find("[name='idfsYNSpecificVaccinationAdministered']").val();
+		model.datInvestigationStartDate = $("#CaseInvestigationSection_StartDateofInvestigation").val();
+		model.idfCSObservation = $("[asp-for='idfCaseObservationSymptoms']").val();
+
+		//Outbreak Investigation
+		model.OutbreakCaseClassificationID = $("#OutbreakCaseClassificationByNameDD").val();
+		model.idfInvestigatedByOffice = $("#InvestigatedByOfficeDD").val();
+		model.idfInvestigatedByPerson = $("#idfOutbreakInvestigatedByPerson").val();
+		model.StartDateofInvestigation = $("#CaseInvestigationSection_StartDateofInvestigation").val();
+		model.isPrimaryCaseFlag = $("#diseaseReportComponentViewModel_CaseInvestigationSection_PrimaryCase").is(":checked");
+		model.strNote = $("#diseaseReportComponentViewModel_RiskFactorsSection_AdditionalComments").val();
+		model.idfEpiObservation = $("[asp-for='idfCaseObservationRiskFactors']").val();
+
+		//Case Monitoring Details
+        var caseMonitoringsModel = localStorage.getItem("caseMonitoringsModel");
+        var parsedCaseMonitoringsModel = JSON.parse(caseMonitoringsModel);
+		model.caseMonitoringsModel = parsedCaseMonitoringsModel;
+
+		//Contacts Details
+        var contactsModel = localStorage.getItem("contactsModel");
+        var parsedcontactsModel = JSON.parse(contactsModel);
+		model.contactsModel = parsedcontactsModel;
+
+		//Samples
+		var sampleModel = localStorage.getItem("sampleModel");
+		var parsedSampleModel = JSON.parse(sampleModel);
+		
+		model.idfsYNSpecimenCollected = $('.rz-radiobutton-box.rz-state-active').parent().find("[name='SamplesCollectedYN']").val();
+		model.sampleModel = parsedSampleModel;
+
+		//Tests
+		var testModel = localStorage.getItem("testModel");
+		var parsedTestModel = JSON.parse(testModel);
+
+		model.idfsYNTestsConducted = $('.rz-radiobutton-box.rz-state-active').parent().find("[name='testsCollectedYN']").val();
+		model.testModel = parsedTestModel;
+
+		//Final Outcome
+		var finalOutcomeModel = localStorage.getItem("finalOutcomeModel");
+		model.finalOutcomeModel = JSON.parse(finalOutcomeModel);
+
+		$.ajax({
+			url: '@Url.Action("SaveHumanCase", "HumanCase")',
+			type: 'POST',
+			async: false,
+			data: JSON.stringify(model),
+			dataType: 'json',
+			contentType: "application/json; charset=utf-8",
+		})
+		.done(function(data) {
+			$("#saveButton").attr("href", "#finish");
+			$("#processing").removeClass("fas fa-sync fa-spin");
+			if (data != null && data.returnMessage != null) {
+				if (data.returnCode == 3) {
+					showWarningModal(data.returnMessage).then(response => {
+						if (response) {
+							var outbreakCaseReportUID = data.outbreakCaseReportUID;
+							location.href = '@Url.Action("Details", "HumanCase", new { area = "Outbreak"})?Id=' + outbreakCaseReportUID + '&isEdit=true' + '&StartIndex=1';
+						}
+					});
+				} else {
+
+					showDiseaseReportSuccessModal(data.returnMessage).then(response => {
+						localStorage.removeItem("vaccionationAntiViralTherapiesData");
+						localStorage.removeItem("caseMonitoringsModel");
+						localStorage.removeItem("contactsModel");
+						localStorage.removeItem("sampleModel");
+						localStorage.removeItem("testModel");
+						localStorage.removeItem("finalOutcomeModel");
+
+						var idfOutbreak = $("#idfOutbreak").val();
+
+						if (response == 1) {
+							var outbreakCaseReportUID = data.outbreakCaseReportUID;
+							location.href = '@Url.Action("Edit", "HumanCase", new { area = "Outbreak"})?outbreakId=' + idfOutbreak + '&caseId=' + outbreakCaseReportUID + '&isEdit=true' + '&StartIndex=9';
+						} else if (response == 2) {
+							location.href = '@Url.Action("Index", "OutbreakCases", new { area = "Outbreak" })?queryData=' + idfOutbreak;
+						}
+					});
+				}
+			}
+		})
+		.fail(function(error) {
+			localStorage.removeItem("vaccionationAntiViralTherapiesData");
+			localStorage.removeItem("caseMonitoringsModel");
+			localStorage.removeItem("contactsModel");
+			localStorage.removeItem("sampleModel");
+			localStorage.removeItem("testModel");
+			localStorage.removeItem("finalOutcomeModel");
+			alert("Failure here " + error);
+		});
+	}
+
+	function DeleteHumanDiseaseReport(event) {
+		var model = {};
+
+		showWarningModal('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage)').then(response => {
+			//ChangeUserToNonUser
+			if (response) {
+				Model.diseaseReportComponentViewModel.idfHumanCase = $("#hdnHumanCase").val();
+				$.ajax({
+						url: '@Url.Action("DeleteHumanDiseaseReport", "DiseaseReport")',
+						type: 'POST',
+						async: false,
+						data: JSON.stringify(model),
+						dataType: 'json',
+						contentType: "application/json; charset=utf-8",
+					})
+					.done(function(data) {
+						localStorage.removeItem("vaccionationAntiViralTherapiesData");
+						localStorage.removeItem("caseMonitoringsModel");
+						localStorage.removeItem("contactsModel");
+						localStorage.removeItem("sampleModel");
+						localStorage.removeItem("testModel");
+						localStorage.removeItem("finalOutcomeModel");
+						showInformationalModalWait('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)').then(response => {
+							if (response)
+								location.href = '@Url.Action("Index", "HumanDiseaseReport")';
+						});
+
+					});
+			} else {
+
+			}
+		});
+	}
+
+	function showDiseaseReportSuccessModal(message, title = '@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)' , size = "medium") {
+		const modal = new Promise(function(resolve, reject) {
+			$("#DiseaseReportSuccessModal").find(".modal-header > h5").text(title).end();
+			//$("#DiseaseReportSuccessModal").find("#successMessage").text(message.replace(/&quot;/g, '\"')).end(); // replace HTML &quot to show actual double quotes.
+			$("#DiseaseReportSuccessModal").find("#successMessage").text(message).end(); // replace HTML &quot to show actual double quotes.
+			$("#DiseaseReportSuccessModal").modal("show");
+			$("#btnGoToHumanCase").click(function() {
+				$("#DiseaseReportSuccessModal").modal("hide");
+				resolve(1);
+			});
+			$("#btnReturnToOutbreakSession").click(function() {
+				resolve(2);
+			});
+		}).then(response => {
+			return response;
+		});
+		return modal;
+	};
+
+	function cancelDiseaseReport(message, event) {
+		event.preventDefault();
+
+		showWarningModal(message).then(response => {
+			if (response)
+				location.href = '@Url.Action("Index", "Person")';
+		});
+	};
+		$("#printButton").on('click', function() {
+
+		$('#printModal').modal('show');
+
+		$("#divNotification").css("display", "block");
+		$("#divCaseInvestigation").css("display", "none");
+	});
+
+
+	function updatePrintReportValue(element) {
+		if (element.value === "CaseInvestigation") {
+
+
+			$("#divCaseInvestigation").css("display", "block");
+			$("#divNotification").css("display", "none");
+		}
+
+		if (element.value === "ContactList") {
+
+			$("#divCaseInvestigation").css("display", "none");
+			$("#divNotification").css("display", "block");
+		}
+	}
+
+</script>
+<script src="~/js/Human/person.js"></script>

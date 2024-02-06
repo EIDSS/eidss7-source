@@ -1,0 +1,100 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Domain.ViewModels.Administration 
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession.DetailedAnimalSampleModalBase
+
+
+<RadzenTemplateForm @ref="Form" TItem="SampleGetListViewModel" Data="StateContainer.AnimalSampleDetail" Submit="OnSaveClick">
+    <div class="card">
+        <DataAnnotationsValidator />
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionSampleDetailsModalFarmIDFieldLabel" IsRow="false" CssClass="col-6" For="farmMasterID">
+                <RadzenDropDown Name="farmMasterID" class="form-control" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" TValue="long?" @bind-Value="StateContainer.AnimalSampleDetail.FarmMasterID" LoadData="GetFarms" Data="Farms" TextProperty="EIDSSFarmID" ValueProperty="FarmMasterID" Change="@OnFarmChange" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionSampleDetailsModalSpeciesFieldLabel" IsRow="false" CssClass="col-6" For="species">
+                <RadzenDropDown Name="species" class="form-control" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" TValue="long?" @bind-Value="StateContainer.AnimalSampleDetail.SpeciesID" LoadData="GetSpecies" Data="Species" TextProperty="Species" ValueProperty="SpeciesID" Disabled="@SpeciesIsDisabled" Change="@OnSpeciesChange" />
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionSampleDetailsModalSampleTypeFieldLabel" IsRow="false" CssClass="col-6" For="sampleType">
+                <RadzenDropDown Name="sampleType" class="form-control" AllowClear="true" AllowFiltering="true" TValue="long" @bind-Value="StateContainer.AnimalSampleDetail.SampleTypeID" LoadData="GetSampleTypes" 
+                                Data="SampleTypes" TextProperty="Name" ValueProperty="IdfsBaseReference" Change="@OnSampleTypeChange" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionSampleDetailsModalDiseaseFieldLabel" IsRow="false" CssClass="col-6" For="diseases" IsRequiredByDefaultBusinessRule="true">
+                <RadzenDropDown @ref="DiseaseDropDown" Name="diseases" class="form-control" AllowClear="false" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Multiple="true" @bind-Value="StateContainer.AnimalSampleDetail.SelectedDiseases" LoadData="GetDiseases" Data="Diseases" TextProperty="DiseaseName" ValueProperty="DiseaseID" Change="OnDiseaseChange" />
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionSampleDetailsModalAnimalIDFieldLabel" IsRow="false" CssClass="col-8" For="animals">
+                <RadzenAutoComplete Name="animals" class="form-control" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="StateContainer.AnimalSampleDetail.EIDSSAnimalID" Data="Animals" TextProperty="EIDSSAnimalID" LoadData="GetAnimals" Disabled="AnimalControlsDisabled" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionSampleDetailsModalFieldSampleIDFieldLabel" IsRow="false" CssClass="col-4" For="fieldSampleID">
+                <RadzenTextBox Name="fieldSampleID" class="form-control" @bind-Value="StateContainer.AnimalSampleDetail.EIDSSLocalOrFieldSampleID" MaxLength="200" Disabled="FieldSampleIdDisabled"/>
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionSampleDetailsModalAgeFieldLabel" IsRow="false" CssClass="col-3" For="animalAge">
+                <RadzenDropDown Name="animalAge" class="form-control" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" TValue="long?" @bind-Value="StateContainer.AnimalSampleDetail.AnimalAgeTypeID" LoadData="GetAnimalAges" Data="AnimalAges" TextProperty="strAnimalType" ValueProperty="idfsAnimalAge" Disabled="AnimalControlsDisabled" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionSampleDetailsModalNameFieldLabel" IsRow="false" CssClass="col-3" For="animalName">
+                <RadzenTextBox Name="animalName" class="form-control" @bind-Value="StateContainer.AnimalSampleDetail.AnimalName" Disabled="AnimalControlsDisabled" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionSampleDetailsModalColorFieldLabel" IsRow="false" CssClass="col-3" For="animalColor">
+                <RadzenTextBox Name="animalColor" class="form-control" @bind-Value="StateContainer.AnimalSampleDetail.AnimalColor" Disabled="AnimalControlsDisabled"/>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionSampleDetailsModalSexFieldLabel" IsRow="false" CssClass="col-3" For="animalSex">
+                <RadzenDropDown Name="animalSex" class="form-control" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" TValue="long?" @bind-Value="StateContainer.AnimalSampleDetail.AnimalGenderTypeID" LoadData="@GetAnimalSexes" Data="AnimalSexes" TextProperty="Name" ValueProperty="IdfsBaseReference" Disabled="AnimalControlsDisabled" />
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionSampleDetailsModalCollectionDateFieldLabel" IsRow="false" CssClass="col-4" For="collectionDate">
+                <br />
+                <RadzenDatePicker Name="collectionDate" TValue="DateTime?" @bind-Value="StateContainer.AnimalSampleDetail.CollectionDate" AllowClear="true" DateFormat="d" />
+                <RadzenCompareValidator Value="DateTime.Now" Component="collectionDate" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Popup="false" Operator="CompareOperator.LessThanEqual" />
+                <RadzenCompareValidator Value="@StateContainer.SessionStartDate" Component="collectionDate" Popup="false" Operator="CompareOperator.GreaterThanEqual"
+                                        Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.VeterinarySessionSampleDetailsModalCollectionDateFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.SessionInformationSesionStartDateFieldLabel))"
+                                        Style="display: block" Visible="@(!string.IsNullOrEmpty(StateContainer.AnimalSampleDetail.CollectionDate.ToString()))" />
+                <RadzenCompareValidator Value="@StateContainer.SessionEndDate" Component="collectionDate" Popup="false" Operator="CompareOperator.LessThanEqual"
+                                        Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), Localizer.GetString(FieldLabelResourceKeyConstants.VeterinarySessionSampleDetailsModalCollectionDateFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.SessionInformationSesionEndDateFieldLabel))"
+                                        Style="display: block" Visible="@(!string.IsNullOrEmpty(StateContainer.AnimalSampleDetail.CollectionDate.ToString()) && StateContainer.SessionEndDate != null)" />
+
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionSampleDetailsModalSampleConditionReceivedFieldLabel" IsRow="false" CssClass="col-8" For="sampleConditionReceived">
+                <RadzenTextBox Name="sampleConditionReceived" class="form-control" @bind-Value="StateContainer.AnimalSampleDetail.AccessionConditionTypeName" Disabled="true"></RadzenTextBox>
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionSampleDetailsModalCommentsFieldLabel" IsRow="true" CssClass="col-12" For="additionalTestsRequestedAndSampleNotes">
+                <RadzenTextBox Name="additionalTestsRequestedAndSampleNotes" class="form-control" @bind-Value="StateContainer.AnimalSampleDetail.Comments" MaxLength="200" />
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionSampleDetailsModalSentToOrganizationFieldLabel" IsRow="false" CssClass="col-9" For="sentToOrganization">
+                <div class="input-group mb-3">
+                    <RadzenDropDownDataGrid Name="sentToOrganization" class="form-control" AllowClear="true" AllowColumnResize="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" TValue="long?" @bind-Value="StateContainer.AnimalSampleDetail.SentToOrganizationID" Data="@SentToOrganizations" TextProperty="name" ValueProperty="idfOffice">
+                        <Columns>
+                            <RadzenDropDownDataGridColumn Property="name" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.AbbreviationColumnHeading)" Width="200px" />
+                            <RadzenDropDownDataGridColumn Property="FullName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OrganizationColumnHeading)" Width="300px" />
+                        </Columns>
+                    </RadzenDropDownDataGrid>
+                    <div class="input-group-append">
+                        <button id="addSentToOrganization" type="button" @onclick="@(OnAddSentToOrganizationClick)" class="btn btn-outline-secondary btn-sm">
+                            <span class="fas fa-plus" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+            </InterfaceEditorResource>
+        </div>
+
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-12">
+                    <button type="button" class="btn btn-outline-primary" @onclick="OnCancelClick">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button type="submit" class="btn btn-primary" @onsubmit="OnSaveClick">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

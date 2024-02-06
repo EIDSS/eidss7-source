@@ -1,0 +1,24 @@
+﻿@inherits ReportBase
+
+@if (StateContainer.ReadPermissionIndicator)
+{
+    <div id="veterinaryAggregateActionsReportWizard">
+        <div class="content content-collapsed clearfix">
+            <section>
+                <ReportInformationSection @ref="InformationSection"/>
+            </section>
+            <section>
+                <DiagnosticSection/>
+            </section>
+            <section>
+                <TreatmentSection/>
+            </section>
+            <section>
+                <SanitaryMeasuresSection/>
+            </section>
+            <section>
+                <h4 style="display: none">@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateActionReportReviewHeading)</h4>
+            </section>
+        </div>
+    </div>
+}

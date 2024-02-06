@@ -1,0 +1,86 @@
+﻿@using EIDSS.Domain.ViewModels.Outbreak
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits VectorsTabBase
+
+<div class="card">
+    <div class="card-body">
+        <div class="row pb-4">
+            <div class="form-inline col-10">
+                <div class="form-inline pr-3">
+                    <div class="form-group form-group-sm border-right px-4">
+                        @if (CreatePermissionIndicator)
+                        {
+                            <input class="btn btn-primary" id="addVectorButton" @onclick="OnAddVectorSurveillanceSessionButtonClick" type="button" value="@Localizer.GetString(ButtonResourceKeyConstants.CreateVectorSessionCaseAddButtonText)"/>
+                        }
+                        else
+                        {
+                            <input class="btn btn-primary disabled" disabled id="addVectorButton" type="button" value="@Localizer.GetString(ButtonResourceKeyConstants.CreateVectorSessionCaseAddButtonText)"/>
+                        }
+                    </div>
+                </div>
+                <div class="input-group">
+                    <RadzenTextBox @bind-Value="SearchTerm" class="form-control" Name="searchString"/>
+                    <button class="input-group-text lighten-3 disabled" id="clearSearch" @onclick="OnClearButtonClick" type="button">
+                        <i aria-hidden="true" class="fas fa-times text-grey"></i>
+                    </button>
+                </div>
+                <button class="btn btn-outline-primary ml-2 disabled" id="simpleSearch" @onclick="OnSearchButtonClick" type="button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <div class="col-2 text-right">
+                <button class="btn btn-outline-primary ml-2" id="vectorsTabPrintButton">
+                    <i aria-hidden="true" class="fas fa-print"></i>
+                </button>
+            </div>
+        </div>
+        <div class="row pb-4">
+            <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" Count="Count" Data="VectorSessions" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="args => LoadVectorSessionData(args)" PageSizeOptions="pageSizeOptions" PageSizeText="@Localizer.GetString(FieldLabelResourceKeyConstants.CommonLabelsItemsPerPageFieldLabel)" @ref="VectorSessionsGrid" SelectionMode="DataGridSelectionMode.Single" ShowPagingSummary="true" TItem="VectorGetListViewModel">
+                <Columns>
+                    <RadzenDataGridColumn Property="SessionKey" TItem="VectorGetListViewModel" Title="SessionKey" Visible="false"/>
+                    <RadzenDataGridColumn Property="SessionID" Sortable="true" TItem="VectorGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.CreateVectorSessionCaseSessionIDColumnHeading)" Width="150px">
+                        <Template Context="item">
+                            <button class="btn btn-link btn-sm" @onclick="@(() => SendReportLink(item.SessionKey))">@item.SessionID.ToString()</button>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn Property="StatusTypeName" Sortable="true" TItem="VectorGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.CreateVectorSessionCaseStatusColumnHeading)" Width="125px"/>
+                    <RadzenDataGridColumn FormatString="{0:d}" Property="StartDate" Sortable="true" TItem="VectorGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.CreateVectorSessionCaseStartDateColumnHeading)" Width="115px"/>
+                    <RadzenDataGridColumn FormatString="{0:d}" Property="CloseDate" Sortable="true" TItem="VectorGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.CreateVectorSessionCaseCloseDateColumnHeading)" Width="115px"/>
+                    <RadzenDataGridColumn Property="AdministrativeLevel1Name" Sortable="true" TItem="VectorGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.CreateVectorSessionCaseAdministrativeLevel1ColumnHeading)"/>
+                    <RadzenDataGridColumn Property="AdministrativeLevel2Name" Sortable="true" TItem="VectorGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.CreateVectorSessionCaseAdministrativeLevel2ColumnHeading)"/>
+                    <RadzenDataGridColumn Property="SettlementName" Sortable="true" TItem="VectorGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.CreateVectorSessionCaseAdministrativeLevel3ColumnHeading)" Visible="@(BottomAdminLevel >= (long) EIDSSConstants.GISAdministrativeUnitTypes.Settlement)" Width="115px"/>
+                    <RadzenDataGridColumn Property="Vectors" Sortable="true" TItem="VectorGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.CreateVectorSessionCaseVectorTypeColumnHeading)" Width="135px"/>
+                    <RadzenDataGridColumn Property="Diseases" Sortable="true" TItem="VectorGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.CreateVectorSessionCaseDiseaseColumnHeading)" Width="135px"/>
+                </Columns>
+                <!--Expandable Detail Template for Grid-->
+                <Template Context="data">
+                    <RadzenCard>
+                        <div class="row">
+                            <InterfaceEditorResource CssClass="col-md-4" For="fieldSessionID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.CreateVectorSessionCaseFieldSessionIDFieldLabel" IsRow="false">
+                                <RadzenTextBox @bind-Value="@data.FieldSessionID" class="form-control" id="fieldSessionID" Name="fieldSessionID" ReadOnly="true"/>
+                            </InterfaceEditorResource>
+                            @if (BottomAdminLevel > (long) EIDSSConstants.GISAdministrativeUnitTypes.Settlement)
+                            {
+                                <InterfaceEditorResource CssClass="col-md-4" For="administrativeLevelXName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.CreateVectorSessionCaseAdministrativeLevel4FieldLabel" IsRow="false">
+                                    <RadzenTextBox @bind-Value=@data.AdministrativeLevelXName class="form-control" id="administrativeLevel4Name" Name="administrativeLevel4Name" ReadOnly="true"/>
+                                </InterfaceEditorResource>
+                                <InterfaceEditorResource CssClass="col-md-4" For="administrativeLevelXName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.CreateVectorSessionCaseAdministrativeLevel5FieldLabel" IsRow="false">
+                                    <RadzenTextBox @bind-Value="@data.AdministrativeLevelXName" class="form-control" id="administrativeLevel5Name" Name="administrativeLevel5Name" ReadOnly="true"/>
+                                </InterfaceEditorResource>
+                            }
+                        </div>
+                        <div class="row">
+                            <InterfaceEditorResource CssClass="col-md-4" For="latitude" InterfaceEditorKey="@FieldLabelResourceKeyConstants.CreateVectorSessionCaseLatitudeFieldLabel" IsRow="false">
+                                <RadzenNumeric @bind-Value="@data.Latitude" class="form-control" id="latitude" Name="latitude" ReadOnly="true"/>
+                            </InterfaceEditorResource>
+                            <InterfaceEditorResource CssClass="col-md-4" For="longitude" InterfaceEditorKey="@FieldLabelResourceKeyConstants.CreateVectorSessionCaseLongitudeFieldLabel" IsRow="false">
+                                <RadzenNumeric @bind-Value="@data.Longitude" class="form-control" id="longitude" Name="longitude" ReadOnly="true"/>
+                            </InterfaceEditorResource>
+                        </div>
+                    </RadzenCard>
+                </Template>
+            </RadzenDataGrid>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,138 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.Laboratory
+@using static ClientLibrary.Enumerations.EIDSSConstants
+
+@inherits TransferredBase
+
+<div class="form-inline">
+    <div class="form-row py-1">
+        <Menu AccessionInEvent="OnAccessionIn" ShowTransferPaperFormReportEvent="OnRefreshTransferred" Tab="LaboratoryTabEnum.Transferred" TransferOutEvent="OnRefreshTransferred"></Menu>
+        <Actions CancelTransferOutEvent="OnReloadTransferred" PrintTransferEvent="OnRefreshTransferred" SaveEvent="OnReloadTransferred" Tab="LaboratoryTabEnum.Transferred" />
+        <Search @ref="Search" AdvancedSearchEvent="OnAdvancedSearch" ClearSearchEvent="OnClearSearch" SimpleSearchEvent="OnSimpleSearch" Tab="LaboratoryTabEnum.Transferred" />
+    </div>
+</div>
+<RadzenDataGrid AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" CellRender="OnCellRender" Count="Count" Data="Transferred" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" IsLoading="IsLoading" LoadData="LoadTransferredData" PageSize="100" PageSizeOptions="pageSizeOptions" PageSizeText="@Localizer.GetString(FieldLabelResourceKeyConstants.CommonLabelsItemsPerPageFieldLabel)" @ref="TransferredGrid" RowRender="OnRowRender" SelectionMode="DataGridSelectionMode.Multiple" ShowPagingSummary="true" Style="height: calc(100vh - 425px)" TItem="TransferredGetListViewModel">
+    <Columns>
+        <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Sortable="false" TItem="TransferredGetListViewModel" Width="40px">
+            <HeaderTemplate>
+                <RadzenCheckBox Change="args => HeaderRecordSelectionChange(args)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSelectAllRecordsToolTip)" TriState="false" TValue="bool" Value="IsHeaderRecordSelected()" />
+            </HeaderTemplate>
+            <Template Context="item">
+                <RadzenCheckBox Change="args => RecordSelectionChange(args, item)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToSelectToolTip)" TriState="false" TValue="bool" Value="IsRecordSelected(item)" />
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Property="SampleID" Sortable="false" TextAlign="TextAlign.Center" TItem="TransferredGetListViewModel" Title="" Width="40px">
+            <HeaderTemplate>
+            </HeaderTemplate>
+            <Template Context="item">
+                <a id="editTransferButton" @onclick="_ => OnEditTransfer(item)" role="button" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToEditTheRecordToolTip)">
+                    <i class="fas fa-edit fa-lg"></i>
+                </a>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Filterable="false" Frozen="true" HeaderCssClass="lab-table-striped-header" Property="SampleID" Sortable="false" TItem="TransferredGetListViewModel" Width="40px">
+            <HeaderTemplate>
+                <div class="myFavoriteNo"></div>
+            </HeaderTemplate>
+            <Template Context="item">
+                <div class="@(item.FavoriteIndicator == false ? LaboratoryModuleCSSClassConstants.MyFavoriteNo : LaboratoryModuleCSSClassConstants.MyFavoriteYes)">
+                    <a id="setMyFavoriteButton" @onclick="_ => OnSetMyFavorite(item)" role="button" title="@Localizer.GetString(TooltipResourceKeyConstants.LaboratoryClickToShowRecordInMyFavoritesTabToolTip)">&nbsp;</a>
+                </div>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Frozen="true" HeaderCssClass="lab-table-striped-header" Property="EIDSSReportOrSessionID" TItem="TransferredGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTransferredReportSessionIDColumnHeading)" Width="150px" />
+        <RadzenDataGridColumn Frozen="true" HeaderCssClass="lab-table-striped-header" Property="PatientOrFarmOwnerName" TItem="TransferredGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTransferredPatientFarmOwnerColumnHeading)" Width="300px" />
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="EIDSSLaboratorySampleID" TItem="TransferredGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTransferredLabSampleIDColumnHeading)" Width="150px" />
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="EIDSSTransferID" TItem="TransferredGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTransferredTransferIDColumnHeading)" Width="175px" />
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="TransferredToOrganizationName" TItem="TransferredGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTransferredTransferredToColumnHeading)" Width="300px" />
+        <RadzenDataGridColumn FormatString="{0:d}" HeaderCssClass="lab-table-striped-header" Property="TransferDate" TItem="TransferredGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTransferredTransferDateColumnHeading)" Width="160px" />
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="TestRequested" TItem="TransferredGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTransferredTestRequestedColumnHeading)" Width="250px" />
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="TestNameTypeName" TItem="TransferredGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTransferredTestNameColumnHeading)" Width="225px">
+            <Template Context="item">
+                <div style="max-height: 35px;">
+                    @if (TransferredWritePermission && item.WritePermissionIndicator)
+                    {
+                        <RadzenDropDown AllowClear="true" @bind-Value="item.TestNameTypeID" Change="_ => OnTestNameDropDownChange(item)" Data="LaboratoryService.TestNameTypes" Disabled="item.TestDiseaseID is null" LoadData="GetTestNameTypes" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+                    }
+                    else
+                    {
+                        <RadzenDropDown AllowClear="false" @bind-Value="item.TestNameTypeID" Data="LaboratoryService.TestNameTypes" Disabled="true" LoadData="GetTestNameTypes" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+                    }
+                </div>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="TestResultTypeName" TItem="TransferredGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTransferredTestResultColumnHeading)" Width="225px">
+            <Template Context="item">
+                <div style="max-height: 35px;">
+                    @if (LaboratoryService.TestResultTypes != null && LaboratoryService.TestResultTypes.Any(x => item.TestNameTypeID != null && x.idfsTestName == item.TestNameTypeID))
+                    {
+                        if (TransferredWritePermission && item.WritePermissionIndicator)
+                        {
+                            <RadzenDropDown AllowClear="true" @bind-Value="item.TestResultTypeID" Change="_ => OnTestResultDropDownChange(item)" Data="LaboratoryService.TestResultTypes.Where(x => item.TestNameTypeID != null && x.idfsTestName == item.TestNameTypeID).AsODataEnumerable()" Disabled="item.TestNameTypeID is null" LoadData="args => GetTestResultTypesByTestName(args, item.TestNameTypeID)" Name="testResultType" TextProperty="strTestResultName" TValue="long?" ValueProperty="idfsTestResult" />
+                        }
+                        else
+                        {
+                            <RadzenDropDown AllowClear="false" @bind-Value="item.TestResultTypeID" Data="LaboratoryService.TestResultTypes.Where(x => item.TestNameTypeID != null && x.idfsTestName == item.TestNameTypeID).AsODataEnumerable()" Disabled="true" LoadData="args => GetTestResultTypesByTestName(args, item.TestNameTypeID)" Name="testResultType" TextProperty="strTestResultName" TValue="long?" ValueProperty="idfsTestResult" />
+                        }
+                    }
+                    else
+                    {
+                        if (TransferredWritePermission && item.WritePermissionIndicator)
+                        {
+                            <RadzenDropDown AllowClear="true" @bind-Value="item.TestResultTypeID" Disabled="true" Name="testResultType" TextProperty="strTestResultName" TValue="long?" ValueProperty="idfsTestResult" />
+
+                        }
+                        else
+                        {
+                            <RadzenDropDown AllowClear="false" @bind-Value="item.TestResultTypeID" Disabled="true" Name="testResultType" TextProperty="strTestResultName" TValue="long?" ValueProperty="idfsTestResult" />
+                        }
+                    }
+                </div>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn FormatString="{0:d}" HeaderCssClass="lab-table-striped-header" Property="ResultDate" TItem="TransferredGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTransferredResultDateColumnHeading)" Width="160px">
+            <Template Context="item">
+                <div style="max-height: 35px;">
+                    @if (TransferredWritePermission && item.WritePermissionIndicator)
+                    {
+                        <RadzenDatePicker AllowClear="true" @bind-Value="item.ResultDate" Change="_ => OnResultDateTextChange(item)" DateFormat="d" TValue="DateTime?" />
+                    }
+                    else
+                    {
+                        <RadzenDatePicker AllowClear="false" @bind-Value="item.ResultDate" DateFormat="d" Disabled="true" TValue="DateTime?" />
+                    }
+                </div>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="ContactPersonName" TItem="TransferredGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTransferredPointOfContactColumnHeading)" Width="300px" />
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="EIDSSLocalOrFieldSampleID" TItem="TransferredGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTransferredLocalFieldSampleIDColumnHeading)" Width="175px" />
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="SampleTypeName" TItem="TransferredGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTransferredSampleTypeColumnHeading)" Width="250px" />
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="DiseaseName" TItem="TransferredGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTransferredDiseaseColumnHeading)" Width="300px">
+            <Template Context="item">
+                <div style="max-height: 35px;">
+                    @if (TransferredWritePermission && item.WritePermissionIndicator)
+                    {
+                        <RadzenDropDown AllowClear="item.Diseases is not null && item.Diseases.Count > 1" @bind-Value="item.TestDiseaseID" Change="_ => OnTestDiseaseDropDownChange(item)" Data="item.Diseases.AsODataEnumerable()" Name="diseases" TextProperty="DiseaseName" TValue="long?" ValueProperty="DiseaseID" />
+                    }
+                    else
+                    {
+                        <RadzenDropDown AllowClear="false" @bind-Value="item.TestDiseaseID" Data="item.Diseases.AsODataEnumerable()" Disabled="true" Name="diseases" TextProperty="DiseaseName" TValue="long?" ValueProperty="DiseaseID" />
+                    }
+                </div>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn FormatString="{0:g}" HeaderCssClass="lab-table-striped-header" Property="AccessionDate" TItem="TransferredGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTransferredAccessionDateTimeColumnHeading)" Width="190px" />
+        <RadzenDataGridColumn HeaderCssClass="lab-table-striped-header" Property="AccessionConditionOrSampleStatusTypeName" TItem="TransferredGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratoryTransferredSampleStatusColumnHeading)" Width="285px">
+            <Template Context="item">
+                <div style="max-height: 35px;">
+                    <div class="input-group">
+                        <label class="font-weight-normal">@item.AccessionConditionOrSampleStatusTypeName</label>
+                        <div class="input-group-append">
+                            <button class="@item.AccessionCommentClass" id="accessionCommentButton" @onclick="_ => OnAccessionCommentClick(item)" title="@item.AccessionComment" type="button"></button>
+                        </div>
+                    </div>
+                </div>
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>

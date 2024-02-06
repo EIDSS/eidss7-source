@@ -1,0 +1,321 @@
+.container-fluid {
+    width: 100%;
+}
+
+.laboratory-card-body {
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    min-height: 1px;
+    padding-top: .10rem;
+}
+
+.laboratory-tab {
+    height: 100%;
+}
+
+.hide {
+    display: none !important;
+}
+
+.dropdown-submenu {
+    position: relative;
+}
+
+    .dropdown-submenu > .dropdown-menu {
+        border-top: 0;
+        border-bottom: 0;
+        top: 0;
+        left: 100%;
+        margin-top: -6px;
+        margin-left: -1px;
+    }
+
+    .dropdown-submenu:hover > .dropdown-menu {
+        display: block;
+    }
+
+    .dropdown-submenu > a:after {
+        display: block;
+        content: " ";
+        float: right;
+        width: 0;
+        height: 0;
+        border-color: transparent;
+        border-style: solid;
+        border-width: 7px 0 7px 7px;
+        border-left-color: #3366A5;
+        margin-top: 7px;
+        margin-right: -14px;
+    }
+
+    .dropdown-submenu:hover > a:after {
+        border-left-color: #fff;
+    }
+
+    .dropdown-submenu.pull-left {
+        float: none;
+    }
+
+        .dropdown-submenu.pull-left > .dropdown-menu {
+            left: -100%;
+            margin-left: 10px;
+        }
+
+.queryText {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 16px;
+    font-style: italic;
+}
+
+.searchResultsHeading {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 16px;
+}
+
+.comment-empty {
+    background-image: url(../Includes/Images/commentBoxEmpty.png);
+    background-size: auto 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    border: none;
+    text-align: center;
+    vertical-align: middle;
+    width: 18px;
+    height: 18px;
+    margin-left: 10px;
+}
+
+.comment-empty-required {
+    background-image: url(../Includes/Images/commentBoxEmptyRequired.png);
+    background-size: auto 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    border: none;
+    text-align: center;
+    vertical-align: middle;
+    width: 18px;
+    height: 18px;
+    margin-left: 10px;
+}
+
+.comment-non-empty {
+    background-image: url(../Includes/Images/commentBoxNonEmpty.png);
+    background-size: auto 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    border: none;
+    text-align: center;
+    vertical-align: middle;
+    width: 18px;
+    height: 18px;
+    margin-left: 10px;
+}
+
+.comment-non-empty-required {
+    background-image: url(../Includes/Images/commentBoxNonEmptyRequired.png);
+    background-size: auto 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    border: none;
+    text-align: center;
+    vertical-align: middle;
+    width: 18px;
+    height: 18px;
+    margin-left: 10px;
+}
+
+.myFavorite {
+    background-image: url(../Includes/Images/myFavorites.png);
+    background-size: auto 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.myFavoriteNo {
+    background-image: url(../Includes/Images/myFavoritesNo.png);
+    background-size: auto 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    text-align: center;
+    vertical-align: middle;
+    margin-top: 3px;
+    width: 17px;
+    height: 25px;
+}
+
+.myFavoriteYes {
+    background-image: url(../Includes/Images/myFavoritesYes.png);
+    background-size: auto 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    text-align: center;
+    vertical-align: middle;
+    margin-top: 3px;
+    width: 17px;
+    height: 25px;
+}
+
+.myFavoritesIcon {
+    width: 45px;
+    height: 45px;
+    float: left;
+    background-image: url(../Includes/Images/myFavorites.png);
+    background-size: 17px 25px;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 1px solid #7C7C7C;
+    border-radius: 50%;
+}
+
+.unaccessioned {
+    background-color: #F5E8B6;
+}
+
+.unaccessionedSavePending {
+    background-color: #F5E8B6;
+    font-weight: bold;
+}
+
+td.unaccessionedSavePending span.ui-cell-data {
+    color: #000000 !important;
+    font-weight: bold;
+}
+
+.savePending {
+    font-weight: bold;
+    background-color: #f2f2f2;
+}
+
+td.savePending span.ui.cell-data {
+    font-weight: bold;
+    background-color: #f2f2f2;
+}
+
+.noSavePending {
+    font-weight: normal;
+    background-color: #f2f2f2;
+}
+
+td.noSavePending span.ui.cell-data {
+    font-weight: normal;
+    background-color: #f2f2f2;
+}
+
+.lab-table-striped-header {
+    background-color: #fff;
+    border-top: 0 none transparent;
+    border-bottom: 2px solid #2d5b83;
+    color: #2d5b83;
+    font-size: 13px;
+    font-weight: bold;
+    line-height: 1px;
+    padding-bottom: 0px !important;
+    margin-bottom: 0px !important;
+}
+
+.lab-table-striped-header th {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.lab-table-striped-header th a, a:visited {
+    color: #2d5b83;
+    text-decoration: none;
+}
+
+.laboratoryDetailsModalSectionHeading {
+    background-color: #e6ecef;
+    padding: 2px;
+    width: 100%;
+}
+
+.laboratoryDetailsModalSectionHeadingText {
+    font-weight: bold;
+    float: left;
+}
+
+.laboratoryDetailsModalSectionHeadingPrint {
+    float: right;
+}
+
+.boxConfigurationTable {
+    margin-left: 70px;
+    color: #555;
+}
+
+.disabledBoxLocation {
+    /* remove standard background appearance */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    /* create custom radiobutton appearance */
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    padding: 3px;
+    /* background-color only for content */
+    background-clip: content-box;
+    border: 0px solid #dddddd;
+    background-color: #dddddd;
+    border-radius: 50%;
+}
+
+.boxLocation {
+    /* remove standard background appearance */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    /* create custom radiobutton appearance */
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    padding: 3px;
+    /* background-color only for content */
+    background-clip: content-box;
+    border: 1px solid #bbbbbb;
+    background-color: #fff;
+    border-radius: 50%;
+}
+
+    /* appearance for checked radiobutton */
+    .boxLocation input[type="radio"]:checked {
+        border: 3px solid #ffa500;
+    }
+
+.disabledBoxLocationCurrent {
+    /* remove standard background appearance */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    /* create custom radiobutton appearance */
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    padding: 3px;
+    /* background-color only for content */
+    background-clip: content-box;
+    border: 3px solid #ffa500;
+    background-color: #ffa500;
+    border-radius: 50%;
+}
+
+.storageLocationIcon {
+    background-image: url(../Includes/Images/freezer.png);
+    background-size: auto 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    border: none;
+    float: left;
+    text-align: center;
+    vertical-align: middle;
+    width: 18px;
+    height: 25px;
+}

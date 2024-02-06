@@ -1,0 +1,15 @@
+﻿
+@using EIDSS.Web.Components.Human.WeeklyReporting
+@*Updated Header with correct translation constant  5373*@
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.SearchWeeklyReportingFormsPageHeading);
+}
+
+<div class="card">
+         <div class="card-header">
+        <h3>@Localizer.GetString(HeadingResourceKeyConstants.SearchWeeklyReportingFormsPageHeading)</h3>
+    </div>
+    <div class="card-body">
+        <component type="typeof(WeeklyReportingFormSearch)" render-mode="Server" />
+    </div>
+</div>

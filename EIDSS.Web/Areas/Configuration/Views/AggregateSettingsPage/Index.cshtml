@@ -1,0 +1,253 @@
+﻿@model EIDSS.Domain.ViewModels.Configuration.AggregateSettingsListViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+
+<h2 heading-for="@HeadingResourceKeyConstants.AggregateSettingsPageHeading"></h2>
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.AggregateSettingsPageHeading);
+}
+<form id="frmMain">
+
+    <link rel="stylesheet" href="~/lib/DataTables/css/rowReorder.dataTables.min.css" />
+    <link rel="stylesheet" href="~/lib/DataTables/css/select.dataTables.min.css" />
+
+    <style type="text/css">
+        #tblMatrix tr td {
+            vertical-align: middle;
+        }
+
+        .versionButtonItem {
+            border: 0px solid #fff;
+            background-color: #fff;
+            width: 100%;
+            padding: 20px;
+            text-align: left;
+        }
+    </style>
+
+    @if (Model != null && Model.AggregateSettings != null && Model.AggregateSettings.Count > 0)
+    {
+        <div class="row pb-5">
+            <div class="col-12">
+
+                <table id="tblMatrix" class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading)
+                            </th>
+                            <th>
+                                @Localizer.GetString(ColumnHeadingResourceKeyConstants.AggregateCaseTypeColumnHeading)
+                            </th>
+                            <th>
+                                @Localizer.GetString(ColumnHeadingResourceKeyConstants.AdministrativeLevelColumnHeading)
+                            </th>
+                            <th>
+                                @Localizer.GetString(ColumnHeadingResourceKeyConstants.TimeIntervalColumnHeading)
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int ct = 1;
+                            @foreach (var item in Model.AggregateSettings)
+                            {
+                                @if (Model.AccessToAggregateSettingsRead && ((item.idfsAggrCaseType == 10102001 && Model.AccessToHumanAggregateCaseRead)
+                                    || (item.idfsAggrCaseType == 10102002 && Model.AccessToVetAggregateCaseRead)
+                                    || (item.idfsAggrCaseType == 10102003 && Model.AccessToVetAggregateActionRead)))
+                                {
+                                    <tr>
+                                        <td>
+                                            <label id="@(String.Format("intNumRow_{0}", item.idfsAggrCaseType))"
+                                                   class="intNumRow">
+                                                @ct
+
+                                            </label>
+                                        </td>
+
+                                        <td>
+                                            <input id="@(String.Format("hf_{0}", item.idfsAggrCaseType))" type="hidden" class="idfsAggrCaseType" value="@item.idfsAggrCaseType" />
+                                            <label id="@(String.Format("idfsAggrCaseType_{0}", item.idfsAggrCaseType))"
+                                                   class="idfsAggrCaseType">
+                                                @Html.DisplayFor(modelItem => item.StrCaseType)
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <div style="display:inline-flex">
+                                                <input id="@(String.Format("hf_{0}", item.idfsAggrCaseType))" type="hidden" class="idfsAggrCaseType" value="@item.idfsStatisticAreaType" />
+                                                @if (Model.AccessToAggregateSettingsWrite && ((item.idfsAggrCaseType == 10102001 && Model.AccessToHumanAggregateCaseWrite)
+                                                    || (item.idfsAggrCaseType == 10102002 && Model.AccessToVetAggregateCaseWrite)
+                                                    || (item.idfsAggrCaseType == 10102003 && Model.AccessToVetAggregateActionWrite)))
+                                                {
+                                                    <select id="@(String.Format("idfsStatisticAreaType_{0}", item.idfsAggrCaseType))"
+                                                            asp-for="@item.idfsStatisticAreaType"
+                                                            asp-items="@(new SelectList(Model.AreaType, "IdfsBaseReference", "Name"))"
+                                                            class="form-control idfsStatisticAreaType">
+                                                    </select>
+                                                }
+                                                else
+                                                {
+                                                    <select id="@(String.Format("idfsStatisticAreaType_{0}", item.idfsAggrCaseType))"
+                                                            asp-for="@item.idfsStatisticAreaType"
+                                                            asp-items="@(new SelectList(Model.AreaType, "IdfsBaseReference", "Name"))"
+                                                            class="form-control idfsStatisticAreaType"
+                                                            asp-disabled="true">
+                                                    </select>
+                                                }
+                                            </div> 
+                                        </td>
+                                        <td>
+                                            <div style="display:inline-flex">
+                                                <input id="@(String.Format("hf_{0}", item.idfsAggrCaseType))" type="hidden" class="idfsAggrCaseType" value="@item.idfsStatisticPeriodType" />
+                                                @if (Model.AccessToAggregateSettingsWrite && ((item.idfsAggrCaseType == 10102001 && Model.AccessToHumanAggregateCaseWrite)
+                                                    || (item.idfsAggrCaseType == 10102002 && Model.AccessToVetAggregateCaseWrite)
+                                                    || (item.idfsAggrCaseType == 10102003 && Model.AccessToVetAggregateActionWrite)))
+                                                {
+                                                    <select id="@(String.Format("idfsStatisticPeriodType_{0}", item.idfsAggrCaseType))"
+                                                            asp-for="@item.idfsStatisticPeriodType"
+                                                            asp-items="@(new SelectList(Model.PeriodType, "IdfsBaseReference", "Name"))"
+                                                            class="form-control idfsStatisticPeriodType">
+                                                    </select>
+                                                }
+                                                else
+                                                {
+                                                    <select id="@(String.Format("idfsStatisticPeriodType_{0}", item.idfsAggrCaseType))"
+                                                            asp-for="@item.idfsStatisticPeriodType"
+                                                            asp-items="@(new SelectList(Model.PeriodType, "IdfsBaseReference", "Name"))"
+                                                            class="form-control idfsStatisticPeriodType"
+                                                            asp-disabled="true">
+                                                    </select>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                                ct = ct + 1;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                @if (Model.AccessToAggregateSettingsWrite)
+                {
+                    <button id="btnSaveMatrix"
+                            type="button"
+                            class="btn-sm btn-primary">
+                        @Localizer.GetString(ButtonResourceKeyConstants.SubmitButton)
+                    </button>
+                }
+                else
+                {
+                    <button id="btnSaveMatrix"
+                            type="button"
+                            class="btn-sm btn-primary" disabled="disabled">
+                        @Localizer.GetString(ButtonResourceKeyConstants.SubmitButton)
+                    </button>
+                }
+
+                <button id="btnCancel"
+                        type="button"
+                        class="btn-sm btn-primary"
+                        data-toggle="modal"
+                        data-target="#mdCancel">
+                    @Localizer.GetString(ButtonResourceKeyConstants.CancelButton)
+                </button>
+            </div>
+        </div>
+    }
+
+</form>
+
+<!-- Duplicates message modal-->
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                    @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage)
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-sm btn-primary" data-dismiss="modal">
+                    @Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        ///Load Default Data
+        $(document).ready(function () {
+            // getList();
+        });
+
+        //################################
+        // Initialize datatable
+        //################################
+        var table = $('#tblMatrix').DataTable({
+            searching: false,
+            lengthChange: false,
+            paging: false,
+            rowReorder: true,
+            columnDefs: [
+                { orderable: true, className: 'reorder', targets: 0 },
+                { orderable: false, targets: '_all' }
+            ]
+        });
+        $("#btnSaveMatrix").on('click', function () {
+            SaveAggregateSettings();
+            $('#successModal').modal("show");
+        });
+
+        function SaveAggregateSettings() {
+            MatrixObjectList = [];
+
+            if (table.rows().eq(0) != null) {
+                var intNumRow = 1;
+                table.rows().eq(0).each(function (index) {
+                    var row = table.row(index);
+
+                    matrixItem = new Object();
+                    matrixItem.IsEmpty = false;
+                    matrixItem.IntNumRow = intNumRow;
+                    matrixItem.idfsAggrCaseType = row.nodes().to$().find('input:hidden').val();
+                    matrixItem.idfsStatisticAreaType = row.nodes().to$().find('.idfsStatisticAreaType').val();
+                    matrixItem.idfsStatisticPeriodType = row.nodes().to$().find('.idfsStatisticPeriodType').val();
+                    MatrixObjectList.push(matrixItem);
+                });
+                var url = '@Url.Action("SaveAggregateSettings", "AggregateSettingsPage", new { Area = "Configuration" })';
+                $.ajax({
+                    url: url,
+                    type: 'post',
+                    data: JSON.stringify(MatrixObjectList),
+                    dataType: 'json',
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+
+                    },
+                    complete: function (data) {
+                        window.location.reload(true);
+                    },
+                    error: function (request, error) {
+                    }
+                });
+            }
+        }
+                ///Method called after execution of Save Method Returns Data back from the controller
+
+    </script>
+}

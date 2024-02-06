@@ -1,0 +1,132 @@
+﻿var sortDirection[DROP_DOWN_LIST] = 0;
+var applySort[DROP_DOWN_LIST] = true;
+
+$(document).ready(function(){
+	loadFilterableSortableMultiColumnDropDown[DROP_DOWN_LIST]();
+	$("#[DROP_DOWN_LIST]").click(function(){
+		loadFilterableSortableMultiColumnDropDown[DROP_DOWN_LIST]();
+	});
+});
+
+function loadFilterableSortableMultiColumnDropDown[DROP_DOWN_LIST](){
+	$('#[DROP_DOWN_LIST]').on('select2:select', function (e) {
+		  $('#[DROP_DOWN_LIST]').select2({
+			width: '100%',
+			placeholderForSearch: '[FILTER_PLACEHOLDER]',
+			templateResult: function (data) { return templateResult[DROP_DOWN_LIST](data) },
+			templateSelection: function (data) { return templateSelection[DROP_DOWN_LIST](data); },
+			escapeMarkup: function (m) { return m; },
+			sorter: function (data) { return sorter[DROP_DOWN_LIST](data); },
+			dropDownList: '[DROP_DOWN_LIST]',
+			dropdownAdapter: $.fn.select2.amd.require('ES2CDDA_[DROP_DOWN_LIST]')
+		}).on('select2:select', function (e) {
+			sortDirection[DROP_DOWN_LIST] = 0;
+		}).on('select2:open', function (e) {
+			applySort[DROP_DOWN_LIST] = true;
+		});
+	});
+}
+
+function templateSelection[DROP_DOWN_LIST](data) {
+
+	if (data.text != undefined) {
+		var r = data.text.split('|');
+
+		if (data.id == 'null')
+			return '';
+		else
+			return r[[TEMPLATE_SELECTOR_COLUMN]];
+	} else return '';
+
+};
+		
+function templateResult[DROP_DOWN_LIST](data) {
+
+    if (data.text != undefined) {
+        var r = data.text.split('|');
+
+        switch ([TOTAL_COLUMNS]) {
+            case 1:
+                return '<div class="row">' +
+                    '<div class="col-xs-12">' + r[0] + '</div>' +
+                    '</div>';
+                break;
+            case 2:
+                return '<div class="row">' +
+                    '<div class="col-xs-5">' + r[0] + '</div>' +
+                    '<div class="col-xs-7">' + r[1] + '</div>' +
+                    '</div>';
+                break;
+            case 3:
+                return '<div class="row">' +
+                    '<div class="col-xs-4">' + r[0] + '</div>' +
+                    '<div class="col-xs-4">' + r[1] + '</div>' +
+                    '<div class="col-xs-4">' + r[2] + '</div>' +
+                    '</div>';
+                break;
+        }
+    }
+    else return false;
+
+};
+
+function sorter[DROP_DOWN_LIST](data) {
+    if (applySort[DROP_DOWN_LIST] == true) {
+        if (sortDirection[DROP_DOWN_LIST] == 0) { // 0 = ascending; 1 = descending
+            sortDirection[DROP_DOWN_LIST] = 1;
+            applySort[DROP_DOWN_LIST] = false;
+            return data.sort((a, b) => a.text.split('|')[[SORT_COLUMN]].localeCompare(b.text.split('|')[[SORT_COLUMN]]))
+        } else {
+            sortDirection[DROP_DOWN_LIST] = 0;
+            applySort[DROP_DOWN_LIST] = false;
+            return data.sort((a, b) => b.text.split('|')[[SORT_COLUMN]].localeCompare(a.text.split('|')[[SORT_COLUMN]]))
+        }
+    }
+    else {
+        if (sortDirection[DROP_DOWN_LIST] == 1) { // take the opposite; maintain last sort clicked.
+            return data.sort((a, b) => a.text.split('|')[[SORT_COLUMN]].localeCompare(b.text.split('|')[[SORT_COLUMN]]))
+        } else {
+            return data.sort((a, b) => b.text.split('|')[[SORT_COLUMN]].localeCompare(a.text.split('|')[[SORT_COLUMN]]))
+        }
+    }
+};
+
+$.fn.select2.amd.define("ES2CDDA_[DROP_DOWN_LIST]", [
+	"select2/utils",
+	"select2/dropdown",
+	"select2/dropdown/attachBody",
+	"select2/dropdown/attachContainer",
+	"select2/dropdown/search",
+	"select2/dropdown/minimumResultsForSearch",
+	"select2/dropdown/closeOnSelect",
+],
+function (Utils, Dropdown, AttachBody, AttachContainer, Search, MinimumResultsForSearch, CloseOnSelect) {
+	let dropdownWithSearch = Utils.Decorate(Dropdown, Search);
+	dropdownWithSearch.prototype.render = function () {
+		var $rendered = Dropdown.prototype.render.call(this);
+		var $search;
+
+		CloseOnSelect = function () { return true; };
+				$search = $(
+					'<span class="select2-search select2-search--dropdown">' +
+					'<input class="select2-search__field" placeholder="[FILTER_PLACEHOLDER]" type="search"' +
+					' tabindex="-1" autocomplete="on" autocorrect="off" autocapitalize="off"' +
+					' spellcheck="false" role="textbox" />' +
+					'</span>' +
+					'<div class="row">' +
+					' <div class="col-xs-7" onclick=\"loadFilterableSortableMultiColumnDropDown[DROP_DOWN_LIST](); $(\'#[DROP_DOWN_LIST]\').select2(\'open\');\"><b>Organization</b>&nbsp;<span class="glyphicon glyphicon-sort">&nbsp;</span></div>' +
+					'</div'
+				);
+
+		this.$searchContainer = $search;
+		this.$search = $search.find('input');
+
+		$rendered.prepend($search);
+		return $rendered;
+	};
+
+	let adapter = Utils.Decorate(Utils.Decorate(dropdownWithSearch, AttachContainer), CloseOnSelect);
+	adapter = Utils.Decorate(adapter, AttachBody);
+
+	return adapter;
+});

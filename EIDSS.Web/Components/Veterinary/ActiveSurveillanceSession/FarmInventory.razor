@@ -1,0 +1,99 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Areas.Veterinary.ViewModels.ActiveSurveillanceSession
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Services
+@using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants
+@inherits EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession.FarmInventoryBase
+
+
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-6">
+                @if (StateContainer.ReportTypeID == ASSpeciesType.Avian)
+                {
+                    <h5>@Localizer.GetString(HeadingResourceKeyConstants.VeterinarySessionDetailedInformationFarmFlockSpeciesDetailsHeading)</h5>
+                }
+                else
+                {
+                    <h5>@Localizer.GetString(HeadingResourceKeyConstants.VeterinarySessionDetailedInformationFarmHerdSpeciesDetailsHeading)</h5>
+                }
+            </div>
+            <div class="col-6 text-right mb-2">
+                <button class="btn btn-sm btn-outline-primary" id="addFlockOrHerd" @onclick="@AddFlockOrHerd" disabled="@(StateContainer.SelectedFarmMasterID is null)" >@AddFlockOrHerdButtonResourceKey</button>
+            </div>
+        </div>
+    </div>
+    <div id="divFarmInventorySection" class="card-body">
+        <div class="row">
+            <div class="col-12">
+                <RadzenDataGrid @ref="FarmInventoryGrid" 
+                                Count="Count" 
+                                IsLoading="@IsLoading" 
+                                LoadData="LoadFarmInventoryData" 
+                                Data="SelectedFarmInventory"
+                                TItem="FarmInventoryGetListViewModel" 
+                                PageSize="int.MaxValue - 1"
+                                AllowFiltering="false" 
+                                AllowColumnResize="true" 
+                                AllowColumnReorder="false" 
+                                AllowPaging="false" 
+                                AllowSorting="false"
+                                EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)"
+                                SelectionMode="DataGridSelectionMode.Single" 
+                                ShowPagingSummary="false">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="FarmInventoryGetListViewModel" Property="EIDSSFlockOrHerdID" Title="@SpeciesColumnHeadingResourceKey" Width="300px" >
+                            <Template Context="item">
+                                @if (item.RecordType == RecordTypeConstants.Species)
+                                {
+                                    <div class="input-group mb-3">
+                                        <RadzenDropDown Name="speciesTypeID" class="form-control" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" TValue="long?" @bind-Value="item.SpeciesTypeID" LoadData="GetFarmInventorySpeciesTypes" Data="FarmSpeciesTypes" TextProperty="Name" ValueProperty="IdfsBaseReference" Change="@(args => OnSpeciesTypeChange(item))"/>
+                                        <div class="input-group-append">
+                                            <button id="addSpeciesType" type="button" class="btn btn-outline-secondary btn-sm"><span class="fas fa-plus" aria-hidden="true"></span></button>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <RadzenTextBox Name="eidssFlockOrHerdID" @bind-Value="item.EIDSSFlockOrHerdID" Disabled="true"/>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="FarmInventoryGetListViewModel" Property="TotalAnimalQuantity" Title="@TotalColumnHeadingResourceKey">
+                            <Template Context="item">
+                                @if (item.RecordType == RecordTypeConstants.Species)
+                                {
+                                    <RadzenNumeric Name="totalAnimalQuantity" Min="0" ShowUpDown="true" TValue="int?" @bind-Value="item.TotalAnimalQuantity" Change="(args => OnTotalAnimalQuantityChange(item))" />
+                                }
+                                else
+                                {
+                                    <RadzenNumeric Name="totalAnimalQuantity" Min="0" ShowUpDown="true" TValue="int?" @bind-Value="item.TotalAnimalQuantity" Disabled="true" />
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="FarmInventoryGetListViewModel" Property="RecordID" Filterable="false" Frozen="true" Sortable="false" Title="" TextAlign="TextAlign.Center" Width="100px">
+                            <Template Context="item">
+                                @if (item.RecordType == RecordTypeConstants.Farm)
+                                {
+                                    <button @onclick="((args) => AddFlockOrHerd())" type="button" class="btn btn-sm" disabled="@DisableAddButton"><i class="fas fa-plus">&nbsp;</i></button>
+                                }
+                                else if (item.RecordType == RecordTypeConstants.Herd)
+                                {
+                                    <button @onclick="((args) => AddSpecies(item))" type="button" class="btn btn-sm" disabled="@DisableAddButton"><i class="fas fa-plus">&nbsp;</i></button>
+                                    <button @onclick="((args) => DeleteFarmInventory(item))" type="button" class="btn btn-sm" disabled="@DisableDeleteButton"><i class="fas fa-trash">&nbsp;</i></button>
+                                }
+                                else
+                                {
+                                    <button @onclick="((args) => DeleteFarmInventory(item))" type="button" class="btn btn-sm" disabled="@DisableDeleteButton"><i class="fas fa-trash">&nbsp;</i></button>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,49 @@
+﻿@model EIDSS.Web.Areas.Veterinary.ViewModels.VeterinaryDiseaseReport.DiseaseReportDetailPageViewModel
+@using EIDSS.Web.Components.Veterinary.DiseaseReport
+@using EIDSS.Domain.Enumerations
+@{
+    if (Model.DiseaseReport.ReportCategoryTypeID == (long)CaseTypeEnum.Avian)
+    { ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.AvianDiseaseReportPageHeading); }
+    else
+    { ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.LivestockDiseaseReportPageHeading); }
+}
+
+<partial name="_ErrorModalNoTitlePartial" />
+
+<div id="divDiseaseReportView" class="card">
+    <div class="card-header">
+        @if (Model.DiseaseReport.ReportCategoryTypeID == (long)CaseTypeEnum.Avian)
+        {<h3>@Localizer.GetString(HeadingResourceKeyConstants.AvianDiseaseReportPageHeading)</h3> }
+    else
+    { <h3>@Localizer.GetString(HeadingResourceKeyConstants.LivestockDiseaseReportPageHeading)</h3>}
+    </div>
+    <div class="card-body">
+        @if (Model.DiseaseReport.ReadPermissionIndicator)
+        {
+            <component type="typeof(DiseaseReport)" render-mode="ServerPrerendered" param-Model="Model.DiseaseReport"/>
+        }
+    </div>
+</div>
+<script src="~/js/Veterinary/diseaseReport.js"></script>
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if ('@Model.DiseaseReport.ReadPermissionIndicator' == "False") {
+                insufficientPermissions();
+            }
+        });
+
+        function insufficientPermissions() {
+            showErrorModalNoTitle('@Localizer.GetString(MessageResourceKeyConstants.WarningMessagesYourPermissionsAreInsufficientToPerformThisFunctionMessage)').then(response => {
+                if (response) {
+                    $("#errorModal").modal("hide");
+                    $(".modal-backdrop").remove();
+                    window.location.replace('@Url.Action("Index", "Dashboard", new {Area = "Administration"})');
+                }
+            });
+        };
+    
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+}

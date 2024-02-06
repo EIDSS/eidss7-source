@@ -1,0 +1,44 @@
+﻿@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.FlexForm
+
+@inherits TreatmentSectionBase
+
+<div class="container-fluid">
+    <div class="form-row">
+        <div class="col-md-11">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryProphylacticMeasureMatrixPageHeading)</h4>
+        </div>
+        <div class="col-md-1 text-right">
+            <a id="editSessionInformationSectionButton" href="#veterinaryAggregateActionsReportWizard-h-2" class="edit-section">
+                <span class="fas fa-edit fa-lg"></span>
+            </a>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <!--Matrix Version Drop Down-->
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportMatrixVersionFieldLabel" IsRow="false" CssClass="col-4" For="treatmentMatrixVersion">
+                <RadzenDropDown id="treatmentMatrixVersion" Name="treatmentMatrixVersion" AllowClear="true" TValue="long?" Data="@StateContainer.TreatmentMatrixList"
+                                ValueProperty="IdfVersion" TextProperty="MatrixName" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                @bind-Value="@StateContainer.TreatmentMatrixVersionID" Change="@OnMatrixVersionChange"
+                                class="form-control" AllowVirtualization="false" Disabled="@StateContainer.TreatmentReportDisabledIndicator" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportTemplateVersionFieldLabel" IsRow="false" CssClass="col-4" For="treatmentTemplateVersion">
+                <RadzenDropDown id="treatmentTemplateVersion" Name="treatmentTemplateVersion" AllowClear="true" TValue="long?" Data="@StateContainer.TreatmentTemplatesList" ValueProperty="idfsFormTemplate" TextProperty="DefaultName"
+                                @bind-Value="@StateContainer.TreatmentFlexFormRequest.idfsFormTemplate" Change="@OnTemplateChange"
+                                class="form-control" AllowVirtualization="false" Disabled="@StateContainer.TreatmentReportDisabledIndicator" />
+            </InterfaceEditorResource>
+        </div>
+        <div class="row">
+            <div class="col-12" id="divFlexForm">
+                @if (StateContainer.TreatmentFlexFormRenderIndicator)
+                {
+                    <FlexFormMatrix @ref="TreatmentMatrixFlexForm" Request="@StateContainer.TreatmentFlexFormRequest" FormDisabledIndicator="@(StateContainer.TreatmentReportDisabledIndicator || (StateContainer.WritePermissionIndicator == false && StateContainer.ReportKey > 0)
+                                                                                                                                               || (StateContainer.CreatePermissionIndicator == false && StateContainer.ReportKey <= 0))" />
+                }
+            </div>
+        </div>
+    </div>
+</div>

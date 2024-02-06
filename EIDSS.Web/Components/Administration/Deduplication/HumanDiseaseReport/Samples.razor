@@ -1,0 +1,119 @@
+﻿@using EIDSS.Web.ViewModels.Human
+@inherits EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport.SamplesBase
+
+
+<div class="form-row">
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord" TValue="int" @bind-Value=@HumanDiseaseReportDeduplicationService.RecordSelection
+                                       Change="@((args) => OnRecordSelectionChangeAsync(args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="Samples"></div>
+                <RadzenCheckBox Name="chkCheckAllSamples" @bind-Value=@HumanDiseaseReportDeduplicationService.chkCheckAllSamples TValue="bool" Change="@((args) => OnCheckAllSamplesChangeAsync(args))" />
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllSamples" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord2" TValue="int" @bind-Value=@HumanDiseaseReportDeduplicationService.Record2Selection
+                                       Change="@((args) => OnRecord2SelectionChangeAsync(args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="Samples2"></div>
+                <RadzenCheckBox Name="chkCheckAllSamples2" @bind-Value=@HumanDiseaseReportDeduplicationService.chkCheckAllSamples2 TValue="bool" Change="@((args) => OnCheckAllSamples2ChangeAsync(args))" />
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllSamples2" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+</div>
+<div class="form-row">
+    <div class="col-6">
+        @if (HumanDiseaseReportDeduplicationService.SamplesList != null)
+        {                 
+                    <RadzenDataList WrapItems=false AllowPaging=false Data=HumanDiseaseReportDeduplicationService.SamplesList TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
+                    <Template Context="field">
+                    @if (field.Index < idfsYNSpecimenCollected)
+                    {
+                            <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key TValue="bool" Disabled=@field.Disabled 
+                            TriState=false Style="vertical-align: top !important;" Change="@((args) => OnDataListSamplesSelectionChangeAsync(args, field.Index))" />
+                            <div class="ml-2 d-inline-block vertical-align-middle">
+                                <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                  }
+                   </Template>
+                </RadzenDataList>
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" 
+            Count="@HumanDiseaseReportDeduplicationService.SamplesCount" 
+            Data="@HumanDiseaseReportDeduplicationService.Samples"
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@HumanDiseaseReportDeduplicationService.SelectedSamples"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            ExpandMode="DataGridExpandMode.Single" 
+            PageSizeOptions="pageSizeOptions" @ref="samplesgrid" 
+            ShowPagingSummary="true" TItem="DiseaseReportSamplePageSampleDetailViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="DiseaseReportSamplePageSampleDetailViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool" 
+                            Value="@(HumanDiseaseReportDeduplicationService.SelectedSamples != null && HumanDiseaseReportDeduplicationService.SelectedSamples.Contains(data))" 
+                            Change="@(args => OnSampleRowCheckChangeAsync(args, data, false))" />
+                    </Template> 
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="SampleType" TItem="DiseaseReportSamplePageSampleDetailViewModel" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSampleTypeFieldLabel) Width="200px"/>
+                <RadzenDataGridColumn Property="LocalSampleId" TItem="DiseaseReportSamplePageSampleDetailViewModel" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportLocalSampleIDFieldLabel) Width="150px"/>
+                <RadzenDataGridColumn FormatString="{0:d}" Property="CollectionDate" TItem="DiseaseReportSamplePageSampleDetailViewModel" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportCollectionDateFieldLabel) Width="175px"/>
+                <RadzenDataGridColumn Property="CollectedByOrganization" TItem="DiseaseReportSamplePageSampleDetailViewModel" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportCollectedByInstitutionFieldLabel) Width="250px"/>
+                <RadzenDataGridColumn Property="CollectedByOfficer" TItem="DiseaseReportSamplePageSampleDetailViewModel" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportCollectedByOfficerFieldLabel) Width="250px"/>
+                <RadzenDataGridColumn FormatString="{0:d}" Property="SentDate" TItem="DiseaseReportSamplePageSampleDetailViewModel" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSentDateFieldLabel) Width="150px"/>
+                <RadzenDataGridColumn Property="SentToOrganizationName" TItem="DiseaseReportSamplePageSampleDetailViewModel" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSentToOrganizationFieldLabel) Width="250px"/>
+            </Columns>
+        </RadzenDataGrid>
+        }
+    </div>
+    <div class="col-6">
+        @if (HumanDiseaseReportDeduplicationService.SamplesList2 != null)
+        {
+
+                     <RadzenDataList WrapItems=false AllowPaging=false Data=HumanDiseaseReportDeduplicationService.SamplesList2 TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
+                    <Template Context="field">
+                    @if (field.Index < idfsYNSpecimenCollected )
+                    {
+                            <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key TValue="bool" Disabled=@field.Disabled 
+                            TriState=false Style="vertical-align: top !important;"  Change="@((args) => OnDataListSamples2SelectionChangeAsync(args, field.Index))"/>
+                            <div class="ml-2 d-inline-block vertical-align-middle">
+                                <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                                <span>@(field.Value)</span>
+                            </div>
+                        }
+                    </Template>
+                </RadzenDataList>
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" 
+            Count="@HumanDiseaseReportDeduplicationService.SamplesCount2" 
+            Data="@HumanDiseaseReportDeduplicationService.Samples2" 
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@HumanDiseaseReportDeduplicationService.SelectedSamples2"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            ExpandMode="DataGridExpandMode.Single" 
+            PageSizeOptions="pageSizeOptions" @ref="samplesgrid2" 
+            ShowPagingSummary="true" TItem="DiseaseReportSamplePageSampleDetailViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="DiseaseReportSamplePageSampleDetailViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool"  
+                        Value="@(HumanDiseaseReportDeduplicationService.SelectedSamples2 != null && HumanDiseaseReportDeduplicationService.SelectedSamples2.Contains(data))" 
+                        Change="@(args => OnSampleRowCheckChangeAsync(args, data, true))" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="SampleType" TItem="DiseaseReportSamplePageSampleDetailViewModel" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSampleTypeFieldLabel) Width="200px"/>
+                <RadzenDataGridColumn Property="LocalSampleId" TItem="DiseaseReportSamplePageSampleDetailViewModel" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportLocalSampleIDFieldLabel) Width="150px"/>
+                <RadzenDataGridColumn FormatString="{0:d}" Property="CollectionDate" TItem="DiseaseReportSamplePageSampleDetailViewModel" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportCollectionDateFieldLabel) Width="175px"/>
+                <RadzenDataGridColumn Property="CollectedByOrganization" TItem="DiseaseReportSamplePageSampleDetailViewModel" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportCollectedByInstitutionFieldLabel) Width="250px"/>
+                <RadzenDataGridColumn Property="CollectedByOfficer" TItem="DiseaseReportSamplePageSampleDetailViewModel" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportCollectedByOfficerFieldLabel) Width="250px"/>
+                <RadzenDataGridColumn FormatString="{0:d}" Property="SentDate" TItem="DiseaseReportSamplePageSampleDetailViewModel" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSentDateFieldLabel) Width="150px"/>
+                <RadzenDataGridColumn Property="SentToOrganizationName" TItem="DiseaseReportSamplePageSampleDetailViewModel" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSentToOrganizationFieldLabel) Width="250px"/>
+            </Columns>
+        </RadzenDataGrid>
+        }
+    </div>
+</div>

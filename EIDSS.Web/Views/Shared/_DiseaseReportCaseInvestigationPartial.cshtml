@@ -1,0 +1,455 @@
+﻿@model EIDSS.Web.ViewModels.Human.DiseaseReportCaseInvestigationPageViewModel;
+@using EIDSS.Domain.Enumerations;
+
+@{
+    @functions {
+
+        static string FormatNullableDate(DateTime? value)
+        {
+            return value.HasValue ? value.Value.ToString("d") : "";
+        }
+
+    }var defaultReference = new Select2DataItem();
+    if (Model.idfInvestigatedByOffice != 0 && Model.idfInvestigatedByOffice != null && Model.InvestigatedByOffice != "")
+        defaultReference = new Select2DataItem {id = Model.idfInvestigatedByOffice.ToString(), text = Model.InvestigatedByOffice};
+
+    Model.InvestigatedByOfficeDD = new Select2Configruation
+    {
+        DropDownId = "InvestigatedByOfficeDD",
+        ControlTargetType = DropDownTargetTypes.DropDown,
+        Label = Localizer.GetString(Model.isOutbreakCase ? FieldLabelResourceKeyConstants.CreateHumanCaseInvestigatorOrganizationFieldLabel : FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationInvestigatingOrganizationFieldLabel),
+        Endpoint = Url.Action("GetOrganizationsForLookup", "CrossCutting", new {Area = "CrossCutting", organizationSiteAssociation = (int) OrganizationSiteAssociations.OrganizationsWithOrWithoutSite, accessoryCode = EIDSSConstants.HACodeList.HumanHACode}),
+        isVisible = true,
+        CustomJsOnChangeFunction = "UpdateInvestigatingOrgForFinalOutcome",
+        defaultSelect2Selection = defaultReference
+    };
+
+    Model.OutbreakInvestigationSentByNameDD = new Select2Configruation();
+    Model.OutbreakCaseClassificationByNameDD = new Select2Configruation();
+    if (Model.isOutbreakCase)
+    {
+        defaultReference = new Select2DataItem();
+        if (Model.idfInvestigatedByPerson != 0 && !string.IsNullOrEmpty(Model.InvestigatedByPerson))
+            defaultReference = new Select2DataItem {id = Model.idfInvestigatedByPerson.ToString(), text = Model.InvestigatedByPerson};
+
+        Model.OutbreakInvestigationSentByNameDD.DropDownId = "idfOutbreakInvestigatedByPerson";
+        Model.OutbreakInvestigationSentByNameDD.ControlTargetType = DropDownTargetTypes.DropDown;
+        Model.OutbreakInvestigationSentByNameDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakCaseClinicalInformationInvestigatorNameFieldLabel);
+        Model.OutbreakInvestigationSentByNameDD.Endpoint = Url.Action("GetPersonListForOrg", "HumanDiseaseReport", new {Area = "Human"});
+        Model.OutbreakInvestigationSentByNameDD.isVisible = true;
+        Model.OutbreakInvestigationSentByNameDD.FilteredId = "InvestigatedByOfficeDD";
+
+        if (Model.PermissionsAccessToNotification != null)
+        {
+            @if (Model.PermissionsAccessToNotification.Create && !Model.IsReportClosed)
+            {
+                Model.OutbreakInvestigationSentByNameDD.IncludeAddButton = true;
+                Model.OutbreakInvestigationSentByNameDD.AddButtonId = "AddNotificationSentByName";
+                Model.OutbreakInvestigationSentByNameDD.AddModalId = "NonUserEmployeeSave";
+            }
+        }
+
+        Model.OutbreakInvestigationSentByNameDD.defaultSelect2Selection = defaultReference;
+
+        defaultReference = new Select2DataItem();
+        if (Model.OutbreakCaseClassificationID != 0 && !string.IsNullOrEmpty(Model.OutbreakCaseClassificationName))
+            defaultReference = new Select2DataItem {id = Model.OutbreakCaseClassificationID.ToString(), text = Model.OutbreakCaseClassificationName};
+
+        Model.OutbreakCaseClassificationByNameDD.DropDownId = "OutbreakCaseClassificationByNameDD";
+        Model.OutbreakCaseClassificationByNameDD.ControlTargetType = DropDownTargetTypes.DropDown;
+        Model.OutbreakCaseClassificationByNameDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.CreateHumanCaseCaseClassificationFieldLabel);
+        Model.OutbreakCaseClassificationByNameDD.Endpoint = Url.Action("BaseReferenceListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", ReferenceType = "Case Classification", intHACode = (int) AccessoryCodeEnum.Human});
+        Model.OutbreakCaseClassificationByNameDD.isVisible = true;
+        Model.OutbreakCaseClassificationByNameDD.defaultSelect2Selection = defaultReference;
+    }
+
+    defaultReference = new Select2DataItem();
+    if (Model.idfsPointGroundType != 0 && Model.idfsPointGroundType != null && Model.strGroundType != "")
+        defaultReference = new Select2DataItem {id = Model.idfsPointGroundType.ToString(), text = Model.strGroundType};
+
+    Model.GroundTypeDD = new Select2Configruation
+    {
+        DropDownId = "GroundTypeDD",
+        ControlTargetType = DropDownTargetTypes.DropDown,
+        Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationLocationOfExposureRelativePointGroundTypeFieldLabel),
+        Endpoint = Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new {Area = "CrossCutting", referenceTypeID = 19000038}),
+        isVisible = true,
+        defaultSelect2Selection = defaultReference
+    };
+
+
+    defaultReference = new Select2DataItem();
+    if (Model.idfsPointCountry != 0 && Model.idfsPointCountry != null && Model.Country != "")
+        defaultReference = new Select2DataItem {id = Model.idfsPointCountry.ToString(), text = Model.Country};
+
+    Model.ForeignCountryDD = new Select2Configruation
+    {
+        DropDownId = "ForeignCountryDD",
+        ControlTargetType = DropDownTargetTypes.DropDown,
+        Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationLocationOfExposureForeignAddressCountryFieldLabel),
+        Endpoint = Url.Action("GetCountryList", "CrossCutting", new {Area = "CrossCutting"}),
+        isVisible = true,
+        defaultSelect2Selection = defaultReference
+    };
+
+    //   Model.GroundTypeDD.defaultSelect2Selection = defaultReference;
+
+}
+
+<form id="CaseInvestigationForm">
+<div class="card">
+<div class="card-header">
+    <h4 heading-for="@HeadingResourceKeyConstants.HumanDiseaseReportCaseInvestigationDetailsHeading"></h4>
+</div>
+<div class="card-body">
+<input type="hidden" id="hdnidfGeoLocation" value="@Model.idfPointGeoLocation"/>
+<div class="form-row">
+    <div class="form-group col-md-6">
+        <div hidden-if=@(Model.isOutbreakCase ? FieldLabelResourceKeyConstants.CreateHumanCaseInvestigatorOrganizationFieldLabel
+            : FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationInvestigatingOrganizationFieldLabel)>
+            @if (Model.isOutbreakCase)
+            {
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.CreateHumanCaseInvestigatorOrganizationFieldLabel"></i>
+            }
+            else
+            {
+                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationInvestigatingOrganizationFieldLabel"></i>
+            }
+            <eidss-select2DropDown id="@Model.InvestigatedByOfficeDD.DropDownId"
+                                   name="@Model.InvestigatedByOfficeDD.DropDownId"
+                                   control-target-id="@Model.InvestigatedByOfficeDD.ControltargetId"
+                                   target-type="@Model.InvestigatedByOfficeDD.ControlTargetType"
+                                   target-ajax-url="@Model.InvestigatedByOfficeDD.ControlTargetUrl"
+                                   selectct2-default-data="@Model.InvestigatedByOfficeDD.defaultSelect2Selection"
+                                   end-point="@Model.InvestigatedByOfficeDD.Endpoint"
+                                   label-name="@Model.InvestigatedByOfficeDD.Label"
+                                   custom-js-on-change-function="@Model.InvestigatedByOfficeDD.CustomJsOnChangeFunction"
+                                   custom-js-on-clear-function="@Model.InvestigatedByOfficeDD.CustomJsOnClearFunction"
+                                   custom-js-on-unselect-function="@Model.InvestigatedByOfficeDD.CustomJsOnUnselectFunction"
+                                   is-visible="@Model.InvestigatedByOfficeDD.isVisible"
+                                   is-disabled="@Model.IsReportClosed"
+                                   class-name="form-control"
+                                   asp-for="@Model.idfInvestigatedByOffice">
+            </eidss-select2DropDown>
+            @if (Model.isOutbreakCase)
+            {
+                <span asp-validation-for="idfInvestigatedByOffice" required-if="@FieldLabelResourceKeyConstants.CreateHumanCaseInvestigatorOrganizationFieldLabel" class="text-danger"></span>
+            }
+            else
+            {
+                <span asp-validation-for="idfInvestigatedByOffice" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationInvestigatingOrganizationFieldLabel" class="text-danger"></span>
+            }
+        </div>
+    </div>
+    <div class="form-group col-md-6">
+        @if (Model.isOutbreakCase)
+        {
+            <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.CreateHumanCaseInvestigatorNameFieldLabel"></i>
+            <eidss-select2DropDown id="@Model.OutbreakInvestigationSentByNameDD.DropDownId"
+                                   name="@Model.OutbreakInvestigationSentByNameDD.DropDownId"
+                                   control-target-id="@Model.OutbreakInvestigationSentByNameDD.ControltargetId"
+                                   target-type="@Model.OutbreakInvestigationSentByNameDD.ControlTargetType"
+                                   target-ajax-url="@Model.OutbreakInvestigationSentByNameDD.ControlTargetUrl"
+                                   selectct2-default-data="@Model.OutbreakInvestigationSentByNameDD.defaultSelect2Selection"
+                                   end-point="@Model.OutbreakInvestigationSentByNameDD.Endpoint"
+                                   filter-id="@Model.OutbreakInvestigationSentByNameDD.FilteredId"
+                                   label-name="@Model.OutbreakInvestigationSentByNameDD.Label"
+                                   is-visible="@Model.OutbreakInvestigationSentByNameDD.isVisible"
+                                   include-add-button="@Model.OutbreakInvestigationSentByNameDD.IncludeAddButton"
+                                   add-modal-id="@Model.OutbreakInvestigationSentByNameDD.AddModalId"
+                                   add-button-id="@Model.OutbreakInvestigationSentByNameDD.AddButtonId"
+                                   is-disabled="@Model.IsReportClosed"
+                                   class-name="form-control"
+                                   asp-for="@Model.OutbreakInvestigationSentByNameDD">
+            </eidss-select2DropDown>
+            <span asp-validation-for="OutbreakInvestigationSentByNameDD" class="text-danger"></span>
+        }
+    </div>
+</div>
+<div class="form-row">
+    <div class="form-group col-md-6">
+        @if (!Model.isOutbreakCase)
+        {
+            <input type="hidden" asp-for="@Model.CurrentDate" value="@Model.CurrentDate"/>
+            <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationStartDateOfInvestigationFieldLabel"></i>
+            <label asp-for="StartDateofInvestigation" field-label-for="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationStartDateOfInvestigationFieldLabel"></label>
+            <eidss-calendar id="CaseInvestigationSection_StartDateofInvestigation" name="CaseInvestigationSection.StartDateofInvestigation" asp-for="StartDateofInvestigation" SearchFilter="true" value="@FormatNullableDate(Model.StartDateofInvestigation)" disabled="@Model.IsReportClosed" dates-ids-to_validate="NotificationSection_dateOfNotification"></eidss-calendar>
+            <span asp-validation-for="StartDateofInvestigation" class="text-danger"></span>
+        }
+        else
+        {
+            <input type="hidden" asp-for="@Model.CurrentDate" value="@Model.CurrentDate"/>
+            <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationStartDateOfInvestigationFieldLabel"></i>
+            <label asp-for="OutBreakStartDateofInvestigation" field-label-for="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationStartDateOfInvestigationFieldLabel"></label>
+            <eidss-calendar id="CaseInvestigationSection_OutBreakStartDateofInvestigation" name="CaseInvestigationSection.OutBreakStartDateofInvestigation" asp-for="OutBreakStartDateofInvestigation" SearchFilter="true" value="@FormatNullableDate(Model.OutBreakStartDateofInvestigation)" disabled="@Model.IsReportClosed" dates-ids-to_validate="NotificationSection_datOutbreakNotification"></eidss-calendar>
+            <span asp-validation-for="OutBreakStartDateofInvestigation" class="text-danger"></span>
+
+        }
+
+    </div>
+    @if (Model.isOutbreakCase)
+    {
+        <div class="form-group col-md-6">
+            <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.CreateHumanCaseCaseClassificationFieldLabel"></i>
+            <eidss-select2DropDown id="@Model.OutbreakCaseClassificationByNameDD.DropDownId"
+                                   name="@Model.OutbreakCaseClassificationByNameDD.DropDownId"
+                                   control-target-id="@Model.OutbreakCaseClassificationByNameDD.ControltargetId"
+                                   target-type="@Model.OutbreakCaseClassificationByNameDD.ControlTargetType"
+                                   target-ajax-url="@Model.OutbreakCaseClassificationByNameDD.ControlTargetUrl"
+                                   selectct2-default-data="@Model.OutbreakCaseClassificationByNameDD.defaultSelect2Selection"
+                                   end-point="@Model.OutbreakCaseClassificationByNameDD.Endpoint"
+                                   filter-id="@Model.OutbreakCaseClassificationByNameDD.FilteredId"
+                                   label-name="@Model.OutbreakCaseClassificationByNameDD.Label"
+                                   is-visible="@Model.OutbreakCaseClassificationByNameDD.isVisible"
+                                   include-add-button="@Model.OutbreakCaseClassificationByNameDD.IncludeAddButton"
+                                   add-modal-id="@Model.OutbreakCaseClassificationByNameDD.AddModalId"
+                                   add-button-id="@Model.OutbreakCaseClassificationByNameDD.AddButtonId"
+                                   is-disabled="@Model.IsReportClosed"
+                                   class-name="form-control"
+                                   asp-for="@Model.OutbreakCaseClassificationByNameDD">
+            </eidss-select2DropDown>
+            <span asp-validation-for="OutbreakCaseClassificationByNameDD" class="text-danger"></span>
+        </div>
+    }
+</div>
+@if (Model.isOutbreakCase)
+{
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label asp-for="@Model.strOutbreakID" field-label-for="@FieldLabelResourceKeyConstants.CreateHumanCasePrimaryCaseFieldLabel" class="control-label"></label>
+            <input type="checkbox" asp-for="@Model.PrimaryCase" disabled="@Model.IsReportClosed"/>
+        </div>
+    </div>
+}
+@if (Model.idfOutbreak != null && !Model.isOutbreakCase)
+{
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label asp-for="@Model.strOutbreakID" field-label-for="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationOutbreakIDFieldLabel" class="control-label"></label>
+            <input asp-for="@Model.strOutbreakID" class="form-control" disabled="@Model.IsReportClosed">
+            <input type="hidden" asp-for="@Model.idfOutbreak" value="@Model.idfOutbreak"/>
+        </div>
+    </div>
+}
+else
+{
+    <input type="hidden" asp-for="@Model.idfOutbreak" value="@Model.idfOutbreak"/>
+}
+
+@if (!Model.isOutbreakCase)
+{
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label asp-for="@Model.comments" field-label-for="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationCommentsFieldLabel" class="control-label"></label>
+            <input asp-for="@Model.comments" class="form-control" disabled="@Model.IsReportClosed">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-12">
+            <label asp-for="@Model.idfsYNExposureLocationKnown" field-label-for="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationLocationofExposureisknownFieldLabel" class="control-label"></label>
+            @if (Model.YNExposureLocationKnownRD != null)
+            {
+                if (Model.YNExposureLocationKnownRD.Any())
+                {
+                    foreach (var item in Model.YNExposureLocationKnownRD)
+                    {
+                        @if (Model.idfsYNExposureLocationKnown != null && Model.idfsYNExposureLocationKnown == item.IdfsBaseReference && Model.idfsYNExposureLocationKnown == long.Parse(EIDSSConstants.YesNoValueList.Yes))
+                        {
+                            <input asp-for="@Model.idfsYNExposureLocationKnown" type="radio" value="@item.IdfsBaseReference" checked onclick="ShowLocationExposureSection(this.value)" class="idfsYNExposureLocationKnown" disabled="@Model.IsReportClosed"/>
+                            @item.Name
+                        }
+                        else if (Model.idfsYNExposureLocationKnown != null && Model.idfsYNExposureLocationKnown == item.IdfsBaseReference && Model.idfsYNExposureLocationKnown == long.Parse(EIDSSConstants.YesNoValueList.No))
+                        {
+                            <input asp-for="@Model.idfsYNExposureLocationKnown" type="radio" value="@item.IdfsBaseReference" checked onclick="ShowLocationExposureSection(this.value)" class="idfsYNExposureLocationKnown" disabled="@Model.IsReportClosed"/>
+                            @item.Name
+                        }
+                        else if (Model.idfsYNExposureLocationKnown != null && Model.idfsYNExposureLocationKnown == item.IdfsBaseReference && Model.idfsYNExposureLocationKnown == long.Parse(EIDSSConstants.YesNoValueList.Unknown))
+                        {
+                            <input asp-for="@Model.idfsYNExposureLocationKnown" type="radio" value="@item.IdfsBaseReference" checked onclick="ShowLocationExposureSection(this.value)" class="idfsYNExposureLocationKnown" disabled="@Model.IsReportClosed"/>
+                            @item.Name
+                        }
+                        else
+                        {
+                            <input asp-for="@Model.idfsYNExposureLocationKnown" type="radio" value="@item.IdfsBaseReference" onclick="ShowLocationExposureSection(this.value)" class="idfsYNExposureLocationKnown" disabled="@Model.IsReportClosed"/>
+                            @item.Name
+                        }
+                    }
+                }
+            }
+        </div>
+    </div>
+}
+<div id="divExposureLocationAddress">
+    <div class="card">
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <label asp-for="@Model.ExposureDate" field-label-for="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationDateOfPotentialExposureFieldLabel"></label>
+                    <eidss-calendar id="CaseInvestigationSection_ExposureDate" name="CaseInvestigationSection.ExposureDate" asp-for="@Model.ExposureDate" SearchFilter="true" value="@FormatNullableDate(Model.ExposureDate)" disabled="@Model.IsReportClosed" dates-ids-to_validate="SymptomsSection_SymptomsOnsetDate"></eidss-calendar>
+                    <span asp-validation-for="ExposureDate" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <label asp-for="@Model.idfsPointGeoLocationType" field-label-for="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationExposureLocationFieldLabel" class="control-label"></label>
+                    @if (Model.ExposureLocationRD != null)
+                    {
+                        if (Model.ExposureLocationRD.Any())
+                        {
+                            foreach (var item in Model.ExposureLocationRD)
+                            {
+                                @if (Model.idfsPointGeoLocationType != null && Model.idfsPointGeoLocationType == item.IdfsBaseReference && item.IdfsBaseReference == EIDSSConstants.GeoLocationTypes.ExactPoint)
+                                {
+                                    <input asp-for="@Model.idfsPointGeoLocationType" type="radio" value="@item.IdfsBaseReference" checked onclick="ShowSpecificSection(this.value)" class="idfsPointGeoLocationType" disabled="@Model.IsReportClosed"/>
+                                    @item.Name
+                                }
+                                else if (Model.idfsPointGeoLocationType != null && Model.idfsPointGeoLocationType == item.IdfsBaseReference && item.IdfsBaseReference == EIDSSConstants.GeoLocationTypes.RelativePoint)
+                                {
+                                    <input asp-for="@Model.idfsPointGeoLocationType" type="radio" value="@item.IdfsBaseReference" checked onclick="ShowSpecificSection(this.value)" class="idfsPointGeoLocationType" disabled="@Model.IsReportClosed"/>
+                                    @item.Name
+                                }
+                                else if (Model.idfsPointGeoLocationType != null && Model.idfsPointGeoLocationType == item.IdfsBaseReference && item.IdfsBaseReference == EIDSSConstants.GeoLocationTypes.Foreign)
+                                {
+                                    <input asp-for="@Model.idfsPointGeoLocationType" type="radio" value="@item.IdfsBaseReference" checked onclick="ShowSpecificSection(this.value)" class="idfsPointGeoLocationType" disabled="@Model.IsReportClosed"/>
+                                    @item.Name
+                                }
+                                else
+                                {
+                                    <input asp-for="@Model.idfsPointGeoLocationType" type="radio" value="@item.IdfsBaseReference" onclick="ShowSpecificSection(this.value)" class="idfsPointGeoLocationType" disabled="@Model.IsReportClosed"/>
+                                    @item.Name
+                                }
+                            }
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="divLocationView">
+        @await Component.InvokeAsync("LocationView", Model.ExposureLocationAddress)
+    </div>
+    <div id="divRelativeGeoLocation">
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <eidss-select2DropDown id="@Model.GroundTypeDD.DropDownId"
+                                       name="@Model.GroundTypeDD.DropDownId"
+                                       control-target-id="@Model.GroundTypeDD.ControltargetId"
+                                       target-type="@Model.GroundTypeDD.ControlTargetType"
+                                       selectct2-default-data="@Model.GroundTypeDD.defaultSelect2Selection"
+                                       target-ajax-url="@Model.GroundTypeDD.ControlTargetUrl"
+                                       end-point="@Model.GroundTypeDD.Endpoint"
+                                       label-name="@Model.GroundTypeDD.Label"
+                                       is-visible="@Model.GroundTypeDD.isVisible"
+                                       is-disabled="@Model.IsReportClosed"
+                                       class-name="form-control">
+                </eidss-select2DropDown>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label asp-for="@Model.dblPointDistance" field-label-for="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationLocationOfExposureRelativePointDistancekmFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.dblPointDistance" class="form-control" disabled="@Model.IsReportClosed">
+            </div>
+            <div class="form-group col-md-6">
+                <label asp-for="@Model.dblPointDirection" field-label-for="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationLocationOfExposureRelativePointDirectionFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.dblPointDirection" class="form-control" disabled="@Model.IsReportClosed">
+            </div>
+        </div>
+    </div>
+    <div id="divForeign">
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <eidss-select2DropDown id="@Model.ForeignCountryDD.DropDownId"
+                                       name="@Model.ForeignCountryDD.DropDownId"
+                                       control-target-id="@Model.ForeignCountryDD.ControltargetId"
+                                       target-type="@Model.ForeignCountryDD.ControlTargetType"
+                                       target-ajax-url="@Model.ForeignCountryDD.ControlTargetUrl"
+                                       selectct2-default-data="@Model.ForeignCountryDD.defaultSelect2Selection"
+                                       end-point="@Model.ForeignCountryDD.Endpoint"
+                                       label-name="@Model.ForeignCountryDD.Label"
+                                       is-visible="@Model.ForeignCountryDD.isVisible"
+                                       is-disabled="@Model.IsReportClosed"
+                                       class-name="form-control">
+                </eidss-select2DropDown>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label asp-for="@Model.strPointForeignAddress" field-label-for="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationLocationOfExposureForeignAddressAddressFieldLabel" class="control-label"></label>
+                <input asp-for="@Model.strPointForeignAddress" class="form-control" disabled="@Model.IsReportClosed">
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+</form>
+
+<script>
+    $(document).ready(function () {
+        //Personal Information
+         if ('@Model.idfInvestigatedByOffice' != null && '@Model.idfInvestigatedByOffice' != 0){
+             EnableNotificationSentByName();
+         }
+         else {
+             DisableNotificationSentByName();
+         }
+    });
+
+    function EnableNotificationSentByName(data) {
+        $("#notificationSentByNameDD").prop("disabled", false);
+        $("#notificationSentByNameDD").val('').trigger('change');
+    }
+
+    function DisableNotificationSentByName(data) {
+        $("#notificationSentByNameDD").prop("disabled", true);
+    }
+
+    function ShowLocationExposureSection(e)
+    {
+        var YNExposureLocationKnown = e;
+        if (YNExposureLocationKnown == '@long.Parse(EIDSSConstants.YesNoValueList.Yes)') {
+            $("#divExposureLocationAddress").prop("style", "display: block;");
+        }
+        else {
+            $("#divExposureLocationAddress").prop("style", "display: none;");
+        }
+    }
+
+    function ShowSpecificSection(e)
+    {
+        if (e == '@EIDSSConstants.GeoLocationTypes.ExactPoint') {
+            $("#divRelativeGeoLocation").prop("style", "display: none;");
+            $("#divForeign").prop("style", "display: none;");
+            $("#divLocationView").prop("style", "display: block;");
+            initializeSelect2DropDowns();
+
+        }
+        else if (e == '@EIDSSConstants.GeoLocationTypes.RelativePoint') {
+            $("#divRelativeGeoLocation").prop("style", "display: block;");
+            $("#divForeign").prop("style", "display: none;");
+            $("#divLocationView").prop("style", "display: block;");
+            initializeSelect2DropDowns();
+        }
+        else if (e == '@EIDSSConstants.GeoLocationTypes.Foreign') {
+            $("#divRelativeGeoLocation").prop("style", "display: none;");
+            $("#divForeign").prop("style", "display: block;");
+            $("#divLocationView").prop("style", "display: none;");
+        }
+        else {
+            $("#divExposureLocationAddress").prop("style", "display: none;");
+            $("#divRelativeGeoLocation").prop("style", "display: none;");
+            $("#divForeign").prop("style", "display: none;");
+            $("#divLocationView").prop("style", "display: none;");
+        }
+    }
+
+    function UpdateInvestigatingOrgForFinalOutcome(data)
+    {
+        var InvestigatingOrg = $("#InvestigatedByOfficeDD").val();
+
+        HumanDiseaseHelpers.setInvestigationOffice(InvestigatingOrg);
+    }
+
+</script>

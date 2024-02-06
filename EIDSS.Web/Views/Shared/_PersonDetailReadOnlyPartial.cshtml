@@ -1,0 +1,33 @@
+﻿@model EIDSS.Domain.ViewModels.Human.PersonViewModel
+
+<div class='row'>
+    <div class='col-lg-4 col-md-4 col-sm-4 col-xs-4'>
+        <label asp-for ="@Model.CitizenshipTypeName" field-label-for="@FieldLabelResourceKeyConstants.PersonInformationCitizenshipFieldLabel" class="control-label"></label>
+        <input type='text' class='form-control' disabled value="@Model.CitizenshipTypeName" />
+    </div>
+    <div class='col-lg-4 col-md-4 col-sm-4 col-xs-4'>
+        <label asp-for="@Model.CountryName" field-label-for="@FieldLabelResourceKeyConstants.CountryFieldLabel" class="control-label"></label>
+        <input type='text' class='form-control' disabled value="@Model.CountryName" />
+    </div>
+    <div class='col-lg-4 col-md-4 col-sm-4 col-xs-4'>
+         <label asp-for="@Model.SettlementName" field-label-for="@FieldLabelResourceKeyConstants.SettlementFieldLabel" class="control-label"></label>
+        <input type='text' class='form-control' disabled value="@Model.SettlementName" />
+    </div>
+</div>
+<div class='row'>
+     <div class='col-lg-4 col-md-4 col-sm-4 col-xs-4'>
+         <label asp-for="@Model.AddressString" field-label-for="@FieldLabelResourceKeyConstants.PersonEmployerSchoolInformationSchoolAddressAddressFieldLabel" class="control-label"></label>
+        <input type='text' class='form-control' disabled value="@Model.AddressString" />
+    </div>
+    <div class='col-lg-4 col-md-4 col-sm-4 col-xs-4'>
+         <label asp-for="@Model.ContactPhoneNumber" field-label-for="@FieldLabelResourceKeyConstants.PhoneFieldLabel" class="control-label"></label>
+            <input type='text' class='form-control' disabled value="@Model.ContactPhoneNumber" />
+    </div>
+    <div class='col-lg-4 col-md-4 col-sm-4 col-xs-4'>
+         <label asp-for="@Model.Age" field-label-for="@FieldLabelResourceKeyConstants.PersonInformationAgeFieldLabel" class="control-label"></label>
+         <input type='text' class='form-control' disabled value="@Model.Age" />
+    </div>
+</div>
+
+
+

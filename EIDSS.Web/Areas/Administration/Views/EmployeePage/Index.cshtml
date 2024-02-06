@@ -1,0 +1,637 @@
+﻿@model EIDSS.Web.ViewModels.EmployeePageViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+@using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+@using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.EmployeeListPageHeading);
+}
+
+@{
+
+    string SearchEmployeeAccountStateColumnHeading = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchEmployeeAccountStateColumnHeading);
+    string SearchEmployeeEmployeeCategoryColumnHeading = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchEmployeeEmployeeCategoryColumnHeading);
+    string SearchEmployeeFirstNameColumnHeading = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchEmployeeFirstNameColumnHeading);
+    string SearchEmployeeLastNameColumnHeading = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchEmployeeLastNameColumnHeading);
+    string SearchEmployeePhoneColumnHeading = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchEmployeePhoneColumnHeading);
+    string SearchEmployeePositionColumnHeading = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchEmployeePositionColumnHeading);
+
+
+    //DropDowns
+    Select2Configruation select2Configruation = new Select2Configruation();
+    select2Configruation.DropDownId = "EmployeeCategoryDD";
+    //select2Configruation.ControltargetId = "BaseReferenceGrid";
+    select2Configruation.Label = Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeCategoryFieldLabel);
+    // select2Configruation.ControlTargetType = DropDownTargetTypes.Table;
+    select2Configruation.Endpoint = @Url.Action("GetBaseReferenceListForSelect2DropDownWithSorting", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000526, sortColumn = "intOrder" });
+    //select2Configruation.ControlTargetUrl = @Url.Action("GetBaseReferenceTableNew", "BaseReferencePage");
+    select2Configruation.isVisible = true;
+    select2Configruation.CustomJsOnChangeFunction = "EnableDisableAccountState";
+    //  select2Configruation.defaultSelect2Selection = new Select2DataItem() { id = "asfasf", text = "Adsafsfs" };
+    Model.Select2Configurations.Add(select2Configruation);
+
+    select2Configruation = new Select2Configruation();
+    select2Configruation.DropDownId = "AccountStateDD";
+    //select2Configruation.ControltargetId = "BaseReferenceGrid";
+    select2Configruation.Label =  Localizer.GetString(FieldLabelResourceKeyConstants.SearchEmployeeAccountStateFieldLabel);
+    //select2Configruation.ControlTargetType = DropDownTargetTypes.Table;
+    select2Configruation.Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000527 });
+    // select2Configruation.ControlTargetUrl = @Url.Action("GetBaseReferenceTableNew", "BaseReferencePage");
+    select2Configruation.isVisible = true;
+    Model.Select2Configurations.Add(select2Configruation);
+
+    select2Configruation = new Select2Configruation();
+    select2Configruation.DropDownId = "PersonalIdTypeDD";
+    select2Configruation.Label = Localizer.GetString(FieldLabelResourceKeyConstants.PersonalIDTypeFieldLabel);
+    //select2Configruation.ControlTargetType = DropDownTargetTypes.Table;
+    select2Configruation.Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000148 });
+    // select2Configruation.ControlTargetUrl = @Url.Action("GetBaseReferenceTableNew", "BaseReferencePage");
+    select2Configruation.isVisible = true;
+    Model.Select2Configurations.Add(select2Configruation);
+
+    select2Configruation = new Select2Configruation();
+    select2Configruation.DropDownId = "PositionDD";
+    // select2Configruation.ControltargetId = "BaseReferenceGrid";
+    select2Configruation.Label = Localizer.GetString(FieldLabelResourceKeyConstants.PositionFieldLabel);
+    // select2Configruation.ControlTargetType = DropDownTargetTypes.Table;
+    select2Configruation.Endpoint = @Url.Action("GetPositionList", "EmployeePage", new { Area = "Administration" });
+    // select2Configruation.ControlTargetUrl = @Url.Action("GetBaseReferenceTableNew", "BaseReferencePage");
+    select2Configruation.isVisible = true;
+    Model.Select2Configurations.Add(select2Configruation);
+
+    select2Configruation = new Select2Configruation();
+    select2Configruation.DropDownId = "OrganizationDD";
+    // select2Configruation.ControltargetId = "BaseReferenceGrid";
+    select2Configruation.Label = Localizer.GetString(FieldLabelResourceKeyConstants.OrganizationDefaultFieldLabel);
+    //select2Configruation.ControlTargetType = DropDownTargetTypes.Table;
+    select2Configruation.Endpoint = @Url.Action("GetOrganizations", "CrossCutting", new { Area = "CrossCutting" });
+    //select2Configruation.ControlTargetUrl = @Url.Action("GetBaseReferenceTableNew", "BaseReferencePage");
+    select2Configruation.isVisible = true;
+
+    Model.Select2Configurations.Add(select2Configruation);
+
+    //SETUP GRID
+    Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.eidssGridConfiguration.GridId = "EmployeeGrid";
+    Model.eidssGridConfiguration.ControlIdThatRefreshGrid = "btnSearchEmployee,cancelBtn";
+    Model.eidssGridConfiguration.ControlFilterID = "EmployeeCategoryDD,AccountStateDD,PersonalIdTypeDD,PositionDD,OrganizationDD,UniqueOrganizationID,FirstName,LastName,MiddleName,PersonalID";
+    //Model.eidssGridConfiguration.EditModalAjaxUrl = @Url.Action("EditReferenceType", "BaseReferencePage");
+    // Model.eidssGridConfiguration.DeleteModalAjaxUrl = @Url.Action("DeleteModalData", "BaseReferencePage");
+    Model.eidssGridConfiguration.AjaxDataUrl = @Url.Action("GetEmployeeListTable", "EmployeePage");
+    Model.eidssGridConfiguration.EnableServerSide = true;
+    Model.eidssGridConfiguration.EnableProcessingMessage = true;
+    // Model.eidssGridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.Inline;
+    Model.eidssGridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.EditPageRedirect;
+
+    Model.eidssGridConfiguration.EditPageRedirectLink = @Url.Action("Details", "EmployeePage", new { Area = "Administration" });
+    Model.eidssGridConfiguration.ControlLabels = new EIDSSControlLabels();
+    Model.eidssGridConfiguration.DeleteCompleteMethod = "checkEmployeeDeleteSuccess";
+    Model.eidssGridConfiguration.DeleteModalAjaxUrl = @Url.Action("DeleteEmployee", "EmployeePage", new { Area = "Administration" });
+    Model.eidssGridConfiguration.ControlLabels.DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage);
+    Model.eidssGridConfiguration.ControlLabels.DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+
+    // Model.eidssGridConfiguration.ControlLabels.DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage);
+    Model.eidssGridConfiguration.ControlLabels.EditModalMessage = Localizer.GetString((int)InterfaceEditorResourceSetEnum.WarningMessages + "Are you sure that you want to Edit this record?" + (long)InterfaceEditorTypeEnum.Message);
+    //Model.eidssGridConfiguration.ControlLabels.DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.eidssGridConfiguration.ControlLabels.EditModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.eidssGridConfiguration.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton);
+    Model.eidssGridConfiguration.ControlLabels.SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton);
+    // Model.eidssGridConfiguration.ControlLabels.DeleteButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.DeleteButton);
+    Model.eidssGridConfiguration.ControlLabels.CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton);
+    Model.eidssGridConfiguration.ControlLabels.CancelInlineEditTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.eidssGridConfiguration.ControlLabels.CanclInlineEditMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage);
+    Model.eidssGridConfiguration.ControlLabels.CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.eidssGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.eidssGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnName = "Row",
+                ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading),
+                Visible = true,
+                ColumnType = ColumnType.ReadOnly,
+                VisibleInModal = false,
+                Orderable = true
+            });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnName = "EmployeeCategory",
+                ColumnTitleHeader = SearchEmployeeEmployeeCategoryColumnHeading,
+                Visible = true,
+                ColumnType = ColumnType.Default,
+                VisibleInModal = false,
+                Orderable = true
+            });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnName = "AccountState",
+                ColumnTitleHeader = SearchEmployeeAccountStateColumnHeading,
+                Visible = true,
+                ColumnType = ColumnType.Default,
+                VisibleInModal = false,
+                Orderable = true
+            });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnName = "OrganizationAbbreviatedName",
+                ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchEmployeeOrganizationColumnHeading),
+                Visible = true,
+                ColumnType = ColumnType.Default,
+                VisibleInModal = false,
+                Orderable = true
+            });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnName = "LastOrSurName",
+                ColumnTitleHeader = SearchEmployeeLastNameColumnHeading,
+                Visible = true,
+                ColumnType = ColumnType.Default,
+                VisibleInModal = false,
+                Orderable = true
+            });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnName = "FistOrGivenName",
+                ColumnTitleHeader = SearchEmployeeFirstNameColumnHeading,
+                Visible = true,
+                ColumnType = ColumnType.Default,
+                VisibleInModal = false,
+                Orderable = true
+            });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnName = "SecondName",
+                ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchEmployeeMiddleNameColumnHeading),
+                Visible = true,
+                ColumnType = ColumnType.Default,
+
+                VisibleInModal = false,
+                Orderable = true
+            });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnName = "PositionTypeName",
+                ColumnTitleHeader = SearchEmployeePositionColumnHeading,
+                Visible = true,
+                ColumnType = ColumnType.Default,
+                VisibleInModal = false,
+                Orderable = true
+            });
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnName = "Phone",
+                ColumnTitleHeader = SearchEmployeePhoneColumnHeading,
+                ColumnType = ColumnType.Default,
+                Orderable = true
+            });
+
+    //Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    //{
+    //    ColumnName = "name",
+    //    ColumnTitleHeader = String.Empty,
+    //    ColumnType = ColumnType.Link,
+    //    ColumnHyperlinkURL = @Url.Action("Details", "EmployeePage", new { Area = "Administration" }),
+    //    ClassName = "fas fa-edit fa-lg",
+    //    //HyperLinkDataFieldCSSImage = "fas fa-edit fa-lg",
+    //    CustomLinkText = string.Empty,
+    //    Visible = Model.UserPermissions.Create,
+    //    Orderable = false
+    //});
+
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnName = "EmployeeID",
+                ColumnTitleHeader = "EmployeeID",
+                Visible = false,
+                ColumnType = ColumnType.Default,
+            });
+
+    //Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    //{
+    //    ColumnName = "EmployeeID",
+    //    ColumnTitleHeader = String.Empty,
+    //    ColumnType = ColumnType.Edit,
+    //    Visible = Model.UserPermissions.Write
+    //});
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnName = "",
+                ColumnTitleHeader = "",
+                Visible = Model.UserPermissions.Write,
+                ColumnType = ColumnType.EditRedirect,
+                EditRedirect = "EmployeeID",
+                // HyperLinkDataField = "EmployeeID",
+                //ColumnHyperlinkURL = "Person/Details",
+                ColumnHyperlinkURL = @Url.Action("Details", "EmployeePage", new { Area = "Administration" }),
+                Orderable = false,
+                //ReviewPageNo = 3
+
+            });
+
+    Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+            {
+                ColumnName = "name",
+                ColumnTitleHeader = String.Empty,
+                ColumnType = ColumnType.Delete,
+                Visible = Model.UserPermissions.Delete,
+                Orderable = false
+            });
+
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@HeadingResourceKeyConstants.EmployeeListPageHeading"></h3>
+    </div>
+    <div class="card-body">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-11">
+                        <h4>@Localizer.GetString(HeadingResourceKeyConstants.SearchCriteriaHeading) </h4>
+                    </div>
+                    <div class="col-1 right">
+                        <span id="toggleEmployeeSearchIcon" class="fa fa-caret-up fa-lg" data-toggle="collapse" data-target="#searchCriteriaDiv" aria-expanded="true"  onclick="toggleEmployeeSearchCriteria(event);">&nbsp;</span>
+                    </div>
+                </div>
+            </div>
+            <div id="searchCriteriaDiv" class="card-body show">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <eidss-select2DropDown id="@Model.Select2Configurations[0].DropDownId"
+                                               control-target-id="@Model.Select2Configurations[0].ControltargetId"
+                                               target-type="@Model.Select2Configurations[0].ControlTargetType"
+                                               target-ajax-url="@Model.Select2Configurations[0].ControlTargetUrl"
+                                               selectct2-default-data="@Model.Select2Configurations[0].defaultSelect2Selection"
+                                               end-point="@Model.Select2Configurations[0].Endpoint"
+                                               class-name="form-control"
+                                               label-name="@Model.Select2Configurations[0].Label"
+                                               is-visible="@Model.Select2Configurations[0].isVisible"
+                                               name="@Model.Select2Configurations[0].DropDownId"
+                                               custom-js-on-change-function="@Model.Select2Configurations[0].CustomJsOnChangeFunction">
+                        </eidss-select2DropDown>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <eidss-select2DropDown id="@Model.Select2Configurations[1].DropDownId"
+                                               control-target-id="@Model.Select2Configurations[1].ControltargetId"
+                                               target-type="@Model.Select2Configurations[1].ControlTargetType"
+                                               target-ajax-url="@Model.Select2Configurations[1].ControlTargetUrl"
+                                               selectct2-default-data="@Model.Select2Configurations[1].defaultSelect2Selection"
+                                               end-point="@Model.Select2Configurations[1].Endpoint"
+                                               class-name="form-control"
+                                               label-name="@Model.Select2Configurations[1].Label"
+                                               is-visible="@Model.Select2Configurations[1].isVisible"
+                                               name="@Model.Select2Configurations[1].DropDownId">
+                        </eidss-select2DropDown>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <label> @Localizer.GetString(FieldLabelResourceKeyConstants.PersonalIDFieldLabel)</label>
+                        <input type="text" id="PersonalID" class="form-control" />
+                    </div>
+                    <div class="form-group col-6">
+                        <eidss-select2DropDown id="@Model.Select2Configurations[2].DropDownId"
+                                               control-target-id="@Model.Select2Configurations[2].ControltargetId"
+                                               target-type="@Model.Select2Configurations[2].ControlTargetType"
+                                               target-ajax-url="@Model.Select2Configurations[2].ControlTargetUrl"
+                                               selectct2-default-data="@Model.Select2Configurations[2].defaultSelect2Selection"
+                                               end-point="@Model.Select2Configurations[2].Endpoint"
+                                               class-name="form-control"
+                                               label-name="@Model.Select2Configurations[2].Label"
+                                               is-visible="@Model.Select2Configurations[2].isVisible"
+                                               name="@Model.Select2Configurations[2].DropDownId">
+                        </eidss-select2DropDown>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <eidss-select2DropDown id="@Model.Select2Configurations[3].DropDownId"
+                                               control-target-id="@Model.Select2Configurations[3].ControltargetId"
+                                               target-type="@Model.Select2Configurations[3].ControlTargetType"
+                                               target-ajax-url="@Model.Select2Configurations[3].ControlTargetUrl"
+                                               selectct2-default-data="@Model.Select2Configurations[3].defaultSelect2Selection"
+                                               end-point="@Model.Select2Configurations[3].Endpoint"
+                                               class-name="form-control"
+                                               label-name="@Model.Select2Configurations[3].Label"
+                                               is-visible="@Model.Select2Configurations[3].isVisible"
+                                               name="@Model.Select2Configurations[3].DropDownId">
+                        </eidss-select2DropDown>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <label>@Localizer.GetString(FieldLabelResourceKeyConstants.SearchEmployeeLastNameFieldLabel)</label>
+                        <input type="text" id="LastName" class="form-control" />
+                    </div>
+                    <div class="form-group col-3">
+                        <label> @Localizer.GetString(FieldLabelResourceKeyConstants.SearchEmployeeFirstNameFieldLabel)</label>
+                        <input type="text" id="FirstName" class="form-control" />
+                    </div>
+                    <div class="form-group col-3">
+                        <label>@Localizer.GetString(FieldLabelResourceKeyConstants.SearchEmployeeMiddleNameFieldLabel)</label>
+                        <input type="text" id="MiddleName" class="form-control" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-6">
+                        <eidss-select2DropDown id="@Model.Select2Configurations[4].DropDownId"
+                                               control-target-id="@Model.Select2Configurations[4].ControltargetId"
+                                               target-type="@Model.Select2Configurations[4].ControlTargetType"
+                                               target-ajax-url="@Model.Select2Configurations[4].ControlTargetUrl"
+                                               selectct2-default-data="@Model.Select2Configurations[4].defaultSelect2Selection"
+                                               end-point="@Model.Select2Configurations[4].Endpoint"
+                                               class-name="form-control"
+                                               label-name="@Model.Select2Configurations[4].Label"
+                                               is-visible="@Model.Select2Configurations[4].isVisible"
+                                               name="@Model.Select2Configurations[4].DropDownId">
+                        </eidss-select2DropDown>
+                    </div>
+                    <div class="form-group col-6">
+                        <label>@Localizer.GetString(FieldLabelResourceKeyConstants.UniqueOrganizationIDFieldLabel)</label>
+                        <input type="text" id="UniqueOrganizationID" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer show" id="employeeSearchCriteriaCommands">
+                <button class="btn btn-outline-primary" id="cancelSearchCriteria" onclick="CancelPage();">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                <button class="btn btn-outline-primary" type="button" id="clearBtn">@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)</button>
+                <button class="btn btn-primary" id="searchBtn">@Localizer.GetString(ButtonResourceKeyConstants.SearchButton)</button>
+                @if (@Model.AddEmployeeUserPermissions.Create == true)
+                {
+                    <button onclick="CallDetails();" class="btn btn-primary" id="addBtnSearchCriteria">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                }
+                else
+                {
+                    <button class="btn btn-primary" id="addBtnSearchCriteria" disabled>@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                }
+            </div>
+        </div>
+        <div class="card" id="resultsCard">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-12">
+                        <h4> @Localizer.GetString(HeadingResourceKeyConstants.SearchResultsHeading)</h4>
+                    </div>
+                </div>
+            </div>
+            <div id="searchResultsDiv" class="card-body">
+                <div class="card-body">
+
+
+                    <div class="table-responsive">
+
+                        <eidss-grid id="@Model.eidssGridConfiguration.GridId" grid-configuration="@Model.eidssGridConfiguration"
+                                    filtered-control-ids="@Model.eidssGridConfiguration.ControlFilterID"
+                                    controls-that-refresh-the-grid="@Model.eidssGridConfiguration.ControlIdThatRefreshGrid"
+                                    enable-server-side="@Model.eidssGridConfiguration.EnableServerSide"
+                                    enable-processing="@Model.eidssGridConfiguration.EnableProcessingMessage"
+                                    enable-search="@Model.eidssGridConfiguration.EnableSearching"
+                                    end-point="@Model.eidssGridConfiguration.AjaxDataUrl"
+                                    class-name="@Model.eidssGridConfiguration.GridClass"
+                                    details-ajax-url="@Url.Action("EditModalData", "BaseReferencePage")"
+                                    enable-top-header-search-button="@Model.eidssGridConfiguration.EnableCustomSearching"
+                                    control-labels="@Model.eidssGridConfiguration.ControlLabels"
+                                    custom-search-btn-id="@Model.eidssGridConfiguration.CustomSearchBtnID"
+                                    delete-modal-ajax-url="@Model.eidssGridConfiguration.DeleteModalAjaxUrl">
+
+                        </eidss-grid>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div id="employeeSearchResultsCommands" class="card-footer">
+                <button class="btn btn-outline-primary" id="cancelSearchResults" onclick="CancelPage();">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                @if (@Model.AddEmployeeUserPermissions.Create == true)
+                {
+
+                    <button onclick="CallDetails();" class="btn btn-primary" id="addBtnSearchResults">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                }
+                else
+                {
+                    <button class="btn btn-primary" id="addBtnSearchResults" disabled>@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                }
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)
+            </div>
+            <div class="modal-footer">
+                <button id="successBtnNo" type="button" class="btn btn-outline-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.NoButton)</button>
+                <button id="successBtnYes" type="button" class="btn btn-primary" onclick="HistoryRedirect();"> @Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--Required at least one Field-->
+<div class="modal fade" id="requiredModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                @Localizer.GetString(MessageResourceKeyConstants.EnterAtLeastOneParameterMessage)
+            </div>
+            <div class="modal-footer">
+                <button id="confirmRequiredBtnOK" type="button" class="btn btn-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<partial name="_ErrorModalPartial" />
+<partial name="_InformationalModalPartial" , model="String.Empty" />
+<partial name="_WarningModalPartial" />
+
+<script>
+
+    $(document).ready(function() {
+
+        $("#clearBtn").click(function() {
+            resetForm();
+        });
+
+        $("#searchBtn").click(function() {
+
+            var isValid = false;
+            $('input[type=text]').each(function() {
+                if (this.value !== "") {
+                    isValid = true;
+
+                }
+
+            });
+            
+            var select2ArrayData = [];
+            var orgData = $("#OrganizationDD").select2('data');
+            if (orgData[0].id !== "") {
+                select2ArrayData.push(orgData);
+            }
+
+            var positionData = $("#PositionDD").select2('data');
+            if (positionData[0].id !== "") {
+                select2ArrayData.push(positionData);
+            }
+
+            var personalTypeData = $("#PersonalIdTypeDD").select2('data');
+            if (personalTypeData[0].id !== "") {
+                select2ArrayData.push(personalTypeData);
+            }
+
+            var accountStateData = $("#AccountStateDD").select2('data');
+            if (accountStateData[0].id !== "") {
+                select2ArrayData.push(accountStateData);
+            }
+
+
+            var employeeCategoryData = $("#EmployeeCategoryDD").select2('data');
+            if (employeeCategoryData[0].id !== "") {
+                select2ArrayData.push(employeeCategoryData);
+            }
+
+            if (select2ArrayData.length > 0) {
+                isValid = true;
+            }
+            if (isValid === false) {
+                showRequiredModal();
+            } else {
+                $("#EmployeeGrid").DataTable().draw();
+                hideEmployeeSearchCriteria();
+            }
+
+            
+        });
+
+        $("#confirmRequiredBtnOK").click(function() {
+            showEmployeeSearchCriteria();
+        });
+        
+        showEmployeeSearchCriteria();
+
+        $("#AccountStateDD").prop("disabled", true);
+
+    });
+
+    function CallDetails() {
+        window.location.href = '@Url.Action("Details", "EmployeePage", new { Area = "Administration" })';
+    }
+    function EnableDisableAccountState() {
+        var employeeCategoryData = $("#EmployeeCategoryDD").val();
+
+        if (employeeCategoryData == 10526001) {
+            $("#AccountStateDD").prop("disabled", false);
+        }
+        else {
+            $("#AccountStateDD").prop("disabled", true);
+        }
+
+
+    }
+    function resetForm() {
+        $(':input').not(':button, :submit, :reset, :hidden').removeAttr('checked').removeAttr('selected').not(':checkbox, select').val('').removeAttr('value');
+        $("#OrganizationDD").val(null).trigger('change');
+        $("#PositionDD").val(null).trigger('change');
+        $("#PersonalIdTypeDD").val(null).trigger('change');
+        $("#AccountStateDD").val(null).trigger('change');
+        $("#EmployeeCategoryDD").val(null).trigger('change');
+
+    };
+
+    function CancelPage() {
+        $("#cancelModal").modal('show');
+    };
+
+    function HistoryRedirect() {
+        var referrer = document.referrer;
+        //If the referrer is the same page or view in the same controller
+        //we redirect to dashboard else we redirect to the referrer
+        if (referrer.search("EmployeePage") > -1) {
+            window.location.replace('@Url.Action("Index", "Dashboard", new { Area = "Administration" })');
+        }
+        if (referrer.search("EmployeePage/Details") > -1) {
+            window.location.replace('@Url.Action("Index", "Dashboard", new { Area = "Administration" })');
+        }
+        else {
+            window.location.replace(referrer);
+        }
+    };
+
+    function toggleEmployeeSearchCriteria(e) {
+        if ($("#searchCriteriaDiv").hasClass("show")) {
+            $("#toggleEmployeeSearchIcon").removeClass("fa-caret-up").addClass("fa-caret-down");
+            $("#cancelSearchCriteria").hide();
+            $("#clearBtn").hide();
+            $("#searchBtn").hide();
+            $("#searchCriteriaDiv").collapse("show");
+            $("#employeeSearchCriteriaCommands").hide();
+            $("#cancelSearchResults").show();
+        }
+        else {
+            $("#toggleEmployeeSearchIcon").removeClass("fa-caret-down").addClass("fa-caret-up");
+            $("#cancelSearchCriteria").hide();
+            $("#clearBtn").show();
+            $("#searchBtn").show();
+            $("#addBtnSearchCriteria").hide();
+            $("#searchCriteriaDiv").collapse("show");
+            $("#resultsCard").show();
+            $("#employeeSearchCriteriaCommands").show();
+        }
+    };
+
+    function hideEmployeeSearchCriteria() {
+        $("#searchCriteriaDiv").collapse("hide");
+        $("#employeeSearchCriteriaCommands").hide();
+        $("#employeeSearchResultsCommands").show();
+        $("#resultsCard").show();
+    };
+
+    function showEmployeeSearchCriteria() {
+        $("#searchCriteriaDiv").collapse("show");
+        $("#employeeSearchCriteriaCommands").show();
+        $("#employeeSearchResultsCommands").hide();
+        $("#resultsCard").hide();
+    };
+
+    function showRequiredModal() {
+
+        $("#requiredModal").modal('show');
+    };
+
+    function checkEmployeeDeleteSuccess(response) {
+        if (response == "SUCCESS") {
+            showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+        }
+    };
+
+</script>

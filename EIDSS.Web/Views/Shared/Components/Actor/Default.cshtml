@@ -1,0 +1,34 @@
+﻿@model EIDSS.Web.TagHelpers.Models.EIDSSGrid.EIDSSGridConfiguration
+@{
+    Model.GridId = "actorsTable";
+    Model.GridClass = "table table-sm table-striped";
+    Model.AjaxDataUrl = Url.Action("GetActorList", "Actor", new { Area = "CrossCutting" });
+    Model.ControlFilterID = "SearchActorViewModel_SearchCriteria_ActorTypeID,SearchActorViewModel_SearchCriteria_ActorName,SearchActorViewModel_SearchCriteria_OrganizationName,SearchActorViewModel_SearchCriteria_UserGroupDescription,searchActorDataPermissionsDiseaseID";
+    Model.EnableServerSide = true;
+    Model.EnableSearching = false;
+    Model.EnableCustomSearching = false;
+    Model.EnableProcessingMessage = true;
+    Model.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ActorID", ColumnTitleHeader = string.Empty, ColumnType = ColumnType.Selection, Visible = true });
+    Model.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ActorTypeID", ColumnTitleHeader = string.Empty, ColumnType = ColumnType.ReadOnly, Visible = false });
+    Model.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ActorTypeName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchActorsModalActorTypeNameColumnHeading), ColumnType = ColumnType.Default, Visible = true, Orderable = true });
+    Model.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ActorName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchActorsModalActorNameColumnHeading), ColumnType = ColumnType.Default, Visible = true, Orderable = true });
+    Model.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "EmployeeSiteID", ColumnTitleHeader = string.Empty, ColumnType = ColumnType.ReadOnly, Visible = false });
+    Model.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "EmployeeSiteName", ColumnTitleHeader = string.Empty, ColumnType = ColumnType.ReadOnly, Visible = false });
+    Model.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "EmployeeUserID", ColumnTitleHeader = string.Empty, ColumnType = ColumnType.ReadOnly, Visible = false });
+    Model.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "ObjectAccessID", ColumnTitleHeader = string.Empty, ColumnType = ColumnType.ReadOnly, Visible = false });
+    Model.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "OrganizationName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchActorsModalOrganizationNameColumnHeading), ColumnType = ColumnType.Default, Visible = true, Orderable = true });
+    Model.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "RowSelectionIndicator", ColumnTitleHeader = string.Empty, ColumnType = ColumnType.ReadOnly, Visible = false });
+    Model.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "UserGroupDescription", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchActorsModalDescriptionColumnHeading), ColumnType = ColumnType.Default, Visible = true });
+    Model.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "UserGroupSiteID", ColumnTitleHeader = string.Empty, ColumnType = ColumnType.ReadOnly, Visible = false });
+    Model.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "UserGroupSiteName", ColumnTitleHeader = string.Empty, ColumnType = ColumnType.ReadOnly, Visible = false });
+}
+<eidss-grid id="@Model.GridId"
+            grid-configuration="@Model"
+            class-name="@Model.GridClass"
+            enable-server-side="@Model.EnableServerSide"
+            enable-processing="@Model.EnableProcessingMessage"
+            enable-search="@Model.EnableSearching"
+            end-point="@Model.AjaxDataUrl"
+            filtered-control-ids="@Model.ControlFilterID"
+            control-labels="@Model.ControlLabels">
+</eidss-grid>

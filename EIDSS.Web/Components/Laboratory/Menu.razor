@@ -1,0 +1,366 @@
+﻿@inherits EIDSS.Web.Components.Laboratory.MenuBase
+<div class="form-group form-group-sm border-right px-4">
+    <div class="dropdown">
+        <button aria-expanded="false" aria-haspopup="true" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" id="laboratoryMenu" type="button">
+            <i class="fa fa-bars" aria-hidden="true"></i>
+        </button>
+        <div class="dropdown-menu" aria-labelledby="laboratoryMenu">
+            @{
+                if (AccessionInDisabledIndicator)
+                {
+                    <text>
+                        <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryAccessionInButtonText)</a>
+                    </text>
+                }
+                else
+                {
+                    <text>
+                        <a id="accessionInButton" role="button" class="dropdown-item" @onclick="OnAccessionInClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryAccessionInButtonText)</a>
+                    </text>
+                }
+                if (GroupAccessionInDisabledIndicator)
+                {
+                    <text>
+                        <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryGroupAccessionButtonText)</a>
+                    </text>
+                }
+                else
+                {
+                    <text>
+                        <a id="groupAccessionInButton" role="button" class="dropdown-item" @onclick="OnGroupAccessionInClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryGroupAccessionButtonText)</a>
+                    </text>
+                }
+                if (AssignTestDisabledIndicator)
+                {
+                    <text>
+                        <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryAssignTestButtonText)</a>
+                    </text>
+                }
+                else
+                {
+                    <text>
+                        <a id="assignTestButton" role="button" class="dropdown-item" @onclick="OnAssignTestClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryAssignTestButtonText)</a>
+                    </text>
+                }
+                if (CreateAliquotDisabledIndicator)
+                {
+                    <text>
+                        <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryCreateAliquotButtonText)</a>
+                    </text>
+                }
+                else
+                {
+                    <text>
+                        <a id="createAliquotButton" role="button" class="dropdown-item" @onclick="OnCreateAliquotClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryCreateAliquotButtonText)</a>
+                    </text>
+                }
+                if (CreateDerivativeDisabledIndicator)
+                {
+                    <text>
+                        <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryCreateDerivativeButtonText)</a>
+                    </text>
+                }
+                else
+                {
+                    <text>
+                        <a id="createDerivativeButton" role="button" class="dropdown-item" @onclick="OnCreateDerivativeClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryCreateDerivativeButtonText)</a>
+                    </text>
+                }
+                if (TransferOutDisabledIndicator)
+                {
+                    <text>
+                        <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryTransferOutButtonText)</a>
+                    </text>
+                }
+                else
+                {
+                    <text>
+                        <a id="transferOutButton" role="button" class="dropdown-item" @onclick="OnTransferOutClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryTransferOutButtonText)</a>
+                    </text>
+                }
+                if (RegisterNewSampleDisabledIndicator)
+                {
+                    <text>
+                        <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryRegisterNewSampleButtonText)</a>
+                    </text>
+                }
+                else
+                {
+                    <text>
+                        <a id="registerNewSampleButton" role="button" class="dropdown-item" @onclick="OnRegisterNewSampleClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryRegisterNewSampleButtonText)</a>
+                    </text>
+                }
+            }
+            <div class="dropdown-divider">&nbsp;</div>
+            @{
+                if (SetTestResultDisabledIndicator)
+                {
+                    <text>
+                        <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratorySetTestResultsButtonText)</a>
+                    </text>
+                }
+                else
+                {
+                    <text>
+                        <a id="setTestResultButton" role="button" class="dropdown-item" @onclick="OnSetTestResultClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratorySetTestResultsButtonText)</a>
+                    </text>
+                }
+                if (ValidateTestResultDisabledIndicator)
+                {
+                    <text>
+                        <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryValidateTestResultButtonText)</a>
+                    </text>
+                }
+                else
+                {
+                    <text>
+                        <a id="validateTestResultButton" role="button" class="dropdown-item" @onclick="OnValidateTestResultClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryValidateTestResultButtonText)</a>
+                    </text>
+                }
+                if (AmendTestResultDisabledIndicator)
+                {
+                    <text>
+                        <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryAmendTestResultButtonText)</a>
+                    </text>
+                }
+                else
+                {
+                    <text>
+                        <a id="amendTestResultButton" role="button" class="dropdown-item" @onclick="OnAmendTestResultClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryAmendTestResultButtonText)</a>
+                    </text>
+                }
+            }
+            <div class="dropdown-divider">&nbsp;</div>
+            <div class="dropdown-submenu">
+                <a class="dropdown-item" tabindex="-1">@Localizer.GetString(HeadingResourceKeyConstants.LaboratorySampleDestructionHeading)</a>
+                <div class="dropdown-menu">
+                    @{
+                        if (DestroySampleByIncinerationDisabledIndicator)
+                        {
+                            <text>
+                                <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryDestroyByIncinerationButtonText)</a>
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                <a id="destroySampleByIncinerationButton" role="button" class="dropdown-item" @onclick="OnDestroySampleByIncinerationClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryDestroyByIncinerationButtonText)</a>
+                            </text>
+                        }
+                        if (DestroySampleByAutoclaveDisabledIndicator)
+                        {
+                            <text>
+                                <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryDestroyByAutoclaveButtonText)</a>
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                <a id="destroySampleByAutoclaveButton" role="button" class="dropdown-item" @onclick="OnDestroySampleByAutoclaveClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryDestroyByAutoclaveButtonText)</a>
+                            </text>
+                        }
+                        if (ApproveSampleDestructionDisabledIndicator)
+                        {
+                            <text>
+                                <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryApproveDestructionButtonText)</a>
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                <a id="approveSampleDestructionButton" role="button" class="dropdown-item" @onclick="OnApproveSampleDestructionClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryApproveDestructionButtonText)</a>
+                            </text>
+                        }
+                        if (RejectSampleDestructionDisabledIndicator)
+                        {
+                            <text>
+                                <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryRejectDestructionButtonText)</a>
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                <a id="rejectSampleDestructionButton" role="button" class="dropdown-item" @onclick="OnRejectSampleDestructionClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryRejectDestructionButtonText)</a>
+                            </text>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="dropdown-submenu">
+                <a class="dropdown-item" tabindex="-1">@Localizer.GetString(HeadingResourceKeyConstants.LaboratoryLabRecordDeletionHeading)</a>
+                <div class="dropdown-menu">
+                    @{
+                        if (DeleteSampleRecordDisabledIndicator)
+                        {
+                            <text>
+                                <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryDeleteSampleButtonText)</a>
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                <a id="deleteSampleRecordButton" role="button" class="dropdown-item" @onclick="OnDeleteSampleRecordClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryDeleteSampleButtonText)</a>
+                            </text>
+                        }
+                        if (DeleteTestRecordDisabledIndicator)
+                        {
+                            <text>
+                                <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryDeleteTestButtonText)</a>
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                <a id="deleteTestRecordButton" role="button" class="dropdown-item" @onclick="OnDeleteTestRecordClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryDeleteTestButtonText)</a>
+                            </text>
+                        }
+                        if (ApproveRecordDeletionDisabledIndicator)
+                        {
+                            <text>
+                                <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryApproveDeletionButtonText)</a>
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                <a id="approveRecordDeletionButton" role="button" class="dropdown-item" @onclick="OnApproveRecordDeletionClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryApproveDeletionButtonText)</a>
+                            </text>
+                        }
+                        if (RejectRecordDeletionDisabledIndicator)
+                        {
+                            <text>
+                                <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryRejectDeletionButtonText)</a>
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                <a id="rejectRecordDeletionButton" role="button" class="dropdown-item" @onclick="OnRejectRecordDeletionClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryRejectDeletionButtonText)</a>
+                            </text>
+                        }
+                    }
+                </div>
+            </div>
+            @{
+                if (RestoreSampleDisabledIndicator)
+                {
+                    <text>
+                        <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryRestoreSampleButtonText)</a>
+                    </text>
+                }
+                else
+                {
+                    <text>
+                        <a id="restoreDeletedSampleButton" role="button" class="dropdown-item" @onclick="OnRestoreDeletedSampleRecordClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryRestoreSampleButtonText)</a>
+                    </text>
+                }
+            }
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-submenu">
+                <a class="dropdown-item" tabindex="-1">@Localizer.GetString(HeadingResourceKeyConstants.LaboratoryPaperFormsHeading)</a>
+                <div class="dropdown-menu">
+                    @{
+                        if (SamplePaperFormReportDisabledIndicator)
+                        {
+                            <text>
+                                <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratorySampleReportButtonText)</a>
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                <a id="samplePaperFormReportButton" role="button" class="dropdown-item" @onclick="OnSamplePaperFormReportClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratorySampleReportButtonText)</a>
+                            </text>
+                        }
+                        if (AccessionInPaperFormReportDisabledIndicator)
+                        {
+                            <text>
+                                <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryHumanDiseaseReportOutbreakCaseAccessionInFormButtonText)</a>
+                            </text>
+                            <text>
+                                <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryVeterinaryDiseaseReportOutbreakCaseAccessionInFormButtonText)</a>
+                            </text>
+                            <text>
+                                <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryHumanActiveSurveillanceSessionAccessionInFormButtonText)</a>
+                            </text>
+                            <text>
+                                <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryVeterinaryActiveSurveillanceSessionAccessionInFormButtonText)</a>
+                            </text>
+                            <text>
+                                <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryVectorSurveillanceSessionAccessionInFormButtonText)</a>
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                <a id="humanDiseaseReportOutbreakCaseAccessionInPaperFormReportButton" role="button" class="dropdown-item" @onclick="OnHumanDiseaseReportOutbreakCaseAccessionInPaperFormReportClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryHumanDiseaseReportOutbreakCaseAccessionInFormButtonText)</a>
+                            </text>
+                            <text>
+                                <a id="veterinaryDiseaseReportOutbreakCaseAccessionInPaperFormReportButton" role="button" class="dropdown-item">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryVeterinaryDiseaseReportOutbreakCaseAccessionInFormButtonText)</a>
+                            </text>
+                            <text>
+                                <a id="humanActiveSurveillanceSessionAccessionInPaperFormReportButton" role="button" class="dropdown-item" @onclick="OnHumanActiveSurveillanceSessionAccessionInPaperFormReportClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryHumanActiveSurveillanceSessionAccessionInFormButtonText)</a>
+                            </text>
+                            <text>
+                                <a id="veterinaryActiveSurveillanceSessionAccessionInPaperFormReportButton" role="button" class="dropdown-item" @onclick="OnVeterinaryActiveSurveillanceSessionAccessionInPaperFormReportClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryVeterinaryActiveSurveillanceSessionAccessionInFormButtonText)</a>
+                            </text>
+                            <text>
+                                <a id="vectorSurveillanceSessionAccessionInPaperFormReportButton" role="button" class="dropdown-item" @onclick="OnVectorSurveillanceSessionAccessionInPaperFormReportClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryVectorSurveillanceSessionAccessionInFormButtonText)</a>
+                            </text>
+                        }
+                        if (TestResultPaperFormReportDisabledIndicator)
+                        {
+                            <text>
+                                <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryTestResultReportButtonText)</a>
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                <a id="testResultPaperFormReportButton" role="button" class="dropdown-item" @onclick="OnTestResultPaperFormReportClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryTestResultReportButtonText)</a>
+                            </text>
+                        }
+                        if (TransferPaperFormReportDisabledIndicator)
+                        {
+                            <text>
+                                <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryTransferReportButtonText)</a>
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                <a id="transferPaperFormReportButton" role="button" class="dropdown-item" @onclick="OnTransferPaperFormReportClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryTransferReportButtonText)</a>
+                            </text>
+                        }
+                        if (SampleDestructionPaperFormReportDisabledIndicator)
+                        {
+                            <text>
+                                <a class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryDestructionReportButtonText)</a>
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                <a id="destructionPaperFormReportButton" role="button" class="dropdown-item" @onclick="OnDestructionPaperFormReportClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryDestructionReportButtonText)</a>
+                            </text>
+                        }
+                    }
+                </div>
+            </div>
+            @{
+                if (PrintBarcodesDisabledIndicator)
+                {
+                    <text>
+                        <a id="printBarcodesButton" role="button" class="dropdown-item disabled" disabled>@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryPrintBarcodeButtonText)</a>
+                    </text>
+                }
+                else
+                {
+                    <text>
+                        <a id="printBarcodesButton" role="button" class="dropdown-item" @onclick="OnPrintBarcodesClick">@Localizer.GetString(ButtonResourceKeyConstants.LaboratoryPrintBarcodeButtonText)</a>
+                    </text>
+                }
+            }
+        </div>
+    </div>
+</div>

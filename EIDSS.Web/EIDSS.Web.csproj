@@ -1,0 +1,238 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup Label="Globals">
+		<SccProjectName>SAK</SccProjectName>
+		<SccProvider>SAK</SccProvider>
+		<SccAuxPath>SAK</SccAuxPath>
+		<SccLocalPath>SAK</SccLocalPath>
+		<UserSecretsId>50d2f78d-4b09-40b8-adb4-32c1f021e08f</UserSecretsId>
+		<Configurations>Debug;Release</Configurations>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<AssemblyName>EIDSS.Web</AssemblyName>
+		<Version>7.0.413</Version>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="Areas\CrossCutting\Views\**" />
+		<Compile Remove="Areas\Human\Views\NewFolder1\**" />
+		<Compile Remove="Areas\Vector\SubAreas\**" />
+		<Compile Remove="Areas\Vector\Views\VectorPage\**" />
+		<Compile Remove="Components\Human\DiseaseReport\**" />
+		<Compile Remove="Components\Pages\**" />
+		<Compile Remove="Components\Vector\CollectionData\**" />
+		<Compile Remove="Components\Vector\VectorData\**" />
+		<Compile Remove="Views\Shared\Components\PersonSearchView\**" />
+		<Content Remove="Areas\CrossCutting\Views\**" />
+		<Content Remove="Areas\Human\Views\NewFolder1\**" />
+		<Content Remove="Areas\Vector\SubAreas\**" />
+		<Content Remove="Areas\Vector\Views\VectorPage\**" />
+		<Content Remove="Components\Human\DiseaseReport\**" />
+		<Content Remove="Components\Pages\**" />
+		<Content Remove="Components\Vector\CollectionData\**" />
+		<Content Remove="Components\Vector\VectorData\**" />
+		<Content Remove="Views\Shared\Components\PersonSearchView\**" />
+		<EmbeddedResource Remove="Areas\CrossCutting\Views\**" />
+		<EmbeddedResource Remove="Areas\Human\Views\NewFolder1\**" />
+		<EmbeddedResource Remove="Areas\Vector\SubAreas\**" />
+		<EmbeddedResource Remove="Areas\Vector\Views\VectorPage\**" />
+		<EmbeddedResource Remove="Components\Human\DiseaseReport\**" />
+		<EmbeddedResource Remove="Components\Pages\**" />
+		<EmbeddedResource Remove="Components\Vector\CollectionData\**" />
+		<EmbeddedResource Remove="Components\Vector\VectorData\**" />
+		<EmbeddedResource Remove="Views\Shared\Components\PersonSearchView\**" />
+		<None Remove="Areas\CrossCutting\Views\**" />
+		<None Remove="Areas\Human\Views\NewFolder1\**" />
+		<None Remove="Areas\Vector\SubAreas\**" />
+		<None Remove="Areas\Vector\Views\VectorPage\**" />
+		<None Remove="Components\Human\DiseaseReport\**" />
+		<None Remove="Components\Pages\**" />
+		<None Remove="Components\Vector\CollectionData\**" />
+		<None Remove="Components\Vector\VectorData\**" />
+		<None Remove="Views\Shared\Components\PersonSearchView\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <AdditionalFiles Remove="C:\GIT\EIDSS.Web\.editorconfig" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Remove="Views\Shared\_SampleTypeList.cshtml" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="DataTables.AspNetCore.Mvc" Version="1.4.2" />
+		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.2.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.6.0" />
+		<PackageReference Include="Microsoft.DependencyValidation.Analyzers" Version="0.11.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Http.Polly" Version="7.0.7" />
+		<PackageReference Include="Microsoft.VisualStudio.SlowCheetah" Version="3.2.26">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.14" />
+		<PackageReference Include="Radzen.Blazor" Version="4.13.3" />
+		<PackageReference Include="RestSharp" Version="107.3.0" />
+		<PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
+		<PackageReference Include="Serilog.Sinks.Http" Version="8.0.0" />
+		<PackageReference Include="System.Collections" Version="4.3.0" />
+		<PackageReference Include="System.Net.Http.WinHttpHandler" Version="7.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\EIDSS.Client\EIDSS.ClientLibrary.csproj" />
+		<ProjectReference Include="..\EIDSS.Domain\EIDSS.Domain.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\EIDSS.Localization\EIDSS.Localization.csproj" />
+		<ProjectReference Include="..\EIDSS.ReportViewer\EIDSS.ReportViewer.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Areas\Human\ViewModels\AggregateDiseaseReport\" />
+		<Folder Include="Areas\Laboratory\Views\Freezer\" />
+		<Folder Include="Components\Outbreak\Case\Vector\" />
+		<Folder Include="Components\Veterinary\ActiveSurveillanceCampaign\" />
+		<Folder Include="Components\Veterinary\AggregateDiseaseReport\" />
+		<Folder Include="Controllers\Administration\" />
+		<Folder Include="logs\" />
+		<Folder Include="wwwroot\lib\jqueryui\i18n\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="Areas\Administration\Views\DataArchiving\Index.cshtml" />
+		<None Include="C:\GIT\EIDSS.Web\.editorconfig" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="System.Web.Extensions">
+	    <HintPath>..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Web.Extensions.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Update="appsettings.json">
+		  <TransformOnBuild>true</TransformOnBuild>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\greyStar.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\minus.gif">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\plus.gif">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\redStar.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewCopy.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewForm-minus.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewForm-plus.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewForm.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewFormAdd.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewFormDelete.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewParameter.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewParameterAdd.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewParameterDelete.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewPaste.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewRules.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewRulesAdd.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewRulesDelete.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewSection-minus.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewSection-plus.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewSection.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewSectionrAdd.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewSectionrDelete.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewTemplate.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewTemplateAdd.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Update="wwwroot\Includes\Images\treeViewTemplateDelete.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="TagHelpers\CustomFiles\GridTagHelperCustomCSS.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="TagHelpers\CustomFiles\LoadSuccessConfirmationMessages.html">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="TagHelpers\CustomFiles\Select2FilterSort.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="TagHelpers\CustomFiles\SetEditModalContent.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="TagHelpers\CustomFiles\test.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="TagHelpers\CustomFiles\ToolTipCSS.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<PropertyGroup>
+		<SolutionDir Condition="'$(SolutionDir)' == '' Or '$(SolutionDir)' == '*Undefined*'">.\</SolutionDir>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<Optimize>False</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<Optimize>False</Optimize>
+	</PropertyGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+
+  </Target>
+	<ProjectExtensions><VisualStudio><UserProperties appsettings_1dev_1json__JsonSchema="https://blockprotocol.org/schemas/block-metadata.json" /></VisualStudio></ProjectExtensions>
+
+</Project>

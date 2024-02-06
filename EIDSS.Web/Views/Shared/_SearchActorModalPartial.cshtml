@@ -1,0 +1,474 @@
+﻿@using EIDSS.Domain.Enumerations
+@model EIDSS.Web.ViewModels.SearchActorViewModel
+<div id="searchActorModal" class="modal fade" data-backdrop="static" role="dialog" aria-labelledby="searchActorModal" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@Model.ModalTitle</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="text-danger">
+                            <i class="fas fa-asterisk"></i>
+                            <label field-label-for="@FieldLabelResourceKeyConstants.IndicatesRequiredFieldLabel"></label>
+                        </div>
+                        <div id="actorSearchCriteria" class="card">
+                            <form id="actorSearchForm">
+                                <div class="card-header">
+                                    <div class="row">
+                                        <div class="col-11">
+                                            <h4 id="actorSearchCriteriaHeading" heading-for="@HeadingResourceKeyConstants.SearchCriteriaHeading"></h4>
+                                        </div>
+                                        <div class="col-1 right">
+                                            <span id="toggleActorSearchIcon" class="fas fa-caret-down align-bottom fa-2x" data-toggle="collapse" data-target="#actorSearchCriteriaForm" aria-expanded="true" onclick="toggleActorSearchCriteria(event);">&nbsp;</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="actorSearchCriteriaForm" class="card-body show">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.SearchActorsModalActorTypeFieldLabel">
+                                            <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.SearchActorsModalActorTypeFieldLabel"></i>
+                                            <label asp-for="SearchCriteria.ActorTypeID" field-label-for="@FieldLabelResourceKeyConstants.SearchActorsModalActorTypeFieldLabel"></label>
+                                            <select asp-for="SearchCriteria.ActorTypeID"
+                                                    asp-items="@(new SelectList(Model.ActorTypeList, "IdfsBaseReference", "Name"))" class="form-control">
+                                                <option disabled selected></option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-6" hidden-if="@FieldLabelResourceKeyConstants.SearchActorsModalActorNameFieldLabel">
+                                            <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.SearchActorsModalActorNameFieldLabel"></i>
+                                            <label asp-for="SearchCriteria.ActorName" field-label-for="@FieldLabelResourceKeyConstants.SearchActorsModalActorNameFieldLabel"></label>
+                                            <input asp-for="SearchCriteria.ActorName" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group col-md-12" hidden-if="@FieldLabelResourceKeyConstants.SearchActorsModalOrganizationNameFieldLabel">
+                                            <div class="form-group">
+                                                <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.SearchActorsModalOrganizationNameFieldLabel"></i>
+                                                <label asp-for="SearchCriteria.OrganizationName" field-label-for="@FieldLabelResourceKeyConstants.SearchActorsModalOrganizationNameFieldLabel"></label>
+                                                <input asp-for="SearchCriteria.OrganizationName" class="form-control" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group col-md-12" hidden-if="@FieldLabelResourceKeyConstants.SearchActorsModalUserGroupDescriptionFieldLabel">
+                                            <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.SearchActorsModalUserGroupDescriptionFieldLabel"></i>
+                                            <label asp-for="SearchCriteria.UserGroupDescription" field-label-for="@FieldLabelResourceKeyConstants.SearchActorsModalUserGroupDescriptionFieldLabel"></label>
+                                            <input asp-for="SearchCriteria.UserGroupDescription" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="actorSearchCriteriaCommands" class="card-footer">
+                                    <button id="actorSearchCriteriaCancel" type="button" class="btn btn-outline-primary" data-dismiss="modal" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+                                    <button id="actorSearchCriteriaClear" type="reset" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.ClearButton"></button>
+                                    <button id="actorSearchCriteriaSearch" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.SearchButton"></button>
+                                </div>
+                            </form>
+                        </div>
+                        <br />
+                        <div id="actorSearchResults" class="card">
+                            <div class="card-header">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h4 id="actorSearchResultsHeading" heading-for="@HeadingResourceKeyConstants.SearchResultsHeading"></h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                @await Component.InvokeAsync("Actor")
+                            </div>
+                            <div id="actorSearchResultsCommands" class="card-footer">
+                                <button id="actorSearchResultsCancel" type="button" class="btn btn-outline-primary" data-dismiss="modal" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+                                <button id="selectActors" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.SelectButton">Select</button>
+                                <button id="selectAllActors" type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.SelectAllButton">Select All</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<form>
+    <input type="hidden" id="searchActorGrantingActorIndicator" />
+    <input type="hidden" id="searchActorDataPermissionsDiseaseID" />
+    <input type="hidden" id="duplicateCheckGrantingActorSiteGroupID" />
+    <input type="hidden" id="duplicateCheckGrantingActorSiteID" />
+</form>
+<script type="text/javascript">
+    var selectedActors;
+
+    $("#searchActorModal").on('shown.bs.modal', function (e) {
+        showActorSearchCriteria();
+
+        // Only one granting actor may be selected per access rule, so disable the select all button.
+        if ($("#searchActorGrantingActorIndicator").val() == "true") {
+            $("#selectAllActors").prop("disabled", true);
+            $("#SearchActorViewModel_SearchCriteria_ActorTypeID option[value=" + '@Convert.ToInt64(ActorTypeEnum.Employee)' + "]").hide();
+            $("#SearchActorViewModel_SearchCriteria_ActorTypeID option[value=" + '@Convert.ToInt64(ActorTypeEnum.EmployeeGroup)' + "]").hide();
+        }
+        else {
+            $("#selectAllActors").prop("disabled", false);
+            $("#SearchActorViewModel_SearchCriteria_ActorTypeID option[value=" + '@Convert.ToInt64(ActorTypeEnum.Employee)' + "]").show();
+            $("#SearchActorViewModel_SearchCriteria_ActorTypeID option[value=" + '@Convert.ToInt64(ActorTypeEnum.EmployeeGroup)' + "]").show();
+        }
+    });
+
+    function toggleActorSearchCriteria(e) {
+        if ($("#actorSearchCriteriaForm").hasClass("show")) {
+            $("#toggleActorSearchIcon").removeClass("fa-caret-up").addClass("fa-caret-down");
+            $("#actorSearchCriteriaCancel").hide();
+            $("#actorSearchCriteriaClear").hide();
+            $("#actorSearchCriteriaSearch").hide();
+            $("#actorSearchCriteriaForm").collapse("show");
+            $("#actorSearchCriteriaCommands").hide();
+            $("#actorSearchResultsCancel").show();
+        }
+        else {
+            $("#toggleActorSearchIcon").removeClass("fa-caret-down").addClass("fa-caret-up");
+            $("#actorSearchCriteriaCancel").hide();
+            $("#actorSearchCriteriaClear").show();
+            $("#actorSearchCriteriaSearch").show();
+            $("#actorSearchCriteriaForm").collapse("show");
+            $("#actorSearchResults").show();
+            $("#actorSearchCriteriaCommands").show();
+        }
+
+    };
+
+    function hideActorSearchCriteria() {
+        $("#toggleActorSearchIcon").show();
+        $("#actorSearchCriteriaForm").collapse("hide");
+        $("#actorSearchCriteriaCommands").hide();
+        $("#actorSearchResultsCommands").show();
+        $("#actorSearchResults").show();
+    };
+
+    function hideActorSearchCriteriaCloseWarningModal() {
+        $("#toggleActorSearchIcon").show();
+        $("#actorSearchCriteriaForm").collapse("hide");
+        $("#actorSearchCriteriaCommands").hide();
+        $("#actorSearchResultsCommands").show();
+        $('#divWarningModal').modal("hide");
+    };
+
+    function showActorSearchCriteria() {
+        $("#toggleActorSearchIcon").hide();
+        $("#actorSearchCriteriaForm").collapse("show");
+        $("#actorSearchCriteriaCommands").show();
+        $("#actorSearchResults").hide();
+    };
+
+    function showSearchActorModal() {
+        $("#actorSearchForm").find(":input").each(function () {
+                switch (this.type) {
+                    case "password":
+                    case "select-multiple":
+                    case "select-one":
+                    case "text":
+                    case "textarea":
+                        $(this).val("");
+                        break;
+                    case "checkbox":
+                    case "radio":
+                        this.checked = false;
+                }
+            });
+
+        $("#actorsTable").DataTable().draw();
+
+        $("#searchActorModal").modal("show");
+    };
+
+    $("#actorSearchCriteriaSearch").on("click", function (e) {
+        $("#actorsTable").DataTable().clear().draw();
+
+        hideActorSearchCriteria();
+    });
+
+    $("#selectActors").on("click", function (e) {
+        selectActors();
+    });
+
+    // Handle click on checkbox
+    $("#actorsTable tbody").on("click", 'input[type="checkbox"]', function (e) {
+        var $row = $(this).closest("tr");
+
+        if (this.checked) {
+            if ($("#searchActorGrantingActorIndicator").val() == "true") {
+                var table = $("#actorsTable").DataTable();
+                $("input", table.rows().nodes()).prop("checked", false);
+                $(this).prop("checked", true);
+                $("#actorsTable").DataTable().$("tr.selected").removeClass("selected");
+            }
+
+            $row.addClass("selected");
+        } else {
+            $row.removeClass("selected");
+        }
+
+        // Prevent click event from propagating to parent
+        e.stopPropagation();
+    });
+
+    $("#selectAllActors").on("click", function (e) {
+        $('#actorsTable tbody input[type="checkbox"]:not(:checked)').trigger("click");
+
+        selectActors();
+    });
+
+    function selectActors() {
+        var actors = [];
+        var existingActors = [];
+
+        if ($("#searchActorDataPermissionsDiseaseID").val() == "") {
+            existingActors = $("#receivingActorsTable").DataTable().rows().data().toArray();
+        }
+        else {
+            existingActors = $("#diseaseActorsTable").DataTable().rows().data().toArray();
+        }
+        $.each(existingActors, function (index, value) {
+            actorToValidate = new Object();
+
+            if ($("#searchActorDataPermissionsDiseaseID").val() == "")
+            {
+                switch (value[2].toString()) {
+                    case '@Convert.ToInt64(ActorTypeEnum.SiteGroup)':
+                        actorToValidate.ActorID = value[6];
+                        break;
+                    case '@Convert.ToInt64(ActorTypeEnum.Site)':
+                        actorToValidate.ActorID = value[7];
+                        break;
+                    case '@Convert.ToInt64(ActorTypeEnum.EmployeeGroup)':
+                        actorToValidate.ActorID = value[8];
+                        break;
+                    case '@Convert.ToInt64(ActorTypeEnum.Employee)':
+                        actorToValidate.ActorID = value[9];
+                        break;
+                }
+            }
+            else
+            {
+                actorToValidate.ActorID = value[0];
+            }
+
+            actorToValidate.ActorTypeID = value[2];
+            actors.push(actorToValidate);
+        });
+        selectedActors = $("#actorsTable").DataTable().rows([".selected"]).data().toArray();
+        $.each(selectedActors, function (index, value) {
+            actorToValidate = new Object();
+            actorToValidate.ActorID = value[0];
+            actorToValidate.ActorTypeID = value[1];
+            actors.push(actorToValidate);
+        });
+
+        validateDuplicateActorsSelected(actors);
+    };
+
+    function validateDuplicateActorsSelected(actors) {
+        var siteGroupArray = "";
+        var siteArray = "";
+        var userGroupArray = "";
+        var userArray = "";
+        var isValid = true;
+
+        // Validate for duplicates within the object.
+        var duplicateActorsArray = [];
+        var actorsArray = actors.sort();
+
+        $.each (actorsArray, function (index, value) {
+            var exists = false;
+            $.each (duplicateActorsArray, function(index2, value2) {
+                if (value.ActorID == value2.ActorID && value.ActorTypeID == value2.ActorTypeID) { 
+                    exists = true;
+                }
+            });
+
+            if (exists == false) {
+                duplicateActorsArray.push(value);
+            }
+        });
+
+        if (actorsArray.length != duplicateActorsArray.length) {
+            showErrorModal("@Localizer.GetString(MessageResourceKeyConstants.DuplicateRecordsAreNotAllowedMessage)");
+            return false;
+        }
+
+        // Validate for duplicates across other access rules.
+        if ($("#searchActorDataPermissionsDiseaseID").val() == "") {
+            $.each(actorsArray, function (index, value) {
+                switch (value.ActorTypeID.toString()) {
+                    case '@Convert.ToInt64(ActorTypeEnum.SiteGroup)':
+                        if (siteGroupArray == "")
+                            siteGroupArray += value.ActorID.toString();
+                        else
+                            siteGroupArray += "," + value.ActorID.toString();
+
+                        if ($("#searchActorGrantingActorIndicator").val() == "true") {
+                            $("#duplicateCheckGrantingActorSiteGroupID").val(value.ActorID.toString());
+                        }
+                        break;
+                    case '@Convert.ToInt64(ActorTypeEnum.Site)':
+                        if (siteArray == "")
+                            siteArray += value.ActorID.toString();
+                        else
+                            siteArray += "," + value.ActorID.toString();
+
+                        if ($("#searchActorGrantingActorIndicator").val() == "true") {
+                            $("#duplicateCheckGrantingActorSiteID").val(value.ActorID.toString());
+                        }
+                        break;
+                    case '@Convert.ToInt64(ActorTypeEnum.EmployeeGroup)':
+                        if (userGroupArray == "")
+                            userGroupArray += value.ActorID.toString();
+                        else
+                            userGroupArray += "," + value.ActorID.toString();
+                        break;
+                    case '@Convert.ToInt64(ActorTypeEnum.Employee)':
+                        if (userArray == "")
+                            userArray += value.ActorID.toString();
+                        else
+                            userArray += "," + value.ActorID.toString();
+                        break;
+                }
+            });
+
+            if ($("#duplicateCheckGrantingActorSiteGroupID").val() != "" || $("#duplicateCheckGrantingActorSiteID").val() != "") {
+                var request = {};
+                request.GrantingActorSiteGroupID = $("#duplicateCheckGrantingActorSiteGroupID").val();
+                request.GrantingActorSiteID = $("#duplicateCheckGrantingActorSiteID").val();
+                request.SiteGroups = siteGroupArray;
+                request.Sites = siteArray;
+                request.UserGroups = userGroupArray;
+                request.Users = userArray;
+
+                $.ajax({
+                    url: '@Url.Action("DuplicateActorCheck", "ConfigurableFiltration", new { Area = "Administration", SubArea = "Security" })',
+                    data: JSON.stringify(request),
+                    contentType: "application/json",
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
+                        if (response == "true") {
+                            showErrorModal("@Localizer.GetString(MessageResourceKeyConstants.DuplicateRecordsAreNotAllowedMessage)");
+                        }
+                        else {
+                            addActor();
+                        }
+                    },
+                    error: function (response) { alert("An error occurred: " + response); }
+                });
+            }
+            else {
+                addActor();
+            }
+        }
+        else {
+            addActor();
+        }
+    };
+
+    function addActor() {
+        var actors = [];
+        
+        $("#permissionsTable").DataTable().clear().draw();
+
+        $.each(selectedActors, function (index, value) {
+            actor = new Object();
+            actor.ActorID = value[0];
+            actor.ObjectAccessID = null;
+            actor.ActorTypeID = value[1];
+            actor.ActorTypeName = value[2];
+            actor.ActorName = value[3];
+            actor.OrganizationName = value[5];
+            actor.EmployeeUserID = value[6];
+            actor.EmployeeSiteID = value[7];
+            actor.EmployeeSiteName = value[8];
+            actor.UserGroupSiteID = value[9];
+            actor.UserGroupSiteName = value[10];
+            actor.AccessToGenderAndAgeDataPermissionIndicator = false;
+            actor.AccessToPersonalDataPermissionIndicator = false;
+            actor.DeletePermissionIndicator = false;
+
+            if ($("#searchActorDataPermissionsDiseaseID").val() == "")
+                actor.ReadPermissionIndicator = true;
+            else
+                actor.ReadPermissionIndicator = false;
+
+            actor.WritePermissionIndicator = false;
+
+            actors.push(actor.ActorID);
+
+            if ($("#searchActorDataPermissionsDiseaseID").val() == "") {
+                var siteGroupID = null;
+                var siteID = null;
+                var employeeGroupID = null;
+                var employeeID = null;
+
+                switch (actor.ActorTypeID.toString()) {
+                    case '@Convert.ToInt64(ActorTypeEnum.SiteGroup)':
+                        siteGroupID = actor.ActorID;
+                        break;
+                    case '@Convert.ToInt64(ActorTypeEnum.Site)':
+                        siteID = actor.ActorID;
+                        break;
+                    case '@Convert.ToInt64(ActorTypeEnum.EmployeeGroup)':
+                        employeeGroupID = actor.ActorID;
+                        break;
+                    case '@Convert.ToInt64(ActorTypeEnum.Employee)':
+                        employeeID = actor.EmployeeUserID;
+                        break;
+                }
+
+                if ($("#searchActorGrantingActorIndicator").val() == "true") {
+                    $("#grantingActorSiteGroupID").val(siteGroupID);
+                    $("#grantingActorSiteID").val(siteID);
+                    $("#grantingActorNameTextBox").val(actor.ActorName);
+                }
+                else {
+                    var rowAdded = $("#receivingActorsTable").DataTable().row.add([(($("#receivingActorsTable").DataTable().rows().count() + 1) * -1), actor.ObjectAccessID, actor.ActorTypeID, actor.ActorTypeName, actor.ActorName, actor.OrganizationName, siteGroupID, siteID, employeeGroupID, employeeID, actor.AccessToGenderAndAgeDataPermissionIndicator, actor.AccessToPersonalDataPermissionIndicator, actor.CreatePermissionIndicator, actor.DeletePermissionIndicator, actor.ReadPermissionIndicator, actor.WritePermissionIndicator, '@Convert.ToInt32(RowStatusTypes.Active)', '@Convert.ToInt32(RowActionTypeEnum.Insert)', (($("#receivingActorsTable").DataTable().rows().count() + 1) * -1)]).draw();
+                    $("#receivingActorsTable").DataTable().$("tr.selected").removeClass("selected");
+                    rowAdded.nodes().to$().addClass("selected");
+                }
+            } else {
+                var rowAdded = $("#diseaseActorsTable").DataTable().row.add([actor.ActorID.toString(), actor.ObjectAccessID, actor.ActorTypeID, actor.ActorTypeName.toString(), actor.ActorName.toString()]).draw();
+                $("#diseaseActorsTable").DataTable().$("tr.selected").removeClass("selected");
+                rowAdded.nodes().to$().addClass("selected");
+
+                var permission = new Object();
+
+                permission.ObjectAccessID = (($("#permissionsTable").DataTable().rows().count() + 1) * -1);
+                permission.ObjectOperationTypeID = '@Convert.ToInt64(EIDSS.Domain.Enumerations.PermissionLevelEnum.Read)';
+                permission.ObjectOperationTypeName = '@Localizer.GetString(ColumnHeadingResourceKeyConstants.ReadColumnHeading)';
+                permission.ObjectTypeID = '@Convert.ToInt64(ObjectTypeEnum.Disease)';
+                permission.ObjectID = $("#searchActorDataPermissionsDiseaseID").val();
+                permission.ActorID = value[0];
+                permission.SiteID = '@Model.SiteID';
+                permission.PermissionTypeID = '@Convert.ToInt64(DiseaseAccessPermissionTypes.Allow)';
+                permission.RowStatus = '@Convert.ToInt32(RowStatusTypes.Active)';
+                permission.RowAction = '@Convert.ToInt32(RowActionTypeEnum.Insert)';
+                $("#permissionsTable").DataTable().row.add(['True', permission.ObjectOperationTypeName, permission.ObjectAccessID, permission.ObjectOperationTypeID, permission.ObjectTypeID, permission.ObjectID, permission.ActorID, permission.SiteID, permission.PermissionTypeID, permission.RowStatus, permission.RowAction]);
+                $("#permissionsTable").DataTable().draw();
+                
+                if ($("#diseaseActorsTable").DataTable().rows().count() > 1) {
+                    $("#permissionsTable").DataTable().rows().every(function (rowIdx, tableLoop, rowLoop) {
+                        if(this.data()[6] != value[0])
+                            this.nodes().to$().attr("excluded", "true");
+                    });
+                }
+                
+                $("#permissionsTable").DataTable().draw();
+                
+            }
+        });
+
+        $("#searchActorModal").modal("hide");
+        if ($(".modal.show").length == 0) {
+            $(".modal-backdrop").remove();
+        }
+
+        $("#searchActorGrantingActorIndicator").val("");
+    };
+</script>

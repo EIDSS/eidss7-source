@@ -1,0 +1,77 @@
+﻿@using EIDSS.Domain.ViewModels.Outbreak
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Enumerations
+
+@inherits OutbreakNotificationSectionBase
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-9">
+            <h4 class="header">@SectionHeadingResourceKey</h4>
+        </div>
+        <div class="col-3 text-right">
+            @if (Model.CreatePermissionIndicator && Model.CaseId is null)
+            {
+                <a class="edit-section" href="#caseDiseaseReportWizard-h-0" id="editNotificationSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            }
+            else if (Model.CaseDisabledIndicator == false && Model.WritePermissionIndicator)
+            {
+                <a class="edit-section" href="#caseDiseaseReportWizard-h-0" id="editNotificationSectionButton">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            }
+        </div>
+    </div>
+</div>
+<RadzenTemplateForm @ref="Form" TItem="CaseGetDetailViewModel" Data="Model">
+    <div class="card">
+        <div class="card-body">
+            <InterfaceEditorResource CssClass="col-3" For="@nameof(Model.NotificationDate)" InterfaceEditorKey="@NotificationDateFieldLabelResourceKey" IsRow="true">
+                <br/>
+                <RadzenDatePicker AllowClear="true" @bind-Value="Model.NotificationDate" DateFormat="d" Disabled="Model.CaseDisabledIndicator" Name="@nameof(Model.NotificationDate)" @ref="NotificationDate" TabIndex="3" TValue="DateTime?"/>
+                <RadzenCompareValidator Component="@nameof(Model.NotificationDate)" Operator="CompareOperator.LessThanEqual" Popup="false" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="DateTime.Now"/>
+            </InterfaceEditorResource>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-7" For="@nameof(Model.NotificationSentByOrganizationId)" InterfaceEditorKey="@NotificationSentByFacilityFieldLabelResourceKey" IsRow="false">
+                    <RadzenDropDownDataGrid AllowClear="true" AllowColumnResize="true" AllowFiltering="true" @bind-Value="Model.NotificationSentByOrganizationId" Change="@(OnSentByOrganizationChanged)" class="form-control" Data="@Organizations" Disabled="Model.CaseDisabledIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="@nameof(Model.NotificationSentByOrganizationId)" @ref="SentByOrganization" TabIndex="1" TextProperty="name" TValue="long?" ValueProperty="idfOffice">
+                        <Columns>
+                            <RadzenDropDownDataGridColumn Property="name" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.AbbreviationColumnHeading)" Width="200px"/>
+                        </Columns>
+                    </RadzenDropDownDataGrid>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-5" For="@nameof(Model.NotificationSentByPersonId)" InterfaceEditorKey="@NotificationSentByNameFieldLabelResourceKey" IsRow="false">
+                    <div class="input-group mb-3">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="Model.NotificationSentByPersonId" class="form-control" Data="SentByPersons" Disabled="Model.CaseDisabledIndicator" LoadData="GetSentByPersons" Name="@nameof(Model.NotificationSentByPersonId)" @ref="SentByPerson" TabIndex="2" TextProperty="FullName" TValue="long?" ValueProperty="idfPerson"/>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary btn-sm" id="addReportedByPerson" @onclick="@(AddSentByPersonClick)" type="button">
+                                <span class="fas fa-plus" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    </div>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-7" For="@nameof(Model.NotificationReceivedByOrganizationId)" InterfaceEditorKey="@NotificationReceivedByFacilityFieldLabelResourceKey" IsRow="false">
+                    <RadzenDropDownDataGrid AllowClear="true" AllowColumnResize="true" AllowFiltering="true" @bind-Value="Model.NotificationReceivedByOrganizationId" Change="@(args => OnReceivedByOrganizationChanged(args))" class="form-control" Data="@Organizations" Disabled="Model.CaseDisabledIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="@nameof(Model.NotificationReceivedByOrganizationId)" @ref="ReceivedByOrganization" TabIndex="4" TextProperty="name" TValue="long?" ValueProperty="idfOffice">
+                        <Columns>
+                            <RadzenDropDownDataGridColumn Property="name" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.AbbreviationColumnHeading)" Width="200px"/>
+                        </Columns>
+                    </RadzenDropDownDataGrid>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource CssClass="col-5" For="@nameof(Model.NotificationReceivedByPersonId)" InterfaceEditorKey="@NotificationReceivedByNameFieldLabelResourceKey" IsRow="false">
+                    <div class="input-group mb-3">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="Model.NotificationReceivedByPersonId" class="form-control" Data="ReceivedByPersons" Disabled="Model.CaseDisabledIndicator" LoadData="GetReceivedByPersons" Name="@nameof(Model.NotificationReceivedByPersonId)" @ref="ReceivedByPerson" TabIndex="5" TextProperty="FullName" TValue="long?" ValueProperty="idfPerson"/>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary btn-sm" id="addInvestigatedByPerson" @onclick="@(AddReceivedByPersonClick)" type="button">
+                                <span class="fas fa-plus" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    </div>
+                </InterfaceEditorResource>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

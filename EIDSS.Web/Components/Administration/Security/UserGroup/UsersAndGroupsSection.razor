@@ -1,0 +1,50 @@
+﻿@using EIDSS.Domain.ViewModels.Administration.Security
+
+@inherits UsersAndGroupsSectionBase
+
+<EditForm id="usersAndGroupsForm" Model="@Model">
+    <div class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-md-8">
+                    <h4>@Localizer.GetString(HeadingResourceKeyConstants.UserGroupDetailsUsersAndGroupsHeading)</h4>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="col-md-12 text-right">
+                    <button id="addEmployeeUsersAndGroups" @onclick="@(OpenAddModal)" disabled="@disableAddButton"
+                            class="btn btn-outline">
+                        @Localizer.GetString(ButtonResourceKeyConstants.AddButton)
+                    </button>
+                    <button id="deleteEmployeeUsersAndGroups" class="btn btn-outline" disabled="@disableDeleteButton"
+                            @onclick="@(DeleteEmployees)">
+                        @Localizer.GetString(ButtonResourceKeyConstants.DeleteButton)
+                    </button>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-md-12">
+                    <RadzenDataGrid @ref="_grid" id="gridUsersAndGroups" TItem="EmployeesForUserGroupViewModel" IsLoading="@isLoading"
+                                    Data="@lstUsersAndGroups" SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@UserGroupService.SelectedUsersAndGroupsToDelete"
+                                    AllowPaging="true" PageSize="10" AllowSorting="true" AllowColumnResize="true"
+                                    ExpandMode="DataGridExpandMode.Single">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="EmployeesForUserGroupViewModel" Property="idfEmployee" Title="idfEmployee" Visible="false"/>
+                            <RadzenDataGridColumn TItem="EmployeesForUserGroupViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                                <Template Context="data">
+                                    <RadzenCheckBox TriState="false" TValue="bool" Value="@(UserGroupService.SelectedUsersAndGroupsToDelete != null && UserGroupService.SelectedUsersAndGroupsToDelete.Contains(data))" Change="@(args => OnCheckChange(args))"/>
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="EmployeesForUserGroupViewModel" Property="TypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.ActorTypeNameColumnHeading)" Sortable="true"/>
+                            <RadzenDataGridColumn TItem="EmployeesForUserGroupViewModel" Property="Name" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.NameColumnHeading)" Sortable="true"/>
+                            <RadzenDataGridColumn TItem="EmployeesForUserGroupViewModel" Property="Organization" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.UserGroupDetailsOrganizationColumnHeading)" Sortable="true"/>
+                            <RadzenDataGridColumn TItem="EmployeesForUserGroupViewModel" Property="Description" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.UserGroupDetailsDescriptionColumnHeading)" Sortable="true"/>
+                        </Columns>
+                    </RadzenDataGrid>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>

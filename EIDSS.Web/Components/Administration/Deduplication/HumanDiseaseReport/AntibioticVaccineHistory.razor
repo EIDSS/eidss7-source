@@ -1,0 +1,214 @@
+﻿@using EIDSS.Domain.ViewModels.Human
+@inherits EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport.AntibioticVaccineHistoryBase
+
+
+<div class="form-row">
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord" TValue="int" @bind-Value=@HumanDiseaseReportDeduplicationService.RecordSelection
+                                       Change="@((args) => OnRecordSelectionChangeAsync(args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="AntibioticVaccineHistory"></div>
+                <RadzenCheckBox Name="chkCheckAllAntibioticDetails" @bind-Value=@HumanDiseaseReportDeduplicationService.chkCheckAllAntibioticDetails TValue="bool" Change="@((args) => OnCheckAllAntibioticVaccineHistoryChangeAsync(args))" />
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllAntibioticDetails" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord2" TValue="int" @bind-Value=@HumanDiseaseReportDeduplicationService.Record2Selection
+                                       Change="@((args) => OnRecord2SelectionChangeAsync(args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="AntibioticVaccineHistory2"></div>
+                <RadzenCheckBox Name="chkCheckAllAntibioticDetails2" @bind-Value=@HumanDiseaseReportDeduplicationService.chkCheckAllAntibioticDetails2 TValue="bool" Change="@((args) => OnCheckAllAntibioticVaccineHistory2ChangeAsync(args))" />
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllAntibioticDetails2" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+</div>
+<div class="form-row">
+    <div class="col-6">
+        @if (HumanDiseaseReportDeduplicationService.AntibioticHistoryList != null)
+        {                 
+            <RadzenDataList WrapItems=false AllowPaging=false Data=HumanDiseaseReportDeduplicationService.AntibioticHistoryList TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
+                    <Template Context="field">
+                     @if (field.Index < idfsYNAntimicrobialTherapy)
+                    {
+                            <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key TValue="bool" Disabled=@field.Disabled 
+                            TriState=false Style="vertical-align: top !important;" Change="@((args) => OnDataListAntibioticHistorySelectionChangeAsync(args, field.Index))" />
+                            <div class="ml-2 d-inline-block vertical-align-middle">
+                                <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                  }
+                   </Template>
+            </RadzenDataList>
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" 
+            Count="@HumanDiseaseReportDeduplicationService.AntibioticsCount" 
+            Data="@HumanDiseaseReportDeduplicationService.Antibiotics"
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@HumanDiseaseReportDeduplicationService.SelectedAntibiotics"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            ExpandMode="DataGridExpandMode.Single" 
+            PageSizeOptions="pageSizeOptions" @ref="HumanDiseaseReportDeduplicationService.antibitiocDetailsgrid" 
+            ShowPagingSummary="true" TItem="DiseaseReportAntiviralTherapiesViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="DiseaseReportAntiviralTherapiesViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool" 
+                            Value="@(HumanDiseaseReportDeduplicationService.SelectedAntibiotics != null && HumanDiseaseReportDeduplicationService.SelectedAntibiotics.Contains(data))" 
+                            Change="@(args => OnAntibioticRowCheckChangeAsync(args, data, false))" />
+                    </Template> 
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="DiseaseReportAntiviralTherapiesViewModel" Property="strAntimicrobialTherapyName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryAntibioticNameColumnHeading)" Width="125px"/>
+                <RadzenDataGridColumn TItem="DiseaseReportAntiviralTherapiesViewModel" Property="strDosage" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryDoseColumnHeading)" Width="125px"/>
+                <RadzenDataGridColumn TItem="DiseaseReportAntiviralTherapiesViewModel" Property="datFirstAdministeredDate" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryDateAntibioticFirstAdministeredColumnHeading)" Width="250px"/>                                   
+            </Columns>
+        </RadzenDataGrid>
+        }
+        @if (HumanDiseaseReportDeduplicationService.VaccineHistoryList != null)
+        {                 
+            <RadzenDataList WrapItems=false AllowPaging=false Data=HumanDiseaseReportDeduplicationService.VaccineHistoryList TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
+                <Template Context="field">
+                    @if (field.Index < idfsYNSpecificVaccinationAdministered)
+                    {
+                            <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key TValue="bool" Disabled=@field.Disabled 
+                            TriState=false Style="vertical-align: top !important;" Change="@((args) => OnDataListVaccineHistorySelectionChangeAsync(args, field.Index))" />
+                            <div class="ml-2 d-inline-block vertical-align-middle">
+                                <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                  }
+                   </Template>
+                </RadzenDataList>
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" 
+            Count="@HumanDiseaseReportDeduplicationService.VaccinationsCount" 
+            Data="@HumanDiseaseReportDeduplicationService.Vaccinations"
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@HumanDiseaseReportDeduplicationService.SelectedVaccinations"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            ExpandMode="DataGridExpandMode.Single" 
+            PageSizeOptions="pageSizeOptions" @ref="HumanDiseaseReportDeduplicationService.vaccinationDetailsgrid" 
+            ShowPagingSummary="true" TItem="DiseaseReportVaccinationViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="DiseaseReportVaccinationViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool" 
+                            Value="@(HumanDiseaseReportDeduplicationService.SelectedVaccinations != null && HumanDiseaseReportDeduplicationService.SelectedVaccinations.Contains(data))" 
+                            Change="@(args => OnVaccinationRowCheckChangeAsync(args, data, false))" />
+                    </Template> 
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="DiseaseReportVaccinationViewModel" Property="vaccinationName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryVaccinationNameColumnHeading)" />
+                <RadzenDataGridColumn TItem="DiseaseReportVaccinationViewModel" Property="vaccinationDate" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryDateOfVaccinationColumnHeading)"/>
+            </Columns>
+        </RadzenDataGrid>
+        }
+        @if (HumanDiseaseReportDeduplicationService.ClinicalNotesList != null)
+        {                 
+            <RadzenDataList WrapItems=false AllowPaging=false Data=HumanDiseaseReportDeduplicationService.ClinicalNotesList TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
+                    <Template Context="field">
+                     @if (field.Index==0)
+                    {
+                      <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key TValue="bool" Disabled=@field.Disabled 
+                            TriState=false Style="vertical-align: top !important;"  Change="@((args) => OnDataListClinicalNotesSelectionChangeAsync(args, field.Index))"/>
+                            <div class="ml-2 d-inline-block vertical-align-middle">
+                                <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                                <span>@(field.Value)</span>
+                            </div>       
+                    }
+                   </Template>
+            </RadzenDataList>
+        }
+    </div>
+    <div class="col-6">
+        @if (HumanDiseaseReportDeduplicationService.AntibioticHistoryList2 != null)
+        {                 
+            <RadzenDataList WrapItems=false AllowPaging=false Data=HumanDiseaseReportDeduplicationService.AntibioticHistoryList2 TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
+                    <Template Context="field">
+                     @if (field.Index < idfsYNAntimicrobialTherapy)
+                    {
+                            <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key TValue="bool" Disabled=@field.Disabled 
+                            TriState=false Style="vertical-align: top !important;" Change="@((args) => OnDataListAntibioticHistory2SelectionChangeAsync(args, field.Index))" />
+                            <div class="ml-2 d-inline-block vertical-align-middle">
+                                <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                  }
+                   </Template>
+            </RadzenDataList>
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" 
+            Count="@HumanDiseaseReportDeduplicationService.AntibioticsCount2" 
+            Data="@HumanDiseaseReportDeduplicationService.Antibiotics2"
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@HumanDiseaseReportDeduplicationService.SelectedAntibiotics2"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            ExpandMode="DataGridExpandMode.Single" 
+            PageSizeOptions="pageSizeOptions" @ref="HumanDiseaseReportDeduplicationService.antibitiocDetailsgrid2" 
+            ShowPagingSummary="true" TItem="DiseaseReportAntiviralTherapiesViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="DiseaseReportAntiviralTherapiesViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool" 
+                            Value="@(HumanDiseaseReportDeduplicationService.SelectedAntibiotics2 != null && HumanDiseaseReportDeduplicationService.SelectedAntibiotics2.Contains(data))" 
+                            Change="@(args => OnAntibioticRowCheckChangeAsync(args, data, false))" />
+                    </Template> 
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="DiseaseReportAntiviralTherapiesViewModel" Property="strAntimicrobialTherapyName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryAntibioticNameColumnHeading)" Width="125px"/>
+                <RadzenDataGridColumn TItem="DiseaseReportAntiviralTherapiesViewModel" Property="strDosage" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryDoseColumnHeading)" Width="125px"/>
+                <RadzenDataGridColumn TItem="DiseaseReportAntiviralTherapiesViewModel" Property="datFirstAdministeredDate" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryDateAntibioticFirstAdministeredColumnHeading)" Width="250px"/>                                   
+            </Columns>
+        </RadzenDataGrid>
+        }
+        @if (HumanDiseaseReportDeduplicationService.VaccineHistoryList2 != null)
+        {                 
+            <RadzenDataList WrapItems=false AllowPaging=false Data=HumanDiseaseReportDeduplicationService.VaccineHistoryList2 TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
+                <Template Context="field">
+                    @if (field.Index < idfsYNSpecificVaccinationAdministered)
+                    {
+                            <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key TValue="bool" Disabled=@field.Disabled 
+                            TriState=false Style="vertical-align: top !important;" Change="@((args) => OnDataListVaccineHistory2SelectionChangeAsync(args, field.Index))" />
+                            <div class="ml-2 d-inline-block vertical-align-middle">
+                                <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                  }
+                   </Template>
+                </RadzenDataList>
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" 
+            Count="@HumanDiseaseReportDeduplicationService.VaccinationsCount2" 
+            Data="@HumanDiseaseReportDeduplicationService.Vaccinations2"
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@HumanDiseaseReportDeduplicationService.SelectedVaccinations2"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            ExpandMode="DataGridExpandMode.Single" 
+            PageSizeOptions="pageSizeOptions" @ref="HumanDiseaseReportDeduplicationService.vaccinationDetailsgrid2" 
+            ShowPagingSummary="true" TItem="DiseaseReportVaccinationViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="DiseaseReportVaccinationViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool" 
+                            Value="@(HumanDiseaseReportDeduplicationService.SelectedVaccinations2 != null && HumanDiseaseReportDeduplicationService.SelectedVaccinations2.Contains(data))" 
+                            Change="@(args => OnVaccinationRowCheckChangeAsync(args, data, false))" />
+                    </Template> 
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="DiseaseReportVaccinationViewModel" Property="vaccinationName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryVaccinationNameColumnHeading)" />
+                <RadzenDataGridColumn TItem="DiseaseReportVaccinationViewModel" Property="vaccinationDate" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryDateOfVaccinationColumnHeading)"/>
+            </Columns>
+        </RadzenDataGrid>
+        }
+        @if (HumanDiseaseReportDeduplicationService.ClinicalNotesList2 != null)
+        {                 
+            <RadzenDataList WrapItems=false AllowPaging=false Data=HumanDiseaseReportDeduplicationService.ClinicalNotesList2 TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
+                    <Template Context="field">
+                     @if (field.Index==0)
+                    {
+                      <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key TValue="bool" Disabled=@field.Disabled 
+                            TriState=false Style="vertical-align: top !important;"  Change="@((args) => OnDataListClinicalNotes2SelectionChangeAsync(args, field.Index))"/>
+                            <div class="ml-2 d-inline-block vertical-align-middle">
+                                <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                                <span>@(field.Value)</span>
+                            </div>       
+                    }
+                   </Template>
+            </RadzenDataList>
+        }
+    </div>
+</div>

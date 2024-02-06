@@ -1,0 +1,496 @@
+﻿
+@model EIDSS.Web.Areas.Administration.SubAreas.Security.ViewModels.SystemFunctions.SystemFunctionsDetailsViewModel
+@addTagHelper *, EIDSS.Web.Components
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.SystemFunctionsHeading);
+    bool enableAdd = false;
+
+    if (Model.AcccessRightReadPermission==true && Model.AcccessRightWritePermission ==true)
+    {
+        enableAdd = true;
+    }
+
+}
+
+<partial name="_SystemFunctionAddEmployee" for="SearchPersonAndEmployeeGroupViewModel" />
+<partial name="_ErrorModalPartial" />
+<partial name="_InformationalModalPartial" for="InformationalMessage" />
+<partial name="_WarningModalPartial" />
+
+<h2 class="panel-heading" heading-for="@HeadingResourceKeyConstants.SystemFunctionsHeading"></h2>
+
+<div class="card">
+    <div class="card-header">
+        @{
+            string systemFunctionName = string.Format("{0} -  {1}", Localizer.GetString(@HeadingResourceKeyConstants.DataAccessDetailsModalHeading), @Model.SystemFunctionName);
+           
+        }
+
+        <h3>@systemFunctionName</h3>
+    </div>
+    <div class="card-body">
+        <h4 heading-for="@HeadingResourceKeyConstants.ActorsHeading" class="header"></h4>
+        <input id="systemFunctionId" type="hidden" asp-for="SystemFunctionId" />
+        <div class="col-12">
+            <div class="input-group md-form form-sm form-2 pl-0 flex-row flex-row-reverse">
+                <button id="SearchBoxBtn" class="btn btn-sm btn-primary">@Localizer.GetString(ButtonResourceKeyConstants.SearchButton)</button>
+                <div class="input-group-append pr-2">
+                    <button class="input-group-text lighten-3" id="SearchClearButton" onclick="$('#SearchBox').val('');$('#SearchBoxBtn').click();">
+                        <i class="fas fa-times text-grey" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <input class="form-control-sm my-0 py-1 w-25" type="text" id="SearchBox" placeholder="Search" aria-label="Search">
+            </div>
+            <table id="accessUserList" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>@Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading)</th>
+                        <th></th>
+                        <th>@Localizer.GetString(ColumnHeadingResourceKeyConstants.NameColumnHeading)</th>
+                        <th>@Localizer.GetString(ColumnHeadingResourceKeyConstants.ActorTypeNameColumnHeading)</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer">
+        <button type="button" class="btn btn-outline-primary" disabled="@(enableAdd == false)" button-for="@ButtonResourceKeyConstants.AddButton" onclick="initializeAddEmployee('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)', event,'@Model.SystemFunctionId')"></button>
+        <button type="button" id="savePermissions" class="btn btn-outline-primary" onclick="savePermissions();" button-for="@ButtonResourceKeyConstants.SaveButton"></button>
+        <button type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.CancelButton" onclick="cancelDetails('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)', event)"></button>
+    </div>
+</div>
+
+
+
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script type="text/javascript">
+
+        var userList;
+        var userId = null;
+        var openRows = new Array();
+        var selectedRowNum = -1;
+        var selectedRowNums = [];
+
+        var selectedRowNumForDelete = -1;
+
+        var selectedRow = null;
+
+        $("#accessUserList").on('click', 'tbody tr', function (event) {
+
+            selectedRowNumForDelete = this.rowIndex;
+            var tr = $(this).closest('tr');
+            var row = userList.row(tr);
+            if (row.data() != undefined) {
+                userId = row.data()[1];
+            }
+            $("#accessUserList tbody tr").removeClass('selected');
+            $(this).addClass('selected');
+        });
+
+
+        $('#accessUserList').on('click', 'tbody tr td', function () {
+            if ($(this).find('.fa-trash').length > 0) {
+                if (userId != '-506')
+                {
+                    deleteAccessDetails('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage)', '@Model.SystemFunctionId');
+                }
+            }
+        });
+
+        $('#accessUserList').on('click', 'tbody tr td', function () {
+            if ($(this).find('.fa-caret-down, .fa-caret-up').length>0)
+            {
+
+
+                var detail = false;
+                if ($(this).find($(".fa-caret-down")).length > 0) {
+                    $(this).html('<i class="fas fa-caret-up fa-2x"></i>');
+                    detail = false;
+                }
+                else {
+                    $(this).html('<i class="fas fa-caret-down fa-2x"></i>');
+                    detail = true;
+                }
+
+
+
+                    var tr = $(this).closest('tr');
+                    var row = userList.row(tr);
+                    userId = row.data()[1];
+                    selectedRowNum = tr.index();
+
+                    if (row.child.isShown()) {
+
+                        // Closing the already opened row
+                        row.child.hide();
+                        // Removing class to hide
+                        tr.removeClass('shown');
+                        selectedRowNum = -1;
+                    }
+                    else {
+
+                        //close the previously opened rows
+                        closeOpenedRows(userList, tr);
+
+                        // Show the child row for detail
+                        getChildRow(row)
+                        // To show details,add the below class
+                        tr.addClass('shown');
+
+                        // store current selection
+                        openRows.push(tr);
+
+                    }
+                }
+            });
+
+        var userPermissionList = $("#permissionList").DataTable({
+                paging: false,
+                info: false,
+                searching: true,
+                sDom: "t",
+                select: true,
+                columnDefs: [
+                    { searchable: false, targets: [0, 1, 2] },
+                    { visible: false, targets: [0,1,2] },
+                    {
+                        'targets': 4,
+                        'searchable': false,
+                        'orderable': false,
+                        'className': 'dt-body-center',
+                        'render': function (data, type, full, meta) {
+
+                            if (data == 'true') {
+                                return '<input type="checkbox" id="chkPermisson" checked  class="checkbox_check">';
+                            } else {
+                                return '<input type="checkbox" id="chkPermisson" class="checkbox_check">';
+
+                            }
+                        }
+                    }
+                ]
+            });
+
+        initializeAccessUserListTable();
+
+        function initializeAccessUserListTable() {
+
+            if ($.fn.dataTable.isDataTable('#accessUserList')) {
+                userList = $('#accessUserList').DataTable();
+                userList.destroy();
+            }
+
+            userList = $("#accessUserList").DataTable({
+                'processing': true,
+                'serverSide': true,
+                'rowCallback': function (row, data) { },
+                'start': 0,
+                'length': 100,
+                'dom': "<'row'<'col-sm-12 col-md-6'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-3'i><'col-sm-12 col-md-3'l><'col-sm-12 col-md-6'p>>",
+                'colReorder': true,
+                'autoWidth': true,
+                'pagingType': 'full_numbers',
+                'ajax':
+                {
+                    'url': '@Url.Action("GetAccessUserList", "SystemFunctions", new { Area = "Administration", SubArea = "Security"})',
+                    'contentType': 'application/json',
+                    'type': 'POST',
+                    'data': function (d) {
+                        d.postArgs = getDataGridParameters();
+                        return JSON.stringify(d)
+                    }
+                },
+       
+                rowCallback: function (row, data) {
+
+
+                    if ('@(Model.AcccessRightWritePermission)' == 'False')
+                    {
+                        // Set the checked state of the checkbox in the table
+                        $("td:eq(3)", row).attr("disabled", "disabled");
+                        $("td:eq(3)", row).attr("disabled", "disabled");
+                        $("td:eq(3)", row).click(false);
+                    }
+                },
+
+                "columns": [
+                    {
+                        "defaultContent": '',
+                        "orderable": false
+                    },
+                    {
+                        "defaultContent": '',
+                        'visible': false
+                    },
+                    {
+                        "defaultContent": ''
+                    },
+                    {
+                        "defaultContent": ''
+                    },
+                    {
+
+                        "defaultContent": '<button class="btn" style="pointer-events:none"><i class="fas fa-trash"></i></button>',
+                        "orderable": false,
+
+
+                    },
+                    {
+                        //"className": 'details-control-item',
+                        "orderable": false,
+                        "data": null,
+                        "defaultContent": '<i class="fas fa-caret-down fa-2x"></i>'
+                    }],
+                'searching': false,
+                'language':
+                {
+                    'decimal': '',
+                    //'emptyTable': 'No data available in table',
+                    'info': 'Showing _START_ to _END_ of _TOTAL_ entries',
+                    'infoEmpty': 'Showing 0 to 0 of 0 entries',
+                    'infoFiltered': '(filtered from _MAX_ total entries)',
+                    'infoPostFix': '',
+                    'thousands': ',',
+                    'lengthMenu': 'Show _MENU_ entries',
+                    'loadingRecords': 'Loading...',
+                    'processing': 'Processing...',
+                    'search': 'Search:',
+                    'zeroRecords': 'No matching records found',
+                    'paginate': {
+                        'first': '<<',
+                        'last': '>>',
+                        'next': '>',
+                        'previous': '<'
+                    },
+                    'aria': {
+                        'sortAscending': ': activate to sort column ascending',
+                        'sortDescending': ': activate to sort column descending'
+                    }
+                },
+
+                'order': [[1, 'asc']]
+            });
+
+        };
+
+        function initializUserPermissionListTable(userId) {
+            var jsonData = {
+                "systemFunctionId": $("#systemFunctionId").val(),
+                    "userId": userId
+            };
+            $.ajax({
+                url: '@Url.Action("GetPermissionList", "SystemFunctions")',
+                data: JSON.stringify(jsonData),
+                contentType: "application/json",
+                type: "POST",
+                success: function (result) {
+                    userPermissionList.clear().draw();
+                    userPermissionList.rows.add(result.data).draw();
+                    userPermissionList.row(':eq(0)', { page: 'current' }).select();
+                },
+                error: function (reponse) { alert("An error occurred: " + reponse); }
+            });
+        };
+
+        var filterControlsData = {};
+        filterControlsData = {
+            systemFunctionId: $("#systemFunctionId").val(),
+            searchBox: $('#SearchBox').val()
+        }
+
+
+        $("#SearchBoxBtn").click(function () {
+            filterControlsData = {
+                systemFunctionId: $("#systemFunctionId").val(),
+                searchBox: $('#SearchBox').val()
+            };
+            var dt = $('#accessUserList').DataTable();
+            dt.ajax.reload();
+        });
+
+        function getDataGridParameters() {
+            filterControlsData = {
+                systemFunctionId : $("#systemFunctionId").val(),
+                searchBox: $('#SearchBox').val()
+            }
+            return JSON.stringify(filterControlsData);
+        }
+
+        function showSystemFunctionPermission() {
+            var systemFunctionId = $("#systemFunctionId").val();
+            var rows = $('#accessUserList tr').length;
+            if (rows.length > 0) {
+                $('#accessUserList tbody tr:eq(0)').click();
+            }
+        }
+
+        function cancelDetails(message, event) {
+            event.preventDefault();
+            showWarningModal(message).then(response => {
+                if (response) {
+                    location.href = '@Url.Action("List", "SystemFunctions", new { Area = "Administration", SubArea = "Security" })';
+                }
+            });
+        };
+
+        function initializeAddEmployee() {
+            showSearchAddActorModal();
+        };
+
+        function deleteAccessDetails(message, systemFunctionId) {
+            //event.preventDefault();
+            //if (selectedRowNumForDelete !== -1) {
+                showWarningModal(message).then(response => {
+                    if (response) {
+                        $("#warningModal").modal("hide");
+                        var jsonData = {
+                            "systemFunctionId": $("#systemFunctionId").val(),
+                            "userId": userId
+                        };
+
+                        $.ajax({
+                            url: '@Url.Action("DeleteSystemFunctionsPersonAndEmployeeGroups", "SystemFunctions")',
+                            data: JSON.stringify(jsonData),
+                            contentType: "application/json",
+                            type: "POST",
+                            success: function (result) {
+                                if ($.fn.dataTable.isDataTable('#accessUserList')) {
+                                    userList = $('#accessUserList').DataTable();
+                                    userList.destroy();
+                                    initializeAccessUserListTable();
+                                }
+                            },
+                            error: function (reponse) { alert("An error occurred: " + reponse); }
+                        });
+                    }
+                }, error => {
+                    $("#warningModal").modal("hide");
+                });
+            //}
+        };
+
+        function closeOpenedRows(table, selectedRow) {
+            $.each(openRows, function (index, openRow) {
+                // not the selected row!
+                if ($.data(selectedRow) !== $.data(openRow)) {
+                    var rowToCollapse = table.row(openRow);
+                    rowToCollapse.child.hide();
+                    openRow.removeClass('shown');
+                    // replace icon to expand
+                    $(openRow).find('td.details-control').html('<span class="glyphicon glyphicon-plus"></span>');
+                    // remove from list
+                    var index = $.inArray(selectedRow, openRows);
+                    openRows.splice(index, 1);
+                }
+            });
+        }
+
+        function getChildRow(row) {
+            var tableFinalData = '';
+                var jsonData = {
+                    "systemFunctionId": $("#systemFunctionId").val(),
+                    "userId": userId
+                };
+                $.ajax({
+                    url: '@Url.Action("GetPermissionList", "SystemFunctions")',
+                    data: JSON.stringify(jsonData),
+                    contentType: "application/json",
+                    type: "POST",
+                    success: function (result) {
+                        var disabled ='';
+                        if (userId =='-506')
+                        {
+                            disabled='disabled';
+                        }
+                        var tableStart = '<div><table class="table" cellpadding="5" cellspacing="0"'
+                            + ' style="padding-left:50px;">' +
+                            '<thead><tr>' +
+                            '<td>Operation</td>' +
+                            '<td>Access</td>' +
+                            '<td style="display:none;"></td>' +
+                            '<td style="display:none;"></td>' +
+                            '<td style="display:none;"></td>' +
+                            '</tr></thead>' +
+                            '<tbody>';
+                        var tableData = '';
+                        var tableEnd = '</tbody></table></div>';
+                        result.data.forEach((item, index) => {
+                            var operation = '<tr><td>' + item[3] + '</td>';
+                            var permissionCheck = '';
+                            if (item[4] == 'true') {
+                                permissionCheck = '<td><input type="checkbox" '+  disabled + ' id="chkPermisson" checked  class="checkbox_check"></td>';
+                            } else {
+                                permissionCheck = '<td><input type="checkbox" '+  disabled + ' id="chkPermisson" class="checkbox_check"></td>';
+                            }
+                            var systemFunctiontd = '<td  style="display:none;">' + item[0] + '</td>';
+                            var usertd = '<td  style="display:none;">' + item[1] + '</td>';
+                            var opertiontd = '<td  style="display:none;">' + item[2] + '</td>';
+
+
+                            tableData = tableData + operation + permissionCheck +systemFunctiontd+ usertd+ opertiontd + '</tr>'
+
+                        });
+
+                        tableFinalData = tableStart + tableData + tableEnd;
+                        row.child(tableFinalData).show();
+                        selectedRow = row;
+                    },
+                    error: function (reponse) { alert("An error occurred: " + reponse); }
+                });
+
+        }
+
+        function savePermissions() {
+            if (selectedRowNum !== -1) {
+                var permissonTable = $(selectedRow.child()[0]).find("table")[0];
+                var permissionData = [];
+                var permission;
+                $(permissonTable).find('tbody tr').each(function (i, el) {
+                    var $tds = $(this).find('td');
+                    permission = new Object();
+                    permission.SystemFunction = $tds.eq(2).text();
+                    permission.RoleId = $tds.eq(3).text();
+                    permission.Operation = $tds.eq(4).text();
+                    var isPermissonChecked = $tds.eq(1).find('#chkPermisson').prop('checked');
+                    if (isPermissonChecked) {
+                        permission.intRowStatus = 0
+                    }
+                    else {
+                        permission.intRowStatus = 1
+                    }
+                    permission.intRowStatusForSystemFunction = 0;
+                    permissionData.push(permission);
+                });
+
+                if (permissionData.length > 0) {
+                    $.ajax({
+                        url: '@Url.Action("SavePermissions", "SystemFunctions")',
+                        data: JSON.stringify(permissionData),
+                        contentType: "application/json",
+                        type: "POST",
+                        success: function (response) {
+                            showInformationalModal(response.informationalMessage);
+                        },
+                        error: function (reponse) { alert("An error occurred: " + reponse); }
+                    });
+                }
+            }
+        };
+
+    </script>
+}
+
+
+@if (ViewBag.JavaScriptFunction != null)
+{
+    <script type="text/javascript">
+        @Html.Raw(ViewBag.JavaScriptFunction)
+    </script>
+}

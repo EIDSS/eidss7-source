@@ -1,0 +1,9 @@
+﻿
+@inherits EIDSS.Web.Components.Notification.NotificationEnvelopeComponentBase
+ <a href="#"  @onclick="@ShowNotifications" @onclick:preventDefault >
+    <i class="fas fa-envelope"></i>
+    <sup>
+        <label class="badge" id="messageCount">@MessageCount</label>
+    </sup>
+</a>
+

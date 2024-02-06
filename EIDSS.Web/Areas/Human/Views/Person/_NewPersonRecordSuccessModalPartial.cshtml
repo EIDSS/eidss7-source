@@ -1,0 +1,53 @@
+﻿<div class="modal fade" id="newPersonRecordSuccessModal" tabindex="-1" role="dialog" aria-labelledby="warningModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="warningModalHeader">EIDSS</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 text-right">
+                        <span class="fas fa-info-circle fa-2x modal-icon"></span>
+                    </div>
+                    <div class="col-lg-11 col-md-11 col-sm-11 col-xs-11">
+                        <p id="successMessage"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnAddDiseaseReport" type="button" class="btn btn-primary">Add Disease Report</button>
+                <button id="btnOk" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.OKButton"></button>
+                <button id="btnReturnToDashboard" type="button" class="btn btn-primary">Return To Dashboard</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function showNewPersonRecordSuccessModal(message, title = "@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)", size = "medium") {
+        const modal = new Promise(function (resolve, reject) {
+            $("#newPersonRecordSuccessModal").find(".modal-header > h5").text(title).end();
+            $("#newPersonRecordSuccessModal").find("#successMessage").text(message.replace(/&quot;/g, '\"')).end(); // replace HTML &quot to show actual double quotes.
+            $("#newPersonRecordSuccessModal").modal("show");
+
+
+            $("#btnAddDiseaseReport").click(function () {
+                $("#newPersonRecordSuccessModal").modal("hide");
+                resolve(1);
+            });
+            $("#btnReturnToDashboard").click(function () {
+                resolve(2);
+            });
+            $("#btnOk").click( function (e) {
+                e.preventDefault();
+                resolve(3);
+            });
+        }).then(response => {
+            return response;
+        });
+
+        return modal;
+    };
+</script>

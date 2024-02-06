@@ -1,0 +1,145 @@
+﻿@using EIDSS.Domain.ViewModels.Administration.Security
+@using EIDSS.Web.Areas.Administration.SubAreas.Security.ViewModels.SystemEventLog
+@using EIDSS.Web.Components.CrossCutting;
+@using Microsoft.AspNetCore.Components
+@inherits EIDSS.Web.Components.Administration.Security.SystemEventLog.SearchSystemEventLogBase
+
+<RadzenTemplateForm id="searchForm" @ref="Form" TItem="SystemEventLogSearchPageViewModel" Data="@Model" Submit="@HandleValidSearchSubmit">
+    <div id="accordion">
+        <!--search criteria-->
+        <div class="card">
+            <div class="card-header" id="searchCriteria">
+                <button class="btn d-inline-block"
+                        type="button"
+                        data-toggle="collapse"
+                        aria-expanded="false"
+                        aria-controls="searchCriteriaBody"
+                        @onclick="@(() => AccordionClick(0))">
+                    <span class="text-left fas @(expandSearchCriteria ? "fa-caret-down" : "fa-caret-right")" ></span>
+                    <h4 class="mb-0 d-inline-block"> @Localizer.GetString(HeadingResourceKeyConstants.SearchCriteriaHeading)</h4>
+                </button>
+            </div>
+            <div id="searchCriteriaBody" class="@(expandSearchCriteria ?  "collapse show" : "collapse" )" aria-labelledby="searchCriteria" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="form-row">
+                        <fieldset class="col-md-12">
+                            <legend>@Localizer.GetString(HeadingResourceKeyConstants.SystemEventsLogActionDateHeading)</legend>
+                            <div class="row">
+                                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SystemEventsLogTransactionDateFromFieldLabel" IsRow="false" CssClass="col-md-4" For="SearchCriteria_FromDate">
+                                    <RadzenDatePicker id="SearchCriteria_StartDate" Name="SearchCriteria_FromDate" AllowClear="true" AllowInput="true" class="form-control-range" TValue="DateTime?" @bind-Value="@Model.SearchCriteria.FromDate" DateFormat="d"/>
+                                    <RadzenCompareValidator Value="@Model.SearchCriteria.FromDate" Component="SearchCriteria_FromDate" Popup="false" Operator="CompareOperator.LessThanEqual"
+                                                            Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), Localizer.GetString(FieldLabelResourceKeyConstants.SystemEventsLogTransactionDateFromFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.SystemEventsLogTransactionDateToFieldLabel))"
+                                                            Style="display: block" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.ToDate.ToString()))"/>
+                                    <RadzenCompareValidator Value="@DateTime.Now" Component="SearchCriteria_FromDate" Popup="false" Operator="CompareOperator.LessThanEqual"
+                                                            Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)"
+                                                            Style="display: block"/>
+                                </InterfaceEditorResource>
+                                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SystemEventsLogTransactionDateToFieldLabel" IsRow="false" CssClass="col-md-4" For="SearchCriteria_ToDate">
+                                    <RadzenDatePicker id="SearchCriteria_ToDate" class="form-control-range" TValue="DateTime?" AllowInput="true" @bind-Value="@Model.SearchCriteria.ToDate" Name="SearchCriteria_ToDate" AllowClear="true" DateFormat="d"/>
+                                    <RadzenCompareValidator Value="@Model.SearchCriteria.FromDate" Component="SearchCriteria_ToDate" Popup="false" Operator="CompareOperator.GreaterThanEqual"
+                                                            Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.SystemEventsLogTransactionDateToFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.SystemEventsLogTransactionDateFromFieldLabel))"
+                                                            Style="display: block" Visible="@(!string.IsNullOrEmpty(Model.SearchCriteria.FromDate.ToString()))"/>
+                                    <RadzenCompareValidator Value="@DateTime.Now" Component="SearchCriteria_ToDate" Popup="false" Operator="CompareOperator.LessThanEqual"
+                                                            Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)"
+                                                            Style="display: block"/>
+                                </InterfaceEditorResource>
+                            </div>
+                        </fieldset>
+                    </div>
+                    
+                    <div class="form-row">
+                        
+                        
+                        <!--User Drop Down-->
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SystemEventsLogUserFieldLabel" IsRow="false" CssClass="col-4" For="userId">
+                            <RadzenDropDownDataGrid TValue="long?" Name="userId" Data="@UserList" Style="width:100%" AllowColumnResize="true"
+                                                    @bind-Value="@Model.SearchCriteria.UserId"   AllowClear="true" PageSize="10"
+                                                    ValueProperty="idfUserID" TextProperty="FullName" AllowSorting="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFilteringByAllStringColumns="true">
+                                <Columns>
+                                    <RadzenDropDownDataGridColumn Property="FullName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.NameColumnHeading)" Width="100px" />
+                                </Columns>
+                            </RadzenDropDownDataGrid>
+                        </InterfaceEditorResource>
+
+                        <!--Event Type Drop Down-->
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SystemEventsLogActionFieldLabel" IsRow="false" CssClass="col-md-4" For="actionId">
+                            <RadzenDropDown id="eventTypeId" Name="eventTypeId" AllowClear="true" TValue="long?" Data="@EventTypeList" LoadData="@GetEventTypeListAsync"
+                                            ValueProperty="IdfsBaseReference" TextProperty="Name" @bind-Value="@Model.SearchCriteria.EventTypeId" class="form-control"
+                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"/>
+                        </InterfaceEditorResource>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end search criteria-->
+        <!--search criteria buttons-->
+        <div class="card-footer @(showSearchCriteriaButtons ?  " d-block" : "d-none" )">
+            <div class="row">
+                <div class="col-md-12">
+                    @if(!String.IsNullOrEmpty(CancelUrl)){
+                        <button id="cancelSearchButton" class="btn btn-outline-primary" type="button" @onclick=@(CancelSearchClicked)>@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    }
+                    <button id="clearButton" class="btn btn-outline-primary" type="reset" @onclick="@(ResetSearch)">@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)</button>
+                    <button id="searchButton" type="submit" class="btn btn-primary" autofocus disabled="@disableSearchButton">@Localizer.GetString(@ButtonResourceKeyConstants.SearchButton)</button>
+                </div>
+            </div>
+        </div>
+        <!--search criteria buttons-->
+        <!--search results-->
+        <div class="card @(showSearchResults ?  " d-block" : "d-none" )">
+            <div class="card-header" id="searchResultsHeader">
+                <h4 class="d-inline-block" style="line-height: 1.5rem; padding: 0.375rem 0.75rem;">@Localizer.GetString(HeadingResourceKeyConstants.SearchResultsHeading)</h4>
+            </div>
+            <div id="searchResultsBody" class="collapse show" aria-labelledby="searchResults" data-parent="#accordion">
+                <div class="card-body">
+                    
+                    <GridExtension OnColumnSave="GridDataAuditClickHandler"></GridExtension>
+                    <div class="row">
+                        <div class="col-12">
+                            <RadzenDataGrid @ref="Grid" id="searchResults" TItem="SystemEventLogGetListViewModel" IsLoading="@isLoading" LoadData="@(LoadData)" Data="@Model.SearchResults" AllowPaging="true" AllowSorting="true" Count="@count" AllowColumnResize="true" ExpandMode="DataGridExpandMode.Single"
+                                            AllowColumnReorder="true" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)"
+                                            Visible="@showSearchResults" PageSizeOptions="@pageSizeOptions" ShowPagingSummary="true" 
+                                            AllowColumnPicking="true" 
+                                            HeaderCellRender="@((args) => HeaderCellRender(args.Column.Property))">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="SystemEventLogGetListViewModel" Reorderable="true" OrderIndex="@FindColumnOrder("EventId")" Visible="false" Property="EventId" Title="@Localizer.GetString(HeadingResourceKeyConstants.SystemEventsLogProcessIDHeading)" Width="100px" Sortable="true" SortProperty="EventId"/>
+                                    <RadzenDataGridColumn TItem="SystemEventLogGetListViewModel" Reorderable="true" OrderIndex="@FindColumnOrder("EventDate")" Visible="@GetColumnVisibility("datActionDate")" Property="EventDate" Title="@Localizer.GetString(HeadingResourceKeyConstants.SystemEventsLogDateHeading)" Width="150px" Sortable="true" SortProperty="EventDate"/>
+                                    <RadzenDataGridColumn TItem="SystemEventLogGetListViewModel" Reorderable="true" OrderIndex="@FindColumnOrder("strPersonName")" Visible="@GetColumnVisibility("strPersonName")" Property="strPersonName" Title="@Localizer.GetString(HeadingResourceKeyConstants.SystemEventsLogUserHeading)" Sortable="true" Width="100px" SortProperty="strPersonName"/>
+                                    <RadzenDataGridColumn TItem="SystemEventLogGetListViewModel" Reorderable="true" OrderIndex="@FindColumnOrder("EventTypeName")" Visible="@GetColumnVisibility("EventTypeName")" Property="EventTypeName" Title="@Localizer.GetString(HeadingResourceKeyConstants.SystemEventsLogDescriptionHeading)" Sortable="true" Width="100px" SortProperty="EventTypeName"/>
+                                    <RadzenDataGridColumn TItem="SystemEventLogGetListViewModel" Reorderable="false" Pickable="false" Property="" Title="" Sortable="false" Filterable="false"  Visible="@Model.Permissions.Read" Width="50px" >
+                                        <Template Context="data">
+                                            <button class="btn btn-link btn-sm" @onclick="@(() => SendReportLink(data))">
+                                                <i class="fas fa-eye fa-lg"></i>
+                                            </button>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+
+                                    <!-- Need to add description-->
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="cancelButtonResults" class="btn btn-outline-primary" type="button" @onclick="@(() => CancelSearchClicked())">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end search results-->
+    </div>
+
+
+</RadzenTemplateForm>
+
+@code{
+
+    void GridDataAuditClickHandler()
+    {
+        GridColumnSave("SearchDataAuditModule");
+    }
+}
+

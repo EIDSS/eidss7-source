@@ -1,0 +1,357 @@
+﻿@model EIDSS.Web.Administration.Security.ViewModels.UserGroupPageDetailsViewModel
+
+@using EIDSS.Web.Components.Administration.Security.UserGroup;
+
+<partial name="_ErrorModalPartial" />
+<partial name="_InformationalModalPartial" for="InformationalMessage" />
+<partial name="_WarningModalPartial" />
+
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@HeadingResourceKeyConstants.UserGroupDetailsPageHeading"></h3>
+    </div>
+    <div class="card-body">
+        <div id="userGroupWizard">
+            <h4 heading-for="@HeadingResourceKeyConstants.UserGroupDetailsInformationHeading"></h4>
+            <section>
+                <partial name="_InformationPartial" for="InformationSection" />
+            </section>
+            <h4 heading-for="@HeadingResourceKeyConstants.UserGroupDetailsUsersAndGroupsHeading"></h4>
+            <section>
+                <div id="DivUsersAndGroupsSection">
+                    <component type="typeof(UsersAndGroupsSection)" param-Model="@Model.UsersAndGroupsSection" render-mode="Server" />
+                </div>
+            </section>
+            <h4 heading-for="@HeadingResourceKeyConstants.UserGroupDetailsSystemFunctionsHeading"></h4>
+            <section>
+                <partial name="_SystemFunctionsPartial" for="SystemFunctionsSection" />
+            </section>
+            <h4 heading-for="@HeadingResourceKeyConstants.UserGroupDetailsDashboardIconsHeading"></h4>
+            <section>
+                <partial name="_DashboardIconsPartial" for="DashboardIconsSection" />
+            </section>
+            <h4 heading-for="@HeadingResourceKeyConstants.UserGroupDetailsDashboardGridsHeading"></h4>
+            <section>
+                <partial name="_DashboardGridsPartial" for="DashboardGridsSection" />
+            </section>
+            <h4 heading-for="@HeadingResourceKeyConstants.ReviewHeading"></h4>
+            <section>
+            </section>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        localStorage.removeItem("usersAndGroupsModel");
+    });
+
+    initializeSideBar_Immediate();
+    function initializeSideBar_Immediate() {
+        $("#userGroupWizard").steps({
+            headerTag: "h4",
+            titleTemplate: '<span id="erroredStep" class="fa-stack text-danger" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-times fa-stack-1x fa-inverse"></i></span><span id="step" class="fa-stack text-muted" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span><span id="completedStep" class="fa-stack text-success" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-check fa-stack-1x fa-inverse"></i></span><span id="reviewStep" class="fa-stack text-muted" title="#title#"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-clipboard-list fa-stack-1x fa-inverse"></i></span> <span class="stepTitleText">#title#</span>',
+            bodyTag: "section",
+            transitionEffect: "none",
+            stepsOrientation: "vertical",
+            enableAllSteps: true,
+            enableCancelButton: true,
+            enableKeyNavigation: true,
+            enableContentCache: true,
+            labels: {
+                cancel: "@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)",
+                finish: "@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)",
+                next: "@Localizer.GetString(ButtonResourceKeyConstants.NextButton)",
+                previous: "@Localizer.GetString(ButtonResourceKeyConstants.PreviousButton)",
+                loading: "@Localizer.GetString(MessageResourceKeyConstants.PleaseWaitWhileWeProcessYourRequestMessage)"
+            },
+            onInit: function (event) { initInformationSection(); initUsersAndGroupsSection(); },
+            onCanceled: function (event) { cancelUserGroupDetails('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)', event); },
+            onStepChanging: function (event, currentIndex, newIndex) {
+                switch (currentIndex) {
+                    case 0:
+                        $("#userGroupInfoForm").validate({
+                            ignore: null
+                        });
+
+                        if ($("#userGroupInfoForm").valid()) {
+                            return true;
+                        }
+                        break;
+                    case 1:
+                        return true;
+                        break;
+                    case 2:
+                        return true;
+                        break;
+                    case 3:
+                        return true;
+                        break;
+                    case 4:
+                        return true;
+                        break;
+                    case 5:
+                        return true;
+                        break;
+                }
+            },
+            onFinished: function (event) {
+                var valid = true;
+                var strDefault = $("#InformationSection_UserGroupDetails_strDefault").val();
+                if (strDefault == null || strDefault == "")
+                    valid = false;
+
+                if (valid) {
+                    submitUserGroupDetails(event);
+                } else {
+                    $("#userGroupWizard").steps("setStep", 0);
+                }
+            }
+        });
+    };
+
+    function initInformationSection() {
+    };
+
+    function initUsersAndGroupsSection() {
+     };
+
+    function initSystemFunctionsSection() {
+    };
+
+    function cancelUserGroupDetails(message, event) {
+        event.preventDefault();
+
+        showWarningModal(message).then(response => {
+            if (response) {
+                location.href = '@Url.Action("Index", "UserGroupPage")';
+            }
+        });
+    };
+
+    function resetForm() {
+
+        $('#userGroupInfoForm').find(':input').each(function () {
+            switch (this.type) {
+                    case "password":
+                    case "select-multiple":
+                    case "select-one":
+                    case "text":
+                    case "textarea":
+                        $(this).val("");
+                        break;
+                    case "checkbox":
+                    case "radio":
+                        this.checked = false;
+             }
+        });
+
+    };
+
+    function SetUsersAndGroupsData(usersAndGroupsModel) {
+        localStorage.setItem("usersAndGroupsModel", JSON.stringify(usersAndGroupsModel));
+    };
+
+    function submitUserGroupDetails(event) {
+        var idfEmployeeGroup = $("#InformationSection_UserGroupDetails_idfEmployeeGroup").val();
+            if (idfEmployeeGroup == "") {
+                idfEmployeeGroup = null;
+            }
+
+            var request = {};
+            request.idfEmployeeGroup = idfEmployeeGroup;
+        request.strDefault = $("#InformationSection_UserGroupDetails_strDefault").val();
+        request.strName = $("#InformationSection_UserGroupDetails_strName").val();
+        request.strDescription = $("#InformationSection_UserGroupDetails_strDescription").val();
+
+        //UsersAndGroups
+        var usersAndGroupsModel = localStorage.getItem("usersAndGroupsModel");
+        var parsedUsersAndGroupsModel = JSON.parse(usersAndGroupsModel);
+        request.usersAndGroupsModel = parsedUsersAndGroupsModel;
+
+            var items = [];
+            var itemTable = $('#DashboardIconsTable');
+            var item;
+            $(itemTable).find('tbody tr').each(function (i, el) {
+                var $tds = $(this).find('td');
+                var isChecked = $tds.eq(1).find('input[type="checkbox"]').prop('checked');
+                if (isChecked) {
+                    item = $tds.eq(0).text();
+                    items.push(item);
+                }
+            });
+
+            var item2 = $("#DashboardGridsSection_SelectedDashboardGrid").val();
+            if (item2 != "0") {
+                items.push(item2);
+            }
+            var itemsList = items.join(",");
+            request.dashboardItems = itemsList;
+
+            var permissonTable = $('#tblPermission');
+            var permissionData = [];
+            var permission;
+            $(permissonTable).find('tbody tr').each(function (i, el) {
+                var $tds = $(this).find('td');
+
+                var isPermissonChecked;
+                if (!$tds.eq(1).is(':empty')) {
+                    //Create = 10059001
+                    permission = new Object();
+                    permission.SystemFunction = $tds.eq(0).find('input[type="hidden"]').val();
+                    permission.RoleId = request.idfEmployeeGroup;
+                    permission.Operation = 10059001;
+                    permission.intRowStatusForSystemFunction = 0;
+                    isPermissonChecked = $tds.eq(1).find('input[type="checkbox"]').prop('checked');
+                    if (isPermissonChecked) {
+                        permission.intRowStatus = 0
+                    }
+                    else {
+                        permission.intRowStatus = 1
+                    }
+                    permissionData.push(permission);
+                }
+                if (!$tds.eq(2).is(':empty')) {
+                    //Read = 10059003
+                    permission = new Object();
+                    permission.SystemFunction = $tds.eq(0).find('input[type="hidden"]').val();
+                    permission.RoleId = request.idfEmployeeGroup;
+                    permission.Operation = 10059003;
+                    permission.intRowStatusForSystemFunction = 0;
+                    isPermissonChecked = $tds.eq(2).find('input[type="checkbox"]').prop('checked');
+                    if (isPermissonChecked) {
+                        permission.intRowStatus = 0
+                    }
+                    else {
+                        permission.intRowStatus = 1
+                    }
+                    permissionData.push(permission);
+                }
+                if (!$tds.eq(3).is(':empty')) {
+                    //Write = 10059004
+                    permission = new Object();
+                    permission.SystemFunction = $tds.eq(0).find('input[type="hidden"]').val();
+                    permission.RoleId = request.idfEmployeeGroup;
+                    permission.Operation = 10059004;
+                    permission.intRowStatusForSystemFunction = 0;
+                    isPermissonChecked = $tds.eq(3).find('input[type="checkbox"]').prop('checked');
+                    if (isPermissonChecked) {
+                        permission.intRowStatus = 0
+                    }
+                    else {
+                        permission.intRowStatus = 1
+                    }
+                    permissionData.push(permission);
+                }
+                if (!$tds.eq(4).is(':empty')) {
+                    //Delete = 10059002
+                    permission = new Object();
+                    permission.SystemFunction = $tds.eq(0).find('input[type="hidden"]').val();
+                    permission.RoleId = request.idfEmployeeGroup;
+                    permission.Operation = 10059002;
+                    permission.intRowStatusForSystemFunction = 0;
+                    isPermissonChecked = $tds.eq(4).find('input[type="checkbox"]').prop('checked');
+                    if (isPermissonChecked) {
+                        permission.intRowStatus = 0
+                    }
+                    else {
+                        permission.intRowStatus = 1
+                    }
+                    permissionData.push(permission);
+                }
+                if (!$tds.eq(5).is(':empty')) {
+                    //Execute = 10059005
+                    permission = new Object();
+                    permission.SystemFunction = $tds.eq(0).find('input[type="hidden"]').val();
+                    permission.RoleId = request.idfEmployeeGroup;
+                    permission.Operation = 10059005;
+                    permission.intRowStatusForSystemFunction = 0;
+                    isPermissonChecked = $tds.eq(5).find('input[type="checkbox"]').prop('checked');
+                    if (isPermissonChecked) {
+                        permission.intRowStatus = 0
+                    }
+                    else {
+                        permission.intRowStatus = 1
+                    }
+                    permissionData.push(permission);
+                }
+                if (!$tds.eq(6).is(':empty')) {
+                    //AccessToPersonalData = 10059006
+                    permission = new Object();
+                    permission.SystemFunction = $tds.eq(0).find('input[type="hidden"]').val();
+                    permission.RoleId = request.idfEmployeeGroup;
+                    permission.Operation = 10059006;
+                    permission.intRowStatusForSystemFunction = 0;
+                    isPermissonChecked = $tds.eq(6).find('input[type="checkbox"]').prop('checked');
+                    if (isPermissonChecked) {
+                        permission.intRowStatus = 0
+                    }
+                    else {
+                        permission.intRowStatus = 1
+                    }
+                    permissionData.push(permission);
+                }
+                if (!$tds.eq(7).is(':empty')) {
+                    //AccessToGenderAndAgeData = 10059007
+                    permission = new Object();
+                    permission.SystemFunction = $tds.eq(0).find('input[type="hidden"]').val();
+                    permission.RoleId = request.idfEmployeeGroup;
+                    permission.Operation = 10059007;
+                    permission.intRowStatusForSystemFunction = 0;
+                    isPermissonChecked = $tds.eq(7).find('input[type="checkbox"]').prop('checked');
+                    if (isPermissonChecked) {
+                        permission.intRowStatus = 0
+                    }
+                    else {
+                        permission.intRowStatus = 1
+                    }
+                    permissionData.push(permission);
+                }
+            });
+
+            request.rolesandfunctions = permissionData;
+
+            $.ajax({
+                url: '@Url.Action("SaveUserGroup", "UserGroupDetails", new { Area = "Administration", SubArea="Security" })',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(request),
+                dataType: "json",
+                async:false,
+                type: "POST",
+                success: function (response) {
+                    if (response.errorMessage != null) {
+                        showErrorModal(response.errorMessage);
+                    }
+                    else {
+                        $("#InformationSection_UserGroupDetails_idfEmployeeGroup").val(response.informationSection.userGroupDetails.idfEmployeeGroup);
+                        $("[id$=SearchCriteria_idfEmployeeGroup]").val(response.informationSection.userGroupDetails.idfEmployeeGroup);
+
+                        if (response.informationalMessage == "Adding an Actor") {
+                            $("#searchEmployeeActorModal").modal("hide");
+                            $('#employeesForUserGroupGrid').DataTable().ajax.reload();
+                        }
+                        else {
+                            showInformationalModalWait(response.informationalMessage).then(response => {
+                                 localStorage.removeItem("usersAndGroupsModel");
+                                if (response)
+                                    location.href = '@Url.Action("Index", "UserGroupPage")';
+                            });
+                        }
+                    }
+                    //if in modal for add/update, then hide modal - how to check??  maybe use modal length to see if modal open?
+                },
+                error: function (response) { 
+                    localStorage.removeItem("usersAndGroupsModel");
+                    alert("An error occurred: " + response); 
+                }
+            });
+    };
+
+    function getDataGridParameters() {
+        alert($("[id$=SearchCriteria_idfEmployeeGroup]").val());
+        filterControlsData = {
+            UsersAndGroupsSection_idfEmployeeGroup: $("[id$=SearchCriteria_idfEmployeeGroup]").val()
+        }
+        alert(filterControlsData);
+        return JSON.stringify(filterControlsData);
+    };
+</script>

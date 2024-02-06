@@ -1,0 +1,89 @@
+﻿@using EIDSS.Domain.Enumerations
+@using EIDSS.Domain.ViewModels.CrossCutting
+@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Services
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession.TestInterpretationModalBase
+
+<RadzenTemplateForm @ref="Form" TItem="LaboratoryTestInterpretationGetListViewModel" Data="StateContainer.InterpretationDetail" Submit="OnSubmit">
+    <div class="card">
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalFarmIDFieldLabel" IsRow="false" CssClass="col-3" For="farmID">
+                <RadzenTextBox Name="farmID" class="form-control" @bind-Value="StateContainer.InterpretationDetail.EIDSSFarmID" Disabled="true" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalSpeciesFieldLabel" IsRow="false" CssClass="col-3" For="species">
+                <RadzenTextBox Name="species" class="form-control" @bind-Value="StateContainer.InterpretationDetail.SpeciesTypeName" Disabled="true" />
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalAnimalIDFieldLabel" IsRow="false" CssClass="col-3" For="animalID">
+                <RadzenTextBox Name="animalID" class="form-control" @bind-Value="StateContainer.InterpretationDetail.EIDSSAnimalID" Disabled="true" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalDiseaseFieldLabel" IsRow="false" CssClass="col-9" For="disease">
+                <RadzenTextBox Name="disease" class="form-control" @bind-Value="StateContainer.InterpretationDetail.DiseaseName" Disabled="true" />
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalTestNameFieldLabel" IsRow="false" CssClass="col-6" For="testName">
+                <RadzenTextBox Name="testName" class="form-control" @bind-Value="StateContainer.InterpretationDetail.TestNameTypeName" Disabled="true" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalTestCategoryFieldLabel" IsRow="false" CssClass="col-6" For="testCategory">
+                <RadzenTextBox Name="testCategory" class="form-control" @bind-Value="StateContainer.InterpretationDetail.TestCategoryTypeName" Disabled="true" />
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalLabSampleIDFieldLabel" IsRow="false" CssClass="col-3" For="labSampleID">
+                <RadzenTextBox Name="labSampleID" class="form-control" @bind-Value="StateContainer.InterpretationDetail.EIDSSLaboratorySampleID" Disabled="true" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalSampleTypeFieldLabel" IsRow="false" CssClass="col-3" For="sampleType">
+                <RadzenTextBox Name="sampleType" class="form-control" @bind-Value="StateContainer.InterpretationDetail.SampleTypeName" Disabled="true" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalFieldSampleIDFieldLabel" IsRow="false" CssClass="col-3" For="fieldSampleID">
+                <RadzenTextBox Name="fieldSampleID" class="form-control" @bind-Value="StateContainer.InterpretationDetail.EIDSSLocalOrFieldSampleID" Disabled="true" />
+            </InterfaceEditorResource>
+        </div>
+        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalRuleOutRuleInFieldLabel" IsRow="true" CssClass="col-12" For="ruleOutRuleIn">
+            <RadzenRadioButtonList Name="ruleOutRuleIn" TValue="long?" @bind-Value="StateContainer.InterpretationDetail.InterpretedStatusTypeID" Data="InterpretedStatusTypes" TextProperty="Name" ValueProperty="IdfsBaseReference" Change="@(args => OnInterpretedStatusTypeChange(args))" Disabled="!StateContainer.InterpretationDetail.CanInterpretTestResultPermissionIndicator" />
+        </InterfaceEditorResource>
+        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalCommentsRuleOutRuleInFieldLabel" IsRow="true" CssClass="col-12" For="ruleOutRuleInComments">
+            <RadzenTextBox Name="ruleOutRuleInComments" class="form-control" @bind-Value="StateContainer.InterpretationDetail.InterpretedComment" MaxLength="200" Disabled="StateContainer.InterpretationDetail.InterpretedStatusTypeID == null" />
+        </InterfaceEditorResource>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalDateInterpretedFieldLabel" IsRow="false" CssClass="col-3" For="dateInterpreted">
+                <br />
+                <RadzenDatePicker Name="dateInterpreted" TValue="DateTime?" @bind-Value="StateContainer.InterpretationDetail.InterpretedDate" AllowClear="true" DateFormat="d" Disabled="true" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalInterpretedByFieldLabel" IsRow="false" CssClass="col-9" For="interpretedBy">
+                <RadzenTextBox Name="interpretedBy" class="form-control" @bind-Value="StateContainer.InterpretationDetail.InterpretedByPersonName" Disabled="true" />
+            </InterfaceEditorResource>
+        </div>
+        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalValidatedFieldLabel" IsRow="true" CssClass="col-3" For="validated">
+            <br />
+            <RadzenCheckBox Name="validated" @bind-Value="StateContainer.InterpretationDetail.ValidatedStatusIndicator" TriState="false" TValue="bool" Change="@(args => OnValidatedChange(args))" Disabled="!StateContainer.InterpretationDetail.CanValidateTestResultPermissionIndicator || StateContainer.InterpretationDetail.InterpretedStatusTypeID == null" />
+        </InterfaceEditorResource>
+        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalCommentsValidatedFieldLabel" IsRow="true" CssClass="col-12" For="validatedComments">
+            <RadzenTextBox Name="validatedComments" class="form-control" @bind-Value="StateContainer.InterpretationDetail.ValidatedComment" MaxLength="200" Disabled="StateContainer.InterpretationDetail.ValidatedStatusIndicator == false" />
+        </InterfaceEditorResource>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalDateValidatedFieldLabel" IsRow="false" CssClass="col-3" For="dateValidated">
+                <br />
+                <RadzenDatePicker Name="dateValidated" TValue="DateTime?" @bind-Value="StateContainer.InterpretationDetail.ValidatedDate" AllowClear="true" DateFormat="d" Disabled="true" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalFarmIDFieldLabel" IsRow="false" CssClass="col-9" For="validatedBy">
+                <RadzenTextBox Name="validatedBy" class="form-control" @bind-Value="StateContainer.InterpretationDetail.ValidatedByPersonName" Disabled="true" />
+            </InterfaceEditorResource>
+           <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionInterpretationDetailsModalReportIDFieldLabel" IsRow="false" CssClass="col-9" For="eidssReportID">
+                <RadzenTextBox Name="eidssReportID" class="form-control" TValue="long?" @bind-Value="StateContainer.InterpretationDetail.EIDSSReportID" Disabled="true" />
+            </InterfaceEditorResource>
+        </div>
+        <div class="card-footer">
+            <div class="form-row">
+                <div class="col-md-12">
+                    <button type="button" class="btn btn-outline-primary" @onclick="OnCancel">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button type="submit" class="btn btn-primary" @onsubmit="OnSubmit">@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

@@ -1,0 +1,67 @@
+﻿@model EIDSS.Web.Administration.Security.ViewModels.UserGroup.DashboardIconsSectionViewModel
+
+<form id="dashboardIconsForm">
+    <div class="container-fluid">
+        <div class="form-row">
+            <div class="col-md-11">
+                <h4 heading-for="@HeadingResourceKeyConstants.UserGroupDetailsDashboardIconsHeading"></h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editDashboardIconsSectionButton" href="#userGroupWizard-h-3" class="edit-section"><span class="far fa-edit fa-lg"></span></a>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-9">
+                <h4 class="heading">@Localizer.GetString(HeadingResourceKeyConstants.UserGroupDetailsYoucanselectuptosixiconsHeading)</h4>
+            </div>
+            @{
+                @if (@Model.SelectedDashboardIcons != null)
+                {
+                    <table id="DashboardIconsTable">
+                        @for (int i = 0; i < @Model.SelectedDashboardIcons.Count(); i++)
+                        {
+                        <tr>
+                            <td style="display:none;">@Model.SelectedDashboardIcons[i].idfsBaseReference</td>
+                            <td>
+                                <div class="form-group col-md-6 form-check form-check-inline">
+                                    <input asp-for="@Model.SelectedDashboardIcons[i].Selected" type="checkbox" class="form-check-input" />
+                                </div>
+                            </td>
+                            <td>
+                                <label asp-for="@Model.SelectedDashboardIcons[i].Selected" class="form-check-label">@Model.SelectedDashboardIcons[i].strName</label>
+                            </td>
+                        </tr>
+                        }
+                    </table>
+                }
+            }
+        </div>
+    </div>
+</form>
+
+    <script type="text/javascript">
+
+        // Handle click on DashboardIconsTable checkbox
+        $("#DashboardIconsTable tbody").on("click", 'input[type="checkbox"]', function (e) {
+            var $row = $(this).closest("tr");
+            var count = 0;
+
+            if (this.checked) {
+                $('#DashboardIconsTable').find(':input:checkbox:checked').each(function () {
+                    count = count + 1;
+                });
+                if (count <= 6) {
+                    $(this).prop("checked", true);
+                } else {
+                    showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.UserGroupDetailsYoucanselectuptosixiconsMessage)');
+                    $(this).prop("checked", false);
+                }
+            } else {
+                $(this).prop("checked", false);
+            }
+
+            // Prevent click event from propagating to parent
+            e.stopPropagation();
+        });
+
+    </script>

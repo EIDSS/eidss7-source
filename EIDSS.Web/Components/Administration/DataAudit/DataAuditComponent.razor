@@ -1,0 +1,69 @@
+﻿@using EIDSS.Web.Components.CrossCutting;
+@using EIDSS.Web.Areas.Administration.SubAreas.Security.ViewModels.DataAudit
+@using EIDSS.Domain.ViewModels.Administration.Security
+
+@inherits DataAuditComponentBase
+
+<RadzenTemplateForm Data="@Model" id="dataAuditDetailForm" @ref="Form" TItem="TransactionLogDetailPageViewModel">
+    <div class="card">
+        <div class="card-body">
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-md-4" For="ObjectType" InterfaceEditorKey="@FieldLabelResourceKeyConstants.DataAuditLogDetailsObjectTypeFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="Model.SelectedRecord.ObjectType" class="form-control" Disabled="true" id="ObjectType" Name="ObjectType" TValue="string"/>
+                </InterfaceEditorResource>
+                <div class="col-4"></div>
+                <InterfaceEditorResource CssClass="col-md-4" For="Action" InterfaceEditorKey="@FieldLabelResourceKeyConstants.DataAuditLogDetailsActionFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="Model.SelectedRecord.ActionName" class="form-control" Disabled="true" id="Action" Name="Action" TValue="string"/>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-md-4" For="TableName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.DataAuditLogDetailsTableNameFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="Model.SelectedRecord.tableName" class="form-control" Disabled="true" id="TableName" Name="TableName"/>
+                </InterfaceEditorResource>
+                <div class="col-4"></div>
+                <InterfaceEditorResource CssClass="col-md-4" For="ObjectId" InterfaceEditorKey="@FieldLabelResourceKeyConstants.DataAuditLogDetailsObjectIDFieldLabel" IsRow="false">
+                    <RadzenNumeric @bind-Value="Model.SelectedRecord.ObjectId" class="form-control" Disabled="true" id="ObjectId" Name="ObjectId" ShowUpDown="false" TValue="long?"/>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-md-4" For="TransDate" InterfaceEditorKey="@FieldLabelResourceKeyConstants.DataAuditLogDetailsTransactionDateFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="Model.SelectedRecord.StrTransDate" class="form-control" Disabled="true" id="TransDate" Name="TransDate" TValue="string"/>
+                </InterfaceEditorResource>
+                <div class="col-4"></div>
+                <InterfaceEditorResource CssClass="col-md-4" For="siteId" InterfaceEditorKey="@FieldLabelResourceKeyConstants.DataAuditLogDetailsSiteIDFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="Model.SelectedRecord.StrSiteId" clas Disabled="true" id="siteId" Name="siteId" s="form-control" TValue="string"/>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-md-4" For="UserName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.DataAuditLogDetailsUserFieldLabel" IsRow="false">
+                    <RadzenTextBox @bind-Value="Model.SelectedRecord.UserName" class="form-control" Disabled="true" id="UserName" Name="UserName" TValue="string"/>
+                </InterfaceEditorResource>
+                <div class="col-4"></div>
+            </div>
+            <div class="row">
+                <RadzenDataGrid AllowColumnPicking="true" AllowColumnReorder="true" AllowColumnResize="true" AllowPaging="true" AllowSorting="true" Count="@Count" Data="@Model.SearchResults" EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" ExpandMode="DataGridExpandMode.Single" id="searchResults" IsLoading="@IsLoading" LoadData="@(LoadData)" PageSize="10" @ref="Grid" TItem="DataAuditTransactionLogGetDetailViewModel">
+                    <Columns>
+                        <RadzenDataGridColumn Property="strTableName" Reorderable="true" Sortable="true" TItem="DataAuditTransactionLogGetDetailViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.DataAuditLogDetailsTableNameColumnHeading)" Width="150px"/>
+                        <RadzenDataGridColumn Property="idfObject" Reorderable="true" Sortable="true" TItem="DataAuditTransactionLogGetDetailViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.DataAuditLogDetailsObjectID1ColumnHeading)" Width="150px"/>
+                        <RadzenDataGridColumn Property="idfObjectDetail" Reorderable="true" Sortable="true" TItem="DataAuditTransactionLogGetDetailViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.DataAuditLogDetailsObjectID1ColumnHeading)" Width="100px"/>
+                        <RadzenDataGridColumn Property="strActionType" Reorderable="true" Sortable="true" TItem="DataAuditTransactionLogGetDetailViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.DataAuditLogDetailsActionColumnHeading)" Width="75px"/>
+                        <RadzenDataGridColumn Property="strColumnName" Reorderable="true" Sortable="true" TItem="DataAuditTransactionLogGetDetailViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.DataAuditLogDetailsChangedColumnNameColumnHeading)" Width="100px"/>
+                        <RadzenDataGridColumn Property="strOldValue" Reorderable="true" Sortable="true" TItem="DataAuditTransactionLogGetDetailViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.DataAuditLogDetailsOldColumnValueColumnHeading)" Width="100px"/>
+                        <RadzenDataGridColumn Property="strNewValue" Reorderable="true" Sortable="true" TItem="DataAuditTransactionLogGetDetailViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.DataAuditLogDetailsNewColumnValueColumnHeading)" Width="100px"/>
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+            <div class="row">
+                @if (DisableRestore())
+                {
+                    <button class="btn btn-outline-primary disabled" disabled id="restoreData" type="button">@Localizer.GetString(ButtonResourceKeyConstants.DataAuditLogDetailsRestoreButtonText)</button>
+                }
+                else
+                {
+                    <button class="btn btn-outline-primary" disabled id="restoreData" @onclick="@(args => Restore(Model.SelectedRecord.auditEventId))" type="button">@Localizer.GetString(ButtonResourceKeyConstants.DataAuditLogDetailsRestoreButtonText)</button>
+                }
+                <button class="btn btn-outline-primary" id="closeButton" @onclick="@(args => Close())" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CloseButton)</button>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

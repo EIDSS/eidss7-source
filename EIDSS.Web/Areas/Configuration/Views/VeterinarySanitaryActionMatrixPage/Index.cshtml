@@ -1,0 +1,891 @@
+﻿@model EIDSS.Web.ViewModels.Configuration.VeterinarySanitaryActionMatrixPageViewModel;
+@using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+
+<link rel="stylesheet" href="~/lib/DataTables/css/rowReorder.dataTables.min.css"/>
+<link rel="stylesheet" href="~/lib/DataTables/css/select.dataTables.min.css"/>
+
+<style type="text/css">
+    #tblMatrix tr th, td { vertical-align: middle; }
+
+    .versionButtonItem {
+        background-color: #fff;
+        border: 0 solid #fff;
+        padding: 20px;
+        text-align: left;
+        width: 100%;
+    }
+</style>
+
+@{
+    //SET UP MODAL
+    var eIDSSModalConfigurationSanitaryAction = new EIDSSModalConfiguration
+    {
+        ControlLabels =
+        {
+            ModalTitle = Localizer.GetString(HeadingResourceKeyConstants.MeasureDetailsModalHeading),
+            SaveButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.SaveButton),
+            CancelButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CancelButton),
+            CloseButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.CloseButton)
+        },
+        ModalId = "mdAddSanitaryAction",
+        SavingControlsCollection = "ddlMeasureType",
+        TargetGridControlID = "gMeasures", //ID of Grid to Refresh
+        PostAjaxDataUrl = Url.Action("AddMeasure", "VeterinarySanitaryActionMatrixPage", new {Area = "Configuration"}),
+        SaveCompleteMethod = "CheckSuccess"
+    };
+    eIDSSModalConfigurationSanitaryAction.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel),
+        ControlName = "Default",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = "Required"
+        },
+        ClassName = "DefaultValueRequired"
+    });
+    eIDSSModalConfigurationSanitaryAction.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel),
+        ControlName = "Name",
+        Visible = true,
+        ValidationSetting = new ValidatorSettings
+        {
+            ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+            ValidatorMessage = "Required"
+        },
+        ClassName = "NationalValueRequired"
+    });
+    eIDSSModalConfigurationSanitaryAction.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.MeasureCodeFieldLabel),
+        ControlName = "Code",
+        Visible = true
+    });
+    eIDSSModalConfigurationSanitaryAction.ControlNames.Add(new EIDSSControlNames
+    {
+        LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel),
+        ControlName = "Order",
+        ControlType = ControlType.Numeric,
+        Visible = true
+    });
+    Model.eIDSSModalConfiguration.Add(eIDSSModalConfigurationSanitaryAction);
+
+    for (var i = 0; i < Model.eIDSSModalConfiguration.Count(); i++)
+    {
+        <eidss-reference-editors-modal ajax-save-url="@Model.eIDSSModalConfiguration[i].PostAjaxDataUrl" control-labels="@Model.eIDSSModalConfiguration[i].ControlLabels" modal-configuration="@Model.eIDSSModalConfiguration[i]" modal-id="@Model.eIDSSModalConfiguration[i].ModalId">
+        </eidss-reference-editors-modal>
+    }
+}
+
+<partial name="_InformationalModalPartial" for="InformationMessage"/>
+
+<form asp-action="GetMatrix" id="frmMain" method="post">
+<!-- Matrix Header -->
+<div class="container pt-3">
+    <input id="hfActiveVersionId" type="hidden" value="@ViewBag.ActiveVersionId"/>
+    <input id="hfSelectedVersionStatus" type="hidden" value="@Model.VersionStatus"/>
+    <input id="hfDuplicationMessage" type="hidden" value="@Localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage)"/>
+    <div class="row pb-5">
+        <div class="col-12">
+            <h2>@Localizer.GetString(HeadingResourceKeyConstants.VeterinarySanitaryActionMatrixPageHeading)</h2>
+            <hr/>
+        </div>
+    </div>
+    <div class="row pb-5">
+        <div class="col-12">
+            <h3>@Localizer.GetString(HeadingResourceKeyConstants.MatrixVersionHeading)</h3>
+        </div>
+    </div>
+    <div class="row pb-5">
+        <div class="col-4">
+            <i class="text-danger fas fa-asterisk fa-sm"></i>
+            <label asp-for="MatrixName">@Localizer.GetString(FieldLabelResourceKeyConstants.VersionNameFieldLabel)</label>
+            <input asp-for="MatrixName" autocomplete="off" class="form-control" id="txtVersionName" type="text" />
+        </div>
+        <div class="col-4">
+            <label asp-for="ActivationDate">@Localizer.GetString(FieldLabelResourceKeyConstants.ActivationDateFieldLabel)</label>
+            <eidss-calendar min-date="0" disabled="@Model.DisableCalendar" id="txtActivationDate" name="ActivationDate" asp-for="ActivationDate" class="form-control" SearchFilter="true"></eidss-calendar>
+            <span asp-validation-for="ActivationDate" class="text-danger"></span>
+        </div>
+        <div class="col-4">
+            <label>@Localizer.GetString(FieldLabelResourceKeyConstants.SelectVersionFieldLabel)</label>
+            <div class="dropdown">
+                <button aria-expanded="false" aria-haspopup="true" class="btn dropdown-toggle" data-toggle="dropdown" data-versionstatus="@Model.VersionStatus" id="btnSelectedVersion" style="background-color: #fff; color: #000; border: 1px solid #ced4da;" type="button">
+                    @Localizer.GetString(FieldLabelResourceKeyConstants.SelectVersionFieldLabel)
+                </button>
+                <div aria-labelledby="btnSelectedVersion" class="dropdown-menu" id="ddlVersions" style="padding: 0;">
+                    @if (Model is {MatrixVersionList: {Count: > 0 } })
+                    {
+                        @foreach (var item in Model.MatrixVersionList)
+                        {
+                            <div class="dropdown-item versionDropDownItem">
+                                <i class="fas fa-check checkmarkColor" data-color="@item.ActiveColor" style="color: @item.ActiveColor"></i>
+
+                                <button asp-action="GetMatrix" asp-area="Configuration" asp-route-id="@item.IdfVersion" class="versionButtonItem" type="submit" value="@item.IdfVersion">
+                                    @item.MatrixName
+                                </button>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row pb-5">
+        <div class="col-12">
+            @if (Model.UserPermissions.Delete)
+            {
+                <button class="btn-sm btn-primary float-right ml-2" data-target="#mdDeleteMatrixVersionConfirmation" data-toggle="modal" disabled id="btnDeleteMatrixVersion" type="button">
+                    @Localizer.GetString(ButtonResourceKeyConstants.DeleteMatrixVersionButton)
+                </button>
+            }
+
+            @if (Model.UserPermissions.Create)
+            {
+                <button class="btn-sm btn-primary float-right mx-2" data-disabled="@Model.DisableNewMatrix" id="btnNewMatrixVersion" type="button">
+                    @Localizer.GetString(ButtonResourceKeyConstants.NewMatrixVersionButton)
+                </button>
+            }
+
+            @if (Model.UserPermissions.Write)
+            {
+                <button class="btn-sm btn-primary float-right mx-2" id="btnActivateMatrixVersion" type="button">
+                    @Localizer.GetString(ButtonResourceKeyConstants.ActivateMatrixVersionButton)
+                </button>
+            }
+        </div>
+    </div>
+</div>
+<!-- Matrix Grid -->
+<div class="container pt-3">
+    @if (Model is {MatrixList: {Count: > 0 } })
+    {
+        <div class="row pb-5">
+            <div class="col-12">
+                <h3>@Localizer.GetString(HeadingResourceKeyConstants.MatrixDetailsHeading)</h3>
+                <br/>
+                <table id="tblMatrix" class="table">
+                    <thead>
+                    <tr>
+                        <th>
+                            @Localizer.GetString(ColumnHeadingResourceKeyConstants.RowColumnHeading)
+                        </th>
+                        <th>
+                            <i class="text-danger fas fa-asterisk fa-sm"></i>
+                            @Localizer.GetString(ColumnHeadingResourceKeyConstants.SanitaryActionColumnHeading)
+                            @if (Model.UserPermissions.Create)
+                            {
+                                <button class="btn-sm" data-target='#mdAddSanitaryAction' data-toggle='modal' id="btnAddSanitaryAction" style="border: 1px solid #ccc;" type="button">+</button>
+                            }
+                        </th>
+                        <th>
+                            @Localizer.GetString(ColumnHeadingResourceKeyConstants.SanitaryCodeColumnHeading)
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var item in Model.MatrixList)
+                    {
+                        <tr>
+                            <td>
+                                <label class="intNumRow" id="@($"intNumRow_{item.IdfAggrSanitaryActionMTX}")">
+                                    @Html.DisplayFor(modelItem => item.IntNumRow)
+                                </label>
+                            </td>
+                            <td>
+                                <div style="display: inline-flex">
+                                    <input id="@($"hf_{item.IdfAggrSanitaryActionMTX}")" type="hidden" class="idfAggrSanitaryActionMTX" value="@item.IdfAggrSanitaryActionMTX"/>
+                                    <select asp-for="@item.IdfsSanitaryAction" asp-items="@(new SelectList(item.SanitaryActionList, "IdfsBaseReference", "StrName"))" class="form-control idfsSanitaryAction" id="@($"idfAggrSanitaryAction_{item.IdfAggrSanitaryActionMTX}")">
+                                    </select>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: inline-flex">
+                                    <label class="strActionCode" id="@($"strActionCode_{item.IdfAggrSanitaryActionMTX}")">
+                                        @Html.DisplayFor(modelItem => item.StrActionCode)
+                                    </label>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                @if (Model.UserPermissions.Write)
+                {
+                    <button class="btn-sm btn-primary" id="btnAddMatrixRecord" type="button">
+                        @Localizer.GetString(ButtonResourceKeyConstants.AddButton)
+                    </button>
+
+                    <button class="btn-sm btn-primary" data-target="#mdDeleteMatrixRecordConfirmation" data-toggle="modal" id="btnDeleteMatrixRecord" type="button">
+                        @Localizer.GetString(ButtonResourceKeyConstants.DeleteMatrixRecordButton)
+                    </button>
+                }
+
+                <button class="btn-sm btn-primary" id="btnSaveMatrix" type="button">
+                    @Localizer.GetString(ButtonResourceKeyConstants.SaveButton)
+                </button>
+
+                <button class="btn-sm btn-primary" data-target="#mdCancel" data-toggle="modal" id="btnCancel" type="button">
+                    @Localizer.GetString(ButtonResourceKeyConstants.CancelButton)
+                </button>
+            </div>
+        </div>
+    }
+</div>
+<br/><br/>
+<!-- Save Confirm Modal -->
+<div aria-hidden="true" aria-labelledby="mdSaveSuccessLabel" class="modal fade" id="mdSaveMatrixConfirm" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="saveConfirmHeading">
+                    @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                    @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToSaveYourChangesMessage)
+                </div>
+            <div class="modal-footer">
+                <button class="btn-sm btn-secondary" data-dismiss="modal" id="btnSaveMatrixConfirmNo" type="button">
+                    @Localizer.GetString(ButtonResourceKeyConstants.NoButton)
+                </button>
+                <button class="btn-sm btn-primary" id="btnSaveMatrixConfirmYes" type="button">
+                    @Localizer.GetString(ButtonResourceKeyConstants.YesButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Save Success Modal -->
+<div aria-hidden="true" aria-labelledby="mdSaveSuccessLabel" class="modal fade" id="mdSaveSuccess" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="saveSuccessHeading">
+                    @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                </h5>
+                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)
+            </div>
+            <div class="modal-footer">
+                <button class="btn-sm btn-primary" data-dismiss="modal" id="btnSaveSuccessOk" type="button">
+                    @Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Matrix Version Confirmation Modal -->
+<div aria-hidden="true" aria-labelledby="mdDeleteMatrixVersionConfirmationLabel" class="modal fade" id="mdDeleteMatrixVersionConfirmation" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteMatrixVersionConfirmHeading">
+                    @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                </h5>
+                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage)
+            </div>
+            <div class="modal-footer">
+                <button class="btn-sm btn-secondary" data-dismiss="modal" type="button">
+                    @Localizer.GetString(ButtonResourceKeyConstants.NoButton)
+                </button>
+                <button class="btn-sm btn-primary" id="btnDeleteMatrixVersionConfirm" type="button">
+                    @Localizer.GetString(ButtonResourceKeyConstants.YesButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Matrix Record Confirmation Modal -->
+<div aria-hidden="true" aria-labelledby="mdDeleteMatrixRecordConfirmationLabel" class="modal fade" id="mdDeleteMatrixRecordConfirmation" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteMatrixRecordConfirmHeading">
+                    @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                </h5>
+                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage)
+            </div>
+            <div class="modal-footer">
+                <button class="btn-sm btn-secondary" data-dismiss="modal" type="button">
+                    @Localizer.GetString(ButtonResourceKeyConstants.NoButton)
+                </button>
+                <button class="btn-sm btn-primary" id="btnDeleteMatrixRecordConfirm" type="button">
+                    @Localizer.GetString(ButtonResourceKeyConstants.YesButton)
+                </button>
+                <input id="hfSelectedMatrixRecordId" type="hidden"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Changes Modal-->
+<div aria-hidden="true" aria-labelledby="mdCancelLabel" class="modal fade" id="mdCancel" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelHeading">
+                    @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                </h5>
+                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)
+            </div>
+            <div class="modal-footer">
+                <button class="btn-sm btn-secondary" data-dismiss="modal" type="button">
+                    @Localizer.GetString(ButtonResourceKeyConstants.NoButton)
+                </button>
+                <button asp-action="Index" class="btn-sm btn-primary" id="btnCancelConfirm">
+                    @Localizer.GetString(ButtonResourceKeyConstants.YesButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Missing required fields-->
+<div aria-hidden="true" aria-labelledby="mdRequiredFieldsMissingLabel" class="modal fade" id="mdRequiredFieldsMissing" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="requiredFieldMissingHeading">
+                    @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                </h5>
+                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+            </div>
+            <div class="modal-footer">
+                <button class="btn-sm btn-primary" data-dismiss="modal" id="btnRequiredFieldsMissingOk" type="button">
+                    @Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Duplicates message modal-->
+<div aria-hidden="true" aria-labelledby="mdDuplicationLabel" class="modal fade" id="mdDuplication" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="duplicateHeading">
+                    @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                </h5>
+                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="dupMsg"></span>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-sm btn-primary" data-dismiss="modal" type="button">
+                    @Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+
+<script src="~/lib/DataTables/js/dataTables.rowReorder.min.js" type="text/javascript"></script>
+<script src="~/lib/DataTables/js/dataTables.select.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        if ($("#hfSelectedVersionStatus").val() == 'active' || $("#hfSelectedVersionStatus").val() == 'inactive') {
+            $(".idfsSanitaryAction").prop("disabled", true);
+            $("#btnAddMatrixRecord").prop("disabled", true);
+            $("#btnDeleteMatrixRecord").prop("disabled", true);
+            $("#btnAddSanitaryAction").prop("disabled", true);
+        }
+
+        // load the activated version if one exists
+        if ($("#hfActiveVersionId").val() !== '' && window.location.href.indexOf('?') < 0) {
+            var url = window.location.href;
+            var lastChar = url[url.length - 1];
+            if (lastChar === '/') {
+                url = url.substring(0, url.length - 1);
+            }
+            window.location.href = url + "/GetMatrix?id=" + $("#hfActiveVersionId").val().trim();
+        }
+
+        // disable "Activate Matrix Version" button if no version is selected in the dropdown
+        if ($("#btnSelectedVersion").text().trim() == "Select Version")
+            $("#btnActivateMatrixVersion").prop("disabled", true);
+
+        // disable "New Matrix Version" button if needed
+        if ($("#btnNewMatrixVersion").attr('data-disabled') === "True") {
+            $("#btnNewMatrixVersion").prop("disabled", true);
+        } else {
+            $("#btnNewMatrixVersion").prop("disabled", false);
+        }
+
+        // disable "Activate Matrix Version" and "Delete Matrix Version" according to version status
+        if ($("#btnSelectedVersion").attr('data-versionstatus') === "active") {
+            $("#txtActivationDate").prop("disabled", true);
+            $("#btnActivateMatrixVersion").prop("disabled", true);
+            $("#btnDeleteMatrixVersion").prop("disabled", true);
+        } else if ($("#btnSelectedVersion").attr('data-versionstatus') === "inactive") {
+            $("#txtActivationDate").prop("disabled", true);
+            $("#btnActivateMatrixVersion").prop("disabled", true);
+            $("#btnDeleteMatrixVersion").prop("disabled", true);
+        } else if ($("#btnSelectedVersion").attr('data-versionstatus') === "nonactive") {
+            $("#txtActivationDate").prop("disabled", false);
+            $("#btnActivateMatrixVersion").prop("disabled", false);
+            $("#btnDeleteMatrixVersion").prop("disabled", false);
+        }
+
+        // populate selected version name in bootstrap dropdown
+        if ($("#txtVersionName").val().trim() != '') {
+            $("#btnSelectedVersion").text($("#txtVersionName").val().trim());
+        }
+
+        // disabled until matrix record is selected in grid
+        $("#btnDeleteMatrixRecord").prop("disabled", true);
+
+        //################################
+        // Initialize datatable
+        //################################
+        var table = $('#tblMatrix').DataTable({
+            searching: false,
+            lengthChange: false,
+            paging: false,
+            rowReorder: true,
+            columnDefs: [
+                { orderable: true, className: 'reorder', targets: 0 },
+                { orderable: false, targets: '_all' }
+            ]
+        });
+
+        //################################
+        // Mouse/Hover Events
+        //################################
+        $(".move").on('mouseover',
+            function() {
+                $(this).css('cursor', 'grab');
+            });
+
+        $(".move").on('mousedown',
+            function() {
+                $(this).css('cursor', 'grabbing');
+            });
+
+        $(".versionButtonItem").on('mouseover',
+            function() {
+                $(this).css('cursor', 'default');
+            });
+
+        $(".versionDropDownItem").on('mouseover',
+            function() {
+                $(this).find('button').css('background-color', '#e9ecef');
+            });
+
+        $(".versionDropDownItem").on('mouseout',
+            function() {
+                $(this).find('button').css('background-color', '#fff');
+            });
+
+        $(".versionDropDownItem").on('mousedown',
+            function() {
+                $(this).css('background-color', '#e9ecef');
+            });
+
+        $(".versionDropDownItem").on('mouseup',
+            function() {
+                $(this).css('background-color', '#fff');
+            });
+
+        //################################
+        // Select Matrix Record Event
+        //################################
+        $('#tblMatrix tbody').on('click',
+            'tr',
+            function(e) {
+                if ($(e.target).is('td')) {
+                    if ($(this).hasClass('selected')) {
+                        $(this).removeClass('selected');
+                        $("#btnDeleteMatrixRecord").prop("disabled", true);
+                    } else {
+                        table.$('tr.selected').removeClass('selected');
+                        $(this).addClass('selected');
+
+                        if ($("#hfSelectedVersionStatus").val() == 'nonactive')
+                            $("#btnDeleteMatrixRecord").prop("disabled", false);
+
+                        $("#hfSelectedMatrixRecordId").val($(this).find('input[type="hidden"]').val());
+                    }
+                }
+            });
+
+        //################################
+        // Add Matrix Record Event
+        //################################
+        var newRecordAdded = false;
+        $('#btnAddMatrixRecord').on('click',
+            function() {
+                var row_data = [];
+
+                var maxIntNumRow = 0;
+                $('#tblMatrix tbody>tr').each(function() {
+                    var intNumRow = $(this).find('td').eq(0).text();
+                    if (parseInt(intNumRow, 10) > parseInt(maxIntNumRow, 10)) maxIntNumRow = intNumRow;
+                });
+
+                $('#tblMatrix tbody>tr:last').find('td').each(function() {
+                    var copy = $(this).clone();
+                    copy.find('.intNumRow').text(1 + (+maxIntNumRow));
+                    copy.find('.idfAggrSanitaryActionMTX').remove();
+                    copy.find('.strActionCode').remove();
+
+                    if (copy.find(".idfsSanitaryAction option[value='0']").length === 0) {
+                        copy.find('.idfsSanitaryAction option:selected').removeAttr('selected');
+                        copy.find('.idfsSanitaryAction option').eq(0).before($("<option value='0' selected='selected'></option>").text("Select Measure Type"));
+                    }
+
+                    row_data.push(copy.html());
+                    newRecordAdded = true;
+                });
+
+                table.row.add(row_data).draw();
+            });
+
+        //################################
+        // Delete Matrix Record Event
+        //################################
+        $("#btnDeleteMatrixRecordConfirm").on('click',
+            function() {
+                matrixRecord = new Object();
+                matrixRecord.IdfAggrSanitaryActionMTX = $("#hfSelectedMatrixRecordId").val();
+
+                var ajaxUrl = '@Url.Action("DeleteMatrixRecord", "VeterinarySanitaryActionMatrixPage", new {Area = "Configuration"})';
+
+                $.ajax({
+                    url: ajaxUrl,
+                    type: 'post',
+                    data: JSON.stringify(matrixRecord),
+                    dataType: 'json',
+                    contentType: "application/json; charset=utf-8",
+                    success: function(data) {
+                        CheckDeleteSuccess(data);
+                    },
+                    complete: function(data) {
+                    },
+                    error: function(request, error) {
+                    }
+                });
+            });
+
+        //################################
+        // Activate Matrix Version Event
+        //################################
+        $("#btnActivateMatrixVersion").on('click',
+            function() {
+                if (newRecordAdded) {
+                    $("#mdSaveMatrixConfirm").modal("show");
+                } else {
+                    matrixHeader = new Object();
+                    matrixHeader.IdfVersion = GetParameterValues('id');
+                    matrixHeader.MatrixName = $("#txtVersionName").val().trim();
+                    matrixHeader.ActivationDate = $("#txtActivationDate").val();
+
+                    var ajaxUrl = '@Url.Action("ActivateMatrixVersion", "VeterinarySanitaryActionMatrixPage", new {Area = "Configuration"})';
+
+                    $.ajax({
+                        url: ajaxUrl,
+                        type: 'post',
+                        data: JSON.stringify(matrixHeader),
+                        dataType: 'json',
+                        contentType: "application/json; charset=utf-8",
+                        success: function(data) {
+                        },
+                        complete: function(data) {
+                            $("#mdSaveSuccess").modal("show");
+                        },
+                        error: function(request, error) {
+                        }
+                    });
+                }
+            });
+
+        //################################
+        // New Matrix Version Event
+        //################################
+        $("#btnNewMatrixVersion").on('click',
+            function() {
+                //alert("new matrix clicked");
+
+                $("#btnDeleteMatrixVersion").prop("disabled", false);
+
+                if ($('#txtVersionName').val().trim() == '') {
+                    $('#mdRequiredFieldsMissing').modal('show');
+                } else {
+                    SaveMatrix(true);
+                }
+            });
+
+        //################################
+        // Required Fields Missing Event
+        //################################
+        $("#btnRequiredFieldsMissingOk").on('click',
+            function() {
+                if (showDuplicatesModal) {
+                    $('#mdDuplication').modal('show');
+                }
+            });
+
+        //################################
+        // Delete Matrix Version Event
+        //################################
+        $("#btnDeleteMatrixVersionConfirm").on('click',
+            function() {
+                matrixVersion = new Object();
+                matrixVersion.IdfVersion = GetParameterValues('id');
+
+                var ajaxUrl = '@Url.Action("DeleteMatrixVersion", "VeterinarySanitaryActionMatrixPage", new {Area = "Configuration"})';
+
+                $.ajax({
+                    url: ajaxUrl,
+                    type: 'post',
+                    data: JSON.stringify(matrixVersion),
+                    dataType: 'json',
+                    contentType: "application/json; charset=utf-8",
+                    success: function(data) {
+                    },
+                    complete: function(data) {
+                        window.location.href = getBaseUrl();
+                    },
+                    error: function(request, error) {
+                    }
+                });
+            });
+            
+        $("#btnInformationalModalOK").on("click", function () {
+            window.location.reload(true);
+        });
+
+        //################################
+        // Species Type Modal Event
+        //################################
+        $(".addNewSpeciesType").on('click',
+            function() {
+                $("#mdSpeciesType").modal('show');
+            });
+
+        //################################
+        // Save Matrix Event
+        //################################
+        $("#btnSaveMatrix").on('click',
+            function() {
+                $("#mdSaveMatrixConfirm").modal("show");
+            });
+
+        $("#btnSaveMatrixConfirmYes").on('click',
+            function() {
+                $("#mdSaveMatrixConfirm").modal("hide");
+                SaveMatrix(false);
+            });
+
+        $("#btnSaveMatrixConfirmNo").on('click',
+            function() {
+                window.location.reload(true);
+            });
+
+        //################################
+        // Save Success Ok Button Event
+        //################################
+        $("#btnSaveSuccessOk").on('click',
+            function() {
+                window.location.reload(true);
+            });
+            
+        //################################
+        // Save Matrix function
+        //################################
+        var isMatrixValid;
+        var showRequiredFieldsModal;
+        var showDuplicatesModal = false;
+        var duplicates = [];
+
+        function SaveMatrix(isNew) {
+            isMatrixValid = true;
+            showRequiredFieldsModal = false;
+
+            MatrixObjectList = [];
+
+            if (table.rows().eq(0) != null) {
+                var intNumRow = 1;
+                table.rows().eq(0).each(function(index) {
+                    var row = table.row(index);
+
+                    matrixItem = new Object();
+                    matrixItem.IsEmpty = false;
+                    matrixItem.ActiveStatus = $("#hfSelectedVersionStatus").val();
+                    //matrixItem.IntNumRow = row.nodes().to$().find('.intNumRow').text().trim();
+                    matrixItem.IntNumRow = intNumRow;
+
+                    if (!isNew) matrixItem.IdfVersion = GetParameterValues('id');
+
+                    matrixItem.IdfAggrSanitaryActionMTX = row.nodes().to$().find('input:hidden').val();
+                    matrixItem.IdfsSanitaryAction = row.nodes().to$().find('.idfsSanitaryAction').val();
+                    matrixItem.StrSanitaryAction = row.nodes().to$().find('.idfsSanitaryAction :selected').text();
+
+                    if (!isNew) matrixItem.MatrixName = $("#txtVersionName").val();
+                    else matrixItem.MatrixName = $("#txtVersionName").val() + " Copy";
+
+                    matrixItem.ActivationDate = $("#txtActivationDate").val();
+                    matrixItem.IsNew = isNew;
+
+                    MatrixObjectList.push(matrixItem);
+                    duplicates.push(matrixItem.IdfsSanitaryAction + "|" + matrixItem.StrSanitaryAction);
+
+                    if (matrixItem.IdfsSanitaryAction == '0' || matrixItem.MatrixName.trim() == '') {
+                        isMatrixValid = false;
+                        showRequiredFieldsModal = true;
+                    }
+
+                    intNumRow = intNumRow + 1;
+                });
+
+                // find duplicates
+                showDuplicatesModal = find_duplicate_in_array(duplicates);
+                if (showDuplicatesModal) {
+                    isMatrixValid = false;
+                }
+            } else {
+                matrixItem = new Object();
+                matrixItem.MatrixName = $("#txtVersionName").val().trim();
+                matrixItem.ActivationDate = $("#txtActivationDate").val();
+                matrixItem.IsNew = isNew;
+                matrixItem.IsEmpty = true;
+                MatrixObjectList.push(matrixItem);
+            }
+
+            if (isMatrixValid) {
+                var ajaxUrl = '@Url.Action("SaveMatrix", "VeterinarySanitaryActionMatrixPage", new {Area = "Configuration"})';
+
+                $.ajax({
+                    url: ajaxUrl,
+                    type: 'post',
+                    data: JSON.stringify(MatrixObjectList),
+                    dataType: 'json',
+                    contentType: "application/json; charset=utf-8",
+                    success: function(data) {
+                        if (!isNew) {
+                            $("#mdSaveSuccess").modal("show");
+                            updateNotificationEnvelopeCount();
+                        } else {
+                            var url = window.location.href;
+                            if (url.indexOf('?') > -1) {
+                                window.location.href = url;
+                            } else {
+
+                                var url = '@Url.Action("GetMatrix", "VeterinarySanitaryActionMatrixPage")?id=' + data.keyId;
+                                window.location.href = url;
+                            }
+                        }
+                    },
+                    complete: function(data) {
+                    },
+                    error: function(request, error) {
+                        console.log(error);
+                    }
+                });
+
+            } else {
+                if (showRequiredFieldsModal) $('#mdRequiredFieldsMissing').modal('show');
+                if (showDuplicatesModal & !showRequiredFieldsModal) $('#mdDuplication').modal('show');
+                duplicates = [];
+            }
+        }
+    });
+
+    //################################
+    // Helper Functions
+    //################################
+    function GetParameterValues(param) {
+        var url = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for (var i = 0; i < url.length; i++) {
+            var urlparam = url[i].split('=');
+            if (urlparam[0] == param) {
+                return urlparam[1];
+            }
+        }
+    };
+
+    // find duplicates in matrix
+    function find_duplicate_in_array(a) {
+        var counts = [];
+        var dupMsg = $("#hfDuplicationMessage").val();
+        var dup = '';
+        var dupFound = false;
+
+        for (var i = 0; i <= a.length; i++) {
+            if (counts[a[i]] === undefined) {
+                counts[a[i]] = 1;
+            } else {
+                dup = a[i].substr(a[i].indexOf('|') + 1, a[i].length) + ", " + dup;
+                dupFound = true;
+            }
+        }
+
+        if (dupFound) {
+            dup = dup.substring(0, dup.length - 2);
+            dupMsg = dupMsg.replace("{0}", dup);
+            $("#dupMsg").html(dupMsg);
+            return true;
+        }
+        return false;
+    };
+
+    function getBaseUrl() {
+        var re = new RegExp(/^.*\//);
+        return re.exec(window.location.href);
+    };
+
+    function CheckSuccess(data) {
+        window.location.reload(true);
+    };
+    
+    function CheckDeleteSuccess(data) {
+        var stringifiedData = JSON.stringify(data);
+        var parsedData = JSON.parse(stringifiedData);
+        if (parsedData.returnMessage === "SUCCESS") {
+            updateNotificationEnvelopeCount();
+            showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+        }
+    };
+</script>

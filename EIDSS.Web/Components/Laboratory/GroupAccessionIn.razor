@@ -1,0 +1,45 @@
+﻿@using EIDSS.Domain.RequestModels.Laboratory
+@using EIDSS.Domain.ViewModels.Laboratory
+@using EIDSS.Web.Components.CrossCutting
+@inherits GroupAccessionInBase
+
+<div class="card">
+    <RadzenDataGrid AllowColumnResize="false" AllowFiltering="false" AllowPaging="false" AllowSorting="true" Data="GroupAccessionInIdentifiers" @ref="GroupAccessionInGrid" TItem="GroupAccessionInViewModel">
+        <Columns>
+            <RadzenDataGridColumn Property="EIDSSLocalOrFieldSampleID" TItem="GroupAccessionInViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesLocalFieldSampleIDColumnHeading)" Width="150px"/>
+        </Columns>
+    </RadzenDataGrid>
+    <br />
+    <RadzenTemplateForm Data="GroupAccessionIn" @ref="Form" Submit="OnAddGroupAccessionInIdentifier" TItem="GroupAccessionInGetRequestModel">
+        <InterfaceEditorResource CssClass="col-12" For="GroupAccessionIn.EIDSSLocalOrFieldSampleID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.GroupAccessionInModalLocalFieldSampleIDFieldLabel" IsRow="true">
+            <div class="input-group mb-3">
+                <RadzenTextBox @bind-Value="GroupAccessionIn.EIDSSLocalOrFieldSampleID" class="form-control" Change="OnEIDSSLocalOrFieldSampleIDChange" MaxLength="36" Name="GroupAccessionIn.EIDSSLocalOrFieldSampleID"/>
+                <div class="input-group-append">
+                    @if (AllowAddIndicator)
+                    {
+                            <button class="btn btn-outline-secondary btn-sm" id="addSample" type="submit">
+                                <span class="fas fa-plus" aria-hidden="true"></span>
+                            </button>
+                    }
+                    else
+                    {
+                            <button class="btn btn-outline-secondary btn-sm disabled" id="addSample" disabled type="button">
+                                <span class="fas fa-plus" aria-hidden="true"></span>
+                            </button>
+                    }
+                </div>
+            </div>
+        </InterfaceEditorResource>
+    </RadzenTemplateForm>
+    <div class="card-footer">
+        <div class="form-row">
+            <div class="col-12">
+                <RadzenCheckBox @bind-Value="PrintBarcodesIndicator" Name="chkPrintBarcode" TValue="bool" />
+                <label>@Localizer.GetString(FieldLabelResourceKeyConstants.AliquotDerivativeModalPrintBarcodesFieldLabel)</label>
+
+                <button class="btn btn-outline-primary" @onclick="OnCancelClick" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToCancelToolTip)" type="button">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                <button class="btn btn-primary" @onclick="OnAccessionInClick" type="submit">@Localizer.GetString(ButtonResourceKeyConstants.GroupAccessionInModalAccessionButton)</button>
+            </div>
+        </div>
+    </div>
+</div>

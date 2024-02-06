@@ -1,0 +1,59 @@
+﻿@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Web.Areas.Veterinary.ViewModels.ActiveSurveillanceSession
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Services
+@inherits EIDSS.Web.Components.Veterinary.ActiveSurveillanceSession.FarmListBase
+
+<div class="card">
+    <div class="card-header">
+        <h5>@Localizer.GetString(HeadingResourceKeyConstants.VeterinarySessionDetailedInformationFarmListHeading)</h5>
+    </div>
+    <div class="card-body">
+        <div class="form-row">
+            <div class="col-12">
+                <RadzenDataGrid id="farmListGrid"
+                                TItem="FarmViewModel"
+                                Data="@StateContainer.Farms"
+                                LoadData="@LoadFarms"
+                                Count="@FarmCount"
+                                @ref="FarmListGrid"
+                                IsLoading="@IsLoading"
+                                EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)"
+                                SelectionMode="DataGridSelectionMode.Single"
+                                PageSize="10"
+                                AllowPaging="true"
+                                AllowColumnResize="true"
+                                AllowSorting="true"
+                                ShowPagingSummary="true"
+                                >
+                    <Columns>
+                        <RadzenDataGridColumn TItem="FarmViewModel" Property="EIDSSFarmID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionDetailedInformationFarmIDColumnHeading)" Width="150px" Sortable="true">
+                            <Template Context="data">
+                                <button class="btn btn-link btn-sm" @onclick="@(() => SelectFarmAsync(data))">@data.EIDSSFarmID</button>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="FarmViewModel" Property="FarmName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionDetailedInformationFarmNameColumnHeading)" Width="140px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="FarmViewModel" Property="FarmOwnerID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionDetailedInformationFarmOwnerIDColumnHeading)" Width="130px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="FarmViewModel" Property="FarmOwnerName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionDetailedInformationFarmOwnerColumnHeading)" Width="200px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="FarmViewModel" Property="FarmAddress" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinarySessionDetailedInformationFarmAddressColumnHeading)" Width="200px" Sortable="true" />
+                        <RadzenDataGridColumn TItem="FarmViewModel" Property="" Title="" Sortable="false" Filterable="false" Width="50px">
+                            <Template Context="data">
+                                <button @onclick="@(() => DeleteFarm(data))" class="btn btn-sm" disabled="@(!StateContainer.ActiveSurveillanceSessionPermissions.Write)" type="button">
+                                    <i class="fas fa-trash fa-lg"></i>
+                                </button>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+        </div>
+        <div class="form-row justify-content-start mt-3">
+            <div class="col-1">
+                <button class="btn btn-outline-primary" @onclick="@SearchFarmAsync" disabled="@(!StateContainer.ActiveSurveillanceSessionPermissions.Write)">@Localizer.GetString(ButtonResourceKeyConstants.SearchButton)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+

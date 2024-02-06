@@ -1,0 +1,25 @@
+﻿
+
+@model EIDSS.Domain.ViewModels.DashboardViewModel
+@{
+    var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
+}
+<form id="refreshUserMenuId" asp-area="Administration" asp-controller="Admin"
+      asp-action="RefreshUserMenu" asp-route-returnUrl="@returnUrl"
+      method="post" class="form-horizontal" role="form">
+    <select asp-for="@Model.OrganizationID"
+            asp-items="@(new SelectList(Model.UserOrganizations,"OrganizationID","OrganizationName"))">
+    </select>
+    <input asp-for="StrOrganizationID" type="hidden" />
+
+</form>
+<script>
+
+    $('#OrganizationID').change(function () {
+        var textValue = $('#OrganizationID option:selected').val();
+        $('#StrOrganizationID').val(textValue);
+
+        // if you want to submit the form, uncomment this line below
+        $('#refreshUserMenuId').submit();
+    });
+</script>

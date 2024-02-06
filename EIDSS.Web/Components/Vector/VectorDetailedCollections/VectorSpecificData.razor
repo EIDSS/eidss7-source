@@ -1,0 +1,21 @@
+﻿@inherits EIDSS.Web.Components.Vector.VectorSpecificDataBase
+@using EIDSS.Web.ViewModels.Vector
+@using EIDSS.Web.Components.FlexForm
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-lg-11">
+                <h4 id="locationHeading">@Localizer.GetString(HeadingResourceKeyConstants.VectorSessionVectorSpecificDataVectorSpecificDataHeading)</h4>
+            </div>
+            <div class="col-md-1 text-right">
+                <a id="editDetailedCollectionVectorSpecificDataSectionButton" href="#detailedCollectionWizard-h-2" class="edit-section">
+                    <span class="fas fa-edit fa-lg"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div id="aggregateDetails" class="card-body show">
+        <FlexForm @ref="@VectorSpecificDataFlexForm" Request="@VectorSessionStateContainer.VectorFlexForm" FormDisabledIndicator="@VectorSessionStateContainer.DetailCollectionDisabledIndicator" />
+    </div>
+</div>

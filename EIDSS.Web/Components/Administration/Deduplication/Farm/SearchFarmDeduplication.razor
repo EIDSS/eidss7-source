@@ -1,0 +1,176 @@
+﻿@using EIDSS.Web.Areas.Veterinary.ViewModels.Farm
+@using EIDSS.Domain.ViewModels.Veterinary
+@using EIDSS.Domain.ViewModels.CrossCutting
+@using EIDSS.Localization.Constants
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits EIDSS.Web.Components.Administration.Deduplication.Farm.SearchFarmDeduplicationBase;
+
+<RadzenTemplateForm id="farmSearchForm" @ref="form" TItem="SearchFarmPageViewModel" Data="@model" Submit="@HandleValidSearchSubmit">
+    <!--Selected Records -->
+    <div class="card">
+        <div class="card-header" id="SelectedRecords">
+            <h4>@Localizer.GetString(HeadingResourceKeyConstants.DeduplicationFarmFarmInformationListHeading)</h4>
+        </div>
+        @if (showDeduplicateButton)
+        {
+            <div id="SelectedReportsBody" aria-labelledby="SelectedReports">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <RadzenDataGrid id="selectedRecords" @ref="gridSelectedRecords" TItem="FarmViewModel" IsLoading="@IsSelectedRecordsLoading"
+                                            Data="@SelectedRecords"
+                                            AllowPaging="true" PageSize="10" AllowSorting="true" AllowColumnResize="true"
+                                            ExpandMode="DataGridExpandMode.Single">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="FarmMasterID" Title="FarmMasterID" Visible="false" />
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="EIDSSFarmID" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchFarmsFarmIDColumnHeading) Width="150px" Sortable="true"/>
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="FarmTypeName" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchFarmsFarmTypeColumnHeading) Width="135px" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="FarmOwnerName" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchFarmsFarmOwnerNameColumnHeading) Width="200px" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="FarmOwnerID" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchFarmsFarmOwnerIDColumnHeading) Width="130px" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="FarmName" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchFarmsFarmNameColumnHeading) Width="140px" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="RegionName" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchFarmsAdministrativeLevel1ColumnHeading) Sortable="true" />
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="RayonName" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchFarmsAdministrativeLevel2ColumnHeading) Sortable="true" />
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="SettlementName" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchFarmsAdministrativeLevel3ColumnHeading) Sortable="true" Width="115px" Visible="@(model.BottomAdminLevel >= ((long)EIDSSConstants.GISAdministrativeUnitTypes.Settlement))" />
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="Street" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchFarmsAdministrativeLevel4ColumnHeading) Sortable="true" Width="115px" Visible="@(model.BottomAdminLevel > ((long)EIDSSConstants.GISAdministrativeUnitTypes.Settlement))" />
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="" Title="" Sortable="false" Filterable="false">
+                                        <Template Context="data">
+                                            <button @onclick=@(() =>OnRemoveAsync(data.FarmMasterID)) class="btn btn-sm" type="button">
+                                                <i class="fas fa-trash fa-1x"></i>
+                                            </button>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="deduplicateButtonResults" class="btn btn-outline-primary" type="button" disabled="@disableDeduplicateButton" @onclick=@(() => DeduplicateClickedAsync())>@Localizer.GetString(ButtonResourceKeyConstants.DeduplicationDeduplicateButtonText)</button>
+                    </div>
+                </div>
+            </div>
+        }
+        </div>
+    <!--end Selected Records -->
+    <div id="accordion">
+        <!--search criteria-->
+        <div class="card">
+            <div class="card-header" id="farmSearchCriteria">
+                <button class="btn d-inline-block"
+                        type="button"
+                        data-toggle="collapse"
+                        aria-expanded="false"
+                        aria-controls="farmSearchCriteriaBody"
+                        @onclick="@(() => AccordionClick(0))">
+                    <span class="text-left fas @(expandSearchCriteria ? "fa-caret-down" : "fa-caret-right")" />
+                    <h4 class="mb-0 d-inline-block"> @Localizer.GetString(HeadingResourceKeyConstants.SearchCriteriaHeading)</h4>
+                </button>
+            </div>
+            <div id="farmSearchCriteriaBody" class="@(expandSearchCriteria ?  "collapse show" : "collapse" )" aria-labelledby="farmSearchCriteria" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="form-row">
+                        <!--EIDSS Farm ID-->
+                        <InterfaceEditorResource For="eidssFarmID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchFarmsFarmIDFieldLabel" IsRow="false" CssClass="col-md-6">
+                            <RadzenTextBox id="eidssFarmID" Name="eidssFarmID" @bind-Value="@model.SearchCriteria.EIDSSFarmID" class="form-control"></RadzenTextBox>
+                        </InterfaceEditorResource>
+                        <!--Legacy ID-->
+                        <InterfaceEditorResource For="legacyID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchFarmsLegacyIDFieldLabel" IsRow="false" CssClass="col-md-6">
+                            <RadzenTextBox id="legacyID" Name="legacyID" @bind-Value="@model.SearchCriteria.LegacyFarmID" class="form-control"></RadzenTextBox>
+                        </InterfaceEditorResource>
+                    </div>
+                    <div class="form-row">
+                        <!--Farm Types-->
+                        <InterfaceEditorResource For="farmTypeID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchFarmsFarmTypeFieldLabel" IsRow="false" CssClass="col-md-6">
+                            <RadzenCheckBoxList id="farmTypeID" Name="farmTypeID" AllowClear="true" TValue="long" Data="@farmTypes" ValueProperty="IdfsBaseReference" TextProperty="Name"
+                                                Orientation="Orientation.Horizontal" class="form-control" @bind-Value="@model.SearchCriteria.SelectedFarmTypes" />
+                        </InterfaceEditorResource>
+                        <!--Farm Name-->
+                        <InterfaceEditorResource For="farmName" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchFarmsFarmNameFieldLabel" IsRow="false" CssClass="col-6">
+                            <RadzenTextBox id="farmName" Name="farmName" @bind-Value="@model.SearchCriteria.FarmName" class="form-control"></RadzenTextBox>
+                        </InterfaceEditorResource>
+                    </div>
+                    <div class="form-row">
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchFarmsFarmOwnerIDFieldLabel" IsRow="false" CssClass="col-md-6" For="farmOwnerID">
+                            <RadzenNumeric id="farmOwnerID" Name="farmOwnerID" @bind-Value="@model.SearchCriteria.FarmOwnerID" class="form-control" ShowUpDown="false" />
+                        </InterfaceEditorResource>
+                        <!--Farm Owner Name Fields-->
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchFarmsFarmOwnerLastNameFieldLabel" IsRow="false" CssClass="col-md-6" For="farmerLastName">
+                            <RadzenTextBox id="farmerLastName" Name="farmerLastName" @bind-Value="@model.SearchCriteria.FarmOwnerLastName" class="form-control" />
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchFarmsFarmOwnerFirstNameFieldLabel" IsRow="false" CssClass="col-md-6" For="famerFirstName">
+                            <RadzenTextBox id="famerFirstName" @bind-Value="@model.SearchCriteria.FarmOwnerFirstName" class="form-control" />
+                        </InterfaceEditorResource>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-12">
+                            <LocationView ParmLocationViewModel="@model.SearchLocationViewModel" LocationViewModelChanged="@LocationChanged"></LocationView>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--search criteria buttons-->
+            <div class="card-footer @(showSearchCriteriaButtons ? "d-block" : "d-none")">
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="cancelButton" class="btn btn-outline-primary" type="button" @onclick="@(() => CancelSearchClicked())">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                        <button id="clearButton" class="btn btn-outline-primary" type="reset" @onclick="@(() => ResetSearch())">@Localizer.GetString(ButtonResourceKeyConstants.ClearButton)</button>
+                        <button id="searchButton" type="submit" class="btn btn-primary" autofocus disabled="@disableSearchButton">@Localizer.GetString(@ButtonResourceKeyConstants.SearchButton)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end search criteria-->
+        <!--search results-->
+        <div class="card @(showSearchResults ?  "d-block" : "d-none" )">
+            <div class="card-header" id="farmSearchResults">
+                <h4 class="d-inline-block" style="line-height: 1.5rem; padding: 0.375rem 0.75rem;">@Localizer.GetString(HeadingResourceKeyConstants.SearchResultsHeading)</h4>
+            </div>
+            <div id="farmSearchResultsBody" class="collapse show" aria-labelledby="farmSearchResults" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <RadzenDataGrid id="searchResults" @ref="grid" TItem="FarmViewModel" IsLoading="@isLoading" LoadData="@((args) => LoadData(args))" 
+                                            Data="@model.SearchResults"
+                                            AllowPaging="true" AllowSorting="true" Count="@count" AllowColumnReorder="true" AllowColumnResize="true"
+                                            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)"
+                                            SelectionMode="DataGridSelectionMode.Multiple"  @bind-Value="@FarmDeduplicationService.SelectedRecords"
+                                            ExpandMode="DataGridExpandMode.Single" Visible="@showSearchResults" PageSizeOptions="@pageSizeOptions" 
+                                            ShowPagingSummary="true" RowSelect="@RowSelectAsync" RowDeselect="@RowDeSelectAsync" >
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="FarmMasterID" Title="FarmMasterID" Visible="false" />
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                                        <Template Context="item">
+                                            <RadzenCheckBox TriState="false" TValue="bool" Value="item.Selected"  />
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="EIDSSFarmID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchFarmsFarmIDColumnHeading)" Width="150px" Sortable="true"/>
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="FarmTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchFarmsFarmTypeColumnHeading)" Width="135px" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="FarmOwnerName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchFarmsFarmOwnerNameColumnHeading)" Width="200px" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="FarmOwnerID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchFarmsFarmOwnerIDColumnHeading)" Width="130px" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="FarmName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchFarmsFarmNameColumnHeading)" Width="140px" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="RegionName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchFarmsAdministrativeLevel1ColumnHeading)" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="RayonName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchFarmsAdministrativeLevel2ColumnHeading)" Sortable="true" />
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="SettlementName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchFarmsAdministrativeLevel3ColumnHeading)" Sortable="true" Width="115px" Visible="@(model.BottomAdminLevel >= ((long)EIDSSConstants.GISAdministrativeUnitTypes.Settlement))" />
+                                    <RadzenDataGridColumn TItem="FarmViewModel" Property="Street" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchFarmsAdministrativeLevel4ColumnHeading)" Sortable="true" Width="115px" Visible="@(model.BottomAdminLevel > ((long)EIDSSConstants.GISAdministrativeUnitTypes.Settlement))" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="cancelButtonResults" class="btn btn-outline-primary" type="button" @onclick="@(() => CancelSearchClicked())">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end search results-->
+    </div>
+</RadzenTemplateForm>

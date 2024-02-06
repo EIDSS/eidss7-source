@@ -1,0 +1,219 @@
+﻿@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Helpers
+@using EIDSS.Web.Services
+@using Microsoft.Extensions.Localization
+@using EIDSS.Localization.Constants
+@using Microsoft.EntityFrameworkCore
+@using static ClientLibrary.Enumerations.EIDSSConstants
+
+@inherits ReportInformationSectionBase
+
+<div class="container-fluid">
+    <div class="form-row">
+        <div class="col-md-11">
+            <h4 class="header">@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateActionsReportInformationReportDetailsHeading)</h4>
+        </div>
+        <div class="col-md-1 text-right">
+            <a id="editSessionInformationSectionButton" href="#veterinaryAggregateActionsReportWizard-h-0" class="edit-section">
+                <span class="fas fa-edit fa-lg"></span>
+            </a>
+        </div>
+    </div>
+</div>
+<RadzenTemplateForm @ref="Form" TItem="VeterinaryAggregateActionsReportStateContainer" Data="@StateContainer">
+    <div class="card">
+        <div class="card-body">
+            <div class="form-row">
+                <h5>@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateActionsReportInformationNotificationSentByHeading)</h5>
+            </div>
+            <div class="form-row">
+                <!--Institution-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportInformationNotificationSentByInstitutionFieldLabel" IsRow="false" CssClass="col-4" For="notificationSentByOrganizationID">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@StateContainer.NotificationSentInstitutionID" class="form-control" 
+                                    Count="@SentByOrganizationCount" Data="@SentByOrganizations" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith"
+                                    LoadData="@GetSentByOrganizations" Name="notificationSentByOrganizationID" TextProperty="name" TValue="long?" 
+                                    ValueProperty="idfOffice" Disabled="@StateContainer.InformationReportDisabledIndicator"/>
+                </InterfaceEditorResource>
+                <!--Officer-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportInformationNotificationSentByOfficerFieldLabel" IsRow="false" CssClass="col-4" For="notificationSentOfficerID">
+                    <div class="input-group">
+                        <RadzenDropDown AllowClear="true" @ref="SentByOfficerDropDown" AllowFiltering="true" AllowVirtualization="false" 
+                                        @bind-Value="@StateContainer.NotificationSentOfficerID" class="form-control" Count="@SentByOfficersCount" FilterOperator="StringFilterOperator.StartsWith"
+                                        Data="@SentByOfficers" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" LoadData="@GetSentByOfficers" 
+                                        Name="notificationSentOfficerID" TextProperty="FullName" TValue="long?" ValueProperty="idfPerson" 
+                                        Disabled="@StateContainer.InformationReportDisabledIndicator" />
+                        @if (StateContainer.EmployeeListPermissions.Create)
+                        {
+                            <div class="input-group-append">
+                                @if (StateContainer.InformationReportDisabledIndicator || StateContainer.WritePermissionIndicator == false && StateContainer.ReportKey > 0 || StateContainer.CreatePermissionIndicator == false && StateContainer.ReportKey <= 0)
+                                {
+                                    <button class="btn btn-outline-secondary btn-sm" disabled id="addSentByOfficer" name="addSentByOfficer" @onclick="@(args => OnAddEmployeeClick("SentByAdd"))" type="button">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-outline-secondary btn-sm" id="addSentByOfficer" name="addSentByOfficer" @onclick="@(args => OnAddEmployeeClick("SentByAdd"))" type="button">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                }
+                            </div>
+                        }
+                    </div>
+                </InterfaceEditorResource>
+                <!--Notification Sent Date-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportInformationNotificationSentByDateFieldLabel" IsRow="false" CssClass="col-4" For="notificationSentDate">
+                    <RadzenDatePicker AllowClear="@(!StateContainer.InformationReportDisabledIndicator)" AllowInput="true" @bind-Value="@StateContainer.NotificationSentDate" class="form-control-range"
+                                      DateFormat="d" id="notificationSentDate" Name="notificationSentDate" TValue="DateTime?" Disabled="@StateContainer.InformationReportDisabledIndicator" />
+                    <br />
+                    <RadzenCompareValidator Component="notificationSentDate" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="@DateTime.Now" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <h5>@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateActionsReportInformationNotificationReceivedByHeading)</h5>
+            </div>
+            <div class="form-row">
+                <!--Institution-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportInformationNotificationReceivedByInstitutionFieldLabel" IsRow="false" CssClass="col-4" For="notificationReceivedByOrganizationID">
+                    <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@StateContainer.NotificationReceivedInstitutionID" FilterOperator="StringFilterOperator.StartsWith"
+                                    class="form-control" Data="@ReceivedByOrganizations" LoadData="@GetReceivedByOrganizations" Count="@ReceivedByOrganizationCount" 
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="notificationReceivedByOrganizationID" TextProperty="name" TValue="long?" 
+                                    ValueProperty="idfOffice" Disabled="@StateContainer.InformationReportDisabledIndicator" />
+                </InterfaceEditorResource>
+                <!--Officer-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportInformationNotificationReceivedByOfficerFieldLabel" IsRow="false" CssClass="col-4" For="notificationReceivedOfficerID">
+                    <div class="input-group">
+                        <RadzenDropDown AllowClear="true" @ref="ReceivedByOfficerDropDown" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@StateContainer.NotificationReceivedOfficerID" 
+                                        class="form-control" Count="@ReceivedByOfficersCount" Data="@ReceivedByOfficers" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith"
+                                        LoadData="@GetReceivedByOfficers" Name="notificationReceivedOfficerID" TextProperty="FullName" TValue="long?" 
+                                        ValueProperty="idfPerson" Disabled="@StateContainer.InformationReportDisabledIndicator" />
+                        @if (StateContainer.EmployeeListPermissions.Create)
+                        {
+                            <div class="input-group-append">
+                                @if (StateContainer.InformationReportDisabledIndicator || StateContainer.WritePermissionIndicator == false && StateContainer.ReportKey > 0 || StateContainer.CreatePermissionIndicator == false && StateContainer.ReportKey <= 0)
+                                {
+                                    <button class="btn btn-outline-secondary btn-sm" disabled id="addReceivedByOfficer" name="addReceivedByOfficer" @onclick="@(args => OnAddEmployeeClick("ReceivedByAdd"))" type="button">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-outline-secondary btn-sm" id="addReceivedByOfficer" name="addReceivedByOfficer" @onclick="@(args => OnAddEmployeeClick("ReceivedByAdd"))" type="button">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                }
+                            </div>
+                        }
+                    </div>
+                </InterfaceEditorResource>
+                <!--Date Received By-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportInformationNotificationReceivedByDateFieldLabel" IsRow="false" CssClass="col-4" For="notificationReceivedDate">
+                    <RadzenDatePicker id="notificationReceivedDate" Name="notificationReceivedDate" AllowClear="@(!StateContainer.InformationReportDisabledIndicator)" AllowInput="true" class="form-control-range" TValue="DateTime?" 
+                                      @bind-Value="@StateContainer.NotificationReceivedDate" DateFormat="d" Disabled="@StateContainer.InformationReportDisabledIndicator" />
+                    <br />
+                    <RadzenCompareValidator Component="notificationReceivedDate" Operator="CompareOperator.LessThanEqual" Popup="false" Style="display: block" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="@DateTime.Now" />
+                    <RadzenCompareValidator Component="notificationReceivedDate" Operator="CompareOperator.GreaterThanEqual" Popup="false" Style="display: block" Text="@Localizer.GetString(MessageResourceKeyConstants.VeterinaryAggregateActionsReportInformationNotificationReceivedByDateMustBeOnOrAfterNotificationSentByDateMessage)" Value="@StateContainer.NotificationSentDate" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <h5>@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateActionsReportInformationEnteredByHeading)</h5>
+            </div>
+            <div class="form-row">
+                <!--Institution-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportInformationEnteredByInstitutionFieldLabel" IsRow="false" CssClass="col-4" For="notificationEnteredByOrganizationID">
+                    <RadzenTextBox @bind-Value="@StateContainer.NotificationEnteredInstitution" class="form-control" Name="notificationEnteredByOrganizationID" ReadOnly="true" TValue="long?" />
+                </InterfaceEditorResource>
+                <!--Officer-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportInformationEnteredByOfficerFieldLabel" IsRow="false" CssClass="col-4" For="notificationEnteredOfficerID">
+                    <RadzenTextBox @bind-Value="@StateContainer.NotificationEnteredOfficer" class="form-control" Name="notificationEnteredOfficerID" ReadOnly="true" TValue="long?" />
+                </InterfaceEditorResource>
+                <!--Date Entered-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportInformationEnteredByDateFieldLabel" IsRow="false" CssClass="col-4" For="notificationEnteredDate">
+                    <RadzenDatePicker AllowInput="true" @bind-Value="@StateContainer.NotificationEnteredDate" class="form-control-range" DateFormat="d" Disabled="true" id="noticationEnteredDate" Name="notificationEnteredDate" ReadOnly="true" TValue="DateTime?" />
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <h5>@Localizer.GetString(HeadingResourceKeyConstants.VeterinaryAggregateActionsReportInformationGeneralInfoHeading)</h5>
+            </div>
+            <div class="form-row">
+                <!--Report ID-->
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportInformationReportIDFieldLabel" IsRow="false" CssClass="col-4" For="reportID">
+                    <RadzenTextBox @bind-Value="@StateContainer.ReportID" class="form-control" Name="reportID" ReadOnly="true" />
+                </InterfaceEditorResource>
+                <!--Legacy ID-->
+                @if (StateContainer.LegacyID is not null)
+                {
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportInformationLegacyIDFieldLabel" IsRow="false" CssClass="col-4" For="legacyID">
+                        <RadzenTextBox @bind-Value="@StateContainer.LegacyID" class="form-control" Name="legacyID" ReadOnly=true />
+                    </InterfaceEditorResource>
+                }
+            </div>
+            <div class="form-row">
+                <!--Year-->
+                @if (StateContainer.ShowYear)
+                {
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportInformationYearFieldLabel" IsRow="false" CssClass="col-3" For="year">
+                        <RadzenDropDown @bind-Value="@StateContainer.Year" Change=@(args => OnChangePeriod(args, StatisticPeriodType.Year)) class="form-control" 
+                                        Data="@StateContainer.Years" Name="year" TextProperty="PeriodName" TValue="int?" ValueProperty="PeriodNumber"
+                                    Disabled="@StateContainer.InformationReportDisabledIndicator" />
+                    </InterfaceEditorResource>
+                }
+
+                <!--Quarter-->
+                @if (StateContainer.ShowQuarter)
+                {
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportInformationQuarterFieldLabel" IsRow="false" CssClass="col-4" For="quarter">
+                        <RadzenDropDown @bind-Value="@StateContainer.Quarter" Change=@(args => OnChangePeriod(args, StatisticPeriodType.Quarter)) 
+                                        class="form-control" Data="@StateContainer.Quarters" Name="quarter" TextProperty="PeriodName" TValue="int?"
+                                    ValueProperty="PeriodNumber" Disabled="@StateContainer.InformationReportDisabledIndicator" />
+                    </InterfaceEditorResource>
+                }
+
+                <!--Month-->
+                @if (StateContainer.ShowMonth)
+                {
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportInformationMonthFieldLabel" IsRow="false" CssClass="col-4" For="month">
+                        <RadzenDropDown @bind-Value="@StateContainer.Month" Change=@(args => OnChangePeriod(args, StatisticPeriodType.Month)) 
+                                        class="form-control" Data="@StateContainer.Months" Name="month" TextProperty="PeriodName" TValue="int?" 
+                                        ValueProperty="PeriodNumber" Disabled="@StateContainer.InformationReportDisabledIndicator" />
+                    </InterfaceEditorResource>
+                }
+
+                <!--Week-->
+                @if (StateContainer.ShowWeek)
+                {
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportInformationWeekFieldLabel" IsRow="false" CssClass="col-4" For="week">
+                        <RadzenDropDown @bind-Value="@StateContainer.Week" Change=@(args => OnChangePeriod(args, StatisticPeriodType.Week)) 
+                                        class="form-control" Data="@StateContainer.Weeks" Name="week" TextProperty="PeriodName" TValue="int?"
+                                    ValueProperty="PeriodNumber" Disabled="@StateContainer.InformationReportDisabledIndicator"/>
+                    </InterfaceEditorResource>
+                }
+
+                <!--Day-->
+                @if (StateContainer.ShowDay)
+                {
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportInformationDayFieldLabel" IsRow="false" CssClass="col-4" For="day">
+                        <RadzenDatePicker @bind-Value="@StateContainer.Day" Change=@(args => OnChangeDay(args)) 
+                                          class="form-control-range" Name="day" DateFormat="d" Disabled="@StateContainer.InformationReportDisabledIndicator"/>
+                    </InterfaceEditorResource>
+                }
+            </div>
+            <div>
+                <LocationView ParmLocationViewModel="@StateContainer.ReportLocationViewModel" LocationViewModelChanged="@OnLocationChanged" @ref="LocationComponent"></LocationView>
+            </div>
+            @if (StateContainer.ShowOrganization)
+            {
+                <div class="form-row">
+                    <!--Organization-->
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinaryAggregateActionsReportInformationOrganizationFieldLabel" IsRow="false" CssClass="col-4" For="organizationID" IsRequiredByDefaultBusinessRule="true">
+                        <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.StartsWith"
+                                    @bind-Value="@StateContainer.OrganizationID" class="form-control" AllowVirtualization="false"
+                                    Data="@LocationOrganizations" TValue="long?" LoadData="@GetLocationOrganizations" Count="@LocationOrganizationCount"
+                                    Name="organizationID" TextProperty="FullName" ValueProperty="idfOffice" Disabled="@StateContainer.InformationReportDisabledIndicator" />
+                    </InterfaceEditorResource>
+                </div>
+            }
+        </div>
+    </div>
+</RadzenTemplateForm>

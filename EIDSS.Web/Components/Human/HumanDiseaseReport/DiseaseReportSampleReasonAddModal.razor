@@ -1,0 +1,51 @@
+﻿
+
+@inherits EIDSS.Web.Components.Human.HumanDiseaseReport.DiseaseReportSampleReasonAddModalBase
+
+<EditForm EditContext="@EditContext">
+    <div class="card">
+        <div class="card-header">
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="@baseReferenceViewModel.StrDefault">@Localizer.GetString(FieldLabelResourceKeyConstants.DefaultValueFieldLabel)</label>
+                    <RadzenTextBox @bind-Value="@baseReferenceViewModel.StrDefault" class="form-control"></RadzenTextBox>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="@baseReferenceViewModel.Name">@Localizer.GetString(FieldLabelResourceKeyConstants.NationalValueFieldLabel)</label>
+                    <RadzenTextBox @bind-Value="@baseReferenceViewModel.Name" class="form-control"></RadzenTextBox>
+
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="@baseReferenceViewModel.IntHACode">@Localizer.GetString(FieldLabelResourceKeyConstants.AccessoryCodeFieldLabel)</label>
+                    <RadzenDropDown AllowClear="true" TValue="int?" Data="@HACodes" LoadData="@GetHACodes" ValueProperty="intHACode" TextProperty="CodeName" @bind-Value="@baseReferenceViewModel.IntHACode" Count="@HACodeCount" class="form-control"></RadzenDropDown>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="@baseReferenceViewModel.IntOrder">@Localizer.GetString(FieldLabelResourceKeyConstants.OrderFieldLabel)</label>
+                    <RadzenNumeric @bind-Value="@baseReferenceViewModel.IntOrder" class="form-control"></RadzenNumeric>
+
+                </div>
+            </div>
+        </div>
+               
+            </div>
+            <div class="card-footer">
+                <button type="button" class="btn btn-secondary"
+                        @onclick="((args) => DiagService.Close(null))">
+                    @Localizer.GetString(ButtonResourceKeyConstants.CancelButton)
+                </button>
+
+                <button type="submit" class="btn btn-primary"
+                        @onclick="((args) => DiagService.Close(EditContext))">
+                    @Localizer.GetString(ButtonResourceKeyConstants.SaveButton)
+                </button>
+            </div>
+
+</EditForm>

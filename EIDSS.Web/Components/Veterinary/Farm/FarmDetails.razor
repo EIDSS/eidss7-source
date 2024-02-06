@@ -1,0 +1,37 @@
+﻿@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Services
+@inherits FarmDetailsBase
+
+<RadzenTemplateForm Data="@StateContainer" @ref="Form" TItem="FarmStateContainer">
+    <div class="card">
+        <div class="card-header">
+            <h5>@Localizer.GetString(HeadingResourceKeyConstants.FarmDetailsOwnershipStructureHeading)</h5>
+        </div>
+        <div class="card-body">
+            <RadzenRadioButtonList @bind-Value="StateContainer.OwnershipStructureTypeID" Change="SetFormIsModified" Data="@OwnershipStructures" Disabled="@StateContainer.IsOwnershipDisabled" Name="ownershipStructure" Orientation="Orientation.Vertical" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h5>@Localizer.GetString(HeadingResourceKeyConstants.FarmDetailsAvianFarmTypeHeading)</h5>
+        </div>
+        <div class="card-body">
+            <RadzenRadioButtonList @bind-Value="StateContainer.AvianFarmTypeID" Change="SetFormIsModified" Data="@AvianFarmTypes" Disabled="@StateContainer.IsAvianDisabled" Name="avianFarmType" Orientation="Orientation.Vertical" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference" />
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h5>@Localizer.GetString(HeadingResourceKeyConstants.FarmDetailsFarmDetailsHeading)</h5>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <InterfaceEditorResource CssClass="col-4" For="numberOfBuildings" InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmInformationNumberOfBarnsBuildingsFieldLabel" IsRow="false">
+                    <RadzenNumeric @bind-Value="StateContainer.NumberOfBuildings" Change="SetFormIsModified" class="form-control" Disabled="@StateContainer.IsAvianDisabled" Min="0" Name="numberOfBuildings" TValue="int?" />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmInformationNumberOfBirdsPerBarnBuildingFieldLabel" IsRow="false" CssClass="col-4" For="numberOfBirdsPerBuilding">
+                    <RadzenNumeric @bind-Value="StateContainer.NumberOfBirdsPerBuilding" Change="SetFormIsModified" class="form-control" Disabled="@StateContainer.IsAvianDisabled" Min="0" Name="numberOfBirdsPerBuilding" TValue="int?" />
+                </InterfaceEditorResource>
+            </div>
+        </div>
+    </div>
+</RadzenTemplateForm>

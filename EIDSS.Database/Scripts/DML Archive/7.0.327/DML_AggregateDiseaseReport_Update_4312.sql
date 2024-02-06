@@ -1,0 +1,2 @@
+Update dbo.trtResourceTranslation set strResourceString = '[TBD]' where idfsLanguage = 10049001 and idfsResource = 759 
+Update dbo.trtResourceTranslation set strResourceString = '[TBD]' where idfsLanguage = 10049004 and idfsResource = 759 

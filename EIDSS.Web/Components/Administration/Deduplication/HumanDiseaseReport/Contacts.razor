@@ -1,0 +1,89 @@
+﻿@using EIDSS.Web.ViewModels.Human
+@using EIDSS.Domain.ViewModels.Human
+@inherits EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport.ContactsBase
+
+
+<div class="form-row">
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord" TValue="int" @bind-Value=@HumanDiseaseReportDeduplicationService.RecordSelection
+                                       Change="@((args) => OnRecordSelectionChangeAsync(args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="Test"></div>
+                <RadzenCheckBox Name="chkCheckAllContactList" @bind-Value=@HumanDiseaseReportDeduplicationService.chkCheckAllContactList TValue="bool" Change="@((args) => OnCheckAllContactsChangeAsync(args))" />
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllContactList" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+    <div class="col-6">
+                <RadzenRadioButtonList class="form-control" Name="rboRecord2" TValue="int" @bind-Value=@HumanDiseaseReportDeduplicationService.Record2Selection
+                                       Change="@((args) => OnRecord2SelectionChangeAsync(args))">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSurvivorFieldLabel)" Value="1" />
+                        <RadzenRadioButtonListItem Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonSupersededFieldLabel)" Value="2" />
+                    </Items>
+                </RadzenRadioButtonList>
+                <div class="card-header" id="Test2"></div>
+                <RadzenCheckBox Name="chkCheckAllContactList2" @bind-Value=@HumanDiseaseReportDeduplicationService.chkCheckAllContactList2 TValue="bool" Change="@((args) => OnCheckAllContacts2ChangeAsync(args))" />
+                <RadzenLabel Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationPersonCheckAllFieldLabel)" Component="chkCheckAllContactList2" Style="margin-left: 8px; vertical-align: middle;" />
+    </div>
+</div>
+<div class="form-row">
+    <div class="col-6">
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" 
+            Count="@HumanDiseaseReportDeduplicationService.ContactsCount" 
+            Data="@HumanDiseaseReportDeduplicationService.Contacts"
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@HumanDiseaseReportDeduplicationService.SelectedContacts"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            ExpandMode="DataGridExpandMode.Single" 
+            PageSizeOptions="pageSizeOptions" @ref="HumanDiseaseReportDeduplicationService.contactsGrid" 
+            ShowPagingSummary="true" TItem="DiseaseReportContactDetailsViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool" 
+                            Value="@(HumanDiseaseReportDeduplicationService.SelectedContacts != null && HumanDiseaseReportDeduplicationService.SelectedContacts.Contains(data))" 
+                            Change="@(args => OnContactRowCheckChangeAsync(args, data, false))" />
+                    </Template> 
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Property="strFirstName" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.ContactInformationModalFirstNameFieldLabel) Width="150px"/>
+                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Property="strSecondName" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.ContactInformationModalMiddleNameFieldLabel) Width="150px"/>
+                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Property="strLastName" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.ContactInformationModalLastNameFieldLabel)" Width="150px" />
+                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Property="strPersonContactType" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.ContactInformationModalRelationFieldLabel)" Width="150px"/>                           
+                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Property="datDateOfLastContact" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.ContactInformationModalDateOfLastContactFieldLabel)" Width="200px" />
+                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Property="strPlaceInfo" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.ContactInformationModalPlaceOfLastContactFieldLabel)" Width="200px"/>
+                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Property="strPatientAddressString" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.ContactListContactsInformationColumnHeading)" Width="200px" />
+                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Property="strComments" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.VaccinationDetailsModalCommentsFieldLabel)" Width="150px" /> 
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+    <div class="col-6">
+        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowFiltering="false" AllowPaging="true" AllowSorting="true" ColumnWidth="300px" 
+            Count="@HumanDiseaseReportDeduplicationService.ContactsCount2" 
+            Data="@HumanDiseaseReportDeduplicationService.Contacts2"
+            SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="@HumanDiseaseReportDeduplicationService.SelectedContacts2"
+            EmptyText="@Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)" 
+            ExpandMode="DataGridExpandMode.Single" 
+            PageSizeOptions="pageSizeOptions" @ref="HumanDiseaseReportDeduplicationService.contactsGrid2" 
+            ShowPagingSummary="true" TItem="DiseaseReportContactDetailsViewModel">
+            <Columns>
+                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool" 
+                            Value="@(HumanDiseaseReportDeduplicationService.SelectedContacts2 != null && HumanDiseaseReportDeduplicationService.SelectedContacts2.Contains(data))" 
+                            Change="@(args => OnContactRowCheckChangeAsync(args, data, true))" />
+                    </Template> 
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Property="strFirstName" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.ContactInformationModalFirstNameFieldLabel) Width="150px"/>
+                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Property="strSecondName" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.ContactInformationModalMiddleNameFieldLabel) Width="150px"/>
+                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Property="strLastName" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.ContactInformationModalLastNameFieldLabel)" Width="150px" />
+                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Property="strPersonContactType" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.ContactInformationModalRelationFieldLabel)" Width="150px"/>                           
+                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Property="datDateOfLastContact" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.ContactInformationModalDateOfLastContactFieldLabel)" Width="200px" />
+                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Property="strPlaceInfo" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.ContactInformationModalPlaceOfLastContactFieldLabel)" Width="200px"/>
+                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Property="strPatientAddressString" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.ContactListContactsInformationColumnHeading)" Width="200px" />
+                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Property="strComments" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.VaccinationDetailsModalCommentsFieldLabel)" Width="150px" /> 
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>

@@ -1,0 +1,377 @@
+﻿@model EIDSS.Web.Areas.Outbreak.ViewModels.OutbreakSessionViewModel;
+@using EIDSS.ClientLibrary.Enumerations;
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.OutbreakSessionOutbreakSessionHeading);
+}
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-lg-11">
+                <div class="panel-heading">
+                    <h2>@Localizer.GetString(HeadingResourceKeyConstants.OutbreakSessionOutbreakSessionHeading)</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" asp-controller="OutbreakSession">
+            <div class="show" id="dSessionDetails">
+                <div class="card">
+                    <div class="card-header" id="humanDiseaseReportSearchCriteria">
+                        <h4 class="mb-0 d-inline-block">@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakSessionOutbreakInformationColumnHeading)</h4>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <input id="hdnToday" type="date" asp-for="SessionDetails.Today" style="display:none" />
+                        <input type="text" asp-for="SessionDetails.idfOutbreak" style="display:none" />
+
+                        <div class="col-4">
+                            <label asp-for="SessionDetails.strOutbreakID">@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionOutbreakIDFieldLabel)</label>
+                            <input type="text" asp-for="SessionDetails.strOutbreakID" class="form-control" SearchFilter="true" disabled />
+                        </div>
+                        <div class="col-4" hidden-if="@FieldLabelResourceKeyConstants.OutbreakSessionStartDateFieldLabel">
+                            <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OutbreakSessionStartDateFieldLabel"></i>
+                            <label asp-for="SessionDetails.datStartDate">@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionStartDateFieldLabel)</label>
+                            <eidss-calendar id="SessionDetails_datStartDate" name="SessionDetails.datStartDate" asp-for="SessionDetails.datStartDate" class="form-control" shortdate="true"></eidss-calendar>
+                            <span asp-validation-for="SessionDetails.datStartDate" class="text-danger"></span>
+                        </div>
+                        <div id="dDatCloseDate" class="col-4" style="display:none">
+                            <label asp-for="SessionDetails.datCloseDate">@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionEndDateFieldLabel)</label>
+                            <eidss-calendar id="SessionDetails_datCloseDate" name="SessionDetails.datCloseDate" asp-for="SessionDetails.datCloseDate" class="form-control" shortdate="true"></eidss-calendar>
+                            <span asp-validation-for="SessionDetails.datCloseDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            @{
+                                Select2Configruation OutbreakType = new Select2Configruation();
+                                OutbreakType.DropDownId = "OutbreakTypeId";
+                                OutbreakType.Label = @Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionTypeFieldLabel);
+                                OutbreakType.ControlTargetType = DropDownTargetTypes.DropDown;
+                                OutbreakType.Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000513 });
+                                OutbreakType.CustomJsOnChangeFunction = "outbreakCreate.DiseaseEnable";
+                                OutbreakType.isVisible = true;
+                                OutbreakType.isRequired = true;
+                                OutbreakType.RequiredErrorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage);
+
+                            }
+                            <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OutbreakSessionTypeFieldLabel"></i>
+                            <eidss-select2DropDown id="@OutbreakType.DropDownId"
+                                                   name="@OutbreakType.DropDownId"
+                                                   control-target-id=""
+                                                   target-type="@OutbreakType.ControlTargetType"
+                                                   target-ajax-url="@OutbreakType.Endpoint"
+                                                   selectct2-default-data="@OutbreakType.defaultSelect2Selection"
+                                                   end-point="@OutbreakType.Endpoint"
+                                                   custom-js-on-change-function="@OutbreakType.CustomJsOnChangeFunction"
+                                                   label-name="@OutbreakType.Label"
+                                                   is-visible="@OutbreakType.isVisible"
+                                                   asp-for="@Model.SessionDetails.OutbreakTypeId"
+                                                   filter-sort-enable="false">
+                            </eidss-select2DropDown>
+                            <span asp-validation-for="SessionDetails.OutbreakTypeId" class="text-danger"></span>
+                        </div>
+                        <div class="col-4">
+                            @{
+                                Select2Configruation OutbreakStatus = new Select2Configruation();
+                                OutbreakStatus.DropDownId = "idfsOutbreakStatus";
+                                OutbreakStatus.Label = @Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionStatusFieldLabel);
+                                OutbreakStatus.ControlTargetType = DropDownTargetTypes.DropDown;
+                                OutbreakStatus.Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000063 });
+                                OutbreakStatus.isVisible = true;
+                                OutbreakStatus.defaultSelect2Selection = new Select2DataItem { id = EIDSSConstants.OutbreakStatus.InProgress.ToString(), text = Model.DefaultOutbreakStatus };
+                                OutbreakStatus.CustomJsOnChangeFunction = "outbreakCreate.EndDateEnable";
+                                OutbreakStatus.isRequired = true;
+                                OutbreakStatus.RequiredErrorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage);
+                            }
+                            <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OutbreakSessionStatusFieldLabel"></i>
+                            <eidss-select2DropDown id="@OutbreakStatus.DropDownId"
+                                                   name="@OutbreakStatus.DropDownId"
+                                                   control-target-id=""
+                                                   target-type="@OutbreakStatus.ControlTargetType"
+                                                   target-ajax-url="@OutbreakStatus.Endpoint"
+                                                   selectct2-default-data="@OutbreakStatus.defaultSelect2Selection"
+                                                   end-point="@OutbreakStatus.Endpoint"
+                                                   custom-js-on-change-function="@OutbreakStatus.CustomJsOnChangeFunction"
+                                                   label-name="@OutbreakStatus.Label"
+                                                   asp-for="@Model.SessionDetails.idfsOutbreakStatus"
+                                                   is-visible="@OutbreakStatus.isVisible">
+                            </eidss-select2DropDown>
+                            <span asp-validation-for="SessionDetails.idfsOutbreakStatus" class="text-danger"></span>
+                        </div>
+                        <div class="col-4">
+                            @{
+                                Select2Configruation OutbreakDisease = new Select2Configruation();
+                                OutbreakDisease.DropDownId = "idfsDiagnosisOrDiagnosisGroup";
+                                OutbreakDisease.Label = @Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionDiseaseFieldLabel);
+                                OutbreakDisease.ControlTargetType = DropDownTargetTypes.DropDown;
+                                OutbreakDisease.Endpoint = Url.Action("DiseaseListForSelect2DropDownAdvanced", "CrossCutting", new { Area = "CrossCutting", intHACode = EIDSSConstants.HACodeList.HumanHACode, idfsUsingType = EIDSSConstants.UsingType.StandardCaseType });
+                                OutbreakDisease.isVisible = true;
+                                OutbreakDisease.DisabledControls = "idfsDiagnosisOrDiagnosisGroup";
+                                OutbreakDisease.isRequired = true;
+                                OutbreakDisease.RequiredErrorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage);
+                            }
+                            <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OutbreakSessionDiseaseFieldLabel"></i>
+                            <eidss-select2DropDown id="@OutbreakDisease.DropDownId"
+                                                   name="@OutbreakDisease.DropDownId"
+                                                   control-target-id=""
+                                                   target-type="@OutbreakDisease.ControlTargetType"
+                                                   target-ajax-url="@OutbreakDisease.Endpoint"
+                                                   selectct2-default-data="@OutbreakDisease.defaultSelect2Selection"
+                                                   end-point="@OutbreakDisease.Endpoint"
+                                                   label-name="@OutbreakDisease.Label"
+                                                   is-visible="@OutbreakDisease.isVisible"
+                                                   asp-for="@Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup"
+                                                   disabled-controls="@OutbreakDisease.DisabledControls">
+                            </eidss-select2DropDown>
+                            <span asp-validation-for="SessionDetails.idfsDiagnosisOrDiagnosisGroup" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionLocationFieldLabel)</label>
+                </div>
+                <div class="row" id="adminAreaSearch">
+                    <div class="col-12">
+                        <input type="hidden" id="idfsCountry" asp-for="SessionDetails.AdminLevel0Value" />
+                        @await Component.InvokeAsync("LocationView", Model.SessionLocationViewModel)
+                    </div>
+                </div>
+            </div>
+                <div class="form-group" id="dSpeciesAffected" style="display:none">
+                    <div class="row">
+                        <div class="col-6">
+                            <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakSpeciesAffectedFieldLabel)</label>
+                            <div class="input-group continue-checkbox-set-right">
+                                <div class="checkbox-inline">
+                                    <input type="hidden" id="bHuman" asp-for="SessionDetails.bHuman" value="false" />
+                                    <input type="checkbox" id="idfscbHuman" asp-for="SessionDetails.idfscbHuman" species="Human" onclick="outbreakCreate.showParameters(this,'Human')" disabled="disabled" />
+                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakHumanFieldLabel)</label>
+                                </div>
+                                <div class="checkbox-inline">
+                                    <input type="hidden" id="bAvian" asp-for="SessionDetails.bAvian" value="false" />
+                                    <input type="checkbox" id="idfscbAvian" asp-for="SessionDetails.idfscbAvian" species="Avian" onclick="outbreakCreate.showParameters(this, 'Avian')" disabled="disabled" />
+                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakAvianFieldLabel)</label>
+                                </div>
+                                <div class="checkbox-inline">
+                                    <input type="hidden" id="bLivestock" asp-for="SessionDetails.bLivestock" value="false" />
+                                    <input type="checkbox" id="idfscbLivestock" asp-for="SessionDetails.idfscbLivestock" species="Livestock" onclick="outbreakCreate.showParameters(this, 'Livestock')" disabled="disabled" />
+                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakLivestockFieldLabel)</label>
+                                </div>
+                                <div class="checkbox-inline">
+                                    <input type="hidden" id="bVector" asp-for="SessionDetails.bVector" value="false" />
+                                    <input type="checkbox" id="idfscbVector" asp-for="SessionDetails.idfscbVector" species="Vector" onclick="outbreakCreate.showParameters(this, 'Vector')" disabled="disabled" />
+                                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakVectorFieldLabel)</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="dSpeciesAffectedError" style="display:none">
+                        <label class="text-danger" style="color:red">Vector Selection</label>
+                    </div>
+                </div>
+                <div class="panel-body" id="dParameters" style="display:none">
+                    <div class="panel-heading">
+                        <h3 class="heading" runat="server">@Localizer.GetString(HeadingResourceKeyConstants.CreateOutbreakOutbreakParametersHeading)</h3>
+                    </div>
+                    <div id="dParametersidfscbHuman" style="display:none">
+                        <fieldset>
+                            <legend>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakHumanFieldLabel)</legend>
+                            <div style="color: lightgray"><i class="fas fa-list fa-2x"></i></div>
+                            <div class="row col-12 col-12">
+                                <div class="col-6 col-6">
+                                    <div class="row">
+                                        <label class="param-title-label">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakCaseMonitoringFieldLabel)</label>
+                                        <div style="color: lightgray"><i class="fas fa-list fa-2x"></i></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-5 col-5">
+                                                <label asp-for="SessionDetails.txtHumanCaseMonitoringDuration">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakDurationFieldLabel)</label>
+                                            </div>
+                                            <div class="col-2 col-2">
+                                                <input id="txtHumanCaseMonitoringDuration" type="number" asp-for="SessionDetails.txtHumanCaseMonitoringDuration" species="Human" parameter="CaseMonitoring" min="1" max="365" onkeydown="return event.keyCode != 69" onchange="outbreakCreate.setFrequency(this);"></input>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-5 col-5">
+                                                <label asp-for="SessionDetails.txtHumanCaseMonitoringFrequency">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakFrequencyFieldLabel)</label>
+                                            </div>
+                                            <div class="col-2 col-2">
+                                                <input id="txtHumanCaseMonitoringFrequency" type="number" asp-for="SessionDetails.txtHumanCaseMonitoringFrequency" species="Human" parameter="CaseMonitoring" min="1" max="365" onkeydown="return event.keyCode != 69" onchange="outbreakCreate.checkFrequency(this);"></input>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-6">
+                                    <div class="row">
+                                        <label class="param-title-label">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakContactTracingFieldLabel)</label>
+                                        <div style="color: lightgray"><i class="fas fa-list fa-2x"></i></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-5 col-5">
+                                                <label asp-for="SessionDetails.txtHumanContactTracingDuration">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakDurationFieldLabel)</label>
+                                            </div>
+                                            <div class="col-2 col-2">
+                                                <input id="txtHumanContactTracingDuration" type="number" asp-for="SessionDetails.txtHumanContactTracingDuration" species="Human" parameter="ContactTracing" min="1" max="365" onkeydown="return event.keyCode != 69" onchange="outbreakCreate.setFrequency(this);"></input>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-5 col-5">
+                                                <label asp-for="SessionDetails.txtHumanContactTracingFrequency">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakFrequencyFieldLabel)</label>
+                                            </div>
+                                            <div class="col-2 col-2">
+                                                <input id="txtHumanContactTracingFrequency" type="number" asp-for="SessionDetails.txtHumanContactTracingFrequency" species="Human" parameter="ContactTracing" min="1" max="365" onkeydown="return event.keyCode != 69" onchange="outbreakCreate.checkFrequency(this);"></input>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div id="dParametersidfscbAvian" style="display:none">
+                        <fieldset>
+                            <legend>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakAvianFieldLabel)</legend>
+                            <div style="color: lightgray"><i class="fas fa-list fa-2x"></i></div>
+                            <div class="row col-12 col-12">
+                                <div class="col-6 col-6">
+                                    <div class="row">
+                                        <label class="param-title-label">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakCaseMonitoringFieldLabel)</label>
+                                        <div style="color: lightgray"><i class="fas fa-list fa-2x"></i></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-5 col-5">
+                                                <label asp-for="SessionDetails.txtAvianCaseMonitoringDuration">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakDurationFieldLabel)</label>
+                                            </div>
+                                            <div class="col-2 col-2">
+                                                <input id="txtAvianCaseMonitoringDuration" type="number" asp-for="SessionDetails.txtAvianCaseMonitoringDuration" species="Avian" parameter="CaseMonitoring" min="1" max="365" onkeydown="return event.keyCode != 69" onchange="outbreakCreate.setFrequency(this);"></input>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-5 col-5">
+                                                <label asp-for="SessionDetails.txtAvianCaseMonitoringFrequency">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakFrequencyFieldLabel)</label>
+                                            </div>
+                                            <div class="col-2 col-2">
+                                                <input id="txtAvianCaseMonitoringFrequency" type="number" asp-for="SessionDetails.txtAvianCaseMonitoringFrequency" species="Avian" parameter="CaseMonitoring" min="1" max="365" onkeydown="return event.keyCode != 69" onchange="outbreakCreate.checkFrequency(this);"></input>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-6">
+                                    <div class="row">
+                                        <label class="param-title-label">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakContactTracingFieldLabel)</label>
+                                        <div style="color: lightgray"><i class="fas fa-list fa-2x"></i></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-5 col-5">
+                                                <label asp-for="SessionDetails.txtAvianContactTracingDuration">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakDurationFieldLabel)</label>
+                                            </div>
+                                            <div class="col-2 col-2">
+                                                <input id="txtAvianContactTracingDuration" type="number" asp-for="SessionDetails.txtAvianContactTracingDuration" species="Avian" parameter="ContactTracing" min="0" max="365" onkeydown="return event.keyCode != 69" onchange="outbreakCreate.setFrequency(this);"></input>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-5 col-5">
+                                                <label asp-for="SessionDetails.txtAvianContactTracingFrequency">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakFrequencyFieldLabel)</label>
+                                            </div>
+                                            <div class="col-2 col-2">
+                                                <input id="txtAvianContactTracingFrequency" type="number" asp-for="SessionDetails.txtAvianContactTracingFrequency" species="Avian" parameter="ContactTracing" min="0" max="365" onkeydown="return event.keyCode != 69" onchange="outbreakCreate.checkFrequency(this);"></input>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div id="dParametersidfscbLivestock" style="display:none">
+                        <fieldset>
+                            <legend>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakLivestockFieldLabel)</legend>
+                            <div style="color: lightgray"><i class="fas fa-list fa-2x"></i></div>
+                            <div class="row col-12 col-12">
+                                <div class="col-6 col-6">
+                                    <div class="row">
+                                        <label class="param-title-label">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakCaseMonitoringFieldLabel)</label>
+                                        <div style="color: lightgray"><i class="fas fa-list fa-2x"></i></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-5 col-5">
+                                                <label asp-for="SessionDetails.txtLivestockCaseMonitoringDuration">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakDurationFieldLabel)</label>
+                                            </div>
+                                            <div class="col-2 col-2">
+                                                <input id="txtLivestockCaseMonitoringDuration" type="number" asp-for="SessionDetails.txtLivestockCaseMonitoringDuration" species="Livestock" parameter="CaseMonitoring" min="0" max="365" onkeydown="return event.keyCode != 69" onchange="outbreakCreate.setFrequency(this);"></input>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-5 col-5">
+                                                <label asp-for="SessionDetails.txtLivestockCaseMonitoringFrequency">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakFrequencyFieldLabel)</label>
+                                            </div>
+                                            <div class="col-2 col-2">
+                                                <input id="txtLivestockCaseMonitoringFrequency" type="number" asp-for="SessionDetails.txtLivestockCaseMonitoringFrequency" species="Livestock" parameter="CaseMonitoring" min="0" max="365" onkeydown="return event.keyCode != 69" onchange="outbreakCreate.checkFrequency(this);"></input>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-6">
+                                    <div class="row">
+                                        <label class="param-title-label">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakContactTracingFieldLabel)</label>
+                                        <div style="color: lightgray"><i class="fas fa-list fa-2x"></i></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-5 col-5">
+                                                <label asp-for="SessionDetails.txtLivestockContactTracingDuration">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakDurationFieldLabel)</label>
+                                            </div>
+                                            <div class="col-2 col-2">
+                                                <input id="txtLivestockContactTracingDuration" type="number" asp-for="SessionDetails.txtLivestockContactTracingDuration" species="Livestock" parameter="ContactTracing" min="0" max="365" onkeydown="return event.keyCode != 69" onchange="outbreakCreate.setFrequency(this);"></input>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-5 col-5">
+                                                <label asp-for="SessionDetails.txtLivestockContactTracingFrequency">@Localizer.GetString(FieldLabelResourceKeyConstants.CreateOutbreakFrequencyFieldLabel)</label>
+                                            </div>
+                                            <div class="col-2 col-2">
+                                                <input id="txtLivestockContactTracingFrequency" type="number" asp-for="SessionDetails.txtLivestockContactTracingFrequency" species="Livestock" parameter="ContactTracing" min="0" max="365" onkeydown="return event.keyCode != 69" onchange="outbreakCreate.checkFrequency(this);"></input>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <input type="button" class="btn-default btn" onclick="showCancel();" value="@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)" />
+                    <input type="submit" id="bSessionSaveButton" style="display:none" class="btn-primary btn" value="@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)" />
+                </div>
+        </form>
+    </div>
+</div>
+
+<partial name="_sessionWarningModals" />
+
+<script type="text/javascript">
+    var CreateSessionUrl = '@Url.Action("Create","OutbreakSession")';
+    
+</script>
+<script src="~/js/Outbreak/SessionCreate.js"></script>
+<partial name="_ValidationScriptsPartial" />
+<script type="text/javascript">
+    outbreakCreate.diseaseEnableURL = "@Url.Action("DiseaseListForSelect2DropDownAdvanced", "CrossCutting", new { Area = "CrossCutting" })";
+</script>

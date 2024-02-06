@@ -1,0 +1,36 @@
+﻿@using EIDSS.Web.Components.Administration.SiteAlertSubscription
+@{
+    ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.SiteAlertsSubscriptionPageHeading);
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 heading-for="@HeadingResourceKeyConstants.SiteAlertsSubscriptionPageHeading"></h3>
+    </div>
+    <component type="typeof(SubscriptionManagement)" render-mode="Server" />
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+
+    <script type="text/javascript">
+        function cancelDetails(message, event) {
+            event.preventDefault();
+            showWarningModal(message).then(response => {
+                if (response) {
+                    HistoryRedirect();
+                }
+            });
+        };
+
+        function HistoryRedirect() {
+            var referrer = document.referrer;
+            //If the referrer is the same page or view in the same controller we redirect to dashboard else we redirect to the referrer
+            if (referrer.search("SecurityPolicy") > -1) {
+                window.location.replace('@Url.Action("Dashboard", "Administration")');
+            } else {
+                window.location.replace(referrer);
+            }
+        };
+    </script>
+}
