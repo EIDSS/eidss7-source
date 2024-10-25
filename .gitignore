@@ -361,53 +361,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/EIDSS.Installer.XSITE-GG/XSITE_GG
-/EIDSS.Installer.XSITE-GG/EIDSS.Installer.XSITE-GG.back.aip
-/EIDSS.Installer.XSITE-GG/EIDSS.Installer.XSITE-GG.back (1).aip
 /Reports
-/EIDSS.Installer.XSITE-GG/Setup Files
-/EIDSS.Installer.XSITE-GG/EIDSS.Installer.XSITE-GG-cache
-/EIDSS.Installer.XSITE-EN/XSITE_EN
-/EIDSS.Installer.XSITE-EN/Setup Files
-/EIDSS.Installer.XSITE-EN/EIDSS.Installer.XSITE-EN-cache
-/EIDSS.Installer.XSITE-AZ/XSITE_AZ
-/EIDSS.Installer.XSITE-AZ/Setup Files
-/EIDSS.Installer.XSITE-AZ/EIDSS.Installer.XSITE-AZ.back.aip
-/EIDSS.Installer.XSITE-AZ/EIDSS.Installer.XSITE-AZ-cache
-/EIDSS.Installer.Web/XSITE Instances
-/EIDSS.Installer.Web/EIDSSWEB
-/EIDSS.Installer.Web/EIDSS.Installer.Web.back.aip
-/EIDSS.Installer.Web/EIDSS.Installer.Web-SetupFiles
-/EIDSS.Installer.Web/EIDSS.Installer.Web-cache
-/EIDSS.Installer.SSRS/EIDSS.Installer.SSRS-SetupFiles
-/EIDSS.Installer.SSRS/EIDSS.Installer.SSRS-cache
-/EIDSS.Installer.API/Prerequisites
-/EIDSS.Installer.API/EIDSSAPI
-/EIDSS.Installer.API/EIDSS.Installer.API-SetupFiles
-/EIDSS.Installer.API/EIDSS.Installer.API-cache
-/EIDSS.Installer.API/Services Error.txt
-/EIDSS.Installer.API/EIDSS.Installer.API.back.aip
-/EIDSS.Installer.API/EIDSS.Installer.API.back (1).aip
-/EIDSS.Installer.SSRS/Prerequisites
-/EIDSS.Installer.XSITE-EN/Prerequisites/.NET Framework 4.0
-/EIDSS.Installer.XSITE-GG/Prerequisites/.NET Framework 4.0
 /Copy Releases Locally.bat
-/EIDSS.Installer.AVR/EIDSS.Installer.AVR-cache
-/EIDSS.Installer.AVR/EIDSS.Installer.AVR-SetupFiles
-/EIDSS.Installer.SSRS/EIDSS.Installer.SSRS.back.aip
-/EIDSS.Installer.SSRS/EIDSS.Installer.SSRS.back (1).aip
-/EIDSS.Installer.Web/EIDSS.Installer.Web.back (1).aip
-/EIDSS.Installer.XSITE-AZ/EIDSS.Installer.XSITE-AZ.back (1).aip
-/EIDSS.Installer.XSITE-EN/EIDSS.Installer.XSITE-EN.back.aip
-/EIDSS.Installer.XSITE-GG/EIDSS.Installer.XSITE-GG.back (2).aip
-/EIDSS.Installer.Web/EIDSS.Installer.Web - Copy.aip
-/EIDSS.Installer.CTS/EIDSS.Installer.CTS-cache/part1/FILES.7z.xml
-/EIDSS.Installer.CTS/EIDSS.Installer.CTS-cache
 /EIDSS.Api/.config/dotnet-tools.json
-/EIDSS.UserConversionUtility/Helpers/Book1.txt
-/EIDSS.UserConversionUtility/Helpers/Book1.csv
-/EIDSS.Installer.AVR/Prerequisites/Access 2016 Runtime/accessruntime_4288-1001_x64_en-us.exe.part
-/EIDSS.Installer.CTS/EIDSS.Installer.CTS-SetupFiles/EIDSS.Installer.CTS.msi
 
 # Rider IDE files
 .idea
