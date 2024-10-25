@@ -81,6 +81,7 @@ namespace EIDSS.Api.Controllers
         [SwaggerOperation(
             Summary = "Provides log in capabilities",
             Tags = new[] { "Administration - Users" })]
+        ////[SystemEventActionFilterAttribute(Domain.Enumerations.SystemEventEnum.User
         [AllowAnonymous]
         public async Task<IActionResult> Apilogin([FromBody] LoginViewModel model)
         {
@@ -377,6 +378,12 @@ namespace EIDSS.Api.Controllers
                     Errors = errors
                 });
 
+                //return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel
+                //{
+                //    Status = "Error",
+                //    Message = "Not a valid passowrd! Please check and try again.",
+                //    Errors = errors
+                //});
             }
             else
             {
@@ -633,6 +640,8 @@ namespace EIDSS.Api.Controllers
             if (user != null)
             {
                 result = await userManager.SetLockoutEndDateAsync(user, null);
+                //result = await userManager.SetLockoutEndDateAsync(user, DateTime.Now - TimeSpan.FromMinutes(1));
+                //result = await userManager.SetLockoutEnabledAsync(user, false);
                 if (!result.Succeeded)
                 {
                     var errors = new List<string>();
@@ -1026,6 +1035,21 @@ namespace EIDSS.Api.Controllers
         {
             DbContextFactory.Connect(isConnectToArchive ? "EIDSSARCHIVE" : "EIDSS");
 
+            //ApplicationDbContext applicationDbContext;
+            //EIDSSContext eidssContext;
+            //if (isConnectToArchive)
+            //{
+            //    EIDSSContext
+            //    applicationDbContext = DbContextFactory.ConnectApplicationDbContext("EIDSS");
+            //    eidssContext = DbContextFactory.ConnectEidssContext("EIDSS");
+            //}
+            //else
+            //{
+            //    applicationDbContext = DbContextFactory.ConnectApplicationDbContext("EIDSSARCHIVE");
+            //    eidssContext = DbContextFactory.ConnectEidssContext("EIDSSARCHIVE");
+
+            //}
+
             return true;
         }
 
@@ -1064,6 +1088,7 @@ namespace EIDSS.Api.Controllers
             }
 
             return Ok(_groups);
+                //return (List<AVRGroupResponseModel>)ret;
         }
     }
 }

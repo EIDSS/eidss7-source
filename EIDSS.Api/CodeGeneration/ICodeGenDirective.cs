@@ -102,6 +102,9 @@ namespace EIDSS.Api.CodeGeneration.Control
 
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public static class TargetedClassNames
     {
         public static string AdminController => "AdminController.cs";

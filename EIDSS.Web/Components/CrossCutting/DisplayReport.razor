@@ -1,4 +1,5 @@
-﻿@inherits DisplayReportBase
+﻿@using EIDSS.Web.Components.Shared.SSRSViewer
+@inherits DisplayReportBase
 
 <div class="card">
     @if (!string.IsNullOrEmpty(ReportHeader))
@@ -10,18 +11,18 @@
     <div class="card-body">
         @if (Parameters == null && string.IsNullOrEmpty(ParametersJson))
         {
-            <RadzenSSRSViewer @ref="Viewer" Culture="@Culture" ReportName="@ReportName" ReportServer="@ReportServer" UseProxy="@UseProxy" Style="height: 450px; width: 100%;"></RadzenSSRSViewer>
+            <SSRSViewer @ref="Viewer" ReportName="@ReportName" ReportServer="@ReportServer" UseProxy="@UseProxy"/>
         }
         else
         {
-            <RadzenSSRSViewer @ref="Viewer" Culture="@Culture" ReportName="@ReportName" ReportServer="@ReportServer" UseProxy="@UseProxy" Style="height: 450px; width: 100%;">
+            <SSRSViewer @ref="Viewer" ReportName="@ReportName" ReportServer="@ReportServer" UseProxy="@UseProxy">
                 <Parameters>
                     @foreach (var (key, value) in Parameters)
                     {
-                        <RadzenSSRSViewerParameter ParameterName="@key" Value="@(string.IsNullOrEmpty(value) ? string.Empty : value)"></RadzenSSRSViewerParameter>
+                        <SSRSViewerParameter ParameterName="@key" Value="@(string.IsNullOrEmpty(value) ? string.Empty : value)"/>
                     }
                 </Parameters>
-            </RadzenSSRSViewer>
+            </SSRSViewer>
         }
     </div>
     @if (CancelButtonVisibleIndicator)

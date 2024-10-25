@@ -52,7 +52,7 @@ namespace EIDSS.ClientLibrary.ApiClients.Admin
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message, new object[] { request });
-                throw;
+                throw; // new NotImplementedException();
             }
             finally
             {
@@ -83,7 +83,7 @@ namespace EIDSS.ClientLibrary.ApiClients.Admin
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message, new object[] { request });
-                throw;
+                throw; // new NotImplementedException();
             }
             finally
             {
@@ -114,7 +114,7 @@ namespace EIDSS.ClientLibrary.ApiClients.Admin
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message, new object[] { request });
-                throw;
+                throw; // new NotImplementedException();
             }
             finally
             {
@@ -145,7 +145,7 @@ namespace EIDSS.ClientLibrary.ApiClients.Admin
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message, new object[] { request });
-                throw;
+                throw; // new NotImplementedException();
             }
             finally
             {

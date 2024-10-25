@@ -42,14 +42,13 @@ namespace EIDSS.Web.Areas.Reports.Controllers
                 return Content("File Name is Empty...");
             }
 
-            // get the filePath
-
-
-            //string filePath = $"~/paperforms/{GetCurrentLanguage()}/{EIDSSConstants.PaperFormsFileName.HumanDiseaseInvestigationForm}";
-
-            var filePath = System.IO.Path.Combine(System.IO.Path.GetFullPath("wwwroot"), "paperforms", GetCurrentLanguage(),
-                fileName);
-                
+            var currentLanguage = GetCurrentLanguage();
+            var currentLanguageFolderPath = System.IO.Path.Combine(System.IO.Path.GetFullPath("wwwroot"), "paperforms", currentLanguage);
+            var filePath = System.IO.Path.GetFullPath(System.IO.Path.Combine(currentLanguageFolderPath, fileName));
+            if (!filePath.StartsWith(currentLanguageFolderPath))
+            {
+                return BadRequest($"Wrong file name path {fileName}");
+            }
 
             // create a memorystream
             var memoryStream = new MemoryStream();

@@ -13,7 +13,7 @@
             <div class="form-row">
                 <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanExporttoCISIDDateFromFieldLabel" IsRow="false" CssClass="col-md-4" For="SearchCriteria_DateFrom">
                     <RadzenDatePicker id="DateFrom" Name="SearchCriteria_DateFrom" AllowClear="false" AllowInput="true" class="form-control-range" 
-                        TValue="DateTime?" @bind-Value="@model.SearchCriteria.DateFrom" DateFormat="dd/MM/yyyy" />
+                        TValue="DateTime?" @bind-Value="@model.SearchCriteria.DateFrom" DateFormat="d" />
                     <RadzenCompareValidator Value="@model.SearchCriteria.DateTo" Component="SearchCriteria_DateFrom" Popup="false" Operator="CompareOperator.LessThanEqual"
                         Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date1MustBeSameOrEarlierThanDate2Message), 
                             Localizer.GetString(FieldLabelResourceKeyConstants.HumanExporttoCISIDDateFromFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.HumanExporttoCISIDDateToFieldLabel))"
@@ -25,7 +25,7 @@
                 </InterfaceEditorResource>
                 <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanExporttoCISIDDateToFieldLabel" IsRow="false" CssClass="col-md-4" For="SearchCriteria_DateTo">
                     <RadzenDatePicker id="DateTo" Name="SearchCriteria_DateTo" AllowClear="false" AllowInput="true" class="form-control-range" 
-                        TValue="DateTime?" @bind-Value="@model.SearchCriteria.DateTo" DateFormat="dd/MM/yyyy" />
+                        TValue="DateTime?" @bind-Value="@model.SearchCriteria.DateTo" DateFormat="d" />
                     <RadzenCompareValidator Value="@model.SearchCriteria.DateFrom" Component="SearchCriteria_DateTo" Popup="false" Operator="CompareOperator.GreaterThanEqual"
                         Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), 
                             Localizer.GetString(FieldLabelResourceKeyConstants.HumanExporttoCISIDDateToFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.HumanExporttoCISIDDateFromFieldLabel))"
@@ -72,14 +72,14 @@
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="strCaseID" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDCaseIDColumnHeading) Sortable="true" Width="250px" />
                         <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="strAreaID" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDAreaIDColumnHeading) Sortable="true" Width="175px" />
-                        <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="datDRash" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDDateofonsetofrashColumnHeading) Sortable="true" Width="175px" FormatString="{0:dd/MM/yyyy}" />
+                        <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="datDRash" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDDateofonsetofrashColumnHeading) Sortable="true" Width="175px" FormatString="d" />
                         <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="intGenderID" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDGenderColumnHeading) Sortable="true" Width="175px" />
-                        <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="datDBirth" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDDateofBirthColumnHeading) Sortable="true" Width="175px" FormatString="{0:dd/MM/yyyy}" />
+                        <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="datDBirth" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDDateofBirthColumnHeading) Sortable="true" Width="175px" FormatString="d}" />
                         <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="intAgeAtRashOnset" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDAgeofrashonsetColumnHeading) Sortable="true" Width="175px" />
                         <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="intNumOfVaccines" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDNumberofmeaslesrubellavaccineColumnHeading) Sortable="true" Width="185px" />
-                        <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="datDvaccine" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDDateoflastmeaslesvaccinationColumnHeading) Sortable="true" Width="210px" FormatString="{0:dd/MM/yyyy}" />
-                        <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="datDNotification" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDDateofnotificationColumnHeading) Sortable="true" Width="200px" FormatString="{0:dd/MM/yyyy}" />
-                        <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="datDInvestigation" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDDateofinvestigationColumnHeading) Sortable="true" Width="200px" FormatString="{0:dd/MM/yyyy}" />
+                        <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="datDvaccine" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDDateoflastmeaslesvaccinationColumnHeading) Sortable="true" Width="210px" FormatString="d" />
+                        <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="datDNotification" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDDateofnotificationColumnHeading) Sortable="true" Width="200px" FormatString="d" />
+                        <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="datDInvestigation" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDDateofinvestigationColumnHeading) Sortable="true" Width="200px" FormatString="d" />
                                                 <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="intClinFever" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDFeverColumnHeading) Sortable="true" Width="175px" />
                         <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="intClinCCC" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDCoughorcoryzaorconjunctivitisColumnHeading) Sortable="true" Width="280px" />
                         <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="intClinRashDuration" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDDurationofrashColumnHeading) Sortable="true" Width="175px" />
@@ -95,9 +95,9 @@
                         <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="intCompDiarrhoea" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDDiarrheaColumnHeading) Sortable="true" Width="175px" />
                         <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="intCompOther" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDOtherColumnHeading) Sortable="true" Width="175px" />
                         <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="intFinalClassification" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDFinalClassificationColumnHeading) Sortable="true" Width="185px" />
-                                                <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="datDSpecimen" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDDateofCollectionColumnHeading) Sortable="true" Width="185px" FormatString="{0:dd/MM/yyyy}" />
+                                                <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="datDSpecimen" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDDateofCollectionColumnHeading) Sortable="true" Width="185px" FormatString="d" />
                         <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="strSpecimen" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDSampleTypeColumnHeading) Sortable="true" Width="175px" />
-                        <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="datDLabResult" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDDateoflaboratoryresultsColumnHeading) Sortable="true" Width="240px" FormatString="{0:dd/MM/yyyy}" />
+                        <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="datDLabResult" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDDateoflaboratoryresultsColumnHeading) Sortable="true" Width="240px" FormatString="d" />
                                                 <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="intMeaslesIgm" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDMeasleslgMColumnHeading) Sortable="true" Width="175px" />
                         <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="intMeaslesVirusDetection" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDMeaslesvirusdetectionColumnHeading) Sortable="true" Width="210px" />
                         <RadzenDataGridColumn TItem="WHOExportGetListViewModel" Property="intRubellaIgm" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanExporttoCISIDRubellalgMColumnHeading) Sortable="true" Width="175px" />
@@ -114,6 +114,7 @@
     <div class="card-footer">
         <div class="row">
             <div class="col-md-12">
+                    @*<button class="btn btn-outline-primary" @onclick=@(() => OpenEditTest()) >Download</button>*@
                     <button id="exportButton" type="button" class="btn btn-primary" @onclick="@(() => ExportAsync())">@Localizer.GetString(@ButtonResourceKeyConstants.HumanExporttoCISIDExportButtonText)</button>
                     <button id="generateButton" type="submit" class="btn btn-primary" disabled="@disableGenerateButton" autofocus>@Localizer.GetString(@ButtonResourceKeyConstants.HumanExporttoCISIDGenerateButtonText)</button>
                     <button id="cancel" type="button" class="btn btn-outline-primary" @onclick="@(() => CancelSearchClicked())">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>

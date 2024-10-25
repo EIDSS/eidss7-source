@@ -1,81 +1,94 @@
 ﻿using EIDSS.ClientLibrary.Configurations;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Formatting;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace EIDSS.ClientLibrary.ApiAbstracts
+namespace EIDSS.ClientLibrary.ApiAbstracts;
+
+public abstract class BaseApiClient
 {
-
-
-    public interface IBaseApiClient
+    protected static readonly JsonSerializerOptions SerializationOptions = new()
     {
-        
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        PropertyNameCaseInsensitive = true
+    };
+
+    protected readonly string _baseurl;
+    protected readonly EidssApiOptions _eidssApiOptions;
+    protected readonly ILogger _logger;
+    protected readonly HttpClient _httpClient;
+    protected readonly IUserConfigurationService _userConfigurationService;
+
+    protected BaseApiClient(HttpClient httpClient, IOptions<EidssApiOptions> eidssApiOptions, ILogger logger,
+        IUserConfigurationService userConfigService = null)
+    {
+        _eidssApiOptions = eidssApiOptions.Value;
+        _baseurl = NormalizeBaseUrl(_eidssApiOptions.BaseUrl);
+        httpClient.BaseAddress = new Uri(_eidssApiOptions.BaseUrl);
+        httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+        httpClient.DefaultRequestHeaders.Add("User-Agent", "EIDSS-Api-Client-v1");
+        _logger = logger;
+        _userConfigurationService = userConfigService;
+        _httpClient = httpClient;
     }
-    public abstract class BaseApiClient :IBaseApiClient
+
+    protected async Task<TResponse> PostAsync<TRequest, TResponse>(string uri, TRequest request)
     {
-        private const string ClientUserAgent = "EIDSS-Api-Client-v1";
-
-        protected internal string _baseurl;
-        public HttpClient _httpClient;
-        private IConfiguration _configuration;
-        private TimeSpan _timeout;
-        protected internal EidssApiOptions _eidssApiOptions;
-        protected internal ILogger _logger;
-
-        /// <summary>
-        /// Default JSON serialization options.  Property names are case sensitive and null values are ignored.
-        /// </summary>
-        protected JsonSerializerOptions SerializationOptions;
-        
-        /// <summary>
-        /// An instance of <see cref="IUserConfigurationService"/> which can be optionally set during construction if user security information is required.
-        /// </summary>
-        protected internal IUserConfigurationService _userConfigurationService { get; set; }
-
-        public System.Net.Http.Headers.HttpRequestHeaders CustomHeaders { get; set; }
-
-        public IConfiguration Configuration { get { return _configuration; } }
-
-
-        protected BaseApiClient( HttpClient httpClient, IOptionsSnapshot<EidssApiOptions> eidssApiOptions, ILogger logger, IUserConfigurationService userConfigService = null )
+        try
         {
-            _eidssApiOptions = eidssApiOptions.Value;
-           
-            this._baseurl = NormalizeBaseUrl(_eidssApiOptions.BaseUrl);
-
-            httpClient.BaseAddress = new Uri(_eidssApiOptions.BaseUrl);
-            //json
-            httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
-            // user-agent
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "EIDSS-Api-Client-v1");
-
-            _logger = logger;
-
-            _logger.LogInformation("API Called");
-
-            // Optional parameter ...
-            _userConfigurationService = userConfigService;
-
-            // Default Json serialization options.
-            SerializationOptions = new JsonSerializerOptions
-            {
-                IgnoreNullValues = true,
-                PropertyNameCaseInsensitive = true
-            };
-            _httpClient = httpClient;
+            var requestJson = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+            var httpResponse = await _httpClient.PostAsync(uri, requestJson);
+            return await DeserializeValidHttpRequest<TResponse>(httpResponse);
         }
-
-        protected internal static string NormalizeBaseUrl(string url)
+        catch (Exception ex)
         {
-            return url.EndsWith("/") ? url : url + "/";
+            _logger.LogError(ex.Message, request);
+            throw;
         }
+    }
+
+    protected async Task<TResponse> GetAsync<TResponse>(string url)
+    {
+        try
+        {
+            var httpResponse = await _httpClient.GetAsync(new Uri(url));
+            return await DeserializeValidHttpRequest<TResponse>(httpResponse);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            throw;
+        }
+    }
+
+    protected async Task<TResponse> DeleteAsync<TResponse>(string url)
+    {
+        try
+        {
+            var httpResponse = await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Delete, new Uri(url)));
+            return await DeserializeValidHttpRequest<TResponse>(httpResponse);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            throw;
+        }
+    }
+
+    private static async Task<TResponse> DeserializeValidHttpRequest<TResponse>(HttpResponseMessage httpResponse)
+    {
+        httpResponse.EnsureSuccessStatusCode();
+        var contentStream = await httpResponse.Content.ReadAsStreamAsync();
+        return await JsonSerializer.DeserializeAsync<TResponse>(contentStream, SerializationOptions);
+    }
+
+    private static string NormalizeBaseUrl(string url)
+    {
+        return url.EndsWith("/") ? url : url + "/";
     }
 }

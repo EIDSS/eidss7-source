@@ -97,84 +97,63 @@ END
 
 GO
 
--- =============================================
--- Author:		Romasheva Svetlana
--- Create date: 2013-09-24
--- Description:	Trigger for correct problems 
---              with replication and checkin in the same time
--- =============================================
-CREATE TRIGGER [dbo].[trtBasicSyndromicSurveillanceReplicationUp] 
+CREATE TRIGGER [dbo].[TR_tlbBasicSyndromicSurveillance_Insert_DF] 
    ON  [dbo].[tlbBasicSyndromicSurveillance]
    for INSERT
    NOT FOR REPLICATION
 AS 
 BEGIN
 	SET NOCOUNT ON;
-	
-	DECLARE @context VARCHAR(50)
-	SET @context = dbo.fnGetContext()
 
-	delete  nID
-	from  dbo.tflNewID as nID
-		inner join inserted as ins
-		on   ins.idfBasicSyndromicSurveillance = nID.idfKey1
-	where  nID.strTableName = 'tflBasicSyndromicSurveillanceFiltered'
+	declare @guid uniqueidentifier = newid()
+	declare @strTableName nvarchar(128) = N'tlbBasicSyndromicSurveillance' + cast(@guid as nvarchar(36)) collate Cyrillic_General_CI_AS
 
-	insert into dbo.tflNewID 
+	insert into [dbo].[tflNewID] 
 		(
-			strTableName, 
-			idfKey1, 
-			idfKey2
+			[strTableName], 
+			[idfKey1], 
+			[idfKey2]
 		)
 	select  
-			'tflBasicSyndromicSurveillanceFiltered', 
-			ins.idfBasicSyndromicSurveillance, 
-			sg.idfSiteGroup
+			@strTableName, 
+			ins.[idfBasicSyndromicSurveillance], 
+			sg.[idfSiteGroup]
 	from  inserted as ins
-		inner join dbo.tflSiteToSiteGroup as stsg
-		on   stsg.idfsSite = ins.idfsSite
+		inner join [dbo].[tflSiteToSiteGroup] as stsg with(nolock)
+		on   stsg.[idfsSite] = ins.[idfsSite]
 		
-		inner join dbo.tflSiteGroup sg
-		on	sg.idfSiteGroup = stsg.idfSiteGroup
-			and sg.idfsRayon is null
-			and sg.idfsCentralSite is null
-			and sg.intRowStatus = 0
+		inner join [dbo].[tflSiteGroup] sg with(nolock)
+		on	sg.[idfSiteGroup] = stsg.[idfSiteGroup]
+			and sg.[idfsRayon] is null
+			and sg.[idfsCentralSite] is null
+			and sg.[intRowStatus] = 0
 			
-		left join dbo.tflBasicSyndromicSurveillanceFiltered as bsshf
-		on  bsshf.idfBasicSyndromicSurveillance = ins.idfBasicSyndromicSurveillance
-			and bsshf.idfSiteGroup = sg.idfSiteGroup
-	where  bsshf.idfBasicSyndromicSurveillanceFiltered is null
+		left join [dbo].[tflBasicSyndromicSurveillanceFiltered] as cf
+		on  cf.[idfBasicSyndromicSurveillance] = ins.[idfBasicSyndromicSurveillance]
+			and cf.[idfSiteGroup] = sg.[idfSiteGroup]
+	where  cf.[idfBasicSyndromicSurveillanceFiltered] is null
 
-	insert into dbo.tflBasicSyndromicSurveillanceFiltered 
+	insert into [dbo].[tflBasicSyndromicSurveillanceFiltered]
 		(
-			idfBasicSyndromicSurveillanceFiltered, 
-			idfBasicSyndromicSurveillance, 
-			idfSiteGroup
+			[idfBasicSyndromicSurveillanceFiltered], 
+			[idfBasicSyndromicSurveillance], 
+			[idfSiteGroup]
 		)
 	select 
-			nID.NewID, 
-			ins.idfBasicSyndromicSurveillance, 
-			nID.idfKey2
+			nID.[NewID], 
+			ins.[idfBasicSyndromicSurveillance], 
+			nID.[idfKey2]
 	from  inserted as ins
-		inner join dbo.tflNewID as nID
-		on  nID.strTableName = 'tflBasicSyndromicSurveillanceFiltered'
-			and nID.idfKey1 = ins.idfBasicSyndromicSurveillance
-			and nID.idfKey2 is not null
-		left join dbo.tflBasicSyndromicSurveillanceFiltered as bsshf
-		on   bsshf.idfBasicSyndromicSurveillanceFiltered = nID.NewID
-	where  bsshf.idfBasicSyndromicSurveillanceFiltered is null
-
-	delete  nID
-	from  dbo.tflNewID as nID
-		inner join inserted as ins
-		on   ins.idfBasicSyndromicSurveillance = nID.idfKey1
-	where  nID.strTableName = 'tflBasicSyndromicSurveillanceFiltered'
-	
+		inner join [dbo].[tflNewID] as nID
+		on  nID.[strTableName] = @strTableName collate Cyrillic_General_CI_AS
+			and nID.[idfKey1] = ins.[idfBasicSyndromicSurveillance]
+			and nID.[idfKey2] is not null
+		left join [dbo].[tflBasicSyndromicSurveillanceFiltered] as cf
+		on   cf.[idfBasicSyndromicSurveillanceFiltered] = nID.[NewID]
+	where  cf.[idfBasicSyndromicSurveillanceFiltered] is null
 
 	SET NOCOUNT OFF;
 END
-
-
 
 GO
 

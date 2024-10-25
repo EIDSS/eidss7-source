@@ -1,11 +1,4 @@
-﻿#region Usings
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using EIDSS.ClientLibrary.ApiClients.Configuration;
+﻿using EIDSS.ClientLibrary.ApiClients.Configuration;
 using EIDSS.ClientLibrary.ApiClients.Laboratory;
 using EIDSS.ClientLibrary.Enumerations;
 using EIDSS.Domain.Enumerations;
@@ -28,36 +21,23 @@ using Microsoft.JSInterop;
 using Newtonsoft.Json;
 using Radzen;
 using Radzen.Blazor;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.GC;
-using static System.Int32;
-using static System.String;
-
-#endregion
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EIDSS.Web.Components.Laboratory
 {
     public class CreateAliquotDerivativeBase : LaboratoryBaseComponent, IDisposable
     {
-        #region Globals
-
-        #region Dependencies
-
         [Inject] private ILogger<CreateAliquotDerivativeBase> Logger { get; set; }
         [Inject] private IJSRuntime JsRuntime { get; set; }
         [Inject] private IFreezerClient FreezerClient { get; set; }
         [Inject] private IConfigurationClient ConfigurationClient { get; set; }
 
-        #endregion
-
-        #region Parameters
-
         [Parameter] public LaboratoryTabEnum Tab { get; set; }
         [Parameter] public SampleDivisionTypeEnum FormationType { get; set; }
-
-        #endregion
-
-        #region Properties
 
         public bool IsLoading { get; set; }
         public bool IsAliquotDerivativeLoading { get; set; }
@@ -94,49 +74,22 @@ namespace EIDSS.Web.Components.Laboratory
 
         public bool IsOkDisabled => !IsSelected || AliquotDerivative.NewSampleCount <= 0;
 
-        #endregion
-
-        #region Member Variables
-
         private bool _isSelected;
         private CancellationTokenSource _source;
         private CancellationToken _token;
         private bool _disposedValue;
 
-        #endregion
-
-        #region Constants
-
         public const string CssDisabledBoxLocationCurrent = "disabledBoxLocationCurrent";
         public const string CssDisabledBoxLocation = "disabledBoxLocation";
 
-        #endregion
-
-        #endregion
-
-        #region Constructors
-
-        /// <summary>
-        /// </summary>
-        /// <param name="token"></param>
         public CreateAliquotDerivativeBase(CancellationToken token) : base(token)
         {
         }
 
-        /// <summary>
-        /// </summary>
         protected CreateAliquotDerivativeBase() : base(CancellationToken.None)
         {
         }
 
-        #endregion
-
-        #region Methods
-
-        #region Lifecycle Events
-
-        /// <summary>
-        /// </summary>
         protected override void OnInitialized()
         {
             // Reset the cancellation token
@@ -153,11 +106,11 @@ namespace EIDSS.Web.Components.Laboratory
             switch (FormationType)
             {
                 case SampleDivisionTypeEnum.Aliquot:
-                    AliquotDerivative.FormationType = (int) SampleDivisionTypeEnum.Aliquot;
+                    AliquotDerivative.FormationType = (int)SampleDivisionTypeEnum.Aliquot;
                     IsDerivativeTypesDisabled = true;
                     break;
                 case SampleDivisionTypeEnum.Derivative:
-                    AliquotDerivative.FormationType = (int) SampleDivisionTypeEnum.Derivative;
+                    AliquotDerivative.FormationType = (int)SampleDivisionTypeEnum.Derivative;
                     IsDerivativeTypesDisabled = false;
                     break;
                 default:
@@ -171,10 +124,6 @@ namespace EIDSS.Web.Components.Laboratory
             base.OnInitialized();
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="firstRender"></param>
-        /// <returns></returns>
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             try
@@ -196,9 +145,6 @@ namespace EIDSS.Web.Components.Laboratory
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
             try
@@ -222,17 +168,10 @@ namespace EIDSS.Web.Components.Laboratory
         /// </summary>
         public void Dispose()
         {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(true);
-            SuppressFinalize(this);
+            GC.SuppressFinalize(this);
         }
 
-        #endregion
-
-        #region Load Data Methods
-
-        /// <summary>
-        /// </summary>
         public async Task LoadSamplesData()
         {
             try
@@ -242,7 +181,7 @@ namespace EIDSS.Web.Components.Laboratory
                 switch (Tab)
                 {
                     case LaboratoryTabEnum.Samples:
-                        Samples = (List<SamplesGetListViewModel>) LaboratoryService.SelectedSamples;
+                        Samples = (List<SamplesGetListViewModel>)LaboratoryService.SelectedSamples;
                         break;
                     case LaboratoryTabEnum.MyFavorites:
                         LaboratoryService.SelectedSamples = new List<SamplesGetListViewModel>();
@@ -254,7 +193,7 @@ namespace EIDSS.Web.Components.Laboratory
                                     LaboratoryService.Samples.First(x => x.SampleID == myFavorite.SampleID));
                             else
                                 LaboratoryService.SelectedSamples.Add(await GetSample(myFavorite.SampleID));
-                        Samples = (List<SamplesGetListViewModel>) LaboratoryService.SelectedSamples;
+                        Samples = (List<SamplesGetListViewModel>)LaboratoryService.SelectedSamples;
                         break;
                 }
 
@@ -270,9 +209,6 @@ namespace EIDSS.Web.Components.Laboratory
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         public async Task GenerateAliquotDerivativeGrid()
         {
             try
@@ -292,10 +228,10 @@ namespace EIDSS.Web.Components.Laboratory
                         {
                             LanguageId = GetCurrentLanguage(),
                             Page = 1,
-                            PageSize = MaxValue - 1,
+                            PageSize = 10,
                             SortColumn = "Query",
-                            SortOrder = SortConstants.Ascending,
-                            DaysFromAccessionDate = MaxValue - 1,
+                            SortOrder = EIDSSConstants.SortConstants.Ascending,
+                            DaysFromAccessionDate = 0,
                             ParentSampleID = selectedSample.SampleID,
                             TestCompletedIndicator = null,
                             TestUnassignedIndicator = null,
@@ -303,7 +239,7 @@ namespace EIDSS.Web.Components.Laboratory
                             UserID = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                             UserOrganizationID = authenticatedUser.OfficeId,
                             UserSiteID = Convert.ToInt64(authenticatedUser.SiteId),
-                            UserSiteGroupID = IsNullOrEmpty(authenticatedUser.SiteGroupID)
+                            UserSiteGroupID = string.IsNullOrEmpty(authenticatedUser.SiteGroupID)
                                 ? null
                                 : Convert.ToInt64(authenticatedUser.SiteGroupID)
                         };
@@ -326,7 +262,7 @@ namespace EIDSS.Web.Components.Laboratory
                         {
                             string sampleTypeName;
                             var sampleTypeId = selectedSample.SampleTypeID;
-                            if (AliquotDerivative.FormationType == (int) SampleDivisionTypeEnum.Derivative)
+                            if (AliquotDerivative.FormationType == (int)SampleDivisionTypeEnum.Derivative)
                             {
                                 var derivative = DerivativeTypes.FirstOrDefault(d =>
                                     d.idfsDerivativeType == AliquotDerivative.SelectedDerivativeID);
@@ -342,16 +278,16 @@ namespace EIDSS.Web.Components.Laboratory
                             var newSample = selectedSample.ShallowCopy();
                             newSample.SampleID = indexForSampleId - 1;
                             newSample.AccessionByPersonID = selectedSample.AccessionByPersonID;
-                            newSample.RowAction = (int) RowActionTypeEnum.InsertAliquotDerivative;
+                            newSample.RowAction = (int)RowActionTypeEnum.InsertAliquotDerivative;
                             newSample.ParentEIDSSLaboratorySampleID = selectedSample.EIDSSLaboratorySampleID;
                             newSample.ParentSampleID = selectedSample.SampleID;
                             newSample.RootSampleID = selectedSample.ParentSampleID ?? selectedSample.SampleID;
                             newSample.EIDSSLaboratorySampleID =
                                 selectedSample.EIDSSLaboratorySampleID + "-" + (index + 1);
                             newSample.SampleKindTypeID =
-                                AliquotDerivative.FormationType == (int) SampleDivisionTypeEnum.Aliquot
-                                    ? (long) SampleKindTypeEnum.Aliquot
-                                    : (long) SampleKindTypeEnum.Derivative;
+                                AliquotDerivative.FormationType == (int)SampleDivisionTypeEnum.Aliquot
+                                    ? (long)SampleKindTypeEnum.Aliquot
+                                    : (long)SampleKindTypeEnum.Derivative;
                             newSample.SampleTypeID = sampleTypeId;
                             newSample.SampleTypeName = sampleTypeName;
 
@@ -380,9 +316,6 @@ namespace EIDSS.Web.Components.Laboratory
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         public async Task GetDerivatives()
         {
             try
@@ -396,9 +329,9 @@ namespace EIDSS.Web.Components.Laboratory
                         LanguageId = GetCurrentLanguage(),
                         idfsSampleType = SelectedSamples.First().SampleTypeID,
                         Page = 1,
-                        PageSize = MaxValue - 1,
+                        PageSize = int.MaxValue - 1,
                         SortColumn = "strDerivative",
-                        SortOrder = SortConstants.Ascending
+                        SortOrder = EIDSSConstants.SortConstants.Ascending
                     };
 
                     DerivativeTypes = await ConfigurationClient.GetSampleTypeDerivativeMatrixList(request);
@@ -413,14 +346,6 @@ namespace EIDSS.Web.Components.Laboratory
             }
         }
 
-        #endregion
-
-        #region Record Selection Methods
-
-        /// <summary>
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
         protected bool IsRecordSelected(SamplesGetListViewModel item)
         {
             try
@@ -437,10 +362,6 @@ namespace EIDSS.Web.Components.Laboratory
             return false;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="item"></param>
         protected async Task OnRecordSelectionChange(bool? value, SamplesGetListViewModel item)
         {
             try
@@ -453,7 +374,7 @@ namespace EIDSS.Web.Components.Laboratory
                 }
                 else
                 {
-                    if (AliquotDerivative.FormationType == (int) SampleDivisionTypeEnum.Derivative && Samples != null &&
+                    if (AliquotDerivative.FormationType == (int)SampleDivisionTypeEnum.Derivative && Samples != null &&
                         Samples.GroupBy(x => x.SampleTypeID).Count() > 1)
                         SelectedSamples.Clear();
 
@@ -465,7 +386,7 @@ namespace EIDSS.Web.Components.Laboratory
                     item.StorageBoxPlace = null;
                     SelectedSamples.Add(item);
 
-                    if (AliquotDerivative.FormationType == (int) SampleDivisionTypeEnum.Derivative)
+                    if (AliquotDerivative.FormationType == (int)SampleDivisionTypeEnum.Derivative)
                         await GetDerivatives();
                 }
             }
@@ -476,31 +397,16 @@ namespace EIDSS.Web.Components.Laboratory
             }
         }
 
-        #endregion
-
-        #region Formation Type Change Event
-
-        /// <summary>
-        /// </summary>
-        /// <param name="formationType"></param>
         protected void OnFormationTypeChange(int formationType)
         {
-            if (AliquotDerivative.FormationType == (int) SampleDivisionTypeEnum.Derivative && Samples != null &&
+            if (AliquotDerivative.FormationType == (int)SampleDivisionTypeEnum.Derivative && Samples != null &&
                 Samples.GroupBy(x => x.SampleTypeID).Count() > 1)
                 SelectedSamples.Clear();
 
-            IsDerivativeTypesDisabled = formationType != (int) SampleDivisionTypeEnum.Derivative;
+            IsDerivativeTypesDisabled = formationType != (int)SampleDivisionTypeEnum.Derivative;
             IsDerivativeTypesValidationVisible = !IsDerivativeTypesDisabled;
         }
 
-        #endregion
-
-        #region Delete Row Methods
-
-        /// <summary>
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
         protected async Task DeleteRow(SamplesGetListViewModel item)
         {
             SampleToDelete = item;
@@ -520,9 +426,6 @@ namespace EIDSS.Web.Components.Laboratory
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         protected async Task ShowConfirmDeleteMessage()
         {
             var buttons = new List<DialogButton>();
@@ -553,12 +456,9 @@ namespace EIDSS.Web.Components.Laboratory
                 dialogParams);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="result"></param>
         protected async void HandleDeleteResponse(dynamic result)
         {
-            result = (DialogReturnResult) result;
+            result = (DialogReturnResult)result;
             if (result.ButtonResultText == Localizer.GetString(ButtonResourceKeyConstants.YesButton))
             {
                 try
@@ -586,13 +486,6 @@ namespace EIDSS.Web.Components.Laboratory
             }
         }
 
-        #endregion
-
-        #region Save Methods
-
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         [JSInvokable("OnSaveClick")]
         public async Task OnSaveClick()
         {
@@ -604,7 +497,7 @@ namespace EIDSS.Web.Components.Laboratory
                 {
                     if (PrintBarcodes)
                     {
-                        var samplesList = AliquotDerivativeSamples.Aggregate(Empty,
+                        var samplesList = AliquotDerivativeSamples.Aggregate(string.Empty,
                             (current, s) => current + (s.EIDSSLaboratorySampleID + ','));
                         samplesList = samplesList.Remove(samplesList.Length - 1, 1);
                         await GenerateBarcodeReport(samplesList);
@@ -625,9 +518,6 @@ namespace EIDSS.Web.Components.Laboratory
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         protected async Task OnFormSubmit()
         {
             try
@@ -641,17 +531,10 @@ namespace EIDSS.Web.Components.Laboratory
             }
         }
 
-        #endregion
-
-        #region Storage Location Methods
-
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         private async Task GetStorageLocations()
         {
             FreezerSubdivisionTypes = await CrossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(),
-                BaseReferenceConstants.FreezerSubdivisionType, HACodeList.NoneHACode);
+                EIDSSConstants.BaseReferenceConstants.FreezerSubdivisionType, EIDSSConstants.HACodeList.NoneHACode);
 
             Freezers = await GetFreezers();
 
@@ -671,11 +554,11 @@ namespace EIDSS.Web.Components.Laboratory
                         StorageLocationName = "(" +
                                               Localizer.GetString(FieldLabelResourceKeyConstants
                                                   .FreezerDetailsBuildingFieldLabel) +
-                                              (!IsNullOrEmpty(f.Building) ? " " + f.Building : Empty) + " / " +
+                                              (!string.IsNullOrEmpty(f.Building) ? " " + f.Building : string.Empty) + " / " +
                                               Localizer.GetString(FieldLabelResourceKeyConstants
                                                   .FreezerDetailsRoomFieldLabel) +
-                                              (!IsNullOrEmpty(f.Room) ? " " + f.Room : Empty) + ") " + f.FreezerName,
-                        FreezerId = (long) f.FreezerID
+                                              (!string.IsNullOrEmpty(f.Room) ? " " + f.Room : string.Empty) + ") " + f.FreezerName,
+                        FreezerId = (long)f.FreezerID
                     };
 
                     FreezerSubdivisionRequestModel subdivisionRequest = new()
@@ -692,16 +575,16 @@ namespace EIDSS.Web.Components.Laboratory
                             await FreezerClient.GetFreezerSubdivisionList(subdivisionRequest));
 
                     foreach (var location in LaboratoryService.FreezerSubdivisions.Where(x =>
-                                 x.FreezerID == f.FreezerID && x.SubdivisionTypeID == (long) SubdivisionTypes.Shelf))
+                                 x.FreezerID == f.FreezerID && x.SubdivisionTypeID == (long)SubdivisionTypes.Shelf))
                     {
                         storageLocationId += 1;
                         shelfStorageLocation = new StorageLocationViewModel
                         {
                             StorageLocationId = storageLocationId,
-                            FreezerId = (long) location.FreezerID,
-                            SubdivisionId = (long) location.FreezerSubdivisionID,
+                            FreezerId = (long)location.FreezerID,
+                            SubdivisionId = (long)location.FreezerSubdivisionID,
                             StorageLocationName = location.FreezerSubdivisionName,
-                            StorageTypeId = (long) SubdivisionTypes.Shelf
+                            StorageTypeId = (long)SubdivisionTypes.Shelf
                         };
 
                         foreach (var rackLocation in LaboratoryService.FreezerSubdivisions.Where(x =>
@@ -712,10 +595,10 @@ namespace EIDSS.Web.Components.Laboratory
                             rackStorageLocation = new StorageLocationViewModel
                             {
                                 StorageLocationId = storageLocationId,
-                                FreezerId = (long) rackLocation.FreezerID,
-                                SubdivisionId = (long) rackLocation.FreezerSubdivisionID,
+                                FreezerId = (long)rackLocation.FreezerID,
+                                SubdivisionId = (long)rackLocation.FreezerSubdivisionID,
                                 StorageLocationName = rackLocation.FreezerSubdivisionName,
-                                StorageTypeId = (long) SubdivisionTypes.Rack
+                                StorageTypeId = (long)SubdivisionTypes.Rack
                             };
 
                             foreach (var boxLocation in LaboratoryService.FreezerSubdivisions.Where(x =>
@@ -728,10 +611,10 @@ namespace EIDSS.Web.Components.Laboratory
                                 var boxStorageLocation = new StorageLocationViewModel
                                 {
                                     StorageLocationId = storageLocationId,
-                                    FreezerId = (long) boxLocation.FreezerID,
-                                    SubdivisionId = (long) boxLocation.FreezerSubdivisionID,
+                                    FreezerId = (long)boxLocation.FreezerID,
+                                    SubdivisionId = (long)boxLocation.FreezerSubdivisionID,
                                     StorageLocationName = boxLocation.FreezerSubdivisionName,
-                                    StorageTypeId = (long) SubdivisionTypes.Box
+                                    StorageTypeId = (long)SubdivisionTypes.Box
                                 };
 
                                 rackStorageLocation.Children ??= new List<StorageLocationViewModel>();
@@ -749,11 +632,6 @@ namespace EIDSS.Web.Components.Laboratory
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="sample"></param>
-        /// <returns></returns>
         public bool ShouldSelectThisNode(object value, SamplesGetListViewModel sample)
         {
             if (sample?.FreezerSubdivisionID == null) return false;
@@ -787,17 +665,14 @@ namespace EIDSS.Web.Components.Laboratory
 
             return location.StorageTypeId switch
             {
-                (long) FreezerSubdivisionTypeEnum.Shelf when location.SubdivisionId == shelf.FreezerSubdivisionID =>
+                (long)FreezerSubdivisionTypeEnum.Shelf when location.SubdivisionId == shelf.FreezerSubdivisionID =>
                     true,
-                (long) FreezerSubdivisionTypeEnum.Rack when location.SubdivisionId == rack.FreezerSubdivisionID => true,
-                (long) FreezerSubdivisionTypeEnum.Box when location.SubdivisionId == box.FreezerSubdivisionID => true,
+                (long)FreezerSubdivisionTypeEnum.Rack when location.SubdivisionId == rack.FreezerSubdivisionID => true,
+                (long)FreezerSubdivisionTypeEnum.Box when location.SubdivisionId == box.FreezerSubdivisionID => true,
                 _ => false
             };
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         private async Task<List<FreezerViewModel>> GetFreezers()
         {
             FreezerRequestModel request = new()
@@ -818,10 +693,6 @@ namespace EIDSS.Web.Components.Laboratory
             return await FreezerClient.GetFreezerList(request);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sample"></param>
-        /// <param name="boxPlace"></param>
         public void SetStorageBoxPlace(SamplesGetListViewModel sample, string boxPlace)
         {
             sample.OldStorageBoxPlace = sample.StorageBoxPlace;
@@ -829,7 +700,7 @@ namespace EIDSS.Web.Components.Laboratory
 
             List<FreezerSubdivisionBoxLocationAvailability> oldBoxPlaceAvailability = null;
 
-            if (!IsNullOrEmpty(sample.OldStorageBoxPlace))
+            if (!string.IsNullOrEmpty(sample.OldStorageBoxPlace))
             {
                 if (sample.FreezerSubdivisionID is not null &&
                     LaboratoryService.FreezerSubdivisions.Any(
@@ -944,14 +815,14 @@ namespace EIDSS.Web.Components.Laboratory
             sample.StorageBoxLocation += " " +
                                          FreezerSubdivisionTypes.First(x =>
                                              x.IdfsBaseReference ==
-                                             (long) FreezerSubdivisionTypeEnum.Shelf).Name +
+                                             (long)FreezerSubdivisionTypeEnum.Shelf).Name +
                                          " #" +
                                          shelf.FreezerSubdivisionName;
 
             sample.StorageBoxLocation += " " +
                                          FreezerSubdivisionTypes.First(x =>
                                              x.IdfsBaseReference ==
-                                             (long) FreezerSubdivisionTypeEnum.Rack).Name +
+                                             (long)FreezerSubdivisionTypeEnum.Rack).Name +
                                          " #" +
                                          rack.FreezerSubdivisionName;
 
@@ -960,7 +831,7 @@ namespace EIDSS.Web.Components.Laboratory
                 sample.StorageBoxLocation += " " +
                                              FreezerSubdivisionTypes.First(x =>
                                                  x.IdfsBaseReference ==
-                                                 (long) FreezerSubdivisionTypeEnum.Box).Name +
+                                                 (long)FreezerSubdivisionTypeEnum.Box).Name +
                                              " #" +
                                              sample.StorageBoxPlace;
 
@@ -980,24 +851,20 @@ namespace EIDSS.Web.Components.Laboratory
                     item.BoxLocationAvailability = sample.BoxLocationAvailability;
 
                 if (item.SelectedStorageLocationId != 0)
-                    OnStorageLocationChange(new TreeEventArgs { Value = new StorageLocationViewModel { StorageTypeId = (long) FreezerSubdivisionTypeEnum.Box, SubdivisionId = item.FreezerSubdivisionID }}, item);
+                    OnStorageLocationChange(new TreeEventArgs { Value = new StorageLocationViewModel { StorageTypeId = (long)FreezerSubdivisionTypeEnum.Box, SubdivisionId = item.FreezerSubdivisionID } }, item);
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="args"></param>
-        /// <param name="sample"></param>
         public void OnStorageLocationChange(TreeEventArgs args, SamplesGetListViewModel sample)
         {
             try
             {
                 if (args.Value is not StorageLocationViewModel
                     {
-                        StorageTypeId: (long) FreezerSubdivisionTypeEnum.Box
+                        StorageTypeId: (long)FreezerSubdivisionTypeEnum.Box
                     } freezerSubdivision) return;
                 if (freezerSubdivision.SubdivisionId != null)
-                    sample.SelectedStorageLocationId = (long) freezerSubdivision.SubdivisionId;
+                    sample.SelectedStorageLocationId = (long)freezerSubdivision.SubdivisionId;
 
                 var boxPlaceAvailability = LaboratoryService.FreezerSubdivisions
                     .First(x =>
@@ -1018,9 +885,5 @@ namespace EIDSS.Web.Components.Laboratory
                 throw;
             }
         }
-
-        #endregion
-
-        #endregion
     }
 }

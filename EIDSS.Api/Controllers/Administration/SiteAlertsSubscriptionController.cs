@@ -34,6 +34,7 @@ namespace EIDSS.Api.Controllers.Administration
         [ProducesResponseType(typeof(List<EventSubscriptionTypeModel>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(List<EventSubscriptionTypeModel>), StatusCodes.Status401Unauthorized)]
         [SwaggerOperation(Summary = "", Tags = new[] { "Administration - Site Alert Subscription" })]
+        //[SystemEventActionFilter(SystemEventEnum.DoesNotParticipate)]
         public async Task<IActionResult> GetSiteAlertsSubscriptionList([FromBody] EventSubscriptionGetRequestModel request, CancellationToken cancellationToken = default)
         {
             List<EventSubscriptionTypeModel> results = null;
@@ -104,6 +105,7 @@ namespace EIDSS.Api.Controllers.Administration
         [ProducesResponseType(typeof(List<EventSubscriptionTypeModel>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(List<EventSubscriptionTypeModel>), StatusCodes.Status400BadRequest)]
         [SwaggerOperation(Summary = "", Tags = new[] { "Administration - Neighboring Site List" })]
+        //[SystemEventActionFilter(SystemEventEnum.DoesNotParticipate)]
         public async Task<IActionResult> GetNeighboringSiteList([FromBody] NeighboringSiteGetRequestModel request, CancellationToken cancellationToken = default)
         {
 

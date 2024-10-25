@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EIDSS.Domain.RequestModels.Administration
 {
+    //[AtLeastOneProperty(ErrorMessage = "Select at least one search criterion.")]
     public class OrganizationGetRequestModel : BaseGetRequestModel
     {
         public long? OrganizationKey { get; set; }

@@ -78,7 +78,14 @@ function initializeFarmSidebar(cancelButtonText, finishButtonText, nextButtonTex
         data: {
             eventNamespace: "FarmDetails"
         },
-        onInit: function (event) { },
+        onInit: function (event) {
+            $("#farmDetailsWizard .steps ul").append('<li id="saveStep" role="tab"><a href="#" role="menuitem"><span class="fa-stack text-muted"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-save fa-stack-1x fa-inverse"></i></span>  <span class="stepTitleText">'+finishButtonText+'</span></a></li>');
+
+            $(document).on('click', '#saveStep', function (e) {
+                e.preventDefault();
+                $("#farmDetailsWizard").steps("finish");
+            });
+        },
         onCanceled: function (event) {
             FarmReviewSection.DotNetReference.invokeMethodAsync("OnCancel");
         },
@@ -106,6 +113,21 @@ function initializeFarmSidebar(cancelButtonText, finishButtonText, nextButtonTex
         }
     });
 };
+
+function setWizardState(isValid, stringId) {
+    if (isValid) {
+        $(stringId).find("#erroredStep").hide();
+        $(stringId).find("#completedStep").show();
+    } else {
+        $(stringId).find("#erroredStep").show();
+        $(stringId).find("#completedStep").hide();
+    }
+}
+
+function hideDefaultStepIcons() {
+    $("#farmDetailsWizard-t-0").find("#step").hide();
+    $("#farmDetailsWizard-t-1").find("#step").hide();
+}
 
 function navigateToReviewStep() {
     $("#farmDetailsWizard").steps("setStep", 2);
@@ -135,26 +157,24 @@ function validateFarmSection(dotNetReference, wizard, stepNumber, newIndex) {
     }
 };
 
-function validateFarm() {
-    FarmInformationSection.DotNetReference.invokeMethodAsync("ValidateSection", true).then(valid => {
-        if (valid) {
-            FarmAddressSection.DotNetReference.invokeMethodAsync("ValidateSection", true).then(valid => {
-                if (valid) {
-                    FarmReviewSection.DotNetReference.invokeMethodAsync("OnSubmit");
-                }
-                else {
-                    $("#saveButton").attr("href", "#finish");
-                    $("#processing").removeClass("fas fa-sync fa-spin");
-                    $("#farmDetailsWizard").steps("setStep", 1);
-                }
-            });
-        }
-        else {
-            $("#saveButton").attr("href", "#finish");
-            $("#processing").removeClass("fas fa-sync fa-spin");
+async function validateFarm() {
+    var isFarmInformationSectionValid = await FarmInformationSection.DotNetReference.invokeMethodAsync("ValidateSection", true);
+    var isFarmAddressSectionValid = await FarmAddressSection.DotNetReference.invokeMethodAsync("ValidateSection", true);
+
+    hideDefaultStepIcons();
+    setWizardState(isFarmInformationSectionValid, "#farmDetailsWizard-t-0");
+    setWizardState(isFarmAddressSectionValid, "#farmDetailsWizard-t-1");
+
+    if (isFarmInformationSectionValid && isFarmAddressSectionValid)
+        FarmReviewSection.DotNetReference.invokeMethodAsync("OnSubmit");
+    else {
+        $("#saveButton").attr("href", "#finish");
+        $("#processing").removeClass("fas fa-sync fa-spin");
+        if (!isFarmInformationSectionValid)
             $("#farmDetailsWizard").steps("setStep", 0);
-        }
-    });
+        else if (!isFarmAddressSectionValid)
+            $("#farmDetailsWizard").steps("setStep", 1);
+    }
 };
 
 function reloadSections() {

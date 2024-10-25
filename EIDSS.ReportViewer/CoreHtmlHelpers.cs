@@ -22,6 +22,14 @@ namespace EIDSS.ReportViewer
 			sb.AppendLine("		<div class='ReportViewerHeader row'>");
 			sb.AppendLine("			<div class='ParametersContainer col-sm-12' >");
 
+			//if (model.ShowReportParameters)
+			//{
+			//	sb.AppendLine("			<div class='ParametersContainer ParametersContainerShow col-sm-12' >");
+			//}
+			//if (!model.ShowReportParameters)
+			//{
+			//	sb.AppendLine("			<div class='ParametersContainerHide col-sm-12' >");
+			//}
 			sb.AppendLine("				<div class='Parameters col-sm-10'>");
 
 			sb.AppendLine(ParametersToHtmlString(contentData.Parameters, model));
@@ -71,7 +79,11 @@ namespace EIDSS.ReportViewer
 			sb.AppendLine("								<li><a  class='ExportWordOpenXml' style='cursor:pointer'>Word</a></li>");
 			sb.AppendLine("								<li><a  class='ExportXml' style='cursor:pointer'	>XML file with report data</a></li>");
 			sb.AppendLine("							</ul>");
+			//sb.AppendLine("						</div>");
+			//sb.AppendLine("						<div class='btn-group'>");
 			sb.AppendLine("							<a  title='Refresh' class='btn btn-default Refresh'><span class='fas fa-sync-alt' style='color: green;'></span></a>");
+			//sb.AppendLine("						</div>");
+			//sb.AppendLine("						<div class='btn-group'>");
 			sb.AppendLine("							<a  title='Print' class='btn btn-default Print'><span class='fas fa-print' style='color: grey;'></span></a>");
 			sb.AppendLine("						</div>");
 			sb.AppendLine("					</div>");

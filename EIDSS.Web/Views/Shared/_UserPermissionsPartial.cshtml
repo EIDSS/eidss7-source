@@ -301,6 +301,9 @@
 
                     <div class="card-header"><h3 heading-for="@HeadingResourceKeyConstants.SystemFunctionsHeading"></h3></div>
                     <div class="card-body">
+                        @*<div id="SystemFunctionsPermissions" class="card-body collapse in">*@
+                        @* @await Component.InvokeAsync("SystemFunctionsView",Model)*@
+                        @*</div>*@
                     </div>
                 </div>
                 <div class="card-footer">
@@ -351,6 +354,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="CloseSuccessModal();">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+                @*<button type="button" class="btn btn-primary" onclick="PrepareNewRecord();">@Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>*@
             </div>
         </div>
     </div>
@@ -393,6 +397,7 @@
             </div>
             <div class="modal-body">
                 <span id="dupemsg"></span>
+                @*@Localizer.GetString(MessageResourceKeyConstants.DuplicateRecordsAreNotAllowedMessage);*@
             </div>
             <div class="modal-footer">              
                 <button id="createNewYesButtonUP" class="btn btn-primary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
@@ -613,6 +618,9 @@
             if ('@Model.PersonalInformation.strFamilyName' != null && '@Model.PersonalInformation.strFamilyName' != "") {
                 isFamilyNameValid = true;
          }
+        @*if ('@Model.PersonalInformation.idfInstitution' != null && '@Model.PersonalInformation.idfInstitution' != "") {
+                IsidfInstitutionValid = true;
+        }*@
             if (contactPhone != null && contactPhone != "")
                 isPhoneValid = validatePhone(true);
             if ('@Model.RegisterViewModel.Username' != null && '@Model.RegisterViewModel.Username' != "") {
@@ -628,6 +636,12 @@
         if (category == 10526001 && !hdfUserPermissionsSaveDone && (idfPerson==null || idfPerson=="" || idfPerson==0)) {
             $.when(validateUser(true), validatePasswordUP(true), validatePersonalID(true)).then(function (o1, o2, o3) {
 
+                @*var contactPhone = '@Model.PersonalInformation.strContactPhone';
+                var firstName = '@Model.PersonalInformation.strFirstName';
+                var familyName = '@Model.PersonalInformation.strFamilyName';
+                var idfInstitution = '@Model.PersonalInformation.idfInstitution';
+                var userName = '@Model.RegisterViewModel.Username';
+                var password = '@Model.RegisterViewModel.Password';*@
                 if (o2 != null && o2.status == "Error") {
                     isValidPassword = false;
                     errorList = o2.errorList;
@@ -656,6 +670,10 @@
                         message += '@Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeLastNameFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
                         message += newline;
                     }
+                    @*if (IsidfInstitutionValid == false) {
+                        message += '@Localizer.GetString(FieldLabelResourceKeyConstants.OrganizationDefaultFieldLabel)' + ":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                        message += newline;
+                    }*@
 
                     if (isPhoneValid == false) {
                         message +=  '@Localizer.GetString(FieldLabelResourceKeyConstants.PhoneFieldLabel)' +":" + '@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)';
@@ -717,6 +735,10 @@
                         message += '@Localizer.GetString(FieldLabelResourceKeyConstants.EmployeeLastNameFieldLabel)'+":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
                         message += newline;
                     }
+                    @*if (IsidfInstitutionValid == false) {
+                        message += '@Localizer.GetString(FieldLabelResourceKeyConstants.OrganizationDefaultFieldLabel)'+":" + '@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)';
+                        message += newline;
+                    }*@
                     if (isPhoneValid == false) {
                         message +=  '@Localizer.GetString(FieldLabelResourceKeyConstants.PhoneFieldLabel)' +":" + '@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)';
                         message += newline;
@@ -745,6 +767,39 @@
                 }
             });
         }
+        @*else {
+              $.when(validatePersonalID(true)).then(function (o3) {
+                var isPhoneValid = false;
+                var contactPhone = '@Model.PersonalInformation.strContactPhone';
+                if (contactPhone != null && contactPhone != "")
+                    isPhoneValid = validatePhone(true);
+                else
+                    isPhoneValid = true;
+                var isValidPassword = true;
+                var errorList = "";
+
+                if (o3 == true && isPhoneValid == true) {
+                    SaveEmployeeData();
+                }
+                else {
+                    var message = "";
+                    var newline = "<br>";
+                    if (isValidPassword == false) {
+                        message += errorList;
+                        message += newline;
+                    }
+                    if (o3 == false) {
+                        message += "Personal ID:" + '@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)';
+                        message += newline;
+                    }
+                    if (isPhoneValid == false) {
+                        message += "Phone: " + '@Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage)';
+                    }
+                    showErrorModal(message);
+                }
+            });
+        }*@
+
     };
 
 
@@ -806,6 +861,8 @@
         })
             .done(function (data) {
                 if (data != null && data.retunMessage != null && data.retunMessage == "Duplicate Record") {
+                   // $("#dupemsg").html(data.duplicateMessage);
+                    //$("#duplicatesModal").modal('show');
                     showErrorModal(data.duplicateMessage);
                 }
                 else if (data != null && data.idfPerson != null && data.idfPerson != 0 && data.retunMessage == "Success") {
@@ -821,16 +878,22 @@
                     $(".modal").modal('hide');
                     $('body').removeClass('modal-open');
                     $('.modal-backdrop').remove();
+                    //$("#mdUserPermissions").modal('hide');
+                    //$("#DivAccountMgtSection").empty();
+                    //$("#DivAccountMgtSection").html(data);
                     $("#successModal").modal('show');
                     //Call HideUnhideSections
                     $('input[name="PersonalInfoSection.EmployeeCategoryList"]').val(['@EmployeeCategory.NonUser']);
                     $("#employeeWizard").steps("setStep", 0);
                     HideUnhideSections('@EmployeeCategory.NonUser');
+                    //$("#successModalFinal").modal('show');
                 }
                 else {
+                    //$("#errorModal").modal('show');
                     if (data != null && data.retunMessage != null) {
 
                         showErrorModal(data.retunMessage);
+                        //showErrorModal('@Localizer.GetString(MessageResourceKeyConstants.ProblemHasOccurredMessage)');
                     }
                 }
 
@@ -890,6 +953,10 @@
             paging: false,
             orderable: false,
             rowReorder: false
+            //scrollY: "400px",
+            //scrollCollapse: true,
+            //start: 0,
+            //length: 100
         });
         if (table.rows().eq(0) != null) {
             var intNumRow = 1;
@@ -913,6 +980,7 @@
         }
         model.systemFunctions = PermissionObjectList;
         $.ajax({
+           // url: "SaveSystemFunctions",
             url: '@Url.Action("SaveSystemFunctions", "EmployeePage", new { Area = "Administration" })',
             type: 'POST',
             data: JSON.stringify(model),
@@ -924,11 +992,15 @@
                     $(".modal").modal('hide');
                     $('body').removeClass('modal-open');
                     $('.modal-backdrop').remove();
+                    //$("#mdUserPermissions").modal('hide');
+                    //$("#DivAccountMgtSection").empty();
+                    //$("#DivAccountMgtSection").html(data);
                     $("#successModal").modal('show');
                     //Call HideUnhideSections
                     $('input[name="PersonalInfoSection.EmployeeCategoryList"]').val(['@EmployeeCategory.NonUser']);
                     $("#employeeWizard").steps("setStep", 0);
                     HideUnhideSections('@EmployeeCategory.NonUser');
+                    //$("#successModalFinal").modal('show');
                 }
                 else {
                     $.ajax({
@@ -955,6 +1027,8 @@
                         });
                 }
 
+                    //showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)');
+
                 });
     }
 
@@ -966,7 +1040,17 @@
         // Render System Functions Component
         selectedDataList = [];
         var selectedData = new Object();
+       // selectedData.UserGroupDD = -1;
 
+        //var EmployeeGroups = "";
+
+        //$("#UPUserGroupDD option[value='']").remove();
+        //$("#UPUserGroupDD :selected").each(function () {
+        //    EmployeeGroups += "," + this.value;
+        //});
+
+        //if ($("#UPUserGroupDD").val() != null && $("#UPUserGroupDD").val() != "" && $("#UPUserGroupDD").val() != undefined)
+        //    selectedData.UserGroupDD = EmployeeGroups;
          if ($("#UPSingleUserGroupDD").val() != null && $("#UPSingleUserGroupDD").val() != "" && $("#UPSingleUserGroupDD").val() != undefined)
                 selectedData.UserGroupDD=$("#UPSingleUserGroupDD").val();
          else
@@ -976,6 +1060,7 @@
         selectedDataList.push(selectedData);
         var urlPath = '@Url.Action("ReloadSystemFunctionsControl", "EmployeePage", new { Area = "Administration" })?data=' + encodeURIComponent(JSON.stringify(selectedDataList));
         $.ajax({
+          //  url: "ReloadSystemFunctionsControl?data=" + encodeURIComponent(JSON.stringify(selectedDataList)),
             url: urlPath,
             type: 'GET',
             contentType: "application/json; charset=utf-8",
@@ -1019,11 +1104,13 @@
                                 $("#OtherSiteName").val("");
                                 $("#UPSiteDD").val("");
                                 $("#UPSingleUserGroupDD").prop('disabled', true);
+                                //$("#DepartmentAdd").prop('disabled', true);
                                 $("#SystemFunctionsPermissions").hide();
                                 $("#SystemFunctionsPermissions").html("");
                             }
                             else {
                                 $("#UPSingleUserGroupDD").prop('disabled', false);
+                                //$("#DepartmentAdd").prop('disabled', false);
                                 $("#OtherSiteName").val(data.strSiteID);
                                 $("#UPSiteDD").val(data.idfsSite);
                                 RenderSystemFunctionsComponent(false);
@@ -1115,6 +1202,7 @@
     }
     function CloseModalDetails() {
         $("#successModalDetails").modal('hide');
+      //  $("#mdUserPermissions").modal('hide');
     }
 
     function CancelPage() {
@@ -1122,6 +1210,7 @@
     }
     function CancelCloseModalDetails() {
         $("#cancelModalDetails").modal('hide');
+        //  $("#mdUserPermissions").modal('hide');
     }
     ///
     /// Styling to handle stacked modals for the Collection Method  modals.

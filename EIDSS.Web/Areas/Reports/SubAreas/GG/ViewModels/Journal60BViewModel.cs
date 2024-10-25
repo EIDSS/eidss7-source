@@ -13,17 +13,10 @@ namespace EIDSS.Web.Areas.Reports.SubAreas.GG.ViewModels
 
         [DisplayName("Start Issue Date")]
         [LocalizedRequired]
-        [DisplayFormat(DataFormatString = "{0:d}")]
-
-        //[DateComparer(nameof(StartIssueDate), "StartIssueDate", nameof(EndIssueDate), "EndIssueDate", CompareType.LessThanOrEqualTo)]
         public string StartIssueDate { get; set; }
-
 
         [DisplayName("End Issue Date")]
         [LocalizedRequired]
-        [DisplayFormat(DataFormatString = "{0:d}")]
-
-        //[DateComparer(nameof(EndIssueDate), "EndIssueDate", nameof(StartIssueDate), "StartIssueDate", CompareType.GreaterThanOrEqualTo)]
         public string EndIssueDate { get; set; }
         public string MinimumStartIssueDate { get; set; }
         public string MaximumStartIssueDate { get; set; }

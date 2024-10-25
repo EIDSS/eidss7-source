@@ -231,6 +231,7 @@
             </div>
             <div class="modal-body">
                 <span id="dupemsg"></span>
+                @*@Localizer.GetString(MessageResourceKeyConstants.DuplicateReferenceValueMessage);*@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" onclick="EditDuplicateRecord('AddSpeciesAnimalAge');">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
@@ -250,6 +251,7 @@
             </div>
             <div class="modal-body">
                 <span id="dupemsgAddSpeciesType"></span>
+                @*@Localizer.GetString(MessageResourceKeyConstants.DuplicateReferenceValueMessage);*@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" onclick="EditDuplicateRecord('bAddSpeciesType');">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
@@ -269,6 +271,7 @@
             </div>
             <div class="modal-body">
                 <span id="dupemsgAddAnimalAge"></span>
+                @*@Localizer.GetString(MessageResourceKeyConstants.DuplicateReferenceValueMessage);*@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" onclick="EditDuplicateRecord('AddAnimalAge');">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
@@ -314,6 +317,7 @@
                 updateNotificationEnvelopeCount();
             } else if (parsedData.returnMessage == "DOES EXIST") {
                 $("#duplicatesModalAddAnimalAge").modal("show");
+                /*$("#dupemsgAddAnimalAge").html(parsed_data.strDuplicatedField);*/
                 $("#dupemsgAddAnimalAge").html(parsedData.strClientPageMessage);
             }
         };

@@ -177,7 +177,7 @@ namespace EIDSS.Api.Controllers.Administration.Security
                 };
 
                 // Forwards the call to context method:  
-                results = await _repository.Save(args) as List<APISaveResponseModel>;
+                results = await _repository.Save(args) as List<APISaveResponseModel>; //TODO: Localization of 'The record is not valid. Please verify all data and correct any errors.'
             }
             catch (Exception ex) when (ex is TaskCanceledException || ex is OperationCanceledException)
             {

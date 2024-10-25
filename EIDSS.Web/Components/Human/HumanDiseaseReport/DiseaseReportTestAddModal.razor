@@ -1,5 +1,6 @@
 ﻿@using EIDSS.Web.Components.CrossCutting
-@using EIDSS.Domain.ViewModels.Human 
+@using EIDSS.Domain.ViewModels.Human
+@using EIDSS.Web.Components.Shared.Organization
 
 @inherits EIDSS.Web.Components.Human.HumanDiseaseReport.DiseaseReportTestAddModalBase
 
@@ -83,10 +84,12 @@
     <div class="card-body">
         <div class="form-row">
             <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalLaboratoryFieldLabel" IsRow="false" CssClass="col-md-6" For="TestLabDD">
-                    <RadzenDropDown AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" AllowInput="true" id="TestLabDD" Name="TestLabDD" TValue="long?" 
-                                        LoadData="LoadTestLaboratory" Data="@TestLaboratory" ValueProperty="idfOffice" TextProperty="name" @bind-Value="@TestDetailModel.idfTestedByOffice" 
-                                        Count="@TestLabCount" class="form-control" Change="@(args => UpdateTestLabName(args))" Disabled="@(BlnEnteredByLab || IsReportClosed)"></RadzenDropDown>
-                </InterfaceEditorResource>
+                <OrganizationSearch
+                    @bind-SelectedOrganizationText="@Model.strTestedByOffice"
+                    @bind-SelectedOrganizationId="@TestDetailModel.idfTestedByOffice"
+                    Disabled="@(BlnEnteredByLab || IsReportClosed)"
+                    Name="TestLabDD"/>
+            </InterfaceEditorResource>
             <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalEmployeeFieldLabel" IsRow="false" CssClass="col-md-6" For="TestedByPersonDD">
                 <input type="hidden" id="idfTestedByPerson" value="@TestDetailModel.idfTestedByPerson" />
                     <RadzenTextBox @bind-Value="@TestDetailModel.strTestedByPerson" Name="TestedByPersonDD" class="form-control" Disabled="@(BlnEnteredByLab || IsReportClosed)"></RadzenTextBox>
@@ -143,6 +146,9 @@
                 <RadzenDatePicker id="Test_datValidationDate" Name="Test_datValidationDate" @bind-Value="@TestDetailModel.datValidationDate" class="form-control-range" DateFormat="d" Disabled="true">
 
                 </RadzenDatePicker>
+                @*<RadzenCompareValidator Value="@testDetailModel.datInterpretedDate" Component="Samples_SentDate" Popup=false Operator="CompareOperator.GreaterThanEqual"
+            Text=@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportCollectionDateFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportDateSentFieldLabel))
+            Style="display: block" />*@
             </InterfaceEditorResource>
         </div>
         <div class="form-row">         

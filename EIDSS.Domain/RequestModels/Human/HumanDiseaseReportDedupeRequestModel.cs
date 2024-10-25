@@ -12,7 +12,6 @@ namespace EIDSS.Domain.RequestModels.Human
         public long? SupersededDiseaseReportID { get; set; }
         public string LanguageID { get; set; }
         public long? idfHumanCase { get; set; }
-        public long? idfHumanCaseRelatedTo { get; set; }
         public long? idfHuman { get; set; }
         public long? idfHumanActual { get; set; }
         public string strHumanCaseId { get; set; }

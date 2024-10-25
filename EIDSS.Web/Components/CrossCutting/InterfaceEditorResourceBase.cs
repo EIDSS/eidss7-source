@@ -27,6 +27,8 @@ namespace EIDSS.Web.Components.CrossCutting
 
         [Parameter] public bool IsRow { get; set; }
 
+        [Parameter] public bool Visible { get; set; } = true;
+
         [Parameter] public string CssClass { get; set; }
 
         [Parameter] public string For { get; set; }
@@ -51,13 +53,14 @@ namespace EIDSS.Web.Components.CrossCutting
 
         public bool IsHidden()
         {
+            if (!Visible)
+            {
+                return true;
+            }
+            
             _cacheProvider = (LocalizationMemoryCacheProvider)ServiceProvider.GetService(typeof(LocalizationMemoryCacheProvider));
 
-            var dontRender = _cacheProvider.GetHiddenResourceValueByLanguageCultureNameAndResourceKey(GetCurrentLanguage(), InterfaceEditorKey);
-
-            // If hidden resource value is set to true, then do not render the content.
-            if (dontRender == null) return false;
-            return dontRender.ToLower() == LocalizationGlobalConstants.TrueResourceValue;
+           return _cacheProvider.GetHiddenResourceByLanguageCultureNameAndResourceKey(GetCurrentLanguage(), InterfaceEditorKey);
         }
 
         public bool IsRequired()

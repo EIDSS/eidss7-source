@@ -2,6 +2,8 @@
 @using EIDSS.Web.TagHelpers.Models.EIDSSModal;
 @using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
 @using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@using System.Globalization
+@using EIDSS.Web.Extensions
 @{
     ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.HumanActiveSurveillanceCampaignHumanActiveSurveillanceCampaignHeading);
 }
@@ -187,6 +189,8 @@
                                 }
                                 else
                                 {
+                                    @*<eidss-calendar name="CampaignStartDate" id="CampaignStartDate" value="@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStartDate.ToShortDateString()" disabled="@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStatusTypeID == 10140002 ? true : false"></eidss-calendar>*@
+
                                     <div class="input-group mb-3">
                                         @if (@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStatusTypeID == 10140002)
                                         {
@@ -214,6 +218,7 @@
                                 }
                                 else
                                 {
+                                    @*<eidss-calendar id="CampaignEndDate"  name="CampaignEndDate"  value="@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignEndDate.ToShortDateString()"  disabled="@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStatusTypeID == 10140002 ? true : false"></eidss-calendar>*@
                                     <div class="input-group mb-3">
                                         @if (@Model.GetHumanActiveSurveillanceCampaignDetailsResponseModel.CampaignStatusTypeID == 10140002)
                                         {
@@ -881,7 +886,7 @@
         var status = $('#CampaignStatusDD').val();
         var endDate = $("#CampaignEndDate").val();
         if (status == 10140002 & (endDate == "" | endDate == undefined | endDate == '1/1/0001')) {
-            $("#CampaignEndDate").val(moment().format('MM/DD/YYYY'));
+            $("#CampaignEndDate").val(moment().format('@CultureInfo.CurrentCulture.DateTimeFormat.ToJavascriptShortDatePattern()'));
         }
         if (status == 10140002) {
 

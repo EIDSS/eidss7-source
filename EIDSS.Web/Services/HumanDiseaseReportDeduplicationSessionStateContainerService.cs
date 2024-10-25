@@ -19,8 +19,6 @@ namespace EIDSS.Web.Services
 
         private IList<Field> summaryList { get; set; }
         private IList<Field> summaryList2 { get; set; }
-        //private IEnumerable<int> summaryValues { get; set; }
-        //private IEnumerable<int> summaryValues2 { get; set; }
 
         private IList<Field> notificationList { get; set; }
         private IList<Field> notificationList2 { get; set; }
@@ -112,13 +110,6 @@ namespace EIDSS.Web.Services
         private IEnumerable<int> samplesValues2 { get; set; }
 
 
-        //public RadzenDataGrid<DiseaseReportSamplePageSampleDetailViewModel> samplesgrid;
-        //public RadzenDataGrid<DiseaseReportSamplePageSampleDetailViewModel> samplesgrid2;
-
-        //public IList<DiseaseReportSamplePageSampleDetailViewModel> samples= new List<DiseaseReportSamplePageSampleDetailViewModel>();
-        
-        //public IList<DiseaseReportSamplePageSampleDetailViewModel> samples2 = new List<DiseaseReportSamplePageSampleDetailViewModel>();
-
         public int SamplesCount { get; set; }
         public int SamplesCount2 { get; set; }
         public int SurvivorSamplesCount { get; set; }
@@ -136,8 +127,6 @@ namespace EIDSS.Web.Services
         private IEnumerable<int> testsValues { get; set; }
         private IEnumerable<int> testsValues2 { get; set; }
 
-        //public RadzenDataGrid<DiseaseReportTestDetailForDiseasesViewModel> testgrid;
-        //public RadzenDataGrid<DiseaseReportTestDetailForDiseasesViewModel> testgrid2;
 
         public IList<DiseaseReportTestDetailForDiseasesViewModel> testsDetails = new List<DiseaseReportTestDetailForDiseasesViewModel>();
         public IList<DiseaseReportTestDetailForDiseasesViewModel> testsDetails2 = new List<DiseaseReportTestDetailForDiseasesViewModel>();
@@ -210,10 +199,6 @@ namespace EIDSS.Web.Services
         public long HumanDiseaseReportID { get; set; }
         public long HumanDiseaseReportID2 { get; set; }
 
-        public int? parentHumanDiseaseReportID { get; set; }
-        public string relatedHumanDiseaseReportIdList { get; set; }
-        public string relatedParentHumanDiseaseReportIdList { get; set; }
-        public string relatedChildHumanDiseaseReportIdList { get; set; }
         public long idfHuman { get; set; }
 
         public long idfHumanActual { get; set; }
@@ -232,10 +217,6 @@ namespace EIDSS.Web.Services
         public string strNote { get; set; }
 
 
-        public int? parentHumanDiseaseReportID2 { get; set; }
-        public string relatedHumanDiseaseReportIdList2 { get; set; }
-        public string relatedParentHumanDiseaseReportIdList2 { get; set; }
-        public string relatedChildHumanDiseaseReportIdList2 { get; set; }
         public long idfHuman2 { get; set; }
 
         public long idfHumanActual2 { get; set; }
@@ -474,10 +455,6 @@ namespace EIDSS.Web.Services
         public FlexFormQuestionnaireGetRequestModel SurvivorRiskFactorsFlexFormRequest { get; set; }
 
 
-        public int? SurvivorparentHumanDiseaseReportID { get; set; }
-        public string SurvivorrelatedHumanDiseaseReportIdList { get; set; }
-        public string SurvivorrelatedParentHumanDiseaseReportIdList { get; set; }
-        public string SurvivorrelatedChildHumanDiseaseReportIdList { get; set; }
         public long SurvivoridfHuman { get; set; }
 
         public long SurvivoridfHumanActual { get; set; }

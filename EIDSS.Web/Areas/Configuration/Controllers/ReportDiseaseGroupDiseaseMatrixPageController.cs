@@ -22,9 +22,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.Int64;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Configuration.Controllers
 {
@@ -35,7 +32,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         private readonly BaseReferenceEditorPagesViewModel _pageViewModel;
         private readonly IReportDiseaseGroupDiseaseMatrixClient _reportDiseaseGroupDiseaseClient;
         private readonly IDiseaseClient _diseaseClient;
-        private readonly ICrossCuttingClient _crossCuttingClient;        
+        private readonly ICrossCuttingClient _crossCuttingClient;
         private readonly IStringLocalizer _localizer;
 
         public ReportDiseaseGroupDiseaseMatrixPageController(
@@ -46,7 +43,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             IStringLocalizer localizer,
             ILogger<ReportDiseaseGroupDiseaseMatrixPageController> logger) : base(logger, tokenService)
         {
-            _pageViewModel = new BaseReferenceEditorPagesViewModel();            
+            _pageViewModel = new BaseReferenceEditorPagesViewModel();
             _crossCuttingClient = crossCuttingClient;
             _diseaseClient = diseaseClient;
             _reportDiseaseGroupDiseaseClient = reportDiseaseGroupDiseaseClient;
@@ -72,18 +69,18 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             long idfsCustomReportType = 0;
             if (referenceType.ddlCustomReportType != null)
             {
-                if (!IsNullOrEmpty(referenceType.ddlCustomReportType))
+                if (!string.IsNullOrEmpty(referenceType.ddlCustomReportType))
                 {
-                    idfsCustomReportType = Parse(referenceType.ddlCustomReportType);
+                    idfsCustomReportType = long.Parse(referenceType.ddlCustomReportType);
                 }
             }
 
             long idfsReportDiagnosisGroup = 0;
             if (referenceType.ddlReportDiseaseGroup != null)
             {
-                if (!IsNullOrEmpty(referenceType.ddlReportDiseaseGroup))
+                if (!string.IsNullOrEmpty(referenceType.ddlReportDiseaseGroup))
                 {
-                    idfsReportDiagnosisGroup = Parse(referenceType.ddlReportDiseaseGroup);
+                    idfsReportDiagnosisGroup = long.Parse(referenceType.ddlReportDiseaseGroup);
                 }
             }
 
@@ -91,7 +88,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             var valuePair = dataTableQueryPostObj.ReturnSortParameter();
 
             var strSortColumn = "strDiagnosis";
-            if (!IsNullOrEmpty(valuePair.Key) && valuePair.Key != "IdfDiagnosisToGroupForReportType")
+            if (!string.IsNullOrEmpty(valuePair.Key) && valuePair.Key != "IdfDiagnosisToGroupForReportType")
             {
                 strSortColumn = valuePair.Key;
             }
@@ -99,16 +96,16 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             var request = new ReportDiseaseGroupDiseaseMatrixGetRequestModel
             {
                 LanguageId = GetCurrentLanguage(),
-                IdfsCustomReportType = idfsCustomReportType, 
+                IdfsCustomReportType = idfsCustomReportType,
                 IdfsReportDiagnosisGroup = idfsReportDiagnosisGroup,
                 Page = dataTableQueryPostObj.page,
                 PageSize = dataTableQueryPostObj.length,
                 SortColumn = strSortColumn,
-                SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Ascending
+                SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending
             };
 
             var response = await _reportDiseaseGroupDiseaseClient.GetReportDiseaseGroupDiseaseMatrix(request);
-            IEnumerable<ReportDiseaseGroupDiseaseMatrixViewModel> matrixList = response;            
+            IEnumerable<ReportDiseaseGroupDiseaseMatrixViewModel> matrixList = response;
 
             var tableData = new TableData
             {
@@ -127,10 +124,10 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 {
                     (row + i + 1).ToString(),
                     matrixList.ElementAt(i).IdfDiagnosisToGroupForReportType.ToString(),
-                    matrixList.ElementAt(i).StrDiagnosis ?? Empty,
-                    matrixList.ElementAt(i).StrUsingType ?? Empty,
-                    matrixList.ElementAt(i).StrAccessoryCode ?? Empty,
-                    matrixList.ElementAt(i).StrIsDelete ?? Empty,                        
+                    matrixList.ElementAt(i).StrDiagnosis ?? string.Empty,
+                    matrixList.ElementAt(i).StrUsingType ?? string.Empty,
+                    matrixList.ElementAt(i).StrAccessoryCode ?? string.Empty,
+                    matrixList.ElementAt(i).StrIsDelete ?? string.Empty,
                 };
                 tableData.data.Add(cols);
             }
@@ -144,11 +141,11 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             var select2DataObj = new Select2DataResults();
 
             try
-            {             
-                var list = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), BaseReferenceConstants.CustomReportType, HACodeList.NoneHACode);
+            {
+                var list = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), EIDSSConstants.BaseReferenceConstants.CustomReportType, EIDSSConstants.HACodeList.NoneHACode);
                 list = list.OrderBy(o => o.IntOrder).ThenBy(n => n.Name).ToList();
 
-                select2DataItems.AddRange(list.Select(item => new Select2DataItem() {id = item.IdfsBaseReference.ToString(), text = item.Name}));
+                select2DataItems.AddRange(list.Select(item => new Select2DataItem() { id = item.IdfsBaseReference.ToString(), text = item.Name }));
                 select2DataObj.results = select2DataItems;
             }
             catch (Exception ex)
@@ -166,10 +163,10 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
             try
             {
-                var list = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), BaseReferenceConstants.ReportDiseaseGroup, HACodeList.NoneHACode);
+                var list = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), EIDSSConstants.BaseReferenceConstants.ReportDiseaseGroup, EIDSSConstants.HACodeList.NoneHACode);
                 list = list.OrderBy(o => o.IntOrder).ThenBy(n => n.Name).ToList();
 
-                select2DataItems.AddRange(list.Select(item => new Select2DataItem() {id = item.IdfsBaseReference.ToString(), text = item.Name}));
+                select2DataItems.AddRange(list.Select(item => new Select2DataItem() { id = item.IdfsBaseReference.ToString(), text = item.Name }));
                 select2DataObj.results = select2DataItems;
             }
             catch (Exception ex)
@@ -193,7 +190,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                     Page = 1,
                     PageSize = int.MaxValue - 1,
                     SortColumn = "intOrder",
-                    SortOrder = SortConstants.Ascending,
+                    SortOrder = EIDSSConstants.SortConstants.Ascending,
                     SimpleSearch = null,
                     UserEmployeeID = Convert.ToInt64(authenticatedUser.PersonId)
                 };
@@ -201,7 +198,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 var list = await _diseaseClient.GetDiseasesList(request);
                 list = list.OrderBy(d => d.IntOrder).ThenBy(d => d.StrName).ToList();
 
-                select2DataItems.AddRange(list.Select(item => new Select2DataItem() {id = item.KeyId.ToString(), text = item.StrName}));
+                select2DataItems.AddRange(list.Select(item => new Select2DataItem() { id = item.KeyId.ToString(), text = item.StrName }));
                 select2DataObj.results = select2DataItems;
             }
             catch (Exception ex)
@@ -217,15 +214,15 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [Route("AddReportDiseaseGroupDiseaseMatrix")]
         public async Task<IActionResult> AddReportDiseaseGroupDiseaseMatrix([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
             ReportDiseaseGroupDiseaseMatrixSaveRequestModel request = new()
             {
                 IdfDiagnosisToGroupForReportType = null,
-                IdfsCustomReportType = Parse(jsonObject["ddlCustomReportType"]?[0]?["id"]?.ToString() ?? Empty),
-                IdfsReportDiagnosisGroup = Parse(jsonObject["ddlReportDiseaseGroup"]?[0]?["id"]?.ToString() ?? Empty),
-                IdfsDiagnosis = Parse(jsonObject["IdfsDiagnosis"]?[0]?["id"]?.ToString() ?? Empty),
-                EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                IdfsCustomReportType = long.Parse(jsonObject["ddlCustomReportType"]?[0]?["id"]?.ToString() ?? string.Empty),
+                IdfsReportDiagnosisGroup = long.Parse(jsonObject["ddlReportDiseaseGroup"]?[0]?["id"]?.ToString() ?? string.Empty),
+                IdfsDiagnosis = long.Parse(jsonObject["IdfsDiagnosis"]?[0]?["id"]?.ToString() ?? string.Empty),
+                EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                 UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                 LocationId = authenticatedUser.RayonId,
@@ -243,7 +240,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 _logger.Log(LogLevel.Error, ex.Message);
             }
 
-            response.strClientPageMessage = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), jsonObject["IdfsDiagnosis"]?[0]?["text"]);
+            response.strClientPageMessage = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), jsonObject["IdfsDiagnosis"]?[0]?["text"]);
             return Json(response);
         }
 
@@ -251,14 +248,14 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [Route("DeleteReportDiseaseGroupDiseaseMatrix")]
         public async Task<JsonResult> DeleteReportDiseaseGroupDiseaseMatrix([FromBody] JsonElement json)
         {
-            var jsonObject = JObject.Parse(json.ToString() ?? Empty);
-            
+            var jsonObject = JObject.Parse(json.ToString() ?? string.Empty);
+
             var idfDiagnosisToGroupForReportType = Convert.ToInt64(jsonObject["IdfDiagnosisToGroupForReportType"]?.ToString());
 
             ReportDiseaseGroupDiseaseMatrixSaveRequestModel request = new()
             {
                 IdfDiagnosisToGroupForReportType = idfDiagnosisToGroupForReportType,
-                EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                 UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                 LocationId = authenticatedUser.RayonId,

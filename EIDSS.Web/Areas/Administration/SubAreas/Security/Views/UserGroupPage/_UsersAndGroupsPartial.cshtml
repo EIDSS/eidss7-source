@@ -111,6 +111,7 @@
         </div>
         <div class="form-row">
             <div class="col-md-12 text-right">
+                @*<button id="searchEmployee" type="button" class="btn btn-outline-primary" onclick="initializeSearchEmployeeActor(false);" button-for="@ButtonResourceKeyConstants.AddButton"></button>*@
                 <button id="searchEmployee" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#searchEmployeeActorModal"
                         button-for="@ButtonResourceKeyConstants.AddButton" visible="@Model.UserGroupPermissions.Create"></button>
                 <button id="deleteEmployee" type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.DeleteButton"
@@ -137,6 +138,8 @@
 <script type="text/javascript">
 
         function initializeSearchEmployeeActor(EmployeeIndicator) {
+        /*$("#searchEmployeeIndicator").val(EmployeeIndicator);*/
+            /*alert("initializeSearchEmployeeActor!!");*/
             showSearchEmployeeActorModal();
         };
 
@@ -146,6 +149,7 @@
         var $row = $(this).closest("tr");
 
         if (this.checked) {
+            /*alert("click on employeesForUserGroupGrid checkbox!!");*/
 
             $row.addClass("selected");
         } else {
@@ -158,27 +162,38 @@
 
 
     function deleteEmployees(message, event, Id) {
+        //alert("deleteEmployees!!");
+        //alert(Id);
         actors = [];
         var selectedActors = $("#employeesForUserGroupGrid").DataTable().rows([".selected"]).data().toArray();
         $.each(selectedActors, function (index, value) {
             actors.push(value[0]);
         });
         var idfEmployeeList = actors.join(", ");
+        /*alert(idfEmployeeList);*/
 
         var idfEmployeeGroup = $("[id$=idfEmployeeGroup]").val();
+        /*alert(idfEmployeeGroup);*/
 
         var jsonData = {
             "idfEmployeeGroup": idfEmployeeGroup,
             "idfEmployeeList": idfEmployeeList
         };
+        /*alert(jsonData);*/
 
         $.ajax({
             url: '@Url.Action("DeleteEmployeesFromUserGroup", "UserGroupPage", new {Area = "Administration", SubArea = "Security"})',
+            /*            type: 'post',*/
             data: JSON.stringify(jsonData),
             contentType: "application/json",
             type: "POST",
             success: function (response) {
                 $('#employeesForUserGroupGrid').DataTable().ajax.reload();
+                /*alert("success!!");*/
+                //if ($.fn.dataTable.isDataTable('#employeesForUserGroupGrid')) {
+                //    userList = $('#employeesForUserGroupGrid').DataTable();
+                //    userList.destroy();
+                //    initializeEmployeesForUserGroupListTable();
 
             },
             error: function (reponse) { alert("An error occurred: " + reponse); }
@@ -189,16 +204,22 @@
     function initializeEmployeesForUserGroupListTable() {
         alert("initializeEmployeesForUserGroupListTable!!");
         var idfEmployeeGroup = $("[id$=SearchCriteria_idfEmployeeGroup]").val();
+        /*var idfEmployeeGroup = id;*/
         alert(idfEmployeeGroup);
 
+        //var jsonData = {
+        //    "UsersAndGroupsSection_idfEmployeeGroup": idfEmployeeGroup
+        // };
          $.ajax({
              url: '@Url.Action("GetEmployeesForUserGroupList", "UserGroupPage", new { Area = "Administration", SubArea = "Security"})',
+            /*data: JSON.stringify(jsonData),*/
              data: idfEmployeeGroup,
              contentType: "application/json",
              type: "POST",
              success: function (response) {
              alert("success!!");
              // Add the data retrieved from the database, if any.
+            /* $("#employeesForUserGroupGrid").DataTable().rows.add(response.data).draw();*/
              },
              error: function (reponse) {
                 alert("An error occurred: " + reponse);

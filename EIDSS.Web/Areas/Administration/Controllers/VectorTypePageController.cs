@@ -20,8 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Administration.Controllers
 {
@@ -66,7 +64,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 var valuePair = dataTableQueryPostObj.ReturnSortParameter();
 
                 var strSortColumn = "intOrder";
-                if (!IsNullOrEmpty(valuePair.Key) && valuePair.Key != "IdfsVectorType")
+                if (!string.IsNullOrEmpty(valuePair.Key) && valuePair.Key != "IdfsVectorType")
                 {
                     strSortColumn = valuePair.Key;
                 }
@@ -78,7 +76,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     Page = dataTableQueryPostObj.page,
                     PageSize = Convert.ToBoolean(referenceType.Print) ? Int32.MaxValue - 1 : dataTableQueryPostObj.length,
                     SortColumn = strSortColumn,
-                    SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Ascending
+                    SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending
                 };
 
                 var vtlvm = await _vectorTypeClient.GetVectorTypeList(request);
@@ -86,9 +84,9 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
                 vectorTypeList = strSortColumn switch
                 {
-                    "intOrder" when request.SortOrder == SortConstants.Descending => vectorTypeList.OrderByDescending(o => o.IntOrder)
+                    "intOrder" when request.SortOrder == EIDSSConstants.SortConstants.Descending => vectorTypeList.OrderByDescending(o => o.IntOrder)
                         .ThenBy(n => n.StrName),
-                    "intOrder" when request.SortOrder == SortConstants.Ascending => vectorTypeList.OrderBy(o => o.IntOrder)
+                    "intOrder" when request.SortOrder == EIDSSConstants.SortConstants.Ascending => vectorTypeList.OrderBy(o => o.IntOrder)
                         .ThenBy(n => n.StrName),
                     _ => vectorTypeList
                 };
@@ -109,9 +107,9 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     {
                         (row + i + 1).ToString(),
                         vectorTypeList.ElementAt(i).IdfsVectorType.ToString(),
-                        vectorTypeList.ElementAt(i).StrDefault ?? Empty, // English Value
-                        vectorTypeList.ElementAt(i).StrName ?? Empty,  // Translated Value                  
-                        vectorTypeList.ElementAt(i).StrCode ?? Empty,
+                        vectorTypeList.ElementAt(i).StrDefault ?? string.Empty, // English Value
+                        vectorTypeList.ElementAt(i).StrName ?? string.Empty,  // Translated Value                  
+                        vectorTypeList.ElementAt(i).StrCode ?? string.Empty,
                         vectorTypeList.ElementAt(i).BitCollectionByPool.ToString(),
                         vectorTypeList.ElementAt(i).IntOrder.ToString()
                     };
@@ -139,10 +137,10 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     Default = jsonObject["Default"]?.ToString().Trim(),
                     Name = jsonObject["Name"]?.ToString().Trim(),
                     Code = jsonObject["Code"]?.ToString(),
-                    intOrder = !IsNullOrEmpty(jsonObject["Order"]?.ToString()) ? Int32.Parse(jsonObject["Order"].ToString()) : 0,
+                    intOrder = !string.IsNullOrEmpty(jsonObject["Order"]?.ToString()) ? Int32.Parse(jsonObject["Order"].ToString()) : 0,
                     CollectionByPool = jsonObject["CollectedByPool"]?.ToString().Contains("true"),
                     LanguageId = GetCurrentLanguage(),
-                    EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                    EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                     AuditUserName = authenticatedUser.UserName,
                     LocationId = authenticatedUser.RayonId,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -150,16 +148,15 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 };
 
                 var response = await _vectorTypeClient.SaveVectorType(request);
-                response.strDuplicatedField = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
+                response.strDuplicatedField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
                 return Json(response);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message, null);
                 throw;
             }
         }
-
 
         [HttpPost]
         [Route("EditVectorType")]
@@ -167,7 +164,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         {
             try
             {
-                var jsonObject = JObject.Parse(json.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(json.ToString() ?? string.Empty);
 
                 var request = new VectorTypeSaveRequestModel
                 {
@@ -175,10 +172,10 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     Default = jsonObject["StrDefault"]?.ToString().Trim(),
                     Name = jsonObject["StrName"]?.ToString().Trim(),
                     Code = jsonObject["StrCode"]?.ToString(),
-                    intOrder = IsNullOrEmpty(jsonObject["intOrder"]?.ToString()) ? 0 : Int32.Parse(jsonObject["intOrder"].ToString()),
+                    intOrder = string.IsNullOrEmpty(jsonObject["intOrder"]?.ToString()) ? 0 : Int32.Parse(jsonObject["intOrder"].ToString()),
                     CollectionByPool = Convert.ToBoolean(jsonObject["BitCollectionByPool"]?.ToString()),
                     LanguageId = GetCurrentLanguage(),
-                    EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                    EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                     AuditUserName = authenticatedUser.UserName,
                     LocationId = authenticatedUser.RayonId,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -186,7 +183,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 };
 
                 var response = await _vectorTypeClient.SaveVectorType(request);
-                response.strDuplicatedField = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
+                response.strDuplicatedField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
                 return Json(response);
             }
             catch (Exception ex)
@@ -204,7 +201,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             try
             {
-                var jsonObject = JObject.Parse(json.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(json.ToString() ?? string.Empty);
 
                 if (jsonObject["IdfsVectorType"] != null)
                 {
@@ -212,7 +209,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     {
                         DeleteAnyway = true,
                         LanguageId = GetCurrentLanguage(),
-                        EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                        EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                         AuditUserName = authenticatedUser.UserName,
                         LocationId = authenticatedUser.RayonId,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -233,7 +230,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     return Json(responsePost);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message, null);
                 throw;

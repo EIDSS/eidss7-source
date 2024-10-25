@@ -850,6 +850,7 @@ namespace EIDSS.ClientLibrary.Enumerations
         AdminLevel1 = 19000003,
         AdminLevel2 = 19000002,
         AdminLevel3 = 19000004
+        //AdminLevel0 = 19000004,
     }
 
     public enum TimePeriodTypes : long
@@ -902,6 +903,9 @@ namespace EIDSS.ClientLibrary.Enumerations
         Aggregate = 10020002
     }
 
+    /// <summary>
+    ///     ''' Currently used to determine legacy records migrated in from EIDSS 6.1.
+    ///     ''' </summary>
     public enum SourceSystemNames : long
     {
         EIDSS7 = 10519001,
@@ -921,6 +925,9 @@ namespace EIDSS.ClientLibrary.Enumerations
         OrganizationsWithOrWithoutSite = 2
     }
 
+    /// <summary>
+    ///     '''
+    ///     ''' </summary>
     public enum SiteTypes : long
     {
         CentralDataRepository = 10085001,

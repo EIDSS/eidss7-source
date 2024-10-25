@@ -19,9 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.Int64;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Configuration.Controllers
 {
@@ -29,7 +26,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
     [Controller]
     public class DiseaseHumanGenderMatrixPageController : BaseController
     {
-        private readonly BaseReferenceEditorPagesViewModel _pageViewModel;        
+        private readonly BaseReferenceEditorPagesViewModel _pageViewModel;
         private readonly IDiseaseHumanGenderMatrixClient _diseaseHumanGenderClient;
         private readonly IStringLocalizer _localizer;
 
@@ -42,7 +39,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             _pageViewModel = new BaseReferenceEditorPagesViewModel();
             _diseaseHumanGenderClient = diseaseHumanGenderClient;
             _localizer = localizer;
-            var userPermissions = GetUserPermissions(PagePermission.CanManageReferencesAndConfigurations);            
+            var userPermissions = GetUserPermissions(PagePermission.CanManageReferencesAndConfigurations);
             _pageViewModel.UserPermissions = userPermissions;
         }
 
@@ -62,7 +59,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
             if (referenceType.ddlDisease != null)
             {
-                if (!IsNullOrEmpty(referenceType.ddlDisease))
+                if (!string.IsNullOrEmpty(referenceType.ddlDisease))
                 {
                 }
             }
@@ -71,18 +68,18 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             var valuePair = dataTableQueryPostObj.ReturnSortParameter();
 
             var strSortColumn = "strDiseaseGroupName";
-            if (!IsNullOrEmpty(valuePair.Key) && valuePair.Key != "DisgnosisGroupToGenderUID")
+            if (!string.IsNullOrEmpty(valuePair.Key) && valuePair.Key != "DisgnosisGroupToGenderUID")
             {
                 strSortColumn = valuePair.Key;
             }
 
             var request = new DiseaseHumanGenderMatrixGetRequestModel
             {
-                LanguageId = GetCurrentLanguage(),                      
+                LanguageId = GetCurrentLanguage(),
                 Page = dataTableQueryPostObj.page,
                 PageSize = dataTableQueryPostObj.length,
                 SortColumn = strSortColumn,
-                SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Ascending
+                SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending
             };
 
             var response = await _diseaseHumanGenderClient.GetDiseaseHumanGenderMatrix(request);
@@ -104,9 +101,9 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 List<string> cols = new()
                 {
                     (row + i + 1).ToString(),
-                    matrixList.ElementAt(i).DisgnosisGroupToGenderUID.ToString(),                        
-                    matrixList.ElementAt(i).strDiseaseGroupName ?? Empty,
-                    matrixList.ElementAt(i).strGender ?? Empty,
+                    matrixList.ElementAt(i).DisgnosisGroupToGenderUID.ToString(),
+                    matrixList.ElementAt(i).strDiseaseGroupName ?? string.Empty,
+                    matrixList.ElementAt(i).strGender ?? string.Empty,
                     true.ToString()
                 };
                 tableData.data.Add(cols);
@@ -119,13 +116,13 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [Route("AddDiseaseHumanGender")]
         public async Task<IActionResult> AddDiseaseHumanGender([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
             DiseaseHumanGenderMatrixSaveRequestModel request = new()
             {
-                DiagnosisGroupID = Parse(jsonObject["IdfsDiagnosis"]?[0]?["id"]?.ToString() ?? Empty),
-                GenderID = Parse(jsonObject["IdfsBaseReference"]?[0]?["id"]?.ToString() ?? Empty),
-                EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                DiagnosisGroupID = long.Parse(jsonObject["IdfsDiagnosis"]?[0]?["id"]?.ToString() ?? string.Empty),
+                GenderID = long.Parse(jsonObject["IdfsBaseReference"]?[0]?["id"]?.ToString() ?? string.Empty),
+                EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                 UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                 LocationId = authenticatedUser.RayonId,
@@ -143,7 +140,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 _logger.Log(LogLevel.Error, ex.Message);
             }
 
-            response.strClientPageMessage = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), jsonObject["IdfsDiagnosis"]?[0]?["text"]);
+            response.strClientPageMessage = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), jsonObject["IdfsDiagnosis"]?[0]?["text"]);
             return Json(response);
         }
 
@@ -151,13 +148,13 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [Route("DeleteDiseaseHumanGender")]
         public async Task<JsonResult> DeleteDiseaseHumanGender([FromBody] JsonElement json)
         {
-            var jsonObject = JObject.Parse(json.ToString() ?? Empty);
-            var diagnosisGroupToGenderUid = Parse(jsonObject["DiagnosisGroupToGenderUID"]?.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(json.ToString() ?? string.Empty);
+            var diagnosisGroupToGenderUid = long.Parse(jsonObject["DiagnosisGroupToGenderUID"]?.ToString() ?? string.Empty);
 
             DiseaseHumanGenderMatrixSaveRequestModel request = new()
             {
                 DiagnosisGroupToGenderUID = diagnosisGroupToGenderUid,
-                EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                 UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                 LocationId = authenticatedUser.RayonId,
@@ -165,7 +162,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             };
 
             var response = await _diseaseHumanGenderClient.DeleteDiseaseHumanGenderMatrix(request);
-                
+
             return Json(response);
         }
     }

@@ -20,6 +20,7 @@ namespace EIDSS.Domain.RequestModels.FlexForm
         public long? idfsRuleMessage { get; set; }
         public long? idfsFunctionParameter { get; set; }
         public long? idfsActionParameter { get; set; }
+        //public string User { get; set; }
         public string strFillValue { get; set; }
         public int? intRowStatus { get; set; } = 0;
         public string strCompareValue { get; set; }

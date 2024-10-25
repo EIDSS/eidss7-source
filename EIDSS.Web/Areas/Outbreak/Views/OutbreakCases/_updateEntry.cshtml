@@ -98,7 +98,7 @@
                             <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakUpdatesUploadFileFieldLabel)</label>
                         </div>
                         <div class="col-sm-6 pull-left">
-                            <input type="file" ID="FileUpload" class="form-control" onchange="javascript:checkExtensions();" />
+                            <input type="file" ID="FileUpload" class="form-control" onchange="javascript:checkExtensions();" @*accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.png,.pdf,.txt"*@ />
                         </div>
                     </div>
                     <div class="row form-group">

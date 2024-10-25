@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
 
@@ -58,18 +59,18 @@ namespace EIDSS.Web.Components.Administration
 
         [Parameter]
         public long? OrganizationID { get; set; }
-
+        
+        [Parameter]
+        public bool DisableOrganizationField { get; set; }
+        
         public EmployeePersonalInfoPageViewModel Model { get; set; }
 
         protected IEnumerable<BaseReferenceEditorsViewModel> lstPersonalIDType;
-        protected IEnumerable<OrganizationAdvancedGetListViewModel> lstOrganizations;
         protected IEnumerable<DepartmentGetListViewModel> lstDepartment;
         protected IEnumerable<BaseReferenceEditorsViewModel> lstPositions;
         protected RadzenTemplateForm<EmployeePersonalInfoPageViewModel> _form;
 
         protected int personalIDTypeCount { get; set; }
-
-        protected int orgCount { get; set; }
 
         protected int departmentCount { get; set; }
 
@@ -101,26 +102,19 @@ namespace EIDSS.Web.Components.Administration
 
             canAddEmployee = userPermissions.Create;
 
-           // EditContext.OnFieldChanged += EditContext_OnFieldChanged;
-
             Model = new EmployeePersonalInfoPageViewModel();
 
-            if (OrganizationID is not null)
+            if (OrganizationID > 0)
+            {
+                var organizationDetail = await OrganizationClient.GetOrganizationDetail(Thread.CurrentThread.Name, OrganizationID.Value);
                 Model.OrganizationID = OrganizationID;
+                Model.AbbreviatedName = organizationDetail.AbbreviatedNameNationalValue;
+                await GetSiteNameAndDepartments();
+            }
 
-            //EditContext = new(Model);
             await LoadPersonalTypeIDs(null);
-            await LoadOrganizations(null);
             await LoadPositions(null);
         }
-
-
-
-        public void Dispose()
-        {
-
-        }
-
 
         public async Task LoadPersonalTypeIDs(LoadDataArgs args)
         {
@@ -152,47 +146,18 @@ namespace EIDSS.Web.Components.Administration
             }
         }
 
-
-
-        public async Task LoadOrganizations(LoadDataArgs args)
+        public async Task SelectedOrganizationIdChanged(long? organizationId)
         {
-            try
-            {
-
-                OrganizationAdvancedGetRequestModel request = new()
-                {
-                    LangID = GetCurrentLanguage(),
-                    AccessoryCode = null,
-                    AdvancedSearch = null,
-                    SiteFlag = (int)OrganizationSiteAssociations.OrganizationsWithOrWithoutSite,
-                    OrganizationTypeID = null,
-                };
-                if (args != null && args.Filter != null && args.Filter != "")
-                {
-                    request.AdvancedSearch = args.Filter;
-                }
-                else
-                    request.AdvancedSearch = null;
-                var list = await OrganizationClient.GetOrganizationAdvancedList(request);
-                lstOrganizations = list.AsODataEnumerable();
-                orgCount = lstOrganizations.Count();
-                await InvokeAsync(StateHasChanged);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message, null);
-                throw;
-            }
+            Model.OrganizationID = OrganizationID;
+            await GetSiteNameAndDepartments();
         }
 
-
-        public async Task GetSiteDetails(long Value)
+        private async Task GetSiteDetails()
         {
             List<EmployeeSiteFromOrgViewModel> response = new List<EmployeeSiteFromOrgViewModel>();
             try
             {
-                long? OrgID = 0;
-                response = await EmployeeClient.GetEmployeeSiteFromOrg(Value);
+                response = await EmployeeClient.GetEmployeeSiteFromOrg(Model.OrganizationID);
                 if (response != null && response.Count > 0)
                 {
                     Model.SiteID = response.FirstOrDefault().idfsSite;
@@ -207,28 +172,25 @@ namespace EIDSS.Web.Components.Administration
             }
         }
 
-
-        public async Task GetSiteNameAndDepartments(object value)
+        private async Task GetSiteNameAndDepartments()
         {
-            if (Model.OrganizationID != null && Model.OrganizationID != 0 && value != null)
+            if (Model.OrganizationID > 0)
             {
-                long orgID = 0;
-                DepartmentGetRequestModel model = new DepartmentGetRequestModel();
-                model.LanguageId = GetCurrentLanguage();
-                orgID = long.Parse(value.ToString());
-                Model.OrganizationID = orgID;
-                model.SortColumn = "intOrder";
-                model.SortOrder = "asc";
-                model.PageSize = 10000;
-                model.Page = 1;
+                DepartmentGetRequestModel model = new DepartmentGetRequestModel
+                {
+                    LanguageId = GetCurrentLanguage(),
+                    SortColumn = "intOrder",
+                    SortOrder = "asc",
+                    PageSize = 10000,
+                    Page = 1,
+                    OrganizationID = Model.OrganizationID
+                };
                 var list = await CrossCuttingClient.GetDepartmentList(model);
                 lstDepartment = list.AsODataEnumerable();
                 departmentCount = lstDepartment.Count();
                 EnableDepartment = false;
 
-                // Load Site ID
-
-                await GetSiteDetails(orgID);
+                await GetSiteDetails();
 
                 await InvokeAsync(StateHasChanged);
             }
@@ -317,16 +279,6 @@ namespace EIDSS.Web.Components.Administration
                 if (personalIDType != null && personalIDType != 0)
                 {
 
-                    //if (jsonObject["PersonalIDType"] != null && jsonObject["PersonalIDType"].ToString() != string.Empty)
-                    //{
-                    //    personalIDType = long.Parse(jsonObject["PersonalIDType"].ToString());
-                    //}
-                    //if (jsonObject["PersonalID"] != null)
-                    //{
-                    //    personalID = jsonObject["PersonalID"].ToString();
-                    //}
-
-
                     var request = new PersonalIdentificationTypeMatrixGetRequestModel
                     {
                         LanguageId = GetCurrentLanguage(),
@@ -341,7 +293,6 @@ namespace EIDSS.Web.Components.Administration
 
                     if (response != null)
                     {
-                        //var list = response.Where(a => a.IdfPersonalIDType == personalIDType).ToList();
                         var item = response.Where(a => a.IdfPersonalIDType == personalIDType).FirstOrDefault();
                         if (item != null && item.StrFieldType == "Numeric")
                         {
@@ -367,9 +318,6 @@ namespace EIDSS.Web.Components.Administration
                         }
 
                     }
-                   // var id = EditContext.Field("ValPersonaID");
-
-                    //EditContext.NotifyFieldChanged(id);
                     await InvokeAsync(StateHasChanged);
                 }
                 else
@@ -379,7 +327,6 @@ namespace EIDSS.Web.Components.Administration
             {
                 _logger.LogError(ex.Message);
             }
-            //return isValid;
         }
 
         void KeyUp(KeyboardEventArgs e, string memberName)
@@ -400,17 +347,16 @@ namespace EIDSS.Web.Components.Administration
             {
 
                 if (_form.EditContext.IsModified())
-                //  || model.SearchCriteria.DateEnteredFrom != null)
                 {
 
-                    var newEmployee = _form.EditContext as EditContext;
-
+                    var newEmployee = _form.EditContext;
                     EmployeeSaveRequestResponseModel response = await SaveNonUserEmployee(newEmployee);
 
                     if (response.RetunMessage == "Success")
                     {
                         await ShowSuccessMessage();
-                        DiagService.Close(EditContext);
+                        ((EmployeePersonalInfoPageViewModel)_form.EditContext.Model).EmployeeID = response.idfPerson.GetValueOrDefault();
+                        DiagService.Close(newEmployee.Model);
                     }
                     else if (response.RetunMessage == "DOES EXIST")
                     {
@@ -420,52 +366,11 @@ namespace EIDSS.Web.Components.Administration
                     
 
                 }
-                else
-                {
-                    //no search criteria entered - display the EIDSS dialog component
-                    //searchSubmitted = false;
-                    //await ShowNoSearchCriteriaDialog();
-                }
             }
         }
 
-        protected async Task HandleInvalidEmployeeSubmit(FormInvalidSubmitEventArgs args)
-        {
-            try
-            {
-
-
-
-                // var buttons = new List<DialogButton>();
-                // var okButton = new DialogButton()
-                // {
-                //     ButtonText = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
-                //     ButtonType = DialogButtonType.OK
-                // };
-                // buttons.Add(okButton);
-
-                // //TODO - display the validation Errors on the dialog?  
-                // var dialogParams = new Dictionary<string, object>();
-                // dialogParams.Add(nameof(EIDSSDialog.DialogButtons), buttons);
-                // dialogParams.Add(nameof(EIDSSDialog.Message), Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage));
-                //// await DiagService.OpenAsync<EIDSSDialog>(Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading), dialogParams);
-
-                // var result = await DiagService.OpenAsync<EIDSSDialog>(Localizer.GetString(HeadingResourceKeyConstants.EIDSSWarningModalHeading), dialogParams);
-                // if (result is DialogReturnResult)
-                // {
-                //     //do nothing because it is just the ok button
-                // }
-
-
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
         public async Task<EmployeeSaveRequestResponseModel> SaveNonUserEmployee(EditContext result)
         {
-            var newEmployee = result as EditContext;
             EmployeeSaveRequestResponseModel response = new EmployeeSaveRequestResponseModel();
             EmployeeSaveRequestModel EmployeePersonalInfoSaveRequest = new EmployeeSaveRequestModel();
             EmployeePersonalInfoPageViewModel obj = (EmployeePersonalInfoPageViewModel)result.Model;
@@ -513,24 +418,8 @@ namespace EIDSS.Web.Components.Administration
             }
             else
             {
-                bool isValid = false;
-                //if (EmployeePersonalInfoSaveRequest.strPersonalID != null && EmployeePersonalInfoSaveRequest.strPersonalID != "")
-                //{
-                //    isValid = await ValidatePersonalID(long.Parse(EmployeePersonalInfoSaveRequest.idfPersonalIDType), EmployeePersonalInfoSaveRequest.strPersonalID);
-                //    if (!isValid)
-                //    {
-                //        response.RetunMessage = "ERROR";
-                //        response.ValidationError = string.Format(Localizer.GetString(FieldLabelResourceKeyConstants.PersonalIDFieldLabel)) + ":" + string.Format(_localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage));
-                //    }
-                //}
-                //else
-                //{
-                    isValid = true;
-                //}
-                if (isValid)
-                    response = await EmployeeClient.SaveEmployee(EmployeePersonalInfoSaveRequest);
+                response = await EmployeeClient.SaveEmployee(EmployeePersonalInfoSaveRequest);
             }
-            // return Json(response);
             return response;
         }
         protected async Task ShowSuccessMessage()
@@ -557,30 +446,19 @@ namespace EIDSS.Web.Components.Administration
         }
         protected async Task ShowDuplicateMessage(string message)
         {
-            try
+            var buttons = new List<DialogButton>();
+            var okButton = new DialogButton()
             {
-                var buttons = new List<DialogButton>();
-                var okButton = new DialogButton()
-                {
-                    ButtonText = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
-                    ButtonType = DialogButtonType.OK
-                };
-                buttons.Add(okButton);
+                ButtonText = Localizer.GetString(ButtonResourceKeyConstants.OKButton),
+                ButtonType = DialogButtonType.OK
+            };
+            buttons.Add(okButton);
 
-                var dialogParams = new Dictionary<string, object>();
-                dialogParams.Add(nameof(EIDSSDialog.DialogButtons), buttons);
-                dialogParams.Add(nameof(EIDSSDialog.Message), Localizer.GetString(message));
-                await DiagService.OpenAsync<EIDSSDialog>(Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading), dialogParams);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            var dialogParams = new Dictionary<string, object>();
+            dialogParams.Add(nameof(EIDSSDialog.DialogButtons), buttons);
+            dialogParams.Add(nameof(EIDSSDialog.Message), Localizer.GetString(message));
+            await DiagService.OpenAsync<EIDSSDialog>(Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading), dialogParams);
         }
 
     }
-
-
-
-
 }

@@ -1,0 +1,16 @@
+@using EIDSS.Domain.ViewModels.Administration
+
+@inherits EIDSS.Web.Components.Shared.Organization.YesNoUnknownBase
+
+<RadzenStack class="yes-no-unknown-component">
+    <RadzenRadioButtonList
+        Name="@Name"
+        Disabled="@Disabled"
+        Data="@YesNoChoices" 
+        TValue="long?" 
+        TextProperty="Name"
+        ValueProperty="IdfsBaseReference" 
+        @bind-Value="@SelectedAnswerId"
+        Change="@OnSelectedAnswerIdChanged">
+    </RadzenRadioButtonList>
+</RadzenStack>

@@ -22,6 +22,21 @@ var VeterinaryAggregateDiseaseReport = (function () {
         });
     };
 
+    function setWizardState(isValid, stringId) {
+        if (isValid) {
+            $(stringId).find("#erroredStep").hide();
+            $(stringId).find("#completedStep").show();
+        } else {
+            $(stringId).find("#erroredStep").show();
+            $(stringId).find("#completedStep").hide();
+        }
+    }
+
+    function hideDefaultStepIcons() {
+        $("#aggregateReportWizard-t-0").find("#step").hide();
+        $("#aggregateReportWizard-t-1").find("#step").hide();
+    }
+
     module.DotNetReference = null;
     module.SetDotNetReference = function (pDotNetReference) {
         module.DotNetReference = pDotNetReference;
@@ -67,7 +82,14 @@ var VeterinaryAggregateDiseaseReport = (function () {
                 previous: previousButtonText,
                 loading: loadingMessageText
             },
-            onInit: function (event) { },
+            onInit: function (event) {
+                $("#aggregateReportWizard .steps ul").append('<li id="saveStep" role="tab"><a href="#" role="menuitem"><span class="fa-stack text-muted"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-save fa-stack-1x fa-inverse"></i></span>  <span class="stepTitleText">' + finishButtonText +'</span></a></li>');
+
+                $(document).on('click', '#saveStep', function (e) {
+                    e.preventDefault();
+                    $("#aggregateReportWizard").steps("finish");
+                });
+            },
             onCanceled: function (event) {
                 VeterinaryAggregateDiseaseReport.ReportDetailsSection.DotNetReference.invokeMethodAsync('OnCancel');
             },
@@ -107,8 +129,15 @@ var VeterinaryAggregateDiseaseReport = (function () {
                         return true;
                 }
             },
-            onFinished: function (event) {
-                var valid = $("#aggregateReportWizard").steps("validateStep", $("#EditAggregateDiseaseReportDetailsForm"));
+            onFinished: async function (event) {
+                var isReportDetailsSectionValid = await VeterinaryAggregateDiseaseReport.ReportDetailsSection.DotNetReference.invokeMethodAsync("ValidateSection");
+                var isDiseaseMatrixSectionValid = await VeterinaryAggregateDiseaseReport.DiseaseMatrixSection.DotNetReference.invokeMethodAsync("ValidateSection");
+                var valid = isReportDetailsSectionValid && isDiseaseMatrixSectionValid;
+
+                hideDefaultStepIcons();
+                setWizardState(valid, "#aggregateReportWizard-t-0");
+                $("#aggregateReportWizard-t-1").find("#completedStep").show();
+
                 if (valid) {
                     VeterinaryAggregateDiseaseReport.ReportDetailsSection.DotNetReference.invokeMethodAsync('OnSubmit');
                 }

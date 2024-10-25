@@ -224,7 +224,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                 HumanDiseaseReportDeduplicationService.chkCheckAllSamples = false;
                 HumanDiseaseReportDeduplicationService.chkCheckAllSamples2 = false;
 
-                await EableDisableMergeButtonAsync();
+                await EnableDisableMergeButtonAsync();
 
                 //HumanDiseaseReportDeduplicationService.SurvivorSamplesDetails = CopyAllInList<DiseaseReportSamplePageSampleDetailViewModel>(HumanDiseaseReportDeduplicationService.Samples);
                 //foreach (var item in HumanDiseaseReportDeduplicationService.samples2)
@@ -318,7 +318,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                 HumanDiseaseReportDeduplicationService.chkCheckAllSamples = false;
                 HumanDiseaseReportDeduplicationService.chkCheckAllSamples2 = false;
 
-                await EableDisableMergeButtonAsync();
+                await EnableDisableMergeButtonAsync();
                 //HumanDiseaseReportDeduplicationService.SurvivorSamplesDetails = CopyAllInList<DiseaseReportSamplePageSampleDetailViewModel>(HumanDiseaseReportDeduplicationService.Samples2); ;
                 //foreach (var item in HumanDiseaseReportDeduplicationService.samples)
                 //{

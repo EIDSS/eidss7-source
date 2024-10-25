@@ -1,4 +1,4 @@
-﻿
+
 --
 
 /**************************************************************************************************************************************
@@ -69,7 +69,7 @@ BEGIN TRAN
 BEGIN TRY
 
 
-----------------------------------------------------------------------------------------------------------
+--
 
 /**************************************************************************************************************************************
 * SetContext
@@ -136,7 +136,115 @@ where	trtResource_v7.[idfsResource] = 400 /*Final Diagnosis*/
 
 
 
------------------------
+--
+
+/************************************************************
+* Create concordance table for processing duplicated Farm IDs - start
+************************************************************/
+
+
+if object_id(N'_dmccFarmActual') is null
+create table _dmccFarmActual
+(	idfFarmActual_v6 bigint not null,
+	idfFarmActual_v7 bigint null,
+	idfSeqNumber bigint not null default(0),
+	strFarmCode_v6 nvarchar(200) collate Cyrillic_General_CI_AS null,
+	strFarmCode_v7 nvarchar(200) collate Cyrillic_General_CI_AS null,
+	intRowStatus int not null
+)
+
+/************************************************************
+* Create concordance table for processing duplicated Farm IDs - end
+************************************************************/
+
+--
+
+
+
+/************************************************************
+* Fill in concordance table for processing duplicated Farm IDs - start
+************************************************************/
+print N'Identify actual farms from v6.1 and ensure unique Farm ID code'
+print N''
+insert into	 [Giraffe].[dbo]._dmccFarmActual
+(	idfFarmActual_v6,
+	idfFarmActual_v7,
+	idfSeqNumber,
+	strFarmCode_v6,
+	strFarmCode_v7,
+	intRowStatus
+)
+select		tlbFarmActual_v6.[idfFarmActual],
+			tlbFarmActual_v7.[idfFarmActual],
+			0,
+			tlbFarmActual_v6.[strFarmCode],
+			isnull(tlbFarmActual_v7.[strFarmCode], tlbFarmActual_v6.[strFarmCode]),
+			isnull( tlbFarmActual_v7.[intRowStatus], tlbFarmActual_v6.[intRowStatus])
+from		[Falcon].[dbo].tlbFarmActual tlbFarmActual_v6
+left join	[Giraffe].[dbo].tlbFarmActual tlbFarmActual_v7
+on			tlbFarmActual_v7.[idfFarmActual] = tlbFarmActual_v6.[idfFarmActual]
+left join	[Giraffe].[dbo]._dmccFarmActual ccfa
+on			ccfa.[idfFarmActual_v6] = tlbFarmActual_v6.[idfFarmActual]
+where		ccfa.[idfFarmActual_v6] is null
+print N'Actual Farms from v6.1: ' + cast(@@rowcount as nvarchar(20))
+
+declare @ContinueRemovingFarmIDDuplicates int = 1
+declare @IterationOfRemovingFarmIDDuplicates int = 0
+
+while @ContinueRemovingFarmIDDuplicates > 0 and @IterationOfRemovingFarmIDDuplicates < 100
+begin
+	set @IterationOfRemovingFarmIDDuplicates = @IterationOfRemovingFarmIDDuplicates + 1
+
+	update		ccfa
+	set			ccfa.[idfSeqNumber] = isnull(fa_same_farm_code_cc.intCount, 0) + isnull(fa_same_farm_code_v7.intCount, 0)
+	from		[Giraffe].[dbo]._dmccFarmActual ccfa
+	outer apply
+	(	select	count(ccfa_count.[idfFarmActual_v6]) intCount
+		from	[Giraffe].[dbo]._dmccFarmActual ccfa_count
+		where	ccfa_count.[strFarmCode_v7] = ccfa.[strFarmCode_v7] collate Cyrillic_General_CI_AS
+				and (	ccfa_count.[idfFarmActual_v7] is not null
+						or	(	ccfa_count.[idfFarmActual_v7] is null
+								and (	ccfa_count.[intRowStatus] < ccfa.[intRowStatus]
+										or	(	ccfa_count.[intRowStatus] = ccfa.[intRowStatus]
+												and ccfa_count.[idfFarmActual_v6] < ccfa.[idfFarmActual_v6]
+											)
+									)
+							)
+					)
+	) fa_same_farm_code_cc
+	outer apply
+	(	select		count(tlbFarmActual_v7.[idfFarmActual]) intCount
+		from		[Giraffe].[dbo].tlbFarmActual tlbFarmActual_v7
+		left join	[Giraffe].[dbo]._dmccFarmActual ccfa_not_exists
+		on			ccfa_not_exists.[idfFarmActual_v7] = tlbFarmActual_v7.[idfFarmActual]
+		where		tlbFarmActual_v7.[strFarmCode] = ccfa.[strFarmCode_v7] collate Cyrillic_General_CI_AS
+					and ccfa_not_exists.[idfFarmActual_v6] is null
+	) fa_same_farm_code_v7
+	where		ccfa.[idfFarmActual_v7] is null
+				and (	fa_same_farm_code_cc.intCount > 0
+						or fa_same_farm_code_v7.intCount > 0
+					)
+	set	@ContinueRemovingFarmIDDuplicates = @@rowcount
+
+	update		ccfa
+	set			ccfa.[strFarmCode_v7] = ccfa.[strFarmCode_v7] + cast(ccfa.[idfSeqNumber] as nvarchar(20)),
+				ccfa.idfSeqNumber = 0
+	from		[Giraffe].[dbo]._dmccFarmActual ccfa
+	where		ccfa.[idfFarmActual_v7] is null
+				and ccfa.[idfSeqNumber] > 0
+end
+
+update		ccfa
+set			ccfa.[idfSeqNumber] = 0
+from		[Giraffe].[dbo]._dmccFarmActual ccfa
+where		ccfa.[idfFarmActual_v7] is null
+			and ccfa.[idfSeqNumber] > 0
+
+/************************************************************
+* Fill in concordance table for processing duplicated Farm IDs - end
+************************************************************/
+
+--
 
 /************************************************************
 * Insert records - Tables with persons and farms catalogs data - start
@@ -145,8 +253,8 @@ print N''
 print N'Insert records - Tables with persons and farms catalogs data - start'
 print N''
 
- 
--- -- -- -- -- --
+   
+--
 
 /************************************************************
 * Prepare data before insert - [tlbGeoLocationShared]
@@ -244,7 +352,7 @@ where		not exists	(
 								and ic_second.[index_id] = i.[index_id]
 						)
 
-                                                                              
+    
 
 set	@sqlIdResetCmd = @sqlIdResetCmd + N'
 -- Update initial ID in the table tstNewID
@@ -381,7 +489,7 @@ print N''Table [tlbGeoLocationShared] - Insert school addresses of persons by co
 	
 	'
 	exec sp_executesql @ArchiveCmd
-                                                      
+   
 
 
 	set @ArchiveCmd = N'
@@ -501,7 +609,7 @@ print N''Table [tlbGeoLocationShared] - Insert missing current residence address
 	
 	'
 	exec sp_executesql @ArchiveCmd
-                                                                                             
+          
 
 
 	set @ArchiveCmd = N'
@@ -641,7 +749,7 @@ print N''Table [tlbGeoLocationShared] - Insert missing employer addresses of per
 	
 	'
 	exec sp_executesql @ArchiveCmd
-                                                                                   
+       
 
 
 	set @ArchiveCmd = N'
@@ -719,12 +827,25 @@ print N''Table [tlbHumanActual] - Insert persons by copying from actual database
 INSERT INTO [' + DB_NAME() + N'].[dbo].[HumanActualAddlInfo]
 (	[HumanActualAddlInfoUID],
 	[EIDSSPersonID],
+	[PassportNbr],
 	[SchoolAddressID],
 	[AltAddressID],
 	[DeduplicationResultHumanActualID],
 	[IsEmployedID],
 	[EmployerPhoneNbr],
+	[EmployedDTM],
+	[ContactPhoneCountryCode],
 	[ContactPhoneNbr],
+	[ContactPhoneNbrTypeID],
+	[ContactPhone2CountryCode],
+	[ContactPhone2Nbr],
+	[ContactPhone2NbrTypeID],
+	[IsStudentID],
+	[SchoolName],
+	[SchoolPhoneNbr],
+	[SchoolLastAttendDTM],
+	[IsAnotherPhoneID],
+	[IsAnotherAddressID],
 	[intRowStatus],
 	[AuditCreateUser],
 	[AuditCreateDTM],
@@ -735,12 +856,25 @@ INSERT INTO [' + DB_NAME() + N'].[dbo].[HumanActualAddlInfo]
 )
 SELECT	HumanActualAddlInfo_v7_Actual.[HumanActualAddlInfoUID],
 		HumanActualAddlInfo_v7_Actual.[EIDSSPersonID],
+		HumanActualAddlInfo_v7_Actual.[PassportNbr],
 		HumanActualAddlInfo_v7_Actual.[SchoolAddressID],
 		HumanActualAddlInfo_v7_Actual.[AltAddressID],
 		HumanActualAddlInfo_v7_Actual.[DeduplicationResultHumanActualID],
 		HumanActualAddlInfo_v7_Actual.[IsEmployedID],
 		HumanActualAddlInfo_v7_Actual.[EmployerPhoneNbr],
+		HumanActualAddlInfo_v7_Actual.[EmployedDTM],
+		HumanActualAddlInfo_v7_Actual.[ContactPhoneCountryCode],
 		HumanActualAddlInfo_v7_Actual.[ContactPhoneNbr],
+		HumanActualAddlInfo_v7_Actual.[ContactPhoneNbrTypeID],
+		HumanActualAddlInfo_v7_Actual.[ContactPhone2CountryCode],
+		HumanActualAddlInfo_v7_Actual.[ContactPhone2Nbr],
+		HumanActualAddlInfo_v7_Actual.[ContactPhone2NbrTypeID],
+		HumanActualAddlInfo_v7_Actual.[IsStudentID],
+		HumanActualAddlInfo_v7_Actual.[SchoolName],
+		HumanActualAddlInfo_v7_Actual.[SchoolPhoneNbr],
+		HumanActualAddlInfo_v7_Actual.[SchoolLastAttendDTM],
+		HumanActualAddlInfo_v7_Actual.[IsAnotherPhoneID],
+		HumanActualAddlInfo_v7_Actual.[IsAnotherAddressID],
 		HumanActualAddlInfo_v7_Actual.[intRowStatus],
 		HumanActualAddlInfo_v7_Actual.[AuditCreateUser],
 		HumanActualAddlInfo_v7_Actual.[AuditCreateDTM],
@@ -766,7 +900,7 @@ print N''Table [HumanActualAddlInfo] - Insert persons details by copying from ac
 	exec sp_executesql @ArchiveCmd
 
 end
-                             
+   
 
 
 /************************************************************
@@ -833,6 +967,180 @@ where		tlbHumanActual_v7.[idfHumanActual] is null
 			and tlbGeoLocationShared_v7.[idfGeoLocationShared] is null 
 print N'Table [tlbGeoLocationShared] - insert new alternative and school addresses of persons from the catalog: ' + cast(@@rowcount as nvarchar(20))
 
+
+/************************************************************
+* Prepare data before insert - [tlbFarmActual]
+************************************************************/
+
+if DB_NAME() like N'%_Archive' collate Latin1_General_CI_AS
+begin
+	set @ArchiveCmd = N'
+INSERT INTO [' + DB_NAME() + N'].[dbo].[tlbGeoLocationShared]
+(	  [idfGeoLocationShared]
+	, [idfsSite]
+	, [idfsGeoLocationType]
+	, [idfsCountry]
+	, [idfsRegion]
+	, [idfsRayon]
+	, [idfsSettlement]
+	, [strPostCode]
+	, [strStreetName]
+	, [strHouse]
+	, [strBuilding]
+	, [strApartment]
+	, [dblLatitude]
+	, [dblLongitude]
+	, [intRowStatus]
+	, [blnForeignAddress]
+	, [strForeignAddress]
+	, [SourceSystemNameID]
+	, [SourceSystemKeyValue]
+	, [AuditCreateUser]
+	, [AuditCreateDTM]
+	, [AuditUpdateUser]
+	, [AuditUpdateDTM]
+	, [idfsLocation]
+)
+SELECT	  tlbGeoLocationShared_v7_Actual.[idfGeoLocationShared]
+		, tlbGeoLocationShared_v7_Actual.[idfsSite]
+		, tlbGeoLocationShared_v7_Actual.[idfsGeoLocationType]
+		, tlbGeoLocationShared_v7_Actual.[idfsCountry]
+		, tlbGeoLocationShared_v7_Actual.[idfsRegion]
+		, tlbGeoLocationShared_v7_Actual.[idfsRayon]
+		, tlbGeoLocationShared_v7_Actual.[idfsSettlement]
+		, tlbGeoLocationShared_v7_Actual.[strPostCode]
+		, tlbGeoLocationShared_v7_Actual.[strStreetName]
+		, tlbGeoLocationShared_v7_Actual.[strHouse]
+		, tlbGeoLocationShared_v7_Actual.[strBuilding]
+		, tlbGeoLocationShared_v7_Actual.[strApartment]
+		, tlbGeoLocationShared_v7_Actual.[dblLatitude]
+		, tlbGeoLocationShared_v7_Actual.[dblLongitude]
+		, tlbGeoLocationShared_v7_Actual.[intRowStatus]
+		, tlbGeoLocationShared_v7_Actual.[blnForeignAddress]
+		, tlbGeoLocationShared_v7_Actual.[strForeignAddress]
+		, tlbGeoLocationShared_v7_Actual.[SourceSystemNameID]
+		, tlbGeoLocationShared_v7_Actual.[SourceSystemKeyValue]
+		, tlbGeoLocationShared_v7_Actual.[AuditCreateUser]
+		, tlbGeoLocationShared_v7_Actual.[AuditCreateDTM]
+		, tlbGeoLocationShared_v7_Actual.[AuditUpdateUser]
+		, tlbGeoLocationShared_v7_Actual.[AuditUpdateDTM]
+		, tlbGeoLocationShared_v7_Actual.[idfsLocation]
+
+FROM	[' + left(DB_NAME(), len(DB_NAME()) - 8) + N'].[dbo].[tlbFarmActual] tlbFarmActual_v7_Actual
+join	[Falcon].[dbo].[tlbFarmActual] tlbFarmActual_v6_Archive
+on		tlbFarmActual_v6_Archive.[idfFarmActual] = tlbFarmActual_v7_Actual.[idfFarmActual]
+join	[' + left(DB_NAME(), len(DB_NAME()) - 8) + N'].[dbo].[tlbGeoLocationShared] tlbGeoLocationShared_v7_Actual
+on		tlbGeoLocationShared_v7_Actual.[idfGeoLocationShared] = tlbFarmActual_v7_Actual.[idfFarmAddress]
+left join	[' + DB_NAME() + N'].[dbo].[tlbFarmActual] tlbFarmActual_v7_Archive
+on		tlbFarmActual_v7_Archive.[idfFarmActual] = tlbFarmActual_v7_Actual.[idfFarmActual]
+left join	[' + DB_NAME() + N'].[dbo].[tlbGeoLocationShared] tlbGeoLocationShared_v7_Archive
+on		tlbGeoLocationShared_v7_Archive.[idfGeoLocationShared] = tlbFarmActual_v7_Actual.[idfFarmAddress]
+
+WHERE	tlbFarmActual_v7_Archive.[idfFarmActual] is null
+		and tlbGeoLocationShared_v7_Archive.[idfGeoLocationShared] is null
+print N''Table [tlbGeoLocationShared] - Insert missing farm addresses by copying from actual database: '' + cast(@@rowcount as nvarchar(20))
+	
+	'
+	exec sp_executesql @ArchiveCmd
+ 
+
+
+	set @ArchiveCmd = N'
+INSERT INTO [' + DB_NAME() + N'].[dbo].[tlbFarmActual]
+(	  [idfFarmActual]
+	, [idfsAvianFarmType]
+	, [idfsAvianProductionType]
+	, [idfsFarmCategory]
+	, [idfsOwnershipStructure]
+	, [idfsMovementPattern]
+	, [idfsIntendedUse]
+	, [idfsGrazingPattern]
+	, [idfsLivestockProductionType]
+	, [idfHumanActual]
+	, [idfFarmAddress]
+	, [strInternationalName]
+	, [strNationalName]
+	, [strFarmCode]
+	, [strFax]
+	, [strEmail]
+	, [strContactPhone]
+	, [intLivestockTotalAnimalQty]
+	, [intAvianTotalAnimalQty]
+	, [intLivestockSickAnimalQty]
+	, [intAvianSickAnimalQty]
+	, [intLivestockDeadAnimalQty]
+	, [intAvianDeadAnimalQty]
+	, [intBuidings]
+	, [intBirdsPerBuilding]
+	, [strNote]
+	, [rowguid]
+	, [intRowStatus]
+	, [intHACode]
+	, [datModificationDate]
+	, [strMaintenanceFlag]
+	, [strReservedAttribute]
+	, [SourceSystemNameID]
+	, [SourceSystemKeyValue]
+	, [AuditCreateUser]
+	, [AuditCreateDTM]
+	, [AuditUpdateUser]
+	, [AuditUpdateDTM]
+)
+SELECT	  tlbFarmActual_v7_Actual.[idfFarmActual]
+		, tlbFarmActual_v7_Actual.[idfsAvianFarmType]
+		, tlbFarmActual_v7_Actual.[idfsAvianProductionType]
+		, tlbFarmActual_v7_Actual.[idfsFarmCategory]
+		, tlbFarmActual_v7_Actual.[idfsOwnershipStructure]
+		, tlbFarmActual_v7_Actual.[idfsMovementPattern]
+		, tlbFarmActual_v7_Actual.[idfsIntendedUse]
+		, tlbFarmActual_v7_Actual.[idfsGrazingPattern]
+		, tlbFarmActual_v7_Actual.[idfsLivestockProductionType]
+		, tlbFarmActual_v7_Actual.[idfHumanActual]
+		, tlbFarmActual_v7_Actual.[idfFarmAddress]
+		, tlbFarmActual_v7_Actual.[strInternationalName]
+		, tlbFarmActual_v7_Actual.[strNationalName]
+		, tlbFarmActual_v7_Actual.[strFarmCode]
+		, tlbFarmActual_v7_Actual.[strFax]
+		, tlbFarmActual_v7_Actual.[strEmail]
+		, tlbFarmActual_v7_Actual.[strContactPhone]
+		, tlbFarmActual_v7_Actual.[intLivestockTotalAnimalQty]
+		, tlbFarmActual_v7_Actual.[intAvianTotalAnimalQty]
+		, tlbFarmActual_v7_Actual.[intLivestockSickAnimalQty]
+		, tlbFarmActual_v7_Actual.[intAvianSickAnimalQty]
+		, tlbFarmActual_v7_Actual.[intLivestockDeadAnimalQty]
+		, tlbFarmActual_v7_Actual.[intAvianDeadAnimalQty]
+		, tlbFarmActual_v7_Actual.[intBuidings]
+		, tlbFarmActual_v7_Actual.[intBirdsPerBuilding]
+		, tlbFarmActual_v7_Actual.[strNote]
+		, tlbFarmActual_v7_Actual.[rowguid]
+		, tlbFarmActual_v7_Actual.[intRowStatus]
+		, tlbFarmActual_v7_Actual.[intHACode]
+		, tlbFarmActual_v7_Actual.[datModificationDate]
+		, tlbFarmActual_v7_Actual.[strMaintenanceFlag]
+		, tlbFarmActual_v7_Actual.[strReservedAttribute]
+		, tlbFarmActual_v7_Actual.[SourceSystemNameID]
+		, tlbFarmActual_v7_Actual.[SourceSystemKeyValue]
+		, tlbFarmActual_v7_Actual.[AuditCreateUser]
+		, tlbFarmActual_v7_Actual.[AuditCreateDTM]
+		, tlbFarmActual_v7_Actual.[AuditUpdateUser]
+		, tlbFarmActual_v7_Actual.[AuditUpdateDTM]
+
+FROM	[' + left(DB_NAME(), len(DB_NAME()) - 8) + N'].[dbo].[tlbFarmActual] tlbFarmActual_v7_Actual
+join	[Falcon].[dbo].[tlbFarmActual] tlbFarmActual_v6_Archive
+on		tlbFarmActual_v6_Archive.[idfFarmActual] = tlbFarmActual_v7_Actual.[idfFarmActual]
+left join	[' + DB_NAME() + N'].[dbo].[tlbFarmActual] tlbFarmActual_v7_Archive
+on		tlbFarmActual_v7_Archive.[idfFarmActual] = tlbFarmActual_v7_Actual.[idfFarmActual]
+
+WHERE	tlbFarmActual_v7_Archive.[idfFarmActual] is null
+print N''Table [tlbFarmActual] - Insert farms by copying from actual database: '' + cast(@@rowcount as nvarchar(20))
+	
+	'
+	exec sp_executesql @ArchiveCmd
+end
+   
+  
+  
+  
 
 
 --
@@ -1521,7 +1829,7 @@ select
 
 					, tlbFarmActual_v6.[strNationalName]
 
-					, tlbFarmActual_v6.[strFarmCode]
+					, isnull(ccfa.[strFarmCode_v7], tlbFarmActual_v6.[strFarmCode])
 
 					, tlbFarmActual_v6.[strFax]
 
@@ -1571,6 +1879,10 @@ select
 
 					, GETUTCDATE()
 from [Falcon].[dbo].[tlbFarmActual] tlbFarmActual_v6 
+	left join	[Giraffe].[dbo].[_dmccFarmActual] ccfa
+	on			ccfa.[idfFarmActual_v6] = tlbFarmActual_v6.[idfFarmActual]
+				and ccfa.[idfFarmActual_v7] is null
+
 
 
 					left join	[Giraffe].[dbo].[trtBaseReference] j_trtBaseReference_idfsGrazingPattern_v7
@@ -1848,8 +2160,8 @@ on
 where tlbSpeciesActual_v7.[idfSpeciesActual] is null 
 print N'Table [tlbSpeciesActual] - insert: ' + cast(@@rowcount as nvarchar(20))
 
-     
--- --
+    
+--
 
 /************************************************************
 * Update/insert records with links to foreign key data - [tlbHumanActual]
@@ -1937,7 +2249,7 @@ left join	[Giraffe].[dbo].[tlbGeoLocationShared] schAddress_v7
 		and tstNewID_schAddress_v7.[strRowGuid] = @TempIdentifierKey
 on	tstNewID_schAddress_v7.[idfKey1] = temp.[HumanActualAddlInfoUID]
 
-                                                                               
+             
 
 if db_name() like N'%_Archive' collate Cyrillic_General_CI_AS and @IdMigrationPrefix not like N'%ARCH' collate Cyrillic_General_CI_AS
 	set	@IdMigrationPrefix = @IdMigrationPrefix + N'ARCH' collate Cyrillic_General_CI_AS
@@ -1987,8 +2299,20 @@ print N'Table [HumanActualAddlInfo] - insert new detailed info for persons from 
 IF OBJECT_ID('tempdb..#HumanActualAddlInfo') IS NOT NULL
 	exec sp_executesql N'drop table #HumanActualAddlInfo'
 
+/************************************************************
+* Update/insert records with links to foreign key data - [tlbFarmActual]
+************************************************************/
 
---------------------------------------
+update		ccfa
+set			ccfa.[idfFarmActual_v7] = tlbFarmActual_v7.[idfFarmActual]
+from		[Giraffe].[dbo].[_dmccFarmActual] ccfa
+inner join	[Giraffe].[dbo].[tlbFarmActual] tlbFarmActual_v7
+on			tlbFarmActual_v7.[idfFarmActual] = ccfa.[idfFarmActual_v6]
+where		ccfa.[idfFarmActual_v7] is null
+       
+
+
+--
 
 print N''
 print N'Insert records - Tables with persons and farms catalogs data - end'
@@ -2003,28 +2327,25 @@ print N''
 
 
 
------------------------------------------------------------------------------------------------------------------------------------
+ 
 
 /************************************************************
 * Create concordance tables for HDR and VDR data - start
 ************************************************************/
 
+
 if object_id(N'_dmccHumanCase') is null
 create table _dmccHumanCase
 (	idfId bigint not null identity(1, 6) primary key,
-	idfRootId bigint null,
-	idfPreviousId bigint null,
 	idfHumanCase_v6 bigint not null,
-	idfChangeDiagnosisHistory_v6 bigint null,
-	idfsDiagnosis bigint null,
-	datDiagnosisDate datetime null,
+	idfsCurrentDiagnosis bigint null,
+	idfsTentativeDiagnosis bigint null,
+	datTentativeDiagnosisDate datetime null,
+	idfsFinalDiagnosis bigint null,
+	datFinalDiagnosisDate datetime null,
 	strLegacyID_v6 nvarchar(200) collate Cyrillic_General_CI_AS null,
 	idfSeqNumber bigint not null default(0),
 	strCaseID_v7 nvarchar(200) collate Cyrillic_General_CI_AS null,
-	isInitial bit not null default(0),
-	isFinal bit not null default(0),
-	isNullDiagnosis bit not null default(0),--then tentative diagnosis taken again
-	strComment nvarchar(500) collate Cyrillic_General_CI_AS null,
 	strNote nvarchar(2000) collate Cyrillic_General_CI_AS null,
 
 	idfsCaseProgressStatus_v7 bigint null,
@@ -2057,14 +2378,11 @@ create table _dmccHumanCase
 	idfEpiObservation_v7 bigint null,
 	idfPointGeoLocation_v7 bigint null,
 
-	idfRootHumanCase_v7 bigint null,
-	idfPreviousHumanCase_v7 bigint null,
-	HumanDiseasereportRelnUID_v7 bigint null,
-	idfDeduplicationResultCase_v7 bigint null--TODO: from initial to initial, otherwise null
+	idfDeduplicationResultCase_v7 bigint null
 )
 
 
----------------------------------------------------------------------------------
+ --
 
 
 if object_id(N'_dmccContactedCasePerson') is null
@@ -2086,7 +2404,7 @@ create table _dmccContactedCasePerson
 )
 
 
-----------------------------------------------------------------
+--
 
 
 if object_id(N'_dmccAntimicrobialTherapy') is null
@@ -2101,7 +2419,7 @@ create table _dmccAntimicrobialTherapy
 )
 
 
-----------------------------------------------------------------------------
+--
 
 
 if object_id(N'_dmccHuman') is null
@@ -2143,7 +2461,7 @@ create table _dmccHuman
 )
 
 
-------------------------
+--
 
 
 if object_id(N'_dmccGeoLocation') is null
@@ -2154,7 +2472,7 @@ create table _dmccGeoLocation
 )
 
 
---------------------------------------------------------------------------------------------------
+--
 
 
 if object_id(N'_dmccNewGeoLocation') is null
@@ -2175,7 +2493,7 @@ create table _dmccNewGeoLocation
 )
 
 
-------------------------------------------
+--
 
 
 if object_id(N'_dmccMaterial') is null
@@ -2199,8 +2517,6 @@ create table _dmccMaterial
 	idfHerd_v6 bigint null,
 	idfSpecies_v6 bigint null,
 	idfAnimal_v6 bigint null,
-
-	isCaseFinal bit not null default(0),
 
 	idfMaterial_v6 bigint null,
 	idfParentMaterial_v6 bigint null,
@@ -2227,7 +2543,7 @@ create table _dmccMaterial
 )
 
 
----------------
+--
 
 
 if object_id(N'_dmccLabTest') is null
@@ -2258,7 +2574,7 @@ create table _dmccLabTest
 )
 
 
-----------------------------------------------------------------------------------------------------------------------------------------------------------
+--
 
 
 if object_id(N'_dmccTestValidation') is null
@@ -2278,7 +2594,7 @@ create table _dmccTestValidation
 )
 
 
------
+--
 
 
 if object_id(N'_dmccObservation') is null
@@ -2291,7 +2607,7 @@ create table _dmccObservation
 )
 
 
---------------------------------------------------------------------------------------------------------------------
+--
 
 
 if object_id(N'_dmccNewObservation') is null
@@ -2309,7 +2625,7 @@ create table _dmccNewObservation
 )
 
 
------------------------------------------------------------------------------------------------------------------------------------------------------
+--
 
 
 if object_id(N'_dmccActivityParameters') is null
@@ -2327,7 +2643,7 @@ create table _dmccActivityParameters
 )
 
 
--------------------------------------------------------------------------------------------
+--
 
 
 if object_id(N'_dmccHumanCaseFiltered') is null
@@ -2343,14 +2659,14 @@ create table _dmccHumanCaseFiltered
 )
 
 
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--
 
 /************************************************************
 * Create concordance tables for HDR and VDR data - end
 ************************************************************/
 
 
---------------------------------
+--
 
 
 /************************************************************
@@ -2447,7 +2763,7 @@ where		not exists	(
 
 
 
-------------------------------------------------------------------------------------------------------------------------
+--
 
 set	@sqlIdResetCmd = @sqlIdResetCmd + N'
 -- Update initial ID in the table tstNewID
@@ -2530,7 +2846,7 @@ else
 exec [Giraffe].[sys].sp_executesql @sqlIdResetCmd
 
 
----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--
 
 
 
@@ -2621,7 +2937,7 @@ where		not exists	(
 
 
 
--------
+--
 
 set	@sqlIdResetCmd = @sqlIdResetCmd + N'
 -- Update initial ID in the table tflNewID
@@ -2712,7 +3028,7 @@ exec [Giraffe].[sys].sp_executesql @sqlIdResetCmd
 ************************************************************/
 
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ --
 
 
 
@@ -2720,33 +3036,30 @@ exec [Giraffe].[sys].sp_executesql @sqlIdResetCmd
 /************************************************************
 * Fill in concordance tables for HDR and VDR data - start
 ************************************************************/
-print N'Identify initial HDRs v7 based on Human Cases from v6.1'
+
+print N'Identify HDRs v7 based on Human Cases from v6.1'
 print N''
 insert into [Giraffe].[dbo]._dmccHumanCase
-(	--Upd--idfRootId,
-	idfPreviousId,
-	idfHumanCase_v6,
-	idfChangeDiagnosisHistory_v6,
-	idfsDiagnosis,
-	datDiagnosisDate,
+(	idfHumanCase_v6,
+	idfSeqNumber,
+	idfsCurrentDiagnosis,
+	idfsTentativeDiagnosis,
+	datTentativeDiagnosisDate,
+	idfsFinalDiagnosis,
+	datFinalDiagnosisDate,
 	strLegacyID_v6,
-	--Upd--strCaseID_v7,
-	isInitial,
-	isFinal,
-	isNullDiagnosis,
-	strComment,
 	strNote,
 
-	--Upd--idfsCaseProgressStatus_v7,
-	--Upd--blnClinicalDiagBasis_v7,
-	--Upd--blnEpiDiagBasis_v7,
-	--Upd--blnLabDiagBasis_v7,
-	--Upd--idfsFinalCaseStatus_v7,
-	--Upd--datFinalCaseClassificationDate_v7,
-	--Upd--idfOutbreak_v7,
-	--No need to Upd--DiseaseReportTypeID_v7,
-	--Upd--idfsCSTemplate_v7,
-	--Upd--idfsEpiTemplate_v7,
+	idfsCaseProgressStatus_v7,
+	blnClinicalDiagBasis_v7,
+	blnEpiDiagBasis_v7,
+	blnLabDiagBasis_v7,
+	idfsFinalCaseStatus_v7,
+	datFinalCaseClassificationDate_v7,
+	idfOutbreak_v7,
+	DiseaseReportTypeID_v7,
+	idfsCSTemplate_v7,
+	idfsEpiTemplate_v7,
 
 	idfHuman_v6,
 	idfHumanActual_v6,
@@ -2765,230 +3078,29 @@ insert into [Giraffe].[dbo]._dmccHumanCase
 	idfHuman_v7,
 	idfCSObservation_v7,
 	idfEpiObservation_v7,
-	idfPointGeoLocation_v7,
-
-	idfRootHumanCase_v7,
-	idfPreviousHumanCase_v7
+	idfPointGeoLocation_v7
 )
-select		null,
-			tlbHumanCase_v6.[idfHumanCase],
-			null,
-			null,
-			tlbHumanCase_v6.[datTentativeDiagnosisDate],
-			tlbHumanCase_v6.[strCaseID],
-			1,
-			1,
+select		tlbHumanCase_v6.[idfHumanCase],
 			0,
-			N'',
-			tlbHumanCase_v6.[strNote],
-			tlbHuman_v6.[idfHuman],
-			tlbHuman_v6.[idfHumanActual],
-			tlbHuman_v6.[idfCurrentResidenceAddress],
-			tlbHuman_v6.[idfRegistrationAddress],
-			tlbHuman_v6.[idfEmployerAddress],
-			tlbHumanCase_v6.[idfCSObservation],
-			tlbObservation_CS_v6.[idfsFormTemplate],
-			tlbHumanCase_v6.[idfEpiObservation],
-			tlbObservation_Epi_v6.[idfsFormTemplate],
-			tlbHumanCase_v6.[idfPointGeoLocation],
-			tlbHumanCase_v6.[idfOutbreak],
-			tlbHumanCase_v6.[idfDeduplicationResultCase],
-
-			tlbHumanCase_v6.[idfHumanCase],
-			tlbHuman_v6.[idfHuman],
-			tlbHumanCase_v6.[idfCSObservation],
-			tlbHumanCase_v6.[idfEpiObservation],
-			tlbHumanCase_v6.[idfPointGeoLocation],
-
-			tlbHumanCase_v6.[idfHumanCase],
-			null
-
-from		[Falcon].[dbo].tlbHumanCase tlbHumanCase_v6
-inner join	[Falcon].[dbo].tlbHuman tlbHuman_v6
-on			tlbHuman_v6.[idfHuman] = tlbHumanCase_v6.[idfHuman]
-left join	[Falcon].[dbo].[tlbObservation] tlbObservation_CS_v6
-on			tlbObservation_CS_v6.[idfObservation] = tlbHumanCase_v6.[idfCSObservation]
-left join	[Falcon].[dbo].[tlbObservation] tlbObservation_Epi_v6
-on			tlbObservation_Epi_v6.[idfObservation] = tlbHumanCase_v6.[idfEpiObservation]
-left join	[Giraffe].[dbo]._dmccHumanCase cchc
-on			cchc.[idfHumanCase_v6] = tlbHumanCase_v6.[idfHumanCase]
-			and cchc.[idfsDiagnosis] is null
-where		tlbHumanCase_v6.[idfsTentativeDiagnosis] is null
-			and tlbHumanCase_v6.[idfsFinalDiagnosis] is null
-			and cchc.[idfId] is null
-print N'Initial (and only) HRDs v7 from Human Cases v6.1 with blank Diagnosis: ' + cast(@@rowcount as nvarchar(20))
-
-
-
---------------------------
-
-
-insert into [Giraffe].[dbo]._dmccHumanCase
-(	--Upd--idfRootId,
-	idfPreviousId,
-	idfHumanCase_v6,
-	idfChangeDiagnosisHistory_v6,
-	idfsDiagnosis,
-	datDiagnosisDate,
-	strLegacyID_v6,
-	--Upd--strCaseID_v7,
-	isInitial,
-	isFinal,
-	isNullDiagnosis,
-	strComment,
-	strNote,
-
-	--Upd--idfsCaseProgressStatus_v7,
-	--Upd--blnClinicalDiagBasis_v7,
-	--Upd--blnEpiDiagBasis_v7,
-	--Upd--blnLabDiagBasis_v7,
-	--Upd--idfsFinalCaseStatus_v7,
-	--Upd--datFinalCaseClassificationDate_v7,
-	--Upd--idfOutbreak_v7,
-	--No need to Upd--DiseaseReportTypeID_v7,
-	--Upd--idfsCSTemplate_v7,
-	--Upd--idfsEpiTemplate_v7,
-
-	idfHuman_v6,
-	idfHumanActual_v6,
-	idfHumanCRAddress_v6,
-	idfHumanPRAddress_v6,
-	idfHumanEmpAddress_v6,
-	idfCSObservation_v6,
-	idfsCSTemplate_v6,
-	idfEpiObservation_v6,
-	idfsEpiTemplate_v6,
-	idfPointGeoLocation_v6,
-	idfOutbreak_v6,
-	idfDeduplicationResultCase_v6,
-
-	idfHumanCase_v7,
-	idfHuman_v7,
-	idfCSObservation_v7,
-	idfEpiObservation_v7,
-	idfPointGeoLocation_v7,
-
-	idfRootHumanCase_v7,
-	idfPreviousHumanCase_v7
-)
-select		null,
-			tlbHumanCase_v6.[idfHumanCase],
-			null,
-			tlbHumanCase_v6.[idfsFinalDiagnosis],
-			isnull(tlbHumanCase_v6.[datFinalDiagnosisDate], tlbHumanCase_v6.[datTentativeDiagnosisDate]),
-			tlbHumanCase_v6.[strCaseID],
-			1,
-			1,
-			0,
-			N'',
-			tlbHumanCase_v6.[strNote],
-			tlbHuman_v6.[idfHuman],
-			tlbHuman_v6.[idfHumanActual],
-			tlbHuman_v6.[idfCurrentResidenceAddress],
-			tlbHuman_v6.[idfRegistrationAddress],
-			tlbHuman_v6.[idfEmployerAddress],
-			tlbHumanCase_v6.[idfCSObservation],
-			tlbObservation_CS_v6.[idfsFormTemplate],
-			tlbHumanCase_v6.[idfEpiObservation],
-			tlbObservation_Epi_v6.[idfsFormTemplate],
-			tlbHumanCase_v6.[idfPointGeoLocation],
-			tlbHumanCase_v6.[idfOutbreak],
-			tlbHumanCase_v6.[idfDeduplicationResultCase],
-
-			tlbHumanCase_v6.[idfHumanCase],
-			tlbHuman_v6.[idfHuman],
-			tlbHumanCase_v6.[idfCSObservation],
-			tlbHumanCase_v6.[idfEpiObservation],
-			tlbHumanCase_v6.[idfPointGeoLocation],
-
-			tlbHumanCase_v6.[idfHumanCase],
-			null
-
-from		[Falcon].[dbo].tlbHumanCase tlbHumanCase_v6
-inner join	[Falcon].[dbo].tlbHuman tlbHuman_v6
-on			tlbHuman_v6.[idfHuman] = tlbHumanCase_v6.[idfHuman]
-left join	[Falcon].[dbo].[tlbObservation] tlbObservation_CS_v6
-on			tlbObservation_CS_v6.[idfObservation] = tlbHumanCase_v6.[idfCSObservation]
-left join	[Falcon].[dbo].[tlbObservation] tlbObservation_Epi_v6
-on			tlbObservation_Epi_v6.[idfObservation] = tlbHumanCase_v6.[idfEpiObservation]
-left join	[Giraffe].[dbo]._dmccHumanCase cchc
-on			cchc.[idfHumanCase_v6] = tlbHumanCase_v6.[idfHumanCase]
-			and cchc.[isInitial] = 0
-where		tlbHumanCase_v6.[idfsTentativeDiagnosis] is null
-			and tlbHumanCase_v6.[idfsFinalDiagnosis] is not null
-			and cchc.[idfId] is null
-print N'Initial (and only) HRDs v7 from Human Cases v6.1 with blank Initial Diagnosis and non-blanked Changed Diagnosis: ' + cast(@@rowcount as nvarchar(20))
-
-
-
---
-
-insert into [Giraffe].[dbo]._dmccHumanCase
-(	--Upd--idfRootId,
-	idfPreviousId,
-	idfHumanCase_v6,
-	idfChangeDiagnosisHistory_v6,
-	idfsDiagnosis,
-	datDiagnosisDate,
-	strLegacyID_v6,
-	--Upd--strCaseID_v7,
-	isInitial,
-	isFinal,
-	isNullDiagnosis,
-	strComment,
-	strNote,
-
-	--Upd--idfsCaseProgressStatus_v7,
-	--Upd--blnClinicalDiagBasis_v7,
-	--Upd--blnEpiDiagBasis_v7,
-	--Upd--blnLabDiagBasis_v7,
-	--Upd--idfsFinalCaseStatus_v7,
-	--Upd--datFinalCaseClassificationDate_v7,
-	--Upd--idfOutbreak_v7,
-	--No need to Upd--DiseaseReportTypeID_v7,
-	--Upd--idfsCSTemplate_v7,
-	--Upd--idfsEpiTemplate_v7,
-
-	idfHuman_v6,
-	idfHumanActual_v6,
-	idfHumanCRAddress_v6,
-	idfHumanPRAddress_v6,
-	idfHumanEmpAddress_v6,
-	idfCSObservation_v6,
-	idfsCSTemplate_v6,
-	idfEpiObservation_v6,
-	idfsEpiTemplate_v6,
-	idfPointGeoLocation_v6,
-	idfOutbreak_v6,
-	idfDeduplicationResultCase_v6,
-
-	idfHumanCase_v7,
-	idfHuman_v7,
-	idfCSObservation_v7,
-	idfEpiObservation_v7,
-	idfPointGeoLocation_v7,
-
-	idfRootHumanCase_v7,
-	idfPreviousHumanCase_v7
-)
-select		null,
-			tlbHumanCase_v6.[idfHumanCase],
-			null,
+			isnull(tlbHumanCase_v6.[idfsFinalDiagnosis], tlbHumanCase_v6.[idfsTentativeDiagnosis]),
 			tlbHumanCase_v6.[idfsTentativeDiagnosis],
 			tlbHumanCase_v6.[datTentativeDiagnosisDate],
+			tlbHumanCase_v6.[idfsFinalDiagnosis],
+			tlbHumanCase_v6.[datFinalDiagnosisDate],
 			tlbHumanCase_v6.[strCaseID],
-			1,
-			case
-				when	(	tlbHumanCase_v6.[idfsFinalDiagnosis] is not null 
-							and tlbHumanCase_v6.[idfsFinalDiagnosis] <> tlbHumanCase_v6.[idfsTentativeDiagnosis]
-						)
-						or cdh_v6.[idfsCurrentDiagnosis] is not null
-					then	0
-				else	1
-			end,
-			0,
-			N'',
 			tlbHumanCase_v6.[strNote],
+
+			tlbHumanCase_v6.[idfsCaseProgressStatus],
+			tlbHumanCase_v6.[blnClinicalDiagBasis],
+			tlbHumanCase_v6.[blnEpiDiagBasis],
+			tlbHumanCase_v6.[blnLabDiagBasis],
+			tlbHumanCase_v6.[idfsFinalCaseStatus],
+			tlbHumanCase_v6.[datFinalCaseClassificationDate],
+			tlbHumanCase_v6.[idfOutbreak],
+			4578940000002 /*Passive*/,
+			tlbObservation_CS_v6.[idfsFormTemplate],
+			tlbObservation_Epi_v6.[idfsFormTemplate],
+
 			tlbHuman_v6.[idfHuman],
 			tlbHuman_v6.[idfHumanActual],
 			tlbHuman_v6.[idfCurrentResidenceAddress],
@@ -3006,10 +3118,7 @@ select		null,
 			tlbHuman_v6.[idfHuman],
 			tlbHumanCase_v6.[idfCSObservation],
 			tlbHumanCase_v6.[idfEpiObservation],
-			tlbHumanCase_v6.[idfPointGeoLocation],
-
-			tlbHumanCase_v6.[idfHumanCase],
-			null
+			tlbHumanCase_v6.[idfPointGeoLocation]
 
 from		[Falcon].[dbo].tlbHumanCase tlbHumanCase_v6
 inner join	[Falcon].[dbo].tlbHuman tlbHuman_v6
@@ -3018,453 +3127,29 @@ left join	[Falcon].[dbo].[tlbObservation] tlbObservation_CS_v6
 on			tlbObservation_CS_v6.[idfObservation] = tlbHumanCase_v6.[idfCSObservation]
 left join	[Falcon].[dbo].[tlbObservation] tlbObservation_Epi_v6
 on			tlbObservation_Epi_v6.[idfObservation] = tlbHumanCase_v6.[idfEpiObservation]
-outer apply
-(	select	top 1 tlbChangeDiagnosisHistory_v6.[idfsCurrentDiagnosis]
-	from	[Falcon].[dbo].[tlbChangeDiagnosisHistory] tlbChangeDiagnosisHistory_v6
-	where	tlbChangeDiagnosisHistory_v6.[idfHumanCase] = tlbHumanCase_v6.[idfHumanCase]
-			and tlbChangeDiagnosisHistory_v6.[idfsCurrentDiagnosis] is not null
-			and tlbChangeDiagnosisHistory_v6.[idfsCurrentDiagnosis] <> tlbHumanCase_v6.[idfsTentativeDiagnosis]
-			and tlbChangeDiagnosisHistory_v6.[intRowStatus] <= tlbHumanCase_v6.[intRowStatus]
-			and (	tlbChangeDiagnosisHistory_v6.[datChangedDate] >= tlbHumanCase_v6.[datTentativeDiagnosisDate]
-					or tlbHumanCase_v6.[datTentativeDiagnosisDate] is null
-				)
-) cdh_v6
 left join	[Giraffe].[dbo]._dmccHumanCase cchc
 on			cchc.[idfHumanCase_v6] = tlbHumanCase_v6.[idfHumanCase]
-			--and cchc.[idfsDiagnosis] = tlbHumanCase_v6.[idfsTentativeDiagnosis]
-			--and (	(	cchc.[datDiagnosisDate] is null
-			--			and tlbHumanCase_v6.[datTentativeDiagnosisDate] is null
-			--		)
-			--		or cchc.[datDiagnosisDate] = tlbHumanCase_v6.[datTentativeDiagnosisDate]
-			--	)
-			and cchc.[isInitial] = 0
-where		tlbHumanCase_v6.[idfsTentativeDiagnosis] is not null
-			and cchc.[IdfId] is null
-print N'Initial HRDs v7 from Human Cases v6.1 with non-blank Diagnosis: ' + cast(@@rowcount as nvarchar(20))
+where		cchc.[idfId] is null
+print N'Not migrated Human Cases v6.1: ' + cast(@@rowcount as nvarchar(20))
 
---update		cchc
---set			cchc.[idfRootId] = cchc.[idfId]
---from		[Giraffe].[dbo]._dmccHumanCase cchc
---where		cchc.[isInitial] = 1
---			and cchc.[idfRootId] is null
 
+--TODO: Update attributes of previously migrated human cases in the concordance table for further updates of HDR if needed 
+
+print N''
+print N''
 
 
 --
 
-print N''
-print N'Identify related HDRs based on Chage Diagnosis History and final value'
-print N''
-insert into [Giraffe].[dbo]._dmccHumanCase
-(	--Upd--idfRootId,
-	--Upd--idfPreviousId,
-	idfHumanCase_v6,
-	idfChangeDiagnosisHistory_v6,
-	idfsDiagnosis,
-	datDiagnosisDate,
-	strLegacyID_v6,
-	--Upd--strCaseID_v7,
-	isInitial,
-	isFinal,
-	isNullDiagnosis,
-	strComment,
-	strNote,
-
-	--Upd--idfsCaseProgressStatus_v7,
-	--Upd--blnClinicalDiagBasis_v7,
-	--Upd--blnEpiDiagBasis_v7,
-	--Upd--blnLabDiagBasis_v7,
-	--Upd--idfsFinalCaseStatus_v7,
-	--Upd--datFinalCaseClassificationDate_v7,
-	--Upd--idfOutbreak_v7,
-	--No need to Upd--DiseaseReportTypeID_v7,
-	--Upd--idfsCSTemplate_v7,
-	--Upd--idfsEpiTemplate_v7,
-
-	idfHuman_v6,
-	idfHumanActual_v6,
-	idfHumanCRAddress_v6,
-	idfHumanPRAddress_v6,
-	idfHumanEmpAddress_v6,
-	idfCSObservation_v6,
-	idfsCSTemplate_v6,
-	idfEpiObservation_v6,
-	idfsEpiTemplate_v6,
-	idfPointGeoLocation_v6,
-	idfOutbreak_v6,
-	idfDeduplicationResultCase_v6,
-
-	--Upd--idfHumanCase_v7,
-	--Upd--idfHuman_v7,
-	--Upd--idfCSObservation_v7,
-	--Upd--idfEpiObservation_v7,
-	--Upd--idfPointGeoLocation_v7,
-
-	idfRootHumanCase_v7
-	--Upd--idfPreviousHumanCase_v7
-)
-select		tlbHumanCase_v6.[idfHumanCase],
-			change_diag_v6.[idfChangeDiagnosisHistory],
-			isnull(change_diag_v6.[idfsCurrentDiagnosis], tlbHumanCase_v6.[idfsTentativeDiagnosis]),
-			case
-				when	change_diag_v6.[idfChangeDiagnosisHistory] = last_change_diag_v6.[idfChangeDiagnosisHistory]
-						and (	change_diag_v6.[idfsCurrentDiagnosis] = tlbHumanCase_v6.[idfsFinalDiagnosis]
-								or	(	change_diag_v6.[idfsCurrentDiagnosis] is null
-										and tlbHumanCase_v6.[idfsFinalDiagnosis] is null
-									)
-								or	(	change_diag_v6.[idfsCurrentDiagnosis] is null
-										and tlbHumanCase_v6.[idfsFinalDiagnosis] = tlbHumanCase_v6.[idfsTentativeDiagnosis]
-									)
-								or	(	change_diag_v6.[idfsCurrentDiagnosis] = tlbHumanCase_v6.[idfsTentativeDiagnosis]
-										and tlbHumanCase_v6.[idfsFinalDiagnosis] is null
-									)
-							)
-						and tlbHumanCase_v6.[datFinalDiagnosisDate] is not null
-					then	tlbHumanCase_v6.[datFinalDiagnosisDate]
-				else	change_diag_v6.[datChangedDate]
-			end,
-			tlbHumanCase_v6.[strCaseID],
-			0,
-			case
-				when	change_diag_v6.[idfChangeDiagnosisHistory] = last_change_diag_v6.[idfChangeDiagnosisHistory]
-						and (	change_diag_v6.[idfsCurrentDiagnosis] = tlbHumanCase_v6.[idfsFinalDiagnosis]
-								or	(	change_diag_v6.[idfsCurrentDiagnosis] is null
-										and tlbHumanCase_v6.[idfsFinalDiagnosis] is null
-									)
-								or	(	change_diag_v6.[idfsCurrentDiagnosis] is null
-										and tlbHumanCase_v6.[idfsFinalDiagnosis] = tlbHumanCase_v6.[idfsTentativeDiagnosis]
-									)
-								or	(	change_diag_v6.[idfsCurrentDiagnosis] = tlbHumanCase_v6.[idfsTentativeDiagnosis]
-										and tlbHumanCase_v6.[idfsFinalDiagnosis] is null
-									)
-							)
-					then	1
-				else	0
-			end,
-			case
-				when	change_diag_v6.[idfsCurrentDiagnosis] is null
-					then	1
-				else	0
-			end,
-			isnull(change_diag_v6.[strChangeDiagnosisReason] + N' ' collate Cyrillic_General_CI_AS, N'') + 
-				change_diag_v6.[strReason] collate Cyrillic_General_CI_AS,
-			ltrim(isnull(tlbHumanCase_v6.[strNote], N'') + N' ' collate Cyrillic_General_CI_AS) +
-				isnull(change_diag_v6.[strChangeDiagnosisReason] + N' ' collate Cyrillic_General_CI_AS, N'') + 
-					change_diag_v6.[strReason] collate Cyrillic_General_CI_AS,
-			tlbHuman_v6.[idfHuman],
-			tlbHuman_v6.[idfHumanActual],
-			tlbHuman_v6.[idfCurrentResidenceAddress],
-			tlbHuman_v6.[idfRegistrationAddress],
-			tlbHuman_v6.[idfEmployerAddress],
-			tlbHumanCase_v6.[idfCSObservation],
-			tlbObservation_CS_v6.[idfsFormTemplate],
-			tlbHumanCase_v6.[idfEpiObservation],
-			tlbObservation_Epi_v6.[idfsFormTemplate],
-			tlbHumanCase_v6.[idfPointGeoLocation],
-			tlbHumanCase_v6.[idfOutbreak],
-			tlbHumanCase_v6.[idfDeduplicationResultCase],
-
-			tlbHumanCase_v6.[idfHumanCase]
-
-
-
---
-
-from		[Falcon].[dbo].tlbHumanCase tlbHumanCase_v6
-inner join	[Giraffe].[dbo]._dmccHumanCase cchc_initial
-on			cchc_initial.[idfHumanCase_v6] = tlbHumanCase_v6.[idfHumanCase]
-			and cchc_initial.[isInitial] = 1
-			and cchc_initial.[isFinal] = 0
-
-inner join	[Falcon].[dbo].tlbHuman tlbHuman_v6
-on			tlbHuman_v6.[idfHuman] = tlbHumanCase_v6.[idfHuman]
-left join	[Falcon].[dbo].[tlbObservation] tlbObservation_CS_v6
-on			tlbObservation_CS_v6.[idfObservation] = tlbHumanCase_v6.[idfCSObservation]
-left join	[Falcon].[dbo].[tlbObservation] tlbObservation_Epi_v6
-on			tlbObservation_Epi_v6.[idfObservation] = tlbHumanCase_v6.[idfEpiObservation]
-
-cross apply
-(	select	top 1 
-				tlbChangeDiagnosisHistory_v6.[idfChangeDiagnosisHistory]
-	from		[Falcon].[dbo].[tlbChangeDiagnosisHistory] tlbChangeDiagnosisHistory_v6
-	where		tlbChangeDiagnosisHistory_v6.[idfHumanCase] = tlbHumanCase_v6.[idfHumanCase]
-				and tlbChangeDiagnosisHistory_v6.[intRowStatus] <= tlbHumanCase_v6.[intRowStatus]
-				and (	tlbChangeDiagnosisHistory_v6.[datChangedDate] >= tlbHumanCase_v6.[datTentativeDiagnosisDate]
-						or tlbHumanCase_v6.[datTentativeDiagnosisDate] is null
-					)
-	order by	tlbChangeDiagnosisHistory_v6.[datChangedDate] desc, 
-				tlbChangeDiagnosisHistory_v6.[idfChangeDiagnosisHistory] desc
-
-) last_change_diag_v6
-
-outer apply
-(	select		tlbChangeDiagnosisHistory_v6.[idfChangeDiagnosisHistory], 
-				tlbChangeDiagnosisHistory_v6.[idfsCurrentDiagnosis],
-				cast(tlbChangeDiagnosisHistory_v6.[datChangedDate] as date) as datCurrentDiagnosis,
-				tlbChangeDiagnosisHistory_v6.[datChangedDate],
-				tlbChangeDiagnosisHistory_v6.[idfsChangeDiagnosisReason],
-				isnull(trtStringNameTranslation_DiagReason_v6.[strTextString], 
-						trtBaseReference_DiagReason_v6.[strDefault]) as strChangeDiagnosisReason,
-				tlbChangeDiagnosisHistory_v6.[strReason]
-	from		[Falcon].[dbo].[tlbChangeDiagnosisHistory] tlbChangeDiagnosisHistory_v6
-	left join	[Falcon].[dbo].[trtBaseReference] trtBaseReference_DiagReason_v6
-	on			trtBaseReference_DiagReason_v6.[idfsBaseReference] = tlbChangeDiagnosisHistory_v6.[idfsChangeDiagnosisReason]
-	left join	[Falcon].[dbo].[trtStringNameTranslation] trtStringNameTranslation_DiagReason_v6
-	on			trtStringNameTranslation_DiagReason_v6.[idfsBaseReference] = tlbChangeDiagnosisHistory_v6.[idfsChangeDiagnosisReason]
-				and trtStringNameTranslation_DiagReason_v6.[idfsLanguage] = @idfsPreferredNationalLanguage
-	where		tlbChangeDiagnosisHistory_v6.[idfHumanCase] = tlbHumanCase_v6.[idfHumanCase]
-				and tlbChangeDiagnosisHistory_v6.[intRowStatus] <= tlbHumanCase_v6.[intRowStatus]
-				and (	tlbChangeDiagnosisHistory_v6.[datChangedDate] >= tlbHumanCase_v6.[datTentativeDiagnosisDate]
-						or tlbHumanCase_v6.[datTentativeDiagnosisDate] is null
-					)
-) change_diag_v6
-
-left join	[Giraffe].[dbo]._dmccHumanCase cchc
-on			cchc.[idfHumanCase_v6] = tlbHumanCase_v6.[idfHumanCase]
-			and cchc.[isInitial] = 0
-			--and (	cchc.[idfsDiagnosis] = change_diag_v6.[idfsCurrentDiagnosis]
-			--		or	(	change_diag_v6.[idfsCurrentDiagnosis] is null
-			--				and cchc.[idfsDiagnosis] = tlbHumanCase_v6.[idfsTentativeDiagnosis]
-			--			)
-			--	)
-			--and (	(	change_diag_v6.[idfChangeDiagnosisHistory] = last_change_diag_v6.[idfChangeDiagnosisHistory]
-			--			and (	change_diag_v6.[idfsCurrentDiagnosis] = tlbHumanCase_v6.[idfsFinalDiagnosis]
-			--					or	(	change_diag_v6.[idfsCurrentDiagnosis] is null
-			--							and tlbHumanCase_v6.[idfsFinalDiagnosis] is null
-			--						)
-			--					or	(	change_diag_v6.[idfsCurrentDiagnosis] is null
-			--							and tlbHumanCase_v6.[idfsFinalDiagnosis] = tlbHumanCase_v6.[idfsTentativeDiagnosis]
-			--						)
-			--					or	(	change_diag_v6.[idfsCurrentDiagnosis] = tlbHumanCase_v6.[idfsTentativeDiagnosis]
-			--							and tlbHumanCase_v6.[idfsFinalDiagnosis] is null
-			--						)
-			--				)
-			--			and tlbHumanCase_v6.[datFinalDiagnosisDate] is not null
-			--			and cchc.[datDiagnosisDate] = tlbHumanCase_v6.[datFinalDiagnosisDate]
-			--		)
-			--		or	(	(	change_diag_v6.[idfChangeDiagnosisHistory] <> last_change_diag_v6.[idfChangeDiagnosisHistory]
-			--					or	change_diag_v6.[idfsCurrentDiagnosis] <> tlbHumanCase_v6.[idfsFinalDiagnosis]
-			--					or	(	change_diag_v6.[idfsCurrentDiagnosis] is null
-			--							and tlbHumanCase_v6.[idfsFinalDiagnosis] <> tlbHumanCase_v6.[idfsTentativeDiagnosis]
-			--						)
-			--					or	(	change_diag_v6.[idfsCurrentDiagnosis] <> tlbHumanCase_v6.[idfsTentativeDiagnosis]
-			--							and tlbHumanCase_v6.[idfsFinalDiagnosis] is null
-			--						)
-			--					or	tlbHumanCase_v6.[datFinalDiagnosisDate] is null
-			--				)
-			--				and cchc.[datDiagnosisDate] = change_diag_v6.[datChangedDate]
-			--			)
-			--	)
-			and cchc.[idfChangeDiagnosisHistory_v6] = change_diag_v6.[idfChangeDiagnosisHistory]
-
-where		tlbHumanCase_v6.[idfsTentativeDiagnosis] is not null
-			and cchc.[IdfId] is null
-print N'HRDs v7 from Changed Diagnosis History of Human Cases v6.1: ' + cast(@@rowcount as nvarchar(20))
-
-
-
-----------------
-
-insert into [Giraffe].[dbo]._dmccHumanCase
-(	--Upd--idfRootId,
-	--Upd--idfPreviousId,
-	idfHumanCase_v6,
-	idfChangeDiagnosisHistory_v6,
-	idfsDiagnosis,
-	datDiagnosisDate,
-	strLegacyID_v6,
-	--Upd--strCaseID_v7,
-	isInitial,
-	isFinal,
-	isNullDiagnosis,
-	strComment,
-	strNote,
-
-	--Upd--idfsCaseProgressStatus_v7,
-	--Upd--blnClinicalDiagBasis_v7,
-	--Upd--blnEpiDiagBasis_v7,
-	--Upd--blnLabDiagBasis_v7,
-	--Upd--idfsFinalCaseStatus_v7,
-	--Upd--datFinalCaseClassificationDate_v7,
-	--Upd--idfOutbreak_v7,
-	--No need to Upd--DiseaseReportTypeID_v7,
-	--Upd--idfsCSTemplate_v7,
-	--Upd--idfsEpiTemplate_v7,
-
-	idfHuman_v6,
-	idfHumanActual_v6,
-	idfHumanCRAddress_v6,
-	idfHumanPRAddress_v6,
-	idfHumanEmpAddress_v6,
-	idfCSObservation_v6,
-	idfsCSTemplate_v6,
-	idfEpiObservation_v6,
-	idfsEpiTemplate_v6,
-	idfPointGeoLocation_v6,
-	idfOutbreak_v6,
-	idfDeduplicationResultCase_v6,
-
-	--Upd--idfHumanCase_v7,
-	--Upd--idfHuman_v7,
-	--Upd--idfCSObservation_v7,
-	--Upd--idfEpiObservation_v7,
-	--Upd--idfPointGeoLocation_v7,
-
-	idfRootHumanCase_v7
-	--Upd--idfPreviousHumanCase_v7
-)
-select		tlbHumanCase_v6.[idfHumanCase],
-			null,
-			isnull(tlbHumanCase_v6.[idfsFinalDiagnosis], tlbHumanCase_v6.[idfsTentativeDiagnosis]),
-			isnull(tlbHumanCase_v6.[datFinalDiagnosisDate], tlbHumanCase_v6.[datFinalCaseClassificationDate]),
-			tlbHumanCase_v6.[strCaseID],
-			0,
-			1,
-			case
-				when	tlbHumanCase_v6.[idfsFinalDiagnosis] is null
-					then	1
-				else	0
-			end,
-			N'',
-			tlbHumanCase_v6.[strNote],
-			tlbHuman_v6.[idfHuman],
-			tlbHuman_v6.[idfHumanActual],
-			tlbHuman_v6.[idfCurrentResidenceAddress],
-			tlbHuman_v6.[idfRegistrationAddress],
-			tlbHuman_v6.[idfEmployerAddress],
-			tlbHumanCase_v6.[idfCSObservation],
-			tlbObservation_CS_v6.[idfsFormTemplate],
-			tlbHumanCase_v6.[idfEpiObservation],
-			tlbObservation_Epi_v6.[idfsFormTemplate],
-			tlbHumanCase_v6.[idfPointGeoLocation],
-			tlbHumanCase_v6.[idfOutbreak],
-			tlbHumanCase_v6.[idfDeduplicationResultCase],
-
-			tlbHumanCase_v6.[idfHumanCase]
-
-
-
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-from		[Falcon].[dbo].tlbHumanCase tlbHumanCase_v6
-inner join	[Giraffe].[dbo]._dmccHumanCase cchc_initial
-on			cchc_initial.[idfHumanCase_v6] = tlbHumanCase_v6.[idfHumanCase]
-			and cchc_initial.[isInitial] = 1
-			--and cchc_initial.[isFinal] = 0
-inner join	[Falcon].[dbo].tlbHuman tlbHuman_v6
-on			tlbHuman_v6.[idfHuman] = tlbHumanCase_v6.[idfHuman]
-left join	[Falcon].[dbo].[tlbObservation] tlbObservation_CS_v6
-on			tlbObservation_CS_v6.[idfObservation] = tlbHumanCase_v6.[idfCSObservation]
-left join	[Falcon].[dbo].[tlbObservation] tlbObservation_Epi_v6
-on			tlbObservation_Epi_v6.[idfObservation] = tlbHumanCase_v6.[idfEpiObservation]
-
-where		tlbHumanCase_v6.[idfsTentativeDiagnosis] is not null
-			and not exists
-				(	select	1
-					from	[Giraffe].[dbo]._dmccHumanCase cchc
-					where	cchc.[idfHumanCase_v6] = tlbHumanCase_v6.[idfHumanCase]
-							and cchc.[isFinal] = 1
-				)
-print N'Remaining HRDs v7 from final Changed Diagnosis of Human Cases v6.1: ' + cast(@@rowcount as nvarchar(20))
-print N''
-print N''
-
-
-
--------------------------
-
---update		cchc
---set			cchc.[idfRootId] = cchc_initial.[idfId]
---from		[Giraffe].[dbo]._dmccHumanCase cchc
---join		[Giraffe].[dbo]._dmccHumanCase cchc_initial
---on			cchc_initial.[idfHumanCase_v6] = cchc.[idfHumanCase_v6]
---			and cchc_initial.[isInitial] = 1
---where		cchc.[idfRootId] is null
-
 
 update		cchc
-set			cchc.[idfRootId] = cchc_initial.[idfId],
-			cchc.[idfsCaseProgressStatus_v7] =
+set			cchc.[idfsCSTemplate_v7] = 
 				case
-					when	cchc.[isFinal] = 1 
-						then	tlbHumanCase_v6.[idfsCaseProgressStatus]
-					else	10109002 /*Closed*/
-				end,
-			cchc.[blnClinicalDiagBasis_v7] =
-				case
-					when	cchc.[isFinal] = 1 
-						then	tlbHumanCase_v6.[blnClinicalDiagBasis]
-					else	null
-				end,
-			cchc.[blnEpiDiagBasis_v7] =
-				case
-					when	cchc.[isFinal] = 1 
-						then	tlbHumanCase_v6.[blnEpiDiagBasis]
-					else	null
-				end,
-			cchc.[blnLabDiagBasis_v7] =
-				case
-					when	cchc.[isFinal] = 1 
-						then	tlbHumanCase_v6.[blnLabDiagBasis]
-					else	null
-				end,
-			cchc.[idfsFinalCaseStatus_v7] =
-				case
-					when	cchc.[isFinal] = 1 
-						then	tlbHumanCase_v6.[idfsFinalCaseStatus]
-					else	370000000 /*Not a Case*/
-				end,
-			cchc.[idfOutbreak_v7] =
-				case
-					when	cchc.[isFinal] = 1 
-						then	tlbHumanCase_v6.[idfOutbreak]
-					else	null
-				end,
-			cchc.[datFinalCaseClassificationDate_v7] =
-				case
-					when	cchc.[isFinal] = 1 
-						then	tlbHumanCase_v6.[datFinalCaseClassificationDate]
-					else	null
-				end,
-			cchc.[idfsCSTemplate_v7] =
-				case
-					when	cchc.[isFinal] = 1 
-						then	cchc.[idfsCSTemplate_v6]
-					else	null
-				end,
-			cchc.[idfsEpiTemplate_v7] =
-				case
-					when	cchc_initial.[isFinal] = 1 
-						then	cchc.[idfsEpiTemplate_v6]
-					else	null
+					when	cchc.[idfsCurrentDiagnosis] is null and cchc.[idfsCSTemplate_v7] is not null
+						then	cchc.[idfsCSTemplate_v7]
+					else	coalesce(template_by_diag.[idfsFormTemplate], template_uni.[idfsFormTemplate], cchc.[idfsCSTemplate_v7])
 				end
 from		[Giraffe].[dbo]._dmccHumanCase cchc
-join		[Giraffe].[dbo]._dmccHumanCase cchc_initial
-	join		[Falcon].[dbo].[tlbHumanCase] tlbHumanCase_v6
-	on			tlbHumanCase_v6.[idfHumanCase] = cchc_initial.[idfHumanCase_v6]
-on			cchc_initial.[idfHumanCase_v6] = cchc.[idfHumanCase_v6]
-			and cchc_initial.[isInitial] = 1
-
-
------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-update		cchc
-set			cchc.[idfsCSTemplate_v7] =
-				case
-					when	cchc.idfsDiagnosis is null
-							or	(	cchc_final.[idfsCSTemplate_v7] is not null
-									and cchc.[idfsDiagnosis] = cchc_final.[idfsDiagnosis]
-								)
-						then	cchc_final.[idfsCSTemplate_v7]
-					else	coalesce(template_by_diag.[idfsFormTemplate], template_uni.[idfsFormTemplate], cchc_final.[idfsCSTemplate_v7])
-				end
-from		[Giraffe].[dbo]._dmccHumanCase cchc
-join		[Giraffe].[dbo]._dmccHumanCase cchc_final
-	--join		[Falcon].[dbo].[tlbHumanCase] tlbHumanCase_v6
-	--on			tlbHumanCase_v6.[idfHumanCase] = cchc_final.[idfHumanCase_v6]
-on			cchc_final.[idfHumanCase_v6] = cchc.[idfHumanCase_v6]
-			and cchc_final.[isFinal] = 1
 outer apply
 (	select top 1
 			ffFormTemplate_v6.[idfsFormTemplate]
@@ -3473,7 +3158,7 @@ outer apply
 	on		ffFormTemplate_v6.[idfsFormTemplate] = ffDeterminantValue_v6.[idfsFormTemplate]
 			and ffFormTemplate_v6.[intRowStatus] = 0
 			and ffFormTemplate_v6.[idfsFormType] = 10034010	/*Human Clinical Signs*/
-	where	ffDeterminantValue_v6.[idfsBaseReference] = cchc.[idfsDiagnosis]
+	where	ffDeterminantValue_v6.[idfsBaseReference] = cchc.[idfsCurrentDiagnosis]
 			and ffDeterminantValue_v6.[intRowStatus] = 0
 ) template_by_diag
 outer apply
@@ -3484,29 +3169,18 @@ outer apply
 			and ffFormTemplate_v6.[intRowStatus] = 0
 			and ffFormTemplate_v6.[blnUNI] = 1
 ) template_uni
-where		cchc.[idfsCSTemplate_v7] is null
 
 
-
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--
 
 update		cchc
 set			cchc.[idfsEpiTemplate_v7] =
 				case
-					when	cchc.idfsDiagnosis is null
-							or	(	cchc_final.[idfsEpiTemplate_v7] is not null
-									and cchc.[idfsDiagnosis] = cchc_final.[idfsDiagnosis]
-								)
-						then	cchc_final.[idfsEpiTemplate_v7]
-					else	coalesce(template_by_diag.[idfsFormTemplate], template_uni.[idfsFormTemplate], cchc_final.[idfsEpiTemplate_v7])
+					when	cchc.[idfsCurrentDiagnosis] is null and cchc.[idfsEpiTemplate_v7] is not null
+						then	cchc.[idfsEpiTemplate_v7]
+					else	coalesce(template_by_diag.[idfsFormTemplate], template_uni.[idfsFormTemplate], cchc.[idfsEpiTemplate_v7])
 				end
 from		[Giraffe].[dbo]._dmccHumanCase cchc
-join		[Giraffe].[dbo]._dmccHumanCase cchc_final
-	--join		[Falcon].[dbo].[tlbHumanCase] tlbHumanCase_v6
-	--on			tlbHumanCase_v6.[idfHumanCase] = cchc_final.[idfHumanCase_v6]
-on			cchc_final.[idfHumanCase_v6] = cchc.[idfHumanCase_v6]
-			and cchc_final.[isFinal] = 1
 outer apply
 (	select top 1
 			ffFormTemplate_v6.[idfsFormTemplate]
@@ -3515,7 +3189,7 @@ outer apply
 	on		ffFormTemplate_v6.[idfsFormTemplate] = ffDeterminantValue_v6.[idfsFormTemplate]
 			and ffFormTemplate_v6.[intRowStatus] = 0
 			and ffFormTemplate_v6.[idfsFormType] = 10034011	/*Human Epi Investigations*/
-	where	ffDeterminantValue_v6.[idfsBaseReference] = cchc.[idfsDiagnosis]
+	where	ffDeterminantValue_v6.[idfsBaseReference] = cchc.[idfsCurrentDiagnosis]
 			and ffDeterminantValue_v6.[intRowStatus] = 0
 ) template_by_diag
 outer apply
@@ -3526,89 +3200,28 @@ outer apply
 			and ffFormTemplate_v6.[intRowStatus] = 0
 			and ffFormTemplate_v6.[blnUNI] = 1
 ) template_uni
-where		cchc.[idfsEpiTemplate_v7] is null
 
 
-
-
------------------------------------------------------------------------------------------------------------------------
-
+-- Fix for the usage of the same copy of the location as Location of Exposure in different HDRs
 update		cchc
-set			cchc.[idfPreviousId] = isnull(cchc_prev.[idfId], cchc_initial.[idfId])
-from		[Giraffe].[dbo]._dmccHumanCase cchc
-join		[Giraffe].[dbo]._dmccHumanCase cchc_initial
-	--join		[Falcon].[dbo].[tlbHumanCase] tlbHumanCase_v6
-	--on			tlbHumanCase_v6.[idfHumanCase] = cchc_initial.[idfHumanCase_v6]
-on			cchc_initial.[idfHumanCase_v6] = cchc.[idfHumanCase_v6]
-			and cchc_initial.[isInitial] = 1
-outer apply
-(	select	top 1
-			cchc_prev_change_diag.[idfId]
-	from	[Giraffe].[dbo]._dmccHumanCase cchc_prev_change_diag
-	where	cchc_prev_change_diag.[idfHumanCase_v6] = cchc.[idfHumanCase_v6]
-			and cchc_prev_change_diag.[isFinal] = 0
-			and cchc_prev_change_diag.[idfChangeDiagnosisHistory_v6] is not null
-			and (	cchc_prev_change_diag.[datDiagnosisDate] < cchc.[datDiagnosisDate]
-					or	(	cchc_prev_change_diag.[datDiagnosisDate] = cchc.[datDiagnosisDate]
-							and cchc_prev_change_diag.[idfChangeDiagnosisHistory_v6] < 
-									cchc.[idfChangeDiagnosisHistory_v6]
-						)
-				)
-	order by	cchc_prev_change_diag.[datDiagnosisDate] desc, 
-				cchc_prev_change_diag.[idfChangeDiagnosisHistory_v6] desc, 
-				cchc_prev_change_diag.[idfId] desc
-) cchc_prev
-where		cchc.[isInitial] = 0
-			and cchc.[isFinal] = 0
-			and cchc.[idfChangeDiagnosisHistory_v6] is not null
-			and cchc.[idfPreviousId] is null
+set			cchc.[idfPointGeoLocation_v7] = null
+from		[Giraffe].[dbo].[_dmccHumanCase] cchc
+where		cchc.[idfPointGeoLocation_v7] is not null
+			and exists
+			(	select	1
+				from	[Giraffe].[dbo].[_dmccHumanCase] cchc_less
+				where	cchc_less.[idfPointGeoLocation_v7] = cchc.[idfPointGeoLocation_v7]
+						and cchc_less.[idfId] < cchc.[idfId]
+			)
 
-
-
-update		cchc
-set			cchc.[idfPreviousId] = isnull(cchc_prev.[idfId], cchc_initial.[idfId])
-from		[Giraffe].[dbo]._dmccHumanCase cchc
-join		[Giraffe].[dbo]._dmccHumanCase cchc_initial
-	--join		[Falcon].[dbo].[tlbHumanCase] tlbHumanCase_v6
-	--on			tlbHumanCase_v6.[idfHumanCase] = cchc_initial.[idfHumanCase_v6]
-on			cchc_initial.[idfHumanCase_v6] = cchc.[idfHumanCase_v6]
-			and cchc_initial.[isInitial] = 1
-outer apply
-(	select	top 1
-			cchc_prev_change_diag.[idfId]
-	from	[Giraffe].[dbo]._dmccHumanCase cchc_prev_change_diag
-	where	cchc_prev_change_diag.[idfHumanCase_v6] = cchc.[idfHumanCase_v6]
-			and cchc_prev_change_diag.[isFinal] = 0
-			and cchc_prev_change_diag.[idfChangeDiagnosisHistory_v6] is not null
-	order by	cchc_prev_change_diag.[datDiagnosisDate] desc, 
-				cchc_prev_change_diag.[idfChangeDiagnosisHistory_v6] desc, 
-				cchc_prev_change_diag.[idfId] desc
-) cchc_prev
-where		cchc.[isInitial] = 0
-			and cchc.[isFinal] = 1
-			and cchc.[idfPreviousId] is null
-
-
-
---------------------------------------------------------------
-
-
-update		cchc
-set			cchc.[datFinalCaseClassificationDate_v7] = cchc_next.[datDiagnosisDate]
-from		[Giraffe].[dbo]._dmccHumanCase cchc
-join		[Giraffe].[dbo]._dmccHumanCase cchc_next
-	--join		[Falcon].[dbo].[tlbHumanCase] tlbHumanCase_v6
-	--on			tlbHumanCase_v6.[idfHumanCase] = cchc_next.[idfHumanCase_v6]
-on			cchc_next.[idfHumanCase_v6] = cchc.[idfHumanCase_v6]
-			and cchc_next.[idfPreviousId] = cchc.[idfId]
-			and cchc_next.[isInitial] = 0
-where		cchc.[isFinal] = 0
+--
 
 
 select	@NumberOfExistingMigratedRecords = count(tlbHumanCase_v7.[idfHumanCase])
 from	[Giraffe].[dbo]._dmccHumanCase cchc
 inner join	[Giraffe].[dbo].[tlbHumanCase] tlbHumanCase_v7
 on	tlbHumanCase_v7.[idfHumanCase] = cchc.[idfHumanCase_v7]
+
 
 update	cchc	
 set		cchc.idfSeqNumber = -1
@@ -3633,10 +3246,14 @@ outer apply
 (	select		count(cchc_prev.idfId) as intNumber
 	from		[Giraffe].[dbo]._dmccHumanCase cchc_prev
 	where		cchc_prev.idfSeqNumber = -1
-				and cchc_prev.[idfHumanCase_v6] < cchc.[idfHumanCase_v6]
+				and (	cchc_prev.[strLegacyID_v6] < cchc.[strLegacyID_v6]
+						or	(	cchc_prev.[strLegacyID_v6] = cchc.[strLegacyID_v6]
+								and cchc_prev.[idfHumanCase_v6] < cchc.[idfHumanCase_v6]
+							)
+					)
 ) cchc_init_hc_row_number
 where	cchc.idfSeqNumber = -1
-		and cchc.[isInitial] = 1
+		and cchc.[idfHumanCase_v6] = cchc.[idfHumanCase_v7]
 
 
 declare @Step int = 0
@@ -3647,13 +3264,23 @@ begin
 	set			cchc.[idfSeqNumber] = cchc_prev.[idfSeqNumber] + 1
 	from		[Giraffe].[dbo]._dmccHumanCase cchc
 	inner join	[Giraffe].[dbo]._dmccHumanCase cchc_prev
-	on			cchc_prev.[idfId] = cchc.[idfPreviousId]
+	on			cchc_prev.[idfHumanCase_v6] = cchc.[idfHumanCase_v6]
+				and cchc_prev.[idfHumanCase_v7] < cchc.[idfHumanCase_v7]
 				and cchc_prev.[idfSeqNumber] >= 0
+				and not exists
+					(	select	1
+						from	[Giraffe].[dbo]._dmccHumanCase cchc_prev_greater
+						where	cchc_prev.[idfHumanCase_v6] = cchc.[idfHumanCase_v6]
+								and cchc_prev_greater.[idfHumanCase_v7] < cchc.[idfHumanCase_v7]
+								and cchc_prev_greater.[idfSeqNumber] >= 0
+								and cchc_prev_greater.[idfHumanCase_v7] > cchc_prev.[idfHumanCase_v7]
+					)
 	where		cchc.[idfSeqNumber] = -1
 
 	set	@GoOn = @@rowcount
 	set	@Step = @Step + 1
 end
+
 
 if db_name() like N'%_Archive' collate Cyrillic_General_CI_AS and @IdMigrationPrefix not like N'%ARCH' collate Cyrillic_General_CI_AS
 	set	@IdMigrationPrefix = @IdMigrationPrefix + N'ARCH' collate Cyrillic_General_CI_AS
@@ -3663,48 +3290,17 @@ from	[Giraffe].[dbo]._dmccHumanCase cchc
 where	cchc.[strCaseID_v7] is null or cchc.[strCaseID_v7] = N'' collate Cyrillic_General_CI_AS
 		and cchc.[idfSeqNumber] >= 0
 
-update	cchc
-set		cchc.[idfDeduplicationResultCase_v7] = cchc.[idfDeduplicationResultCase_v6]
-from	[Giraffe].[dbo]._dmccHumanCase cchc
-where	cchc.[isInitial] = 1
-
-
-
--------------------------------------------------------------------------
-
--- Fix for the usage of the same copy of the location of exposure or FF Istance in different HDRs v7
 update		cchc
-set			cchc.[idfPointGeoLocation_v7] = null
-from		[Giraffe].[dbo].[_dmccHumanCase] cchc
-where		cchc.[idfPointGeoLocation_v7] is not null
-			and exists
-			(	select	1
-				from	[Giraffe].[dbo].[_dmccHumanCase] cchc_less
-				where	cchc_less.[idfPointGeoLocation_v7] = cchc.[idfPointGeoLocation_v7]
-						and cchc_less.[idfId] < cchc.[idfId]
-			)
+set			cchc.[idfDeduplicationResultCase_v7] = cchc_dedup_res.[idfHumanCase_v7]
+from		[Giraffe].[dbo]._dmccHumanCase cchc
+inner join	[Giraffe].[dbo]._dmccHumanCase cchc_dedup_res
+on			cchc_dedup_res.[idfHumanCase_v6] = cchc.[idfDeduplicationResultCase_v6]
+			and cchc_dedup_res.[idfHumanCase_v7] is not null
+where		cchc.[idfDeduplicationResultCase_v6] is not null
 
-update		cchc
-set			cchc.[idfCSObservation_v7] = null
-from		[Giraffe].[dbo].[_dmccHumanCase] cchc
-where		cchc.[idfCSObservation_v7] is not null
-			and exists
-			(	select	1
-				from	[Giraffe].[dbo].[_dmccHumanCase] cchc_less
-				where	cchc_less.[idfCSObservation_v7] = cchc.[idfCSObservation_v7]
-						and cchc_less.[idfId] < cchc.[idfId]
-			)
 
-update		cchc
-set			cchc.[idfEpiObservation_v7] = null
-from		[Giraffe].[dbo].[_dmccHumanCase] cchc
-where		cchc.[idfEpiObservation_v7] is not null
-			and exists
-			(	select	1
-				from	[Giraffe].[dbo].[_dmccHumanCase] cchc_less
-				where	cchc_less.[idfEpiObservation_v7] = cchc.[idfEpiObservation_v7]
-						and cchc_less.[idfId] < cchc.[idfId]
-			)
+
+ --
 
 
 /************************************************************
@@ -3775,25 +3371,10 @@ select		75580000000	/*tlbGeoLocation*/
 from		[Giraffe].[dbo].[_dmccHumanCase] cchc
 where		cchc.[idfPointGeoLocation_v7] is null
 
-insert into	[Giraffe].[dbo].[tstNewID]
-(	[idfTable],
-	[idfKey1],
-	[idfKey2],
-	[strRowGuid]
-)
-select		53577790000000	/*HumanDiseaseReportRelationship*/
-			, cchc.idfId + 5
-			, cchc.idfHumanCase_v6
-			, @TempIdentifierKey
-from		[Giraffe].[dbo].[_dmccHumanCase] cchc
-where		cchc.[idfPreviousId] is not null
-			and cchc.[HumanDiseasereportRelnUID_v7] is null
-
-
 exec [Giraffe].sys.sp_executesql N'ALTER INDEX ALL ON dbo.tstNewID REBUILD'
 
 
----------------------------------------------------------
+--
 
 
 update		cchc
@@ -3846,35 +3427,13 @@ on			nId.[idfTable] = 75580000000	/*tlbGeoLocation*/
 			and nId.[strRowGuid] = @TempIdentifierKey collate Cyrillic_General_CI_AS
 where		cchc.[idfPointGeoLocation_v7] is null
 
-update		cchc
-set			cchc.[HumanDiseasereportRelnUID_v7] = nId.[NewID]
-from		[Giraffe].[dbo].[_dmccHumanCase] cchc
-join		[Giraffe].[dbo].[tstNewID] nId
-on			nId.[idfTable] = 53577790000000	/*HumanDiseaseReportRelationship*/
-			and nId.[idfKey1] = cchc.[idfId] + 5
-			and nId.[idfKey2] = cchc.[idfHumanCase_v6]
-			and nId.[strRowGuid] = @TempIdentifierKey collate Cyrillic_General_CI_AS
-where		cchc.[idfPreviousId] is not null
-			and cchc.[HumanDiseasereportRelnUID_v7] is null
-
-
-update		cchc
-set			cchc.[idfPreviousHumanCase_v7] = cchc_prev.[idfHumanCase_v7]
-from		[Giraffe].[dbo].[_dmccHumanCase] cchc
-join		[Giraffe].[dbo].[_dmccHumanCase] cchc_prev
-on			cchc_prev.[idfId] = cchc.[idfPreviousId]
-where		cchc.[idfPreviousId] is not null
-			and cchc.[idfPreviousHumanCase_v7] is null
-
-
-
 /************************************************************
 * Generate Id records - _dmccHumanCase - end
 ************************************************************/
 
 
 
-------------------------------------------------------------------------------------------------
+--
 
 print N'Determine copies of Contact records in HDRs v7 based on Conact records of Human Cases from v6.1'
 print N''
@@ -3904,12 +3463,12 @@ select		  cchc.[idfId]
 			, tlbHuman_v6.[idfRegistrationAddress]
 			, tlbHuman_v6.[idfEmployerAddress]
 			, case
-				when	cchc.[isInitial] = 1
+				when	cchc.[idfHumanCase_v6] = cchc.[idfHumanCase_v7]
 					then	tlbContactedCasePerson_v6.[idfContactedCasePerson]
 				else	null
 			  end
 			, case
-				when	cchc.[isInitial] = 1
+				when	cchc.[idfHumanCase_v6] = cchc.[idfHumanCase_v7]
 					then	tlbContactedCasePerson_v6.[idfHuman]
 				else	null
 			  end
@@ -3921,7 +3480,6 @@ on			tlbHuman_v6.[idfHuman] = tlbContactedCasePerson_v6.[idfHuman]
 left join	[Giraffe].[dbo].[_dmccContactedCasePerson] ccccp
 on			ccccp.[idfHumanCase_v6] = cchc.[idfHumanCase_v6]
 			and ccccp.[idfContactedCasePerson_v6] = tlbContactedCasePerson_v6.[idfContactedCasePerson]
-			--and ccccp.[idfHumanCaseId] = cchc.[idfId]
 			and ccccp.[idfHumanCase_v7] = cchc.[idfHumanCase_v7]
 where		cchc.[idfHumanCase_v7] is not null
 			and ccccp.[idfId] is null
@@ -3931,7 +3489,7 @@ print N''
 
 
 
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--
 
 
 /************************************************************
@@ -3991,7 +3549,7 @@ where		ccccp.[idfHuman_v7] is null
 
 
 
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--
 
 print N'Determine copies of Antibiotics in HDRs v7 based on Antibiotics of Human Cases from v6.1'
 print N''
@@ -4009,7 +3567,7 @@ select		  cchc.[idfId]
 			, tlbAntimicrobialTherapy_v6.[idfAntimicrobialTherapy]
 			, cchc.[idfHumanCase_v7]
 			, case
-				when	cchc.[isInitial] = 1
+				when	cchc.[idfHumanCase_v6] = cchc.[idfHumanCase_v7]
 					then	tlbAntimicrobialTherapy_v6.[idfAntimicrobialTherapy]
 				else	null
 			  end
@@ -4019,7 +3577,6 @@ on			tlbAntimicrobialTherapy_v6.[idfHumanCase] = cchc.[idfHumanCase_v6]
 left join	[Giraffe].[dbo].[_dmccAntimicrobialTherapy] ccat
 on			ccat.[idfHumanCase_v6] = cchc.[idfHumanCase_v6]
 			and ccat.[idfAntimicrobialTherapy_v6] = tlbAntimicrobialTherapy_v6.[idfAntimicrobialTherapy]
-			--and ccat.[idfHumanCaseId] = cchc.[idfId]
 			and ccat.[idfHumanCase_v7] = cchc.[idfHumanCase_v7]
 where		cchc.[idfHumanCase_v7] is not null
 			and ccat.[idfId] is null
@@ -4062,7 +3619,7 @@ where		ccat.[idfAntimicrobialTherapy_v7] is null
 
 
 
-------------------------
+ --
 
 print N'Determine copies of Patients and Contact Persons in HDRs v7 based on Patients and Contact Persons of Human Cases from v6.1'
 print N''
@@ -4172,7 +3729,7 @@ print N'Copies of Patients of HRDs v7 from Patients of Human Cases v6.1: ' + cas
 
 
 
----------------------------------------------------------------
+--
 
 insert into [Giraffe].[dbo].[_dmccHuman]
 (	idfHumanCaseId,
@@ -4280,7 +3837,7 @@ print N''
 
 
 
----
+ --
 
 insert into [Giraffe].[dbo].[_dmccHuman]
 (	--No need--idfHumanCaseId,
@@ -4375,7 +3932,7 @@ print N''
 
 
 
---------------------------------------------------
+--
 
 insert into [Giraffe].[dbo].[_dmccHuman]
 (	--No need--idfHumanCaseId,
@@ -4475,7 +4032,7 @@ print N''
 
 
 
---
+ --
 
 -- Fix for the usage of the same copy of the person as farm owners in different farms
 update		cch
@@ -4486,8 +4043,7 @@ set			cch.[idfHuman_v7] = null,
 			cch.[idfHumanAltAddress_v7] = null,
 			cch.[idfHumanSchAddress_v7] = null
 from		[Giraffe].[dbo].[_dmccHuman] cch
-where		cch.[idfHuman_v7] is not null
-			and exists
+where		exists
 			(	select	1
 				from	[Giraffe].[dbo].[_dmccHuman] cch_less
 				where	cch_less.[idfHuman_v6] = cch.[idfHuman_v6]
@@ -4528,6 +4084,9 @@ where		cch.[idfHumanEmpAddress_v7] is not null
 						and cch_less.[idfId] < cch.[idfId]
 			)
 
+
+
+--
 
 
 /************************************************************
@@ -4646,6 +4205,11 @@ on			nId.[idfTable] = 75580000000	/*tlbGeoLocation*/
 where		cch.[idfHumanPRAddress_v7] is null
 
 
+
+
+--
+
+
 update		cch
 set			cch.[idfHumanEmpAddress_v7] = nId.[NewID]
 from		[Giraffe].[dbo].[_dmccHuman] cch
@@ -4683,7 +4247,6 @@ where		cch.[idfHumanSchAddress_v7] is null
 * Generate Id records - _dmccHuman - end
 ************************************************************/
 
-
 update		cchc
 set			cchc.[idfHuman_v7] = cch.[idfHuman_v7]
 from		[Giraffe].[dbo].[_dmccHumanCase] cchc
@@ -4702,7 +4265,9 @@ on			cch.[idfContactedCasePerson_v7] = ccccp.[idfContactedCasePerson_v7]
 			and cch.[idfHuman_v6] = ccccp.[idfHuman_v6]
 where		cch.[idfHuman_v7] <> ccccp.[idfHuman_v7]
 
-----------------
+
+
+--
 
 print N'Determine copies of Samples for HDRs v7 based on Samples of Human Cases from v6.1'
 print N''
@@ -4727,8 +4292,6 @@ insert into [Giraffe].[dbo].[_dmccMaterial]
 	--No need--idfSpecies_v6,
 	--No need--idfAnimal_v6,
 
-	isCaseFinal,
-
 	idfMaterial_v6,
 	idfParentMaterial_v6,
 	idfRootMaterial_v6,
@@ -4752,7 +4315,7 @@ insert into [Giraffe].[dbo].[_dmccMaterial]
 	
 	idfMaterial_v7
 )
-select		  cchc.[idfId]
+select		cchc.[idfId]
 
 			--No need--, null
 			--No need--, null
@@ -4768,8 +4331,6 @@ select		  cchc.[idfId]
 			--No need--, null
 			--No need--, null
 			--No need--, null
-
-			, cchc.[isFinal]
 
 			, tlbMaterial_v6.[idfMaterial]
 			, tlbMaterial_v6.[idfParentMaterial]
@@ -4790,21 +4351,22 @@ select		  cchc.[idfId]
 
 			, tlbMaterial_v6.[idfRootMaterial]
 			, case
-				when	cchc.[isFinal] = 1
+				when	cchc.[idfHumanCase_v6] = cchc.[idfHumanCase_v7]
 					then	tlbMaterial_v6.[idfParentMaterial]
 				else	null
 			  end
 			, case
-				when	cchc.[isFinal] = 1
+				when	cchc.[idfHumanCase_v6] = cchc.[idfHumanCase_v7]
 					then	tlbMaterial_v6.[blnReadOnly]
 				else	1
 			  end
 
 			, case
-				when	cchc.[isFinal] = 1
+				when	cchc.[idfHumanCase_v6] = cchc.[idfHumanCase_v7]
 					then	tlbMaterial_v6.[idfMaterial]
 				else	null
 			  end
+
 from		[Giraffe].[dbo].[_dmccHumanCase] cchc
 inner join	[Falcon].[dbo].[tlbMaterial] tlbMaterial_v6
 on			tlbMaterial_v6.[idfHumanCase] = cchc.[idfHumanCase_v6]
@@ -4824,7 +4386,7 @@ print N''
 
 
 
--------------------------------------------------------------------
+ --
 
 
 -- Update parent Meterial Id
@@ -4941,23 +4503,24 @@ select		  ccm.[idfId]
 
 			, tlbObservation_v6.[idfsFormTemplate]
 			, case
-				when	ccm.[isCaseFinal] = 1
+				when	ccm.[idfMaterial_v6] = ccm.[idfMaterial_v7]
 					then	tlbTesting_v6.[blnReadOnly]
 				else	1
 			  end
 			, case
-				when	ccm.[isCaseFinal] = idfBatchTest
-					then	tlbTesting_v6.[blnReadOnly]
-				else	1
+				when	ccm.[idfMaterial_v6] = ccm.[idfMaterial_v7]
+					then	tlbTesting_v6.[idfBatchTest]
+				else	null
 			  end
 
 			, case
-				when	ccm.[isCaseFinal] = 1
+				when	ccm.[idfMaterial_v6] = ccm.[idfMaterial_v7]
 					then	tlbTesting_v6.[idfTesting]
 				else	null
 			  end
+
 			, case
-				when	ccm.[isCaseFinal] = 1
+				when	ccm.[idfMaterial_v6] = ccm.[idfMaterial_v7]
 					then	tlbTesting_v6.[idfObservation]
 				else	null
 			  end
@@ -5039,7 +4602,7 @@ where		cct.[idfObservation_v7] is null
 
 
 
--------------------------------------------------------------------------
+--
 
 print N'Determine copies of Test Interpretation records in HDRs v7 based on Test Interpretation records of Human Cases from v6.1'
 print N''
@@ -5125,7 +4688,7 @@ where		cctv.[idfTestValidation_v7] is null
 
 
 
-----------------------------------------------------------------------------
+--
 
 print N'Determine copies of HDR Filtration Records in HDRs v7 based on Human Case Filtration Records of Human Cases from v6.1'
 print N''
@@ -5142,20 +4705,21 @@ insert into [Giraffe].[dbo].[_dmccHumanCaseFiltered]
 select		  cchc.[idfId]
 			, cchc.[idfHumanCase_v6]
 			, tflHumanCaseFiltered_v6.[idfHumanCaseFiltered]
+
 			, tflHumanCaseFiltered_v6.[idfSiteGroup]
 			, cchc.[idfHumanCase_v7]
 			, case
-				when	cchc.[isInitial] = 1
+				when	cchc.[idfHumanCase_v6] = cchc.[idfHumanCase_v7]
 					then	tflHumanCaseFiltered_v6.[idfHumanCaseFiltered]
 				else	null
 			  end
+
 from		[Giraffe].[dbo].[_dmccHumanCase] cchc
 inner join	[Falcon].[dbo].[tflHumanCaseFiltered] tflHumanCaseFiltered_v6
 on			tflHumanCaseFiltered_v6.[idfHumanCase] = cchc.[idfHumanCase_v6]
 left join	[Giraffe].[dbo].[_dmccHumanCaseFiltered] cchcf
 on			cchcf.[idfHumanCase_v6] = cchc.[idfHumanCase_v6]
 			and cchcf.[idfHumanCaseFiltered_v6] = tflHumanCaseFiltered_v6.[idfHumanCaseFiltered]
-			--and cchcf.[idfHumanCaseId] = cchc.[idfId]
 			and cchcf.[idfHumanCase_v7] = cchc.[idfHumanCase_v7]
 where		cchc.[idfHumanCase_v7] is not null
 			and cchcf.[idfId] is null
@@ -5197,7 +4761,7 @@ where		cchcf.[idfHumanCaseFiltered_v7] is null
 
 
 
---------------------------------------------------------------
+--
 
 print N'Determine copies of Addresses/Locations of HDRs v7, their Patients and/or Contact Persons based on Addresses/Locations of Human Cases, their Patients and Contact Persons from v6.1'
 print N''
@@ -5206,8 +4770,8 @@ insert into [Giraffe].[dbo].[_dmccGeoLocation]
 (	idfGeoLocation_v6,
 	idfGeoLocation_v7
 )
-select		  cchc.[idfPointGeoLOcation_v6]
-			, cchc.[idfPointGeoLOcation_v7]
+select		  cchc.[idfPointGeoLocation_v6]
+			, cchc.[idfPointGeoLocation_v7]
 from		[Giraffe].[dbo].[_dmccHumanCase] cchc
 
 left join	[Giraffe].[dbo].[_dmccGeoLocation] ccgl_idfGeoLocation_v7
@@ -5275,7 +4839,7 @@ print N''
 
 
 
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--
 
 print N'Determine new Addresses/Locations v7 that were missing in v6.1'
 print N''
@@ -5398,7 +4962,7 @@ where		cch.[idfHumanPRAddress_v7] is not null
 print N'New permanent residence addresses of persons in v7 missing in matching persons from v6.1: ' + cast(@@rowcount as nvarchar(20))
 
 
--------------------------------------
+ --
 
 
 
@@ -5523,7 +5087,7 @@ where		tlbGeoLocation_v6.[idfGeoLocation] is null
 
 
 
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--
 
 print N'Determine copies of FF Instances of HDRs v7 (CS, EPI) and their Lab Tests based on FF Instances of Human Cases and their Lab Tests from v6.1'
 print N''
@@ -5596,7 +5160,7 @@ print N''
 
 
 
----------------------------------------------------------------------------------------------------
+ --
 
 print N'Determine new FF Instances v7 that were missing in v6.1'
 print N''
@@ -5709,7 +5273,7 @@ where		tlbObservation_v6.[idfObservation] is null
 
 
 
------------------------------------------------------------------------------------------------------------------------------------------
+--
 
 print N'Determine copies of FF Values of HDRs v7 and their Lab Tests v7 based on FF Values of Human Cases and their Lab Tests from v6.1'
 print N''
@@ -5785,7 +5349,7 @@ where		ccap.[idfActivityParameters_v7] is null
 
 
 
----------------------------------------------------------------------------------------------------------------------------------
+ --
 
 
 /*
@@ -5841,7 +5405,7 @@ from [Giraffe].[dbo]._dmccActivityParameters
 ************************************************************/
 
 
------------------------
+--
 
 /************************************************************
 * Insert records - Tables with records related to data modules - start
@@ -5850,8 +5414,8 @@ print N''
 print N'Insert records - Tables with records related to data modules - start'
 print N''
 
- 
--- -- -- -- -- --
+   
+--
 
 /************************************************************
 * Prepare data before insert - [tlbObservation]
@@ -5885,11 +5449,11 @@ on			tlbObservation_v7.[idfObservation] = ccnobs.[idfObservation_v7]
 where		tlbObservation_v7.[idfObservation] is null
 print N'Table [tlbObservation] - insert new FF instances that were missing in v6.1: ' + cast(@@rowcount as nvarchar(20))
 
-                                         
-                                          
-                                          
-                                          
-                                          
+    
+  
+  
+  
+  
 
 /************************************************************
 * Prepare data before insert - [tlbGeoLocation]
@@ -5929,11 +5493,11 @@ on			tlbGeoLocation_v7.[idfGeoLocation] = ccngl.[idfGeoLocation_v7]
 where		tlbGeoLocation_v7.[idfGeoLocation] is null
 print N'Table [tlbGeoLocation] - insert new Addresses/Locations that were missing in v6.1: ' + cast(@@rowcount as nvarchar(20))
 
-                                                                           
-                                          
-                                          
-                                          
-                                          
+ 
+  
+  
+  
+  
 
 
 --
@@ -6688,7 +6252,7 @@ select
 
 					, tlbFarm_v6.[strNationalName]
 
-					, tlbFarm_v6.[strFarmCode]
+					, isnull(j_tlbFarmActual_idfFarmActual_v7.[strFarmCode], tlbFarm_v6.[strFarmCode])
 
 					, tlbFarm_v6.[strFax]
 
@@ -10053,9 +9617,9 @@ select
 
 					, tlbHumanCase_v6.[datInvestigationStartDate]
 
-					, tlbHumanCase_v6.[datTentativeDiagnosisDate]
+					, cchc.[datTentativeDiagnosisDate]
 
-					, isnull(cchc.[datDiagnosisDate], tlbHumanCase_v6.[datFinalDiagnosisDate])
+					, cchc.[datFinalDiagnosisDate]
 
 					, cchc.[strNote]
 
@@ -10143,9 +9707,9 @@ select
 
 					, null /*TODO: Check the rule for the new field in EIDSSv7: idfsYNSpecificVaccinationAdministered*/
 
-					, null /*TODO: Check the rule for the new field in EIDSSv7: idfsYNPreviouslySoughtCare*/
+					, case when j_tlbOffice_idfSoughtCareFacility_v7.[idfOffice] is not null or tlbHumanCase_v6.[datFirstSoughtCareDate] is not null or j_trtBaseReference_idfsNonNotifiableDiagnosis_v7.[idfsBaseReference] is not null then 10100001 /*Yes*/ else null end /*Rule for the new field in EIDSSv7: idfsYNPreviouslySoughtCare*/
 
-					, null /*TODO: Check the rule for the new field in EIDSSv7: idfsYNExposureLocationKnown*/
+					, case when (j_tlbGeoLocation_idfPointGeoLocation_v7.[idfsLocation] is not null and j_tlbGeoLocation_idfPointGeoLocation_v7.[idfsLocation] <> @idfsCountry) or j_tlbGeoLocation_idfPointGeoLocation_v7.[blnForeignAddress] = 1 or tlbHumanCase_v6.[datExposureDate] is not null then 10100001 /*Yes*/ else null end /*Rule for the new field in EIDSSv7: idfsYNExposureLocationKnown*/
 
 					, cchc.strLegacyID_v6 /*Rule for the new field in EIDSSv7: LegacyCaseID*/
 
@@ -10258,14 +9822,14 @@ on			cchc.idfHumanCase_v6 = tlbHumanCase_v6.[idfHumanCase]
 		on	
 
 
-					j_trtDiagnosis_idfsTentativeDiagnosis_v7.[idfsDiagnosis] = tlbHumanCase_v6.[idfsTentativeDiagnosis] 
+					j_trtDiagnosis_idfsTentativeDiagnosis_v7.[idfsDiagnosis] = cchc.[idfsTentativeDiagnosis] 
 
 					left join	[Giraffe].[dbo].[trtDiagnosis] j_trtDiagnosis_idfsFinalDiagnosis_v7
 
 		on	
 
 
-					j_trtDiagnosis_idfsFinalDiagnosis_v7.[idfsDiagnosis] = cchc.[idfsDiagnosis] 
+					j_trtDiagnosis_idfsFinalDiagnosis_v7.[idfsDiagnosis] = cchc.[idfsFinalDiagnosis] 
 
 					left join	[Giraffe].[dbo].[trtBaseReference] j_trtBaseReference_idfsInitialCaseStatus_v7
 
@@ -13245,7 +12809,7 @@ select
 
 					, GETUTCDATE()
 
-					, null /*TODO: Check the rule for the new field in EIDSSv7: LegacyFormID*/
+					, tlbBasicSyndromicSurveillanceAggregateHeader_v6.[strFormID] /*Rule for the new field in EIDSSv7: LegacyFormID*/
 from [Falcon].[dbo].[tlbBasicSyndromicSurveillanceAggregateHeader] tlbBasicSyndromicSurveillanceAggregateHeader_v6 
 
 
@@ -13889,8 +13453,8 @@ on
 where tflBasicSyndromicSurveillanceFiltered_v7.[idfBasicSyndromicSurveillanceFiltered] is null 
 print N'Table [tflBasicSyndromicSurveillanceFiltered] - insert: ' + cast(@@rowcount as nvarchar(20))
 
-     
--- --
+    
+--
 
 /************************************************************
 * Update/insert records with links to foreign key data - [tlbHuman]
@@ -13944,7 +13508,7 @@ on	HumanAddlInfo_v7.[HumanAdditionalInfo] = cch.[idfHuman_v7]
 where	HumanAddlInfo_v7.[HumanAdditionalInfo] is null
 print N'Table [HumanAddlInfo] - insert new detailed info (including reported Age) for copies of the persons: ' + cast(@@rowcount as nvarchar(20))
 
-                                                                       
+      
 
 /************************************************************
 * Update/insert records with links to foreign key data - [tlbFreezerSubdivision]
@@ -13960,7 +13524,7 @@ on			tlbFreezerSubdivision_parent_v7.idfSubdivision = tlbFreezerSubdivision_v6.i
 where		tlbFreezerSubdivision_V7.idfParentSubdivision is null
 print	N'Table [tlbFreezerSubdivision] - update link to the parent subdivision from migrated subdivisions: ' + cast(@@rowcount as nvarchar(20))
 
-                                                   
+           
 
 /************************************************************
 * Update/insert records with links to foreign key data - [tlbOutbreak]
@@ -13975,7 +13539,6 @@ left join	[Giraffe].[dbo].[_dmccHumanCase] cchc
 	inner join	[Giraffe].[dbo].[tlbHumanCase] tlbHumanCase_v7
 	on			tlbHumanCase_v7.[idfHumanCase] = cchc.[idfHumanCase_v7]
 on			cchc.[idfHumanCase_v6] = tlbOutbreak_v6.[idfPrimaryCaseOrSession]
-			and cchc.[isFinal] = 1
 left join	[Giraffe].[dbo].[tlbVetCase] tlbVetCase_v7
 on			tlbVetCase_v7.[idfVetCase] = tlbOutbreak_v6.[idfPrimaryCaseOrSession]
 left join	[Giraffe].[dbo].[tlbVectorSurveillanceSession] tlbVectorSurveillanceSession_v7
@@ -13983,7 +13546,7 @@ on			tlbVectorSurveillanceSession_v7.[idfVectorSurveillanceSession] = tlbOutbrea
 where		tlbOutbreak_v7.[idfPrimaryCaseOrSession] is null
 print	N'Table [tlbOutbreak] - update link to the primary case/session from migrated outbreaks: ' + cast(@@rowcount as nvarchar(20))
 
-                                                          
+      
 
 /************************************************************
 * Update/insert records with links to foreign key data - [tlbVector]
@@ -13999,7 +13562,7 @@ on			tlbVector_host_v7.idfVector = tlbVector_v6.idfHostVector
 where		tlbVector_V7.idfHostVector is null
 print	N'Table [tlbVector] - update link to the host Vector from migrated vectors: ' + cast(@@rowcount as nvarchar(20))
 
-              
+  
 
 /************************************************************
 * Update/insert records with links to foreign key data - [tlbMonitoringSession]
@@ -14015,7 +13578,7 @@ on			tlbMonitoringSession_v7.[idfMonitoringSession] = tlbFarm_v6.[idfMonitoringS
 where		tlbFarm_v7.[idfMonitoringSession] is null
 print	N'Table [tlbFarm] - update link to the AS Session from migrated copies of farms: ' + cast(@@rowcount as nvarchar(20))
 
-                                
+     
 
 /************************************************************
 * Update/insert records with links to foreign key data - [tlbHumanCase]
@@ -14030,48 +13593,7 @@ inner join	[Giraffe].[dbo].[tlbHumanCase] tlbHumanCase_dedupl_v7
 on			tlbHumanCase_dedupl_v7.[idfHumanCase] = cchc.[idfDeduplicationResultCase_v7]
 where		tlbHumanCase_v7.[idfDeduplicationResultCase] is null
 print	N'Table [tlbHumanCase] - update link to the deduplication case survivor from migrated HDRs: ' + cast(@@rowcount as nvarchar(20))
-
-
-insert into	[Giraffe].[dbo].[HumanDiseaseReportRelationship]
-(	[HumanDiseasereportRelnUID],
-	[HumanDiseaseReportID],
-	[RelateToHumanDiseaseReportID],
-	[RelationshipTypeID],
-	[RelatedToHumanDiseaseReportIdRoot],
-	[intRowStatus],
-	[AuditCreateUser],
-	[AuditCreateDTM],
-	[AuditUpdateUser],
-	[AuditUpdateDTM],
-	[SourceSystemNameID],
-	[SourceSystemKeyValue]
-)
-select	  cchc.[HumanDiseasereportRelnUID_v7]
-		, cchc.[idfHumanCase_v7]
-		, cchc.[idfPreviousHumanCase_v7]
-		, 10503001 /*Connected Disease Report*/
-		, cchc.[idfRootHumanCase_v7]
-		, 0
-		, 'system'
-		, GETUTCDATE()
-		, 'system'
-		, GETUTCDATE()
-		, 10519002 /*Record Source: EIDSS6.1*/
-		, N'[{' + N'"HumanAdditionalInfo":' + isnull(cast(cchc.[HumanDiseasereportRelnUID_v7] as nvarchar(20)), N'null') + N'}]' collate Cyrillic_General_CI_AS
-from	[Giraffe].[dbo].[_dmccHumanCase] cchc
-inner join	[Giraffe].[dbo].[tlbHumanCase] tlbHumanCase_v7
-on	tlbHumanCase_v7.[idfHumanCase] = cchc.[idfPreviousHumanCase_v7]
-inner join	[Giraffe].[dbo].[tlbHumanCase] tlbHumanCaseRelateTo_v7
-on	tlbHumanCaseRelateTo_v7.[idfHumanCase] = cchc.[idfHumanCase_v7]
-inner join	[Giraffe].[dbo].[tlbHumanCase] tlbHumanCaseRoot_v7
-on	tlbHumanCaseRoot_v7.[idfHumanCase] = cchc.[idfRootHumanCase_v7]
-left join	[Giraffe].[dbo].[HumanDiseaseReportRelationship] HumanDiseaseReportRelationship_v7
-on	HumanDiseaseReportRelationship_v7.[HumanDiseasereportRelnUID] = cchc.[HumanDiseasereportRelnUID_v7]
-where	cchc.[HumanDiseasereportRelnUID_v7] is not null 
-		and HumanDiseaseReportRelationship_v7.[HumanDiseasereportRelnUID] is null
-print N'Table [HumanDiseaseReportRelationship] - insert relation records for connected HDRs in v7: ' + cast(@@rowcount as nvarchar(20))
-
-                                                                                               
+  
 
 /************************************************************
 * Update/insert records with links to foreign key data - [tlbMaterial]
@@ -14101,7 +13623,7 @@ on			tlbMaterial_Root_v7.[idfMaterial] = isnull(ccm.[idfRootMaterial_v7], tlbMat
 where		tlbMaterial_V7.[idfRootMaterial] is null
 print	N'Table [tlbMaterial] - update link to the root sample from migrated samples: ' + cast(@@rowcount as nvarchar(20))
 
-                        
+  
 
 /************************************************************
 * Update/insert records with links to foreign key data - [tlbTesting]
@@ -14144,7 +13666,7 @@ where		tlbMaterial_V7.[TestUnassignedIndicator] = 0
 								and (tlbTesting_v7.[blnExternalTest] = 0 or tlbTesting_v7.[blnExternalTest] is null)
 							)
 print	N'Table [tlbMaterial] - update Test Unassigned Indicator for migrated samples: ' + cast(@@rowcount as nvarchar(20))
-                           
+            
 
 
 update		tlbMaterial_v7
@@ -14194,7 +13716,7 @@ print	N'Table [tlbMaterial] - update Transfer Indicator for migrated samples: ' 
 
 
 
---------------------------------------
+--
 
 print N''
 print N'Insert records - Tables with records related to data modules - end'
@@ -14209,7 +13731,7 @@ print N''
 
 
 
---------------------------------------------------------------------------------------------------------------------------
+--
 
 
 /************************************************************
@@ -14306,7 +13828,7 @@ where		not exists	(
 
 
 
-------------------------------------------------------------------------------------------------------------------------
+--
 
 set	@sqlIdResetCmd = @sqlIdResetCmd + N'
 -- Update initial ID in the table tstNewID
@@ -14389,7 +13911,7 @@ else
 exec [Giraffe].[sys].sp_executesql @sqlIdResetCmd
 
 
---------------------------------------------------------
+--
 
 
 
@@ -14479,7 +14001,7 @@ where		not exists	(
 
 
 
---------
+--
 
 set	@sqlIdResetCmd = @sqlIdResetCmd + N'
 -- Update initial ID in the table tflNewID
@@ -14569,7 +14091,7 @@ execute [Giraffe].[dbo].sp_executesql @sqlIdResetCmd
 ************************************************************/
 
 
------
+--
 
 
 
@@ -14619,7 +14141,7 @@ SET NOCOUNT OFF
 
 
 
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ --
 
 /**************************************************************************************************************************************
 * Enable Triggers
@@ -14639,5 +14161,4 @@ RETURN 1
 END
 
 GO
-
 

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
-using EIDSS.ClientLibrary.ApiClients.Administration.Security;
+﻿using EIDSS.ClientLibrary.ApiClients.Administration.Security;
 using EIDSS.ClientLibrary.Enumerations;
 using EIDSS.ClientLibrary.Services;
 using EIDSS.Domain.RequestModels.Administration;
@@ -19,7 +14,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using static System.String;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
 {
@@ -28,19 +27,9 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
     [Controller]
     public class UserGroupPageController : BaseController
     {
-        #region Globals
-
         private readonly IUserGroupClient _userGroupClient;
         private readonly UserPermissions _userGroupPermissions;
 
-        #endregion
-
-        #region Constructor
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="userGroupClient"></param>
         public UserGroupPageController(IUserGroupClient userGroupClient, ITokenService tokenService,
             ILogger<UserGroupPageController> logger) : base(logger, tokenService)
         {
@@ -48,10 +37,6 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
             authenticatedUser = _tokenService.GetAuthenticatedUser();
             _userGroupPermissions = GetUserPermissions(PagePermission.CanManageUserGroups);
         }
-
-        #endregion
-
-        #region Search User Group
 
         /// <summary>
         /// Loads the list view. This is the default view for this controller.
@@ -71,10 +56,6 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
             return View(model);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         [HttpPost()]
         public IActionResult Index(UserGroupSearchViewModel model)
         {
@@ -87,11 +68,6 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
             return View(model);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dataTableQueryPostObj"></param>
-        /// <returns></returns>
         [HttpPost()]
         [Route("GetUserGroupList")]
         public async Task<JsonResult> GetUserGroupList([FromBody] JQueryDataTablesQueryObject dataTableQueryPostObj)
@@ -107,7 +83,7 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
                 };
 
                 if (!ModelState.IsValid) return Json(tableData);
-                var postParameterDefinitions = new { SearchCriteria_strName = "", SearchCriteria_strDescription = ""};
+                var postParameterDefinitions = new { SearchCriteria_strName = "", SearchCriteria_strDescription = "" };
                 var searchCriteria = JsonConvert.DeserializeAnonymousType(dataTableQueryPostObj.postArgs, postParameterDefinitions);
 
                 if (dataTableQueryPostObj.postArgs == "{}") return Json(tableData);
@@ -119,7 +95,7 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
                 valuePair = dataTableQueryPostObj.ReturnSortParameter();
 
                 var strSortColumn = "strName";
-                if (!IsNullOrEmpty(valuePair.Key) && valuePair.Key != "idfsEmployeeGroupName")
+                if (!string.IsNullOrEmpty(valuePair.Key) && valuePair.Key != "idfsEmployeeGroupName")
                 {
                     strSortColumn = valuePair.Key;
                 }
@@ -129,7 +105,7 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
                 model.Page = iPage;
                 model.PageSize = iLength;
                 model.SortColumn = strSortColumn;
-                model.SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortDirection.Ascending;
+                model.SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortDirection.Ascending;
                 model.strName = searchCriteria.SearchCriteria_strName == "" ? null : searchCriteria.SearchCriteria_strName;
                 model.strDescription = searchCriteria.SearchCriteria_strDescription == "" ? null : searchCriteria.SearchCriteria_strDescription;
                 model.idfsSite = long.Parse(authenticatedUser.SiteId);
@@ -171,7 +147,7 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
 
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
                 if (jsonObject["idfEmployeeGroup"] != null && jsonObject["idfsEmployeeGroupName"] != null)
                 {
                     response = await _userGroupClient.DeleteUserGroup(long.Parse(jsonObject["idfEmployeeGroup"].ToString()), long.Parse(jsonObject["idfsEmployeeGroupName"].ToString()), long.Parse(authenticatedUser.SiteId), authenticatedUser.UserName);
@@ -186,10 +162,6 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
             return Json(response.ReturnMessage);
         }
 
-        #endregion
-
-        #region User Group Details
-
         public IActionResult Details(long? id)
         {
             UserGroupPageDetailsViewModel model = new()
@@ -199,8 +171,5 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
 
             return View(model);
         }
-
-        #endregion
-
     }
 }

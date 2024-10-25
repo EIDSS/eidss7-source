@@ -26,11 +26,9 @@ namespace EIDSS.Domain.ViewModels.Human
         public string strEnteredByOffice { get; set; }
         public long idfEnteredByPerson { get; set; }
         public string strEnteredByPerson { get; set; }
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         [LocalizedDateLessThanOrEqualToToday]
         [LocalizedRequiredIfTrue(nameof(FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationReceivedByDateFieldLabel))]
         public DateTime? datReceivedByDate { get; set; }
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         [LocalizedDateLessThanOrEqualToToday]
         [LocalizedRequiredIfTrue(nameof(FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportNotificationSentByDateFieldLabel))]
         public DateTime? datSentByDate { get; set; }

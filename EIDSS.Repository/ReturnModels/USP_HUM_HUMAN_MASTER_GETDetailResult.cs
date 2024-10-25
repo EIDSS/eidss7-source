@@ -52,6 +52,8 @@ namespace EIDSS.Repository.ReturnModels
         public string EmployerstrBuilding { get; set; }
         public string EmployerstrApartment { get; set; }
         public string EmployerDescription { get; set; }
+        public double? EmployerstrLatitude { get; set; }
+        public double? EmployerstrLongitude { get; set; }
         public bool? EmployerForeignAddressIndicator { get; set; }
         public string EmployerForeignAddressString { get; set; }
         public long? HumanPermGeoLocationID { get; set; }
@@ -71,6 +73,10 @@ namespace EIDSS.Repository.ReturnModels
         public string HumanPermstrBuilding { get; set; }
         public string HumanPermstrApartment { get; set; }
         public string HumanPermDescription { get; set; }
+        public double? HumanPermstrLatitude { get; set; }
+        public double? HumanPermstrLongitude { get; set; }
+        public bool? HumanPermForeignAddressIndicator { get; set; }
+        public string HumanPermForeignAddressString { get; set; }
         public long? HumanAltGeoLocationID { get; set; }
         public long? HumanAltidfsCountry { get; set; }
         public string HumanAltCountry { get; set; }
@@ -88,6 +94,8 @@ namespace EIDSS.Repository.ReturnModels
         public string HumanAltstrBuilding { get; set; }
         public string HumanAltstrApartment { get; set; }
         public string HumanAltDescription { get; set; }
+        public double? HumanAltstrLatitude { get; set; }
+        public double? HumanAltstrLongitude { get; set; }
         public bool? HumanAltForeignAddressIndicator { get; set; }
         public string HumanAltForeignAddressString { get; set; }
         public long? SchoolGeoLocationID { get; set; }
@@ -108,10 +116,10 @@ namespace EIDSS.Repository.ReturnModels
         public string SchoolstrApartment { get; set; }
         public bool? SchoolForeignAddressIndicator { get; set; }
         public string SchoolForeignAddressString { get; set; }
-        public string DateOfBirth { get; set; }
-        public string DateOfDeath { get; set; }
-        public string EnteredDate { get; set; }
-        public string ModificationDate { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+        public DateTime? DateOfDeath { get; set; }
+        public DateTime? EnteredDate { get; set; }
+        public DateTime? ModificationDate { get; set; }
         public string FirstOrGivenName { get; set; }
         public string SecondName { get; set; }
         public string LastOrSurname { get; set; }
@@ -152,5 +160,7 @@ namespace EIDSS.Repository.ReturnModels
         public string YNSchoolForeignAddress { get; set; }
         public string YNWorkSameAddress { get; set; }
         public string YNPermanentSameAddress { get; set; }
+        public long? IsAnotherPhoneTypeID { get; set; }
+        public long? IsAnotherAddressTypeID { get; set; }
     }
 }

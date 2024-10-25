@@ -80,6 +80,11 @@ namespace EIDSS.Web.ViewModels
         public string Endpoint { get; set; }
 
         /// <summary>
+        /// Allows users to add validation span
+        /// </summary>
+        public bool AddValidationTag { get; set; }
+
+        /// <summary>
         /// Default data
         /// </summary>
         public Select2DataItem defaultSelect2Selection { get; set; }

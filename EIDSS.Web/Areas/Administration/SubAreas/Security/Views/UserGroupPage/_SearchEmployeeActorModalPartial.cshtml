@@ -10,6 +10,7 @@
             <div class="modal-body">
                 <form id="actorSearchForm">
                     <div id="actorSearchCriteria" class="card">
+                        @*<form id="actorSearchForm">*@
                         <div class="card-header">
                             <div class="row">
                                 <div class="col-lg-11">
@@ -17,6 +18,9 @@
                                 </div>
                                 <div class="col-lg-1 pull-right">
                                     <span id="toggleActorSearchIcon" class="fas fa-caret-up align-bottom fa-2x e-dark-blue" data-toggle="collapse" data-target="#actorSearchCriteriaForm" aria-expanded="true" onclick="toggleActorSearchCriteria(event);">&nbsp;</span>
+                                    @*<a id="aToggleActorSearch" href="#actorSearchCriteriaForm" data-toggle="collapse" data-parent="#actorSearchCriteria" onclick="toggleActorSearchCriteria(event);">
+                <span id="toggleActorSearchIcon" role="button" class="toggle-icon fas fa-caret-down fa-2x">&nbsp;</span>
+            </a>*@
                                 </div>
                             </div>
                         </div>
@@ -53,6 +57,7 @@
                             <button id="actorSearchCriteriaClear" type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.ClearButton"></button>
                             <button id="actorSearchCriteriaSearch" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.SearchButton"></button>
                         </div>
+                        @*</form>*@
                     </div>
                     <br />
                     <div id="actorSearchResults" class="card">
@@ -65,6 +70,7 @@
                         <div id="actorSearchResultsCommands" class="card-footer">
                             <button id="actorSearchResultsCancel" type="button" class="btn btn-outline-primary" data-dismiss="modal" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
                             <button id="selectActors" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.SelectButton">Select</button>
+                            @*<button id="selectAllActors" type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.SelectAllButton">Select All</button>*@
                         </div>
                     </div>
                 </form>
@@ -82,6 +88,24 @@
     });
 
     function toggleActorSearchCriteria(e) {
+        //var icon = document.getElementById('toggleActorSearchIcon');
+        //if (icon.classList == 'svg-inline--fa fa-caret-down fa-w-10 toggle-icon fa-2x') {
+        //    icon.classList.toggle("fa-caret-up");
+        //    $('#actorSearchCancelCriteria').hide();
+        //    $('#actorSearchClear').show();
+        //    $('#actorSearch').show();
+        //    $("#actorSearchCriteriaForm").collapse('hide');
+        //    $("#actorSearchCriteriaCommands").show();
+        //}
+        //else {
+        //    icon.classList.toggle("fa-caret-down");
+        //    $("#actorSearchCancelCriteria").hide();
+        //    $("#actorSearchClear").hide();
+        //    $("#actorSearch").hide();
+        //    $("#actorSearchCriteriaForm").collapse('show');
+        //    $("#actorSearchCriteriaCommands").hide();
+        //    $("#actorSearchCancelResults").show();
+        //}
         if ($("#actorSearchCriteriaForm").hasClass("show")) {
             $("#toggleActorSearchIcon").removeClass("fa-caret-down").addClass("fa-caret-up");
             $("#actorSearchCancelCriteria").hide();
@@ -96,6 +120,7 @@
             $("#actorSearchCancelCriteria").hide();
             $("#actorSearchClear").show();
             $("#actorSearch").show();
+        /*    $("#addSiteSearchCriteria").hide();*/
             $("#actorSearchCriteriaForm").collapse("hide");
             $("#actorSearchCriteriaCommands").show();
         }
@@ -140,8 +165,12 @@
         if (idfEmployeeGroup != "") {
             selectEmployeeActors();
         } else {
+            /*alert("undefined");*/
+            /*selectActors()*/
             submitUserGroupDetails(event);
             $("#searchEmployeeActorModal").modal("hide");
+            /*$('#employeesForUserGroupGrid').DataTable().ajax.reload();*/
+            /*loadEmployeesForUserGroupListTable();*/
         }
     });
 
@@ -167,12 +196,15 @@
 
 
     function validateDuplicateActors(actors) {
+        /*alert("validateDuplicateActor");*/
         var actorsArray = actors.sort();
         for (var i = 0; i < actorsArray.length - 1; i++) {
             if (actorsArray[i + 1] == actorsArray[i]) {
+                /*alert("false");*/
                 return false;
             }
         }
+        /*alert("true");*/
         return true;
     };
 
@@ -200,12 +232,19 @@
             contentType: "application/json",
             type: "POST",
             success: function (response) {
+            /*alert("success!!");*/
+                //if ($.fn.dataTable.isDataTable('#employeesForUserGroupGrid')) {
+                //    userList = $('#employeesForUserGroupGrid').DataTable();
+                //    userList.destroy();
+                //    initializeEmployeesForUserGroupListTable();
+                //}
 
                 $('#employeesForUserGroupGrid').DataTable().ajax.reload();
 
                 $("#searchEmployeeActorModal").modal("hide");
                 if ($('.modal.show').length == 0) {
                     $('.modal-backdrop').remove();
+           /*         showInformationalModal(response.informationalMessage);*/
                 }
             }
             ,error: function (reponse) { alert("An error occurred: " + reponse); }
@@ -218,6 +257,8 @@
     };
 
     function loadEmployeesForUserGroupListTable(id) {
+        /*alert("loadEmployeesForUserGroupListTable!!");*/
+        /*var idfEmployeeGroup = $("[id$=SearchCriteria_idfEmployeeGroup]").val();*/
         var idfEmployeeGroup = id;
         alert(idfEmployeeGroup);
 
@@ -242,6 +283,7 @@
     };
 
     function selectActors() {
+        /*alert("selectActors");*/
         var actors = [];
         var existingActors = [];
         existingActors = $("#employeesForUserGroupGrid").DataTable().rows().data().toArray();
@@ -257,6 +299,7 @@
                  actors.push(value[0]);
              }
         });
+        /*alert($("#searchActorGrantingActorIndicator").val());*/
         if (validateDuplicateActors(actors) == false) {
             showErrorModal("@Localizer.GetString(MessageResourceKeyConstants.DuplicateRecordsAreNotAllowedMessage)");
         }
@@ -265,6 +308,7 @@
             if (idfEmployeeGroup == "") {
                 idfEmployeeGroup = null;
             }
+            /*alert(idfEmployeeGroup);*/
 
             actors = [];
             var actor;
@@ -288,6 +332,27 @@
                 }
             });
 
+            @*if (actors.length > 0) {
+                 $.ajax({
+                    url: '@Url.Action("SaveSystemFunctionsPersonAndEmployeeGroups", "SystemFunctions", new { Area = "Administration",SubArea = "Security" })',
+                     data: JSON.stringify(actors),
+                    contentType: "application/json",
+                    type: "POST",
+                     success: function (response) {
+                         $("#searchActorModal").modal("hide");
+                         if ($('.modal.show').length == 0) {
+                             $('.modal-backdrop').remove();
+                             showInformationalModal(response.informationalMessage);
+                             $("#accessUserList").DataTable().ajax.reload();
+
+
+                         }
+
+                    },
+                    error: function (reponse) { alert("An error occurred: " + reponse); }
+                });
+
+            }*@
         }
     };
 

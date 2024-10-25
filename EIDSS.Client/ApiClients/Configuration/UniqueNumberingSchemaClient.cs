@@ -17,6 +17,9 @@ namespace EIDSS.ClientLibrary.ApiClients.Configuration
 {
     public partial interface IUniqueNumberingSchemaClient
     {
+        //Task<List<VeterinaryAggregateDiseaseMatrixViewModel>> GetVeterinaryAggregateDiseaseMatrixListAsync(long idfVersion);
+        //Task<APIPostResponseModel> DeleteVeterinaryAggregateDiseaseMatrixRecord(long idfAggrVetCaseMTX);
+        //Task<APIPostResponseModel> SaveVeterinaryAggregateDiseaseMatrix(MatrixViewModel saveRequestModel);        
         Task<List<UniqueNumberingSchemaListViewModel>> GetUniqueNumberingSchemaListAsync(UniqueNumberingSchemaGetRequestModel request);
         Task<UniqueNumberingSchemaSaveResquestResponseModel> SaveUniqueNumberingSchemaAsync(UniqueNumberingSchemaSaveRequestModel saveRequestModel);
     }
@@ -78,6 +81,7 @@ namespace EIDSS.ClientLibrary.ApiClients.Configuration
                 _logger.LogError(ex.Message);
                 throw;
             }
+            //return returnResult;    
         }
     }
 

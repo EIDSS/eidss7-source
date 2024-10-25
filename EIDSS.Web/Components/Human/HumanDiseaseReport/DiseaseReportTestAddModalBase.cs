@@ -33,9 +33,6 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
     public class DiseaseReportTestAddModalBase : BaseComponent
     {
         [Inject]
-        private IOrganizationClient OrganizationClient { get; set; }
-
-        [Inject]
         private ICrossCuttingClient CrossCuttingClient { get; set; }
 
         [Inject]
@@ -78,7 +75,6 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
 
         protected IEnumerable<FilteredDiseaseGetListViewModel> Diseases;
         protected IEnumerable<DiseaseReportSamplePageSampleDetailViewModel> LocalSampleIDs;
-        protected IEnumerable<OrganizationAdvancedGetListViewModel> TestLaboratory;
 
         protected List<FiltersViewModel> TestNames;
 
@@ -99,7 +95,6 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
         protected int TestResultCount { get; set; }
         protected int DiseaseCount { get; set; }
         protected bool IsDiseaseSelected { get; set; }
-        protected int TestLabCount { get; set; }
         protected EditContext EditContext { get; set; }
 
         private UserPermissions _userPermissions;
@@ -436,25 +431,6 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
             }
         }
 
-        public void UpdateTestLabName(object value)
-        {
-            try
-            {
-                if (value == null) return;
-                var h = TestLaboratory.Where(x => x.idfOffice == long.Parse(value.ToString() ?? Empty));
-                var organizationAdvancedGetListViewModels = h.ToList();
-                if (organizationAdvancedGetListViewModels.Any())
-                {
-                    TestDetailModel.strTestedByOffice = organizationAdvancedGetListViewModels.FirstOrDefault()?.name;
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex.Message, ex);
-                throw;
-            }
-        }
-
         public void UpdateRuleOutRuleInName(object value)
         {
             try
@@ -534,35 +510,6 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                     TestResultCount = TestResult.Count();
                     await InvokeAsync(StateHasChanged);
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex.Message, ex);
-                throw;
-            }
-        }
-
-        public async Task LoadTestLaboratory(LoadDataArgs args)
-        {
-            try
-            {
-                OrganizationAdvancedGetRequestModel request = new()
-                {
-                    LangID = GetCurrentLanguage(),
-                    AccessoryCode = HACodeList.HumanHACode,
-                    AdvancedSearch = null,
-                    SiteFlag = (int)OrganizationSiteAssociations.OrganizationsWithOrWithoutSite,
-                    OrganizationTypeID = (long)OrganizationTypes.Laboratory,
-                };
-
-                if (args != null)
-                {
-                    request.AdvancedSearch = args.Filter;
-                }
-
-                var list = await OrganizationClient.GetOrganizationAdvancedList(request);
-                TestLaboratory = list.AsODataEnumerable();
-                TestLabCount = TestLaboratory.Count();
             }
             catch (Exception ex)
             {

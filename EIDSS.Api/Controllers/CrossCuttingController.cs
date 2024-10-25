@@ -1,38 +1,32 @@
-﻿using EIDSS.Api.ActionFilters;
-using EIDSS.CodeGenerator;
-using EIDSS.Api.Abstracts;
+﻿using EIDSS.Api.Abstracts;
+using EIDSS.Api.Provider;
 using EIDSS.Domain.RequestModels;
 using EIDSS.Domain.RequestModels.Administration;
+using EIDSS.Domain.RequestModels.Common;
 using EIDSS.Domain.RequestModels.CrossCutting;
 using EIDSS.Domain.ResponseModels;
 using EIDSS.Domain.ResponseModels.CrossCutting;
 using EIDSS.Domain.ViewModels;
 using EIDSS.Domain.ViewModels.Administration;
+using EIDSS.Domain.ViewModels.Common;
 using EIDSS.Domain.ViewModels.Configuration;
 using EIDSS.Domain.ViewModels.CrossCutting;
+using EIDSS.Repository;
 using EIDSS.Repository.Interfaces;
 using EIDSS.Repository.ReturnModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using Serilog;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Linq;
-using EIDSS.Api.Provider;
-using EIDSS.Repository.Contexts;
-using Microsoft.EntityFrameworkCore;
-using System.IO;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Configuration;
-using EIDSS.Repository;
-using Microsoft.Extensions.Caching.Memory;
-using EIDSS.Domain.ViewModels.Human;
-using EIDSS.Domain.RequestModels.Common;
-using EIDSS.Domain.ViewModels.Common;
-using Microsoft.AspNetCore.Authorization;
 
 namespace EIDSS.Api.Controllers
 {
@@ -44,16 +38,12 @@ namespace EIDSS.Api.Controllers
     public partial class CrossCuttingController : EIDSSControllerBase
     {
         private readonly XSiteConfigurationOptions _options = null;
-        private readonly IxSiteContextHelper _xsitehelper = null;
 
-        /// <summary>
-        /// Creates a new instance of the class.
-        /// </summary>
-        /// <param name="repository"></param>
-        /// <param name="options"></param>
-        /// <param name="xsitehelper"></param>
-        /// <param name="memoryCache"></param>
-        public CrossCuttingController(IDataRepository repository, IOptionsSnapshot<XSiteConfigurationOptions> options, IMemoryCache memoryCache) : base(repository, memoryCache)
+        public CrossCuttingController(
+            IDataRepository repository,
+            IOptionsSnapshot<XSiteConfigurationOptions> options,
+            IMemoryCache memoryCache)
+            : base(repository, memoryCache)
         {
             _options = options.Value;
         }
@@ -63,7 +53,6 @@ namespace EIDSS.Api.Controllers
         [ProducesResponseType(typeof(List<ActiveSurveillanceCampaignListViewModel>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(List<ActiveSurveillanceCampaignListViewModel>), StatusCodes.Status401Unauthorized)]
         [SwaggerOperation(Summary = "Returns Human/veterinary active surveillance campaign records", Tags = new[] { "Human and Veterinary active surveillance campaign" })]
-        //[SystemEventActionFilterAttribute(SystemEventEnum.DoesNotParticipate)]
         public async Task<IActionResult> GetActiveSurveillanceCampaignGetListAsync([FromBody] ActiveSurveillanceCampaignRequestModel request, CancellationToken cancellationToken = default)
         {
             List<ActiveSurveillanceCampaignListViewModel> results = null;
@@ -479,7 +468,7 @@ namespace EIDSS.Api.Controllers
             {
                 //Handled in Global cancellation handler and logs that the request was handled
                 cancellationToken.ThrowIfCancellationRequested();
-                //results = await _administrationRepository.GetVectorTypeListAsync(langID, strSearchVectorType, cancellationToken);
+
                 DataRepoArgs args = new()
                 {
                     Args = new object[] { languageId, referenceTypeName, intHACode, null, cancellationToken },
@@ -516,7 +505,7 @@ namespace EIDSS.Api.Controllers
             {
                 //Handled in Global cancellation handler and logs that the request was handled
                 cancellationToken.ThrowIfCancellationRequested();
-                //results = await _administrationRepository.GetVectorTypeListAsync(langID, strSearchVectorType, cancellationToken);
+
                 DataRepoArgs args = new()
                 {
                     Args = new object[] { languageid, null, cancellationToken },
@@ -542,31 +531,11 @@ namespace EIDSS.Api.Controllers
         }
 
         [HttpGet("GetCountryList")]
-        [ProducesResponseType(typeof(List<CountryModel>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(List<CountryModel>), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(List<CountryModel>), StatusCodes.Status401Unauthorized)]
         [SwaggerOperation(Summary = "Gets the entire country list", Tags = new[] { "Cross Cutting" })]
-        public async Task<ActionResult> GetCountryList(string languageId, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<List<CountryModel>>> GetCountryList(string languageId, string? nameFilter, CancellationToken cancellationToken = default)
         {
-            List<CountryModel> results = null;
-            try
-            {
-                DataRepoArgs args = new()
-                {
-                    Args = new object[] { languageId, null, cancellationToken },
-                    MappedReturnType = typeof(List<CountryModel>),
-                    RepoMethodReturnType = typeof(List<usp_Country_GetLookupResult>)
-                };
-
-                results = await _repository.Get(args) as List<CountryModel>;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex.Message);
-                throw;
-            }
-
-            return Ok(results);
+            var procArguments = new object[] { languageId, nameFilter, null, cancellationToken };
+            return await ExecuteOnRepository<USP_Country_GetLookupResult, CountryModel>(procArguments);
         }
 
         [HttpGet("GetUserGroupList")]
@@ -1255,10 +1224,9 @@ namespace EIDSS.Api.Controllers
         [ProducesResponseType(typeof(List<XSiteDocumentListViewModel>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(List<XSiteDocumentListViewModel>), StatusCodes.Status401Unauthorized)]
         [SwaggerOperation(Summary = "Gets the complete list of xsite help documents for the given language", Tags = new[] { "Cross Cutting" })]
-        public async Task<ActionResult> GetXSiteDocumentList(string languageid, [FromServices] IxSiteContextHelper xsitehelper, CancellationToken cancellationToken = default)
+        public async Task<ActionResult> GetXSiteDocumentList(string languageId, [FromServices] IXSiteContextHelper xSiteHelper, CancellationToken cancellationToken = default)
         {
             List<XSiteDocumentListViewModel> results = null;
-            IXSiteContext ctx = null;
 
             try
             {
@@ -1266,8 +1234,7 @@ namespace EIDSS.Api.Controllers
 
                 if (results != null) return Ok(results);
 
-                #region (1)  Get the document map
-
+                // Get the document map
                 results = new List<XSiteDocumentListViewModel>();
 
                 DataRepoArgs args = new()
@@ -1279,40 +1246,25 @@ namespace EIDSS.Api.Controllers
 
                 var map = await _repository.Get(args) as List<USP_xSiteDocumentListGetResult>;
 
-                #endregion (1)  Get the document map
+                // Get the associated document list from its respective database
 
-                #region (2) Get the associated document list from its respective database
-
-                if (string.IsNullOrEmpty(languageid))
+                if (string.IsNullOrEmpty(languageId))
                 {
-                    languageid = "en-US";
+                    languageId = "en-US";
                 }
 
-                ctx = xsitehelper.GetXSiteInstance(languageid);
-
-                if (languageid == "en-US")
+                var context = xSiteHelper.GetXSiteInstance(languageId);
+                if (context == null)
                 {
-                    languageid = "en";
-                }
-                else if (languageid == "az-Latn-AZ")
-                {
-                    languageid = "az-L";
-                }
-                else if (languageid == "ka-GE")
-                {
-                    languageid = "ka";
-                }
-                else
-                {
-                    languageid = "en";
+                    Log.Information($"Unable to find XSite for {languageId} language");
+                    throw new Exception("Unable to locate help documents for the given language");
                 }
 
-                    var langdocs =
-                    (
-                    from d in ctx.TDocuments
-                    join m in ctx.TDocumentGroupMappings on d.DocumentId equals m.DocumentId into j1
+                var langdocs = (
+                    from d in context.TDocuments
+                    join m in context.TDocumentGroupMappings on d.DocumentId equals m.DocumentId into j1
                     from dmg in j1.DefaultIfEmpty()
-                    join g in ctx.TDocumentGroups on dmg.DocumentGroupId equals g.DocumentGroupId into j2
+                    join g in context.TDocumentGroups on dmg.DocumentGroupId equals g.DocumentGroupId into j2
                     from ddmg in j2.DefaultIfEmpty()
                     where d.Guid != null && d.FileName != null
                     select new XSiteDocumentListViewModel
@@ -1342,61 +1294,61 @@ namespace EIDSS.Api.Controllers
                 if (langdocs.Count > 0)
                     results.AddRange(langdocs);
 
-                #endregion (2) Get the associated document list from its respective database
-
                 if (results == null)
                 {
                     Log.Information("Unable to find help documents");
                     throw new Exception("Unable to locate help documents for the given language");
                 }
-                else
+
+                foreach (var item in _options.LanguageConfigurations)
                 {
-                    foreach (var item in _options.LanguageConfigurations)
+                    if (item.CountryISOCode == "en-US")
                     {
-                        if (item.CountryISOCode == "en-US")
-                        {
-                            item.CountryISOCode = "en";
-                        }
-                        else if (item.CountryISOCode == "az-Latn-AZ")
-                        {
-                            item.CountryISOCode = "az-L";
-                        }
-                        else if (item.CountryISOCode == "ka-GE")
-                        {
-                            item.CountryISOCode = "ka";
-                        }
+                        item.CountryISOCode = "en";
                     }
-
-                    List<XSiteDocumentListViewModel> videolist = new();
-                    foreach (var vid in results)
+                    else if (item.CountryISOCode == "az-Latn-AZ")
                     {
-                        var idx = _options.LanguageConfigurations.FindIndex(f => f.CountryISOCode.ToLower() == vid.CountryISOCode.ToLower());
-                        if (idx != -1)
-                        {
-                            vid.FileName = Path.Combine(_options.LanguageConfigurations[idx].DataDirectory, string.Format("DOC{0}", vid.DocumentID), vid.FileName);
-
-                            //Check if there is an MP4 file as well.
-                            if (vid.VideoName != null)
-                            {
-                                videolist.Add(new XSiteDocumentListViewModel
-                                {
-                                    DocumentGroupName = vid.DocumentGroupName,
-                                    DocumentID = vid.DocumentID,
-                                    DocumentName = vid.DocumentName,
-                                    FileName = Path.Combine(_options.LanguageConfigurations[idx].DataDirectory, string.Format("DOC{0}", vid.DocumentID), vid.VideoName),
-                                    GUID = vid.GUID,
-                                    CountryISOCode = vid.CountryISOCode,
-                                    EIDSSMenuID = vid.EIDSSMenuID,
-                                    EIDSSMenuPageLink = vid.EIDSSMenuPageLink
-                                });
-
-                                vid.VideoName = null;
-                            }
-                        }
+                        item.CountryISOCode = "az-L";
                     }
-
-                    results.AddRange(videolist);
+                    else if (item.CountryISOCode == "ka-GE")
+                    {
+                        item.CountryISOCode = "ka";
+                    }
+                    else if (item.CountryISOCode == "ru-RU")
+                    {
+                        item.CountryISOCode = "ru";
+                    }
                 }
+
+                List<XSiteDocumentListViewModel> videolist = new();
+                foreach (var vid in results)
+                {
+                    var idx = _options.LanguageConfigurations.FindIndex(f => f.CountryISOCode.ToLower() == vid.CountryISOCode.ToLower());
+                    if (idx != -1)
+                    {
+                        vid.FileName = Path.Combine(_options.LanguageConfigurations[idx].DataDirectory, string.Format("DOC{0}", vid.DocumentID), vid.FileName);
+
+                        //Check if there is an MP4 file as well.
+                        if (vid.VideoName != null)
+                        {
+                            videolist.Add(new XSiteDocumentListViewModel
+                            {
+                                DocumentGroupName = vid.DocumentGroupName,
+                                DocumentID = vid.DocumentID,
+                                DocumentName = vid.DocumentName,
+                                FileName = Path.Combine(_options.LanguageConfigurations[idx].DataDirectory, string.Format("DOC{0}", vid.DocumentID), vid.VideoName),
+                                GUID = vid.GUID,
+                                CountryISOCode = vid.CountryISOCode,
+                                EIDSSMenuID = vid.EIDSSMenuID,
+                                EIDSSMenuPageLink = vid.EIDSSMenuPageLink
+                            });
+
+                            vid.VideoName = null;
+                        }
+                    }
+                }
+
+                results.AddRange(videolist);
             }
             catch (Exception ex) when (ex is TaskCanceledException || ex is OperationCanceledException)
             {
@@ -1408,47 +1360,6 @@ namespace EIDSS.Api.Controllers
                 throw;
             }
 
-            return Ok(results);
-        }
-
-        /// <summary>
-        /// Retrieves the given xsite help file as a stream...
-        /// </summary>
-        /// <param name="filename">A fully qualified path to the location of the file on disk.  This filename will have been returned
-        /// via a call to the <see cref="GetXSiteDocumentList"/> method.</param>
-        /// <returns>
-        /// Returns a JSON OBJECT APIFileResponseModel with Properties: ReturnCode, ReturnMessage and the results payload
-        /// </returns>
-        [HttpGet("GetXSiteHelpFile")]
-        [ProducesResponseType(typeof(APIFileResponseModel), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(APIFileResponseModel), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(APIFileResponseModel), StatusCodes.Status401Unauthorized)]
-        [SwaggerOperation(Summary = "Get Access Rules and Permission", Tags = new[] { "Cross Cutting" })]
-        public async Task<ActionResult> GetXSITEHelpFile(string filename)
-        {
-            APIFileResponseModel results = new APIFileResponseModel();
-
-            try
-            {
-                // Check if file exists...
-                if (!System.IO.File.Exists(filename))
-                    throw new FileNotFoundException("File Not Found!"); // replace with call to localizer!!!!
-                else
-                {
-                    FileStream fs = new System.IO.FileStream(filename, System.IO.FileMode.Open, System.IO.FileAccess.Read);
-                    int length = Convert.ToInt32(fs.Length);
-                    byte[] data = new byte[length];
-                    await fs.ReadAsync(data, 0, length);
-                    fs.Close();
-                    results.Results = data;
-                    results.ReturnCode = StatusCodes.Status200OK;
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error("GetXSITEHelpFile failed", e);
-                throw;
-            }
             return Ok(results);
         }
 

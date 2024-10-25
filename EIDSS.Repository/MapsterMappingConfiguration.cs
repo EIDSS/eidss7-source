@@ -52,6 +52,8 @@ namespace EIDSS.Repository
 
             config.NewConfig<USP_ASPNetUser_GetDetailResult, AspNetUserDetailModel>();
 
+            //config.NewConfig<USP_ASPNetUser_GetDetailResult, AspNetUserDetailModel>().Map(src => src, dest => dest);
+
             config.NewConfig<USP_ADMIN_ACTOR_GETListResult, ActorGetListViewModel>();
 
             config.NewConfig<USP_ADMIN_ACCESS_RULE_ACTOR_GETListResult, AccessRuleGetListViewModel>();
@@ -80,7 +82,9 @@ namespace EIDSS.Repository
 
             config.NewConfig<USP_ADMIN_SYSTEM_PREFERENCE_SETResult, SystemPreferenceSaveResponseModel>();
 
-            config.NewConfig<usp_Country_GetLookupResult, CountryModel>();
+            config.NewConfig<USP_Country_GetLookupResult, CountryModel>();
+
+            //config.NewConfig<USP_OMM_Case_GetDetailResult, OMMCaseDetailModel>();
 
             config.NewConfig<USP_GBL_DISEASE_MTX_GETResult, HumanDiseaseMatrixListViewModel>();
 
@@ -278,6 +282,7 @@ namespace EIDSS.Repository
 
             #region "Flex Form"
 
+            //config.NewConfig<USP_ADMIN_FF_Parameter_GETResult, FlexFormParameterDetailViewModel>();
             config.NewConfig<USP_ADMIN_FF_TemplatesByParameter_GETResult, FlexFormTemplateByParameterListModel>();
             config.NewConfig<USP_ADMIN_FF_Template_GetDetailResult, FlexFormTemplateDetailViewModel>();
             config.NewConfig<USP_ADMIN_FF_TemplateDeterminantValues_GETResult, FlexFormTemplateDeterminantValuesListViewModel>();
@@ -302,6 +307,7 @@ namespace EIDSS.Repository
                 .Map(d => d.KeyId, s => s.idfsAction)
                 .Map(d => d.KeyIdName, s => "idfsAction");
 
+            //config.NewConfig<USP_REF_MEASUREREFERENCE_SETResult, MeasuresSaveRequestResponseModel>();
 
             #endregion Measures
 
@@ -369,6 +375,10 @@ namespace EIDSS.Repository
 
             #region VectorTypes
 
+            //config.NewConfig<USP_REF_VECTORTYPEREFERENCE_GETListResult, BaseReferenceEditorsViewModel>()
+            //   .Map(d => d.KeyId, s => s.idfsVectorType)
+            //   .Map(d => d.KeyIdName, s => "idfsVectorType");
+
             config.NewConfig<USP_REF_VECTORTYPEREFERENCE_SETResult, APISaveResponseModel>()
                  .Map(d => d.KeyId, s => s.idfsVectorType)
                   .Map(d => d.KeyIdName, s => "idfsVectorType"); ;
@@ -401,6 +411,7 @@ namespace EIDSS.Repository
 
             config.NewConfig<USP_ADMIN_EMPLOYEE_GETLISTResult, EmployeeListViewModel>();
             config.NewConfig<USP_GBL_EMPLOYEESITE_GETDETAILResult, AdminEmployeeSiteDetailsViewModel>();
+            //.Map(d => d., s => "idfsBaseReference");
 
             #endregion Employee
         }
@@ -425,6 +436,7 @@ namespace EIDSS.Repository
             config.NewConfig<USP_REP_LAB_TestingResultsDepartmentLookupResult, LABTestingResultsDepartmentViewModel>();
             config.NewConfig<USP_REP_Reports_GetListResult, ReportListViewModel>();
             config.NewConfig<USP_REP_HUM_DateFieldSource_GETResult, HumDateFieldSourceViewModel>();
+            config.NewConfig<USP_REP_Organization_GETResult, ReportOrganizationViewModel>();
             config.NewConfig<USP_REP_Organization_GETResult, ReportOrganizationViewModel>();
             config.NewConfig<USP_REP_VET_DateFieldSource_GETResult, VetDateFieldSourceViewModel>();
             config.NewConfig<USP_REP_HUM_ComparitiveCounter_GET_GGResult, HumanComparitiveCounterGGViewModel>();

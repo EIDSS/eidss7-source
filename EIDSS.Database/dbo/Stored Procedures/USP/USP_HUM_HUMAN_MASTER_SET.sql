@@ -64,8 +64,6 @@ CREATE PROCEDURE [dbo].[USP_HUM_HUMAN_MASTER_SET] (
 	@LastName NVARCHAR(200),
 	@DateOfBirth DATETIME = NULL,
 	@DateOfDeath DATETIME = NULL,
-	@ReportedAge INT = NULL,
-	@ReportAgeUOMID BIGINT = NULL,
 	@HumanGenderTypeID BIGINT = NULL,
 	@OccupationTypeID BIGINT = NULL,
 	@CitizenshipTypeID BIGINT = NULL,
@@ -138,7 +136,10 @@ CREATE PROCEDURE [dbo].[USP_HUM_HUMAN_MASTER_SET] (
 	@ContactPhone2 NVARCHAR(200) = NULL,
 	@ContactPhone2TypeID BIGINT = NULL,
     @idfDataAuditEvent BIGINT = NULL,
-	@AuditUser NVARCHAR(100) = ''
+	@AuditUser NVARCHAR(100) = '',
+
+	@IsAnotherPhoneTypeID BIGINT = NULL,
+	@IsAnotherAddressTypeID BIGINT = NULL
 	)
 AS
 BEGIN
@@ -155,9 +156,6 @@ BEGIN
 		ReturnCode INT,
 		ReturnMessage NVARCHAR(MAX)
 		);
-
-	DECLARE @idfsLocation BIGINT
-	DECLARE @AdminLevel INT
 
 	--Data Audit--
 
@@ -223,22 +221,24 @@ BEGIN
 			HumanActualAddlInfoUID bigint,
 			ReportedAge int,
 			ReportedAgeUOMID bigint,
-			PassportNbr varchar(20),
+			PassportNbr nvarchar(20),
 			IsEmployedID bigint,
-			EmployerPhoneNbr varchar(200),
+			EmployerPhoneNbr nvarchar(200),
 			EmployedDTM datetime,
 			IsStudentID bigint,
-			SchoolName varchar(200),
-			SchoolPhoneNbr varchar(200),
+			SchoolName nvarchar(200),
+			SchoolPhoneNbr nvarchar(200),
 			SchoolAddressID bigint,
 			SchoolLastAttendDTM datetime,
 			ContactPhoneCountryCode int,
-			ContactPhoneNbr varchar(200),
+			ContactPhoneNbr nvarchar(200),
 			ContactPhoneNbrTypeID bigint,
 			ContactPhone2CountryCode int,
-			ContactPhone2Nbr varchar(200),
+			ContactPhone2Nbr nvarchar(200),
 			ContactPhone2NbrTypeID bigint,
-			AltAddressID bigint			
+			AltAddressID bigint,
+			IsAnotherPhoneID bigint,
+			IsAnotherAddressID bigint
 		)
 
 		DECLARE @HumanActualAddlInfo_AfterEdit TABLE
@@ -246,22 +246,24 @@ BEGIN
 			HumanActualAddlInfoUID bigint,
 			ReportedAge int,
 			ReportedAgeUOMID bigint,
-			PassportNbr varchar(20),
+			PassportNbr nvarchar(20),
 			IsEmployedID bigint,
-			EmployerPhoneNbr varchar(200),
+			EmployerPhoneNbr nvarchar(200),
 			EmployedDTM datetime,
 			IsStudentID bigint,
-			SchoolName varchar(200),
-			SchoolPhoneNbr varchar(200),
+			SchoolName nvarchar(200),
+			SchoolPhoneNbr nvarchar(200),
 			SchoolAddressID bigint,
 			SchoolLastAttendDTM datetime,
 			ContactPhoneCountryCode int,
-			ContactPhoneNbr varchar(200),
+			ContactPhoneNbr nvarchar(200),
 			ContactPhoneNbrTypeID bigint,
 			ContactPhone2CountryCode int,
-			ContactPhone2Nbr varchar(200),
+			ContactPhone2Nbr nvarchar(200),
 			ContactPhone2NbrTypeID bigint,
-			AltAddressID bigint			
+			AltAddressID bigint,
+			IsAnotherPhoneID bigint,
+			IsAnotherAddressID bigint
 		)
 
 	--Data Audit--
@@ -300,229 +302,204 @@ BEGIN
             END
 			--Data Audit--
 
-			-- Set Employer Address 
-			SET @AdminLevel = 0
-			SELECT @AdminLevel = node.GetLevel() FROM dbo.gisLocation WHERE idfsLocation = @EmployeridfsLocation
-			
-			IF (@AdminLevel > 2)
-				OR @EmployerForeignAddressIndicator = 1
-
-				INSERT INTO @SupressSelect
-				EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING 
-					@GeolocationID = @EmployerGeoLocationID OUTPUT,
-					@DataAuditEventID = @idfDataAuditEvent,
-					@ResidentTypeID = NULL,
-					@GroundTypeID = NULL,
-					@GeolocationTypeID = NULL,
-					@LocationID = @EmployeridfsLocation,
-					@Apartment = @EmployerstrApartment,
-					@Building = @EmployerstrBuilding,
-					@StreetName = @EmployerstrStreetName,
-					@House = @EmployerstrHouse,
-					@PostalCodeString = @EmployeridfsPostalCode,
-					@DescriptionString = NULL,
-					@Distance = NULL,
-					@Latitude = NULL,
-					@Longitude = NULL,
-					@Elevation = NULL,
-					@Accuracy = NULL,
-					@Alignment = NULL,
-					@ForeignAddressIndicator = @EmployerForeignAddressIndicator,
-					@ForeignAddressString = @EmployerForeignAddressString,
-					@GeolocationSharedIndicator = 1,
-					@AuditUserName = @AuditUser,
-					@ReturnCode = @ReturnCode OUTPUT,
-					@ReturnMessage = @ReturnMessage OUTPUT;
+			-- Set Employer Address
+			INSERT INTO @SupressSelect
+			EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING 
+				@GeolocationID = @EmployerGeoLocationID OUTPUT,
+				@DataAuditEventID = @idfDataAuditEvent,
+				@ResidentTypeID = NULL,
+				@GroundTypeID = NULL,
+				@GeolocationTypeID = NULL,
+				@LocationID = @EmployeridfsLocation,
+				@Apartment = @EmployerstrApartment,
+				@Building = @EmployerstrBuilding,
+				@StreetName = @EmployerstrStreetName,
+				@House = @EmployerstrHouse,
+				@PostalCodeString = @EmployeridfsPostalCode,
+				@DescriptionString = NULL,
+				@Distance = NULL,
+				@Latitude = NULL,
+				@Longitude = NULL,
+				@Elevation = NULL,
+				@Accuracy = NULL,
+				@Alignment = NULL,
+				@ForeignAddressIndicator = @EmployerForeignAddressIndicator,
+				@ForeignAddressString = @EmployerForeignAddressString,
+				@GeolocationSharedIndicator = 1,
+				@AuditUserName = @AuditUser,
+				@ReturnCode = @ReturnCode OUTPUT,
+				@ReturnMessage = @ReturnMessage OUTPUT;
 
 			-- Set School Address 
-			SET @AdminLevel = 0
-			SELECT @AdminLevel = node.GetLevel() FROM dbo.gisLocation WHERE idfsLocation = @SchoolidfsLocation
-		
-			IF (@AdminLevel > 2)
-				OR @SchoolForeignAddressIndicator = 1
-
-				INSERT INTO @SupressSelect
-				EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING 
-					@GeolocationID = @SchoolGeoLocationID OUTPUT,
-					@DataAuditEventID = @idfDataAuditEvent,
-					@ResidentTypeID = NULL,
-					@GroundTypeID = NULL,
-					@GeolocationTypeID = NULL,
-					@LocationID = @SchoolidfsLocation,
-					@Apartment = @SchoolstrApartment,
-					@Building = @SchoolstrBuilding,
-					@StreetName = @SchoolstrStreetName,
-					@House = @SchoolstrHouse,
-					@PostalCodeString = @SchoolidfsPostalCode,
-					@DescriptionString = NULL,
-					@Distance = NULL,
-					@Latitude = NULL,
-					@Longitude = NULL,
-					@Elevation = NULL,
-					@Accuracy = NULL,
-					@Alignment = NULL,
-					@ForeignAddressIndicator = @SchoolForeignAddressIndicator,
-					@ForeignAddressString = @SchoolForeignAddressString,
-					@GeolocationSharedIndicator = 1,
-					@AuditUserName = @AuditUser,
-					@ReturnCode = @ReturnCode OUTPUT,
-					@ReturnMessage = @ReturnMessage OUTPUT;
+			INSERT INTO @SupressSelect
+			EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING 
+				@GeolocationID = @SchoolGeoLocationID OUTPUT,
+				@DataAuditEventID = @idfDataAuditEvent,
+				@ResidentTypeID = NULL,
+				@GroundTypeID = NULL,
+				@GeolocationTypeID = NULL,
+				@LocationID = @SchoolidfsLocation,
+				@Apartment = @SchoolstrApartment,
+				@Building = @SchoolstrBuilding,
+				@StreetName = @SchoolstrStreetName,
+				@House = @SchoolstrHouse,
+				@PostalCodeString = @SchoolidfsPostalCode,
+				@DescriptionString = NULL,
+				@Distance = NULL,
+				@Latitude = NULL,
+				@Longitude = NULL,
+				@Elevation = NULL,
+				@Accuracy = NULL,
+				@Alignment = NULL,
+				@ForeignAddressIndicator = @SchoolForeignAddressIndicator,
+				@ForeignAddressString = @SchoolForeignAddressString,
+				@GeolocationSharedIndicator = 1,
+				@AuditUserName = @AuditUser,
+				@ReturnCode = @ReturnCode OUTPUT,
+				@ReturnMessage = @ReturnMessage OUTPUT;
 
 			-- Set Current Address 
-			SET @AdminLevel = 0
-			SELECT @AdminLevel = node.GetLevel() FROM dbo.gisLocation WHERE idfsLocation = @HumanidfsLocation
-		
-			IF (@AdminLevel > 2)
-				INSERT INTO @SupressSelect
-				EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING 
-					@GeolocationID = @HumanGeoLocationID OUTPUT,
-					@DataAuditEventID = @idfDataAuditEvent,
-					@ResidentTypeID = NULL,
-					@GroundTypeID = NULL,
-					@GeolocationTypeID = NULL,
-					@LocationID = @HumanidfsLocation,
-					@Apartment = @HumanstrApartment,
-					@Building = @HumanstrBuilding,
-					@StreetName = @HumanstrStreetName,
-					@House = @HumanstrHouse,
-					@PostalCodeString = @HumanidfsPostalCode,
-					@DescriptionString = NULL,
-					@Distance = NULL,
-					@Latitude = @HumanstrLatitude,
-					@Longitude = @HumanstrLongitude,
-					@Elevation = @HumanstrElevation,
-					@Accuracy = NULL,
-					@Alignment = NULL,
-					@ForeignAddressIndicator = 0,
-					@ForeignAddressString = NULL,
-					@GeolocationSharedIndicator = 1, 
-					@AuditUserName = @AuditUser,
-					@ReturnCode = @ReturnCode OUTPUT,
-					@ReturnMessage = @ReturnMessage OUTPUT;
+			INSERT INTO @SupressSelect
+			EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING 
+				@GeolocationID = @HumanGeoLocationID OUTPUT,
+				@DataAuditEventID = @idfDataAuditEvent,
+				@ResidentTypeID = NULL,
+				@GroundTypeID = NULL,
+				@GeolocationTypeID = NULL,
+				@LocationID = @HumanidfsLocation,
+				@Apartment = @HumanstrApartment,
+				@Building = @HumanstrBuilding,
+				@StreetName = @HumanstrStreetName,
+				@House = @HumanstrHouse,
+				@PostalCodeString = @HumanidfsPostalCode,
+				@DescriptionString = NULL,
+				@Distance = NULL,
+				@Latitude = @HumanstrLatitude,
+				@Longitude = @HumanstrLongitude,
+				@Elevation = @HumanstrElevation,
+				@Accuracy = NULL,
+				@Alignment = NULL,
+				@ForeignAddressIndicator = 0,
+				@ForeignAddressString = NULL,
+				@GeolocationSharedIndicator = 1, 
+				@AuditUserName = @AuditUser,
+				@ReturnCode = @ReturnCode OUTPUT,
+				@ReturnMessage = @ReturnMessage OUTPUT;
 
 			-- Set Permanent Address 
-			SET @AdminLevel = 0
-			SELECT @AdminLevel = node.GetLevel() FROM dbo.gisLocation WHERE idfsLocation = @HumanPermidfsLocation
-		
-			IF (@AdminLevel > 2)
-				INSERT INTO @SupressSelect
-				EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING 
-					@GeolocationID = @HumanPermGeoLocationID OUTPUT,
-					@DataAuditEventID = @idfDataAuditEvent,
-					@ResidentTypeID = NULL,
-					@GroundTypeID = NULL,
-					@GeolocationTypeID = NULL,
-					@LocationID = @HumanPermidfsLocation,
-					@Apartment =@HumanPermstrApartment,
-					@Building =@HumanPermstrBuilding,
-					@StreetName =@HumanPermstrStreetName,
-					@House =@HumanPermstrHouse,
-					@PostalCodeString =@HumanPermidfsPostalCode,
-					@DescriptionString = NULL,
-					@Distance = NULL,
-					@Latitude = NULL,
-					@Longitude = NULL,
-					@Elevation = NULL,
-					@Accuracy = NULL,
-					@Alignment = NULL,
-					@ForeignAddressIndicator = 0,
-					@ForeignAddressString = NULL,
-					@GeolocationSharedIndicator = 1, 
-					@AuditUserName = @AuditUser,
-					@ReturnCode = @ReturnCode OUTPUT,
-					@ReturnMessage = @ReturnMessage OUTPUT;
+			INSERT INTO @SupressSelect
+			EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING 
+				@GeolocationID = @HumanPermGeoLocationID OUTPUT,
+				@DataAuditEventID = @idfDataAuditEvent,
+				@ResidentTypeID = NULL,
+				@GroundTypeID = NULL,
+				@GeolocationTypeID = NULL,
+				@LocationID = @HumanPermidfsLocation,
+				@Apartment =@HumanPermstrApartment,
+				@Building =@HumanPermstrBuilding,
+				@StreetName =@HumanPermstrStreetName,
+				@House =@HumanPermstrHouse,
+				@PostalCodeString =@HumanPermidfsPostalCode,
+				@DescriptionString = NULL,
+				@Distance = NULL,
+				@Latitude = NULL,
+				@Longitude = NULL,
+				@Elevation = NULL,
+				@Accuracy = NULL,
+				@Alignment = NULL,
+				@ForeignAddressIndicator = 0,
+				@ForeignAddressString = NULL,
+				@GeolocationSharedIndicator = 1, 
+				@AuditUserName = @AuditUser,
+				@ReturnCode = @ReturnCode OUTPUT,
+				@ReturnMessage = @ReturnMessage OUTPUT;
 
 			-- Set Alternate Address
-			SET @AdminLevel = 0
-			SELECT @AdminLevel = node.GetLevel() FROM dbo.gisLocation WHERE idfsLocation = @HumanAltidfsLocation
-		
-			IF (@AdminLevel > 2) OR @HumanAltForeignAddressIndicator = 1
-				INSERT INTO @SupressSelect
-				EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING
-					@GeolocationID = @HumanAltGeoLocationID OUTPUT,
-					@DataAuditEventID = @idfDataAuditEvent,
-					@ResidentTypeID = NULL,
-					@GroundTypeID = NULL,
-					@GeolocationTypeID = NULL,
-					@LocationID = @HumanAltidfsLocation,
-					@Apartment = @HumanAltstrApartment,
-					@Building = @HumanAltstrBuilding,
-					@StreetName = @HumanAltstrStreetName,
-					@House = @HumanAltstrHouse,
-					@PostalCodeString = @HumanAltidfsPostalCode,
-					@DescriptionString = NULL,
-					@Distance = NULL,
-					@Latitude = NULL,
-					@Longitude = NULL,
-					@Elevation = NULL,
-					@Accuracy = NULL,
-					@Alignment = NULL,
-					@ForeignAddressIndicator = @HumanAltForeignAddressIndicator,
-					@ForeignAddressString = @HumanAltForeignAddressString,
-					@GeolocationSharedIndicator = 1, 
-					@AuditUserName = @AuditUser,
-					@ReturnCode = @ReturnCode OUTPUT,
-					@ReturnMessage = @ReturnMessage OUTPUT;
+			INSERT INTO @SupressSelect
+			EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING
+				@GeolocationID = @HumanAltGeoLocationID OUTPUT,
+				@DataAuditEventID = @idfDataAuditEvent,
+				@ResidentTypeID = NULL,
+				@GroundTypeID = NULL,
+				@GeolocationTypeID = NULL,
+				@LocationID = @HumanAltidfsLocation,
+				@Apartment = @HumanAltstrApartment,
+				@Building = @HumanAltstrBuilding,
+				@StreetName = @HumanAltstrStreetName,
+				@House = @HumanAltstrHouse,
+				@PostalCodeString = @HumanAltidfsPostalCode,
+				@DescriptionString = NULL,
+				@Distance = NULL,
+				@Latitude = NULL,
+				@Longitude = NULL,
+				@Elevation = NULL,
+				@Accuracy = NULL,
+				@Alignment = NULL,
+				@ForeignAddressIndicator = @HumanAltForeignAddressIndicator,
+				@ForeignAddressString = @HumanAltForeignAddressString,
+				@GeolocationSharedIndicator = 1, 
+				@AuditUserName = @AuditUser,
+				@ReturnCode = @ReturnCode OUTPUT,
+				@ReturnMessage = @ReturnMessage OUTPUT;
 
-				INSERT INTO dbo.tlbHumanActual (
-					idfHumanActual,
-					idfsNationality,
-					idfsHumanGender,
-					idfCurrentResidenceAddress,
-					idfsOccupationType,
-					idfEmployerAddress,
-					idfRegistrationAddress,
-					datDateofBirth,
-					datDateOfDeath,
-					strFirstName,
-					strSecondName,
-					strLastName,
-					strRegistrationPhone,
-					strEmployerName,
-					strHomePhone,
-					strWorkPhone,
-					idfsPersonIDType,
-					strPersonID,
-					intRowStatus,
-					SourceSystemNameID,
-					SourceSystemKeyValue,
-					AuditCreateUser,
-					AuditCreateDTM,
-					AuditUpdateUser,
-					AuditUpdateDTM
-					)
-				VALUES (
-					@HumanMasterID,
-					@CitizenshipTypeID,
-					@HumanGenderTypeID,
-					@HumanGeoLocationID,
-					@OccupationTypeID,
-					@EmployerGeoLocationID,
-					@HumanPermGeoLocationID,
-					@DateOfBirth,
-					@DateOfDeath,
-					@FirstName,
-					@SecondName,
-					@LastName,
-					@RegistrationPhone,
-					@EmployerName,
-					@HomePhone,
-					@WorkPhone,
-					@PersonalIDType,
-					@PersonalID,
-					0,
-					10519001,
-					'[{"idfHumanActual":' + CAST(@HumanMasterID AS NVARCHAR(300)) + '}]',
-					@AuditUser,
-					GETDATE(),
-					@AuditUser,
-					GETDATE()
-					);
+			INSERT INTO dbo.tlbHumanActual (
+				idfHumanActual,
+				idfsNationality,
+				idfsHumanGender,
+				idfCurrentResidenceAddress,
+				idfsOccupationType,
+				idfEmployerAddress,
+				idfRegistrationAddress,
+				datDateofBirth,
+				datDateOfDeath,
+				strFirstName,
+				strSecondName,
+				strLastName,
+				strRegistrationPhone,
+				strEmployerName,
+				strHomePhone,
+				strWorkPhone,
+				idfsPersonIDType,
+				strPersonID,
+				intRowStatus,
+				SourceSystemNameID,
+				SourceSystemKeyValue,
+				AuditCreateUser,
+				AuditCreateDTM,
+				AuditUpdateUser,
+				AuditUpdateDTM
+				)
+			VALUES (
+				@HumanMasterID,
+				@CitizenshipTypeID,
+				@HumanGenderTypeID,
+				@HumanGeoLocationID,
+				@OccupationTypeID,
+				@EmployerGeoLocationID,
+				@HumanPermGeoLocationID,
+				@DateOfBirth,
+				@DateOfDeath,
+				@FirstName,
+				@SecondName,
+				@LastName,
+				@RegistrationPhone,
+				@EmployerName,
+				@HomePhone,
+				@WorkPhone,
+				@PersonalIDType,
+				@PersonalID,
+				0,
+				10519001,
+				'[{"idfHumanActual":' + CAST(@HumanMasterID AS NVARCHAR(300)) + '}]',
+				@AuditUser,
+				GETDATE(),
+				@AuditUser,
+				GETDATE()
+				);
 
-			--Data Audit--							
-
-				INSERT INTO tauDataAuditDetailCreate(idfDataAuditEvent, idfObjectTable, idfObject)
-				VALUES (@idfDataAuditEvent, @idfObjectTable_tlbHumanActual, @HumanMasterID)
+			--Data Audit--
+			INSERT INTO tauDataAuditDetailCreate(idfDataAuditEvent, idfObjectTable, idfObject)
+			VALUES (@idfDataAuditEvent, @idfObjectTable_tlbHumanActual, @HumanMasterID)
 			
 			--Data Audit--
 
@@ -558,13 +535,15 @@ BEGIN
 				AuditCreateUser,
 				AuditCreateDTM,
 				AuditUpdateUser,
-				AuditUpdateDTM
+				AuditUpdateDTM,
+				IsAnotherPhoneID,
+				IsAnotherAddressID
 				)
 			VALUES (
 				@HumanMasterID,
 				@EIDSSPersonID,
-				@ReportedAge,
-				@ReportAgeUOMID,
+				NULL,
+				NULL,
 				@PassportNumber,
 				@IsEmployedTypeID,
 				@EmployerPhone,
@@ -587,13 +566,15 @@ BEGIN
 				@AuditUser,
 				GETDATE(),
 				@AuditUser,
-				GETDATE()
+				GETDATE(),
+				@IsAnotherPhoneTypeID,
+				@IsAnotherAddressTypeID
 				);
 
 			--Data Audit--			
-				-- tauDataAuditEvent Event Type - Create 									
-				INSERT INTO tauDataAuditDetailCreate(idfDataAuditEvent, idfObjectTable, idfObject)
-				VALUES (@idfDataAuditEvent, @idfObjectTable_HumanActualAddlInfo, @HumanMasterID)			
+			-- tauDataAuditEvent Event Type - Create
+			INSERT INTO tauDataAuditDetailCreate(idfDataAuditEvent, idfObjectTable, idfObject)
+			VALUES (@idfDataAuditEvent, @idfObjectTable_HumanActualAddlInfo, @HumanMasterID)			
 			--Data Audit--
 
 			-- Create a human record from human actual for the laboratory module; register new sample.
@@ -623,168 +604,144 @@ BEGIN
 			--DataAudit-- 
 
 			-- Set Employer Address 
-			SET @AdminLevel = 0
-			SELECT @AdminLevel = node.GetLevel() FROM dbo.gisLocation WHERE idfsLocation = @EmployeridfsLocation
-			
-			IF (@AdminLevel > 2)
-				OR @EmployerForeignAddressIndicator = 1
-
-				INSERT INTO @SupressSelect
-				EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING 
-					@GeolocationID = @EmployerGeoLocationID OUTPUT,
-					@DataAuditEventID = @idfDataAuditEvent,
-					@ResidentTypeID = NULL,
-					@GroundTypeID = NULL,
-					@GeolocationTypeID = NULL,
-					@LocationID = @EmployeridfsLocation,
-					@Apartment = @EmployerstrApartment,
-					@Building = @EmployerstrBuilding,
-					@StreetName = @EmployerstrStreetName,
-					@House = @EmployerstrHouse,
-					@PostalCodeString = @EmployeridfsPostalCode,
-					@DescriptionString = NULL,
-					@Distance = NULL,
-					@Latitude = NULL,
-					@Longitude = NULL,
-					@Elevation = NULL,
-					@Accuracy = NULL,
-					@Alignment = NULL,
-					@ForeignAddressIndicator = @EmployerForeignAddressIndicator,
-					@ForeignAddressString = @EmployerForeignAddressString,
-					@GeolocationSharedIndicator = 1,
-					@AuditUserName = @AuditUser,
-					@ReturnCode = @ReturnCode OUTPUT,
-					@ReturnMessage = @ReturnMessage OUTPUT;
+			INSERT INTO @SupressSelect
+			EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING 
+				@GeolocationID = @EmployerGeoLocationID OUTPUT,
+				@DataAuditEventID = @idfDataAuditEvent,
+				@ResidentTypeID = NULL,
+				@GroundTypeID = NULL,
+				@GeolocationTypeID = NULL,
+				@LocationID = @EmployeridfsLocation,
+				@Apartment = @EmployerstrApartment,
+				@Building = @EmployerstrBuilding,
+				@StreetName = @EmployerstrStreetName,
+				@House = @EmployerstrHouse,
+				@PostalCodeString = @EmployeridfsPostalCode,
+				@DescriptionString = NULL,
+				@Distance = NULL,
+				@Latitude = NULL,
+				@Longitude = NULL,
+				@Elevation = NULL,
+				@Accuracy = NULL,
+				@Alignment = NULL,
+				@ForeignAddressIndicator = @EmployerForeignAddressIndicator,
+				@ForeignAddressString = @EmployerForeignAddressString,
+				@GeolocationSharedIndicator = 1,
+				@AuditUserName = @AuditUser,
+				@ReturnCode = @ReturnCode OUTPUT,
+				@ReturnMessage = @ReturnMessage OUTPUT;
 
 			-- Set School Address 
-			SET @AdminLevel = 0
-			SELECT @AdminLevel = node.GetLevel() FROM dbo.gisLocation WHERE idfsLocation = @SchoolidfsLocation
-		
-			IF (@AdminLevel > 2)
-				OR @SchoolForeignAddressIndicator = 1
-
-				INSERT INTO @SupressSelect
-				EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING 
-					@GeolocationID = @SchoolGeoLocationID OUTPUT,
-					@DataAuditEventID = @idfDataAuditEvent,
-					@ResidentTypeID = NULL,
-					@GroundTypeID = NULL,
-					@GeolocationTypeID = NULL,
-					@LocationID = @SchoolidfsLocation,
-					@Apartment = @SchoolstrApartment,
-					@Building = @SchoolstrBuilding,
-					@StreetName = @SchoolstrStreetName,
-					@House = @SchoolstrHouse,
-					@PostalCodeString = @SchoolidfsPostalCode,
-					@DescriptionString = NULL,
-					@Distance = NULL,
-					@Latitude = NULL,
-					@Longitude = NULL,
-					@Elevation = NULL,
-					@Accuracy = NULL,
-					@Alignment = NULL,
-					@ForeignAddressIndicator = @SchoolForeignAddressIndicator,
-					@ForeignAddressString = @SchoolForeignAddressString,
-					@GeolocationSharedIndicator = 1,
-					@AuditUserName = @AuditUser,
-					@ReturnCode = @ReturnCode OUTPUT,
-					@ReturnMessage = @ReturnMessage OUTPUT;
+			INSERT INTO @SupressSelect
+			EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING 
+				@GeolocationID = @SchoolGeoLocationID OUTPUT,
+				@DataAuditEventID = @idfDataAuditEvent,
+				@ResidentTypeID = NULL,
+				@GroundTypeID = NULL,
+				@GeolocationTypeID = NULL,
+				@LocationID = @SchoolidfsLocation,
+				@Apartment = @SchoolstrApartment,
+				@Building = @SchoolstrBuilding,
+				@StreetName = @SchoolstrStreetName,
+				@House = @SchoolstrHouse,
+				@PostalCodeString = @SchoolidfsPostalCode,
+				@DescriptionString = NULL,
+				@Distance = NULL,
+				@Latitude = NULL,
+				@Longitude = NULL,
+				@Elevation = NULL,
+				@Accuracy = NULL,
+				@Alignment = NULL,
+				@ForeignAddressIndicator = @SchoolForeignAddressIndicator,
+				@ForeignAddressString = @SchoolForeignAddressString,
+				@GeolocationSharedIndicator = 1,
+				@AuditUserName = @AuditUser,
+				@ReturnCode = @ReturnCode OUTPUT,
+				@ReturnMessage = @ReturnMessage OUTPUT;
 
 			-- Set Current Address 
-			SET @AdminLevel = 0
-			SELECT @AdminLevel = node.GetLevel() FROM dbo.gisLocation WHERE idfsLocation = @HumanidfsLocation
-		
-			IF (@AdminLevel > 2)
-				INSERT INTO @SupressSelect
-				EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING 
-					@GeolocationID = @HumanGeoLocationID OUTPUT,
-					@DataAuditEventID = @idfDataAuditEvent,
-					@ResidentTypeID = NULL,
-					@GroundTypeID = NULL,
-					@GeolocationTypeID = NULL,
-					@LocationID = @HumanidfsLocation,
-					@Apartment = @HumanstrApartment,
-					@Building = @HumanstrBuilding,
-					@StreetName = @HumanstrStreetName,
-					@House = @HumanstrHouse,
-					@PostalCodeString = @HumanidfsPostalCode,
-					@DescriptionString = NULL,
-					@Distance = NULL,
-					@Latitude = @HumanstrLatitude,
-					@Longitude = @HumanstrLongitude,
-					@Elevation = @HumanstrElevation,
-					@Accuracy = NULL,
-					@Alignment = NULL,
-					@ForeignAddressIndicator = 0,
-					@ForeignAddressString = NULL,
-					@GeolocationSharedIndicator = 1, 
-					@AuditUserName = @AuditUser,
-					@ReturnCode = @ReturnCode OUTPUT,
-					@ReturnMessage = @ReturnMessage OUTPUT;
+			INSERT INTO @SupressSelect
+			EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING 
+				@GeolocationID = @HumanGeoLocationID OUTPUT,
+				@DataAuditEventID = @idfDataAuditEvent,
+				@ResidentTypeID = NULL,
+				@GroundTypeID = NULL,
+				@GeolocationTypeID = NULL,
+				@LocationID = @HumanidfsLocation,
+				@Apartment = @HumanstrApartment,
+				@Building = @HumanstrBuilding,
+				@StreetName = @HumanstrStreetName,
+				@House = @HumanstrHouse,
+				@PostalCodeString = @HumanidfsPostalCode,
+				@DescriptionString = NULL,
+				@Distance = NULL,
+				@Latitude = @HumanstrLatitude,
+				@Longitude = @HumanstrLongitude,
+				@Elevation = @HumanstrElevation,
+				@Accuracy = NULL,
+				@Alignment = NULL,
+				@ForeignAddressIndicator = 0,
+				@ForeignAddressString = NULL,
+				@GeolocationSharedIndicator = 1, 
+				@AuditUserName = @AuditUser,
+				@ReturnCode = @ReturnCode OUTPUT,
+				@ReturnMessage = @ReturnMessage OUTPUT;
 
 			-- Set Permanent Address 
-			SET @AdminLevel = 0
-			SELECT @AdminLevel = node.GetLevel() FROM dbo.gisLocation WHERE idfsLocation = @HumanPermidfsLocation
-		
-			IF (@AdminLevel > 2)
-				INSERT INTO @SupressSelect
-				EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING 
-					@GeolocationID = @HumanPermGeoLocationID OUTPUT,
-					@DataAuditEventID = @idfDataAuditEvent,
-					@ResidentTypeID = NULL,
-					@GroundTypeID = NULL,
-					@GeolocationTypeID = NULL,
-					@LocationID = @HumanPermidfsLocation,
-					@Apartment =@HumanPermstrApartment,
-					@Building =@HumanPermstrBuilding,
-					@StreetName =@HumanPermstrStreetName,
-					@House =@HumanPermstrHouse,
-					@PostalCodeString =@HumanPermidfsPostalCode,
-					@DescriptionString = NULL,
-					@Distance = NULL,
-					@Latitude = NULL,
-					@Longitude = NULL,
-					@Elevation = NULL,
-					@Accuracy = NULL,
-					@Alignment = NULL,
-					@ForeignAddressIndicator = 0,
-					@ForeignAddressString = NULL,
-					@GeolocationSharedIndicator = 1, 
-					@AuditUserName = @AuditUser,
-					@ReturnCode = @ReturnCode OUTPUT,
-					@ReturnMessage = @ReturnMessage OUTPUT;
+			INSERT INTO @SupressSelect
+			EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING 
+				@GeolocationID = @HumanPermGeoLocationID OUTPUT,
+				@DataAuditEventID = @idfDataAuditEvent,
+				@ResidentTypeID = NULL,
+				@GroundTypeID = NULL,
+				@GeolocationTypeID = NULL,
+				@LocationID = @HumanPermidfsLocation,
+				@Apartment =@HumanPermstrApartment,
+				@Building =@HumanPermstrBuilding,
+				@StreetName =@HumanPermstrStreetName,
+				@House =@HumanPermstrHouse,
+				@PostalCodeString =@HumanPermidfsPostalCode,
+				@DescriptionString = NULL,
+				@Distance = NULL,
+				@Latitude = NULL,
+				@Longitude = NULL,
+				@Elevation = NULL,
+				@Accuracy = NULL,
+				@Alignment = NULL,
+				@ForeignAddressIndicator = 0,
+				@ForeignAddressString = NULL,
+				@GeolocationSharedIndicator = 1, 
+				@AuditUserName = @AuditUser,
+				@ReturnCode = @ReturnCode OUTPUT,
+				@ReturnMessage = @ReturnMessage OUTPUT;
 
 			-- Set Alternate Address
-			SET @AdminLevel = 0
-			SELECT @AdminLevel = node.GetLevel() FROM dbo.gisLocation WHERE idfsLocation = @HumanAltidfsLocation
-		
-			IF (@AdminLevel > 2) OR @HumanAltForeignAddressIndicator = 1
-				INSERT INTO @SupressSelect
-				EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING
-					@GeolocationID = @HumanAltGeoLocationID OUTPUT,
-					@DataAuditEventID = @idfDataAuditEvent,
-					@ResidentTypeID = NULL,
-					@GroundTypeID = NULL,
-					@GeolocationTypeID = NULL,
-					@LocationID = @HumanAltidfsLocation,
-					@Apartment = @HumanAltstrApartment,
-					@Building = @HumanAltstrBuilding,
-					@StreetName = @HumanAltstrStreetName,
-					@House = @HumanAltstrHouse,
-					@PostalCodeString = @HumanAltidfsPostalCode,
-					@DescriptionString = NULL,
-					@Distance = NULL,
-					@Latitude = NULL,
-					@Longitude = NULL,
-					@Elevation = NULL,
-					@Accuracy = NULL,
-					@Alignment = NULL,
-					@ForeignAddressIndicator = @HumanAltForeignAddressIndicator,
-					@ForeignAddressString = @HumanAltForeignAddressString,
-					@GeolocationSharedIndicator = 1, 
-					@AuditUserName = @AuditUser,
-					@ReturnCode = @ReturnCode OUTPUT,
-					@ReturnMessage = @ReturnMessage OUTPUT;
+			INSERT INTO @SupressSelect
+			EXECUTE dbo.USSP_GBL_ADDRESS_SET_WITH_AUDITING
+				@GeolocationID = @HumanAltGeoLocationID OUTPUT,
+				@DataAuditEventID = @idfDataAuditEvent,
+				@ResidentTypeID = NULL,
+				@GroundTypeID = NULL,
+				@GeolocationTypeID = NULL,
+				@LocationID = @HumanAltidfsLocation,
+				@Apartment = @HumanAltstrApartment,
+				@Building = @HumanAltstrBuilding,
+				@StreetName = @HumanAltstrStreetName,
+				@House = @HumanAltstrHouse,
+				@PostalCodeString = @HumanAltidfsPostalCode,
+				@DescriptionString = NULL,
+				@Distance = NULL,
+				@Latitude = NULL,
+				@Longitude = NULL,
+				@Elevation = NULL,
+				@Accuracy = NULL,
+				@Alignment = NULL,
+				@ForeignAddressIndicator = @HumanAltForeignAddressIndicator,
+				@ForeignAddressString = @HumanAltForeignAddressString,
+				@GeolocationSharedIndicator = 1, 
+				@AuditUserName = @AuditUser,
+				@ReturnCode = @ReturnCode OUTPUT,
+				@ReturnMessage = @ReturnMessage OUTPUT;
 
 			INSERT INTO @tlbHumanActual_BeforeEdit (
 				idfHumanActual, 
@@ -1340,7 +1297,9 @@ BEGIN
 				ContactPhone2CountryCode,
 				ContactPhone2Nbr,
 				ContactPhone2NbrTypeID,
-				AltAddressID)			
+				AltAddressID,
+				IsAnotherPhoneID,
+				IsAnotherAddressID)			
 			SELECT 
 				HumanActualAddlInfoUID,
 				ReportedAge, 
@@ -1360,13 +1319,13 @@ BEGIN
 				ContactPhone2CountryCode,
 				ContactPhone2Nbr,
 				ContactPhone2NbrTypeID,
-				AltAddressID
+				AltAddressID,
+				IsAnotherPhoneID,
+				IsAnotherAddressID
 				FROM HumanActualAddlInfo WHERE HumanActualAddlInfoUID = @HumanMasterID;
 
 			UPDATE dbo.HumanActualAddlInfo
-			SET ReportedAge = @ReportedAge,
-				ReportedAgeUOMID = @ReportAgeUOMID,
-				PassportNbr = @PassportNumber,
+			SET PassportNbr = @PassportNumber,
 				IsEmployedID = @IsEmployedTypeID,
 				EmployerPhoneNbr = @EmployerPhone,
 				EmployedDTM = @EmployedDateLastPresent,
@@ -1387,7 +1346,9 @@ BEGIN
 				AuditCreateUser = @AuditUser,
 				AuditCreateDTM = GETDATE(),
 				AuditUpdateUser = @AuditUser,
-				AuditUpdateDTM = GETDATE()
+				AuditUpdateDTM = GETDATE(),
+				IsAnotherPhoneID = @IsAnotherPhoneTypeID,
+				IsAnotherAddressID = @IsAnotherAddressTypeID
 			WHERE HumanActualAddlInfoUID = @HumanMasterID;
 
 			INSERT INTO @HumanActualAddlInfo_AfterEdit (
@@ -1409,11 +1370,13 @@ BEGIN
 				ContactPhone2CountryCode,
 				ContactPhone2Nbr,
 				ContactPhone2NbrTypeID,
-				AltAddressID)
+				AltAddressID,
+				IsAnotherPhoneID,
+				IsAnotherAddressID)
 			SELECT 
 				HumanActualAddlInfoUID,
-				ReportedAge, 
-				ReportedAgeUOMID,
+				NULL, 
+				NULL,
 				PassportNbr,
 				IsEmployedID,
 				EmployerPhoneNbr,
@@ -1429,7 +1392,9 @@ BEGIN
 				ContactPhone2CountryCode,
 				ContactPhone2Nbr,
 				ContactPhone2NbrTypeID,
-				AltAddressID			
+				AltAddressID,
+				IsAnotherPhoneID,
+				IsAnotherAddressID
 				FROM HumanActualAddlInfo WHERE HumanActualAddlInfoUID = @HumanMasterID;
 
 			--DataAudit-- 
@@ -1439,50 +1404,6 @@ BEGIN
 			-- insert record into tauDataAuditEvent - 
 			--INSERT INTO @SupressSelect
 			--EXEC USSP_GBL_DataAuditEvent_GET @idfUserId, @idfSiteId, @idfsDataAuditEventType, @idfsObjectType, @idfObject, @idfObjectTable_HumanActualAddlInfo, @idfDataAuditEvent OUTPUT
-
-			--ReportedAge
-			insert into dbo.tauDataAuditDetailUpdate(
-				idfDataAuditEvent, 
-				idfObjectTable, 
-				idfColumn, 
-				idfObject, 
-				idfObjectDetail, 
-				strOldValue, 
-				strNewValue)
-			select 
-				@idfDataAuditEvent,
-				@idfObjectTable_HumanActualAddlInfo, 
-				51586590000001,
-				a.HumanActualAddlInfoUID,
-				null,
-				a.ReportedAge,
-				b.ReportedAge 
-			from @HumanActualAddlInfo_BeforeEdit a inner join @HumanActualAddlInfo_AfterEdit b on a.HumanActualAddlInfoUID = b.HumanActualAddlInfoUID
-			where (a.ReportedAge <> b.ReportedAge) 
-				or(a.ReportedAge is not null and b.ReportedAge is null)
-				or(a.ReportedAge is null and b.ReportedAge is not null)
-
-			--ReportedAgeUOMID
-			insert into dbo.tauDataAuditDetailUpdate(
-				idfDataAuditEvent, 
-				idfObjectTable, 
-				idfColumn, 
-				idfObject, 
-				idfObjectDetail, 
-				strOldValue, 
-				strNewValue)
-			select 
-				@idfDataAuditEvent,
-				@idfObjectTable_HumanActualAddlInfo, 
-				51586590000002,
-				a.HumanActualAddlInfoUID,
-				null,
-				a.ReportedAgeUOMID,
-				b.ReportedAgeUOMID 
-			from @HumanActualAddlInfo_BeforeEdit a inner join @HumanActualAddlInfo_AfterEdit b on a.HumanActualAddlInfoUID = b.HumanActualAddlInfoUID
-			where (a.ReportedAgeUOMID <> b.ReportedAgeUOMID) 
-				or(a.ReportedAgeUOMID is not null and b.ReportedAgeUOMID is null)
-				or(a.ReportedAgeUOMID is null and b.ReportedAgeUOMID is not null)
 
 			--PassportNbr
 			insert into dbo.tauDataAuditDetailUpdate(
@@ -1835,6 +1756,50 @@ BEGIN
 			where (a.AltAddressID <> b.AltAddressID) 
 				or(a.AltAddressID is not null and b.AltAddressID is null)
 				or(a.AltAddressID is null and b.AltAddressID is not null)
+
+			--IsAnotherPhoneID
+			insert into dbo.tauDataAuditDetailUpdate(
+				idfDataAuditEvent, 
+				idfObjectTable, 
+				idfColumn, 
+				idfObject, 
+				idfObjectDetail, 
+				strOldValue, 
+				strNewValue)
+			select 
+				@idfDataAuditEvent,
+				@idfObjectTable_HumanActualAddlInfo, 
+				51586990000124,
+				a.HumanActualAddlInfoUID,
+				null,
+				a.IsAnotherPhoneID,
+				b.IsAnotherPhoneID 
+			from @HumanActualAddlInfo_BeforeEdit a inner join @HumanActualAddlInfo_AfterEdit b on a.HumanActualAddlInfoUID = b.HumanActualAddlInfoUID
+			where (a.IsAnotherPhoneID <> b.IsAnotherPhoneID) 
+				or(a.IsAnotherPhoneID is not null and b.IsAnotherPhoneID is null)
+				or(a.IsAnotherPhoneID is null and b.IsAnotherPhoneID is not null)
+
+			--IsAnotherAddressID
+			insert into dbo.tauDataAuditDetailUpdate(
+				idfDataAuditEvent, 
+				idfObjectTable, 
+				idfColumn, 
+				idfObject, 
+				idfObjectDetail, 
+				strOldValue, 
+				strNewValue)
+			select 
+				@idfDataAuditEvent,
+				@idfObjectTable_HumanActualAddlInfo, 
+				51586990000125,
+				a.HumanActualAddlInfoUID,
+				null,
+				a.IsAnotherAddressID,
+				b.IsAnotherAddressID 
+			from @HumanActualAddlInfo_BeforeEdit a inner join @HumanActualAddlInfo_AfterEdit b on a.HumanActualAddlInfoUID = b.HumanActualAddlInfoUID
+			where (a.IsAnotherAddressID <> b.IsAnotherAddressID) 
+				or(a.IsAnotherAddressID is not null and b.IsAnotherAddressID is null)
+				or(a.IsAnotherAddressID is null and b.IsAnotherAddressID is not null)
 
 		END;		
 

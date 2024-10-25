@@ -1,24 +1,16 @@
-﻿using EIDSS.Domain.Abstracts;
-using EIDSS.Domain.ViewModels;
-using EIDSS.Domain.ViewModels.Administration;
-using EIDSS.Domain.ViewModels.CrossCutting;
+﻿using EIDSS.Domain.ViewModels;
 using EIDSS.Localization.Constants;
 using EIDSS.Localization.Enumerations;
 using EIDSS.Localization.Helpers;
-using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
 using EIDSS.Web.TagHelpers.Models.EIDSSModal;
 using EIDSS.Web.ViewModels.Administration;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EIDSS.Web.ViewModels.Human
 {
     public class DiseaseReportNotificationPageViewModel
     {
-
         public long? HumanID { get; set; }
 
         public long? HumanActualID { get; set; }
@@ -26,6 +18,7 @@ namespace EIDSS.Web.ViewModels.Human
         public long? idfHumanCase { get; set; }
 
         public bool isEdit { get; set; }
+
         public bool CaseDisabled { get; set; } = false;
 
         [LocalizedRequiredIfTrue(nameof(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationLocalIdentifierFieldLabel))]
@@ -33,12 +26,10 @@ namespace EIDSS.Web.ViewModels.Human
 
         [IsValidDate]
         [LocalizedRequiredIfTrue(nameof(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfCompletionOfPaperFormFieldLabel))]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? dateOfCompletion { get; set; }
 
         public long? idfDisease { get; set; }
 
-        public long? idfOldDisease { get; set; }
         public string? strDisease { get; set; }
 
         [LocalizedRequired]
@@ -49,7 +40,7 @@ namespace EIDSS.Web.ViewModels.Human
         [LocalizedDateLessThanOrEqualToToday]
         [DateComparer(nameof(dateOfDiagnosis), "NotificationSection_dateOfDiagnosis", nameof(dateOfNotification), "NotificationSection_dateOfNotification", CompareTypeEnum.LessThanOrEqualTo, nameof(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfDiagnosisFieldLabel), nameof(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfNotificationFieldLabel))]
         public DateTime? dateOfDiagnosis { get; set; }
-        
+
         [IsValidDate]
         [LocalizedDateLessThanOrEqualToToday]
         [LocalizedRequiredIfTrue(nameof(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfNotificationFieldLabel))]
@@ -130,23 +121,32 @@ namespace EIDSS.Web.ViewModels.Human
         public bool IsReportClosed { get; set; } = false;
 
         public bool? blnInitialSSD { get; set; }
+
         public bool? blnFinalSSD { get; set; }
 
-        public string DateOfBirth { get; set; }
+        public DateTime? DateOfBirth { get; set; }
 
-        public string Age { get; set; }
         public int? ReportedAge { get; set; }
+
         public long? ReportedAgeUOMID { get; set; }
 
         public long? GenderTypeID { get; set; }
-        public string GenderTypeName { get; set; }
 
-        public bool isConnectedDiseaseReport { get; set; } = false;
+        public string GenderTypeName { get; set; }
 
         //Outbreak Related Information
         public bool isOutbreakCase { get; set; } = false;
 
         public DateTime? datOutbreakStartDate { get; set; }
 
+        public long? ChangedDiseaseId { get; set; }
+
+        public string? ChangedDiseaseName { get; set; }
+
+        [IsValidDate]
+        [LocalizedDateLessThanOrEqualToToday]
+        public DateTime? DateOfChangedDiagnosis { get; set; }
+
+        public long? ChangeDiagnosisReasonId { get; set; }
     }
 }

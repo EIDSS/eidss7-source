@@ -31,6 +31,17 @@ namespace EIDSS.Api.Provider
         }
 
 
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="user"></param>
+        ///// <returns></returns>
+        //public override async Task CreateAsync(TUser user)
+        //{
+        //    await base.CreateAsync(user);
+        //    await AddToPasswordHistoryAsync(user, user.PasswordHash,"System");
+        //}
+
         /// <summary>
         /// Adds an entry into the password history table
         /// </summary>

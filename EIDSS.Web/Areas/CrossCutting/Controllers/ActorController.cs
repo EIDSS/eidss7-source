@@ -1,6 +1,5 @@
-﻿#region Usings
-
-using EIDSS.ClientLibrary.ApiClients.CrossCutting;
+﻿using EIDSS.ClientLibrary.ApiClients.CrossCutting;
+using EIDSS.ClientLibrary.Enumerations;
 using EIDSS.ClientLibrary.Services;
 using EIDSS.Domain.RequestModels.CrossCutting;
 using EIDSS.Domain.RequestModels.DataTables;
@@ -17,10 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static System.String;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-
-#endregion
 
 namespace EIDSS.Web.Components
 {
@@ -31,7 +26,8 @@ namespace EIDSS.Web.Components
         private readonly ICrossCuttingClient _crossCuttingClient;
 
         public ActorController(ICrossCuttingClient crossCuttingClient,
-             ITokenService tokenService, ILogger<ActorController> logger) : base(logger, tokenService) { 
+             ITokenService tokenService, ILogger<ActorController> logger) : base(logger, tokenService)
+        {
 
             _crossCuttingClient = crossCuttingClient;
 
@@ -67,11 +63,6 @@ namespace EIDSS.Web.Components
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dataTableQueryPostObj"></param>
-        /// <returns></returns>
         [Route("GetActorList")]
         [HttpPost()]
         public async Task<JsonResult> GetActorList([FromBody] JQueryDataTablesQueryObject dataTableQueryPostObj)
@@ -96,11 +87,11 @@ namespace EIDSS.Web.Components
                 // Sorting
                 var valuePair = dataTableQueryPostObj.ReturnSortParameter();
 
-                if (IsNullOrEmpty(searchCriteria.SearchActorViewModel_SearchCriteria_ActorTypeID) &&
-                    IsNullOrEmpty(searchCriteria.SearchActorViewModel_SearchCriteria_ActorName) &&
-                    IsNullOrEmpty(searchCriteria.SearchActorViewModel_SearchCriteria_OrganizationName) &&
-                    IsNullOrEmpty(searchCriteria.SearchActorViewModel_SearchCriteria_UserGroupDescription) &&
-                    IsNullOrEmpty(searchCriteria.searchActorDataPermissionsDiseaseID))
+                if (string.IsNullOrEmpty(searchCriteria.SearchActorViewModel_SearchCriteria_ActorTypeID) &&
+                    string.IsNullOrEmpty(searchCriteria.SearchActorViewModel_SearchCriteria_ActorName) &&
+                    string.IsNullOrEmpty(searchCriteria.SearchActorViewModel_SearchCriteria_OrganizationName) &&
+                    string.IsNullOrEmpty(searchCriteria.SearchActorViewModel_SearchCriteria_UserGroupDescription) &&
+                    string.IsNullOrEmpty(searchCriteria.searchActorDataPermissionsDiseaseID))
                     return Json(tableData);
 
                 ActorGetRequestModel model = new()
@@ -108,10 +99,10 @@ namespace EIDSS.Web.Components
                     LanguageId = GetCurrentLanguage(),
                     Page = iPage,
                     PageSize = iLength,
-                    SortColumn = !IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "ActorName",
-                    SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Ascending,
+                    SortColumn = !string.IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "ActorName",
+                    SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending,
                     DiseaseFiltrationSearchIndicator =
-                        (searchCriteria.searchActorDataPermissionsDiseaseID != Empty),
+                        (searchCriteria.searchActorDataPermissionsDiseaseID != string.Empty),
                     ActorTypeID = searchCriteria.SearchActorViewModel_SearchCriteria_ActorTypeID == null
                         ? null
                         : Convert.ToInt64(searchCriteria.SearchActorViewModel_SearchCriteria_ActorTypeID),
@@ -125,7 +116,7 @@ namespace EIDSS.Web.Components
                         searchCriteria.SearchActorViewModel_SearchCriteria_UserGroupDescription == ""
                             ? null
                             : searchCriteria.SearchActorViewModel_SearchCriteria_UserGroupDescription,
-                    ApplySiteFiltrationIndicator = (searchCriteria.searchActorDataPermissionsDiseaseID != Empty),
+                    ApplySiteFiltrationIndicator = (searchCriteria.searchActorDataPermissionsDiseaseID != string.Empty),
                     UserEmployeeID = Convert.ToInt64(authenticatedUser.PersonId),
                     UserOrganizationID = authenticatedUser.OfficeId,
                     UserSiteID = Convert.ToInt64(authenticatedUser.SiteId)

@@ -81,6 +81,7 @@
                     <EditTemplate Context="settlementType">
                         <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Primary" Class="m-1" Click="@((args) => SaveRow(settlementType))"></RadzenButton>
                         <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Class="m-1" Click="@((args) => CancelEdit(settlementType))"></RadzenButton>
+                        @*<RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Class="m-1" Click="@(() => this.SettlementTypesGrid.Reload())"></RadzenButton>*@
                     </EditTemplate>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="SettlementTypeModel" Context="settlementType" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="40px">

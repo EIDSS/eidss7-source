@@ -31,6 +31,9 @@ namespace EIDSS.Repository.Contexts
         public virtual DbSet<TrtVectorType> TrtVectorType { get; set; }
         public virtual DbSet<TstObjectAccess> TstObjectAccess { get; set; }
         public virtual DbSet<TstUserTable> TstUserTable { get; set; }
+        public virtual DbSet<TlbHumanActual> TlbHumanActual { get; set; }
+        public virtual DbSet<TlbChangeDiagnosisHistory> TlbChangeDiagnosisHistory { get; set; }
+        public virtual DbSet<TrtDiagnosis> TrtDiagnosis { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

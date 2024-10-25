@@ -3,6 +3,7 @@ using EIDSS.ClientLibrary.Enumerations;
 using EIDSS.ClientLibrary.Services;
 using EIDSS.Domain.RequestModels.Administration;
 using EIDSS.Domain.RequestModels.DataTables;
+using EIDSS.Domain.ResponseModels;
 using EIDSS.Domain.ViewModels;
 using EIDSS.Domain.ViewModels.Administration;
 using EIDSS.Localization.Constants;
@@ -19,9 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using EIDSS.Domain.ResponseModels;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Administration.Controllers
 {
@@ -66,7 +64,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 var valuePair = dataTableQueryPostObj.ReturnSortParameter();
 
                 var strSortColumn = "StrName";
-                if (!IsNullOrEmpty(valuePair.Key) && valuePair.Key != "ReportDiseaseGroupId")
+                if (!string.IsNullOrEmpty(valuePair.Key) && valuePair.Key != "ReportDiseaseGroupId")
                 {
                     strSortColumn = valuePair.Key;
                 }
@@ -78,7 +76,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     Page = dataTableQueryPostObj.page,
                     PageSize = dataTableQueryPostObj.length,
                     SortColumn = strSortColumn,
-                    SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Ascending
+                    SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending
                 };
 
                 var response = await _reportDiseaseGroupClient.GetReportDiseaseGroupsList(request);
@@ -92,7 +90,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     draw = dataTableQueryPostObj.draw
                 };
 
-
                 var row = dataTableQueryPostObj.page > 0 ? (dataTableQueryPostObj.page - 1) * dataTableQueryPostObj.length : 0;
 
                 for (var i = 0; i < reportDiseaseGroupsList.Count(); i++)
@@ -101,9 +98,9 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     {
                         (row + i + 1).ToString(),
                         reportDiseaseGroupsList.ElementAt(i).KeyId.ToString(),
-                        reportDiseaseGroupsList.ElementAt(i).StrDefault ?? Empty, // English Value
-                        reportDiseaseGroupsList.ElementAt(i).StrName ?? Empty,  // Translated Value
-                        reportDiseaseGroupsList.ElementAt(i).StrCode ?? Empty,  // ICD-10
+                        reportDiseaseGroupsList.ElementAt(i).StrDefault ?? string.Empty, // English Value
+                        reportDiseaseGroupsList.ElementAt(i).StrName ?? string.Empty,  // Translated Value
+                        reportDiseaseGroupsList.ElementAt(i).StrCode ?? string.Empty,  // ICD-10
                     };
                     tableData.data.Add(cols);
                 }
@@ -123,14 +120,14 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         {
             try
             {
-                var jsonObject = JObject.Parse(jsonElement.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(jsonElement.ToString() ?? string.Empty);
                 var request = new ReportDiseaseGroupsSaveRequestModel
                 {
                     Default = jsonObject["Default"]?.ToString().Trim(),
                     Name = jsonObject["Name"]?.ToString().Trim(),
                     StrCode = jsonObject["ICD10"]?.ToString().Trim(),
                     LanguageId = GetCurrentLanguage(),
-                    EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                    EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                     AuditUserName = authenticatedUser.UserName,
                     LocationId = authenticatedUser.RayonId,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -138,7 +135,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 };
 
                 var response = await _reportDiseaseGroupClient.SaveReportDiseaseGroup(request);
-                response.StrDuplicatedField = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
+                response.StrDuplicatedField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
                 return Json(response);
             }
             catch (Exception ex)
@@ -154,7 +151,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         {
             try
             {
-                var jsonObject = JObject.Parse(jsonElement.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(jsonElement.ToString() ?? string.Empty);
                 var request = new ReportDiseaseGroupsSaveRequestModel
                 {
                     IdfsReportDiagnosisGroup = Convert.ToInt64(jsonObject["ReportDiseaseGroupId"]?.ToString()),
@@ -162,7 +159,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     Name = jsonObject["StrName"]?.ToString().Trim(),
                     StrCode = jsonObject["StrCode"]?.ToString().Trim(),
                     LanguageId = GetCurrentLanguage(),
-                    EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                    EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                     AuditUserName = authenticatedUser.UserName,
                     LocationId = authenticatedUser.RayonId,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -170,7 +167,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 };
 
                 var response = await _reportDiseaseGroupClient.SaveReportDiseaseGroup(request);
-                response.StrDuplicatedField = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
+                response.StrDuplicatedField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
                 return Json(response);
             }
             catch (Exception ex)
@@ -188,7 +185,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             try
             {
-                var jsonObject = JObject.Parse(jsonElement.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(jsonElement.ToString() ?? string.Empty);
 
                 if (jsonObject["ReportDiseaseGroupId"] != null)
                 {
@@ -196,7 +193,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     {
                         DeleteAnyway = true,
                         LanguageId = GetCurrentLanguage(),
-                        EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                        EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                         AuditUserName = authenticatedUser.UserName,
                         LocationId = authenticatedUser.RayonId,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),

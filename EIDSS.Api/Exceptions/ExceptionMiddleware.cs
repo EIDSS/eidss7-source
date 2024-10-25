@@ -12,5 +12,12 @@ namespace EIDSS.Api.Exceptions
         {
             app.UseMiddleware<ExceptionExtensions>();
         }
+
+        //public static void UseGlobalExceptionMiddleware(this IApplicationBuilder app)
+        //{
+        //    app.UseMiddleware<GlobalExceptionMiddlerware>();
+        //}
+
+
     }
 }

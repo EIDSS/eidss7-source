@@ -33,12 +33,12 @@
             <div class="col-4" hidden-if="@FieldLabelResourceKeyConstants.OutbreakSessionOutbreakIDFieldLabel">
                 <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.OutbreakSessionStartDateFieldLabel"></i>
                 <label asp-for="SessionDetails.datStartDate">@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionStartDateFieldLabel)</label>
-                <eidss-calendar asp-for="SessionDetails.datStartDate" class="form-control" disabled="@Model.IsSessionClosed" id="SessionDetails_datStartDate" name="SessionDetails.datStartDate" SearchFilter="true" shortdate="true"></eidss-calendar>
+                <eidss-calendar asp-for="SessionDetails.datStartDate" class="form-control" disabled="@Model.IsSessionClosed" id="SessionDetails_datStartDate" name="SessionDetails.datStartDate" SearchFilter="true"></eidss-calendar>
                 <span asp-validation-for="SessionDetails.datStartDate" class="text-danger"></span>
             </div>
             <div id="dDatCloseDate" class="col-4" style="display: none">
                 <label asp-for="SessionDetails.datCloseDate">@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionEndDateFieldLabel)</label>
-                <eidss-calendar asp-for="SessionDetails.datCloseDate" class="form-control" disabled="@Model.IsSessionClosed" id="SessionDetails_datCloseDate" name="SessionDetails.datCloseDate" SearchFilter="true" shortdate="true"></eidss-calendar>
+                <eidss-calendar asp-for="SessionDetails.datCloseDate" class="form-control" disabled="@Model.IsSessionClosed" id="SessionDetails_datCloseDate" name="SessionDetails.datCloseDate" SearchFilter="true"></eidss-calendar>
                 <span asp-validation-for="SessionDetails.datCloseDate" class="text-danger"></span>
             </div>
         </div>

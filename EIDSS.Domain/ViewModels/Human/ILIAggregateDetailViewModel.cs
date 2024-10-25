@@ -31,5 +31,7 @@ namespace EIDSS.Domain.ViewModels.Human
         public string RowStatus { get; set; }
         public long RowId { get; set; }      
         public OrganizationGetListViewModel SelectedHospital { get; set; }
+
+        //public List<OrganizationGetListViewModel> HospitalList { get; set; }
     }
 }

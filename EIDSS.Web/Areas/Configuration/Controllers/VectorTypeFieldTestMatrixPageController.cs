@@ -23,9 +23,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.Int64;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Configuration.Controllers
 {
@@ -41,7 +38,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         private readonly IStringLocalizer _localizer;
 
         public VectorTypeFieldTestMatrixPageController(IVectorTypeFieldTestMatrixClient configurationClient, ICrossCuttingClient crossCuttingClient, IVectorTypeClient vectorTypeClient, IAdminClient adminClient, IStringLocalizer localizer,
-            ILogger<VectorTypeFieldTestMatrixPageController> logger, ITokenService tokenService) : base(logger,tokenService)
+            ILogger<VectorTypeFieldTestMatrixPageController> logger, ITokenService tokenService) : base(logger, tokenService)
         {
             _configurationMatrixViewModel = new ConfigurationMatrixPagesViewModel();
             _configurationClient = configurationClient;
@@ -72,13 +69,13 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             long? id = null;
             if (referenceType.VectorTypeDD != null)
             {
-                if (!IsNullOrEmpty(referenceType.VectorTypeDD))
+                if (!string.IsNullOrEmpty(referenceType.VectorTypeDD))
                 {
-                    id = Parse(referenceType.VectorTypeDD);
+                    id = long.Parse(referenceType.VectorTypeDD);
                 }
             }
-            var sortColumn = !IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "strPensideTestName";
-            var sortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Descending;
+            var sortColumn = !string.IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "strPensideTestName";
+            var sortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Descending;
 
             var request = new VectorTypeFieldTestMatrixGetRequestModel
             {
@@ -86,7 +83,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 idfsVectorType = id,
                 Page = dataTableQueryPostObj.page,
                 PageSize = dataTableQueryPostObj.length,
-                SortColumn= sortColumn,
+                SortColumn = sortColumn,
                 SortOrder = sortOrder
             };
 
@@ -123,13 +120,13 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             {
                 var cols = new List<string>
                 {
-                        Empty,
-                        Empty,
-                        Empty,
-                        Empty,
-                        Empty,
-                        ""
-                    };
+                    string.Empty,
+                    string.Empty,
+                    string.Empty,
+                    string.Empty,
+                    string.Empty,
+                    ""
+                };
                 tableData.data.Add(cols);
             }
 
@@ -145,18 +142,17 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             {
                 case "asc":
                     dataSorted = (from n in data
-                        orderby GetDynamicSortProperty(n, sortExpression)
-                        select n).ToList();
+                                  orderby GetDynamicSortProperty(n, sortExpression)
+                                  select n).ToList();
                     break;
                 case "desc":
                     dataSorted = (from n in data
-                        orderby GetDynamicSortProperty(n, sortExpression) descending
-                        select n).ToList();
+                                  orderby GetDynamicSortProperty(n, sortExpression) descending
+                                  select n).ToList();
                     break;
             }
 
             return dataSorted;
-
         }
 
         public object GetDynamicSortProperty(object item, string propName)
@@ -178,14 +174,14 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
         public async Task<JsonResult> Create([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             var pensideTestName = "";
 
             try
             {
                 if (jsonObject["VectorTypeDD"] != null)
                 {
-                    if (IsNullOrEmpty(jsonObject["VectorTypeDD"][0]?["id"]?.ToString()))
+                    if (string.IsNullOrEmpty(jsonObject["VectorTypeDD"][0]?["id"]?.ToString()))
                     {
                         // should select a Vector Type
                         return Json("");
@@ -195,7 +191,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 long idfsPensideTestName = 0;
                 if (jsonObject["idfsPensideTestName"]?[0]?["id"] != null)
                 {
-                    idfsPensideTestName = Parse(jsonObject["idfsPensideTestName"][0]["id"].ToString());
+                    idfsPensideTestName = long.Parse(jsonObject["idfsPensideTestName"][0]["id"].ToString());
                 }
                 if (jsonObject["idfsPensideTestName"]?[0]?["text"] != null)
                 {
@@ -204,9 +200,9 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 var request = new VectorTypeFieldTestMatrixSaveRequestModel
                 {
                     idfPensideTestTypeForVectorType = null,
-                    idfsVectorType = jsonObject["VectorTypeDD"]?[0]?["id"] != null ? Parse(jsonObject["VectorTypeDD"]?[0]?["id"].ToString() ?? Empty) : null,
+                    idfsVectorType = jsonObject["VectorTypeDD"]?[0]?["id"] != null ? long.Parse(jsonObject["VectorTypeDD"]?[0]?["id"].ToString() ?? string.Empty) : null,
                     idfsPensideTestName = idfsPensideTestName,
-                    EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                    EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                     UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                     LocationId = authenticatedUser.RayonId,
@@ -214,7 +210,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 };
 
                 var response = await _configurationClient.SaveVectorTypeFieldTestMatrix(request);
-                response.strDuplicatedField = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), pensideTestName);
+                response.strDuplicatedField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), pensideTestName);
 
                 if (response.idfPensideTestTypeForVectorType != 0 && response.ReturnMessage == "SUCCESS")
                 {
@@ -237,7 +233,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [Route("Edit")]
         public async Task<JsonResult> Edit([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
             try
             {
@@ -246,14 +242,14 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                     long idfsPensideTestName = 0;
                     if (jsonObject["idfsPensideTestName"] != null)
                     {
-                        idfsPensideTestName = TryParse(jsonObject["strPensideTestName"]?.ToString(), out var result) == false ? Parse(jsonObject["idfsPensideTestName"].ToString()) : result;
-                    }                 
+                        idfsPensideTestName = long.TryParse(jsonObject["strPensideTestName"]?.ToString(), out var result) == false ? long.Parse(jsonObject["idfsPensideTestName"].ToString()) : result;
+                    }
                     var request = new VectorTypeFieldTestMatrixSaveRequestModel
                     {
-                        idfPensideTestTypeForVectorType = Parse(jsonObject["KeyId"].ToString()),
-                        idfsVectorType = jsonObject["idfsVectorType"] != null ? Parse(jsonObject["idfsVectorType"].ToString()) : null,
+                        idfPensideTestTypeForVectorType = long.Parse(jsonObject["KeyId"].ToString()),
+                        idfsVectorType = jsonObject["idfsVectorType"] != null ? long.Parse(jsonObject["idfsVectorType"].ToString()) : null,
                         idfsPensideTestName = idfsPensideTestName,
-                        EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                        EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                         UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                         LocationId = authenticatedUser.RayonId,
@@ -283,13 +279,13 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         {
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
                 if (jsonObject["KeyId"] != null)
                 {
                     var request = new VectorTypeFieldTestMatrixSaveRequestModel
                     {
-                        idfPensideTestTypeForVectorType = Parse(jsonObject["KeyId"].ToString()),
-                        EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                        idfPensideTestTypeForVectorType = long.Parse(jsonObject["KeyId"].ToString()),
+                        EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                         UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                         LocationId = authenticatedUser.RayonId,
@@ -322,11 +318,11 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
             try
             {
-                var list = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), BaseReferenceConstants.VectorType, HACodeList.VectorHACode);
+                var list = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), EIDSSConstants.BaseReferenceConstants.VectorType, EIDSSConstants.HACodeList.VectorHACode);
 
                 if (list != null)
                 {
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.IdfsBaseReference.ToString(), text = item.Name}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.IdfsBaseReference.ToString(), text = item.Name }));
                 }
                 select2DataObj.results = select2DataItems;
             }
@@ -344,12 +340,12 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         {
             var request = new VectorTypeSaveRequestModel();
 
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             request.VectorTypeId = null;
-            request.Default = jsonObject["Default"] != null && jsonObject["Default"].ToString() != Empty ? jsonObject["Default"].ToString() : "";
-            request.Name = jsonObject["Name"] != null && jsonObject["Name"].ToString() != Empty ? jsonObject["Name"].ToString() : "";
-            request.Code = jsonObject["Code"] != null && jsonObject["Code"].ToString() != Empty ? jsonObject["Code"].ToString() : "";
-            request.intOrder = jsonObject["Order"] != null && jsonObject["Order"].ToString() != Empty ? int.Parse(jsonObject["Order"].ToString()) : null;
+            request.Default = jsonObject["Default"] != null && jsonObject["Default"].ToString() != string.Empty ? jsonObject["Default"].ToString() : "";
+            request.Name = jsonObject["Name"] != null && jsonObject["Name"].ToString() != string.Empty ? jsonObject["Name"].ToString() : "";
+            request.Code = jsonObject["Code"] != null && jsonObject["Code"].ToString() != string.Empty ? jsonObject["Code"].ToString() : "";
+            request.intOrder = jsonObject["Order"] != null && jsonObject["Order"].ToString() != string.Empty ? int.Parse(jsonObject["Order"].ToString()) : null;
             request.CollectionByPool = false;
             if (jsonObject["CollectedByPool"].ToString().Contains("1"))
                 request.CollectionByPool = true;
@@ -357,7 +353,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             request.LanguageId = GetCurrentLanguage();
 
             var response = await _vectorTypeClient.SaveVectorType(request);
-            response.strDuplicatedField = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
+            response.strDuplicatedField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
             return Json(response);
         }
 
@@ -365,13 +361,13 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [Route("AddFieldTest")]
         public async Task<IActionResult> AddFieldTest([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             var request = new BaseReferenceSaveRequestModel();
 
             var intHACodeTotal = 0;
             if (jsonObject["IntHACode"] != null)
             {
-                if (IsNullOrEmpty(jsonObject["IntHACode"].ToString()))
+                if (string.IsNullOrEmpty(jsonObject["IntHACode"].ToString()))
                 {
                     // popup a modal with message "Accessory Code is mandatory. You must enter data in this field before saving the form. Do you want to correct the value?"
                     return Json("");
@@ -379,30 +375,30 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
                 var a = JArray.Parse(jsonObject["IntHACode"].ToString());
 
-                intHACodeTotal += a.Sum(t => int.Parse(t["id"]?.ToString() ?? Empty));
+                intHACodeTotal += a.Sum(t => int.Parse(t["id"]?.ToString() ?? string.Empty));
                 request.intHACode = intHACodeTotal;
             }
 
             var intOrder = 0;
             if (jsonObject["intOrder"] != null)
             {
-                intOrder = IsNullOrEmpty(((JValue)jsonObject["intOrder"]).Value?.ToString()) ? 0 : int.Parse(jsonObject["intOrder"].ToString());
+                intOrder = string.IsNullOrEmpty(((JValue)jsonObject["intOrder"]).Value?.ToString()) ? 0 : int.Parse(jsonObject["intOrder"].ToString());
             }
 
             request.BaseReferenceId = null;
-            request.Default = jsonObject["StrDefault"] != null ? jsonObject["StrDefault"].ToString() : Empty;
-            request.Name = jsonObject["StrName"] != null ? jsonObject["StrName"].ToString() : Empty;
+            request.Default = jsonObject["StrDefault"] != null ? jsonObject["StrDefault"].ToString() : string.Empty;
+            request.Name = jsonObject["StrName"] != null ? jsonObject["StrName"].ToString() : string.Empty;
             request.intOrder = intOrder;
             request.LanguageId = GetCurrentLanguage();
             request.ReferenceTypeId = (long)ReferenceTypes.PensideTestName;
-            request.EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange;
+            request.EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange;
             request.AuditUserName = authenticatedUser.UserName;
             request.LocationId = authenticatedUser.RayonId;
             request.SiteId = Convert.ToInt64(authenticatedUser.SiteId);
             request.UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId);
 
             var response = await _adminClient.SaveBaseReference(request);
-            response.strDuplicatedField = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
+            response.strDuplicatedField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
             return Json(response);
         }
     }

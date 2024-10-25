@@ -1,11 +1,4 @@
-﻿#region Usings
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
-using EIDSS.ClientLibrary.ApiClients.Admin;
+﻿using EIDSS.ClientLibrary.ApiClients.Admin;
 using EIDSS.ClientLibrary.ApiClients.Administration.Security;
 using EIDSS.ClientLibrary.ApiClients.CrossCutting;
 using EIDSS.ClientLibrary.ApiClients.FlexForm;
@@ -17,28 +10,23 @@ using EIDSS.Domain.RequestModels.Administration.Security;
 using EIDSS.Domain.RequestModels.CrossCutting;
 using EIDSS.Domain.RequestModels.FlexForm;
 using EIDSS.Domain.ViewModels.Administration;
-using EIDSS.Domain.ViewModels.CrossCutting;
 using EIDSS.Web.Abstracts;
 using EIDSS.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.String;
-
-#endregion
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace EIDSS.Web.Areas.CrossCutting.Controllers
 {
-    /// <summary>
-    ///
-    /// </summary>
     [Area("CrossCutting")]
     [Controller]
     public class CrossCuttingController : BaseController
     {
-        #region Globals
-
         private readonly ICrossCuttingClient _crossCuttingClient;
         private readonly ISiteClient _siteClient;
         private readonly IDiseaseClient _diseaseClient;
@@ -47,21 +35,6 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
         private readonly IEmployeeClient _employeeClient;
         private readonly AuthenticatedUser _authenticatedUser;
 
-        #endregion
-
-        #region Constructors
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="crossCuttingClient"></param>
-        /// <param name="diseaseClient"></param>
-        /// <param name="employeeClient"></param>
-        /// <param name="organizationClient"></param>
-        /// <param name="siteClient"></param>
-        /// <param name="logger"></param>
-        /// <param name="flexFormClient"></param>
-        /// <param name="tokenService"></param>
         public CrossCuttingController(ICrossCuttingClient crossCuttingClient, IDiseaseClient diseaseClient, IFlexFormClient flexFormClient, IEmployeeClient employeeClient,
             IOrganizationClient organizationClient, ISiteClient siteClient, ILogger<CrossCuttingController> logger, ITokenService tokenService) : base(logger, tokenService)
         {
@@ -73,10 +46,6 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             _flexFormClient = flexFormClient;
             _employeeClient = employeeClient;
         }
-
-        #endregion
-
-        #region Reference Data Methods
 
         /// <summary>
         /// Returns Reference Type records based on  filtering and Paging from Select 2 Drop Down
@@ -99,12 +68,12 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
                 request.PageSize = 10;
                 request.advancedSearch = term;
                 request.SortColumn = "strDefault";
-                request.SortOrder = SortConstants.Ascending;
+                request.SortOrder = EIDSSConstants.SortConstants.Ascending;
 
                 var baseReferenceTypeListViewModel = await _crossCuttingClient.GetReferenceTypesByName(request);
                 if (baseReferenceTypeListViewModel != null)
                 {
-                    select2DataItems.AddRange(baseReferenceTypeListViewModel.Select(item => new Select2DataItem {id = item.BaseReferenceId.ToString(), text = item.Name}));
+                    select2DataItems.AddRange(baseReferenceTypeListViewModel.Select(item => new Select2DataItem { id = item.BaseReferenceId.ToString(), text = item.Name }));
                 }
                 if (baseReferenceTypeListViewModel != null && baseReferenceTypeListViewModel.Any() && baseReferenceTypeListViewModel.First().TotalRowCount > 10)
                 {
@@ -137,12 +106,12 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
                 request.PageSize = 10;
                 request.advancedSearch = term;
                 request.SortColumn = "strDefault";
-                request.SortOrder = SortConstants.Ascending;
+                request.SortOrder = EIDSSConstants.SortConstants.Ascending;
 
                 var baseReferenceTypeListViewModel = await _crossCuttingClient.GetReferenceTypesByName(request);
                 if (baseReferenceTypeListViewModel != null)
                 {
-                    select2DataItems.AddRange(from item in baseReferenceTypeListViewModel where item.BaseReferenceId != 19000090 select new Select2DataItem {id = item.BaseReferenceId.ToString(), text = item.Name});
+                    select2DataItems.AddRange(from item in baseReferenceTypeListViewModel where item.BaseReferenceId != 19000090 select new Select2DataItem { id = item.BaseReferenceId.ToString(), text = item.Name });
                 }
                 if (baseReferenceTypeListViewModel != null && baseReferenceTypeListViewModel.Any() && baseReferenceTypeListViewModel.First().TotalRowCount > 10)
                 {
@@ -160,8 +129,6 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
 
             return Json(select2DataObj);
         }
-
-   
 
         /// <summary>
         /// Returns Diseases  records based on  filtering and Paging from Select 2 Drop Down
@@ -184,13 +151,13 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
                 request.PageSize = 10;
                 request.advancedSearch = term;
                 request.SortColumn = "strDefault";
-                request.SortOrder = SortConstants.Ascending;
+                request.SortOrder = EIDSSConstants.SortConstants.Ascending;
                 request.intHACode = 2; //TODO: WHY IS THIS HARD-CODED TO HUMAN?!
 
                 var baseReferenceTypeListViewModel = await _crossCuttingClient.GetDiseasesByIdsPaged(request);
                 if (baseReferenceTypeListViewModel != null)
                 {
-                    select2DataItems.AddRange(baseReferenceTypeListViewModel.Select(item => new Select2DataItem {id = item.idfsBaseReference.ToString(), text = item.strName}));
+                    select2DataItems.AddRange(baseReferenceTypeListViewModel.Select(item => new Select2DataItem { id = item.idfsBaseReference.ToString(), text = item.strName }));
                 }
                 if (baseReferenceTypeListViewModel != null && baseReferenceTypeListViewModel.Any() && baseReferenceTypeListViewModel.First().TotalRowCount > 10)
                 {
@@ -229,7 +196,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
 
                 if (list != null)
                 {
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.intHACode.ToString(), text = item.CodeName}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.intHACode.ToString(), text = item.CodeName }));
                 }
 
                 select2DataObj.results = select2DataItems;
@@ -243,12 +210,6 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             return Json(select2DataObj);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="ReferenceType"></param>
-        /// <param name="intHACode"></param>
-        /// <returns></returns>
         public async Task<JsonResult> BaseReferenceListForSelect2DropDown(string ReferenceType, int intHACode)
         {
             List<Select2DataItem> select2DataItems = new();
@@ -259,19 +220,12 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             if (list != null)
             {
                 list = list.OrderBy(o => o.IntOrder).ThenBy(n => n.Name).ToList();
-                select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.IdfsBaseReference.ToString(), text = item.Name}));
+                select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.IdfsBaseReference.ToString(), text = item.Name }));
             }
             select2DataObj.results = select2DataItems;
             return Json(select2DataObj);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="page"></param>
-        /// <param name="referenceTypeID"></param>
-        /// <param name="term"></param>
-        /// <returns></returns>
         [Route("BaseReferenceByReferenceTypeIDListForSelect2DropDown")]
         public async Task<JsonResult> BaseReferenceByReferenceTypeIDListForSelect2DropDown(int page, long referenceTypeID, string term)
         {
@@ -286,7 +240,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
                 PageSize = 10,
                 AdvancedSearch = term,
                 SortColumn = "intorder",
-                SortOrder = SortConstants.Ascending
+                SortOrder = EIDSSConstants.SortConstants.Ascending
             };
 
             try
@@ -295,7 +249,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
 
                 if (list != null)
                 {
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.KeyId.ToString(), text = item.StrName}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.KeyId.ToString(), text = item.StrName }));
 
                     if (list.Any() && list.First().TotalRowCount > 10)
                     {
@@ -316,11 +270,6 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             return Json(select2DataObj);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="identifiers"></param>
-        /// <returns></returns>
         public async Task<JsonResult> BaseReferenceForSelect2DropDown(string identifiers)
         {
             var referenceTypeBaseReferenceId = identifiers.Split(",");
@@ -333,9 +282,9 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
                 Page = 1,
                 LanguageId = GetCurrentLanguage(),
                 PageSize = 10,
-                AdvancedSearch = Empty,
+                AdvancedSearch = string.Empty,
                 SortColumn = "strName",
-                SortOrder = SortConstants.Ascending
+                SortOrder = EIDSSConstants.SortConstants.Ascending
             };
 
             try
@@ -344,7 +293,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
 
                 if (list != null)
                 {
-                    select2DataItems.AddRange(from item in list where item.KeyId == Convert.ToInt64(referenceTypeBaseReferenceId[1]) select new Select2DataItem {id = item.KeyId.ToString(), text = item.StrName});
+                    select2DataItems.AddRange(from item in list where item.KeyId == Convert.ToInt64(referenceTypeBaseReferenceId[1]) select new Select2DataItem { id = item.KeyId.ToString(), text = item.StrName });
                 }
                 select2DataObj.results = select2DataItems;
                 pagination.more = true; //Add Pagination
@@ -359,41 +308,18 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             return Json(select2DataObj);
         }
 
-        public async Task<JsonResult> GetCountryList()
+        public async Task<JsonResult> GetCountryList(string? term)
         {
-            List<Select2DataItem> select2DataItems = new();
-            Select2DataResults select2DataObj = new();
-            Pagination pagination = new();
-            try
-            {
-                var list = await _crossCuttingClient.GetCountryList(GetCurrentLanguage());
+            var list = await _crossCuttingClient.GetCountryList(GetCurrentLanguage(), term);
 
-                if (list != null)
-                {
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.idfsCountry.ToString(), text = item.strCountryName}));
-                }
-                select2DataObj.results = select2DataItems;
-                pagination.more = true; //Add Pagination
-                select2DataObj.pagination = pagination;
-            }
-            catch (Exception ex)
+            return Json(new Select2DataResults
             {
-                _logger.LogError(ex.Message, null);
-                throw;
-            }
-
-            return Json(select2DataObj);
+                results = list.Select(item => new Select2DataItem
+                { id = item.idfsCountry.ToString(), text = item.strCountryName })
+                    .ToList()
+            });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="referenceTypeID"></param>
-        /// <param name="sortColumn"></param>
-        /// <param name="page"></param>
-        /// <param name="term"></param>
-        /// <param name="data"></param>
-        /// <returns></returns>
         public async Task<JsonResult> BaseReferenceByReferenceTypeIDListForSelect2DropDownWithSorting(long referenceTypeID, string sortColumn, int page, string term, string data)
         {
             List<Select2DataItem> select2DataItems = new();
@@ -408,11 +334,11 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
                 PageSize = 10,
                 AdvancedSearch = term,
                 SortColumn = sortColumn,
-                SortOrder = SortConstants.Ascending
+                SortOrder = EIDSSConstants.SortConstants.Ascending
             };
 
             // Check for filtered identifier; example test name to test result matrix page uses laboratory test or penside test.
-            if (!IsNullOrEmpty(data))
+            if (!string.IsNullOrEmpty(data))
             {
                 dynamic jsonObject = JObject.Parse(data);
                 if (jsonObject["text"] != null && jsonObject["text"] != "")
@@ -425,7 +351,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
 
                 if (list != null)
                 {
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.KeyId.ToString(), text = item.StrName}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.KeyId.ToString(), text = item.StrName }));
 
                     if (list.Any() && list.First().TotalRowCount > 10)
                     {
@@ -446,15 +372,6 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             return Json(select2DataObj);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="referenceTypeID"></param>
-        /// <param name="sortColumn"></param>
-        /// <param name="page"></param>
-        /// <param name="term"></param>
-        /// <param name="data"></param>
-        /// <returns></returns>
         public async Task<JsonResult> GetBaseReferenceListForSelect2DropDownWithSorting(long referenceTypeID, string sortColumn, int page, string term, string data)
         {
             List<Select2DataItem> select2DataItems = new();
@@ -469,11 +386,11 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
                 PageSize = 10,
                 AdvancedSearch = term,
                 SortColumn = sortColumn,
-                SortOrder = SortConstants.Ascending
+                SortOrder = EIDSSConstants.SortConstants.Ascending
             };
 
             // Check for filtered identifier; example test name to test result matrix page uses laboratory test or penside test.
-            if (!IsNullOrEmpty(data))
+            if (!string.IsNullOrEmpty(data))
             {
                 dynamic jsonObject = JObject.Parse(data);
                 if (jsonObject["text"] != null && jsonObject["text"] != "")
@@ -487,7 +404,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
 
                 if (list != null)
                 {
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.KeyId.ToString(), text = item.StrName}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.KeyId.ToString(), text = item.StrName }));
                     if (list.Any() && list.First().TotalRowCount > 10)
                     {
                         //Add Pagination
@@ -547,7 +464,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
                 var list = await _crossCuttingClient.GetFilteredDiseaseList(request);
                 if (list != null)
                 {
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.DiseaseID.ToString(), text = item.DiseaseName}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.DiseaseID.ToString(), text = item.DiseaseName }));
                 }
                 select2DataObj.results = select2DataItems;
             }
@@ -565,7 +482,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             try
             {
                 var details = await _diseaseClient.GetDiseasesDetail(GetCurrentLanguage(), DiseaseID);
-                
+
                 return Json(details.First().blnSyndrome == null ? false : details.First().blnSyndrome);
             }
             catch (Exception ex)
@@ -575,11 +492,6 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="intHACode"></param>
-        /// <returns></returns>
         public async Task<JsonResult> DiseaseList(int intHACode)
         {
             var request = new DiseasesGetRequestModel
@@ -588,7 +500,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
                 Page = 1,
                 PageSize = int.MaxValue - 1,
                 SortColumn = "strName",
-                SortOrder = SortConstants.Ascending,
+                SortOrder = EIDSSConstants.SortConstants.Ascending,
                 AccessoryCode = intHACode,
                 SimpleSearch = "",
                 AdvancedSearch = "",
@@ -600,12 +512,6 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             return Json(list);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="intHACode"></param>
-        /// <param name="idfsUsingType"></param>
-        /// <returns></returns>
         public async Task<JsonResult> DiseaseListForSelect2DropDown(int intHACode, int idfsUsingType = 0)
         {
             List<Select2DataItem> select2DataItems = new();
@@ -619,7 +525,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
                     Page = 1,
                     PageSize = int.MaxValue - 1,
                     SortColumn = "intOrder",
-                    SortOrder = SortConstants.Ascending,
+                    SortOrder = EIDSSConstants.SortConstants.Ascending,
                     AccessoryCode = intHACode,
                     SimpleSearch = null,
                     AdvancedSearch = null,
@@ -635,7 +541,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
                         list = list.Where(x => x.IdfsUsingType == idfsUsingType).ToList();
                     }
 
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.KeyId.ToString(), text = item.StrName}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.KeyId.ToString(), text = item.StrName }));
                 }
 
                 select2DataObj.results = select2DataItems;
@@ -664,15 +570,6 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="intHACode"></param>
-        /// <param name="page"></param>
-        /// <param name="data"></param>
-        /// <param name="term"></param>
-        /// <param name="idfsUsingType"></param>
-        /// <returns></returns>
         public async Task<JsonResult> DiseaseListForSelect2DropDownAdvanced(int intHACode, int page, string data, string term, int idfsUsingType = 0)
         {
             List<Select2DataItem> select2DataItems = new();
@@ -686,7 +583,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
                     Page = page,
                     PageSize = int.MaxValue - 1,
                     SortColumn = "intOrder",
-                    SortOrder = SortConstants.Ascending,
+                    SortOrder = EIDSSConstants.SortConstants.Ascending,
                     AccessoryCode = intHACode,
                     SimpleSearch = term,
                     AdvancedSearch = term,
@@ -702,7 +599,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
                         list = list.Where(x => x.IdfsUsingType == idfsUsingType).ToList();
                     }
 
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.KeyId.ToString(), text = item.StrName}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.KeyId.ToString(), text = item.StrName }));
                 }
 
                 select2DataObj.results = select2DataItems;
@@ -715,10 +612,6 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
 
             return Json(select2DataObj);
         }
-
-        #endregion
-
-        #region Organization Data Methods
 
         /// <summary>
         /// Gets a list of organizations by accessory code, organization type and optionally by the term the user is searching for.
@@ -744,7 +637,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
                         category = jsonObject["text"].ToString();
                     if (category == "User")
                         organizationSiteAssociation = (int)OrganizationSiteAssociations.OrganizationWithSite;
-                    else if (IsNullOrEmpty(category) || category == "NonUser")
+                    else if (string.IsNullOrEmpty(category) || category == "NonUser")
                         organizationSiteAssociation = (int)OrganizationSiteAssociations.OrganizationsWithOrWithoutSite;
                 }
 
@@ -759,8 +652,8 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
 
                 var list = await _organizationClient.GetOrganizationAdvancedList(request);
                 if (list != null)
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.idfOffice.ToString(), text = item.name}));
-                select2DataObj.results = select2DataItems.GroupBy(x => x.id).Select(x => x.First()).ToList();;
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.idfOffice.ToString(), text = item.name }));
+                select2DataObj.results = select2DataItems.GroupBy(x => x.id).Select(x => x.First()).ToList();
             }
             catch (Exception ex)
             {
@@ -771,13 +664,6 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             return Json(select2DataObj);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="page"></param>
-        /// <param name="data"></param>
-        /// <param name="term"></param>
-        /// <returns></returns>
         [Route("GetOrganizations")]
         public async Task<JsonResult> GetOrganizations(int page, string data, string term)
         {
@@ -789,16 +675,16 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             try
             {
                 request.LanguageId = GetCurrentLanguage();
-                request.AbbreviatedName = IsNullOrEmpty(term) ? null : term;
+                request.AbbreviatedName = string.IsNullOrEmpty(term) ? null : term;
                 request.SortColumn = "AbbreviatedName";
-                request.SortOrder = SortConstants.Ascending;
+                request.SortOrder = EIDSSConstants.SortConstants.Ascending;
                 request.PageSize = 100;
                 request.Page = page;
 
                 var list = await _organizationClient.GetOrganizationList(request);
                 if (list != null)
                 {
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.OrganizationKey.ToString(), text = item.AbbreviatedName}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.OrganizationKey.ToString(), text = item.AbbreviatedName }));
                 }
                 pagination.more = true; //Add Pagination
                 select2DataObj.results = select2DataItems.GroupBy(x => x.id).Select(x => x.First()).ToList();
@@ -815,7 +701,6 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
 
         public async Task<JsonResult> GetOrganizationsAdvancedListUser(int page, string data, string term)
         {
-            // Pagination _pagination = new(); //Pagination
             Select2DataResults select2DataObj = new();
             List<Select2DataItem> select2DataItems = new();
             OrganizationAdvancedGetRequestModel request = new();
@@ -835,15 +720,15 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
 
                 request.SiteFlag = category switch
                 {
-                    (long) EmployeeCategory.User => (int) OrganizationSiteAssociations.OrganizationWithSite,
-                    (long) EmployeeCategory.NonUser =>
-                        (int) OrganizationSiteAssociations.OrganizationsWithOrWithoutSite,
+                    (long)EmployeeCategory.User => (int)OrganizationSiteAssociations.OrganizationWithSite,
+                    (long)EmployeeCategory.NonUser =>
+                        (int)OrganizationSiteAssociations.OrganizationsWithOrWithoutSite,
                     _ => request.SiteFlag
                 };
 
                 var list = await _organizationClient.GetOrganizationAdvancedList(request);
                 if (list != null)
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.idfOffice.ToString(), text = item.name}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.idfOffice.ToString(), text = item.name }));
                 select2DataObj.results = select2DataItems.GroupBy(x => x.id).Select(x => x.First()).ToList();
             }
             catch (Exception ex)
@@ -871,7 +756,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
 
                 var list = await _organizationClient.GetOrganizationAdvancedList(request);
                 if (list != null)
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.idfOffice.ToString(), text = item.name}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.idfOffice.ToString(), text = item.name }));
                 pagination.more = true; //Add Pagination
                 select2DataObj.results = select2DataItems.GroupBy(x => x.id).Select(x => x.First()).ToList();
                 select2DataObj.pagination = pagination;
@@ -885,13 +770,6 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             return Json(select2DataObj);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="page"></param>
-        /// <param name="accessoryCode"></param>
-        /// <param name="term"></param>
-        /// <returns></returns>
         public async Task<JsonResult> GetOrganizationsByAccessoryCode(int page, int accessoryCode, string term)
         {
             Pagination pagination = new(); //Pagination
@@ -902,16 +780,16 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             try
             {
                 request.LanguageId = GetCurrentLanguage();
-                request.AbbreviatedName = IsNullOrEmpty(term) ? null : term;
+                request.AbbreviatedName = string.IsNullOrEmpty(term) ? null : term;
                 request.SortColumn = "AbbreviatedName";
-                request.SortOrder = SortConstants.Ascending;
+                request.SortOrder = EIDSSConstants.SortConstants.Ascending;
                 request.PageSize = 100;
                 request.Page = page;
                 request.AccessoryCode = accessoryCode;
 
                 var list = await _organizationClient.GetOrganizationList(request);
                 if (list != null)
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.OrganizationKey.ToString(), text = item.AbbreviatedName}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.OrganizationKey.ToString(), text = item.AbbreviatedName }));
                 pagination.more = true; //Add Pagination
                 select2DataObj.results = select2DataItems.GroupBy(x => x.id).Select(x => x.First()).ToList();
                 select2DataObj.pagination = pagination;
@@ -925,16 +803,6 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             return Json(select2DataObj);
         }
 
-        #endregion
-
-        #region Site Data Methods
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="page"></param>
-        /// <param name="data"></param>
-        /// <returns></returns>
         [Route("GetSiteList")]
         public async Task<JsonResult> GetSiteList(int page, string data)
         {
@@ -947,13 +815,13 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             {
                 request.LanguageId = GetCurrentLanguage();
                 request.SortColumn = "SiteName";
-                request.SortOrder = SortConstants.Ascending;
+                request.SortOrder = EIDSSConstants.SortConstants.Ascending;
                 request.PageSize = 10;
                 request.Page = page;
 
                 var list = await _siteClient.GetSiteList(request);
                 if (list != null)
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.SiteID.ToString(), text = item.SiteName}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.SiteID.ToString(), text = item.SiteName }));
                 pagination.more = true; //Add Pagination
                 select2DataObj.results = select2DataItems;
                 select2DataObj.pagination = pagination;
@@ -967,14 +835,6 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             return Json(select2DataObj);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="ReferenceType"></param>
-        /// <param name="page"></param>
-        /// <param name="data"></param>
-        /// <param name="term"></param>
-        /// <returns></returns>
         public async Task<JsonResult> BaseReferenceAdvanceListForSelect2DropDown(string ReferenceType, int page, string data, string term)
         {
             Pagination pagination = new();
@@ -988,7 +848,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
                 PageSize = 10,
                 advancedSearch = term,
                 SortColumn = "strName",
-                SortOrder = SortConstants.Ascending
+                SortOrder = EIDSSConstants.SortConstants.Ascending
             };
 
             try
@@ -996,7 +856,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
                 var list = await _crossCuttingClient.GetBaseReferenceAdvanceList(request);
 
                 if (list != null)
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.idfsBaseReference.ToString(), text = item.strName}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.idfsBaseReference.ToString(), text = item.strName }));
                 select2DataObj.results = select2DataItems;
                 pagination.more = true; //Add Pagination
                 select2DataObj.pagination = pagination;
@@ -1010,15 +870,6 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             return Json(select2DataObj);
         }
 
-        #endregion
-
-        #region Aggregate Disease Report Methods
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         public async Task<JsonResult> GetEmployeeListByOrganization(string data)
         {
             Select2DataResults select2DataObj = new();
@@ -1029,16 +880,16 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             {
                 using var doc = JsonDocument.Parse(data);
                 var root = doc.RootElement;
-                long? organizationId = long.Parse(root[0].GetProperty("id").ToString() ?? Empty);
+                long? organizationId = long.Parse(root[0].GetProperty("id").ToString() ?? string.Empty);
 
                 request.LanguageId = GetCurrentLanguage();
                 request.OrganizationID = organizationId;
                 request.SortColumn = "EmployeeFullName";
-                request.SortOrder = SortConstants.Ascending;
+                request.SortOrder = EIDSSConstants.SortConstants.Ascending;
 
                 var list = await _employeeClient.GetEmployeeList(request);
                 if (list != null)
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.EmployeeID.ToString(), text = item.EmployeeFullName}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.EmployeeID.ToString(), text = item.EmployeeFullName }));
                 select2DataObj.results = select2DataItems;
             }
             catch (Exception ex)
@@ -1074,11 +925,6 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             return Json(select2DataObj);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="matrixType"></param>
-        /// <returns></returns>
         public async Task<JsonResult> GetMatrixVersionsByType(long matrixType)
         {
             Select2DataResults select2DataObj = new();
@@ -1089,7 +935,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
                 var list = await _crossCuttingClient.GetMatrixVersionsByType(matrixType);
                 if (list != null)
                 {
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.IdfVersion.ToString(), text = item.MatrixName}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.IdfVersion.ToString(), text = item.MatrixName }));
                 }
                 select2DataObj.results = select2DataItems;
             }
@@ -1102,12 +948,6 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             return Json(select2DataObj);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="idfsFormTemplate"></param>
-        /// <param name="idfsFormType"></param>
-        /// <returns></returns>
         public JsonResult GetTemplateList(long? idfsFormTemplate, long? idfsFormType)
         {
             Select2DataResults select2DataObj = new();
@@ -1122,7 +962,7 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
 
                 var list = _flexFormClient.GetTemplateList(request).Result;
                 if (list != null)
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.idfsFormTemplate.ToString(), text = item.DefaultName}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.idfsFormTemplate.ToString(), text = item.DefaultName }));
                 select2DataObj.results = select2DataItems;
             }
             catch (Exception ex)
@@ -1144,16 +984,16 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
             {
                 using var doc = JsonDocument.Parse(data);
                 var root = doc.RootElement;
-                long? organizationId = long.Parse(root[0].GetProperty("id").ToString() ?? Empty);
+                long? organizationId = long.Parse(root[0].GetProperty("id").ToString() ?? string.Empty);
 
                 request.LanguageId = GetCurrentLanguage();
                 request.OrganizationID = organizationId;
                 request.SortColumn = "FullName";
-                request.SortOrder = SortConstants.Ascending;
+                request.SortOrder = EIDSSConstants.SortConstants.Ascending;
 
                 var list = await _crossCuttingClient.GetEmployeeLookupList(request);
                 if (list != null)
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.idfPerson.ToString(), text = item.FullName}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.idfPerson.ToString(), text = item.FullName }));
                 select2DataObj.results = select2DataItems;
             }
             catch (Exception ex)
@@ -1164,7 +1004,5 @@ namespace EIDSS.Web.Areas.CrossCutting.Controllers
 
             return Json(select2DataObj);
         }
-
-        #endregion
     }
 }

@@ -1,6 +1,4 @@
-﻿#region Usings
-
-using EIDSS.ClientLibrary.ApiClients.Administration.Security;
+﻿using EIDSS.ClientLibrary.ApiClients.Administration.Security;
 using EIDSS.ClientLibrary.Enumerations;
 using EIDSS.ClientLibrary.Services;
 using EIDSS.Domain.RequestModels.Administration.Security;
@@ -22,9 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static System.String;
-
-#endregion
 
 namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
 {
@@ -33,15 +28,9 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
     [SubArea("Security")]
     public class SiteSearchController : BaseController
     {
-        #region Global Values
-
         private readonly ISiteClient _siteClient;
         private readonly UserPermissions _sitePermissions;
         private readonly IHttpContextAccessor _httpContext;
-
-        #endregion
-
-        #region Constructors/Invocations
 
         public SiteSearchController(ISiteClient siteClient, IHttpContextAccessor httpContext, ITokenService tokenService, ILogger<SiteSearchController> logger) :
             base(logger, tokenService)
@@ -67,20 +56,20 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
 
             if (_httpContext.HttpContext?.Request != null)
             {
-                if (!IsNullOrEmpty(_httpContext.HttpContext.Request.Cookies["SiteSearchPerformedIndicator"]))
+                if (!string.IsNullOrEmpty(_httpContext.HttpContext.Request.Cookies["SiteSearchPerformedIndicator"]))
                 {
                     if (_httpContext.HttpContext.Request.Cookies["SiteSearchPerformedIndicator"] == "true")
                     {
                         var postParameterDefinitions = new { SearchCriteria_SiteID = "", SearchCriteria_SiteCode = "", SearchCriteria_SiteName = "", SiteTypeSelect = "", SearchCriteria_HASCSiteID = "", OrganizationSelect = "" };
-                        var searchCriteria = JsonConvert.DeserializeAnonymousType(_httpContext.HttpContext.Request.Cookies["SiteSearchCriteria"] ?? Empty, postParameterDefinitions);
+                        var searchCriteria = JsonConvert.DeserializeAnonymousType(_httpContext.HttpContext.Request.Cookies["SiteSearchCriteria"] ?? string.Empty, postParameterDefinitions);
 
                         model.ShowSearchResults = true;
-                        model.SearchCriteria.EIDSSSiteID = IsNullOrEmpty(searchCriteria.SearchCriteria_SiteCode) ? null : searchCriteria.SearchCriteria_SiteCode;
-                        model.SearchCriteria.HASCSiteID = IsNullOrEmpty(searchCriteria.SearchCriteria_HASCSiteID) ? null : searchCriteria.SearchCriteria_HASCSiteID;
-                        model.SearchCriteria.OrganizationID = IsNullOrEmpty(searchCriteria.OrganizationSelect) ? null : Convert.ToInt64(searchCriteria.OrganizationSelect);
-                        model.SearchCriteria.SiteID = IsNullOrEmpty(searchCriteria.SearchCriteria_SiteID) ? null : Convert.ToInt64(searchCriteria.SearchCriteria_SiteID);
-                        model.SearchCriteria.SiteName = IsNullOrEmpty(searchCriteria.SearchCriteria_SiteName) ? null : searchCriteria.SearchCriteria_SiteName;
-                        model.SearchCriteria.SiteTypeID = IsNullOrEmpty(searchCriteria.SiteTypeSelect) ? null : Convert.ToInt64(searchCriteria.SiteTypeSelect);
+                        model.SearchCriteria.EIDSSSiteID = string.IsNullOrEmpty(searchCriteria.SearchCriteria_SiteCode) ? null : searchCriteria.SearchCriteria_SiteCode;
+                        model.SearchCriteria.HASCSiteID = string.IsNullOrEmpty(searchCriteria.SearchCriteria_HASCSiteID) ? null : searchCriteria.SearchCriteria_HASCSiteID;
+                        model.SearchCriteria.OrganizationID = string.IsNullOrEmpty(searchCriteria.OrganizationSelect) ? null : Convert.ToInt64(searchCriteria.OrganizationSelect);
+                        model.SearchCriteria.SiteID = string.IsNullOrEmpty(searchCriteria.SearchCriteria_SiteID) ? null : Convert.ToInt64(searchCriteria.SearchCriteria_SiteID);
+                        model.SearchCriteria.SiteName = string.IsNullOrEmpty(searchCriteria.SearchCriteria_SiteName) ? null : searchCriteria.SearchCriteria_SiteName;
+                        model.SearchCriteria.SiteTypeID = string.IsNullOrEmpty(searchCriteria.SiteTypeSelect) ? null : Convert.ToInt64(searchCriteria.SiteTypeSelect);
                     }
                 }
             }
@@ -92,15 +81,6 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
             };
         }
 
-        #endregion
-
-        #region Search Sites
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dataTableQueryPostObj"></param>
-        /// <returns></returns>
         [HttpPost()]
         public async Task<JsonResult> GetSiteList([FromBody] JQueryDataTablesQueryObject dataTableQueryPostObj)
         {
@@ -120,11 +100,11 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
                 var postParameterDefinitions = new { SearchCriteria_SiteID = "", SearchCriteria_EIDSSSiteID = "", SearchCriteria_SiteName = "", SiteTypeSelect = "", SearchCriteria_HASCSiteID = "", OrganizationSelect = "" };
                 var searchCriteria = JsonConvert.DeserializeAnonymousType(dataTableQueryPostObj.postArgs, postParameterDefinitions);
 
-                if (!IsNullOrEmpty(Request.Cookies["SiteSearchPerformedIndicator"]))
+                if (!string.IsNullOrEmpty(Request.Cookies["SiteSearchPerformedIndicator"]))
                 {
                     if (Request.Cookies["SiteSearchPerformedIndicator"] == "true")
                     {
-                        if (!IsNullOrEmpty(Request.Cookies["SiteSearchCriteria"]))
+                        if (!string.IsNullOrEmpty(Request.Cookies["SiteSearchCriteria"]))
                         {
                             searchCriteria = JsonConvert.DeserializeAnonymousType(Request.Cookies["SiteSearchCriteria"], postParameterDefinitions);
 
@@ -137,12 +117,12 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
 
                 if (criteriaEnteredIndicator == false)
                 {
-                    if (!IsNullOrEmpty(searchCriteria.SearchCriteria_SiteID)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_EIDSSSiteID)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_SiteName)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_HASCSiteID)
-                        || !IsNullOrEmpty(searchCriteria.OrganizationSelect)
-                        || !IsNullOrEmpty(searchCriteria.SiteTypeSelect))
+                    if (!string.IsNullOrEmpty(searchCriteria.SearchCriteria_SiteID)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_EIDSSSiteID)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_SiteName)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_HASCSiteID)
+                        || !string.IsNullOrEmpty(searchCriteria.OrganizationSelect)
+                        || !string.IsNullOrEmpty(searchCriteria.SiteTypeSelect))
                     {
                         criteriaEnteredIndicator = true;
                     }
@@ -159,14 +139,14 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
                 model.LanguageId = GetCurrentLanguage();
                 model.Page = iPage;
                 model.PageSize = iLength;
-                model.SortColumn = !IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "SiteName";
-                model.SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending;
-                model.EIDSSSiteID = IsNullOrEmpty(searchCriteria.SearchCriteria_EIDSSSiteID) ? null : searchCriteria.SearchCriteria_EIDSSSiteID;
-                model.HASCSiteID = IsNullOrEmpty(searchCriteria.SearchCriteria_HASCSiteID) ? null : searchCriteria.SearchCriteria_HASCSiteID;
-                model.OrganizationID = IsNullOrEmpty(searchCriteria.OrganizationSelect) ? null : Convert.ToInt64(searchCriteria.OrganizationSelect);
-                model.SiteID = IsNullOrEmpty(searchCriteria.SearchCriteria_SiteID) ? null : Convert.ToInt64(searchCriteria.SearchCriteria_SiteID);
-                model.SiteName = IsNullOrEmpty(searchCriteria.SearchCriteria_SiteName) ? null : searchCriteria.SearchCriteria_SiteName;
-                model.SiteTypeID = IsNullOrEmpty(searchCriteria.SiteTypeSelect) ? null : Convert.ToInt64(searchCriteria.SiteTypeSelect);
+                model.SortColumn = !string.IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "SiteName";
+                model.SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending;
+                model.EIDSSSiteID = string.IsNullOrEmpty(searchCriteria.SearchCriteria_EIDSSSiteID) ? null : searchCriteria.SearchCriteria_EIDSSSiteID;
+                model.HASCSiteID = string.IsNullOrEmpty(searchCriteria.SearchCriteria_HASCSiteID) ? null : searchCriteria.SearchCriteria_HASCSiteID;
+                model.OrganizationID = string.IsNullOrEmpty(searchCriteria.OrganizationSelect) ? null : Convert.ToInt64(searchCriteria.OrganizationSelect);
+                model.SiteID = string.IsNullOrEmpty(searchCriteria.SearchCriteria_SiteID) ? null : Convert.ToInt64(searchCriteria.SearchCriteria_SiteID);
+                model.SiteName = string.IsNullOrEmpty(searchCriteria.SearchCriteria_SiteName) ? null : searchCriteria.SearchCriteria_SiteName;
+                model.SiteTypeID = string.IsNullOrEmpty(searchCriteria.SiteTypeSelect) ? null : Convert.ToInt64(searchCriteria.SiteTypeSelect);
 
                 var list = await _siteClient.GetSiteList(model);
                 IEnumerable<SiteGetListViewModel> siteList = list;
@@ -214,7 +194,5 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
 
             return Json("");
         }
-
-        #endregion
     }
 }

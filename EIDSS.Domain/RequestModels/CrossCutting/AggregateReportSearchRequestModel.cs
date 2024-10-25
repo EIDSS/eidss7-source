@@ -11,9 +11,7 @@ namespace EIDSS.Domain.RequestModels.CrossCutting
         public string LegacyReportID { get; set; }
         public long? AdministrativeUnitTypeID { get; set; }  
         public long? TimeIntervalTypeID { get; set; }
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? StartDate { get; set; }
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? EndDate { get; set; }
         public long? AdministrativeUnitID { get; set; }  
         public long? OrganizationID { get; set; }

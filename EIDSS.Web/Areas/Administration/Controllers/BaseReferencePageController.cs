@@ -12,14 +12,10 @@ using EIDSS.Domain.ViewModels.Administration;
 using EIDSS.Domain.ViewModels.CrossCutting;
 using EIDSS.Localization.Constants;
 using EIDSS.Web.Abstracts;
-using EIDSS.Web.Components.Veterinary.DiseaseReport;
-using EIDSS.Web.Controllers.CrossCutting;
 using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
 using EIDSS.Web.TagHelpers.Models.EIDSSModal;
 using EIDSS.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.Differencing;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -31,10 +27,6 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.Int32;
-using static System.String;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace EIDSS.Web.Areas.Administration.Controllers
@@ -71,12 +63,12 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             _baseReferencePageViewModel.basereferenceTypes = BaseReferenceTypes.Where(x => x.BlnSystem == true)
                 .Select(x => x.IdfsBaseReference.ToString()).ToList();
-            
-            _baseReferencePageViewModel.Case_AddSystemTypesToDisable = GetEditorSettings(BaseReferenceEditorSetting.AddDisabled);
-            _baseReferencePageViewModel.Case_LOINCSystemTypesToHide = GetEditorSettings(BaseReferenceEditorSetting.LOINCHide);
-            _baseReferencePageViewModel.Case_HACodeSystemTypesToHide = GetEditorSettings(BaseReferenceEditorSetting.HACodeHide);
-            _baseReferencePageViewModel.Case_DefaultReadOnly = GetEditorSettings(BaseReferenceEditorSetting.DefaultReadOnly);
-            _baseReferencePageViewModel.Case_OrderByReadOnly = GetEditorSettings(BaseReferenceEditorSetting.OrderByReadOnly) ;
+
+            _baseReferencePageViewModel.Case_AddSystemTypesToDisable = GetEditorSettings(EIDSSConstants.BaseReferenceEditorSetting.AddDisabled);
+            _baseReferencePageViewModel.Case_LOINCSystemTypesToHide = GetEditorSettings(EIDSSConstants.BaseReferenceEditorSetting.LOINCHide);
+            _baseReferencePageViewModel.Case_HACodeSystemTypesToHide = GetEditorSettings(EIDSSConstants.BaseReferenceEditorSetting.HACodeHide);
+            _baseReferencePageViewModel.Case_DefaultReadOnly = GetEditorSettings(EIDSSConstants.BaseReferenceEditorSetting.DefaultReadOnly);
+            _baseReferencePageViewModel.Case_OrderByReadOnly = GetEditorSettings(EIDSSConstants.BaseReferenceEditorSetting.OrderByReadOnly);
 
             var request = new BaseReferenceTranslationRequestModel
             {
@@ -122,7 +114,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         public async Task<JsonResult> GetBaseReferenceTableNew(
             [FromBody] JQueryDataTablesQueryObject dataTableQueryPostObj)
         {
-            var postParameterDefinitions = new {ReferenceTypeDD = "", LamontTestTextBox = "", LamontTestTextBox2 = ""};
+            var postParameterDefinitions = new { ReferenceTypeDD = "", LamontTestTextBox = "", LamontTestTextBox2 = "" };
             var referenceType =
                 JsonConvert.DeserializeAnonymousType(dataTableQueryPostObj.postArgs,
                     postParameterDefinitions);
@@ -135,7 +127,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 {
                     //Sorting
                     var valuePair = dataTableQueryPostObj.ReturnSortParameter();
-                    if (!IsNullOrEmpty(referenceType.ReferenceTypeDD))
+                    if (!string.IsNullOrEmpty(referenceType.ReferenceTypeDD))
                     {
                         _baseReferencePageViewModel.baseReferenceListViewModel = await
                             _adminClient.GetBaseReferenceListAsync(
@@ -143,10 +135,10 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                                 long.Parse(referenceType.ReferenceTypeDD),
                                 dataTableQueryPostObj.page,
                                 dataTableQueryPostObj.length,
-                                !IsNullOrEmpty(valuePair.Key) & (valuePair.Key != "BaseReferenceId")
+                                !string.IsNullOrEmpty(valuePair.Key) & (valuePair.Key != "BaseReferenceId")
                                     ? valuePair.Key
                                     : "intorder",
-                                !IsNullOrEmpty(valuePair.Value)
+                                !string.IsNullOrEmpty(valuePair.Value)
                                     ? valuePair.Value
                                     : EIDSSConstants.SortConstants.Ascending);
                         baseReferenceList = _baseReferencePageViewModel.baseReferenceListViewModel.ToList();
@@ -172,22 +164,22 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                             baseReferenceList.ElementAt(i).IdfsReferenceType.ToString(),
                             baseReferenceList.ElementAt(i).StrDefault != null
                                 ? baseReferenceList.ElementAt(i).StrDefault
-                                : Empty,
+                                : string.Empty,
                             baseReferenceList.ElementAt(i).StrName != null
                                 ? baseReferenceList.ElementAt(i).StrName
-                                : Empty,
+                                : string.Empty,
                             baseReferenceList.ElementAt(i).LOINC != null
                                 ? baseReferenceList.ElementAt(i).LOINC
-                                : Empty,
+                                : string.Empty,
                             baseReferenceList.ElementAt(i).StrHACodeNames != null
                                 ? baseReferenceList.ElementAt(i).StrHACodeNames
-                                : Empty,
+                                : string.Empty,
                             baseReferenceList.ElementAt(i).StrHACode != null
                                 ? baseReferenceList.ElementAt(i).StrHACode
-                                : Empty,
+                                : string.Empty,
                             baseReferenceList.ElementAt(i).IntOrder != null
                                 ? baseReferenceList.ElementAt(i).IntOrder.ToString()
-                                : Empty,
+                                : string.Empty,
                             EditorSetting(baseReferenceList, i, "Edit").ToString(),
                             EditorSetting(baseReferenceList, i, "Delete").ToString()
                         };
@@ -231,10 +223,10 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 switch (strSetting)
                 {
                     case "Edit":
-                        bEnabled = ((lEditSetting & BaseReferenceEditorSetting.EditDisabled) == 0);
+                        bEnabled = ((lEditSetting & EIDSSConstants.BaseReferenceEditorSetting.EditDisabled) == 0);
                         break;
                     case "Delete":
-                        bEnabled = ((lEditSetting & BaseReferenceEditorSetting.DeleteDisabled) == 0);
+                        bEnabled = ((lEditSetting & EIDSSConstants.BaseReferenceEditorSetting.DeleteDisabled) == 0);
                         break;
                 }
             }
@@ -250,7 +242,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         {
             string strCases = string.Empty;
 
-            foreach(var editorSetting in BaseReferenceTypes)
+            foreach (var editorSetting in BaseReferenceTypes)
             {
                 if ((editorSetting.EditorSettings & bres) == bres)
                 {
@@ -269,14 +261,14 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         [HttpPost]
         public async Task<JsonResult> EditReferenceType([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
-            
-            
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
+
+
             var response = new BaseReferenceSaveRequestResponseModel();
             var baseReferenceSaveRequestModel = new BaseReferenceSaveRequestModel
             {
                 LanguageId = GetCurrentLanguage(),
-                EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                 AuditUserName = authenticatedUser.UserName,
                 LocationId = authenticatedUser.RayonId,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -289,7 +281,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 {
                     if (jsonObject["StrDefault"] != null) baseReferenceSaveRequestModel.Default = jsonObject["StrDefault"].ToString();
                     if (jsonObject["StrName"] != null) baseReferenceSaveRequestModel.Name = jsonObject["StrName"].ToString();
-                    baseReferenceSaveRequestModel.intOrder = !IsNullOrEmpty(jsonObject["IntOrder"]?.ToString()) ? Parse(jsonObject["IntOrder"].ToString()) : 0;
+                    baseReferenceSaveRequestModel.intOrder = !string.IsNullOrEmpty(jsonObject["IntOrder"]?.ToString()) ? int.Parse(jsonObject["IntOrder"].ToString()) : 0;
                     if (jsonObject["ReferenceTypeId"] != null) baseReferenceSaveRequestModel.ReferenceTypeId = long.Parse(jsonObject["ReferenceTypeId"].ToString());
                     if (jsonObject["BaseReferenceId"] != null) baseReferenceSaveRequestModel.BaseReferenceId = long.Parse(jsonObject["BaseReferenceId"].ToString());
                     if (jsonObject["LOINC"] != null) baseReferenceSaveRequestModel.LOINC = jsonObject["LOINC"].ToString();
@@ -299,7 +291,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                         var sumHaCode = 0;
                         for (var i = 0; i < jsonObject["StrHACodeNames"].Children().Count(); i++)
                         {
-                            TryParse(jsonObject["StrHACodeNames"].Children().ElementAt(i)["id"]?.ToString(),
+                            int.TryParse(jsonObject["StrHACodeNames"].Children().ElementAt(i)["id"]?.ToString(),
                                 out var outResult);
                             sumHaCode += outResult;
                         }
@@ -309,10 +301,10 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
                     response = await _adminClient.SaveBaseReference(baseReferenceSaveRequestModel);
                     response.strClientPageMessage =
-                        Format(_localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+                        string.Format(_localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
                             baseReferenceSaveRequestModel.Default);
                     response.strDuplicatedField =
-                        Format(
+                        string.Format(
                             _localizer.GetString(MessageResourceKeyConstants
                                 .ItIsNotPossibleToHaveTwoRecordsWithSameValueDoYouWantToCorrectValueMessage),
                             baseReferenceSaveRequestModel.Default);
@@ -336,14 +328,14 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         [HttpPost]
         public async Task<IActionResult> AddNewReferenceType([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
-            var serializer = JsonSerializer.Serialize (data);
-            
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
+            var serializer = JsonSerializer.Serialize(data);
+
             var response = new BaseReferenceSaveRequestResponseModel();
             var baseReferenceSaveRequestModel = new BaseReferenceSaveRequestModel
             {
                 LanguageId = GetCurrentLanguage(),
-                EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                 AuditUserName = authenticatedUser.UserName,
                 LocationId = authenticatedUser.RayonId,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -357,7 +349,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     var sumHaCode = 0;
                     for (var i = 0; i < jsonObject["StrHACode"].Children().Count(); i++)
                     {
-                        TryParse(jsonObject["StrHACode"].Children().ElementAt(i)["id"]?.ToString(), out var outResult);
+                        int.TryParse(jsonObject["StrHACode"].Children().ElementAt(i)["id"]?.ToString(), out var outResult);
                         sumHaCode += outResult;
                     }
 
@@ -368,9 +360,9 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     baseReferenceSaveRequestModel.Default = jsonObject["EnglishValue"].ToString();
                 if (jsonObject["TranslatedValue"] != null)
                     baseReferenceSaveRequestModel.Name = jsonObject["TranslatedValue"].ToString();
-                if (!IsNullOrEmpty(jsonObject["IntOrder"]?.ToString()))
+                if (!string.IsNullOrEmpty(jsonObject["IntOrder"]?.ToString()))
                 {
-                    TryParse(jsonObject["IntOrder"].ToString(), out var intOrder);
+                    int.TryParse(jsonObject["IntOrder"].ToString(), out var intOrder);
                     baseReferenceSaveRequestModel.intOrder = intOrder;
                 }
                 else
@@ -380,24 +372,24 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
                 if (jsonObject["ReferenceTypeDD"] != null)
                     baseReferenceSaveRequestModel.ReferenceTypeId =
-                        long.Parse(jsonObject["ReferenceTypeDD"][0]?["id"]?.ToString() ?? Empty);
+                        long.Parse(jsonObject["ReferenceTypeDD"][0]?["id"]?.ToString() ?? string.Empty);
                 response = await _adminClient.SaveBaseReference(baseReferenceSaveRequestModel);
                 response.PageAction = PageActions.Add;
                 switch (response.ReturnMessage)
                 {
                     case "DOES EXIST":
                         response.strClientPageMessage =
-                            Format(_localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+                            string.Format(_localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
                                 baseReferenceSaveRequestModel.Default);
                         response.strDuplicatedField =
-                            Format(
+                            string.Format(
                                 _localizer.GetString(MessageResourceKeyConstants
                                     .ItIsNotPossibleToHaveTwoRecordsWithSameValueDoYouWantToCorrectValueMessage),
                                 baseReferenceSaveRequestModel.Default);
                         break;
                     case "SUCCESS":
                         response.strClientPageMessage =
-                            Format(_localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
+                            string.Format(_localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
                                 baseReferenceSaveRequestModel.Default);
                         break;
                 }
@@ -405,7 +397,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                //throw;
             }
 
             return Json(response);
@@ -426,11 +417,11 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         {
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
                 var baseReferenceSaveRequestModel = new BaseReferenceSaveRequestModel
                 {
                     LanguageId = GetCurrentLanguage(),
-                    EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                    EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                     AuditUserName = authenticatedUser.UserName,
                     LocationId = authenticatedUser.RayonId,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),

@@ -50,8 +50,8 @@ namespace EIDSS.Web.Areas.Reports.Controllers
         }
 
         public string ReportName { get; set; } = "Human ILI Aberration Analysis";
-        public string StartIssueDate { get; set; } = ""; // DateTime.Now.ToString("MM/dd/yyyy");
-        public string EndIssueDate { get; set; } = ""; // DateTime.Now.ToString("MM/dd/yyyy");
+        public string StartIssueDate { get; set; } = "";
+        public string EndIssueDate { get; set; } = "";
 
         protected override string ReportServerUrl
         {

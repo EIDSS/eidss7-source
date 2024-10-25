@@ -1,8 +1,8 @@
   set nocount on
 
-  declare @dbVersion nvarchar(100) = N'7.0.402'
+  declare @dbVersion nvarchar(100) = N'7.0.426'
   declare @apiCompatibleVersion nvarchar(100) = N'1.0.0'
-  declare @webCompatibleVersion nvarchar(100) = N'7.0.402'
+  declare @webCompatibleVersion nvarchar(100) = N'7.0.427'
 
   if exists(select 1 from tstVersionCompare where strModuleVersion like N'6.%')
 	delete from tstVersionCompare

@@ -73,6 +73,7 @@ namespace EIDSS.Domain.ViewModels.Configuration
 
         #region VectorTypeFieldTestMatrix
 
+        //public long idfsVectorType { get; set; }
         public string strVectorType { get; set; }
         public long idfsFieldTest { get; set; }
         public string strFieldTest { get; set; }

@@ -39,6 +39,15 @@ namespace EIDSS.Web.Abstracts
             _tokenService = tokenService;
         }
 
+        //public BaseController(ILogger logger, ITokenService tokenService, IConfiguration configuration)
+        //{
+        //    _logger = logger;
+        //    _tokenService = tokenService;
+        //    _configuration = configuration;
+        //    CountryId = _configuration.GetValue<string>("EIDSSGlobalSettings:CountryID");
+
+        //}
+
         public BaseViewComponent()
         {
         }

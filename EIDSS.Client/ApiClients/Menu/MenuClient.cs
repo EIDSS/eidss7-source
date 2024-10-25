@@ -69,6 +69,16 @@ namespace EIDSS.ClientLibrary.ApiClients.Menu
 
         private string GetToken()
         {
+            //TODO: remove commented if session-User approach works
+            ////string tokenStr = null;
+            ////if (_applicationContext.GetSession("UserName") != null)
+            ////{
+            ////    var userName = _applicationContext.GetSession("UserName");
+            ////    var authenticatedUser = _userConfigurationService.GetUserToken(userName);
+            ////    tokenStr = authenticatedUser.AccessToken;
+            ////}
+            ////return tokenStr;
+
             var sessionId = _applicationContext.SessionId;
             var userName = _applicationContext.GetSession("UserName");
 

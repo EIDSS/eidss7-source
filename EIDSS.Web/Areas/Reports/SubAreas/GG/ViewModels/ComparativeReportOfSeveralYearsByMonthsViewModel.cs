@@ -6,6 +6,7 @@ using EIDSS.Domain.ViewModels.Reports;
 using EIDSS.Localization.Helpers;
 using EIDSS.Localization.Enumerations;
 using EIDSS.Localization.Constants;
+using EIDSS.Domain.ViewModels.Administration;
 
 namespace EIDSS.Web.Areas.Reports.SubAreas.GG.ViewModels
 {
@@ -15,7 +16,7 @@ namespace EIDSS.Web.Areas.Reports.SubAreas.GG.ViewModels
         public List<ReportYearModel> ReportSecondYearModels { get; set; }
         public List<GisLocationChildLevelModel> GisRegionList { get; set; }
         public List<GisLocationChildLevelModel> GisRayonList { get; set; }
-        public List<BaseReferenceViewModel> DiagnosisList { get; set; }
+        public List<FilteredDiseaseGetListViewModel> DiagnosisList { get; set; }
         public List<HumanComparitiveCounterGGViewModel> CounterList { get; set; }
 
         [DisplayName("From")]

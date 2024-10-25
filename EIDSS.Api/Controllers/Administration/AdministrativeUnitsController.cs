@@ -19,6 +19,9 @@ using EIDSS.Domain.ResponseModels.PIN;
 namespace EIDSS.Api.Controllers.Administration
 {
 
+    /// <summary>
+    /// 
+    /// </summary>
     [Route("api/Administration/AdministrativeUnits")]
     [ApiController]
     public class AdministrativeUnitsController : EIDSSControllerBase

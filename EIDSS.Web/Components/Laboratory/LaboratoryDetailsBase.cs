@@ -677,7 +677,7 @@ namespace EIDSS.Web.Components.Laboratory
             AdditionalTestDetailsFlexForm ??= new FlexForm.FlexForm();
             if (Model.Test.AdditionalTestDetailsFlexFormAnswers is not null)
                 FlexFormRequest.ReviewAnswers = Model.Test.AdditionalTestDetailsFlexFormAnswers;
-            AdditionalTestDetailsFlexForm.SetRequestParameter(FlexFormRequest);
+            await AdditionalTestDetailsFlexForm.SetRequestParameter(FlexFormRequest);
 
             if (testId > 0)
             {

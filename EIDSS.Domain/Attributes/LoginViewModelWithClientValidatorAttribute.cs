@@ -24,12 +24,24 @@ namespace EIDSS.Domain.Attributes
         public void AddValidation(ClientModelValidationContext context)
         {
 
+            //var viewContext = context.ActionContext as ViewContext ;
+
+            //var fullName = viewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(UserName);
+
+            //string otherName =context.ModelMetadata.ContainerMetadata.Properties.Single(p => p.PropertyName == this.UserName).GetDisplayName();
+
+  
+
+       
             MergeAttribute(context.Attributes, "data-val", "true");
             MergeAttribute(context.Attributes, "data-val-rulename", GetErrorMessage());
 
             var user = UserName.ToString(CultureInfo.InvariantCulture);
             MergeAttribute(context.Attributes, "data-val-rulename-userName", user);
             MergeAttribute(context.Attributes, "data-val-required", "This fields is required");
+           // MergeAttribute(context.Attributes, "data-val-id", proprtyvalue.ToString());
+
+
         }
 
         public string GetErrorMessage() =>

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using EIDSS.ClientLibrary.ApiClients.Admin;
+﻿using EIDSS.ClientLibrary.ApiClients.Admin;
 using EIDSS.ClientLibrary.ApiClients.Administration.Security;
 using EIDSS.ClientLibrary.ApiClients.Configuration;
 using EIDSS.ClientLibrary.ApiClients.CrossCutting;
@@ -32,8 +25,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.String;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace EIDSS.Web.Areas.Administration.Controllers
 {
@@ -54,9 +52,9 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         private EmployeePageViewModel _employeePageViewModel;
         private readonly EmployeeDetailsPageViewModel _employeeDetailsPageViewModel;
 
-        public EmployeePageController(ICrossCuttingClient crossCuttingClient, ISiteClient siteClient,IAdminClient adminClient,IOrganizationClient organizationClient,IEmployeeClient employeeClient,IPersonalIdentificationTypeMatrixClient personalIdentificationTypeMatrixClient, ILogger<EmployeePageController> logger,IStringLocalizer localizer, ITokenService tokenService) : base(logger,tokenService)
+        public EmployeePageController(ICrossCuttingClient crossCuttingClient, ISiteClient siteClient, IAdminClient adminClient, IOrganizationClient organizationClient, IEmployeeClient employeeClient, IPersonalIdentificationTypeMatrixClient personalIdentificationTypeMatrixClient, ILogger<EmployeePageController> logger, IStringLocalizer localizer, ITokenService tokenService) : base(logger, tokenService)
         {
-             _employeePageViewModel = new EmployeePageViewModel();
+            _employeePageViewModel = new EmployeePageViewModel();
             _employeeDetailsPageViewModel = new EmployeeDetailsPageViewModel();
             _crossCuttingClient = crossCuttingClient;
             _adminClient = adminClient;
@@ -66,14 +64,13 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             _personalIdentificationTypeMatrixClient = personalIdentificationTypeMatrixClient;
             _organizationClient = organizationClient;
             _authenticatedUser = _tokenService.GetAuthenticatedUser();
-             _userPermissions = GetUserPermissions(PagePermission.CanAccessEmployeesList_WithoutManagingAccessRights);
+            _userPermissions = GetUserPermissions(PagePermission.CanAccessEmployeesList_WithoutManagingAccessRights);
 
             _employeePageViewModel.UserPermissions = _userPermissions;
 
-             _userPermissions = GetUserPermissions(PagePermission.CanManageUserAccounts);
+            _userPermissions = GetUserPermissions(PagePermission.CanManageUserAccounts);
             _employeeDetailsPageViewModel.UserPermissions = _userPermissions;
             _employeePageViewModel.AddEmployeeUserPermissions = _userPermissions;
-
 
             var canManageReferencesandConfiguratuionsPermission = GetUserPermissions(PagePermission.CanManageReferencesAndConfigurations);
 
@@ -84,8 +81,8 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             _employeeDetailsPageViewModel.PersonalInfoSection = new EmployeePersonalInfoPageViewModel
             {
                 UserPermissions = _userPermissions,
-                 CanManageReferencesandConfiguratuionsPermission = canManageReferencesandConfiguratuionsPermission,
-                 CanAccessOrganizationsList = canAccessOrganizationsList
+                CanManageReferencesandConfiguratuionsPermission = canManageReferencesandConfiguratuionsPermission,
+                CanAccessOrganizationsList = canAccessOrganizationsList
             };
             _employeeDetailsPageViewModel.LoginSection = new EmployeeLoginViewModel
             {
@@ -99,26 +96,24 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             _employeeDetailsPageViewModel.PersonalInfoSection.PositionDD = new Select2Configruation();
             _employeeDetailsPageViewModel.PersonalInfoSection.eIDSSModalConfiguration = new List<EIDSSModalConfiguration>();
 
-
             //Account Management Add Button Initialization
             _employeeDetailsPageViewModel.AccountManagementSection = new EmployeeAccountManagementPageViewModel
+            {
+                eidssGridConfiguration = new EIDSSGridConfiguration(),
+                eIDSSModalConfiguration = new List<EIDSSModalConfiguration>(),
+                Select2Configurations = new List<Select2Configruation>(),
+                EmployeeUserPermissionsPageViewModel = new EmployeeUserPermissionsPageViewModel
                 {
-                    eidssGridConfiguration = new EIDSSGridConfiguration(),
-                    eIDSSModalConfiguration = new List<EIDSSModalConfiguration>(),
                     Select2Configurations = new List<Select2Configruation>(),
-                    EmployeeUserPermissionsPageViewModel = new EmployeeUserPermissionsPageViewModel
-                        {
-                            Select2Configurations = new List<Select2Configruation>(),
-                            eIDSSModalConfiguration = new List<EIDSSModalConfiguration>()
-                        },
-                    UserGroupsAndPermissions = new List<EmployeeUserGroupsAndPermissionsViewModel>(),
-                    UserPermissions = _userPermissions
-                };
+                    eIDSSModalConfiguration = new List<EIDSSModalConfiguration>()
+                },
+                UserGroupsAndPermissions = new List<EmployeeUserGroupsAndPermissionsViewModel>(),
+                UserPermissions = _userPermissions
+            };
         }
 
         public IActionResult Index()
         {
-
             _employeePageViewModel.Select2Configurations = new List<Select2Configruation>();
             _employeePageViewModel.eidssGridConfiguration = new EIDSSGridConfiguration();
             _employeePageViewModel.eIDSSModalConfiguration = new List<EIDSSModalConfiguration>();
@@ -128,7 +123,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
         [Route("LoadDefaultOrgDetails")]
         [HttpPost]
-
         public async Task<IActionResult> LoadDefaultOrgDetails([FromBody] JsonElement data)
         {
             var jsonObject = JObject.Parse(data.ToString());
@@ -136,13 +130,13 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             {
                 Row = 1
             };
-            var empId= jsonObject["idfPerson"] != null && jsonObject["idfPerson"].ToString() != Empty ? long.Parse(jsonObject["idfPerson"].ToString()) : 0;
+            var empId = jsonObject["idfPerson"] != null && jsonObject["idfPerson"].ToString() != string.Empty ? long.Parse(jsonObject["idfPerson"].ToString()) : 0;
             if (empId == 0)
             {
-                defaultOrg.OrganizationID = jsonObject["idfInstitution"] != null && jsonObject["idfInstitution"].ToString() != Empty ? long.Parse(jsonObject["idfInstitution"].ToString()) : 0;
-                defaultOrg.idfsSite = jsonObject["idfsSite"] != null && jsonObject["idfsSite"].ToString() != Empty ? long.Parse(jsonObject["idfsSite"].ToString()) : 0;
-                defaultOrg.Organization = jsonObject["idfInstitutionText"] != null && jsonObject["idfInstitutionText"].ToString() != Empty ? jsonObject["idfInstitutionText"].ToString() : "";
-                defaultOrg.SiteID = jsonObject["idfsSiteText"] != null && jsonObject["idfsSiteText"].ToString() != Empty ? jsonObject["idfsSiteText"].ToString() : "";
+                defaultOrg.OrganizationID = jsonObject["idfInstitution"] != null && jsonObject["idfInstitution"].ToString() != string.Empty ? long.Parse(jsonObject["idfInstitution"].ToString()) : 0;
+                defaultOrg.idfsSite = jsonObject["idfsSite"] != null && jsonObject["idfsSite"].ToString() != string.Empty ? long.Parse(jsonObject["idfsSite"].ToString()) : 0;
+                defaultOrg.Organization = jsonObject["idfInstitutionText"] != null && jsonObject["idfInstitutionText"].ToString() != string.Empty ? jsonObject["idfInstitutionText"].ToString() : "";
+                defaultOrg.SiteID = jsonObject["idfsSiteText"] != null && jsonObject["idfsSiteText"].ToString() != string.Empty ? jsonObject["idfsSiteText"].ToString() : "";
                 defaultOrg.IsDefault = true;
                 defaultOrg.STATUS = 1;
                 if (defaultOrg.OrganizationID != null && defaultOrg.OrganizationID != 0)
@@ -163,8 +157,8 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     _employeeDetailsPageViewModel.LoginSection.Login = employeeSiteDetails.FirstOrDefault().strAccountName;
                     _employeeDetailsPageViewModel.AccountManagementSection.Reason = employeeSiteDetails.FirstOrDefault().strDisabledReason;
                     _employeeDetailsPageViewModel.AccountManagementSection.Disabled = employeeSiteDetails.FirstOrDefault().blnDisabled.Value;
-                    _employeeDetailsPageViewModel.AccountManagementSection.blnDisabled = employeeSiteDetails.FirstOrDefault().blnDisabled != null && employeeSiteDetails.FirstOrDefault().blnDisabled.ToString() != Empty ? Convert.ToBoolean(employeeSiteDetails.FirstOrDefault().blnDisabled) : false;
-                    _employeeDetailsPageViewModel.AccountManagementSection.blnLocked = employeeSiteDetails.FirstOrDefault().Locked == 1 && employeeSiteDetails.FirstOrDefault().Locked.ToString() != Empty ? true : false;
+                    _employeeDetailsPageViewModel.AccountManagementSection.blnDisabled = employeeSiteDetails.FirstOrDefault().blnDisabled != null && employeeSiteDetails.FirstOrDefault().blnDisabled.ToString() != string.Empty ? Convert.ToBoolean(employeeSiteDetails.FirstOrDefault().blnDisabled) : false;
+                    _employeeDetailsPageViewModel.AccountManagementSection.blnLocked = employeeSiteDetails.FirstOrDefault().Locked == 1 && employeeSiteDetails.FirstOrDefault().Locked.ToString() != string.Empty ? true : false;
                     _employeeDetailsPageViewModel.LoginSection.Password = "Password999";
                     _employeeDetailsPageViewModel.LoginSection.ConfirmPassword = "Password999";
                     _employeeDetailsPageViewModel.LoginSection.strIdentity = employeeSiteDetails.FirstOrDefault().strIdentity;
@@ -172,17 +166,17 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     _employeeDetailsPageViewModel.LoginSection.DateDisabled = employeeSiteDetails.FirstOrDefault().DateDisabled;
                 }
 
-                var userGroupResponse =  await _employeeClient.GetEmployeeUserGroupAndPermissions(request);
+                var userGroupResponse = await _employeeClient.GetEmployeeUserGroupAndPermissions(request);
                 if (userGroupResponse.Count > 0)
                 {
                     _employeeDetailsPageViewModel.AccountManagementSection.UserGroupsAndPermissions.AddRange(userGroupResponse);
                 }
                 else
                 {
-                    defaultOrg.OrganizationID = jsonObject["idfInstitution"] != null && jsonObject["idfInstitution"].ToString() != Empty ? long.Parse(jsonObject["idfInstitution"].ToString()) : 0;
-                    defaultOrg.idfsSite = jsonObject["idfsSite"] != null && jsonObject["idfsSite"].ToString() != Empty ? long.Parse(jsonObject["idfsSite"].ToString()) : 0;
-                    defaultOrg.Organization = jsonObject["idfInstitutionText"] != null && jsonObject["idfInstitutionText"].ToString() != Empty ? jsonObject["idfInstitutionText"].ToString() : "";
-                    defaultOrg.SiteID = jsonObject["idfsSiteText"] != null && jsonObject["idfsSiteText"].ToString() != Empty ? jsonObject["idfsSiteText"].ToString() : "";
+                    defaultOrg.OrganizationID = jsonObject["idfInstitution"] != null && jsonObject["idfInstitution"].ToString() != string.Empty ? long.Parse(jsonObject["idfInstitution"].ToString()) : 0;
+                    defaultOrg.idfsSite = jsonObject["idfsSite"] != null && jsonObject["idfsSite"].ToString() != string.Empty ? long.Parse(jsonObject["idfsSite"].ToString()) : 0;
+                    defaultOrg.Organization = jsonObject["idfInstitutionText"] != null && jsonObject["idfInstitutionText"].ToString() != string.Empty ? jsonObject["idfInstitutionText"].ToString() : "";
+                    defaultOrg.SiteID = jsonObject["idfsSiteText"] != null && jsonObject["idfsSiteText"].ToString() != string.Empty ? jsonObject["idfsSiteText"].ToString() : "";
                     defaultOrg.IsDefault = true;
                     defaultOrg.STATUS = 1;
                     if (defaultOrg.OrganizationID != null && defaultOrg.OrganizationID != 0)
@@ -192,7 +186,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             return PartialView("_AccountManagementPartial", _employeeDetailsPageViewModel.AccountManagementSection);
         }
 
-        
+
         [HttpGet]
         [Route("ReloadAccountManagement")]
         public async Task<IActionResult> ReloadAccountManagement(string data)
@@ -208,9 +202,9 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             {
                 _employeeDetailsPageViewModel.LoginSection.Login = employeeSiteDetails.FirstOrDefault().strAccountName;
                 _employeeDetailsPageViewModel.AccountManagementSection.Reason = employeeSiteDetails.FirstOrDefault().strDisabledReason;
-                _employeeDetailsPageViewModel.AccountManagementSection.Disabled= employeeSiteDetails.FirstOrDefault().blnDisabled != null && employeeSiteDetails.FirstOrDefault().blnDisabled.ToString() != Empty ? Convert.ToBoolean(employeeSiteDetails.FirstOrDefault().blnDisabled) : false;
-                _employeeDetailsPageViewModel.AccountManagementSection.blnDisabled = employeeSiteDetails.FirstOrDefault().blnDisabled!=null && employeeSiteDetails.FirstOrDefault().blnDisabled.ToString()!=Empty?Convert.ToBoolean(employeeSiteDetails.FirstOrDefault().blnDisabled):false;
-                _employeeDetailsPageViewModel.AccountManagementSection.blnLocked = employeeSiteDetails.FirstOrDefault().Locked==1 && employeeSiteDetails.FirstOrDefault().Locked.ToString()!=Empty?true:false;
+                _employeeDetailsPageViewModel.AccountManagementSection.Disabled = employeeSiteDetails.FirstOrDefault().blnDisabled != null && employeeSiteDetails.FirstOrDefault().blnDisabled.ToString() != string.Empty ? Convert.ToBoolean(employeeSiteDetails.FirstOrDefault().blnDisabled) : false;
+                _employeeDetailsPageViewModel.AccountManagementSection.blnDisabled = employeeSiteDetails.FirstOrDefault().blnDisabled != null && employeeSiteDetails.FirstOrDefault().blnDisabled.ToString() != string.Empty ? Convert.ToBoolean(employeeSiteDetails.FirstOrDefault().blnDisabled) : false;
+                _employeeDetailsPageViewModel.AccountManagementSection.blnLocked = employeeSiteDetails.FirstOrDefault().Locked == 1 && employeeSiteDetails.FirstOrDefault().Locked.ToString() != string.Empty ? true : false;
                 _employeeDetailsPageViewModel.LoginSection.Password = "Password999";
                 _employeeDetailsPageViewModel.LoginSection.ConfirmPassword = "Password999";
                 _employeeDetailsPageViewModel.LoginSection.strIdentity = employeeSiteDetails.FirstOrDefault().strIdentity;
@@ -218,33 +212,29 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 _employeeDetailsPageViewModel.LoginSection.DateDisabled = employeeSiteDetails.FirstOrDefault().DateDisabled;
             }
 
-
             _employeeDetailsPageViewModel.AccountManagementSection.UserGroupsAndPermissions.AddRange(_employeeClient.GetEmployeeUserGroupAndPermissions(request).Result);
             _employeeDetailsPageViewModel.AccountManagementSection.EmployeeID = request.idfPerson.Value;
             return PartialView("_AccountManagementPartial", _employeeDetailsPageViewModel.AccountManagementSection);
         }
 
-       
         public async Task<IActionResult> Details(string id)
-         {
-
-            
+        {
             List<AdminEmployeeSiteDetailsViewModel> employeeSiteDetails = new List<AdminEmployeeSiteDetailsViewModel>();
 
-            if (!IsNullOrEmpty(id))
+            if (!string.IsNullOrEmpty(id))
             {
-                _employeeDetailsPageViewModel.EmployeeID= long.Parse(id);
+                _employeeDetailsPageViewModel.EmployeeID = long.Parse(id);
                 _employeeDetailsPageViewModel.IsEditEmployee = true;
                 _employeeDetailsPageViewModel.AccountManagementSection.EmployeeID = long.Parse(id);
             }
             else
             {
-                _employeeDetailsPageViewModel.IsAddEmployee = true; 
+                _employeeDetailsPageViewModel.IsAddEmployee = true;
             }
 
-            if (!IsNullOrEmpty(id))
+            if (!string.IsNullOrEmpty(id))
             {
-                _employeeDetailsPageViewModel.PersonalInfoSection =  await LoadPersonalInfo(id);
+                _employeeDetailsPageViewModel.PersonalInfoSection = await LoadPersonalInfo(id);
 
                 employeeSiteDetails = await LoadLoginAndAccountManagementInfo(id);
 
@@ -270,18 +260,18 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     _employeeDetailsPageViewModel.LoginSection.DateDisabled = employeeSiteDetails.FirstOrDefault().DateDisabled;
 
                 }
-               
+
                 EmployeesUserGroupAndPermissionsGetRequestModel request = new EmployeesUserGroupAndPermissionsGetRequestModel();
 
                 request.idfPerson = long.Parse(id);
                 request.LangID = GetCurrentLanguage();
-              
+
                 _employeeDetailsPageViewModel.AccountManagementSection.UserGroupsAndPermissions.AddRange(_employeeClient.GetEmployeeUserGroupAndPermissions(request).Result);
                 _employeeDetailsPageViewModel.AccountManagementSection.EmployeeID = request.idfPerson.Value;
             }
 
             //get User and NonUser radio buttons
-            var list = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), BaseReferenceConstants.EmployeeCategory, null);
+            var list = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), EIDSSConstants.BaseReferenceConstants.EmployeeCategory, null);
             _employeeDetailsPageViewModel.PersonalInfoSection.EmployeeCategoryList = list;
             if (_employeeDetailsPageViewModel.PersonalInfoSection.idfsEmployeeCategory == null)
                 _employeeDetailsPageViewModel.PersonalInfoSection.idfsEmployeeCategory = (long)EmployeeCategory.User;
@@ -289,6 +279,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             return View(_employeeDetailsPageViewModel);
         }
+
         [Route("GetOrganizationsAdvancedListUser")]
         [HttpGet]
         public async Task<JsonResult> GetOrganizationsAdvancedListUser(int page, string data, string term)
@@ -306,7 +297,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
                 var list = await _organizationClient.GetOrganizationAdvancedList(request);
                 if (list != null)
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.idfOffice.ToString(), text = item.name}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.idfOffice.ToString(), text = item.name }));
 
                 pagination.more = true; //Add Pagination
                 select2DataObj.results = select2DataItems.GroupBy(x => x.id).Select(x => x.First()).ToList();
@@ -323,7 +314,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
         public IActionResult UserPermissions()
         {
-
             _employeePageViewModel.Select2Configurations = new List<Select2Configruation>();
             _employeePageViewModel.eidssGridConfiguration = new EIDSSGridConfiguration();
             _employeePageViewModel.eIDSSModalConfiguration = new List<EIDSSModalConfiguration>();
@@ -342,8 +332,8 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             if (jsonObject != null)
             {
                 userPermissionsViewModel = await CreateRequestForUserPermissionsAsync(jsonObject);
-                EmployeePersonalInfoSaveRequest = CreateRequestForEmployee(jsonObject,true,false);
-                registerViewModel = CreateRequestForEmployeeLogin(jsonObject);              
+                EmployeePersonalInfoSaveRequest = CreateRequestForEmployee(jsonObject, true, false);
+                registerViewModel = CreateRequestForEmployeeLogin(jsonObject);
             }
             _employeeDetailsPageViewModel.AccountManagementSection.EmployeeUserPermissionsPageViewModel = userPermissionsViewModel;
             _employeeDetailsPageViewModel.AccountManagementSection.EmployeeUserPermissionsPageViewModel.PersonalInformation = EmployeePersonalInfoSaveRequest;
@@ -352,13 +342,13 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             _employeeDetailsPageViewModel.AccountManagementSection.EmployeeUserPermissionsPageViewModel.IsAddEmployee = isAddEmployee;
             return PartialView("_UserPermissionsPartial", _employeeDetailsPageViewModel.AccountManagementSection.EmployeeUserPermissionsPageViewModel);
         }
+
         public IActionResult SearchEmployee()
         {
             _employeePageViewModel = new EmployeePageViewModel();
             _employeePageViewModel.Select2Configurations = new List<Select2Configruation>();
             return View(_employeePageViewModel);
         }
-        
 
         // <summary>
         // Loads Data for the Grid
@@ -370,28 +360,29 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         {
             bool isAtLeastOneFieldPopulated = false;
             EmployeeGetListRequestModel request = new EmployeeGetListRequestModel();
-            ///Object to hold deserialized post agrguments
-            var postParameterDefinitions = new { 
-                EIDSSOrganizationID="", 
-                OrganizationFullName ="",
-                OrganizationAbbreviatedName = "", 
-                ContactPhone ="", EmployeeID = "",
-                EmployeeCategoryDD ="", 
-                AccountStateDD = "", 
-                PersonalIdTypeDD = "", 
-                PositionDD = "", 
+            //Object to hold deserialized post agrguments
+            var postParameterDefinitions = new
+            {
+                EIDSSOrganizationID = "",
+                OrganizationFullName = "",
+                OrganizationAbbreviatedName = "",
+                ContactPhone = "",
+                EmployeeID = "",
+                EmployeeCategoryDD = "",
+                AccountStateDD = "",
+                PersonalIdTypeDD = "",
+                PositionDD = "",
                 OrganizationDD = "",
-                FirstName="",
-                LastName="",
-                MiddleName="", 
-                UniqueOrganizationID ="", 
-                PersonalID ="",
-                PositionTypeName=""
+                FirstName = "",
+                LastName = "",
+                MiddleName = "",
+                UniqueOrganizationID = "",
+                PersonalID = "",
+                PositionTypeName = ""
             };
             var referenceType = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(dataTableQueryPostObj.postArgs, postParameterDefinitions);
-            
+
             List<EmployeeListViewModel> _employeeList = new List<EmployeeListViewModel>();
-            
 
             //Data for Jquery Datatables
             TableData tableData = new TableData();
@@ -405,93 +396,92 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     KeyValuePair<string, string> valuePair = new KeyValuePair<string, string>();
                     valuePair = dataTableQueryPostObj.ReturnSortParameter();
 
-                    
-                    if (!IsNullOrEmpty(referenceType.EmployeeID))
+                    if (!string.IsNullOrEmpty(referenceType.EmployeeID))
                     {
                         isAtLeastOneFieldPopulated = true;
                         request.EmployeeID = long.Parse(referenceType.EmployeeID);
                     }
-                    if (!IsNullOrEmpty(referenceType.FirstName))
+                    if (!string.IsNullOrEmpty(referenceType.FirstName))
                     {
                         isAtLeastOneFieldPopulated = true;
                         request.FirstOrGivenName = referenceType.FirstName;
                     }
-                    if (!IsNullOrEmpty(referenceType.MiddleName))
+                    if (!string.IsNullOrEmpty(referenceType.MiddleName))
                     {
                         isAtLeastOneFieldPopulated = true;
                         request.SecondName = referenceType.MiddleName;
                     }
-                    if (!IsNullOrEmpty(referenceType.LastName))
+                    if (!string.IsNullOrEmpty(referenceType.LastName))
                     {
                         isAtLeastOneFieldPopulated = true;
                         request.LastOrSurName = referenceType.LastName;
                     }
-                    if (!IsNullOrEmpty(referenceType.ContactPhone))
+                    if (!string.IsNullOrEmpty(referenceType.ContactPhone))
                     {
                         isAtLeastOneFieldPopulated = true;
                         request.ContactPhone = referenceType.ContactPhone;
                     }
-                    if (!IsNullOrEmpty(referenceType.OrganizationAbbreviatedName))
+                    if (!string.IsNullOrEmpty(referenceType.OrganizationAbbreviatedName))
                     {
                         isAtLeastOneFieldPopulated = true;
                         request.OrganizationAbbreviatedName = referenceType.OrganizationAbbreviatedName;
                     }
-                    if (!IsNullOrEmpty(referenceType.OrganizationFullName))
+                    if (!string.IsNullOrEmpty(referenceType.OrganizationFullName))
                     {
                         isAtLeastOneFieldPopulated = true;
                         request.OrganizationFullName = referenceType.OrganizationFullName;
                     }
-                    if (!IsNullOrEmpty(referenceType.UniqueOrganizationID))
+                    if (!string.IsNullOrEmpty(referenceType.UniqueOrganizationID))
                     {
                         isAtLeastOneFieldPopulated = true;
                         request.EIDSSOrganizationID = referenceType.UniqueOrganizationID;
                     }
-                    if (!IsNullOrEmpty(referenceType.OrganizationDD))
+                    if (!string.IsNullOrEmpty(referenceType.OrganizationDD))
                     {
                         isAtLeastOneFieldPopulated = true;
                         request.OrganizationID = long.Parse(referenceType.OrganizationDD);
                     }
-                    if (!IsNullOrEmpty(referenceType.PositionTypeName))
+                    if (!string.IsNullOrEmpty(referenceType.PositionTypeName))
                     {
                         isAtLeastOneFieldPopulated = true;
                         request.PositionTypeName = referenceType.PositionTypeName;
                     }
-                    if (!IsNullOrEmpty(referenceType.PositionDD))
+                    if (!string.IsNullOrEmpty(referenceType.PositionDD))
                     {
                         isAtLeastOneFieldPopulated = true;
                         request.PositionTypeID = long.Parse(referenceType.PositionDD);
                     }
-              
-                    if (!IsNullOrEmpty(referenceType.EmployeeCategoryDD))
+
+                    if (!string.IsNullOrEmpty(referenceType.EmployeeCategoryDD))
                     {
                         isAtLeastOneFieldPopulated = true;
-                        request.EmployeeCategory= long.Parse(referenceType.EmployeeCategoryDD);
+                        request.EmployeeCategory = long.Parse(referenceType.EmployeeCategoryDD);
                     }
 
-                    if (!IsNullOrEmpty(referenceType.EmployeeCategoryDD))
+                    if (!string.IsNullOrEmpty(referenceType.EmployeeCategoryDD))
                     {
                         isAtLeastOneFieldPopulated = true;
                         request.EmployeeCategoryID = long.Parse(referenceType.EmployeeCategoryDD);
                     }
 
-                    if (!IsNullOrEmpty(referenceType.AccountStateDD))
+                    if (!string.IsNullOrEmpty(referenceType.AccountStateDD))
                     {
                         isAtLeastOneFieldPopulated = true;
                         request.AccountState = long.Parse(referenceType.AccountStateDD);
                     }
-                    if (!IsNullOrEmpty(referenceType.PersonalIdTypeDD))
+                    if (!string.IsNullOrEmpty(referenceType.PersonalIdTypeDD))
                     {
                         isAtLeastOneFieldPopulated = true;
                         request.PersonalIdType = long.Parse(referenceType.PersonalIdTypeDD);
                     }
-                    if (!IsNullOrEmpty(referenceType.PersonalID))
+                    if (!string.IsNullOrEmpty(referenceType.PersonalID))
                     {
                         isAtLeastOneFieldPopulated = true;
                         request.PersonalIDValue = referenceType.PersonalID;
                     }
-                    
-                    request.SortColumn = !IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "EmployeeID";
-                    request.SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : "asc";
+
+                    request.SortColumn = !string.IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "EmployeeID";
+                    request.SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : "asc";
                     request.Page = dataTableQueryPostObj.page;
                     request.PageSize = dataTableQueryPostObj.length;
 
@@ -500,7 +490,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                         _employeePageViewModel.EmployeeList = await _employeeClient.GetEmployeeList(request);
                         _employeeList = _employeePageViewModel.EmployeeList.ToList();
                     }
-                   
+
                 }
 
                 tableData.iTotalRecords = _employeeList.Count() == 0 ? 0 : _employeeList.FirstOrDefault().TotalRowCount;
@@ -512,31 +502,26 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     int row = dataTableQueryPostObj.page > 0 ? (dataTableQueryPostObj.page - 1) * dataTableQueryPostObj.length : 0;
                     for (int i = 0; i < _employeeList.Count(); i++)
                     {
-                        var accountState = _employeeList.ElementAt(i).AccountDisabled != null ? _employeeList.ElementAt(i).AccountDisabled:Empty;
-                        if(IsNullOrEmpty(accountState))
+                        var accountState = _employeeList.ElementAt(i).AccountDisabled != null ? _employeeList.ElementAt(i).AccountDisabled : string.Empty;
+                        if (string.IsNullOrEmpty(accountState))
                         {
-                            accountState = _employeeList.ElementAt(i).AccountLocked != null ? _employeeList.ElementAt(i).AccountLocked : Empty;
+                            accountState = _employeeList.ElementAt(i).AccountLocked != null ? _employeeList.ElementAt(i).AccountLocked : string.Empty;
                         }
-                        
 
-                     List<string> cols = new List<string>()
-                    {
-                         (row + i + 1).ToString(),
-                          _employeeList.ElementAt(i).EmployeeCategory != null ? _employeeList.ElementAt(i).EmployeeCategory:Empty,
-                         accountState,
-                         //_employeeList.ElementAt(i).OrganizationFullName != null ? _employeeList.ElementAt(i).OrganizationFullName:Empty,
-                         _employeeList.ElementAt(i).OrganizationAbbreviatedName != null ? _employeeList.ElementAt(i).OrganizationAbbreviatedName.ToString() :string.Empty,
-                        // _employeeList.ElementAt(i).OrganizationID != null ? _employeeList.ElementAt(i).OrganizationID.ToString() :string.Empty,
-                        // _employeeList.ElementAt(i).EIDSSOrganizationID != null ? _employeeList.ElementAt(i).EIDSSOrganizationID:string.Empty,
-                         _employeeList.ElementAt(i).LastOrSurName != null ? _employeeList.ElementAt(i).LastOrSurName.ToString():Empty,
-                         _employeeList.ElementAt(i).FirstOrGivenName != null ? _employeeList.ElementAt(i).FirstOrGivenName.ToString():Empty,
-                        _employeeList.ElementAt(i).SecondName != null ? _employeeList.ElementAt(i).SecondName.ToString() : Empty,
-                         _employeeList.ElementAt(i).PositionTypeName != null ? _employeeList.ElementAt(i).PositionTypeName.ToString() :Empty,
-                        //_employeeList.ElementAt(i).PositionTypeID != null ? _employeeList.ElementAt(i).PositionTypeID.ToString() :string.Empty,
-                        _employeeList.ElementAt(i).ContactPhone != null ? _employeeList.ElementAt(i).ContactPhone.ToString():Empty,
-                        _employeeList.ElementAt(i).EmployeeID != null ? _employeeList.ElementAt(i).EmployeeID.ToString():Empty,
-                        Empty 
-                     };
+                        List<string> cols = new List<string>()
+                        {
+                            (row + i + 1).ToString(),
+                            _employeeList.ElementAt(i).EmployeeCategory != null ? _employeeList.ElementAt(i).EmployeeCategory : string.Empty,
+                            accountState,
+                            _employeeList.ElementAt(i).OrganizationAbbreviatedName != null ? _employeeList.ElementAt(i).OrganizationAbbreviatedName.ToString() :string.Empty,
+                            _employeeList.ElementAt(i).LastOrSurName != null ? _employeeList.ElementAt(i).LastOrSurName.ToString() : string.Empty,
+                            _employeeList.ElementAt(i).FirstOrGivenName != null ? _employeeList.ElementAt(i).FirstOrGivenName.ToString() : string.Empty,
+                            _employeeList.ElementAt(i).SecondName != null ? _employeeList.ElementAt(i).SecondName.ToString() : string.Empty,
+                            _employeeList.ElementAt(i).PositionTypeName != null ? _employeeList.ElementAt(i).PositionTypeName.ToString() : string.Empty,
+                            _employeeList.ElementAt(i).ContactPhone != null ? _employeeList.ElementAt(i).ContactPhone.ToString() : string.Empty,
+                            _employeeList.ElementAt(i).EmployeeID != null ? _employeeList.ElementAt(i).EmployeeID.ToString() : string.Empty,
+                            string.Empty
+                        };
                         tableData.data.Add(cols);
                     }
                 }
@@ -549,13 +534,9 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             return Json(tableData);
         }
-       
 
-            #region Employee Details
-
-            public async Task<EmployeePersonalInfoPageViewModel> LoadPersonalInfo(string queryData)
-            {
-           
+        public async Task<EmployeePersonalInfoPageViewModel> LoadPersonalInfo(string queryData)
+        {
             EmployeePersonalInfoPageViewModel model = new EmployeePersonalInfoPageViewModel();
             _userPermissions = GetUserPermissions(PagePermission.CanManageUserAccounts);
             model.UserPermissions = _userPermissions;
@@ -563,7 +544,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             model.CanManageReferencesandConfiguratuionsPermission = _CanManageReferencesandConfiguratuionsPermission;
             var CanAccessOrganizationsList = GetUserPermissions(PagePermission.CanAccessOrganizationsList);
             model.CanAccessOrganizationsList = CanAccessOrganizationsList;
-            model.Select2Configurations=new List<Select2Configruation>();
+            model.Select2Configurations = new List<Select2Configruation>();
             model.OrganizationDD = new Select2Configruation();
             model.SiteDD = new Select2Configruation();
             model.DepartmentDD = new Select2Configruation();
@@ -571,12 +552,12 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             model.PersonalIdTypeDD = new Select2Configruation();
             model.eIDSSModalConfiguration = new List<EIDSSModalConfiguration>();
             try
-            {               
+            {
                 EmployeeDetailsGetRequestModel detailRequest = new EmployeeDetailsGetRequestModel();
-                detailRequest.idfPerson= long.Parse(queryData);
+                detailRequest.idfPerson = long.Parse(queryData);
                 detailRequest.LangID = GetCurrentLanguage();
-                var detailResponse = await  _employeeClient.GetEmployeeDetail(detailRequest);
-                if(detailResponse!=null && detailResponse.Count>0)
+                var detailResponse = await _employeeClient.GetEmployeeDetail(detailRequest);
+                if (detailResponse != null && detailResponse.Count > 0)
                 {
                     var details = detailResponse.FirstOrDefault();
                     model.FirstOrGivenName = details.strFirstName;
@@ -599,7 +580,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     }
 
                     model.EmployeeCategory = details.strEmployeeCategory;
-                    if(model.EmployeeCategory=="Non-User")
+                    if (model.EmployeeCategory == "Non-User")
                     {
                         model.EmployeeCategory = EmployeeCategory.NonUser.ToString();
                     }
@@ -609,7 +590,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
                     model.PositionTypeID = details.idfsStaffPosition;
                     model.PositionTypeName = details.strStaffPosition;
-                    
                 }
 
             }
@@ -619,49 +599,33 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             }
             return model;
         }
+
         public async Task<List<AdminEmployeeSiteDetailsViewModel>> LoadLoginAndAccountManagementInfo(string queryData)
         {
-
             List<AdminEmployeeSiteDetailsViewModel> employeeSiteDetails = new List<AdminEmployeeSiteDetailsViewModel>();
-            EmployeesSiteDetailsGetRequestModel request = new EmployeesSiteDetailsGetRequestModel();           
+            EmployeesSiteDetailsGetRequestModel request = new EmployeesSiteDetailsGetRequestModel();
             request.LangID = GetCurrentLanguage();
-            if (!IsNullOrEmpty(queryData))
+            if (!string.IsNullOrEmpty(queryData))
             {
                 request.idfPerson = long.Parse(queryData);
-                employeeSiteDetails =await _employeeClient.GetEmployeeSiteDetails(request);
+                employeeSiteDetails = await _employeeClient.GetEmployeeSiteDetails(request);
             }
             return employeeSiteDetails;
         }
+
         [HttpPost()]
         [Route("GetUserGroupsAndPermissionsList")]
         public async Task<JsonResult> GetUserGroupsAndPermissionsList([FromBody] JQueryDataTablesQueryObject dataTableQueryPostObj)
         {
-            //var postParameterDefinitions = new { VectorTypeDD = "", SearchBox = "" };
-            //var referenceType = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(dataTableQueryPostObj.postArgs, postParameterDefinitions);
-
-            //KeyValuePair<string, string> valuePair = new KeyValuePair<string, string>();
-            //valuePair = dataTableQueryPostObj.ReturnSortParameter();
-
-            //long? id = null;
-            //if (referenceType.VectorTypeDD != null)
-            //{
-            //    if (!string.IsNullOrEmpty(referenceType.VectorTypeDD.ToString()))
-            //    {
-            //        id = long.Parse(referenceType.VectorTypeDD);
-            //    }
-            //}
             EmployeesUserGroupAndPermissionsGetRequestModel request = new EmployeesUserGroupAndPermissionsGetRequestModel();
 
-           // request.idfPerson = long.Parse(queryData);
             request.idfPerson = 420664190000891;
             request.LangID = GetCurrentLanguage();
 
-            var result=_employeeClient.GetEmployeeUserGroupAndPermissions(request).Result;
+            var result = _employeeClient.GetEmployeeUserGroupAndPermissions(request).Result;
             IEnumerable<EmployeeUserGroupsAndPermissionsViewModel> list = result;
             TableData tableData = new TableData();
             tableData.data = new List<List<string>>();
-           // tableData.iTotalRecords = list.Count() == 0 ? 0 : list.FirstOrDefault().TotalRowCount;
-            //tableData.iTotalDisplayRecords = list.Count() == 0 ? 0 : list.FirstOrDefault().TotalRowCount;
             tableData.draw = dataTableQueryPostObj.draw;
 
             if (list.Count() > 0)
@@ -684,7 +648,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 }
             }
 
-
             return Json(tableData);
         }
 
@@ -694,8 +657,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         {
             List<Select2DataItem> select2DataItems = new List<Select2DataItem>();
             Select2DataResults select2DataObj = new Select2DataResults();
-            long siteId=0;
-
+            long siteId = 0;
 
             try
             {
@@ -709,20 +671,16 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 if (jsonArray.Count > 0)
                 {
                     jsonObject = JObject.Parse(jsonArray[0].ToString());
-                    //if (jsonObject["id"] != null)
-                    //{
-                    //    model.OrganizationID = jsonObject["id"].ToString();
-                    //}
+
                     if (jsonObject["text"] != null)
                     {
                         model.AbbreviatedName = jsonObject["text"].ToString();
                     }
                 }
                 var list = await _organizationClient.GetOrganizationList(model);
-                if (list != null && list.Count>0)
+                if (list != null && list.Count > 0)
                 {
-                    siteId = (long) list.FirstOrDefault().SiteID;
-                   
+                    siteId = (long)list.FirstOrDefault().SiteID;
                 }
             }
             catch (Exception)
@@ -742,46 +700,30 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             try
             {
-                //OrganizationGetRequestModel model = new OrganizationGetRequestModel();
-                //model.LanguageId = GetCurrentLanguage();
-                //model.SortColumn = "OrganizationAbbreviatedName";
-                //model.SortOrder = "asc";
-                //model.PageSize = 10;
                 long? OrgID = 0;
                 JArray jsonArray = JArray.Parse(data);
                 dynamic jsonObject;
                 if (jsonArray.Count > 0)
                 {
                     jsonObject = JObject.Parse(jsonArray[0].ToString());
-                    //if (jsonObject["id"] != null)
-                    //{
-                    //    model.OrganizationID = jsonObject["id"].ToString();
-                    //}
+
                     if (jsonObject["id"] != null)
                     {
                         OrgID = long.Parse(jsonObject["id"].ToString());
                     }
                 }
-                 response = await _employeeClient.GetEmployeeSiteFromOrg(OrgID);
-                //if (response != null && response.Count > 0)
-                //{
-                //    siteId = (long)response.FirstOrDefault().idfsSite;
-
-                //}
+                response = await _employeeClient.GetEmployeeSiteFromOrg(OrgID);
             }
             catch (Exception ex)
             {
                 throw;
             }
 
-
             return Ok(response.FirstOrDefault());
         }
 
-
-
         [HttpGet]
-        public async Task<IActionResult> GetExistingOrg(long employeeId,string data)
+        public async Task<IActionResult> GetExistingOrg(long employeeId, string data)
         {
             EmployeeUserGroupsAndPermissionsViewModel response = new EmployeeUserGroupsAndPermissionsViewModel();
 
@@ -809,10 +751,10 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 var userOrganizations = await _employeeClient.GetEmployeeUserGroupAndPermissions(model);
 
                 var userOrg = userOrganizations?.FirstOrDefault(u => u.OrganizationID == OrgID);
-               
+
                 if (userOrg != null)
                 {
-                    jsonResult = Json(new { OrgName = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), userOrg.OrganizationFullName) });
+                    jsonResult = Json(new { OrgName = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), userOrg.OrganizationFullName) });
                 }
 
             }
@@ -823,7 +765,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             return Ok(jsonResult);
         }
-
 
         public async Task<JsonResult> GetSiteList(int page, string data)
         {
@@ -877,7 +818,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 DepartmentGetRequestModel model = new DepartmentGetRequestModel();
                 JArray jsonArray = JArray.Parse(data);
                 dynamic jsonObject;
-                if (jsonArray.Count>0)
+                if (jsonArray.Count > 0)
                 {
                     jsonObject = JObject.Parse(jsonArray[0].ToString());
                     if (jsonObject["id"] != null)
@@ -896,7 +837,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 {
                     foreach (var item in list)
                     {
-                        select2DataItems.Add(new Select2DataItem() { id = item.DepartmentID.ToString(), text = item.DepartmentNameNationalValue});
+                        select2DataItems.Add(new Select2DataItem() { id = item.DepartmentID.ToString(), text = item.DepartmentNameNationalValue });
                     }
                 }
                 select2DataObj.results = select2DataItems;
@@ -908,13 +849,13 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             return Json(select2DataObj);
         }
 
-        public async Task<JsonResult> GetPositionList(int page, string data,string term)
+        public async Task<JsonResult> GetPositionList(int page, string data, string term)
         {
             List<Select2DataItem> select2DataItems = new();
             Select2DataResults select2DataObj = new();
             BaseReferenceEditorGetRequestModel baseReferenceGetRequestModel = new()
             {
-                IdfsReferenceType =(long) ReferenceTypes.Position,
+                IdfsReferenceType = (long)ReferenceTypes.Position,
                 Page = 1,
                 LanguageId = GetCurrentLanguage(),
                 PageSize = 99999,
@@ -935,8 +876,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     }
                 }
                 select2DataObj.results = select2DataItems;
-                //_pagination.more = true; //Add Pagination
-                //select2DataObj.pagination = _pagination;
             }
             catch (Exception ex)
             {
@@ -946,6 +885,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             return Json(select2DataObj);
         }
+
         public async Task<JsonResult> GetUserGroupList(int page, string data)
         {
             List<Select2DataItem> select2DataItems = new List<Select2DataItem>();
@@ -953,16 +893,15 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             try
             {
                 dynamic jsonObject;
-                long siteId = 0;       
+                long siteId = 0;
                 jsonObject = JObject.Parse(data);
-               
+
                 if (jsonObject != null)
                 {
-                    if (jsonObject["text"] != null && jsonObject["text"]!="")
+                    if (jsonObject["text"] != null && jsonObject["text"] != "")
                     {
                         siteId = long.Parse(jsonObject["text"].ToString());
                     }
-                    
                 }
 
                 var list = await _crossCuttingClient.GetUserGroupList(GetCurrentLanguage(), siteId);
@@ -981,50 +920,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 throw;
             }
             return Json(select2DataObj);
-
-            //Select2DataResults select2DataObj = new Select2DataResults();
-            //try
-            //{
-            //    List<Select2DataItem> select2DataItems = new List<Select2DataItem>();
-               
-            //    UserGroupGetRequestModel model = new UserGroupGetRequestModel();
-            //    JObject jsonObject = JObject.Parse(data);               
-            //    if (jsonObject["id"] != null && jsonObject["text"] != null)
-            //    {
-            //        model.idfsSite = long.Parse(jsonObject["text"].ToString());
-            //    }
-            //   // model.idfsSite = long.Parse(authenticatedUser.SiteId);
-            //    model.LanguageId = GetCurrentLanguage();
-            //    model.Page = page;
-            //    model.PageSize = 10;
-            //    model.SortColumn = "intOrder";
-            //    model.SortOrder = "ASC";
-            //    model.strName = null;
-            //    model.strDescription = null;
-            //    List<UserGroupViewModel> list = new List<UserGroupViewModel>();
-            //    list = await _userGroupClient.GetUserGroupList(model);
-            //    if (list != null)
-            //    {
-            //        foreach (var item in list)
-            //        {
-            //            select2DataItems.Add(new Select2DataItem() { id = item.idfEmployeeGroup.ToString(), text = item.strName });
-            //        }
-            //    }
-            //    select2DataObj.results = select2DataItems;
-            //}
-            //catch(Exception)
-            //{
-            //    throw;
-            //}
-            //finally
-            //{
-
-            //}
-            //return Json(select2DataObj);
         }
-        #endregion
-
-        #region Account Management
 
         [HttpGet()]
         [Route("ReloadSystemFunctionsControl")]
@@ -1039,41 +935,30 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 jsonObject = JObject.Parse(jsonArray[0].ToString());
                 if (jsonObject["isChange"] != null)
                 {
-                    svm.isChange= Convert.ToBoolean(jsonObject["isChange"].ToString());
+                    svm.isChange = Convert.ToBoolean(jsonObject["isChange"].ToString());
                 }
                 if (jsonObject["UserGroupDD"] != null)
                 {
                     svm.UserIDAndUserGroups = jsonObject["UserGroupDD"].ToString();
-                    if (jsonObject["EmployeeID"] != null && jsonObject["EmployeeID"]!="0")
+                    if (jsonObject["EmployeeID"] != null && jsonObject["EmployeeID"] != "0")
                     {
-                        //svm.UserIDAndUserGroups += "," + jsonObject["EmployeeID"].ToString();
-                        svm.EmployeeID= jsonObject["EmployeeID"];
+                        svm.EmployeeID = jsonObject["EmployeeID"];
                     }
                 }
                 else
                 {
                     svm.UserIDAndUserGroups = "-1";
-                    svm.EmployeeID = jsonObject["EmployeeID"] != null && jsonObject["EmployeeID"].ToString() != Empty? long.Parse(jsonObject["EmployeeID"].ToString()) : 0;
+                    svm.EmployeeID = jsonObject["EmployeeID"] != null && jsonObject["EmployeeID"].ToString() != string.Empty ? long.Parse(jsonObject["EmployeeID"].ToString()) : 0;
                 }
-                //else
-                //{
-                //    if (jsonObject["EmployeeID"] != null &&  jsonObject["EmployeeID"] != "0")
-                //    {
-                //        svm.UserIDAndUserGroups += "," + jsonObject["EmployeeID"].ToString();
-                //        svm.EmployeeID = jsonObject["EmployeeID"];
-                //    }
-                //}
             }
-          
+
             return ViewComponent("SystemFunctionsView", svm);
         }
-
-        
 
         [HttpPost()]
         [Route("SaveDepartment")]
         public async Task<IActionResult> SaveDepartment([FromBody] JsonElement data)
-        { 
+        {
             var jsonObject = JObject.Parse(data.ToString());
             long OrganizationID = 0;
             if (jsonObject["OrganizationDD"] != null)
@@ -1083,7 +968,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     OrganizationID = long.Parse(jsonObject["OrganizationDD"][0]["id"].ToString());
                 }
             }
-           else  if (jsonObject["UPOrganizationDD"] != null)
+            else if (jsonObject["UPOrganizationDD"] != null)
             {
                 if (jsonObject["UPOrganizationDD"][0]["id"] != null)
                 {
@@ -1094,16 +979,16 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             DepartmentSaveRequestModel request = new DepartmentSaveRequestModel();
             request.DepartmentID = null;
             request.OrganizationID = OrganizationID;
-            request.DefaultName = jsonObject["Default"] != null ? jsonObject["Default"].ToString() : Empty;
-            request.NationalName = jsonObject["Name"] != null ? jsonObject["Name"].ToString() : Empty;
-            request.Order = !IsNullOrEmpty(jsonObject["Order"].ToString())?Convert.ToInt32(jsonObject["Order"].ToString()) : null;
+            request.DefaultName = jsonObject["Default"] != null ? jsonObject["Default"].ToString() : string.Empty;
+            request.NationalName = jsonObject["Name"] != null ? jsonObject["Name"].ToString() : string.Empty;
+            request.Order = !string.IsNullOrEmpty(jsonObject["Order"].ToString()) ? Convert.ToInt32(jsonObject["Order"].ToString()) : null;
             request.LanguageId = GetCurrentLanguage();
             request.UserName = _authenticatedUser.UserName;
 
             var response = await _crossCuttingClient.SaveDepartment(request);
-            if(response.ReturnMessage=="DOES EXIST")
+            if (response.ReturnMessage == "DOES EXIST")
             {
-                response.StrDuplicateField = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.DefaultName);
+                response.StrDuplicateField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.DefaultName);
             }
             return Json(response);
         }
@@ -1115,40 +1000,23 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             var jsonObject = JObject.Parse(data.ToString());
 
             int intHACodeTotal = 0;
-            //if (jsonObject["IntHACode"] != null)
-            //{
-            //    if (string.IsNullOrEmpty(jsonObject["IntHACode"].ToString()))
-            //    {
-            //        // popup a modal with message "Accessory Code is mandatory. You must enter data in this field before saving the form. Do you want to correct the value?"
-            //        return Json("");
-            //    }
-            //    else
-            //    {
-            //        JArray a = Newtonsoft.Json.Linq.JArray.Parse(jsonObject["IntHACode"].ToString());
-
-            //        for (int iIndex = 0; iIndex < a.Count; iIndex++)
-            //        {
-            //            intHACodeTotal += int.Parse(a[iIndex]["id"].ToString());
-            //        }
-            //    }
-            //}
 
             int intOrder = 0;
             if (jsonObject["intOrder"] != null)
             {
-                intOrder = IsNullOrEmpty(((Newtonsoft.Json.Linq.JValue)jsonObject["intOrder"]).Value.ToString()) == true ? 0 : int.Parse(jsonObject["intOrder"].ToString());
+                intOrder = string.IsNullOrEmpty(((JValue)jsonObject["intOrder"]).Value.ToString()) == true ? 0 : int.Parse(jsonObject["intOrder"].ToString());
             }
 
             BaseReferenceSaveRequestModel request = new BaseReferenceSaveRequestModel
             {
                 BaseReferenceId = null,
-                Default = jsonObject["Default"] != null ? jsonObject["Default"].ToString() : Empty,
-                Name = jsonObject["Name"] != null ? jsonObject["Name"].ToString() : Empty,
+                Default = jsonObject["Default"] != null ? jsonObject["Default"].ToString() : string.Empty,
+                Name = jsonObject["Name"] != null ? jsonObject["Name"].ToString() : string.Empty,
                 intHACode = intHACodeTotal,
                 intOrder = intOrder,
                 LanguageId = GetCurrentLanguage(),
                 ReferenceTypeId = (long)ReferenceTypes.Position,
-                EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                 AuditUserName = authenticatedUser.UserName,
                 LocationId = authenticatedUser.RayonId,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -1158,12 +1026,12 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             var response = await _adminClient.SaveBaseReference(request);
             if (response.ReturnMessage == "DOES EXIST")
             {
-                response.StrDuplicateField = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
+                response.StrDuplicateField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
             }
             return Json(response);
         }
 
-        private EmployeeSaveRequestModel CreateRequestForEmployee(JObject jsonObject, bool EmployeeCategorySet=false, bool IsSave=false, bool IsSystemFunctionsCheck=false)
+        private EmployeeSaveRequestModel CreateRequestForEmployee(JObject jsonObject, bool EmployeeCategorySet = false, bool IsSave = false, bool IsSystemFunctionsCheck = false)
         {
             EmployeeSaveRequestModel EmployeePersonalInfoSaveRequest = new EmployeeSaveRequestModel();
             if (jsonObject["idfPerson"] != null && jsonObject["idfPerson"].ToString() != "")
@@ -1173,47 +1041,44 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             }
             var isEdit = jsonObject["isEdit"] != null ? Convert.ToBoolean(jsonObject["isEdit"].ToString()) : false;
             _employeeDetailsPageViewModel.AccountManagementSection.IsEdit = isEdit;
-            bool finalSubmit = jsonObject["finalSubmit"] != null && jsonObject["finalSubmit"].ToString() != Empty ? Convert.ToBoolean(jsonObject["finalSubmit"].ToString()) : false;
-           
-            
+            bool finalSubmit = jsonObject["finalSubmit"] != null && jsonObject["finalSubmit"].ToString() != string.Empty ? Convert.ToBoolean(jsonObject["finalSubmit"].ToString()) : false;
+
             if ((!isEdit && !IsSave) || (finalSubmit))
             {
-                EmployeePersonalInfoSaveRequest.idfInstitution = jsonObject["idfInstitution"] != null && jsonObject["idfInstitution"].ToString() != Empty && jsonObject["idfInstitution"].ToString() != "0" ? long.Parse(jsonObject["idfInstitution"].ToString()) : null;
-                EmployeePersonalInfoSaveRequest.idfsStaffPosition = jsonObject["idfsStaffPosition"] != null && jsonObject["idfsStaffPosition"].ToString() != Empty && jsonObject["idfsStaffPosition"].ToString() != "0" ? long.Parse(jsonObject["idfsStaffPosition"].ToString()) : null;
-                EmployeePersonalInfoSaveRequest.idfDepartment = jsonObject["idfDepartment"] != null && jsonObject["idfDepartment"].ToString() != Empty && jsonObject["idfDepartment"].ToString()!="0" ? long.Parse(jsonObject["idfDepartment"].ToString()) : null;
-                EmployeePersonalInfoSaveRequest.idfsSite = jsonObject["idfsSite"] != null && jsonObject["idfsSite"].ToString() != Empty && jsonObject["idfsSite"].ToString() != "0" ? long.Parse(jsonObject["idfsSite"].ToString()) : 1;
-                EmployeePersonalInfoSaveRequest.strContactPhone = jsonObject["strContactPhone"] != null && jsonObject["strContactPhone"].ToString() != Empty ? jsonObject["strContactPhone"].ToString() : "";
+                EmployeePersonalInfoSaveRequest.idfInstitution = jsonObject["idfInstitution"] != null && jsonObject["idfInstitution"].ToString() != string.Empty && jsonObject["idfInstitution"].ToString() != "0" ? long.Parse(jsonObject["idfInstitution"].ToString()) : null;
+                EmployeePersonalInfoSaveRequest.idfsStaffPosition = jsonObject["idfsStaffPosition"] != null && jsonObject["idfsStaffPosition"].ToString() != string.Empty && jsonObject["idfsStaffPosition"].ToString() != "0" ? long.Parse(jsonObject["idfsStaffPosition"].ToString()) : null;
+                EmployeePersonalInfoSaveRequest.idfDepartment = jsonObject["idfDepartment"] != null && jsonObject["idfDepartment"].ToString() != string.Empty && jsonObject["idfDepartment"].ToString() != "0" ? long.Parse(jsonObject["idfDepartment"].ToString()) : null;
+                EmployeePersonalInfoSaveRequest.idfsSite = jsonObject["idfsSite"] != null && jsonObject["idfsSite"].ToString() != string.Empty && jsonObject["idfsSite"].ToString() != "0" ? long.Parse(jsonObject["idfsSite"].ToString()) : 1;
+                EmployeePersonalInfoSaveRequest.strContactPhone = jsonObject["strContactPhone"] != null && jsonObject["strContactPhone"].ToString() != string.Empty ? jsonObject["strContactPhone"].ToString() : "";
             }
-            else if(IsSave)
+            else if (IsSave)
             {
-                EmployeePersonalInfoSaveRequest.idfInstitution = jsonObject["UPidfInstitution"] != null && jsonObject["UPidfInstitution"].ToString() != Empty && jsonObject["UPidfInstitution"].ToString() != "0" ? long.Parse(jsonObject["UPidfInstitution"].ToString()) : null;
-                EmployeePersonalInfoSaveRequest.idfsStaffPosition = jsonObject["UPidfsStaffPosition"] != null && jsonObject["UPidfsStaffPosition"].ToString() != Empty && jsonObject["UPidfsStaffPosition"].ToString() != "0" ? long.Parse(jsonObject["UPidfsStaffPosition"].ToString()) : null;
-                EmployeePersonalInfoSaveRequest.idfDepartment = jsonObject["UPidfDepartment"] != null && jsonObject["UPidfDepartment"].ToString() != Empty && jsonObject["UPidfDepartment"].ToString() != "0" ? long.Parse(jsonObject["UPidfDepartment"].ToString()) : null;
-                EmployeePersonalInfoSaveRequest.idfsSite = jsonObject["UPidfsSite"] != null && jsonObject["UPidfsSite"].ToString() != Empty && jsonObject["UPidfsSite"].ToString() != "0" ? long.Parse(jsonObject["UPidfsSite"].ToString()) : 1;
-                EmployeePersonalInfoSaveRequest.strContactPhone = jsonObject["UPstrContactPhone"] != null && jsonObject["UPstrContactPhone"].ToString() != Empty ? jsonObject["UPstrContactPhone"].ToString() : "";
+                EmployeePersonalInfoSaveRequest.idfInstitution = jsonObject["UPidfInstitution"] != null && jsonObject["UPidfInstitution"].ToString() != string.Empty && jsonObject["UPidfInstitution"].ToString() != "0" ? long.Parse(jsonObject["UPidfInstitution"].ToString()) : null;
+                EmployeePersonalInfoSaveRequest.idfsStaffPosition = jsonObject["UPidfsStaffPosition"] != null && jsonObject["UPidfsStaffPosition"].ToString() != string.Empty && jsonObject["UPidfsStaffPosition"].ToString() != "0" ? long.Parse(jsonObject["UPidfsStaffPosition"].ToString()) : null;
+                EmployeePersonalInfoSaveRequest.idfDepartment = jsonObject["UPidfDepartment"] != null && jsonObject["UPidfDepartment"].ToString() != string.Empty && jsonObject["UPidfDepartment"].ToString() != "0" ? long.Parse(jsonObject["UPidfDepartment"].ToString()) : null;
+                EmployeePersonalInfoSaveRequest.idfsSite = jsonObject["UPidfsSite"] != null && jsonObject["UPidfsSite"].ToString() != string.Empty && jsonObject["UPidfsSite"].ToString() != "0" ? long.Parse(jsonObject["UPidfsSite"].ToString()) : 1;
+                EmployeePersonalInfoSaveRequest.strContactPhone = jsonObject["UPstrContactPhone"] != null && jsonObject["UPstrContactPhone"].ToString() != string.Empty ? jsonObject["UPstrContactPhone"].ToString() : "";
             }
             else if (IsSystemFunctionsCheck)
             {
-                EmployeePersonalInfoSaveRequest.idfInstitution = jsonObject["UPidfInstitution"] != null && jsonObject["UPidfInstitution"].ToString() != Empty && jsonObject["UPidfInstitution"].ToString() != "0" ? long.Parse(jsonObject["UPidfInstitution"].ToString()) : null;
-                EmployeePersonalInfoSaveRequest.idfsStaffPosition = jsonObject["UPidfsStaffPosition"] != null && jsonObject["UPidfsStaffPosition"].ToString() != Empty && jsonObject["UPidfsStaffPosition"].ToString() != "0" ? long.Parse(jsonObject["UPidfsStaffPosition"].ToString()) : null;
-                EmployeePersonalInfoSaveRequest.idfDepartment = jsonObject["UPidfDepartment"] != null && jsonObject["UPidfDepartment"].ToString() != Empty && jsonObject["UPidfDepartment"].ToString() != "0" ? long.Parse(jsonObject["UPidfDepartment"].ToString()) : null;
-                EmployeePersonalInfoSaveRequest.idfsSite = jsonObject["UPidfsSite"] != null && jsonObject["UPidfsSite"].ToString() != Empty && jsonObject["UPidfsSite"].ToString() != "0" ? long.Parse(jsonObject["UPidfsSite"].ToString()) : 1;
-                EmployeePersonalInfoSaveRequest.strContactPhone = jsonObject["UPstrContactPhone"] != null && jsonObject["UPstrContactPhone"].ToString() != Empty ? jsonObject["UPstrContactPhone"].ToString() : "";
+                EmployeePersonalInfoSaveRequest.idfInstitution = jsonObject["UPidfInstitution"] != null && jsonObject["UPidfInstitution"].ToString() != string.Empty && jsonObject["UPidfInstitution"].ToString() != "0" ? long.Parse(jsonObject["UPidfInstitution"].ToString()) : null;
+                EmployeePersonalInfoSaveRequest.idfsStaffPosition = jsonObject["UPidfsStaffPosition"] != null && jsonObject["UPidfsStaffPosition"].ToString() != string.Empty && jsonObject["UPidfsStaffPosition"].ToString() != "0" ? long.Parse(jsonObject["UPidfsStaffPosition"].ToString()) : null;
+                EmployeePersonalInfoSaveRequest.idfDepartment = jsonObject["UPidfDepartment"] != null && jsonObject["UPidfDepartment"].ToString() != string.Empty && jsonObject["UPidfDepartment"].ToString() != "0" ? long.Parse(jsonObject["UPidfDepartment"].ToString()) : null;
+                EmployeePersonalInfoSaveRequest.idfsSite = jsonObject["UPidfsSite"] != null && jsonObject["UPidfsSite"].ToString() != string.Empty && jsonObject["UPidfsSite"].ToString() != "0" ? long.Parse(jsonObject["UPidfsSite"].ToString()) : 1;
+                EmployeePersonalInfoSaveRequest.strContactPhone = jsonObject["UPstrContactPhone"] != null && jsonObject["UPstrContactPhone"].ToString() != string.Empty ? jsonObject["UPstrContactPhone"].ToString() : "";
             }
-            EmployeePersonalInfoSaveRequest.strFamilyName = jsonObject["strFamilyName"] != null && jsonObject["strFamilyName"].ToString() != Empty ? jsonObject["strFamilyName"].ToString() : "";
-            EmployeePersonalInfoSaveRequest.strFirstName = jsonObject["strFirstName"] != null && jsonObject["strFirstName"].ToString() != Empty ? jsonObject["strFirstName"].ToString() : "";
-            EmployeePersonalInfoSaveRequest.strSecondName = jsonObject["strSecondName"] != null && jsonObject["strSecondName"].ToString() != Empty ? jsonObject["strSecondName"].ToString() : "";                       
-            EmployeePersonalInfoSaveRequest.strPersonalID = jsonObject["strPersonalID"] != null && jsonObject["strPersonalID"].ToString() != Empty ? jsonObject["strPersonalID"].ToString() : null;
-            EmployeePersonalInfoSaveRequest.idfPersonalIDType = jsonObject["idfPersonalIDType"] != null && jsonObject["idfPersonalIDType"].ToString() != Empty ? jsonObject["idfPersonalIDType"].ToString() : null;
-            EmployeePersonalInfoSaveRequest.idfPersonalIDTypeText = jsonObject["idfPersonalIDTypeText"] != null && jsonObject["idfPersonalIDTypeText"].ToString() != Empty ? jsonObject["idfPersonalIDTypeText"].ToString() : null;
-            
-
+            EmployeePersonalInfoSaveRequest.strFamilyName = jsonObject["strFamilyName"] != null && jsonObject["strFamilyName"].ToString() != string.Empty ? jsonObject["strFamilyName"].ToString() : "";
+            EmployeePersonalInfoSaveRequest.strFirstName = jsonObject["strFirstName"] != null && jsonObject["strFirstName"].ToString() != string.Empty ? jsonObject["strFirstName"].ToString() : "";
+            EmployeePersonalInfoSaveRequest.strSecondName = jsonObject["strSecondName"] != null && jsonObject["strSecondName"].ToString() != string.Empty ? jsonObject["strSecondName"].ToString() : "";
+            EmployeePersonalInfoSaveRequest.strPersonalID = jsonObject["strPersonalID"] != null && jsonObject["strPersonalID"].ToString() != string.Empty ? jsonObject["strPersonalID"].ToString() : null;
+            EmployeePersonalInfoSaveRequest.idfPersonalIDType = jsonObject["idfPersonalIDType"] != null && jsonObject["idfPersonalIDType"].ToString() != string.Empty ? jsonObject["idfPersonalIDType"].ToString() : null;
+            EmployeePersonalInfoSaveRequest.idfPersonalIDTypeText = jsonObject["idfPersonalIDTypeText"] != null && jsonObject["idfPersonalIDTypeText"].ToString() != string.Empty ? jsonObject["idfPersonalIDTypeText"].ToString() : null;
 
             if (finalSubmit)
             {
                 EmployeeCategorySet = true;
             }
-            if (EmployeeCategorySet && jsonObject != null && jsonObject["idfsEmployeeCategory"] != null && jsonObject["idfsEmployeeCategory"].ToString() != Empty)
+            if (EmployeeCategorySet && jsonObject != null && jsonObject["idfsEmployeeCategory"] != null && jsonObject["idfsEmployeeCategory"].ToString() != string.Empty)
             {
                 if (jsonObject["idfsEmployeeCategory"].ToString() == ((long)EmployeeCategory.User).ToString())
                 {
@@ -1225,25 +1090,24 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 }
 
             }
-            else if (!EmployeeCategorySet && jsonObject != null && jsonObject["idfsEmployeeCategory"] != null && jsonObject["idfsEmployeeCategory"].ToString() != Empty)
+            else if (!EmployeeCategorySet && jsonObject != null && jsonObject["idfsEmployeeCategory"] != null && jsonObject["idfsEmployeeCategory"].ToString() != string.Empty)
             {
                 EmployeePersonalInfoSaveRequest.idfsEmployeeCategory = long.Parse(jsonObject["idfsEmployeeCategory"].ToString());
             }
             return EmployeePersonalInfoSaveRequest;
         }
+
         private RegisterViewModel CreateRequestForEmployeeLogin(JObject jsonObject)
         {
-            //Login 
-
+            //Login
             RegisterViewModel registerViewModel = new RegisterViewModel();
-            registerViewModel.Username = jsonObject["Username"] != null && jsonObject["Username"].ToString() != Empty ? jsonObject["Username"].ToString() : "";
-            registerViewModel.Password = jsonObject["Password"] != null && jsonObject["Password"].ToString() != Empty ? jsonObject["Password"].ToString() : "";
-            registerViewModel.IsPasswordResetRequired = jsonObject["IsPasswordResetRequired"] != null && jsonObject["IsPasswordResetRequired"].ToString() != Empty ? Convert.ToBoolean(jsonObject["IsPasswordResetRequired"].ToString()) : false;
-            registerViewModel.Disabled = jsonObject["Disabled"] != null && jsonObject["Disabled"].ToString() != Empty ? Convert.ToBoolean(jsonObject["Disabled"].ToString()) : false;
-            registerViewModel.blnLocked = jsonObject["blnLocked"] != null && jsonObject["blnLocked"].ToString() != Empty ? Convert.ToBoolean(jsonObject["blnLocked"].ToString()) : false;
-            registerViewModel.Reason = jsonObject["Reason"] != null && jsonObject["Reason"].ToString() != Empty ? jsonObject["Reason"].ToString() : "";
+            registerViewModel.Username = jsonObject["Username"] != null && jsonObject["Username"].ToString() != string.Empty ? jsonObject["Username"].ToString() : "";
+            registerViewModel.Password = jsonObject["Password"] != null && jsonObject["Password"].ToString() != string.Empty ? jsonObject["Password"].ToString() : "";
+            registerViewModel.IsPasswordResetRequired = jsonObject["IsPasswordResetRequired"] != null && jsonObject["IsPasswordResetRequired"].ToString() != string.Empty ? Convert.ToBoolean(jsonObject["IsPasswordResetRequired"].ToString()) : false;
+            registerViewModel.Disabled = jsonObject["Disabled"] != null && jsonObject["Disabled"].ToString() != string.Empty ? Convert.ToBoolean(jsonObject["Disabled"].ToString()) : false;
+            registerViewModel.blnLocked = jsonObject["blnLocked"] != null && jsonObject["blnLocked"].ToString() != string.Empty ? Convert.ToBoolean(jsonObject["blnLocked"].ToString()) : false;
+            registerViewModel.Reason = jsonObject["Reason"] != null && jsonObject["Reason"].ToString() != string.Empty ? jsonObject["Reason"].ToString() : "";
             return registerViewModel;
-
         }
 
         private async Task<EmployeeUserPermissionsPageViewModel> CreateRequestForUserPermissionsAsync(JObject jsonObject)
@@ -1255,9 +1119,9 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             {
                 userPermissionsViewModel.EmployeeID = long.Parse(jsonObject["idfPerson"].ToString());
             }
-            userPermissionsViewModel.OrganizationID = jsonObject["idfInstitution"] != null && jsonObject["idfInstitution"].ToString() != Empty ? long.Parse(jsonObject["idfInstitution"].ToString()) : null;
+            userPermissionsViewModel.OrganizationID = jsonObject["idfInstitution"] != null && jsonObject["idfInstitution"].ToString() != string.Empty ? long.Parse(jsonObject["idfInstitution"].ToString()) : null;
             var isEdit = jsonObject["isEdit"] != null ? Convert.ToBoolean(jsonObject["isEdit"].ToString()) : false;
-            var isDefault= jsonObject["isDefault"] != null ? Convert.ToBoolean(jsonObject["isDefault"].ToString()) : false;
+            var isDefault = jsonObject["isDefault"] != null ? Convert.ToBoolean(jsonObject["isDefault"].ToString()) : false;
             userPermissionsViewModel.isDefault = isDefault;
             userPermissionsViewModel.isEditOrg = isEdit;
             if (userPermissionsViewModel.EmployeeID != 0 && isEdit && userPermissionsViewModel.OrganizationID != null && !isDefault)
@@ -1279,18 +1143,17 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     userPermissionsViewModel.OtherContactPhone = OrgDetails.strContactPhone;
                     userPermissionsViewModel.idfsSite = OrgDetails.idfsSite;
                     userPermissionsViewModel.idfUserID = OrgDetails.idfUserID;
-                    userPermissionsViewModel.UserGroupID =Convert.ToInt64(OrgDetails.UserGroupID);
+                    userPermissionsViewModel.UserGroupID = Convert.ToInt64(OrgDetails.UserGroupID);
                     userPermissionsViewModel.UserGroupName = OrgDetails.UserGroup;
 
                     var userGroupID = userPermissionsViewModel.UserGroupID == null ? String.Empty : userPermissionsViewModel.UserGroupID.ToString();
                     var userGroupName = userPermissionsViewModel.UserGroupName;
                     var userGroupNameNew = userGroupName;
-                    //if (isDefault && userPermissionsViewModel.EmployeeID != 0)
-                    //{
+
                     if (userGroupID != null && userGroupName != null && userGroupID != "" && userGroupName != "")
                     {
                         var list = await _crossCuttingClient.GetUserGroupList(GetCurrentLanguage(), userPermissionsViewModel.idfsSite);
-                        string strID = GlobalConstants.NullValue.ToLower();
+                        string strID = EIDSSConstants.GlobalConstants.NullValue.ToLower();
                         string text = string.Empty;
                         var arrUserGroupIDDetails = userGroupID.Split(',');
                         var arrUserGroupDetails = userGroupName.Split(',');
@@ -1306,60 +1169,27 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                         }
                     }
                     userPermissionsViewModel.UserGroupName = userGroupNameNew;
-
-                    //if (OrgDetails.UserGroupID != null)
-                    //{
-                    //    var arrUserGroupIDDetails = OrgDetails.UserGroupID.Split(',');
-                    //    foreach (var a in arrUserGroupIDDetails)
-                    //    {
-                    //        userPermissionsViewModel.UserGroupID = new List<long>();
-                    //        userPermissionsViewModel.UserGroupID.Add(long.Parse(a));
-                    //    }
-                    //}
-                    //if (OrgDetails.UserGroup != null)
-                    //{
-                    //    var arrUserGroupDetails = OrgDetails.UserGroup.Split(',');
-                    //    foreach (var a in arrUserGroupDetails)
-                    //    {
-                    //        userPermissionsViewModel.UserGroupName = new List<string>();
-                    //        userPermissionsViewModel.UserGroupName.Add(a);
-                    //    }
-                    //}
-
-                    //if (OrgDetails.UserGroupID != null && OrgDetails.UserGroup != null)
-                    //{
-                    //    var arrUserGroupIDDetails = OrgDetails.UserGroupID.Split(',');
-                    //    var arrUserGroupDetails = OrgDetails.UserGroup.Split(',');
-                    //    userPermissionsViewModel.UserGroups = new List<Select2DataItem>();
-                    //    for (int i = 0; i <= arrUserGroupIDDetails.Count() - 1; i++)
-                    //    {
-                    //        var UserGroupDetail = new Select2DataItem();
-                    //        var defaultReference = new Select2DataItem() { id = arrUserGroupIDDetails[i].ToString(), text = HtmlEncoder.Default.Encode(arrUserGroupDetails [i])};
-                    //        userPermissionsViewModel.UserGroups.Add(defaultReference);
-                    //    }
-                    //}
                 }
                 else if (detailResponse.Count == 0)
                 {
-                    userPermissionsViewModel.OrganizationFullName = jsonObject["idfInstitutionText"] != null && jsonObject["idfInstitutionText"].ToString() != Empty ? jsonObject["idfInstitutionText"].ToString() : null;
-                  
-                    userPermissionsViewModel.OtherSiteName = jsonObject["idfsSiteText"] != null && jsonObject["idfsSiteText"].ToString() != Empty ? jsonObject["idfsSiteText"].ToString() : null;
-                    if(isDefault)
-                    {
-                        userPermissionsViewModel.PositionTypeID = jsonObject["idfsStaffPosition"] != null && jsonObject["idfsStaffPosition"].ToString() != Empty ? long.Parse(jsonObject["idfsStaffPosition"].ToString()) : null;
-                        userPermissionsViewModel.DepartmentID = jsonObject["idfDepartment"] != null && jsonObject["idfDepartment"].ToString() != Empty ? long.Parse(jsonObject["idfDepartment"].ToString()) : null;
-                        userPermissionsViewModel.DepartmentName = jsonObject["idfDepartmentText"] != null && jsonObject["idfDepartmentText"].ToString() != Empty ? jsonObject["idfDepartmentText"].ToString() : null;
-                        userPermissionsViewModel.PositionTypeName = jsonObject["idfsStaffPositionText"] != null && jsonObject["idfsStaffPositionText"].ToString() != Empty ? jsonObject["idfsStaffPositionText"].ToString() : null;
-                        userPermissionsViewModel.OtherContactPhone = jsonObject["strContactPhone"] != null && jsonObject["strContactPhone"].ToString() != Empty ? jsonObject["strContactPhone"].ToString() :null;
-                    }
-                   
-                   
-                    userPermissionsViewModel.idfsSite = jsonObject["idfsSite"] != null && jsonObject["idfsSite"].ToString() != Empty ? long.Parse(jsonObject["idfsSite"].ToString()) : null;
-                    userPermissionsViewModel.UserGroupID = jsonObject["UserGroupID"] != null && jsonObject["UserGroupID"].ToString() != Empty ? long.Parse(jsonObject["UserGroupID"].ToString()) : -1;
-                    userPermissionsViewModel.UserGroupName = jsonObject["UserGroup"] != null && jsonObject["UserGroup"].ToString() != Empty ? jsonObject["UserGroup"].ToString() : "";
+                    userPermissionsViewModel.OrganizationFullName = jsonObject["idfInstitutionText"] != null && jsonObject["idfInstitutionText"].ToString() != string.Empty ? jsonObject["idfInstitutionText"].ToString() : null;
 
-                    var userGroupID = jsonObject["UserGroupID"] != null && jsonObject["UserGroupID"].ToString() != Empty ? jsonObject["UserGroupID"].ToString() : null;
-                    var userGroupName = jsonObject["UserGroup"] != null && jsonObject["UserGroup"].ToString() != Empty ? jsonObject["UserGroup"].ToString() : null;
+                    userPermissionsViewModel.OtherSiteName = jsonObject["idfsSiteText"] != null && jsonObject["idfsSiteText"].ToString() != string.Empty ? jsonObject["idfsSiteText"].ToString() : null;
+                    if (isDefault)
+                    {
+                        userPermissionsViewModel.PositionTypeID = jsonObject["idfsStaffPosition"] != null && jsonObject["idfsStaffPosition"].ToString() != string.Empty ? long.Parse(jsonObject["idfsStaffPosition"].ToString()) : null;
+                        userPermissionsViewModel.DepartmentID = jsonObject["idfDepartment"] != null && jsonObject["idfDepartment"].ToString() != string.Empty ? long.Parse(jsonObject["idfDepartment"].ToString()) : null;
+                        userPermissionsViewModel.DepartmentName = jsonObject["idfDepartmentText"] != null && jsonObject["idfDepartmentText"].ToString() != string.Empty ? jsonObject["idfDepartmentText"].ToString() : null;
+                        userPermissionsViewModel.PositionTypeName = jsonObject["idfsStaffPositionText"] != null && jsonObject["idfsStaffPositionText"].ToString() != string.Empty ? jsonObject["idfsStaffPositionText"].ToString() : null;
+                        userPermissionsViewModel.OtherContactPhone = jsonObject["strContactPhone"] != null && jsonObject["strContactPhone"].ToString() != string.Empty ? jsonObject["strContactPhone"].ToString() : null;
+                    }
+
+                    userPermissionsViewModel.idfsSite = jsonObject["idfsSite"] != null && jsonObject["idfsSite"].ToString() != string.Empty ? long.Parse(jsonObject["idfsSite"].ToString()) : null;
+                    userPermissionsViewModel.UserGroupID = jsonObject["UserGroupID"] != null && jsonObject["UserGroupID"].ToString() != string.Empty ? long.Parse(jsonObject["UserGroupID"].ToString()) : -1;
+                    userPermissionsViewModel.UserGroupName = jsonObject["UserGroup"] != null && jsonObject["UserGroup"].ToString() != string.Empty ? jsonObject["UserGroup"].ToString() : "";
+
+                    var userGroupID = jsonObject["UserGroupID"] != null && jsonObject["UserGroupID"].ToString() != string.Empty ? jsonObject["UserGroupID"].ToString() : null;
+                    var userGroupName = jsonObject["UserGroup"] != null && jsonObject["UserGroup"].ToString() != string.Empty ? jsonObject["UserGroup"].ToString() : null;
                     if (isDefault && userPermissionsViewModel.EmployeeID != 0)
                     {
                         if (userGroupID != null && userGroupName != null)
@@ -1375,30 +1205,30 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                             }
                         }
                     }
-                }               
+                }
             }
-            else if ((isEdit && userPermissionsViewModel.EmployeeID == 0)|| isDefault)
+            else if ((isEdit && userPermissionsViewModel.EmployeeID == 0) || isDefault)
             {
-                userPermissionsViewModel.OrganizationFullName = jsonObject["idfInstitutionText"] != null && jsonObject["idfInstitutionText"].ToString() != Empty ? jsonObject["idfInstitutionText"].ToString() : "";
-                userPermissionsViewModel.DepartmentName = jsonObject["idfDepartmentText"] != null && jsonObject["idfDepartmentText"].ToString() != Empty ? jsonObject["idfDepartmentText"].ToString() : "";
-                userPermissionsViewModel.PositionTypeName = jsonObject["idfsStaffPositionText"] != null && jsonObject["idfsStaffPositionText"].ToString() != Empty ? jsonObject["idfsStaffPositionText"].ToString() : "";
-                userPermissionsViewModel.OtherSiteName = jsonObject["idfsSiteText"] != null && jsonObject["idfsSiteText"].ToString() != Empty ? jsonObject["idfsSiteText"].ToString() : "";
-                userPermissionsViewModel.PositionTypeID = jsonObject["idfsStaffPosition"] != null && jsonObject["idfsStaffPosition"].ToString() != Empty ? long.Parse(jsonObject["idfsStaffPosition"].ToString()) : 0;
-                userPermissionsViewModel.DepartmentID = jsonObject["idfDepartment"] != null && jsonObject["idfDepartment"].ToString() != Empty ? long.Parse(jsonObject["idfDepartment"].ToString()) : 0;
-                userPermissionsViewModel.OtherContactPhone = jsonObject["strContactPhone"] != null && jsonObject["strContactPhone"].ToString() != Empty ? jsonObject["strContactPhone"].ToString() : "";
-                userPermissionsViewModel.idfsSite = jsonObject["idfsSite"] != null && jsonObject["idfsSite"].ToString() != Empty ? long.Parse(jsonObject["idfsSite"].ToString()) : 0;
-                userPermissionsViewModel.UserGroupID = jsonObject["UserGroupID"] != null && jsonObject["UserGroupID"].ToString() != Empty ? long.Parse(jsonObject["UserGroupID"].ToString()) : -1;
-                userPermissionsViewModel.UserGroupName = jsonObject["UserGroup"] != null && jsonObject["UserGroup"].ToString() != Empty ? jsonObject["UserGroup"].ToString() : "";
+                userPermissionsViewModel.OrganizationFullName = jsonObject["idfInstitutionText"] != null && jsonObject["idfInstitutionText"].ToString() != string.Empty ? jsonObject["idfInstitutionText"].ToString() : "";
+                userPermissionsViewModel.DepartmentName = jsonObject["idfDepartmentText"] != null && jsonObject["idfDepartmentText"].ToString() != string.Empty ? jsonObject["idfDepartmentText"].ToString() : "";
+                userPermissionsViewModel.PositionTypeName = jsonObject["idfsStaffPositionText"] != null && jsonObject["idfsStaffPositionText"].ToString() != string.Empty ? jsonObject["idfsStaffPositionText"].ToString() : "";
+                userPermissionsViewModel.OtherSiteName = jsonObject["idfsSiteText"] != null && jsonObject["idfsSiteText"].ToString() != string.Empty ? jsonObject["idfsSiteText"].ToString() : "";
+                userPermissionsViewModel.PositionTypeID = jsonObject["idfsStaffPosition"] != null && jsonObject["idfsStaffPosition"].ToString() != string.Empty ? long.Parse(jsonObject["idfsStaffPosition"].ToString()) : 0;
+                userPermissionsViewModel.DepartmentID = jsonObject["idfDepartment"] != null && jsonObject["idfDepartment"].ToString() != string.Empty ? long.Parse(jsonObject["idfDepartment"].ToString()) : 0;
+                userPermissionsViewModel.OtherContactPhone = jsonObject["strContactPhone"] != null && jsonObject["strContactPhone"].ToString() != string.Empty ? jsonObject["strContactPhone"].ToString() : "";
+                userPermissionsViewModel.idfsSite = jsonObject["idfsSite"] != null && jsonObject["idfsSite"].ToString() != string.Empty ? long.Parse(jsonObject["idfsSite"].ToString()) : 0;
+                userPermissionsViewModel.UserGroupID = jsonObject["UserGroupID"] != null && jsonObject["UserGroupID"].ToString() != string.Empty ? long.Parse(jsonObject["UserGroupID"].ToString()) : -1;
+                userPermissionsViewModel.UserGroupName = jsonObject["UserGroup"] != null && jsonObject["UserGroup"].ToString() != string.Empty ? jsonObject["UserGroup"].ToString() : "";
 
-                var userGroupID = jsonObject["UserGroupID"] != null && jsonObject["UserGroupID"].ToString() != Empty ? jsonObject["UserGroupID"].ToString() : "";
-                var userGroupName = jsonObject["UserGroup"] != null && jsonObject["UserGroup"].ToString() != Empty ? jsonObject["UserGroup"].ToString() : "";
+                var userGroupID = jsonObject["UserGroupID"] != null && jsonObject["UserGroupID"].ToString() != string.Empty ? jsonObject["UserGroupID"].ToString() : "";
+                var userGroupName = jsonObject["UserGroup"] != null && jsonObject["UserGroup"].ToString() != string.Empty ? jsonObject["UserGroup"].ToString() : "";
                 var userGroupNameNew = userGroupName;
                 if (isDefault && userPermissionsViewModel.EmployeeID != 0)
                 {
                     if (userGroupID != null && userGroupName != null && userGroupID != "" && userGroupName != "")
                     {
                         var list = await _crossCuttingClient.GetUserGroupList(GetCurrentLanguage(), userPermissionsViewModel.idfsSite);
-                        string strID = GlobalConstants.NullValue.ToLower();
+                        string strID = EIDSSConstants.GlobalConstants.NullValue.ToLower();
                         string text = string.Empty;
                         var arrUserGroupIDDetails = userGroupID.Split(',');
                         var arrUserGroupDetails = userGroupName.Split(',');
@@ -1416,23 +1246,14 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     userPermissionsViewModel.UserGroupName = userGroupNameNew;
                 }
             }
-            //if(!isEdit)
-            //{
-            //    userPermissionsViewModel.PositionTypeID = jsonObject["idfsStaffPosition"] != null && jsonObject["idfsStaffPosition"].ToString() != Empty ? long.Parse(jsonObject["idfsStaffPosition"].ToString()) : null;
-            //    userPermissionsViewModel.DepartmentID = jsonObject["idfDepartment"] != null && jsonObject["idfDepartment"].ToString() != Empty ? long.Parse(jsonObject["idfDepartment"].ToString()) : null;
-            //    userPermissionsViewModel.OtherContactPhone = jsonObject["UPstrContactPhone"] != null && jsonObject["UPstrContactPhone"].ToString() != Empty ? jsonObject["UPstrContactPhone"].ToString() : "";
-            //    userPermissionsViewModel.idfsSite = jsonObject["idfsSite"] != null && jsonObject["idfsSite"].ToString() != Empty ? long.Parse(jsonObject["idfsSite"].ToString()) : null;
-            //}
 
-            
-            
             return userPermissionsViewModel;
         }
+
         [HttpPost()]
         [Route("SaveAdminEmployeeDetails")]
         public async Task<IActionResult> SaveAdminEmployeeDetails([FromBody] JsonElement data)
         {
-
             var jsonObject = JObject.Parse(data.ToString());
             var aspnetuserId = "0";
             EmployeeSaveRequestResponseModel response = new EmployeeSaveRequestResponseModel();
@@ -1440,7 +1261,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             long? NewEmployee = 0;
             EmployeeSaveRequestModel EmployeePersonalInfoSaveRequest = new EmployeeSaveRequestModel();
             RegisterViewModel registerViewModel = new RegisterViewModel();
-            EmployeeUserGroupMemberSaveRequestModel userGroupRequest= new EmployeeUserGroupMemberSaveRequestModel();
+            EmployeeUserGroupMemberSaveRequestModel userGroupRequest = new EmployeeUserGroupMemberSaveRequestModel();
             long? employeeCategory = 0;
             var SavedEmployeeCategory = "";
             long? SavedEmployeeCategoryID = 0;
@@ -1451,22 +1272,21 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             {
                 if (jsonObject != null)
                 {
-                    string duplicateMessage = "";   
-                    EmployeePersonalInfoSaveRequest = CreateRequestForEmployee(jsonObject, false,true);
+                    string duplicateMessage = "";
+                    EmployeePersonalInfoSaveRequest = CreateRequestForEmployee(jsonObject, false, true);
                     NewEmployee = EmployeePersonalInfoSaveRequest.idfPerson;
-                    bool UserPermissionsSaveDone = jsonObject["UserPermissionsSaveDone"] != null && jsonObject["UserPermissionsSaveDone"].ToString() != Empty ? Convert.ToBoolean(jsonObject["UserPermissionsSaveDone"].ToString()) : false;
+                    bool UserPermissionsSaveDone = jsonObject["UserPermissionsSaveDone"] != null && jsonObject["UserPermissionsSaveDone"].ToString() != string.Empty ? Convert.ToBoolean(jsonObject["UserPermissionsSaveDone"].ToString()) : false;
                     bool isEditOrg = jsonObject["isEditOrg"] != null ? Convert.ToBoolean(jsonObject["isEditOrg"].ToString()) : false;
-                    bool finalSubmit = jsonObject["finalSubmit"] != null && jsonObject["finalSubmit"].ToString() != Empty ? Convert.ToBoolean(jsonObject["finalSubmit"].ToString()) : false;
-                    bool isEditEmployee = jsonObject["isEditEmployee"] != null && jsonObject["isEditEmployee"].ToString() != Empty ? Convert.ToBoolean(jsonObject["isEditEmployee"].ToString()) : false;
-                    bool isAddEmployee = jsonObject["isAddEmployee"] != null && jsonObject["isAddEmployee"].ToString() != Empty ? Convert.ToBoolean(jsonObject["isAddEmployee"].ToString()) : false;
-                    string LastLogin = jsonObject["LastLogin"] != null && jsonObject["LastLogin"].ToString() != Empty ? jsonObject["LastLogin"].ToString() : "";
+                    bool finalSubmit = jsonObject["finalSubmit"] != null && jsonObject["finalSubmit"].ToString() != string.Empty ? Convert.ToBoolean(jsonObject["finalSubmit"].ToString()) : false;
+                    bool isEditEmployee = jsonObject["isEditEmployee"] != null && jsonObject["isEditEmployee"].ToString() != string.Empty ? Convert.ToBoolean(jsonObject["isEditEmployee"].ToString()) : false;
+                    bool isAddEmployee = jsonObject["isAddEmployee"] != null && jsonObject["isAddEmployee"].ToString() != string.Empty ? Convert.ToBoolean(jsonObject["isAddEmployee"].ToString()) : false;
+                    string LastLogin = jsonObject["LastLogin"] != null && jsonObject["LastLogin"].ToString() != string.Empty ? jsonObject["LastLogin"].ToString() : "";
 
-                   
                     EmployeeGetListRequestModel DuplicateCheckRequest = new EmployeeGetListRequestModel();
                     DuplicateCheckRequest.FirstOrGivenName = EmployeePersonalInfoSaveRequest.strFirstName;
                     DuplicateCheckRequest.LanguageId = GetCurrentLanguage();
-                    DuplicateCheckRequest.LastOrSurName = EmployeePersonalInfoSaveRequest.strFamilyName;                   
-                    DuplicateCheckRequest.PersonalIdType = EmployeePersonalInfoSaveRequest.idfPersonalIDType!=null && EmployeePersonalInfoSaveRequest.idfPersonalIDType.ToString()!=Empty?long.Parse(EmployeePersonalInfoSaveRequest.idfPersonalIDType.ToString()):null;
+                    DuplicateCheckRequest.LastOrSurName = EmployeePersonalInfoSaveRequest.strFamilyName;
+                    DuplicateCheckRequest.PersonalIdType = EmployeePersonalInfoSaveRequest.idfPersonalIDType != null && EmployeePersonalInfoSaveRequest.idfPersonalIDType.ToString() != string.Empty ? long.Parse(EmployeePersonalInfoSaveRequest.idfPersonalIDType.ToString()) : null;
                     DuplicateCheckRequest.PersonalIDValue = EmployeePersonalInfoSaveRequest.strPersonalID;
                     DuplicateCheckRequest.OrganizationID = EmployeePersonalInfoSaveRequest.idfInstitution;
                     DuplicateCheckRequest.Page = 1;
@@ -1474,87 +1294,80 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     DuplicateCheckRequest.SortOrder = "ASC";
                     DuplicateCheckRequest.SortColumn = "EmployeeID";
 
-                    userName = jsonObject["Username"] != null && jsonObject["Username"].ToString() != Empty ? jsonObject["Username"].ToString() : "";
+                    userName = jsonObject["Username"] != null && jsonObject["Username"].ToString() != string.Empty ? jsonObject["Username"].ToString() : "";
 
-                    List<EmployeeListViewModel> duplicateResponse= await _employeeClient.GetEmployeeList(DuplicateCheckRequest);
-                   bool isDuplicateCheckRequired = false;
-                    if(isEditEmployee && EmployeePersonalInfoSaveRequest.idfPerson != null && EmployeePersonalInfoSaveRequest.idfPerson != 0 && duplicateResponse!=null && duplicateResponse.Count>0 && duplicateResponse.FirstOrDefault().EmployeeID == EmployeePersonalInfoSaveRequest.idfPerson)
+                    List<EmployeeListViewModel> duplicateResponse = await _employeeClient.GetEmployeeList(DuplicateCheckRequest);
+                    bool isDuplicateCheckRequired = false;
+                    if (isEditEmployee && EmployeePersonalInfoSaveRequest.idfPerson != null && EmployeePersonalInfoSaveRequest.idfPerson != 0 && duplicateResponse != null && duplicateResponse.Count > 0 && duplicateResponse.FirstOrDefault().EmployeeID == EmployeePersonalInfoSaveRequest.idfPerson)
                     {
                         EmployeePersonalInfoSaveRequest.idfPerson = duplicateResponse.FirstOrDefault().EmployeeID;
                         isDuplicateCheckRequired = false;
                     }
-                    else if((!isEditEmployee && finalSubmit && !UserPermissionsSaveDone) || (!isEditEmployee &&!isEditOrg && !finalSubmit))
-                   {
+                    else if ((!isEditEmployee && finalSubmit && !UserPermissionsSaveDone) || (!isEditEmployee && !isEditOrg && !finalSubmit))
+                    {
                         isDuplicateCheckRequired = true;
-                   }
-                   else if(!isEditEmployee && isEditOrg && EmployeePersonalInfoSaveRequest.idfPerson != null  && duplicateResponse!=null && duplicateResponse.Count>0 && duplicateResponse.FirstOrDefault().EmployeeID != EmployeePersonalInfoSaveRequest.idfPerson)
-                   {
+                    }
+                    else if (!isEditEmployee && isEditOrg && EmployeePersonalInfoSaveRequest.idfPerson != null && duplicateResponse != null && duplicateResponse.Count > 0 && duplicateResponse.FirstOrDefault().EmployeeID != EmployeePersonalInfoSaveRequest.idfPerson)
+                    {
                         isDuplicateCheckRequired = true;
-                   }
+                    }
+
                     //Edit Employee
-                    
-                   // if (duplicateResponse != null && duplicateResponse.Count > 0 ||(isEdit && EmployeePersonalInfoSaveRequest.idfPerson!=null && EmployeePersonalInfoSaveRequest.idfPerson!=0 && duplicateResponse.FirstOrDefault().EmployeeID!= EmployeePersonalInfoSaveRequest.idfPerson) && (!isEdit || finalSubmit))
-                   if(isDuplicateCheckRequired && duplicateResponse != null && duplicateResponse.Count > 0)
-                   {                                                                    
-                         EmployeePersonalInfoSaveRequest.idfPerson = duplicateResponse.FirstOrDefault().EmployeeID;
-                         response.RetunMessage = "Duplicate Record";
+                    if (isDuplicateCheckRequired && duplicateResponse != null && duplicateResponse.Count > 0)
+                    {
+                        EmployeePersonalInfoSaveRequest.idfPerson = duplicateResponse.FirstOrDefault().EmployeeID;
+                        response.RetunMessage = "Duplicate Record";
                         string duplicate_Field = "";
 
-                        duplicate_Field= duplicateResponse.FirstOrDefault().LastOrSurName != null && duplicateResponse.FirstOrDefault().LastOrSurName != "" ? duplicateResponse.FirstOrDefault().LastOrSurName : "";
+                        duplicate_Field = duplicateResponse.FirstOrDefault().LastOrSurName != null && duplicateResponse.FirstOrDefault().LastOrSurName != "" ? duplicateResponse.FirstOrDefault().LastOrSurName : "";
                         duplicate_Field += duplicateResponse.FirstOrDefault().FirstOrGivenName != null && duplicateResponse.FirstOrDefault().FirstOrGivenName != "" ? " " + duplicateResponse.FirstOrDefault().FirstOrGivenName : "";
-                        duplicate_Field += duplicateResponse.FirstOrDefault().OrganizationID != null && duplicateResponse.FirstOrDefault().OrganizationID != 0 ? " " +  duplicateResponse.FirstOrDefault().OrganizationAbbreviatedName : "";
+                        duplicate_Field += duplicateResponse.FirstOrDefault().OrganizationID != null && duplicateResponse.FirstOrDefault().OrganizationID != 0 ? " " + duplicateResponse.FirstOrDefault().OrganizationAbbreviatedName : "";
                         duplicate_Field += EmployeePersonalInfoSaveRequest.idfPersonalIDType != null && EmployeePersonalInfoSaveRequest.idfPersonalIDType != "" ? " " + EmployeePersonalInfoSaveRequest.idfPersonalIDTypeText : "";
-                        duplicate_Field += EmployeePersonalInfoSaveRequest.strPersonalID != null && EmployeePersonalInfoSaveRequest.strPersonalID != "" ? " " +  EmployeePersonalInfoSaveRequest.strPersonalID : "";
+                        duplicate_Field += EmployeePersonalInfoSaveRequest.strPersonalID != null && EmployeePersonalInfoSaveRequest.strPersonalID != "" ? " " + EmployeePersonalInfoSaveRequest.strPersonalID : "";
 
-
-
-                       // var duplicate_field= EmployeePersonalInfoSaveRequest.idfPersonalIDType + " " + EmployeePersonalInfoSaveRequest.strPersonalID + duplicateResponse.FirstOrDefault().LastOrSurName+" "+ duplicateResponse.FirstOrDefault().FirstOrGivenName+ " "+ duplicateResponse.FirstOrDefault().OrganizationAbbreviatedName ;
-                        response.DuplicateMessage= Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), duplicate_Field);
+                        response.DuplicateMessage = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), duplicate_Field);
                     }
-                   else
-                   {
+                    else
+                    {
                         if ((isEditEmployee && finalSubmit && duplicateResponse != null && duplicateResponse.Count > 0) || (finalSubmit && UserPermissionsSaveDone && duplicateResponse != null && duplicateResponse.Count > 0))
                         {
                             EmployeePersonalInfoSaveRequest.idfPerson = duplicateResponse.FirstOrDefault().EmployeeID;
                             SavedEmployeeCategory = duplicateResponse.FirstOrDefault().EmployeeCategory;
-                            if(SavedEmployeeCategory.Equals(EmployeeCategory.User.ToString()))
+                            if (SavedEmployeeCategory.Equals(EmployeeCategory.User.ToString()))
                             {
-                                SavedEmployeeCategoryID=(long) EmployeeCategory.User;
+                                SavedEmployeeCategoryID = (long)EmployeeCategory.User;
                             }
                             else
                             {
                                 SavedEmployeeCategoryID = (long)EmployeeCategory.NonUser;
                             }
                         }
-
                         else if (!isEditOrg && !finalSubmit)
                             EmployeePersonalInfoSaveRequest.idfPerson = 0;
 
                         employeeCategory = EmployeePersonalInfoSaveRequest.idfsEmployeeCategory;
 
-                        if(SavedEmployeeCategoryID != 0 && employeeCategory!=0 
-                            && SavedEmployeeCategoryID == (long) EmployeeCategory.User 
-                            && employeeCategory== (long) EmployeeCategory.NonUser
+                        if (SavedEmployeeCategoryID != 0 && employeeCategory != 0
+                            && SavedEmployeeCategoryID == (long)EmployeeCategory.User
+                            && employeeCategory == (long)EmployeeCategory.NonUser
                             && duplicateResponse.FirstOrDefault().EmployeeID == EmployeePersonalInfoSaveRequest.idfPerson)
                         {
                             IsChangeUserToNonUser = true;
-                           
+
                         }
                         if (EmployeePersonalInfoSaveRequest.idfsEmployeeCategory == (long)EmployeeCategory.User)
-                        { 
-                            registerViewModel = CreateRequestForEmployeeLogin(jsonObject); 
+                        {
+                            registerViewModel = CreateRequestForEmployeeLogin(jsonObject);
                         }
-                        
+
                         // Has to be removed for Edit
-
-
                         response = await _employeeClient.SaveEmployee(EmployeePersonalInfoSaveRequest);
-                       
-                        if (response != null && response.RetunMessage=="Success")
+
+                        if (response != null && response.RetunMessage == "Success")
                         {
                             EmployeeID = response.idfPerson;
                             _employeeDetailsPageViewModel.EmployeeID = (long)response.idfPerson;
-                            _employeeDetailsPageViewModel.AccountManagementSection.EmployeeID= (long)response.idfPerson;
+                            _employeeDetailsPageViewModel.AccountManagementSection.EmployeeID = (long)response.idfPerson;
 
                             //Login and Account Management for User
 
@@ -1568,19 +1381,13 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                                     loginRequest.idfsPersonSite = EmployeePersonalInfoSaveRequest.idfsSite;
                                 EmployeeLoginSaveRequestResponseModel loginResponse = new EmployeeLoginSaveRequestResponseModel();
                                 loginResponse = await _employeeClient.SaveUserLoginInfo(loginRequest);
-                                if (loginResponse != null && loginResponse.idfUserID!=null && !loginResponse.ReturnMessage.Contains("Error"))
-                                {                             
-                                //User Group Member Set
-                                    if ((!finalSubmit) ||(!isEditEmployee && finalSubmit && !UserPermissionsSaveDone))
+                                if (loginResponse != null && loginResponse.idfUserID != null && !loginResponse.ReturnMessage.Contains("Error"))
+                                {
+                                    //User Group Member Set
+                                    if ((!finalSubmit) || (!isEditEmployee && finalSubmit && !UserPermissionsSaveDone))
                                     {
-                                        
-                                        //userGroupRequest.idfEmployeeGroups = jsonObject["idfEmployeeGroups"] != null && jsonObject["idfEmployeeGroups"].ToString() != string.Empty && jsonObject["idfEmployeeGroups"].ToString() != "  []" && jsonObject["idfEmployeeGroups"].ToString() != "," ? jsonObject["idfEmployeeGroups"].ToString() : "-1";
-                                        //userGroupRequest.idfEmployee = response.idfPerson;
-                                        //userGroupRequest.intRowStatus = 0;
-                                        //var userGroupresponse = await _employeeClient.SaveUserGroupMemberInfo(userGroupRequest);
-
                                         //SIngle User Group
-                                        userGroupRequest.idfEmployeeGroups = jsonObject["UPUserGroup"] != null && jsonObject["UPUserGroup"].ToString() != Empty && jsonObject["UPUserGroup"].ToString() != "  []" && jsonObject["UPUserGroup"].ToString() != "," ? jsonObject["UPUserGroup"].ToString() : "-1";
+                                        userGroupRequest.idfEmployeeGroups = jsonObject["UPUserGroup"] != null && jsonObject["UPUserGroup"].ToString() != string.Empty && jsonObject["UPUserGroup"].ToString() != "  []" && jsonObject["UPUserGroup"].ToString() != "," ? jsonObject["UPUserGroup"].ToString() : "-1";
                                         userGroupRequest.idfEmployee = response.idfPerson;
                                         userGroupRequest.intRowStatus = 0;
                                         var userGroupresponse = await _employeeClient.SaveUserGroupMemberInfo(userGroupRequest);
@@ -1588,31 +1395,29 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                                     }
                                     AppUserViewModel user;
                                     //User Update
-                                    if(IsNullOrEmpty(LastLogin))
+                                    if (string.IsNullOrEmpty(LastLogin))
                                     {
-                                        user = await _adminClient.GetAppUser(registerViewModel.Username);                                        
+                                        user = await _adminClient.GetAppUser(registerViewModel.Username);
                                     }
                                     else
                                     {
                                         user = await _adminClient.GetAppUser(LastLogin);
-                                        
                                     }
-                                    
+
                                     registerViewModel.idfUserID = loginResponse.idfUserID.Value;
                                     _logger.LogInformation("before if" + registerViewModel.Username);
-                                    if ((user == null || user.Id == "0") && (IsNullOrEmpty(LastLogin)  || LastLogin == registerViewModel.Username))
+                                    if ((user == null || user.Id == "0") && (string.IsNullOrEmpty(LastLogin) || LastLogin == registerViewModel.Username))
                                     {
-
                                         ResponseViewModel resp = await _adminClient.AddEmployee(registerViewModel);
                                         user = resp.appUser;
                                     }
-                                    else if(isEditEmployee && user!=null && user.Id!="0" && EmployeeID != 0 && user.idfUserID == registerViewModel.idfUserID)
+                                    else if (isEditEmployee && user != null && user.Id != "0" && EmployeeID != 0 && user.idfUserID == registerViewModel.idfUserID)
                                     {
                                         PasswordResetRequiredParams resetRequiredRequest = new PasswordResetRequiredParams();
                                         resetRequiredRequest.PasswordResetRequired = registerViewModel.IsPasswordResetRequired;
                                         resetRequiredRequest.UserName = registerViewModel.Username;
-                                        var resetRequiredResponse=await _adminClient.UpdatePasswordResetRequired(resetRequiredRequest);
-                                        if (!IsNullOrEmpty(LastLogin) && LastLogin != registerViewModel.Username)
+                                        var resetRequiredResponse = await _adminClient.UpdatePasswordResetRequired(resetRequiredRequest);
+                                        if (!string.IsNullOrEmpty(LastLogin) && LastLogin != registerViewModel.Username)
                                         {
                                             UpdateUserNameParams updateParms = new UpdateUserNameParams();
                                             updateParms.UserID = user.Id;
@@ -1627,11 +1432,8 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                                             parms.updatingUser = registerViewModel.Username;
                                             parms.userId = user.Id;
                                             ResponseViewModel resp = await _adminClient.ResetPassword(parms);
-
-                                        }                                        
+                                        }
                                     }
-                                 //Removed this line because returning the uset 
-                                   // user = await _adminClient.GetAppUser(registerViewModel.Username);
 
                                     if (user != null && user.Id != "0")
                                     {
@@ -1644,7 +1446,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                                             request.idfPerson = idfPerson;
                                             request.LangID = GetCurrentLanguage();
                                             var userGroupAndPermissionsResponse = await _employeeClient.GetEmployeeUserGroupAndPermissions(request);
-                                            var active = userGroupAndPermissionsResponse.Where(a => a.idfEmployee==idfPerson).ToList();
+                                            var active = userGroupAndPermissionsResponse.Where(a => a.idfEmployee == idfPerson).ToList();
                                             EmployeeOrganizationSaveRequestModel EmpOrgRequest = new EmployeeOrganizationSaveRequestModel();
                                             EmpOrgRequest.aspNetUserId = user.Id;
                                             aspnetuserId = user.Id;
@@ -1660,9 +1462,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                                                 EmpOrgRequest.active = true;
                                             else if (userGroupRequest.idfEmployeeGroups != "-1" && active.Count == 0)
                                                 EmpOrgRequest.active = true;
-                                            //else if(active==null)
-                                              //  EmpOrgRequest.active = true;
-      
+
                                             var list = userGroupAndPermissionsResponse.Where(a => a.IsDefault == true).ToList();
                                             if ((userGroupAndPermissionsResponse != null && userGroupAndPermissionsResponse.Count == 0) || (list.Count > 0 && list.FirstOrDefault().idfUserID == registerViewModel.idfUserID))
                                             {
@@ -1673,11 +1473,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                                                 EmpOrgRequest.IsDefault = false;
                                             }
                                             EmployeeOrganizationSaveRequestResponseModel EmpOrgResponse = await _employeeClient.SaveEmployeeOrganization(EmpOrgRequest);
-
-
-
-
-                                            
 
                                             EmployeesUserGroupAndPermissionsGetRequestModel nonUserrequest = new EmployeesUserGroupAndPermissionsGetRequestModel();
                                             nonUserrequest.idfPerson = idfPerson;
@@ -1696,92 +1491,57 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                                             var isAccessToPersonalExist = UserGroupPermissions.Any(a => a.AccessToPersonalDataPermission == 0);
                                             var isExecuteExist = UserGroupPermissions.Any(a => a.ExecutePermission == 0);
 
-                                            if (!isExist && !isAddEmployee && !IsNullOrEmpty(userName) && !UserPermissionsSaveDone && finalSubmit
+                                            if (!isExist && !isAddEmployee && !string.IsNullOrEmpty(userName) && !UserPermissionsSaveDone && finalSubmit
                                                 && (UserGroupPermissions.Count == 0 || (UserGroupPermissions.Count > 0 && !isReadExist && !isWriteExist && !isExecuteExist && !isDeleteExist && !isCreateExist && !isAccessToGenderAndAgeExist && !isAccessToPersonalExist)))
                                             {
-                                                // EmployeePersonalInfoSaveRequest = CreateRequestForEmployee(jsonObject, false, true);
                                                 EmployeePersonalInfoSaveRequest.idfsEmployeeCategory = (long)EmployeeCategory.NonUser;
                                                 EmployeePersonalInfoSaveRequest.idfPerson = EmployeeID;
                                                 response = await _employeeClient.SaveEmployee(EmployeePersonalInfoSaveRequest);
                                                 await ChangeUserToNonUser(EmployeeID, userName);
                                                 response.RetunMessage = "ChangeUserToNonUser";
                                             }
-                                            //End
                                         }
                                     }
                                 }
 
                             }
-                            else if (EmployeePersonalInfoSaveRequest.idfsEmployeeCategory == (long)EmployeeCategory.NonUser && IsChangeUserToNonUser && !IsNullOrEmpty(userName))
+                            else if (EmployeePersonalInfoSaveRequest.idfsEmployeeCategory == (long)EmployeeCategory.NonUser && IsChangeUserToNonUser && !string.IsNullOrEmpty(userName))
                             {
                                 await ChangeUserToNonUser(EmployeeID, userName);
                             }
-                        }                        
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
-
                 if (employeeCategory == (long)EmployeeCategory.User && EmployeeID != 0)
                 {
-
-                    // delete employee organization 
-                    //EmployeeOrganizationDeleteRequestModel orgDeleteRequest = new EmployeeOrganizationDeleteRequestModel();
-                    //orgDeleteRequest.aspNetUserId = aspnetuserId;
-                    //orgDeleteRequest.idfUserId = EmployeeID;
-                    APIPostResponseModel deleteResponse = new APIPostResponseModel();
-                   // if (aspnetuserId != null && aspnetuserId!="" && aspnetuserId!="0")
-                   // {
-                   //     deleteResponse = await _employeeClient.DeleteEmployeeOrganization(aspnetuserId, EmployeeID);
-
-                   //     //delete user password
-                   //     deleteResponse = await _adminClient.RemoveEmployee(aspnetuserId);
-                   // }
-
-                   // // delete user login 
-                   // //EmployeeLoginInfoDeleteRequestModel loginDeleteRequest = new EmployeeLoginInfoDeleteRequestModel();
-                   // //loginDeleteRequest.idfUserId = EmployeeID;
-                   // if(registerViewModel.idfUserID!=0)
-                   //     deleteResponse = await _employeeClient.DeleteEmployeeLoginInfo(registerViewModel.idfUserID);
-
-                   // //delete user group member info
-                   //// EmployeeGroupMemberDeleteRequestModel groupmemberDeleteRequest = new EmployeeGroupMemberDeleteRequestModel();
-                   // //groupmemberDeleteRequest.idfEmployee = EmployeeID;
-                   // if(userGroupRequest.idfEmployeeGroups!=null && userGroupRequest.idfEmployeeGroups!="")
-                   //     deleteResponse = await _employeeClient.DeleteEmployeeGroupMemberInfo(userGroupRequest.idfEmployeeGroups, EmployeeID);
-
                     //delete employee
-
-                    //EmployeeDeleteRequestModel employeeDeleteRequest = new EmployeeDeleteRequestModel();
-                    //employeeDeleteRequest.idfPerson = EmployeeID;
-                    deleteResponse = await _employeeClient.DeleteEmployee(EmployeeID);
+                    APIPostResponseModel deleteResponse = await _employeeClient.DeleteEmployee(EmployeeID);
                     response = new EmployeeSaveRequestResponseModel();
                     var errorObj = JObject.Parse(ex.Message);
-                    if(errorObj!=null && errorObj["message"].ToString()!=null)
+                    if (errorObj != null && errorObj["message"].ToString() != null)
                     {
                         response.RetunMessage = errorObj["message"].ToString();
-                       
+
                     }
                     else
                         response.RetunMessage = ex.Message;
 
                     _logger.LogError(ex.Message);
-
-
                 }
-
             }
             return Ok(response);
         }
 
-        public async Task<EmployeeSaveRequestResponseModel> SaveNonUserEmployee(JObject jsonObject, long? idfPerson, List<RoleSystemFunctionOperation> operation,long idfUserID)
+        public async Task<EmployeeSaveRequestResponseModel> SaveNonUserEmployee(JObject jsonObject, long? idfPerson, List<RoleSystemFunctionOperation> operation, long idfUserID)
         {
             EmployeesUserGroupAndPermissionsGetRequestModel request = new EmployeesUserGroupAndPermissionsGetRequestModel();
             request.idfPerson = idfPerson;
             request.LangID = GetCurrentLanguage();
 
-            var userName = jsonObject["Username"] != null && jsonObject["Username"].ToString() != Empty ? jsonObject["Username"].ToString() : "";
+            var userName = jsonObject["Username"] != null && jsonObject["Username"].ToString() != string.Empty ? jsonObject["Username"].ToString() : "";
 
             EmployeeSaveRequestResponseModel response = new EmployeeSaveRequestResponseModel();
             //Check User to Non User Scenario
@@ -1789,12 +1549,11 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             var isExist = userGroupAndPermissionsResponse.Any(a => a.UserGroupID != null);
 
-
-            bool finalSubmit = jsonObject["finalSubmit"] != null && jsonObject["finalSubmit"].ToString() != Empty ? Convert.ToBoolean(jsonObject["finalSubmit"].ToString()) : false;
-            bool isAddEmployee = jsonObject["isAddEmployee"] != null && jsonObject["isAddEmployee"].ToString() != Empty ? Convert.ToBoolean(jsonObject["isAddEmployee"].ToString()) : false;
+            bool finalSubmit = jsonObject["finalSubmit"] != null && jsonObject["finalSubmit"].ToString() != string.Empty ? Convert.ToBoolean(jsonObject["finalSubmit"].ToString()) : false;
+            bool isAddEmployee = jsonObject["isAddEmployee"] != null && jsonObject["isAddEmployee"].ToString() != string.Empty ? Convert.ToBoolean(jsonObject["isAddEmployee"].ToString()) : false;
             bool isConvert = operation.Any(a => a.intRowStatus == 0);
 
-            if (!isExist && !isAddEmployee && !IsNullOrEmpty(userName) && !isConvert && !finalSubmit)
+            if (!isExist && !isAddEmployee && !string.IsNullOrEmpty(userName) && !isConvert && !finalSubmit)
             {
                 EmployeeSaveRequestModel EmployeePersonalInfoSaveRequest = CreateRequestForEmployee(jsonObject, false, true);
                 EmployeePersonalInfoSaveRequest.idfsEmployeeCategory = (long)EmployeeCategory.NonUser;
@@ -1803,28 +1562,21 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 await ChangeUserToNonUser(idfPerson, userName);
                 response.RetunMessage = "ChangeUserToNonUser";
             }
-            else if(!IsNullOrEmpty(userName)  && (isExist || isConvert) )
+            else if (!string.IsNullOrEmpty(userName) && (isExist || isConvert))
             {
                 var user = await _adminClient.GetAppUser(userName);
 
-                if(idfUserID==0 && isAddEmployee)
-                    idfUserID= user.idfUserID;
-                //var idfUserID = user.idfUserID;
+                if (idfUserID == 0 && isAddEmployee)
+                    idfUserID = user.idfUserID;
 
                 if (user != null && user.Id != "0")
                 {
-
                     EmployeeOrganizationSaveRequestModel EmpOrgRequest = new EmployeeOrganizationSaveRequestModel();
                     EmpOrgRequest.aspNetUserId = user.Id;
                     var aspnetuserId = user.Id;
                     EmpOrgRequest.intRowStatus = 0;
                     EmpOrgRequest.idfUserId = idfUserID;
                     EmpOrgRequest.active = true;
-
-                    //if (!isExist)
-                    //    EmpOrgRequest.active = false;
-                    //else
-                    //    EmpOrgRequest.active = true;
 
                     var list = userGroupAndPermissionsResponse.Where(a => a.IsDefault == true).ToList();
                     if ((userGroupAndPermissionsResponse != null && userGroupAndPermissionsResponse.Count == 0) || (list.Count > 0 && list.FirstOrDefault().idfUserID == idfUserID))
@@ -1839,100 +1591,9 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     response.RetunMessage = "Success";
                     response.idfPerson = idfPerson;
                 }
-
-                // System Functions List
-
-                //Change User To Non User
-
-
-                //if (!isConvert && !finalSubmit && !isAddEmployee)
-                //{
-
-                //    EmployeeSaveRequestModel EmployeePersonalInfoSaveRequest = new EmployeeSaveRequestModel();
-                //    EmployeePersonalInfoSaveRequest = CreateRequestForEmployee(jsonObject, false, true, true);
-                //    EmployeePersonalInfoSaveRequest.idfsEmployeeCategory = (long)EmployeeCategory.NonUser;
-                //    EmployeePersonalInfoSaveRequest.idfPerson = idfPerson;
-                //    var detailresponse = await _employeeClient.SaveEmployee(EmployeePersonalInfoSaveRequest);
-
-                //    await ChangeUserToNonUser(idfPerson, userName);
-                //    response.RetunMessage = "ChangeUserToNonUser";
-                //}
-                
             }
             return response;
         }
-        //public async Task<IActionResult> ChangeUserToNonUser([FromBody] JsonElement data)
-        //{
-        //    APIPostResponseModel deleteResponse = new APIPostResponseModel();
-
-        //    try
-        //    {
-        //        var jsonObject = JObject.Parse(data.ToString());
-        //        long? idfPerson = 0;
-        //        string Username = "";
-               
-
-        //        if (jsonObject["idfPerson"] != null && jsonObject["idfPerson"].ToString() != "")
-        //        {
-        //            idfPerson = long.Parse(jsonObject["idfPerson"].ToString());
-        //        }
-
-        //        if (jsonObject["Username"] != null && jsonObject["Username"].ToString() != "")
-        //        {
-        //            Username = jsonObject["Username"].ToString();
-        //        }
-
-        //        var user = await _adminClient.GetAppUser(Username);
-        //        var idfUserID = user.idfUserID;
-
-        //        if (user != null && user.Id != "0")
-        //        {
-        //            deleteResponse = await _employeeClient.DeleteEmployeeOrganization(user.Id, idfUserID);
-
-        //            deleteResponse = await _adminClient.RemoveEmployee(user.Id);
-
-        //        }
-        //        //delete employee organization
-        //        //EmployeeOrganizationDeleteRequestModel orgDeleteRequest = new EmployeeOrganizationDeleteRequestModel();
-        //        //orgDeleteRequest.aspNetUserId = aspnetuserId;
-        //        //orgDeleteRequest.idfUserId = EmployeeID;
-        //        //APIPostResponseModel deleteResponse = new APIPostResponseModel();
-        //        //if (aspnetuserId != null && aspnetuserId != "" && aspnetuserId != "0")
-        //        //{
-        //        //    deleteResponse = await _employeeClient.DeleteEmployeeOrganization(aspnetuserId, EmployeeID);
-
-        //        //    //delete user password
-        //        //    deleteResponse = await _adminClient.RemoveEmployee(aspnetuserId);
-        //        //}
-
-        //        // delete user login 
-        //        //EmployeeLoginInfoDeleteRequestModel loginDeleteRequest = new EmployeeLoginInfoDeleteRequestModel();
-        //        //loginDeleteRequest.idfUserId = EmployeeID;
-        //        //if (idfUserID != 0)
-        //        //    deleteResponse = await _employeeClient.DeleteEmployeeLoginInfo(idfUserID);
-
-        //        var resp = await  _employeeClient.GetEmployeeGroupsByUser(idfUserID);
-        //        string idfEmployeeGroups = "";
-        //        if (resp!=null && resp.Count>0)
-        //        {
-        //            foreach (var item in resp)
-        //            {
-        //                idfEmployeeGroups += item.idfEmployeeGroup + ",";
-        //             }
-        //        }
-
-        //        //delete user group member info
-        //        // EmployeeGroupMemberDeleteRequestModel groupmemberDeleteRequest = new EmployeeGroupMemberDeleteRequestModel();
-        //        //groupmemberDeleteRequest.idfEmployee = EmployeeID;
-        //        if (idfEmployeeGroups != null && idfEmployeeGroups != "")
-        //            deleteResponse = await _employeeClient.DeleteEmployeeGroupMemberInfo(idfEmployeeGroups, idfPerson);
-        //    }
-        //    catch(Exception ex)
-        //    {
-
-        //    }
-        //    return Ok(deleteResponse);
-        //}
 
         public async Task<IActionResult> ChangeUserToNonUser(long? idfPerson, string Username)
         {
@@ -1940,21 +1601,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             try
             {
-                //var jsonObject = JObject.Parse(data.ToString());
-                //long? idfPerson = 0;
-                //string Username = "";
-
-
-                //if (jsonObject["idfPerson"] != null && jsonObject["idfPerson"].ToString() != "")
-                //{
-                //    idfPerson = long.Parse(jsonObject["idfPerson"].ToString());
-                //}
-
-                //if (jsonObject["Username"] != null && jsonObject["Username"].ToString() != "")
-                //{
-                //    Username = jsonObject["Username"].ToString();
-                //}
-
                 var user = await _adminClient.GetAppUser(Username);
                 var idfUserID = user.idfUserID;
 
@@ -1963,26 +1609,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     deleteResponse = await _employeeClient.DeleteEmployeeOrganization(user.Id, idfUserID);
 
                     deleteResponse = await _adminClient.RemoveEmployee(user.Id);
-
                 }
-                //delete employee organization
-                //EmployeeOrganizationDeleteRequestModel orgDeleteRequest = new EmployeeOrganizationDeleteRequestModel();
-                //orgDeleteRequest.aspNetUserId = aspnetuserId;
-                //orgDeleteRequest.idfUserId = EmployeeID;
-                //APIPostResponseModel deleteResponse = new APIPostResponseModel();
-                //if (aspnetuserId != null && aspnetuserId != "" && aspnetuserId != "0")
-                //{
-                //    deleteResponse = await _employeeClient.DeleteEmployeeOrganization(aspnetuserId, EmployeeID);
-
-                //    //delete user password
-                //    deleteResponse = await _adminClient.RemoveEmployee(aspnetuserId);
-                //}
-
-                // delete user login 
-                //EmployeeLoginInfoDeleteRequestModel loginDeleteRequest = new EmployeeLoginInfoDeleteRequestModel();
-                //loginDeleteRequest.idfUserId = EmployeeID;
-                //if (idfUserID != 0)
-                //    deleteResponse = await _employeeClient.DeleteEmployeeLoginInfo(idfUserID);
 
                 var resp = await _employeeClient.GetEmployeeGroupsByUser(idfUserID);
                 string idfEmployeeGroups = "";
@@ -1995,8 +1622,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 }
 
                 //delete user group member info
-                // EmployeeGroupMemberDeleteRequestModel groupmemberDeleteRequest = new EmployeeGroupMemberDeleteRequestModel();
-                //groupmemberDeleteRequest.idfEmployee = EmployeeID;
                 if (idfEmployeeGroups != null && idfEmployeeGroups != "")
                     deleteResponse = await _employeeClient.DeleteEmployeeGroupMemberInfo(idfEmployeeGroups, idfPerson);
             }
@@ -2014,28 +1639,15 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             {
                 var jsonObject = JObject.Parse(data.ToString());
                 long? idfPerson = 0;
-                //string Username = "";
 
                 if (jsonObject["idfPerson"] != null && jsonObject["idfPerson"].ToString() != "")
                 {
                     idfPerson = long.Parse(jsonObject["idfPerson"].ToString());
                 }
-                //if (jsonObject["Username"] != null && jsonObject["Username"].ToString() != "")
-                //{
-                //    Username = jsonObject["Username"].ToString();
-                //}
-
-                //var user = await _adminClient.GetAppUser(Username);
-
-                //if (user != null && user.Id != "0")
-                //{
-                //    response = await _employeeClient.DeleteEmployeeOrganization(user.Id, idfPerson);
-                    
-                //}
 
                 response = await _employeeClient.EmployeeOrganizationStatusSet(idfPerson, 1);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
             }
@@ -2051,7 +1663,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             try
             {
-                if (jsonObject["PersonalIDType"] != null && jsonObject["PersonalIDType"].ToString() != Empty)
+                if (jsonObject["PersonalIDType"] != null && jsonObject["PersonalIDType"].ToString() != string.Empty)
                 {
                     personalIDType = long.Parse(jsonObject["PersonalIDType"].ToString());
                 }
@@ -2073,7 +1685,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 List<PersonalIdentificationTypeMatrixViewModel> response = await _personalIdentificationTypeMatrixClient.GetPersonalIdentificationTypeMatrixList(request);
 
                 if (response != null)
-                {                    
+                {
                     var item = response.Where(a => a.IdfPersonalIDType == personalIDType).FirstOrDefault();
 
                     if (item != null && item.StrFieldType == "Numeric")
@@ -2086,20 +1698,20 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     }
                     else if (item != null && item.StrFieldType == "AlphaNumeric")
                     {
-                        Regex rg = new Regex(@"^[a-zA-Z0-9\s,]*$",RegexOptions.None,TimeSpan.FromMilliseconds(5));
+                        Regex rg = new Regex(@"^[a-zA-Z0-9\s,]*$", RegexOptions.None, TimeSpan.FromMilliseconds(5));
 
-                        if(rg.IsMatch(personalID) && personalID.Length == item.Length)
+                        if (rg.IsMatch(personalID) && personalID.Length == item.Length)
                         {
                             isValid = true;
-                        }                        
+                        }
                     }
-                    else 
+                    else
                     {
                         isValid = true;
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
             }
@@ -2107,16 +1719,12 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             return isValid;
         }
 
-        
-
         public async Task<bool> UserExists(string data)
         {
             bool isUserExists = false;
             try
             {
                 JObject jsonObject = JObject.Parse(data);
-                
-
 
                 if (jsonObject["username"] != null)
                 {
@@ -2124,16 +1732,16 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     isUserExists = _adminClient.UserExists(userName).Result;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
             }
-            
+
             return isUserExists;
         }
-        
+
         public async Task<IActionResult> UpdateNewDefaultOrganization([FromBody] JsonElement data)
-         {
+        {
             EmployeeOrganizationSaveRequestResponseModel response = new EmployeeOrganizationSaveRequestResponseModel();
             try
             {
@@ -2162,9 +1770,9 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                         {
                             idfUserId = item.idfUserID;
                         }
-                        else if(item.idfEmployee==idfPerson)
+                        else if (item.idfEmployee == idfPerson)
                         {
-                            idfNewUserId = item.idfUserID;                         
+                            idfNewUserId = item.idfUserID;
                         }
                     }
 
@@ -2174,7 +1782,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 updateRequest.idfNewUserID = idfNewUserId;
                 response = await _employeeClient.SaveAdminNewDefaultEmployeeOrganization(updateRequest);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
             }
@@ -2196,11 +1804,11 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 }
                 if (jsonObject["Active"] != null && jsonObject["Active"].ToString() != "")
                 {
-                    Active = Convert.ToBoolean(jsonObject["Active"].ToString()) == true ? true:false;
+                    Active = Convert.ToBoolean(jsonObject["Active"].ToString()) == true ? true : false;
                 }
 
                 response = await _employeeClient.EmployeeOrganizationActivateDeactivateSet(idfPerson, Active);
-                
+
             }
             catch (Exception ex)
             {
@@ -2208,6 +1816,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             }
             return Ok(response);
         }
+
         public async Task<IActionResult> EnableDisableEmployeeAccount([FromBody] JsonElement data)
         {
             ResponseViewModel response = new ResponseViewModel();
@@ -2215,15 +1824,13 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             {
                 var jsonObject = JObject.Parse(data.ToString());
                 DisableUserAccountParams request = new DisableUserAccountParams();
-                EnableUserAccountParams requestEnable=new EnableUserAccountParams();
+                EnableUserAccountParams requestEnable = new EnableUserAccountParams();
                 bool IsDisabled = false;
-                
-
 
                 if (jsonObject["Username"] != null && jsonObject["Username"].ToString() != "")
                 {
                     request.UserName = jsonObject["Username"].ToString();
-                    requestEnable.UserName= jsonObject["Username"].ToString();
+                    requestEnable.UserName = jsonObject["Username"].ToString();
                 }
                 if (jsonObject["Reason"] != null && jsonObject["Reason"].ToString() != "")
                 {
@@ -2234,12 +1841,10 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 {
                     IsDisabled = Convert.ToBoolean(jsonObject["Disabled"].ToString());
                 }
-                
 
-               if(IsDisabled)
-                     response = await _adminClient.DisableUserAccount(request);
-               else
-
+                if (IsDisabled)
+                    response = await _adminClient.DisableUserAccount(request);
+                else
                     response = await _adminClient.EnableUserAccount(requestEnable);
 
             }
@@ -2260,24 +1865,20 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 UnLockUserAccountParams requestUnlock = new UnLockUserAccountParams();
                 bool isLocked = false;
 
-
-
                 if (jsonObject["Username"] != null && jsonObject["Username"].ToString() != "")
                 {
                     request.UserName = jsonObject["Username"].ToString();
                     requestUnlock.UserName = jsonObject["Username"].ToString();
                 }
-               
+
                 if (jsonObject["Locked"] != null && jsonObject["Locked"].ToString() != "")
                 {
                     isLocked = Convert.ToBoolean(jsonObject["Locked"].ToString());
                 }
 
-
                 if (isLocked)
                     response = await _adminClient.LockAccount(request);
                 else
-
                     response = await _adminClient.UnLockAccount(requestUnlock);
 
             }
@@ -2287,6 +1888,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             }
             return Ok(response);
         }
+
         [Route("ValidatePassword")]
         [HttpGet]
         public async Task<ActionResult> ValidatePassword(string data)
@@ -2298,7 +1900,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 RegisterViewModel model = new RegisterViewModel();
                 bool isUserExists = false;
 
-
                 if (jsonObject["username"] != null)
                 {
                     model.Username = jsonObject["username"].ToString();
@@ -2309,11 +1910,10 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 }
                 resp = _adminClient.ValidatePassword(model.Username, model.Password).Result;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
             }
-            
 
             return Ok(resp);
         }
@@ -2322,11 +1922,10 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         [Route("SaveSystemFunctions")]
         public async Task<IActionResult> SaveSystemFunctions([FromBody] JsonElement data)
         {
-
             var jsonObject = JObject.Parse(data.ToString());
             var jsonArray = JArray.Parse(jsonObject["systemFunctions"].ToString());
             long roleID = 0;
-            IActionResult accountmgtview=new ViewResult();
+            IActionResult accountmgtview = new ViewResult();
             APIPostResponseModel response = new APIPostResponseModel();
             long idfUserID = jsonObject["idfUserID"].ToString() != null && jsonObject["idfUserID"].ToString() != "" ? long.Parse(jsonObject["idfUserID"].ToString()) : 0;
 
@@ -2338,7 +1937,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     roleID = (long)item["RoleID"];
                     RoleSystemFunctionOperation rolesandfunctions = new RoleSystemFunctionOperation();
                     //Create
-                    if (!IsNullOrEmpty(item["RoleID"].ToString()))
+                    if (!string.IsNullOrEmpty(item["RoleID"].ToString()))
                         rolesandfunctions.RoleId = (long)item["RoleID"];
                     rolesandfunctions.SystemFunction = (long)item["SystemFunctionID"];
                     rolesandfunctions.Operation = (long)PermissionLevelEnum.Create;
@@ -2347,7 +1946,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     operation.Add(rolesandfunctions);
                     //Read
                     rolesandfunctions = new RoleSystemFunctionOperation();
-                    if (!IsNullOrEmpty(item["RoleID"].ToString()))
+                    if (!string.IsNullOrEmpty(item["RoleID"].ToString()))
                         rolesandfunctions.RoleId = (long)item["RoleID"];
                     rolesandfunctions.SystemFunction = (long)item["SystemFunctionID"];
                     rolesandfunctions.Operation = (long)PermissionLevelEnum.Read;
@@ -2356,7 +1955,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     operation.Add(rolesandfunctions);
                     //Write
                     rolesandfunctions = new RoleSystemFunctionOperation();
-                    if (!IsNullOrEmpty(item["RoleID"].ToString()))
+                    if (!string.IsNullOrEmpty(item["RoleID"].ToString()))
                         rolesandfunctions.RoleId = (long)item["RoleID"];
                     rolesandfunctions.SystemFunction = (long)item["SystemFunctionID"];
                     rolesandfunctions.Operation = (long)PermissionLevelEnum.Write;
@@ -2365,7 +1964,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     operation.Add(rolesandfunctions);
                     //Delete
                     rolesandfunctions = new RoleSystemFunctionOperation();
-                    if (!IsNullOrEmpty(item["RoleID"].ToString()))
+                    if (!string.IsNullOrEmpty(item["RoleID"].ToString()))
                         rolesandfunctions.RoleId = (long)item["RoleID"];
                     rolesandfunctions.SystemFunction = (long)item["SystemFunctionID"];
                     rolesandfunctions.Operation = (long)PermissionLevelEnum.Delete;
@@ -2374,7 +1973,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     operation.Add(rolesandfunctions);
                     //Execute
                     rolesandfunctions = new RoleSystemFunctionOperation();
-                    if (!IsNullOrEmpty(item["RoleID"].ToString()))
+                    if (!string.IsNullOrEmpty(item["RoleID"].ToString()))
                         rolesandfunctions.RoleId = (long)item["RoleID"];
                     rolesandfunctions.SystemFunction = (long)item["SystemFunctionID"];
                     rolesandfunctions.Operation = (long)PermissionLevelEnum.Execute;
@@ -2383,7 +1982,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     operation.Add(rolesandfunctions);
                     //AccessToGenderAndAgeData
                     rolesandfunctions = new RoleSystemFunctionOperation();
-                    if (!IsNullOrEmpty(item["RoleID"].ToString()))
+                    if (!string.IsNullOrEmpty(item["RoleID"].ToString()))
                         rolesandfunctions.RoleId = (long)item["RoleID"];
                     rolesandfunctions.SystemFunction = (long)item["SystemFunctionID"];
                     rolesandfunctions.Operation = (long)PermissionLevelEnum.AccessToGenderAndAgeData;
@@ -2392,13 +1991,13 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     operation.Add(rolesandfunctions);
                     //AccessToPersonalData
                     rolesandfunctions = new RoleSystemFunctionOperation();
-                    if (!IsNullOrEmpty(item["RoleID"].ToString()))
+                    if (!string.IsNullOrEmpty(item["RoleID"].ToString()))
                         rolesandfunctions.RoleId = (long)item["RoleID"];
                     rolesandfunctions.SystemFunction = (long)item["SystemFunctionID"];
                     rolesandfunctions.Operation = (long)PermissionLevelEnum.AccessToPersonalData;
                     if (item["AccessToPersonalDataPermission"] != null)
                         rolesandfunctions.intRowStatus = Convert.ToInt32(Convert.ToBoolean(item["AccessToPersonalDataPermission"]) == true ? 0 : 1);
-                    operation.Add(rolesandfunctions);                  
+                    operation.Add(rolesandfunctions);
                 }
                 var strOperations = JsonSerializer.Serialize(operation);
                 SystemFunctionsSaveRequestModel request = new SystemFunctionsSaveRequestModel();
@@ -2410,33 +2009,12 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 response = await _crossCuttingClient.SaveSystemFunctions(request);
 
                 //Change User To Non User
-
-
-                EmployeeSaveRequestResponseModel empResponse=await SaveNonUserEmployee(jsonObject, roleID, operation,idfUserID);
+                EmployeeSaveRequestResponseModel empResponse = await SaveNonUserEmployee(jsonObject, roleID, operation, idfUserID);
 
                 response.ReturnMessage = empResponse.RetunMessage;
-
-                //bool finalSubmit = jsonObject["finalSubmit"] != null && jsonObject["finalSubmit"].ToString() != string.Empty ? Convert.ToBoolean(jsonObject["finalSubmit"].ToString()) : false;
-                //bool isAddEmployee = jsonObject["isAddEmployee"] != null && jsonObject["isAddEmployee"].ToString() != string.Empty ? Convert.ToBoolean(jsonObject["isAddEmployee"].ToString()) : false;
-                //bool isConvert = operation.Any(a => a.intRowStatus == 0);
-                //if (!isConvert && !finalSubmit && !isAddEmployee)
-                //{
-
-                //    EmployeeSaveRequestModel EmployeePersonalInfoSaveRequest = new EmployeeSaveRequestModel();
-                //    EmployeePersonalInfoSaveRequest = CreateRequestForEmployee(jsonObject,false,true,true);
-                //    EmployeePersonalInfoSaveRequest.idfsEmployeeCategory = (long)EmployeeCategory.NonUser;
-                //    EmployeePersonalInfoSaveRequest.idfPerson = roleID;
-                //    var detailresponse = await _employeeClient.SaveEmployee(EmployeePersonalInfoSaveRequest);
-                //    var userName = jsonObject["Username"] != null && jsonObject["Username"].ToString() != string.Empty ? jsonObject["Username"].ToString() : "";
-                //    await ChangeUserToNonUser(roleID, userName);
-                //    response.ReturnMessage = "ChangeUserToNonUser";
-                //}
-
-                //accountmgtview= await ReloadAccountManagement(request.roleID.ToString());
-
             }
+
             return Ok(response);
-            //return accountmgtview;
         }
 
         [HttpPost()]
@@ -2459,7 +2037,5 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             return Json(response.ReturnMessage);
         }
-
-        #endregion
     }
 }

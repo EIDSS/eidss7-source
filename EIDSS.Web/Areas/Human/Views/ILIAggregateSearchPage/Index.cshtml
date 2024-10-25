@@ -141,13 +141,13 @@
                     <div class="row">
                         <div class="col-md-3">
                             <label asp-for="WeeksFrom">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchILIAggregateWeeksFromFieldLabel)</label>
-                            <eidss-calendar id="WeeksFrom" name="WeeksFrom" asp-for="@Model.WeeksFrom" class="form-control" SearchFilter="true" date-format="d" shortdate="true" dates-ids-to_validate="WeeksTo"></eidss-calendar>
+                            <eidss-calendar id="WeeksFrom" name="WeeksFrom" asp-for="@Model.WeeksFrom" class="form-control" SearchFilter="true" dates-ids-to_validate="WeeksTo"></eidss-calendar>
                             <span asp-validation-for="WeeksFrom" class="text-danger"></span>
                             <br/>
                         </div>
                         <div class="col-md-3">
                             <label asp-for="WeeksTo">@Localizer.GetString(FieldLabelResourceKeyConstants.SearchILIAggregateWeeksToFieldLabel)</label>
-                            <eidss-calendar id="WeeksTo" name="WeeksTo" asp-for="@Model.WeeksTo" class="form-control" SearchFilter="true" date-format="d" shortdate="true" dates-ids-to_validate="WeeksFrom"></eidss-calendar>
+                            <eidss-calendar id="WeeksTo" name="WeeksTo" asp-for="@Model.WeeksTo" class="form-control" SearchFilter="true" dates-ids-to_validate="WeeksFrom"></eidss-calendar>
                             <span asp-validation-for="WeeksTo" class="text-danger"></span>
                             <br/>
                         </div>

@@ -16,6 +16,7 @@ namespace EIDSS.Domain.RequestModels.Administration.Security
         public long? IdfSiteId { get; set; }
         public long? IdfActionId { get; set; }
         public long? IdfObjetType { get; set; }
+        //[Range(1, 9223372036854775807)]
         public string IdfObjectId { get; set; }
 
     }

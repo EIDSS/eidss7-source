@@ -462,6 +462,22 @@ namespace EIDSS.ClientLibrary.ApiClients.Admin
                     });
 
                 return response;
+                //var requestModelJson = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+                //var url = string.Format(_eidssApiOptions.DeleteEmployeeOrganizationPath, _eidssApiOptions.BaseUrl);
+
+                //var httpResponse = await _httpClient.PostAsync(url, requestModelJson);
+
+                //// Throws an exception if the call to the service failed...
+                //httpResponse.EnsureSuccessStatusCode();
+
+                //var contentStream = await httpResponse.Content.ReadAsStreamAsync();
+
+                //return await JsonSerializer.DeserializeAsync<APIPostResponseModel>(contentStream,
+                //    new JsonSerializerOptions
+                //    {
+                //        IgnoreNullValues = true,
+                //        PropertyNameCaseInsensitive = true
+                //    });
 
             }
             catch (Exception ex)
@@ -513,6 +529,23 @@ namespace EIDSS.ClientLibrary.ApiClients.Admin
         {
             try
             {
+                //var requestModelJson = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+                //var url = string.Format(_eidssApiOptions.DeleteEmployeePath, _eidssApiOptions.BaseUrl);
+
+                //var httpResponse = await _httpClient.PostAsync(url, requestModelJson);
+
+                //// Throws an exception if the call to the service failed...
+                //httpResponse.EnsureSuccessStatusCode();
+
+                //var contentStream = await httpResponse.Content.ReadAsStreamAsync();
+
+                //return await JsonSerializer.DeserializeAsync<APIPostResponseModel>(contentStream,
+                //    new JsonSerializerOptions
+                //    {
+                //        IgnoreNullValues = true,
+                //        PropertyNameCaseInsensitive = true
+                //    });
+
                 var url = string.Format(_eidssApiOptions.DeleteEmployeePath, _eidssApiOptions.BaseUrl, idfPerson);
                 var httpResponse = await _httpClient.DeleteAsync(new Uri(url));
 
@@ -554,6 +587,23 @@ namespace EIDSS.ClientLibrary.ApiClients.Admin
                     });
 
                 return response;
+                //var requestModelJson = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+                //var url = string.Format(_eidssApiOptions.DeleteUserLoginInfoPath, _eidssApiOptions.BaseUrl);
+
+                //var httpResponse = await _httpClient.PostAsync(url, requestModelJson);
+
+                //// Throws an exception if the call to the service failed...
+                //httpResponse.EnsureSuccessStatusCode();
+
+                //var contentStream = await httpResponse.Content.ReadAsStreamAsync();
+
+                //return await JsonSerializer.DeserializeAsync<APIPostResponseModel>(contentStream,
+                //    new JsonSerializerOptions
+                //    {
+                //        IgnoreNullValues = true,
+                //        PropertyNameCaseInsensitive = true
+                //    });
+
             }
             catch (Exception ex)
             {
@@ -581,6 +631,22 @@ namespace EIDSS.ClientLibrary.ApiClients.Admin
                     });
 
                 return response;
+                //var requestModelJson = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+                //var url = string.Format(_eidssApiOptions.DeleteUserGroupMemberInfoPath, _eidssApiOptions.BaseUrl);
+
+                //var httpResponse = await _httpClient.PostAsync(url, requestModelJson);
+
+                //// Throws an exception if the call to the service failed...
+                //httpResponse.EnsureSuccessStatusCode();
+
+                //var contentStream = await httpResponse.Content.ReadAsStreamAsync();
+
+                //return await JsonSerializer.DeserializeAsync<APIPostResponseModel>(contentStream,
+                //    new JsonSerializerOptions
+                //    {
+                //        IgnoreNullValues = true,
+                //        PropertyNameCaseInsensitive = true
+                //    });
 
             }
             catch (Exception ex)

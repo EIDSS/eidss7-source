@@ -28,6 +28,7 @@
         </div>
         <div class="form-row">
             <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionSampleDetailsModalAnimalIDFieldLabel" IsRow="false" CssClass="col-8" For="animals">
+                @*<RadzenDropDown Name="animals" class="form-control" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" TValue="long?" @bind-Value="StateContainer.AnimalSampleDetail.AnimalID" Data="Animals" LoadData="GetAnimals" TextProperty="EIDSSAnimalID" ValueProperty="AnimalID" Disabled="AnimalControlsDisabled" />*@
                 <RadzenAutoComplete Name="animals" class="form-control" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="StateContainer.AnimalSampleDetail.EIDSSAnimalID" Data="Animals" TextProperty="EIDSSAnimalID" LoadData="GetAnimals" Disabled="AnimalControlsDisabled" />
             </InterfaceEditorResource>
             <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.VeterinarySessionSampleDetailsModalFieldSampleIDFieldLabel" IsRow="false" CssClass="col-4" For="fieldSampleID">

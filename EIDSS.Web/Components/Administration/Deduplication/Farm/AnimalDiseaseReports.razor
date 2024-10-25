@@ -26,6 +26,7 @@
 </div>
 <div class="form-row">
     <div class="col-6">
+        @*<RadzenCard>*@
             <RadzenDataGrid @ref="DiseaseReportGrid"
                         Name="diseaseReports"
                         TItem="VeterinaryDiseaseReportViewModel"
@@ -49,8 +50,10 @@
                     <RadzenDataGridColumn Width="125px" TItem="VeterinaryDiseaseReportViewModel" Property="ReportTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchAvianDiseaseReportsReportTypeColumnHeading)" Sortable="true" />
                 </Columns>
             </RadzenDataGrid>
+        @*</RadzenCard>*@
     </div>
     <div class="col-6">
+        @*<RadzenCard>*@
             <RadzenDataGrid @ref="DiseaseReportGrid2"
                         Name="diseaseReports2"
                         TItem="VeterinaryDiseaseReportViewModel"
@@ -74,5 +77,6 @@
                     <RadzenDataGridColumn Width="125px" TItem="VeterinaryDiseaseReportViewModel" Property="ReportTypeName" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchAvianDiseaseReportsReportTypeColumnHeading)" Sortable="true" />
                 </Columns>
             </RadzenDataGrid>
+        @*</RadzenCard>*@
     </div>
 </div>

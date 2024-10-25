@@ -5,6 +5,7 @@ using EIDSS.ClientLibrary.Services;
 using EIDSS.Domain.RequestModels.Administration;
 using EIDSS.Domain.RequestModels.CrossCutting;
 using EIDSS.Domain.RequestModels.DataTables;
+using EIDSS.Domain.ResponseModels;
 using EIDSS.Domain.ViewModels.Administration;
 using EIDSS.Domain.ViewModels.CrossCutting;
 using EIDSS.Localization.Constants;
@@ -24,10 +25,6 @@ using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using EIDSS.Domain.ResponseModels;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.Int32;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Administration.Controllers
 {
@@ -40,11 +37,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         private readonly ICrossCuttingClient _crossCuttingClient;
         private readonly ISpeciesTypeClient _speciesTypeClient;
         private readonly IStringLocalizer _localizer;
-
-        public class RootObject
-        {
-            //public List<AddDiseaseModel> response { get; set; }
-        }
 
         public DiseasePageController(ICrossCuttingClient crossCuttingClient, IDiseaseClient diseaseClient, ISpeciesTypeClient speciesTypeClient, ITokenService tokenService,
             IStringLocalizer localizer, ILogger<DiseasePageController> logger) : base(logger, tokenService)
@@ -95,11 +87,11 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             var request = new DiseasesGetRequestModel
             {
-                AdvancedSearch = search.SearchBox == Empty ? null : search.SearchBox,
+                AdvancedSearch = search.SearchBox == string.Empty ? null : search.SearchBox,
                 Page = iPage,
                 PageSize = iLength,
-                SortColumn = !IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "intOrder",
-                SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Ascending,
+                SortColumn = !string.IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "intOrder",
+                SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending,
                 SimpleSearch = null,
                 LanguageId = GetCurrentLanguage(),
                 UserEmployeeID = Convert.ToInt64(authenticatedUser.PersonId)
@@ -153,11 +145,11 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         {
             var response = await _diseaseClient.SaveDisease(request);
 
-            var strDuplicationMessage = Empty;
+            var strDuplicationMessage = string.Empty;
 
             if (response.ReturnMessage == "DOES EXIST")
             {
-                strDuplicationMessage = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
+                strDuplicationMessage = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
             }
             else
             {
@@ -181,24 +173,24 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
                 if (jsonObject["IdfsDiagnosis"] != null)
                 {
                     var request = new DiseaseSaveRequestModel
                     {
                         ForceDelete = true,
                         LanguageId = GetCurrentLanguage(),
-                        EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                        EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                         AuditUserName = authenticatedUser.UserName,
                         LocationId = authenticatedUser.RayonId,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                         UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
-                        DiagnosisId = long.Parse(jsonObject["IdfsDiagnosis"]?.ToString() ?? Empty)
+                        DiagnosisId = long.Parse(jsonObject["IdfsDiagnosis"]?.ToString() ?? string.Empty)
                     };
 
                     var response = await _diseaseClient.DeleteDisease(request);
                     responsePost.ReturnMessage = response.ReturnMessage;
-                    responsePost.KeyId = long.Parse(jsonObject["IdfsDiagnosis"]?.ToString() ?? Empty);
+                    responsePost.KeyId = long.Parse(jsonObject["IdfsDiagnosis"]?.ToString() ?? string.Empty);
 
                     if (response.ReturnMessage == "IN USE")
                     {
@@ -221,7 +213,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         [HttpPost]
         public async Task<IActionResult> AddEditDisease([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             var strSampleTypes = CSV(jsonObject, "strSampleTypeName", "Sample Type");
             var strLabTests = CSV(jsonObject, "strLabTestName", "Test Name");
             var strPensideTests = CSV(jsonObject, "strPensideTestName", "Penside Test Name");
@@ -229,21 +221,21 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             DiseaseSaveRequestModel request = new()
             {
                 DiagnosisId = jsonObject["IdfsDiagnosis"] == null ? null : long.Parse(jsonObject["IdfsDiagnosis"].ToString()),
-                SampleType = IsNullOrEmpty(strSampleTypes) ? null : strSampleTypes,
-                LabTest = IsNullOrEmpty(strLabTests) ? null : strLabTests,
-                PensideTest = IsNullOrEmpty(strPensideTests) ? null : strPensideTests,
+                SampleType = string.IsNullOrEmpty(strSampleTypes) ? null : strSampleTypes,
+                LabTest = string.IsNullOrEmpty(strLabTests) ? null : strLabTests,
+                PensideTest = string.IsNullOrEmpty(strPensideTests) ? null : strPensideTests,
                 intHACode = Common.GetHAcodeTotal(jsonObject, "strHACodeNames", _speciesTypeClient),
                 UsingTypeId = Common.ExtractLongValue(jsonObject, "idfsUsingType", "StrUsingType"),
                 Default = jsonObject["strDefault"]?.ToString(),
                 Name = jsonObject["strName"]?.ToString(),
-                EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                 AuditUserName = authenticatedUser.UserName,
                 LocationId = authenticatedUser.RayonId,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                 UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId)
             };
 
-            TryParse(jsonObject["intOrder"]?.ToString(), out var intOrder);
+            int.TryParse(jsonObject["intOrder"]?.ToString(), out var intOrder);
             request.intOrder = intOrder;
             request.IDC10 = jsonObject["strIDC10"]?.ToString();
             request.OIECode = jsonObject["strOIECode"]?.ToString();
@@ -264,10 +256,10 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         private string CSV(JObject jsonObject, string strArrayId, string strReferenceType)
         {
             long idfs;
-            var strCSV = Empty;
+            var strCSV = string.Empty;
 
             if (jsonObject[strArrayId] == null) return strCSV;
-            if (jsonObject[strArrayId].ToString() == Empty) return strCSV;
+            if (jsonObject[strArrayId].ToString() == string.Empty) return strCSV;
             var a = JArray.Parse(jsonObject[strArrayId].ToString());
 
             for (var iIndex = 0; iIndex < a.Count; iIndex++)
@@ -286,11 +278,11 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
         private static string SplitHACode(int intHaCode)
         {
-            var strHaCodes = Empty;
+            var strHaCodes = string.Empty;
 
             for (var i = 0; i < 8; i++)
             {
-                if ((intHaCode & Parse(Math.Pow(2, i).ToString(CultureInfo.InvariantCulture))) == Math.Pow(2, i))
+                if ((intHaCode & int.Parse(Math.Pow(2, i).ToString(CultureInfo.InvariantCulture))) == Math.Pow(2, i))
                 {
                     strHaCodes += Math.Pow(2, i) + ",";
                 }
@@ -307,7 +299,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             try
             {
                 var a = JArray.Parse(jsonObject[strValue].ToString());
-                bl = bool.Parse(a[0]["Value"]?.ToString() ?? Empty);
+                bl = bool.Parse(a[0]["Value"]?.ToString() ?? string.Empty);
             }
             catch (Exception e)
             {
@@ -316,13 +308,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             return bl;
         }
 
-        #region Data Access Permissions
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="diseaseId"></param>
-        /// <returns></returns>
         [HttpPost]
         public async Task<JsonResult> GetActorList([FromBody] long diseaseId)
         {
@@ -334,9 +319,9 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     DiseaseID = diseaseId,
                     DiseaseFiltrationSearchIndicator = true,
                     Page = 1,
-                    PageSize = MaxValue - 1,
+                    PageSize = int.MaxValue - 1,
                     SortColumn = "ActorName",
-                    SortOrder = SortConstants.Ascending
+                    SortOrder = EIDSSConstants.SortConstants.Ascending
                 };
 
                 var list = await _crossCuttingClient.GetActorList(model);
@@ -360,7 +345,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     {
                         actorList.ElementAt(i).ActorID.ToString(),
                         actorList.ElementAt(i).ObjectAccessID.ToString(),
-                        actorList.ElementAt(i).ActorTypeID.ToString(), 
+                        actorList.ElementAt(i).ActorTypeID.ToString(),
                         actorList.ElementAt(i).ActorTypeName,
                         actorList.ElementAt(i).ActorName
                     };
@@ -377,11 +362,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="diseaseId"></param>
-        /// <returns></returns>
         [HttpPost]
         public async Task<JsonResult> GetPermissions([FromBody] long diseaseId)
         {
@@ -392,9 +372,9 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     LanguageId = GetCurrentLanguage(),
                     ObjectID = diseaseId,
                     Page = 1,
-                    PageSize = MaxValue - 1,
+                    PageSize = int.MaxValue - 1,
                     SortColumn = "ActorName",
-                    SortOrder = SortConstants.Ascending
+                    SortOrder = EIDSSConstants.SortConstants.Ascending
                 };
 
                 var list = await _crossCuttingClient.GetObjectAccessList(model);
@@ -446,7 +426,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         {
             try
             {
-                var list = JsonConvert.DeserializeObject<List<ActorGetListViewModel>>(data.ToString() ?? Empty);
+                var list = JsonConvert.DeserializeObject<List<ActorGetListViewModel>>(data.ToString() ?? string.Empty);
 
                 return View("_ActorResultsPartial", list);
             }
@@ -457,15 +437,10 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> SaveDataAccessDetails([FromBody] JsonElement data)
         {
-            try 
+            try
             {
                 ObjectAccessSaveRequestModel request = new()
                 {
@@ -483,7 +458,5 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 throw;
             }
         }
-
-        #endregion
     }
 }

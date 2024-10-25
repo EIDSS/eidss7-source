@@ -84,8 +84,7 @@
                 </div>
             </div>
             <div class="form-group col-md-3 no-gutters">
-                
-            </div>    
+            </div>
         </div>
         <div class="form-row">
             <div class="form-group col-md-6">
@@ -172,7 +171,6 @@
     });
 
     function showAge() {
-        debugger;
         var txtDateOfBirth = $("#PersonInformationSection_PersonDetails_DateOfBirth").val();
 
         if (txtDateOfBirth != '') {
@@ -187,8 +185,6 @@
                 $("#ReportedAgeUOMID").val('10042001');   //Days
             else if (dateDiff > 30 && dateDiff <= 365) {
                 $("#ReportedAgeUOMID").val('10042002');   //Months
-                //document.getElementById("EIDSSBodyCPH_ucAddUpdatePerson_ddlReportedAgeUOMID").value = '10042002';
-                //dateDiff = Math.floor(dateDiff / 30);
                 var age = (today.getFullYear() - BD.getFullYear()) * 12;
                 var m = today.getMonth() - BD.getMonth();
                 if (m < 0) {
@@ -212,8 +208,6 @@
             }
             else {
                 $("#ReportedAgeUOMID").val('10042003');   //Years
-                //document.getElementById("EIDSSBodyCPH_ucAddUpdatePerson_ddlReportedAgeUOMID").value = '10042003';
-                //dateDiff = Math.floor(dateDiff / 365);
                 var age = today.getFullYear() - BD.getFullYear();
                 var m = today.getMonth() - BD.getMonth();
                 if (m < 0 || (m === 0 && today.getDate() < BD.getDate())) {
@@ -236,7 +230,8 @@
                 if (age > 200 && $("#ReportedAgeUOMID").val() == '10042003') {
                     showInformationalModalWait('The value of field Age shall not exceed 31 days, or 60 months, or 200 years.').then(response => {
                         if (response) {
-                     }
+                            @* location.href = '@Url.Action("Index", "Person")';*@
+                        }
                     });
                 }
             }
@@ -274,19 +269,20 @@
             if (age > 100 && age <= 200 && $("#ReportedAgeUOMID").val() == '10042003') {
                 showVerifyAgeModal('Age > 100. Please verify age is correct.').then(response => {
                     if (response) {
-                                // focus on the next field
+                        // focus on the next field
                         $("#ReportedAgeUOMID").focus;
                     }
                     else {
-                                // return to person record and focus on the Age field to edit the value
+                        // return to person record and focus on the Age field to edit the value
                         $("#PersonInformationSection_PersonDetails_ReportedAge").focus;
                     }
                 });
             }
             if (age > 200 && $("#ReportedAgeUOMID").val() == '10042003') {
-                 showInformationalModalWait('The value of field Age shall not exceed 31 days, or 60 months, or 200 years.').then(response => {
-                     if (response) {
-                     }
+                showInformationalModalWait('The value of field Age shall not exceed 31 days, or 60 months, or 200 years.').then(response => {
+                    if (response) {
+                        @*location.href = '@Url.Action("Index", "Person")';*@
+                    }
                 });
             }
         }
@@ -305,7 +301,7 @@
             $.ajax({
                 url: url,
                 type: 'GET',
-                async:false,
+                async: false,
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
                     if (data == false) {
@@ -327,7 +323,5 @@
         }
         return isValid;
     };
-
-
 
 </script>

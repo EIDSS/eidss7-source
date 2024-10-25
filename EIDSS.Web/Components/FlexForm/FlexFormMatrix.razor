@@ -43,7 +43,7 @@
 
                                 @foreach (var section in Sections)
                                 {
-                                    foreach (var item in FlexFormQuestionnaires.Where(x => x.idfsSection == section.SectionId && x.idfsParameter != x.idfsSection && x.idfsEditor is not null)) @* Temporary skip sections and labels until proper implementation *@
+                                    foreach (var item in FlexFormQuestionnaires.Where(x => x.idfsSection == section.SectionId && x.idfsParameter != x.idfsSection && x.idfsEditor is not null)) @* TODO:temporary skip sections and labels until proper implementation *@
                                     {
                                         <td>
                                             @{

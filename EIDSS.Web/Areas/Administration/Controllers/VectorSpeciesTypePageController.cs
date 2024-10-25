@@ -20,9 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.Int32;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Administration.Controllers
 {
@@ -65,7 +62,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             long? vectorTypeId = null;
             if (referenceType.ReferenceTypeDD != null)
             {
-                if (!IsNullOrEmpty(referenceType.ReferenceTypeDD))
+                if (!string.IsNullOrEmpty(referenceType.ReferenceTypeDD))
                 {
                     vectorTypeId = long.Parse(referenceType.ReferenceTypeDD);
                 }
@@ -78,7 +75,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 var valuePair = dataTableQueryPostObj.ReturnSortParameter();
 
                 var strSortColumn = "intOrder";
-                if (!IsNullOrEmpty(valuePair.Key) && valuePair.Key != "KeyId")
+                if (!string.IsNullOrEmpty(valuePair.Key) && valuePair.Key != "KeyId")
                 {
                     strSortColumn = valuePair.Key;
                 }
@@ -87,15 +84,15 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 {
                     LanguageId = GetCurrentLanguage(),
                     IdfsVectorType = vectorTypeId,
-                    AdvancedSearch = IsNullOrEmpty(referenceType.SearchBox) ? null : referenceType.SearchBox,
+                    AdvancedSearch = string.IsNullOrEmpty(referenceType.SearchBox) ? null : referenceType.SearchBox,
                     Page = dataTableQueryPostObj.page,
                     PageSize = dataTableQueryPostObj.length,
                     SortColumn = strSortColumn,
-                    SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Ascending
+                    SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending
                 };
 
                 list = await _vectorSpeciesTypeClient.GetVectorSpeciesTypeList(request);
-            }          
+            }
 
             var tableData = new TableData
             {
@@ -111,7 +108,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
                 for (var i = 0; i < list.Count(); i++)
                 {
-                    var cols = new List<string>() 
+                    var cols = new List<string>()
                     {
                         (row + i + 1).ToString(),
                         list.ElementAt(i).KeyId.ToString(),
@@ -126,7 +123,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
                     tableData.data.Add(cols);
                 }
-            }    
+            }
 
             return Json(tableData);
         }
@@ -134,20 +131,20 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         [HttpPost]
         public async Task<JsonResult> Create([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             APISaveResponseModel response;
 
             try
             {
                 if (jsonObject["ReferenceTypeDD"] != null)
                 {
-                    if (IsNullOrEmpty(jsonObject["ReferenceTypeDD"][0]?["id"]?.ToString()))
+                    if (string.IsNullOrEmpty(jsonObject["ReferenceTypeDD"][0]?["id"]?.ToString()))
                     {
                         return Json("");
                     }
                 }
 
-                var strCode = Empty;
+                var strCode = string.Empty;
                 if (jsonObject["StrCode"] != null)
                 {
                     strCode = jsonObject["StrCode"].ToString();
@@ -160,9 +157,9 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     Default = jsonObject["StrDefault"]?.ToString(),
                     Name = jsonObject["StrName"]?.ToString(),
                     StrCode = strCode,
-                    intOrder = !IsNullOrEmpty(jsonObject["IntOrder"]?.ToString()) ? Parse(jsonObject["IntOrder"].ToString()) : 0,
+                    intOrder = !string.IsNullOrEmpty(jsonObject["IntOrder"]?.ToString()) ? int.Parse(jsonObject["IntOrder"].ToString()) : 0,
                     LanguageId = GetCurrentLanguage(),
-                    EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                    EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                     AuditUserName = authenticatedUser.UserName,
                     LocationId = authenticatedUser.RayonId,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -173,7 +170,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 switch (response.ReturnMessage)
                 {
                     case "DOES EXIST":
-                        response.StrDuplicatedField = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
+                        response.StrDuplicatedField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
                         break;
                     case "SUCCESS":
                         response.strClientPageMessage = _localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage);
@@ -192,14 +189,14 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         [HttpPost]
         public async Task<JsonResult> Edit([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             var response = new APISaveResponseModel();
 
             try
             {
                 if (jsonObject["KeyId"] != null)
                 {
-                    var strCode = Empty;
+                    var strCode = string.Empty;
                     if (jsonObject["StrCode"] != null)
                     {
                         strCode = jsonObject["StrCode"].ToString();
@@ -212,9 +209,9 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                         Default = jsonObject["StrDefault"]?.ToString(),
                         Name = jsonObject["StrName"]?.ToString(),
                         StrCode = strCode,
-                        intOrder = !IsNullOrEmpty(jsonObject["IntOrder"]?.ToString()) ? Parse(jsonObject["IntOrder"].ToString()) : 0,
+                        intOrder = !string.IsNullOrEmpty(jsonObject["IntOrder"]?.ToString()) ? int.Parse(jsonObject["IntOrder"].ToString()) : 0,
                         LanguageId = GetCurrentLanguage(),
-                        EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                        EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                         AuditUserName = authenticatedUser.UserName,
                         LocationId = authenticatedUser.RayonId,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -225,7 +222,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     switch (response.ReturnMessage)
                     {
                         case "DOES EXIST":
-                            response.StrDuplicatedField = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
+                            response.StrDuplicatedField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
                             break;
                         case "SUCCESS":
                             response.strClientPageMessage = _localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage);
@@ -244,11 +241,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             return Json(response);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         [HttpPost]
         public async Task<JsonResult> Delete([FromBody] JsonElement data)
         {
@@ -256,14 +248,14 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
                 if (jsonObject["KeyId"] != null)
                 {
                     var request = new VectorSpeciesTypesSaveRequestModel
                     {
                         DeleteAnyway = false,
                         LanguageId = GetCurrentLanguage(),
-                        EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                        EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                         AuditUserName = authenticatedUser.UserName,
                         LocationId = authenticatedUser.RayonId,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -295,14 +287,14 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         [HttpPost]
         public async Task<IActionResult> AddVectorType([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
             var request = new VectorTypeSaveRequestModel
             {
                 Default = jsonObject["Default"]?.ToString(),
                 Name = jsonObject["Name"]?.ToString(),
                 Code = jsonObject["Code"]?.ToString(),
-                intOrder = !IsNullOrEmpty(jsonObject["Order"]?.ToString()) ? Parse(jsonObject["Order"].ToString()) : 0,
+                intOrder = !string.IsNullOrEmpty(jsonObject["Order"]?.ToString()) ? int.Parse(jsonObject["Order"].ToString()) : 0,
                 CollectionByPool = false
             };
 

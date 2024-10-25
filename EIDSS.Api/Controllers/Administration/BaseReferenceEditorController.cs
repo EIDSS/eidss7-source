@@ -41,6 +41,8 @@ namespace EIDSS.Api.Controllers.Administration
         [ProducesResponseType(typeof(List<BaseReferenceEditorsViewModel>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(List<BaseReferenceEditorsViewModel>), StatusCodes.Status404NotFound)]
         [SwaggerOperation(Summary = "", Tags = new[] { "Administration - Base Reference Editors" })]
+        //[SystemEventActionFilterAttribute(SystemEventEnum.DoesNotParticipate)]
+        //[SystemAuditingActionFilter("request")]
         public async Task<IActionResult> GetBaseReferenceList([FromBody] BaseReferenceEditorGetRequestModel request, CancellationToken cancellationToken = default)
         {
             List<BaseReferenceEditorsViewModel> results = null;

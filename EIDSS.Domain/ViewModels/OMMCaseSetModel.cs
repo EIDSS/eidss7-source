@@ -12,6 +12,7 @@ namespace EIDSS.Domain.ViewModels
         public string langId { get; set; }
         public long? OutbreakCaseReportUID { get; set; }
         public long? idfOutbreak { get; set; }
+        //public string strOutbreakCaseID { get; set; }
         public long? idfHumanCase { get; set; }
         public long? idfVetCase { get; set; }
         public long? diseaseID { get; set; }
@@ -76,9 +77,13 @@ namespace EIDSS.Domain.ViewModels
         public string CaseInvestigatorName { get; set; }
         public List<OmmCaseMonitoringModel> CaseMonitorings { get; set; }
 
+        //Contacts
+        // TODO:  2/25/2021 public List<OmmHumanVetContactModelModel> CaseContacts { get; set; }
+
         //Samples
         public long? idfsYNSpecimenCollected { get; set; }
 
+        // TODO: 2/25/2021 public List<OmmSampleModel> Samples { get; set; }
         public DateTime? AccessionDate { get; set; }
         public string SampleConditionReceived { get; set; }
         public string VaccinationName { get; set; }

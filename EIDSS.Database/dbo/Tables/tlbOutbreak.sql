@@ -94,80 +94,60 @@ END
 
 GO
 
--- =============================================
--- Author:		Romasheva Svetlana
--- Create date: May 19 2014  2:47PM
--- Description:	Trigger FOR correct problems 
---              with replication AND checkin in the same time
--- =============================================
-CREATE TRIGGER [dbo].[trtOutbreakReplicationUp] 
+CREATE TRIGGER [dbo].[TR_tlbOutbreak_Insert_DF] 
    ON  [dbo].[tlbOutbreak]
-   FOR INSERT
+   for INSERT
    NOT FOR REPLICATION
 AS 
 BEGIN
 	SET NOCOUNT ON;
-	
-	--DECLARE @context VARCHAR(50)
-	--SET @context = dbo.FN_GBL_CONTEXT_GET()
 
-	DELETE  nID
-	FROM	dbo.tflNewID AS nID
-	INNER JOIN INSERTED AS ins
-	ON		ins.idfOutbreak = nID.idfKey1
-	WHERE  nID.strTableName = 'tflOutbreakFiltered'
+	declare @guid uniqueidentifier = newid()
+	declare @strTableName nvarchar(128) = N'tlbOutbreak' + cast(@guid as nvarchar(36)) collate Cyrillic_General_CI_AS
 
-	INSERT 
-	INTO	dbo.tflNewID 
+	insert into [dbo].[tflNewID] 
 		(
-			strTableName, 
-			idfKey1, 
-			idfKey2
+			[strTableName], 
+			[idfKey1], 
+			[idfKey2]
 		)
-	SELECT  
-			'tflOutbreakFiltered', 
-			ins.idfOutbreak, 
-			sg.idfSiteGroup
-	FROM  INSERTED AS ins
-	INNER JOIN dbo.tflSiteToSiteGroup AS stsg
-	ON		stsg.idfsSite = ins.idfsSite
+	select  
+			@strTableName, 
+			ins.[idfOutbreak], 
+			sg.[idfSiteGroup]
+	from  inserted as ins
+		inner join [dbo].[tflSiteToSiteGroup] as stsg with(nolock)
+		on   stsg.[idfsSite] = ins.[idfsSite]
 		
-	INNER JOIN dbo.tflSiteGroup sg
-	ON		sg.idfSiteGroup = stsg.idfSiteGroup
-	AND		sg.idfsRayon IS NULL
-	AND		sg.idfsCentralSite IS NULL
-	AND		sg.intRowStatus = 0
+		inner join [dbo].[tflSiteGroup] sg with(nolock)
+		on	sg.[idfSiteGroup] = stsg.[idfSiteGroup]
+			and sg.[idfsRayon] is null
+			and sg.[idfsCentralSite] is null
+			and sg.[intRowStatus] = 0
 			
-	LEFT JOIN dbo.tflOutbreakFiltered AS btf
-	ON		btf.idfOutbreak = ins.idfOutbreak
-	AND		btf.idfSiteGroup = sg.idfSiteGroup
-	WHERE	btf.idfOutbreakFiltered IS NULL
+		left join [dbo].[tflOutbreakFiltered] as cf
+		on  cf.[idfOutbreak] = ins.[idfOutbreak]
+			and cf.[idfSiteGroup] = sg.[idfSiteGroup]
+	where  cf.[idfOutbreakFiltered] is null
 
-	INSERT 
-	INTO	dbo.tflOutbreakFiltered
+	insert into [dbo].[tflOutbreakFiltered]
 		(
-			idfOutbreakFiltered, 
-			idfOutbreak, 
-			idfSiteGroup
+			[idfOutbreakFiltered], 
+			[idfOutbreak], 
+			[idfSiteGroup]
 		)
-	SELECT 
-			nID.NewID, 
-			ins.idfOutbreak, 
-			nID.idfKey2
-	FROM  INSERTED AS ins
-	INNER JOIN dbo.tflNewID AS nID
-	ON		nID.strTableName = 'tflOutbreakFiltered'
-	AND		nID.idfKey1 = ins.idfOutbreak
-	AND		nID.idfKey2 IS not NULL
-	LEFT JOIN dbo.tflOutbreakFiltered AS btf
-	ON		btf.idfOutbreakFiltered = nID.NewID
-	WHERE	btf.idfOutbreakFiltered IS NULL
-
-	DELETE  nID
-	FROM	dbo.tflNewID AS nID
-	INNER JOIN INSERTED AS ins
-	ON		ins.idfOutbreak = nID.idfKey1
-	WHERE	nID.strTableName = 'tflOutbreakFiltered'
+	select 
+			nID.[NewID], 
+			ins.[idfOutbreak], 
+			nID.[idfKey2]
+	from  inserted as ins
+		inner join [dbo].[tflNewID] as nID
+		on  nID.[strTableName] = @strTableName collate Cyrillic_General_CI_AS
+			and nID.[idfKey1] = ins.[idfOutbreak]
+			and nID.[idfKey2] is not null
+		left join [dbo].[tflOutbreakFiltered] as cf
+		on   cf.[idfOutbreakFiltered] = nID.[NewID]
+	where  cf.[idfOutbreakFiltered] is null
 
 	SET NOCOUNT OFF;
 END

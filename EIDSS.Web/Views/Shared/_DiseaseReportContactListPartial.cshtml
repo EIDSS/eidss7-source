@@ -46,7 +46,26 @@
         model.HumanActualID ='@Model.HumanActualID';
         model.HumanID ='@Model.HumanID';
         model.idfHumanCase ='@Model.idfHumanCase';
+         @*$.ajax({
+             url: '@Url.Action("LoadPersonSearch", "DiseaseReport", new { Area = "Human" })',
+             //url: '@Url.Action("Index", "Person", new { Area = "Human" })',
+                type: 'POST',
+                data: JSON.stringify(model),
+                contentType: "application/json: charset=utf-8",
+                dataType: "html",
+                success: function (resp) {
+                 alert("success");
+                 $("#personSearchDetail").html(resp);*@
                  $("#mdPersonSearch").modal('show');
 
+
+            //    },
+            //    complete: function (resp) {
+            //        alert('complete');
+            //    },
+            //    error: function (request, error) {
+            //        alert(error);
+            //    }
+            //});
     }
 </script>

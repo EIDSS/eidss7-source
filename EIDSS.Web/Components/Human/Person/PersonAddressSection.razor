@@ -2,6 +2,7 @@
 @using EIDSS.Web.Components.CrossCutting
 @using EIDSS.Web.Components.Shared
 @using EIDSS.Web.Services
+@using EIDSS.Web.Components.Shared.YesNoUnknown
 
 @inherits EIDSS.Web.Components.Human.Person.PersonAddressSectionBase
 
@@ -10,202 +11,147 @@
         <div class="col-11">
             <h4 class="title">@Localizer.GetString(HeadingResourceKeyConstants.PersonAddressHeading)</h4>
         </div>
-        <div class="col-1 text-right">
+        <RadzenStack class="col-1 text-right" Visible="@IsNotHdrForm">
             <a id="editPersonAddressSectionButton" href="#personDetailsWizard-h-1" class="edit-section">
                 <span class="fas fa-edit fa-lg"></span>
             </a>
-        </div>
+        </RadzenStack>
     </div>
 </div>
 
 <RadzenTemplateForm @ref="Form" TItem="PersonStateContainer" Data="@StateContainer">
-
-    <!--Current Address Section-->
-    <div class="form-row">
-        <div class="col-md-12">
-            <LocationView ParmLocationViewModel="@StateContainer.PersonCurrentAddressLocationModel" Id="PersonAddress" LocationViewModelChanged="UpdateCurrentAddressHandlerAsync" @ref="CurrentAddressLocationViewComponent" />
-        </div>
-    </div>
-
-    <div class="form-row">
-        <!-- Phone Number -->
-        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressCurrentAddressCountryCodeAndNumberFieldLabel" IsRow="false" CssClass="col-6" For="phoneNumber">
-            <RadzenTextBox id="phoneNumber"
-                           Name="phoneNumber"
-                           @ref="PhoneNumberControl"
-                           class="form-control"
-                           @bind-Value="@StateContainer.ContactPhone">
-            </RadzenTextBox>
-        </InterfaceEditorResource>
-
-        <!--Phone Number Type-->
-        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressCurrentAddressPhoneTypeFieldLabel" IsRow="false" CssClass="col-6" For="phoneNumberType">
-            <RadzenDropDown id="phoneNumberType"
-                            Name="phoneNumberType"
-                            AllowClear="true"
-                            TValue="long?"
-                            Data="@PhoneNumberTypes"
-                            LoadData="@GetPhoneNumberTypesAsync"
-                            ValueProperty="IdfsBaseReference"
-                            TextProperty="Name"
-                            @bind-Value="@StateContainer.ContactPhoneTypeID"
-                            class="form-control"
-                            AllowFiltering="true"
-                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            Change="PhoneNumberTypeChangedAsync" Disabled="StateContainer.IsReadOnly">
-            </RadzenDropDown>
-        </InterfaceEditorResource>
-    </div>
-
-    <div class="form-row">
-        <!--Is there another phone number for this person? -->
-        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressIsThereAnotherPhoneNumberForThisPersonFieldLabel" IsRow="false" CssClass="col-6">
-
-            <RadzenRadioButtonList 
-                @bind-Value=@StateContainer.IsAnotherPhoneTypeID 
-                TValue="long?" 
-                Orientation="Orientation.Horizontal"            
-                Change=@(args => SetAnotherPhoneNumberHidden(args))
-                Data="@YesNoUnknownList"                 
-                ValueProperty="IdfsBaseReference" 
-                TextProperty="Name" Disabled="StateContainer.IsReadOnly"/>
-
-        </InterfaceEditorResource>
-    </div>
-
-    <div class="form-row" hidden="@StateContainer.IsAnotherPhoneNumberHidden">
-        <!--Phone Number 2 -->
-        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressCurrentAddressCountryCodeAndNumberFieldLabel" IsRow="false" CssClass="col-6" For="phoneNumber2">
-            <RadzenTextBox id="phoneNumber2"
-                           Name="phoneNumber2"
-                           @ref="PhoneNumber2Control"
-                           class="form-control"
-                           @bind-Value="@StateContainer.ContactPhone2">
-            </RadzenTextBox>
-        </InterfaceEditorResource>
-    </div>
-
-    <div class="form-row" hidden="@StateContainer.IsAnotherPhoneNumberHidden">
-        <!--Phone Number Type 2-->
-        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressCurrentAddressPhoneTypeFieldLabel" IsRow="false" CssClass="col-6" For="phoneNumberType2">
-            <RadzenDropDown id="phoneNumberType2"
-                            Name="phoneNumberType2"
-                            AllowClear="true"
-                            TValue="long?"
-                            Data="@PhoneNumberTypes"
-                            LoadData="@GetPhoneNumberTypesAsync"
-                            ValueProperty="IdfsBaseReference"
-                            TextProperty="Name"
-                            @bind-Value="@StateContainer.ContactPhone2TypeID"
-                            class="form-control"
-                            AllowFiltering="true"
-                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            Change="PhoneNumberTypeChangedAsync" Disabled="StateContainer.IsReadOnly">
-            </RadzenDropDown>
-        </InterfaceEditorResource>
-    </div>
-
-    <!--Is there another address where this person can reside?-->
-    <div class="form-row">
-        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressIsThereAnotherAddressWhereThisPersonCanResideFieldLabel" IsRow="false" CssClass="col-6">
-             <RadzenRadioButtonList 
-                @bind-Value=@StateContainer.IsAnotherAddressTypeID 
-                TValue="long?" 
-                Orientation="Orientation.Horizontal"            
-                Change=@(args => SetAnotherAddressHidden(args))
-                Data="@YesNoUnknownList"                 
-                ValueProperty="IdfsBaseReference" 
-                TextProperty="Name" Disabled="StateContainer.IsReadOnly"/>
-
-        </InterfaceEditorResource>
-    </div>
-
-    <!--Permanent Addresses Section-->
-    <div class="form-row" hidden="@StateContainer.IsAnotherAddressHidden">
-        <fieldset>
-            <!-- Permanent Address Title-->
-            <legend>
-                @Localizer.GetString(HeadingResourceKeyConstants.PermanentAddressAddressHeading)
-            </legend>
-
-        <div class="col-12">
-            <!--Permanent Address Same as Current Address?-->
-            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressPermanentAddressSameAsCurrentAddressFieldLabel" IsRow="false" For="chkPermanentAddressSameAsCurrentAddress">
-                <RadzenCheckBox id="chkPermanentAddressSameAsCurrentAddress"
-                                Name="chkPermanentAddressSameAsCurrentAddress"
-                                class="form-check-inline"
-                                TValue="bool"
-                                @bind-Value="@StateContainer.PermanentAddressSameAsCurrentAddress"
-                                Change="@((args) => PermSameAsCurrentAddress(args))" Disabled="StateContainer.IsReadOnly">
-                </RadzenCheckBox>
-            </InterfaceEditorResource>
-
-                <!--Permanent Address Location Component-->
-                <LocationView ParmLocationViewModel="@StateContainer.PersonPermanentAddressLocationModel" Id="PersonPermanentAddress" LocationViewModelChanged="UpdatePermanentAddressHandlerAsync" @ref="PermanentAddressLocationViewComponent" />
+    <div class="card">
+        <div class="card-body">
+            <fieldset>
+                <legend>@Localizer.GetString(FieldLabelResourceKeyConstants.PersonAddressCurrentAddressCurrentResidenceFieldLabel)</legend>
+            <div class="form-row">
+                <div class="col-md-12">
+                    <LocationView ParmLocationViewModel="@StateContainer.PersonCurrentAddressLocationModel" Id="PersonAddress" LocationViewModelChanged="UpdateCurrentAddressHandlerAsync" @ref="CurrentAddressLocationViewComponent"/>
+                </div>
             </div>
-        </fieldset>
-
-    </div>
-
-    <!--Alternate Addresses Section-->
-    <div style="border:1px solid #2D5B83; padding:40px; margin-bottom:20px;" class="form-row" hidden="@StateContainer.IsAnotherAddressHidden">
-
-        <div class="col-12">
-            <!-- Alternate Address Title -->
-            <div style="margin-bottom:30px;"><strong>@Localizer.GetString(HeadingResourceKeyConstants.PersonAddressAlternateAddressHeading)</strong></div>
-
-            <!--Is Foreign Alternate Address Checkbox-->
-            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressAlternateAddressForeignAddressFieldLabel" IsRow="false" For="chkIsForeignAlternateAddress">
-                <RadzenCheckBox id="chkIsForeignAlternateAddress"
-                                Name="chkIsForeignAlternateAddress"
-                                class="form-check-inline"
-                                @bind-Value="@StateContainer.IsForeignAlternateAddress"
-                                TValue="bool"
-                                Change=@(args => ToggleForeignAlternateAddress(args))>
-                                Disabled="StateContainer.IsReadOnly"
-                </RadzenCheckBox>
-            </InterfaceEditorResource>
-
-            <!--Alternate Address Location Component-->
-            <div hidden="@IsAlternateAddressHidden">
-                <LocationView ParmLocationViewModel="@StateContainer.PersonAlternateAddressLocationModel" Id="PersonAlternateAddress" LocationViewModelChanged="UpdateAlternateAddressHandlerAsync" @ref="AlternateAddressLocationViewComponent" />
-            </div>
-
-            <!--Foreign Alternate Address Section-->
-            <div hidden="@IsForeignAlternateAddressHidden">
-                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.CountryFieldLabel" IsRow="false" CssClass="col-6 p-0" For="ddlForeignAlternateCountry">
-                    <RadzenDropDown id="ddlForeignAlternateCountry"
-                                    Name="ddlForeignAlternateCountry"
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressCurrentAddressPhoneTypeFieldLabel" IsRow="false" CssClass="col-6" For="phoneNumberType">
+                    <RadzenDropDown id="@($"phoneNumberType-{ParentScopeModel}")"
+                                    Name="@($"phoneNumberType-{ParentScopeModel}")"
                                     AllowClear="true"
                                     TValue="long?"
-                                    Data="@Countries"
-                                    LoadData="@GetCountriesAsync"
-                                    ValueProperty="idfsCountry"
-                                    TextProperty="strCountryName"
-                                    @bind-Value="@StateContainer.ForeignAlternateCountryID"
+                                    Data="@PhoneNumberTypes"
+                                    ValueProperty="IdfsBaseReference"
+                                    TextProperty="Name"
+                                    @bind-Value="@StateContainer.ContactPhoneTypeID"
                                     class="form-control"
-                                    AllowFiltering="true"
-                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                    Change="CountryChangedAsync">
-                                    Disabled="StateContainer.IsReadOnly"
+                                    Disabled="StateContainer.IsReadOnly">
                     </RadzenDropDown>
                 </InterfaceEditorResource>
-
-                <!--Foreign Alternate Address -->
-                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ForeignAddressLabel" IsRow="false" CssClass="col-6 p-0" For="foreignAlternateAddress">
-                    <RadzenTextBox id="foreignAlternateAddress"
-                                   Name="foreignAlternateAddress"
-                                   @ref="ForeignAlternateAddressControl"
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressCurrentAddressCountryCodeAndNumberFieldLabel" IsRow="false" CssClass="col-6" For="phoneNumber">
+                    <RadzenTextBox id="phoneNumber"
+                                   Name="phoneNumber"
                                    class="form-control"
-                                   @bind-Value="@StateContainer.ForeignAlternateAddress">
+                                   Disabled="StateContainer.IsReadOnly"
+                                   @bind-Value="@StateContainer.ContactPhone">
                     </RadzenTextBox>
                 </InterfaceEditorResource>
-
             </div>
-
+            </fieldset>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressIsThereAnotherPhoneNumberForThisPersonFieldLabel" IsRow="false" CssClass="col-6">
+                    <YesNoUnknown 
+                        disabled="@StateContainer.IsReadOnly"
+                        @bind-SelectedAnswerId="@StateContainer.IsAnotherPhoneTypeID"/>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row yes-follow-up" hidden="@(StateContainer.IsAnotherPhoneTypeID != EIDSSConstants.YesNoValues.Yes)">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressCurrentAddressPhoneTypeFieldLabel" IsRow="false" CssClass="col-6" For="phoneNumberType2">
+                    <RadzenDropDown id="phoneNumberType2"
+                                    Name="phoneNumberType2"
+                                    AllowClear="true"
+                                    TValue="long?"
+                                    Data="@PhoneNumberTypes"
+                                    ValueProperty="IdfsBaseReference"
+                                    TextProperty="Name"
+                                    @bind-Value="@StateContainer.ContactPhone2TypeID"
+                                    class="form-control"
+                                    Disabled="StateContainer.IsReadOnly">
+                    </RadzenDropDown>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressCurrentAddressCountryCodeAndNumberFieldLabel" IsRow="false" CssClass="col-6" For="phoneNumber2">
+                    <RadzenTextBox id="phoneNumber2"
+                                   Name="phoneNumber2"
+                                   class="form-control"
+                                   Disabled="StateContainer.IsReadOnly"
+                                   @bind-Value="@StateContainer.ContactPhone2">
+                    </RadzenTextBox>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressIsThereAnotherAddressWhereThisPersonCanResideFieldLabel" IsRow="false" CssClass="col-6">
+                    <YesNoUnknown 
+                        disabled="@StateContainer.IsReadOnly"
+                        @bind-SelectedAnswerId="@StateContainer.IsAnotherAddressTypeID"/>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row address-container yes-follow-up-no-left-border" hidden="@(StateContainer.IsAnotherAddressTypeID != EIDSSConstants.YesNoValues.Yes)">
+                <fieldset>
+                    <legend>
+                        @Localizer.GetString(HeadingResourceKeyConstants.PermanentAddressAddressHeading)
+                    </legend>
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressPermanentAddressSameAsCurrentAddressFieldLabel" IsRow="false" For="chkPermanentAddressSameAsCurrentAddress">
+                        <RadzenCheckBox id="chkPermanentAddressSameAsCurrentAddress"
+                                        Name="chkPermanentAddressSameAsCurrentAddress"
+                                        class="form-check-inline"
+                                        TValue="bool"
+                                        @bind-Value="@StateContainer.PermanentAddressSameAsCurrentAddress"
+                                        Change="@((args) => PermSameAsCurrentAddress(args))" Disabled="StateContainer.IsReadOnly">
+                        </RadzenCheckBox>
+                    </InterfaceEditorResource>
+                    <div class="form-group">
+                        <LocationView ParmLocationViewModel="@StateContainer.PersonPermanentAddressLocationModel" Id="PersonPermanentAddress" LocationViewModelChanged="UpdatePermanentAddressHandlerAsync" @ref="PermanentAddressLocationViewComponent" IsValidationRequired="false"/>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="form-row address-container yes-follow-up-no-left-border" hidden="@(StateContainer.IsAnotherAddressTypeID != EIDSSConstants.YesNoValues.Yes)">
+                <fieldset>
+                    <legend>
+                        @Localizer.GetString(HeadingResourceKeyConstants.PersonAddressAlternateAddressHeading)
+                    </legend>
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressAlternateAddressForeignAddressFieldLabel" IsRow="false" For="chkIsForeignAlternateAddress">
+                        <RadzenCheckBox id="chkIsForeignAlternateAddress"
+                                        Name="chkIsForeignAlternateAddress"
+                                        class="form-check-inline"
+                                        @bind-Value="@StateContainer.IsForeignAlternateAddress"
+                                        TValue="bool"
+                                        Disabled="StateContainer.IsReadOnly">
+                        </RadzenCheckBox>
+                    </InterfaceEditorResource>
+                    <div class="form-group" hidden="@StateContainer.IsForeignAlternateAddress">
+                        <LocationView ParmLocationViewModel="@StateContainer.PersonAlternateAddressLocationModel" Id="PersonAlternateAddress" LocationViewModelChanged="UpdateAlternateAddressHandlerAsync" @ref="AlternateAddressLocationViewComponent" IsValidationRequired="false"/>
+                    </div>
+                    <div class="form-row form-group">
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.CountryFieldLabel" IsRow="false" CssClass="col-6" For="ddlForeignAlternateCountry" Visible="@StateContainer.IsForeignAlternateAddress">
+                            <RadzenDropDown id="ddlForeignAlternateCountry"
+                                            Name="ddlForeignAlternateCountry"
+                                            AllowClear="true"
+                                            TValue="long?"
+                                            Data="@Countries"
+                                            ValueProperty="idfsCountry"
+                                            TextProperty="strCountryName"
+                                            @bind-Value="@StateContainer.ForeignAlternateCountryID"
+                                            class="form-control"
+                                            AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            Disabled="StateContainer.IsReadOnly">
+                            </RadzenDropDown>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ForeignAddressLabel" IsRow="false" CssClass="col-6" For="foreignAlternateAddress" Visible="@StateContainer.IsForeignAlternateAddress">
+                            <RadzenTextBox id="foreignAlternateAddress"
+                                           Name="foreignAlternateAddress"
+                                           class="form-control"
+                                           @bind-Value="@StateContainer.ForeignAlternateAddress">
+                            </RadzenTextBox>
+                        </InterfaceEditorResource>
+                    </div>
+                </fieldset>
+            </div>
         </div>
-
     </div>
-
 </RadzenTemplateForm>
-

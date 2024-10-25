@@ -105,6 +105,8 @@ namespace EIDSS.ClientLibrary.ApiClients.Configuration
                 _logger.LogError(ex.Message, request);
                 throw;
             }
+
+            //return returnResult;      
         }
     }
 

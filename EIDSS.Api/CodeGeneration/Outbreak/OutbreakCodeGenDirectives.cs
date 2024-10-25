@@ -87,17 +87,6 @@ namespace EIDSS.Api.CodeGeneration
         public string SummaryInfo => "";
     }
 
-    public class SetCaseAsync : ICodeGenDirective
-    {
-        public string APIClassName { get => TargetedClassNames.OutbreakController; }
-        public Type APIReturnType { get => typeof(OutbreakCaseSaveResponseModel); }
-        public string MethodParameters { get => "OutbreakCaseCreateRequestModel request, CancellationToken cancellationToken = default"; }
-        public APIMethodVerbEnumeration MethodVerb { get => APIMethodVerbEnumeration.SAVE; }
-        public Type RepositoryReturnType { get => typeof(USP_OMM_Case_SetResult); }
-        public string APIGroupName => "Outbreak";
-        public string SummaryInfo => "";
-    }
-
     public class QuickSaveCase : ICodeGenDirective
     {
         public string APIClassName { get => TargetedClassNames.OutbreakController; }

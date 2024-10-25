@@ -1,5 +1,7 @@
 ﻿@using EIDSS.Web.ViewModels.Human
 @using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared.YesNoUnknown
+@using EIDSS.Domain.Enumerations
 
 @inherits EIDSS.Web.Components.Human.HumanDiseaseReport.DiseaseReportSampleBase
 
@@ -11,28 +13,26 @@
                     <h4>@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportSamplesHeading)</h4>
                 </div>
                 <div class="col-1 pull-right mb-3">
-                    <button @onclick="@(() => OpenAddModal())" Text="@Localizer.GetString(ButtonResourceKeyConstants.AddButton)" class="btn btn-outline-primary" disabled="@enableAddButton">@Localizer.GetString(@ButtonResourceKeyConstants.AddButton)</button>
+                    <button @onclick="@(() => OpenAddModal())" Text="@Localizer.GetString(ButtonResourceKeyConstants.AddButton)" class="btn btn-outline-primary" disabled="@(!(Model.SamplesCollectedYN == EIDSSConstants.YesNoValues.Yes) || Model.IsReportClosed)">@Localizer.GetString(@ButtonResourceKeyConstants.AddButton)</button>
                 </div>
             </div>
         </div>
         <div class="card-body">
-            <div class="form-row">
-                <div class="form-group col-12">
-                    <!--Were samples collection?-->
-                    <label for="SamplesCollectedYN">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSamplesSamplesCollectedFieldLabel)</label>
-                    <div class="form-check form-check-inline ">
-                        <RadzenRadioButtonList Name="SamplesCollectedYN" @bind-Value="@Model.SamplesCollectedYN" TValue="long?" Data="@Model.YesNoChoices" TextProperty="Name" ValueProperty="IdfsBaseReference" Change="@((value) => OnSamplesCollectedChange(value))" disabled="@isReportClosed" />
-                    </div>
-                </div>
-            </div>
-            <RadzenPanel Visible="@showReason">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportSamplesSamplesCollectedFieldLabel" CssClass="col-md-12 yes-no-unknown-container" IsRow="true" For="SamplesCollectedYN">
+                <YesNoUnknown
+                    Name="SamplesCollectedYN"
+                    SelectedAnswerId="@Model.SamplesCollectedYN"
+                    SelectedAnswerIdChanged="@OnSamplesCollectedChange"
+                    Disabled="@(Model.SamplesDetails.Any(x => x.intRowStatus != (int)RowStatusTypeEnum.Inactive))"/>
+            </InterfaceEditorResource>
+            <RadzenPanel Visible="@(Model.SamplesCollectedYN == EIDSSConstants.YesNoValues.No)">
                 <div class="form-row">
                     <div class="form-group col-md-6">
                         <label for="ReasonID">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSamplesReasonFieldLabel)</label>
                         <div class="input-group flex-nowrap">
                             <!--Were samples collection?-->
-                            <RadzenDropDown AllowClear="true" TValue="long?" Data="@getReasonForSampleNonCollection" LoadData="@GetReasonForSampleNonCollection" ValueProperty="IdfsBaseReference" TextProperty="Name" @bind-Value="@Model.ReasonID" class="form-control" disabled="@isReportClosed"></RadzenDropDown>
-                            <button @onclick="@(() => OpenAddReasonModal())" class="btn btn-sm" type="button" disabled="@isReportClosed">
+                            <RadzenDropDown AllowClear="true" TValue="long?" Data="@getReasonForSampleNonCollection" LoadData="@GetReasonForSampleNonCollection" ValueProperty="IdfsBaseReference" TextProperty="Name" @bind-Value="@Model.ReasonID" class="form-control" disabled="@Model.IsReportClosed"></RadzenDropDown>
+                            <button @onclick="@(() => OpenAddReasonModal())" class="btn btn-sm" type="button" disabled="@Model.IsReportClosed">
                                 <i class="fas fa-plus fa-lg"></i>
                             </button>
 
@@ -40,7 +40,7 @@
                     </div>
                 </div>
             </RadzenPanel>
-            <RadzenPanel Visible="@showSampleGrid">
+            <RadzenPanel Visible="@(Model.SamplesCollectedYN == EIDSSConstants.YesNoValues.Yes)">
                 <div class="form-row">
                     <GridExtension OnColumnSave="GridHumanDiseaseReportSamplesClickHandler"></GridExtension>
                     <div class="col-12">
@@ -57,11 +57,6 @@
                                         AllowColumnPicking="true"
                                         HeaderCellRender="@((args) => HeaderCellRender(args.Column.Property))">
                             <Columns>
-                                <RadzenDataGridColumn Reorderable="true" TItem="DiseaseReportSamplePageSampleDetailViewModel" Width="40px" Pickable="false" Sortable="false" Filterable="false">
-                                    <Template Context="data">
-                                        <RadzenCheckBox TriState="false" Value="@(selectedSamples != null && selectedSamples.Contains(data))" Disabled="Model.IsReportClosed" />
-                                    </Template>
-                                </RadzenDataGridColumn>
                                 <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("SampleType")" Visible="@GetColumnVisibility("SampleType")" TItem="DiseaseReportSamplePageSampleDetailViewModel" Property="SampleType" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSampleTypeFieldLabel)" Width="150px" />
                                 <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("LocalSampleId")" Visible="@GetColumnVisibility("LocalSampleId")" TItem="DiseaseReportSamplePageSampleDetailViewModel" Property="LocalSampleId" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportLocalSampleIDFieldLabel)" Width="175px" />
                                 <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("CollectionDate")" Visible="@GetColumnVisibility("CollectionDate")" TItem="DiseaseReportSamplePageSampleDetailViewModel" Property="CollectionDate" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportCollectionDateFieldLabel)" Width="175px" FormatString="{0:d}" />

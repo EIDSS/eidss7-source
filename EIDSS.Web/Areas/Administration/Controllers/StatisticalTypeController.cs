@@ -3,6 +3,7 @@ using EIDSS.ClientLibrary.Enumerations;
 using EIDSS.ClientLibrary.Services;
 using EIDSS.Domain.RequestModels.Administration;
 using EIDSS.Domain.RequestModels.DataTables;
+using EIDSS.Domain.ResponseModels;
 using EIDSS.Domain.ViewModels.Administration;
 using EIDSS.Localization.Constants;
 using EIDSS.Web.Abstracts;
@@ -19,9 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using EIDSS.Domain.ResponseModels;
-using static System.Int64;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Administration.Controllers
 {
@@ -50,7 +48,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             public int intOrder { get; set; }
         }
 
-        public StatisticalTypePageController(IStatisticalTypeClient statisticalTypeClient, ITokenService tokenService, IStringLocalizer localizer,  ILogger<StatisticalTypePageController> logger) : base(logger, tokenService)
+        public StatisticalTypePageController(IStatisticalTypeClient statisticalTypeClient, ITokenService tokenService, IStringLocalizer localizer, ILogger<StatisticalTypePageController> logger) : base(logger, tokenService)
         {
             _statisticalTypePageViewModel = new BaseReferenceEditorPagesViewModel
             {
@@ -87,8 +85,8 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 AdvancedSearch = JObject.Parse(dataTableQueryPostObj.postArgs)["SearchBox"]?.ToString(),
                 Page = iPage,
                 PageSize = iLength,
-                SortColumn = !IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "strName",
-                SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending
+                SortColumn = !string.IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "strName",
+                SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending
             };
 
             var stlvm = await _statisticalTypeClient.GetStatisticalTypeList(request);
@@ -112,12 +110,12 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     statisticalTypeList.ElementAt(i).StrDefault,
                     statisticalTypeList.ElementAt(i).StrName,
                     statisticalTypeList.ElementAt(i).IdfsReferenceType.ToString(),
-                    (statisticalTypeList.ElementAt(i).StrParameterType == null) ? Empty : statisticalTypeList.ElementAt(i).StrParameterType,
+                    (statisticalTypeList.ElementAt(i).StrParameterType == null) ? string.Empty : statisticalTypeList.ElementAt(i).StrParameterType,
                     statisticalTypeList.ElementAt(i).blnStatisticalAgeGroup.ToString(),
                     statisticalTypeList.ElementAt(i).IdfsStatisticAreaType.ToString(),
-                    (statisticalTypeList.ElementAt(i).StrStatisticalAreaType == null) ? Empty : statisticalTypeList.ElementAt(i).StrStatisticalAreaType,
+                    (statisticalTypeList.ElementAt(i).StrStatisticalAreaType == null) ? string.Empty : statisticalTypeList.ElementAt(i).StrStatisticalAreaType,
                     statisticalTypeList.ElementAt(i).IdfsStatisticPeriodType.ToString(),
-                    (statisticalTypeList.ElementAt(i).StrStatisticPeriodType == null) ? Empty : statisticalTypeList.ElementAt(i).StrStatisticPeriodType
+                    (statisticalTypeList.ElementAt(i).StrStatisticPeriodType == null) ? string.Empty : statisticalTypeList.ElementAt(i).StrStatisticPeriodType
                 };
 
                 tableData.data.Add(cols);
@@ -130,11 +128,11 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         {
             var response = await _statisticalTypeClient.SaveStatisticalType(request);
 
-            var strDuplicationMessage = Empty;
+            var strDuplicationMessage = string.Empty;
 
             if (response.ReturnMessage == "DOES EXIST")
             {
-                strDuplicationMessage = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.StrDefault);
+                strDuplicationMessage = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.StrDefault);
             }
 
             var data = new
@@ -147,11 +145,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             return Json(data);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         [HttpPost]
         public async Task<JsonResult> DeleteStatisticalType([FromBody] JsonElement data)
         {
@@ -159,19 +152,19 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
                 if (jsonObject["idfsStatisticDataType"] != null)
                 {
                     var request = new StatisticalTypeSaveRequestModel
                     {
                         DeleteAnyway = true,
                         LanguageId = GetCurrentLanguage(),
-                        EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                        EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                         AuditUserName = authenticatedUser.UserName,
                         LocationId = authenticatedUser.RayonId,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                         UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
-                        IdfsStatisticDataType = Parse(jsonObject["idfsStatisticDataType"].ToString())
+                        IdfsStatisticDataType = long.Parse(jsonObject["idfsStatisticDataType"].ToString())
                     };
 
                     var response = await _statisticalTypeClient.DeleteStatisticalType(request);
@@ -198,11 +191,11 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         [HttpPost]
         public async Task<IActionResult> AddEditStatisticalType([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
             var request = new StatisticalTypeSaveRequestModel
             {
-                IdfsStatisticDataType = (jsonObject["idfsStatisticDataType"] == null) ? null : Parse(jsonObject["idfsStatisticDataType"].ToString()),
+                IdfsStatisticDataType = (jsonObject["idfsStatisticDataType"] == null) ? null : long.Parse(jsonObject["idfsStatisticDataType"].ToString()),
                 StrDefault = jsonObject["strDefault"]?.ToString(),
                 StrName = jsonObject["strName"]?.ToString(),
                 IdfsReferenceType = Helpers.Common.ExtractLongValue(jsonObject, "idfsParameterType", "strParameterType"),
@@ -210,7 +203,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 IdfsStatisticPeriodType = Helpers.Common.ExtractLongValue(jsonObject, "idfsStatisticPeriodType", "strStatisticPeriodType"),
                 BlnRelatedWithAgeGroup = ExtractBoolValue(jsonObject, "blnStatisticalAgeGroup"),
                 LanguageId = GetCurrentLanguage(),
-                EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                 User = authenticatedUser.UserName,
                 LocationId = authenticatedUser.RayonId,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -228,7 +221,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             try
             {
                 a = JArray.Parse(jsonObject[strValue].ToString());
-                bl = bool.Parse(a[0]["Value"]?.ToString() ?? Empty);
+                bl = bool.Parse(a[0]["Value"]?.ToString() ?? string.Empty);
             }
             catch (Exception e)
             {

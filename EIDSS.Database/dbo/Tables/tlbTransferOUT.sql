@@ -52,92 +52,63 @@ CREATE NONCLUSTERED INDEX [IX_tlbTransferOUT_intRowStatus]
 
 GO
 
--- =============================================
--- Author:		Romasheva Svetlana
--- Create date: May 19 2014  3:05PM
--- Description:	Trigger for correct problems 
---              with replication and checkin in the same time
--- =============================================
-CREATE TRIGGER [dbo].[trtTransferOutReplicationUp] 
+CREATE TRIGGER [dbo].[TR_tlbTransferOut_Insert_DF] 
    ON  [dbo].[tlbTransferOUT]
    for INSERT
    NOT FOR REPLICATION
 AS 
 BEGIN
 	SET NOCOUNT ON;
-	
-	declare @FilterListedRecordsOnly bit = 0
-	-- get value of global option FilterListedRecordsOnly 
-	if exists (select * from tstGlobalSiteOptions tgso where tgso.strName = 'FilterListedRecordsOnly' and tgso.strValue = '1')
-		set @FilterListedRecordsOnly = 1 
-	else 
-		set @FilterListedRecordsOnly = 0
-	
-	if @FilterListedRecordsOnly = 0 
-	begin
+
+	declare @guid uniqueidentifier = newid()
+	declare @strTableName nvarchar(128) = N'tlbTransferOUT' + cast(@guid as nvarchar(36)) collate Cyrillic_General_CI_AS
+
+	insert into [dbo].[tflNewID] 
+		(
+			[strTableName], 
+			[idfKey1], 
+			[idfKey2]
+		)
+	select  
+			@strTableName, 
+			ins.[idfTransferOut], 
+			sg.[idfSiteGroup]
+	from  inserted as ins
+		inner join [dbo].[tflSiteToSiteGroup] as stsg with(nolock)
+		on   stsg.[idfsSite] = ins.[idfsSite]
 		
-		--DECLARE @context VARCHAR(50)
-		--SET @context = dbo.fnGetContext()
-
-		delete  nID
-		from  dbo.tflNewID as nID
-			inner join inserted as ins
-			on   ins.idfTransferOut = nID.idfKey1
-		where  nID.strTableName = 'tflTransferOutFiltered'
-
-		insert into dbo.tflNewID 
-			(
-				strTableName, 
-				idfKey1, 
-				idfKey2
-			)
-		select  
-				'tflTransferOutFiltered', 
-				ins.idfTransferOut, 
-				sg.idfSiteGroup
-		from  inserted as ins
-			inner join dbo.tflSiteToSiteGroup as stsg
-			on   stsg.idfsSite = ins.idfsSite
+		inner join [dbo].[tflSiteGroup] sg with(nolock)
+		on	sg.[idfSiteGroup] = stsg.[idfSiteGroup]
+			and sg.[idfsRayon] is null
+			and sg.[idfsCentralSite] is null
+			and sg.[intRowStatus] = 0
 			
-			inner join dbo.tflSiteGroup sg
-			on	sg.idfSiteGroup = stsg.idfSiteGroup
-				and sg.idfsRayon is null
-				and sg.idfsCentralSite is null
-				and sg.intRowStatus = 0
-				
-			left join dbo.tflTransferOutFiltered as btf
-			on  btf.idfTransferOut = ins.idfTransferOut
-				and btf.idfSiteGroup = sg.idfSiteGroup
-		where  btf.idfTransferOutFiltered is null
+		left join [dbo].[tflTransferOutFiltered] as cf
+		on  cf.[idfTransferOut] = ins.[idfTransferOut]
+			and cf.[idfSiteGroup] = sg.[idfSiteGroup]
+	where  cf.[idfTransferOutFiltered] is null
 
-		insert into dbo.tflTransferOutFiltered
-			(
-				idfTransferOutFiltered, 
-				idfTransferOut, 
-				idfSiteGroup
-			)
-		select 
-				nID.NewID, 
-				ins.idfTransferOut, 
-				nID.idfKey2
-		from  inserted as ins
-			inner join dbo.tflNewID as nID
-			on  nID.strTableName = 'tflTransferOutFiltered'
-				and nID.idfKey1 = ins.idfTransferOut
-				and nID.idfKey2 is not null
-			left join dbo.tflTransferOutFiltered as btf
-			on   btf.idfTransferOutFiltered = nID.NewID
-		where  btf.idfTransferOutFiltered is null
+	insert into [dbo].[tflTransferOutFiltered]
+		(
+			[idfTransferOutFiltered], 
+			[idfTransferOut], 
+			[idfSiteGroup]
+		)
+	select 
+			nID.[NewID], 
+			ins.[idfTransferOut], 
+			nID.[idfKey2]
+	from  inserted as ins
+		inner join [dbo].[tflNewID] as nID
+		on  nID.[strTableName] = @strTableName collate Cyrillic_General_CI_AS
+			and nID.[idfKey1] = ins.[idfTransferOut]
+			and nID.[idfKey2] is not null
+		left join [dbo].[tflTransferOutFiltered] as cf
+		on   cf.[idfTransferOutFiltered] = nID.[NewID]
+	where  cf.[idfTransferOutFiltered] is null
 
-		delete  nID
-		from  dbo.tflNewID as nID
-			inner join inserted as ins
-			on   ins.idfTransferOut = nID.idfKey1
-		where  nID.strTableName = 'tflTransferOutFiltered'
-	end
 	SET NOCOUNT OFF;
-END
-				
+END				
 GO
 
 

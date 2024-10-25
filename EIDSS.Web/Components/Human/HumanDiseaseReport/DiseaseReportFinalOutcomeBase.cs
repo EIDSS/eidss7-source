@@ -30,12 +30,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EIDSS.Domain.Interfaces;
+using EIDSS.Web.Components.Shared.EmployerSearch;
 using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
 
 namespace EIDSS.Web.Components.Human.HumanDiseaseReport
 {
-    public class DiseaseReportFinalOutcomeBase : BaseComponent
+    public class DiseaseReportFinalOutcomeBase : BaseComponent, IHdrContainerObserver
     {
+        [Inject]
+        protected IHdrStateContainer HdrStateContainer { get; set; }
+        
+        protected EmployerSearch EpidemiologistsSelect { get; set; }
+        
         [Inject]
         private IOrganizationClient OrganizationClient { get; set; }
 
@@ -87,7 +94,6 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
         [Parameter]
         public int SampleDetailCount { get; set; }
 
-        // [Parameter]
         public string? LocalSampleID { get; set; }
 
         [Parameter]
@@ -99,16 +105,9 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
         [Parameter]
         public string strCaseId { get; set; }
 
-        //public DiseaseReportFinalOutcomeViewModel finalOutcomeModel { get; set; }
-
-        //protected IEnumerable<OrganizationAdvancedGetListViewModel> collectedByInstitution;
-        //protected IEnumerable<PersonForOfficeViewModel> collectedByEmployees;
-        //protected IEnumerable<OrganizationAdvancedGetListViewModel> sentToInstitutions;
-        // protected IEnumerable<BaseReferenceViewModel> sampleTypes;
         protected IEnumerable<FiltersViewModel> finalCaseClassification;
 
         protected IEnumerable<FiltersViewModel> finalOutcome;
-        protected IEnumerable<PersonForOfficeViewModel> epidemogistName;
 
         protected RadzenTemplateForm<DiseaseReportFinalOutcomeViewModel> _form;
 
@@ -116,11 +115,7 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
 
         protected int finalOutcomeCount { get; set; }
 
-        //protected int CollectedByInstitutionCount { get; set; }
-
         protected int EpidemologistCount { get; set; }
-
-        //protected int SentToInstitutionCount { get; set; }
 
         protected EditContext EditContext { get; set; }
 
@@ -135,13 +130,12 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
         [Parameter]
         public bool isEdit { get; set; }
 
-        public static long? investigatingOrg { get; set; }
-
         public bool showWarningForFinalCaseClassification { get; set; } = false;
 
         private CancellationTokenSource source;
         private CancellationToken token;
         private DotNetObjectReference<DiseaseReportFinalOutcomeBase> lDotNetReference;
+        private IDisposable _unsubscribeHdrStateContainer;
 
         public bool showDateOfDeath { get; set; } = false;
 
@@ -150,8 +144,6 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
         public bool EnableEpiAndLabDiagnosis { get; set; } = true;
 
         public static DateTime? dateOfDiagnosis { get; set; } = null;
-
-        //private bool isReviewNav = false;
 
         protected override async Task OnInitializedAsync()
         {
@@ -175,10 +167,6 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                 Model.showWarningForFinalCaseClassification = systemPreferences.ShowWarningForFinalCaseClassification;
                 _logger = Logger;
 
-                // var testModel= StateContainer.TestModel;
-                //if(testModel!=null && testModel.TestDetails!=null && testModel.TestDetails.Count>0 && isEdit)
-                //   await GetResultDate(testModel);
-
                 if (Model.idfsOutCome == FinalOutcome.Died)
                 {
                     showDateOfDeath = true;
@@ -187,6 +175,24 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                 {
                     showDateOfDeath = false;
                 }
+
+                HdrStateContainer.DateOfFinalCaseClassification = Model.datFinalCaseClassificationDate;
+                if (Model.datDateOfDeath != null)
+                {
+                    await HdrStateContainer.ChangeWithNotifyAboutStateChange(x =>
+                    {
+                        x.DateOfDeath = Model.datDateOfDeath;
+                    });
+                }
+
+                if (Model.datDateOfDischarge != null)
+                {
+                    await HdrStateContainer.ChangeWithNotifyAboutStateChange(x =>
+                    {
+                        x.DateOfDischarge = Model.datDateOfDischarge;
+                    });
+                }
+
                 await JsRuntime.InvokeAsync<string>("SetFinalOutcomeData", Model);
             }
             catch (Exception ex)
@@ -212,13 +218,15 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
             {
                 if (firstRender)
                 {
+                    if (HdrStateContainer.InvestigatedByOfficeId > 0)
+                    {
+                        await SetInvestigationOffice(HdrStateContainer.InvestigatedByOfficeId);
+                    }
+                    _unsubscribeHdrStateContainer = HdrStateContainer.Subscribe(this);
+                    
                     lDotNetReference = DotNetObjectReference.Create(this);
-                    //await Task.Delay(5000);
                     await JsRuntime.InvokeVoidAsync("HumanDiseaseHelpers.setDotNetHelper", token, lDotNetReference);
                 }
-                //base.OnAfterRender(firstRender);
-                //var testModel = StateContainer.TestModel;
-                //await GetResultDate(testModel);
             }
             catch (Exception ex)
             {
@@ -255,6 +263,7 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
             DiagService.OnOpen -= ModalOpen;
             DiagService.OnClose -= ModalClose;
             lDotNetReference?.Dispose();
+            _unsubscribeHdrStateContainer.Dispose();
         }
 
         public async Task LoadFinalCaseClassification(LoadDataArgs args)
@@ -313,22 +322,23 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
             }
         }
 
-        [JSInvokable("SetInvestigationOffice")]
-        public async Task SetInvestigationOffice(string data)
+        public async Task SetInvestigationOffice(long? value)
         {
             try
             {
-                investigatingOrg = long.Parse(data);
-
-                Model.idfInvestigatedByOffice = long.Parse(data);
-                await LoadEpidemologistName(null);
+                Model.idfInvestigatedByOffice = value;
+                await EpidemiologistsSelect.SetEmployeeOrganization(value);
+                if (value == null)
+                {
+                    await UpdateEpidemologist(null);
+                }
+                await InvokeAsync(StateHasChanged);
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex.Message, ex);
                 throw;
             }
-            //await InvokeAsync(StateHasChanged);
         }
 
         public async Task GetResultDate(DiseaseReportTestPageViewModel testPageModel)
@@ -347,7 +357,6 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                 {
                     Model.datSampleStatusDate = Model.dateOfDiagnosis;
                 }
-                //await InvokeAsync(StateHasChanged);
             }
             catch (Exception ex)
             {
@@ -416,28 +425,35 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
             }
         }
 
-        public async Task UpdateFinalOutcome(object Value)
+        public async Task UpdateFinalOutcome(object outcomeValue)
         {
             try
             {
-                if (Value != null)
-                {
-                    Model.idfsOutCome = long.Parse(Value.ToString());
+                var isDead = false;
 
-                    var h = finalOutcome.Where(x => x.idfsBaseReference == long.Parse(Value.ToString()));
-                    if (h != null && h.Any())
+                if (outcomeValue != null && long.TryParse(outcomeValue.ToString(), out var outcomeId))
+                {
+                    Model.idfsOutCome = outcomeId;
+
+                    var outcome = finalOutcome.FirstOrDefault(x => x.idfsBaseReference == outcomeId);
+                    if (outcome != null)
                     {
-                        Model.Outcome = h.FirstOrDefault().StrDefault;
+                        Model.Outcome = outcome.StrDefault;
                     }
+
+                    isDead = outcomeId == FinalOutcome.Died;
                 }
-                if (long.Parse(Value.ToString()) == FinalOutcome.Died)
+
+                showDateOfDeath = isDead;
+                await HdrStateContainer.ChangeWithNotifyAboutStateChange(x =>
                 {
-                    showDateOfDeath = true;
-                }
-                else
+                    x.DateOfDeath = Model.datDateOfDeath;
+                });
+                await HdrStateContainer.ChangeWithNotifyAboutStateChange(x =>
                 {
-                    showDateOfDeath = false;
-                }
+                    x.DateOfDischarge = Model.datDateOfDischarge;
+                });
+
                 await JsRuntime.InvokeAsync<string>("SetFinalOutcomeData", Model);
             }
             catch (Exception ex)
@@ -447,23 +463,21 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
             }
         }
 
-        public async Task UpdateEpidemologist(Object Value)
+        public async Task UpdateEpidemologist(PersonForOfficeViewModel? value)
         {
             try
             {
-                if (Value != null)
+                if (value != null)
                 {
-                    var h = epidemogistName.Where(x => x.idfPerson == long.Parse(Value.ToString()));
-                    if (h != null && h.Count() > 0)
-                    {
-                        Model.idfInvestigatedByPerson = long.Parse(Value.ToString());
-                        Model.strEpidemiologistsName = h.FirstOrDefault().FullName;
-                    }
+                    Model.idfInvestigatedByPerson = value.idfPerson;
+                    Model.strEpidemiologistsName = value.FullName;
                 }
-                //if (Value != null)
-                //{
-                //    Model.strEpidemiologistsName = Value.ToString();
-                //}
+                else
+                {
+                    Model.idfInvestigatedByPerson = null;
+                    Model.strEpidemiologistsName = null;
+                }
+                
                 await JsRuntime.InvokeAsync<string>("SetFinalOutcomeData", Model);
             }
             catch (Exception ex)
@@ -481,11 +495,6 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                 {
                     Model.datFinalCaseClassificationDate = DateTime.Parse(Value.ToString());
                 }
-                //var testModel = StateContainer.TestModel;
-                //if (testModel != null)
-                //    await GetResultDate(testModel);
-
-                // var diagnosisDate= await JsRuntime.InvokeAsync<string>("GetDiagnosisDate");
 
                 await JsRuntime.InvokeAsync<string>("SetFinalOutcomeData", Model);
             }
@@ -547,14 +556,12 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
             }
         }
 
-        public async Task UpdateDateOfDeath(Object Value)
+        public async Task UpdateDateOfDeath(Object newDate)
         {
             try
             {
-                if (Value != null)
-                {
-                    Model.datDateOfDeath = DateTime.Parse(Value.ToString());
-                }
+                Model.datDateOfDeath = newDate != null ? DateTime.Parse(newDate.ToString()) : null;
+                
                 await JsRuntime.InvokeAsync<string>("SetFinalOutcomeData", Model);
             }
             catch (Exception ex)
@@ -581,41 +588,6 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
             }
         }
 
-        public async Task LoadEpidemologistName(LoadDataArgs args)
-        {
-            try
-            {
-                GetPersonForOfficeRequestModel request = new GetPersonForOfficeRequestModel();
-                request.intHACode = EIDSSConstants.HACodeList.HumanHACode;
-                request.LangID = GetCurrentLanguage();
-                request.OfficeID = null;
-                if (args != null && !string.IsNullOrEmpty(args.Filter))
-                    request.AdvancedSearch = args.Filter;
-
-                if (Model.idfInvestigatedByOffice != null && Model.idfInvestigatedByOffice != 0)
-                {
-                    request.OfficeID = Model.idfInvestigatedByOffice;
-                }
-                else if (investigatingOrg != null && investigatingOrg != 0)
-                {
-                    request.OfficeID = investigatingOrg;
-                }
-                var list = await PersonClient.GetPersonListForOffice(request);
-                epidemogistName = list.AsODataEnumerable();
-                EpidemologistCount = epidemogistName.Count();
-                if (EpidemologistCount == 0)
-                {
-                    epidemogistName = new List<PersonForOfficeViewModel>();
-                }
-                await InvokeAsync(StateHasChanged);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex.Message, ex);
-                throw;
-            }
-        }
-
         protected async Task HandleValidFinalOutcomeSubmit(DiseaseReportFinalOutcomeViewModel model)
         {
             try
@@ -623,27 +595,8 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                 if (_form.IsValid)
                 {
                     if (_form.EditContext.IsModified())
-                    //  || model.SearchCriteria.DateEnteredFrom != null)
                     {
-                        //searchSubmitted = true;
-                        //showResults = true;
-                        //expandSearchResults = true;
-                        //expandSearchCriteria = false;
-                        //expandAdvancedSearchCriteria = false;
-                        //showCriteria = false;
-                        //SetButtonStates();
-
                         DiagService.Close(EditContext);
-                        //if (_grid != null)
-                        //{
-                        //    await _grid.Reload();
-                        //}
-                    }
-                    else
-                    {
-                        //no search criteria entered - display the EIDSS dialog component
-                        //searchSubmitted = false;
-                        //await ShowNoSearchCriteriaDialog();
                     }
                 }
             }
@@ -677,13 +630,7 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                 if (result == null)
                     return;
 
-                if ((result as EditContext).Validate())
-                {
-                }
-                else
-                {
-                    //Logger.LogInformation("HandleSubmit called: Form is INVALID");
-                }
+                (result as EditContext).Validate();
 
                 await InvokeAsync(StateHasChanged);
             }
@@ -703,9 +650,6 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                     {
                         nameof(AddBaseReferenceRecord.AccessoryCode)
                         ,(int) AccessoryCodes.HumanHACode
-                        //DiseaseReport.ReportCategoryTypeID == (long)CaseTypeEnum.Avian
-                        //    ? (int)AccessoryCodeEnum.Avian
-                        //    : (int)AccessoryCodeEnum.Livestock
                     },
                     {
                         nameof(AddBaseReferenceRecord.BaseReferenceTypeID),
@@ -729,7 +673,6 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
 
                 if (result is BaseReferenceSaveRequestResponseModel)
                 {
-                    //await GetTestNameTypes(new LoadDataArgs()).ConfigureAwait(false);
                     await LoadFinalOutcome(new LoadDataArgs()).ConfigureAwait(false);
                     DiagService.Close(result);
                 }
@@ -776,6 +719,26 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
             response = await EmployeeClient.SaveEmployee(EmployeePersonalInfoSaveRequest);
 
             return response;
+        }
+
+        public async Task OnHdrStateContainerChange(IHdrStateContainer current, IHdrStateContainer previous)
+        {
+            if (current.InvestigatedByOfficeId != Model.idfInvestigatedByOffice)
+            {
+                await SetInvestigationOffice(current.InvestigatedByOfficeId);
+            }
+        }
+
+        protected async Task OnDateofDischargeChanged(DateTime? value)
+        {
+            await HdrStateContainer.ChangeWithNotifyAboutStateChange(x =>
+            {
+                x.DateOfDischarge = value;
+            });
+
+            Model.datDateOfDischarge = value;
+
+            await JsRuntime.InvokeAsync<string>("SetFinalOutcomeData", Model);
         }
     }
 }

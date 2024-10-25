@@ -203,67 +203,63 @@ END
 
 GO
 
-
--- =============================================
--- Author:		Romasheva Svetlana
--- Create date: May 19 2014  3:07PM
--- Description:	Trigger for correct problems 
---              with replication and checkin in the same time
--- =============================================
-CREATE TRIGGER [dbo].[TR_VetCaseReplicationUp_A_Insert] 
+CREATE TRIGGER [dbo].[TR_tlbVetCase_Insert_DF] 
    ON  [dbo].[tlbVetCase]
-   FOR INSERT
+   for INSERT
    NOT FOR REPLICATION
 AS 
 BEGIN
 	SET NOCOUNT ON;
-	
-	DELETE nID
-	FROM  dbo.tflNewID AS nID
-	INNER JOIN inserted AS ins ON ins.idfVetCase = nID.idfKey1
-	WHERE nID.strTableName = 'tflVetCaseFiltered'
 
-	INSERT INTO dbo.tflNewID 
-	(
-		strTableName, 
-		idfKey1, 
-		idfKey2
-	)
-	SELECT  
-		'tflVetCaseFiltered', 
-		ins.idfVetCase, 
-		sg.idfSiteGroup
-	FROM inserted AS ins
-	INNER JOIN dbo.tflSiteToSiteGroup AS stsg ON stsg.idfsSite = ins.idfsSite
-	INNER JOIN dbo.tflSiteGroup sg ON sg.idfSiteGroup = stsg.idfSiteGroup AND sg.idfsRayon IS NULL AND sg.idfsCentralSite IS NULL AND sg.intRowStatus = 0
-	LEFT JOIN dbo.tflVetCaseFiltered AS btf ON  btf.idfVetCase = ins.idfVetCase	AND btf.idfSiteGroup = sg.idfSiteGroup
-	WHERE  btf.idfVetCaseFiltered IS NULL
+	declare @guid uniqueidentifier = newid()
+	declare @strTableName nvarchar(128) = N'tlbVetCase' + cast(@guid as nvarchar(36)) collate Cyrillic_General_CI_AS
 
-	INSERT INTO dbo.tflVetCaseFiltered
-	(
-		idfVetCaseFiltered, 
-		idfVetCase, 
-		idfSiteGroup
-	)
-	SELECT 
-		nID.NewID, 
-		ins.idfVetCase, 
-		nID.idfKey2
-	FROM  inserted AS ins
-	INNER JOIN dbo.tflNewID AS nID ON  nID.strTableName = 'tflVetCaseFiltered' AND nID.idfKey1 = ins.idfVetCase AND nID.idfKey2 IS NOT NULL
-	LEFT JOIN dbo.tflVetCaseFiltered AS btf ON btf.idfVetCaseFiltered = nID.NewID 
-	WHERE  btf.idfVetCaseFiltered IS NULL
+	insert into [dbo].[tflNewID] 
+		(
+			[strTableName], 
+			[idfKey1], 
+			[idfKey2]
+		)
+	select  
+			@strTableName, 
+			ins.[idfVetCase], 
+			sg.[idfSiteGroup]
+	from  inserted as ins
+		inner join [dbo].[tflSiteToSiteGroup] as stsg with(nolock)
+		on   stsg.[idfsSite] = ins.[idfsSite]
+		
+		inner join [dbo].[tflSiteGroup] sg with(nolock)
+		on	sg.[idfSiteGroup] = stsg.[idfSiteGroup]
+			and sg.[idfsRayon] is null
+			and sg.[idfsCentralSite] is null
+			and sg.[intRowStatus] = 0
+			
+		left join [dbo].[tflVetCaseFiltered] as cf
+		on  cf.[idfVetCase] = ins.[idfVetCase]
+			and cf.[idfSiteGroup] = sg.[idfSiteGroup]
+	where  cf.[idfVetCaseFiltered] is null
 
-	DELETE nID
-	FROM  dbo.tflNewID AS nID
-	INNER JOIN inserted AS ins ON ins.idfVetCase = nID.idfKey1
-	WHERE  nID.strTableName = 'tflVetCaseFiltered'
+	insert into [dbo].[tflVetCaseFiltered]
+		(
+			[idfVetCaseFiltered], 
+			[idfVetCase], 
+			[idfSiteGroup]
+		)
+	select 
+			nID.[NewID], 
+			ins.[idfVetCase], 
+			nID.[idfKey2]
+	from  inserted as ins
+		inner join [dbo].[tflNewID] as nID
+		on  nID.[strTableName] = @strTableName collate Cyrillic_General_CI_AS
+			and nID.[idfKey1] = ins.[idfVetCase]
+			and nID.[idfKey2] is not null
+		left join [dbo].[tflVetCaseFiltered] as cf
+		on   cf.[idfVetCaseFiltered] = nID.[NewID]
+	where  cf.[idfVetCaseFiltered] is null
 
 	SET NOCOUNT OFF;
-
 END
-
-
 
 GO
 

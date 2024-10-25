@@ -96,6 +96,17 @@ namespace EIDSS.Api.Provider
 
             var userName = principal.Identity?.Name;
 
+
+
+            //if (!_usersRefreshTokens.TryGetValue(refreshToken, out var existingRefreshToken))
+            //{
+            //    throw new SecurityTokenException("Invalid token");
+            //}
+            //if (existingRefreshToken.UserName != userName || existingRefreshToken.ExpireAt < now)
+            //{
+            //    throw new SecurityTokenException("Invalid token");
+            //}
+
             return GenerateToken(userName, claims.ToArray(), now); // need to recover the original claims
         }
 

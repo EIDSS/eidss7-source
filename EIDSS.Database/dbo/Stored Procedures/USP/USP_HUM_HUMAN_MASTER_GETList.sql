@@ -107,7 +107,7 @@ CREATE PROCEDURE [dbo].[USP_HUM_HUMAN_MASTER_GETList]
     @pageNo INT = 1,
     @pageSize INT = 10,
     @sortColumn NVARCHAR(30) = 'EIDSSPersonID',
-    @sortOrder NVARCHAR(4) = 'DESC'
+    @SortOrder NVARCHAR(4) = 'DESC'
 )
 AS
 BEGIN
@@ -129,6 +129,7 @@ BEGIN
 
         SET @firstRec = (@pageNo - 1) * @pagesize
         SET @lastRec = (@pageNo * @pageSize + 1);
+        SET @SortOrder = LOWER(@SortOrder);
 
 
         IF @RecordIdentifierSearchIndicator = 1
@@ -213,6 +214,16 @@ BEGIN
                                                        WHEN @sortColumn = 'RayonName'
                                                             AND @SortOrder = 'desc' THEN
                                                            LH.AdminLevel3Name
+                                                   END DESC,
+                                                   CASE
+                                                       WHEN @sortColumn = 'RegionName'
+                                                            AND @SortOrder = 'asc' THEN
+                                                            LH.AdminLevel2Name
+                                                   END ASC,
+                                                   CASE
+                                                       WHEN @sortColumn = 'RegionName'
+                                                            AND @SortOrder = 'desc' THEN
+                                                            LH.AdminLevel2Name
                                                    END DESC,
                                                    CASE
                                                        WHEN @sortColumn = 'DateOfBirth'
@@ -443,6 +454,16 @@ BEGIN
                                                        WHEN @sortColumn = 'RayonName'
                                                             AND @SortOrder = 'desc' THEN
                                                            LH.AdminLevel3Name
+                                                   END DESC,
+                                                   CASE
+                                                       WHEN @sortColumn = 'RegionName'
+                                                            AND @SortOrder = 'asc' THEN
+                                                            LH.AdminLevel2Name
+                                                   END ASC,
+                                                   CASE
+                                                       WHEN @sortColumn = 'RegionName'
+                                                            AND @SortOrder = 'desc' THEN
+                                                            LH.AdminLevel2Name
                                                    END DESC,
                                                    CASE
                                                        WHEN @sortColumn = 'DateOfBirth'

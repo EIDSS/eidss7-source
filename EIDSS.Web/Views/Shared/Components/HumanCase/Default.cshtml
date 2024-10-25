@@ -1,10 +1,8 @@
 ﻿@model EIDSS.Web.Areas.Outbreak.ViewModels.HumanCaseViewModel;
-@using EIDSS.Web.Components.Human;
 @using EIDSS.Web.Components.CrossCutting;
-@using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
 @using EIDSS.Web.Components.Human.HumanDiseaseReport;
 @using EIDSS.Web.Components.Outbreak.Case;
-@using Newtonsoft.Json;
+@using EIDSS.Web.ViewModels.Human
 
 <partial name="_ErrorModalPartial" />
 <partial name="_InformationalModalPartial" , model="String.Empty" />
@@ -133,7 +131,6 @@
 <input type="hidden" id="hdnHumanID" value="@Model.diseaseReportComponentViewModel.HumanID" />
 <input type="hidden" id="hdnHumanCase" value="@Model.diseaseReportComponentViewModel.idfHumanCase" />
 <input type="hidden" id="hdnHumanStrCase" value="@Model.diseaseReportComponentViewModel.strCaseId" />
-<input type="hidden" id="hdnidfHumanCaseRelatedTo" value="@Model.diseaseReportComponentViewModel.idfHumanCaseRelatedTo" />
 <input type="hidden" id="hdnGoToDiseaseReport" value="false" />
 <input type="hidden" id="hdnPendingSaveNotifications" value="@Model.diseaseReportComponentViewModel.PendingSaveEvents"/>
 
@@ -583,7 +580,7 @@
 		model.CaseStatusID = $("#caseClassficationDD").val();
 		model.SymptomsOnsetDate = $("#SymptomsSection_OutBreakSymptomsOnsetDate").val();
 		model.datFinalDiagnosisDate = $("#HumanCaseClinicalInformation_datFinalDiagnosisDate").val();
-		model.idfHospital = $("#HospitalSelect").val();
+		model.strHospitalName = $("#@nameof(DiseaseReportFacilityDetailsPageViewModel.HospitalizationPlace)").val();
 		model.datHospitalizationDate = $("#HospitalizationDate").val();
 		model.datOutbreakHospitalizationDate = $("#FacilityDetailsSection_OutbreakHospitalizationDate").val();
 		model.datDischargeDate = $("#DateOfDischarge").val();

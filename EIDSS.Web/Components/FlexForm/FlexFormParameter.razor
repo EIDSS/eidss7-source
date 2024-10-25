@@ -3,22 +3,17 @@
 @using EIDSS.ClientLibrary.ApiClients.FlexForm;
 @using EIDSS.Domain.RequestModels.FlexForm;
 @using System.Globalization
+@using System.Threading
 
 @inherits BaseComponent;
 
 @if (!IsGrid)
 {
-    <div class="col-lg-6 col-md-6 col-sm-6">
-        @if (FfParameter.EditMode == (long)FlexFormEditMode.Mandatory)
-        {
-            <span class='fas fa-asterisk text-danger'></span>
-            <span class="">@FfParameter.Name</span>
-        }
-
-        else{
-            <span class="">@FfParameter.Name</span>
-        }
-    </div>
+    @if (FfParameter.EditMode == (long)FlexFormEditMode.Mandatory)
+    {
+        <span class='fas fa-asterisk text-danger'></span>
+    }
+    <RadzenText class="label">@FfParameter.Name</RadzenText>
     ControlId = FfParameter.ParameterId.ToString();
 }
 else
@@ -66,21 +61,29 @@ else
         break;
     case (long)FlexibleFormEditorTypeEnum.DatePicker:
         DateTime? localDate = null;
-        if (FfParameter.Value != null && FfParameter.Value != "0")
+        if (!string.IsNullOrWhiteSpace(FfParameter.Value) && FfParameter.Value != "0")
         {
-            localDate = DateTime.Parse(FfParameter.Value, CultureInfo.InvariantCulture);
-            FfParameter.Value = Convert.ToDateTime(FfParameter.Value, CultureInfo.InvariantCulture).ToShortDateString();
+            var isParsed = DateTime.TryParseExact(FfParameter.Value, EIDSSConstants.Iso8601DateTimeFormat, null,  DateTimeStyles.None, out var parsedDate);
+            isParsed = isParsed || DateTime.TryParse(FfParameter.Value, CultureInfo.InvariantCulture, out parsedDate);
+            if (isParsed)
+            {
+                localDate = parsedDate;
+            }
         }
-        <RadzenDatePicker AllowClear="true" DateFormat="d" id="@ControlId" idfsEditor="@FfParameter.EditorId" idfRow="@FfParameter.IdfRow" Disabled="@FormDisabledIndicator" Name="@ControlId" Style="@CssSelected" TValue="DateTime?" Value="@localDate" />
+        <RadzenDatePicker Change="@(time => FfParameter.Value = time != null ? time.Value.ToString(EIDSSConstants.Iso8601DateTimeFormat, CultureInfo.InvariantCulture) : "")" AllowClear="true" DateFormat="d" id="@ControlId" idfsEditor="@FfParameter.EditorId" idfRow="@FfParameter.IdfRow" Disabled="@FormDisabledIndicator" Name="@ControlId" Style="@($"display: flex; {CssSelected}")" TValue="DateTime?" Value="@localDate" />
         break;
     case (long)FlexibleFormEditorTypeEnum.DateTimePicker:
         DateTime? localDateTime = null;
-        if (FfParameter.Value != null)
+        if (!string.IsNullOrWhiteSpace(FfParameter.Value) && FfParameter.Value != "0")
         {
-            localDateTime = DateTime.Parse(FfParameter.Value, CultureInfo.InvariantCulture);
-            FfParameter.Value = Convert.ToDateTime(localDateTime, CultureInfo.InvariantCulture).ToShortTimeString();
+            var isParsed = DateTime.TryParseExact(FfParameter.Value, EIDSSConstants.Iso8601DateTimeFormat, null,  DateTimeStyles.None, out var parsedDate);
+            isParsed = isParsed || DateTime.TryParse(FfParameter.Value, CultureInfo.InvariantCulture, out parsedDate);
+            if (isParsed)
+            {
+                localDateTime = parsedDate;
+            }
         }
-        <RadzenDatePicker AllowClear="true" DateFormat="g" id="@ControlId" idfsEditor="@FfParameter.EditorId" idfRow="@FfParameter.IdfRow" Disabled="@FormDisabledIndicator" Name="ControlId" Style="@CssSelected" TValue="DateTime?" Value="@localDateTime" />
+        <RadzenDatePicker Change="@(time => FfParameter.Value = time?.ToString(EIDSSConstants.Iso8601DateTimeFormat, CultureInfo.InvariantCulture) ?? string.Empty)" AllowClear="true" DateFormat="g" id="@ControlId" idfsEditor="@FfParameter.EditorId" idfRow="@FfParameter.IdfRow" Disabled="@FormDisabledIndicator" Name="ControlId" Style="@($"display: flex; {CssSelected}")" TValue="DateTime?" Value="@localDateTime" ShowTime="true" />
         break;
     case (long)FlexibleFormEditorTypeEnum.TextArea:
         <RadzenTextArea @bind-Value="@FfParameter.Value" class="form-control" id="@ControlId" idfsEditor="@FfParameter.EditorId" idfRow="@FfParameter.IdfRow" Change="args => OnTextBoxChange(FfParameter, args)" Disabled="@FormDisabledIndicator" Name="@ControlId" Style="@CssSelected" title="@FfParameter.IdfRow" />

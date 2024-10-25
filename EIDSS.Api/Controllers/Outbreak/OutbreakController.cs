@@ -34,84 +34,40 @@ namespace EIDSS.Api.Controllers.Outbreak
     [ApiController]
     public partial class OutbreakController : EIDSSControllerBase
     {
-        /// <summary>
-        /// Creates a new instance of the class.
-        /// </summary>
-        /// <param name="repository"></param>
-        /// <param name="memoryCache"></param>
         public OutbreakController(IDataRepository repository, IMemoryCache memoryCache) : base(repository, memoryCache)
         {
         }
 
         [HttpPost("SetSessionNoteAsync")]
-        [ProducesResponseType(typeof(OutbreakSessionNoteSaveResponseModel), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(OutbreakSessionNoteSaveResponseModel), StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(OutbreakSessionNoteSaveResponseModel), StatusCodes.Status409Conflict)]
-        [SwaggerOperation(Summary = "Uploads a custom file object to the Outbreak Notes/Update area.", Tags = new[] { "Outbreak" })]
-        public async Task<IActionResult> SetSessionNoteAsync([FromForm] OutbreakSessionNoteCreateRequestModel model, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<OutbreakSessionNoteSaveResponseModel>> SetSessionNoteAsync(
+            [FromForm] OutbreakSessionNoteCreateRequestModel model, CancellationToken cancellationToken = default)
         {
-            List<OutbreakSessionNoteSaveResponseModel> results = null;
-
-            try
+            if (model.FileUpload != null && model.FileUpload.Length > 0)
             {
-                //Handled in Global cancellation handler and logs that the request was handled
-                cancellationToken.ThrowIfCancellationRequested();
-
-                if (model.FileUpload != null)
-                {
-                    if (model.FileUpload.Length > 0)
-                    {
-                        var filePath = Path.GetRandomFileName();
-                        using (var stream = System.IO.File.Create(filePath))
-                        {
-                            await model.FileUpload.CopyToAsync(stream);
-                            stream.Position = 0;
-                            var b = new byte[stream.Length];
-                            stream.Read(b, 0, b.Length);
-                            model.UploadFileObject = b;
-                        }
-                    }
-                }
-
-                DataRepoArgs args = new()
-                {
-                    Args = new object[] {
-                        model.LangID,
-                        model.idfOutbreakNote,
-                        model.idfOutbreak,
-                        model.strNote,
-                        model.idfPerson,
-                        model.intRowStatus,
-                        model.strMaintenanceFlag,
-                        model.strReservedAttribute,
-                        model.UpdatePriorityID,
-                        model.UpdateRecordTitle,
-                        model.UploadFileName,
-                        model.UploadFileDescription,
-                        model.UploadFileObject,
-                        model.DeleteAttachment,
-                        model.User,
-                        null, cancellationToken },
-                    MappedReturnType = typeof(List<OutbreakSessionNoteSaveResponseModel>),
-                    RepoMethodReturnType = typeof(List<USP_OMM_SESSION_Note_SetResult>)
-                };
-
-                // Forwards the call to context method:  
-                results = await _repository.Save(args) as List<OutbreakSessionNoteSaveResponseModel>;
-            }
-            catch (Exception ex) when (ex is TaskCanceledException || ex is OperationCanceledException)
-            {
-                Log.Error("Process was cancelled");
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex.Message);
-                throw;
+                using var ms = new MemoryStream();
+                await model.FileUpload.CopyToAsync(ms, cancellationToken);
+                ms.Position = 0;
+                model.UploadFileObject = ms.ToArray();
             }
 
-            return Ok(results.FirstOrDefault());
-
-
+            var args = new object[]
+            {
+                model.LangID, model.idfOutbreakNote, model.idfOutbreak,
+                model.strNote, model.idfPerson, model.intRowStatus,
+                model.strMaintenanceFlag, model.strReservedAttribute,
+                model.UpdatePriorityID, model.UpdateRecordTitle, model.UploadFileName,
+                model.UploadFileDescription, model.UploadFileObject,
+                model.DeleteAttachment, model.User, null, cancellationToken
+            };
+            return (await ExecuteOnRepository<USP_OMM_SESSION_Note_SetResult, OutbreakSessionNoteSaveResponseModel>(
+                args)).FirstOrDefault();
+        }
+        
+        [HttpPost("SetCaseAsync")]
+        public async Task<ActionResult<OutbreakCaseSaveResponseModel>> SetCaseAsync([FromBody] OutbreakCaseCreateRequestModel request, CancellationToken cancellationToken = default)
+        {
+            var args = new object[] { request, null, cancellationToken };
+            return (await ExecuteOnRepository<USP_OMM_Case_SetResult, OutbreakCaseSaveResponseModel>(args)).FirstOrDefault();
         }
     }
 }

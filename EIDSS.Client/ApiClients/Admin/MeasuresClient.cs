@@ -138,6 +138,8 @@ namespace EIDSS.ClientLibrary.ApiClients.Admin
                 _logger.LogError(ex.Message);
                 throw;
             }
+
+            //return returnResult;     
         }
     }
 }

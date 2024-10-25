@@ -1,18 +1,15 @@
 ﻿using EIDSS.Repository.Contexts;
 using EIDSS.Repository.Interfaces;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EIDSS.Repository
 {
     /// <summary>
     /// XSite context helper service that manages configured language instances of the XSite help system.
     /// </summary>
-    public interface IxSiteContextHelper
+    public interface IXSiteContextHelper
     {
         /// <summary>
         /// Gets a language instance of the XSite help system.
@@ -25,15 +22,21 @@ namespace EIDSS.Repository
     /// <summary>
     /// XSite context helper service that manages configured language instances of the XSite help system.
     /// </summary>
-    public class xSiteContextHelper : IxSiteContextHelper
+    public class XSiteContextHelper : IXSiteContextHelper
     {
-        private List<IXSiteContext> ctxs = new List<IXSiteContext>();
+        private readonly XSiteContextEnUS _contextsEnUS;
+        private readonly List<IXSiteContext> contexts = new();
 
-        public xSiteContextHelper( xSiteContext_enus ctxuseng, xSiteContext_azl ctxaz, xSiteContext_kage ctxkage)
+        public XSiteContextHelper(
+            XSiteContextEnUS contextsEnUS,
+            XSiteContextAzL contextsAzL,
+            XSiteContextKaGe contextsKaGe)
         {
-            if (ctxuseng != null) ctxs.Add(ctxuseng);
-            if (ctxaz != null) ctxs.Add(ctxaz);
-            if (ctxkage != null) ctxs.Add(ctxkage);
+            _contextsEnUS = contextsEnUS;
+
+            if (contextsEnUS != null) contexts.Add(contextsEnUS);
+            if (contextsAzL != null) contexts.Add(contextsAzL);
+            if (contextsKaGe != null) contexts.Add(contextsKaGe);
         }
         /// <summary>
         /// Gets a language instance of the XSite help system.
@@ -42,7 +45,7 @@ namespace EIDSS.Repository
         /// <returns>Returns an instance of <see cref="IXSiteContext"/>.</returns>
         public IXSiteContext GetXSiteInstance(string langCode)
         {
-            return ctxs.First(f => f.LanguageCode.ToLower() == langCode.ToLower());
+            return contexts.FirstOrDefault(f => f.LanguageCode.Equals(langCode, StringComparison.InvariantCultureIgnoreCase)) ?? _contextsEnUS;
         }
     }
 }

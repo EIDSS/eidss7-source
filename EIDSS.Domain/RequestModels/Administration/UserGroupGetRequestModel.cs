@@ -11,6 +11,7 @@ namespace EIDSS.Domain.RequestModels.Administration
     {
         public string strName { get; set; }
         public string strDescription { get; set; }
+        //public string user { get; set; }
         public long? idfsSite { get; set; }
     }
 }

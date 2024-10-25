@@ -1,7 +1,10 @@
-﻿using EIDSS.Localization.Contexts;
+﻿using System.Collections.Generic;
+using System.Globalization;
+using System.Threading.Tasks;
+using EIDSS.Localization.Contexts;
 using EIDSS.Localization.Providers;
+using EIDSS.Security.Encryption;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -10,32 +13,19 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
 
 namespace EIDSS.Localization.Extensions
 {
     public static class EIDSSLocalizationExtension
     {
-        public static void AddEIDSSLocalization(this IServiceCollection services, IConfiguration config)
+        public static void AddEIDSSLocalization(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddMemoryCache();
-            var ebuilder = new SqlConnectionStringBuilder(config.GetConnectionString("LocalizationConn"));
 
-
-#if DEBUG || QA_GG_LOCAL_DEBUG || QA_AJ_LOCAL_DEBUG || AJDEVLocal || Perf
-            // Get username/password from user secrets only if running locally...
-            if (string.IsNullOrEmpty(ebuilder.UserID) && string.IsNullOrEmpty(ebuilder.Password))
-            {
-                ebuilder.UserID = config["User"];
-                ebuilder.Password = config["DbPassword"];
-            }
-#endif
+            var connectionString = GetConnectionString(configuration);
 
             services.AddDbContext<LocalizationContext>(options =>
-                options.UseSqlServer(ebuilder.ConnectionString),
+                options.UseSqlServer(connectionString),
                 ServiceLifetime.Transient,
                 ServiceLifetime.Transient);
 
@@ -61,7 +51,7 @@ namespace EIDSS.Localization.Extensions
             RequestCulture defaultCulture = null;
 
             ServiceProvider serviceProvider = services.BuildServiceProvider();
-            var localizeServiceProvider =  serviceProvider.GetService<LocalizationMemoryCacheProvider>();
+            var localizeServiceProvider = serviceProvider.GetService<LocalizationMemoryCacheProvider>();
 
             var languageCache = localizeServiceProvider.GetAllLanguages();
             foreach (var language in languageCache)
@@ -106,6 +96,23 @@ namespace EIDSS.Localization.Extensions
             };
 
             builder.UseRequestLocalization(requestLocalizationOptions);
+        }
+
+        private static string GetConnectionString(IConfiguration configuration)
+        {
+            var builder = new SqlConnectionStringBuilder(configuration.GetConnectionString("LocalizationConn"));
+
+            if (!builder.IntegratedSecurity &&
+                (string.IsNullOrEmpty(builder.UserID) ||
+                string.IsNullOrEmpty(builder.Password)))
+            {
+                var userId = configuration.GetValue<string>("ProtectedConfiguration:LocalizationDatabaseUser");
+                var password = configuration.GetValue<string>("ProtectedConfiguration:LocalizationDatabasePassword");
+                builder.UserID = userId.Decrypt();
+                builder.Password = password.Decrypt();
+            }
+
+            return builder.ConnectionString;
         }
     }
 }

@@ -1,41 +1,36 @@
-﻿using EIDSS.ClientLibrary.ApiAbstracts;
+﻿using System;
+using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text.Json;
+using System.Threading.Tasks;
+using EIDSS.ClientLibrary.ApiAbstracts;
 using EIDSS.ClientLibrary.Configurations;
+using EIDSS.ClientLibrary.Services;
 using EIDSS.Domain.RequestModels.Human;
 using EIDSS.Domain.ResponseModels;
-using EIDSS.Domain.ResponseModels.Human;
 using EIDSS.Domain.ResponseModels.PIN;
 using EIDSS.Domain.ViewModels;
-using EIDSS.Domain.ViewModels.Human;
+using EIDSS.Security.Encryption;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Mvc;
-using System.IO;
-using System.Net.Http.Headers;
-using EIDSS.ClientLibrary.Services;
 
 namespace EIDSS.ClientLibrary.ApiClients.PIN
 {
-    public partial interface IPINClient
-    {
-        Task<PersonalDataModel> GetPersonData(string personalID, string birthYear);
-    }
-
     public class PINClient : BaseApiClient, IPINClient
     {
-        private IConfiguration _configuration;
-        private ITokenService _tokenService;
+        private readonly IConfiguration _configuration;
+        private readonly ITokenService _tokenService;
 
-        public PINClient(HttpClient httpClient, IOptionsSnapshot<EidssApiOptions> eidssApiOptions, 
-            ILogger<PINClient> logger, IConfiguration configuration,
-            ITokenService tokenservice) : base(httpClient, eidssApiOptions, logger)
+        public PINClient(
+            HttpClient httpClient,
+            IOptionsSnapshot<EidssApiOptions> eidssApiOptions,
+            ILogger<PINClient> logger,
+            IConfiguration configuration,
+            ITokenService tokenservice)
+            : base(httpClient, eidssApiOptions, logger)
         {
             _configuration = configuration;
             _tokenService = tokenservice;
@@ -51,11 +46,10 @@ namespace EIDSS.ClientLibrary.ApiClients.PIN
         {
             var accesstime = DateTime.Now;
 
-
             try
             {
                 // If we're calling the real PIN service, then we must use a different http client...
-                var _cli = _eidssApiOptions.MockPINService == true ? _httpClient : new System.Net.Http.HttpClient();
+                var _cli = _eidssApiOptions.MockPINService == true ? _httpClient : new HttpClient();
 
                 // Get the protected configuration from esettings...
                 var protectedConfigSection = _configuration.GetSection("ProtectedConfiguration");
@@ -63,7 +57,8 @@ namespace EIDSS.ClientLibrary.ApiClients.PIN
 
                 // Log into the PIN System...  This gives us our token...
                 var token = await PINSysLogin(
-                    protectedConfig.PIN_UserName.Decrypt(), protectedConfig.PIN_Password.Decrypt());
+                    protectedConfig.PIN_UserName.Decrypt(),
+                    protectedConfig.PIN_Password.Decrypt());
 
                 // Formulate the url...
                 var url = string.Format(_eidssApiOptions.GetPersonData, _eidssApiOptions.PINUrl, personalID, birthYear);
@@ -84,7 +79,7 @@ namespace EIDSS.ClientLibrary.ApiClients.PIN
 
                 if (contentStream.Length != 0)
                     response =
-                    await JsonSerializer.DeserializeAsync<PersonalDataModel>(contentStream, this.SerializationOptions);
+                    await JsonSerializer.DeserializeAsync<PersonalDataModel>(contentStream, SerializationOptions);
 
                 return response;
             }
@@ -108,39 +103,33 @@ namespace EIDSS.ClientLibrary.ApiClients.PIN
         /// <returns></returns>
         private async Task<APISaveResponseModel> LogPINSystemAccess(string personalID, DateTime datEIDSSAccess)
         {
-            using (MemoryStream ms = new MemoryStream())
+            using var ms = new MemoryStream();
+            var user = _tokenService.GetAuthenticatedUser();
+            var request = new PINAuditRequestModel
             {
-                var user = _tokenService.GetAuthenticatedUser();
-                var request = new PINAuditRequestModel
-                {
-                    strPIN = personalID,
-                    datEIDSSAccessAttempt = datEIDSSAccess,
-                    idfUser = Convert.ToInt64(user.EIDSSUserId),
-                    idfsSite = Convert.ToInt64(user.SiteId),
-                    datPINAccessAttempt = DateTime.Now
-                };
+                strPIN = personalID,
+                datEIDSSAccessAttempt = datEIDSSAccess,
+                idfUser = Convert.ToInt64(user.EIDSSUserId),
+                idfsSite = Convert.ToInt64(user.SiteId),
+                datPINAccessAttempt = DateTime.Now
+            };
 
-                var url = string.Format(_eidssApiOptions.AuditPINSystemAccess, _eidssApiOptions.BaseUrl);
-                var aj = new MediaTypeWithQualityHeaderValue("application/json");
+            var url = string.Format(_eidssApiOptions.AuditPINSystemAccess, _eidssApiOptions.BaseUrl);
+            var aj = new MediaTypeWithQualityHeaderValue("application/json");
 
-                await JsonSerializer.SerializeAsync(ms, request);
-                ms.Seek(0, SeekOrigin.Begin);
+            await JsonSerializer.SerializeAsync(ms, request);
+            ms.Seek(0, SeekOrigin.Begin);
 
-                var requestmessage = new HttpRequestMessage(HttpMethod.Post, url);
-                requestmessage.Headers.Accept.Add(aj);
+            var requestmessage = new HttpRequestMessage(HttpMethod.Post, url);
+            requestmessage.Headers.Accept.Add(aj);
 
-                using (var requestContent = new StreamContent(ms))
-                {
-                    requestmessage.Content = requestContent;
-                    requestContent.Headers.ContentType = aj;
-                    using (var response = await _httpClient.SendAsync(requestmessage, HttpCompletionOption.ResponseHeadersRead))
-                    {
-                        response.EnsureSuccessStatusCode();
-                        var content = await response.Content.ReadAsStreamAsync();
-                        return await JsonSerializer.DeserializeAsync<APISaveResponseModel>(content, this.SerializationOptions);
-                    }
-                }
-            }
+            using var requestContent = new StreamContent(ms);
+            requestmessage.Content = requestContent;
+            requestContent.Headers.ContentType = aj;
+            using var response = await _httpClient.SendAsync(requestmessage, HttpCompletionOption.ResponseHeadersRead);
+            response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadAsStreamAsync();
+            return await JsonSerializer.DeserializeAsync<APISaveResponseModel>(content, SerializationOptions);
         }
 
         /// <summary>
@@ -151,11 +140,10 @@ namespace EIDSS.ClientLibrary.ApiClients.PIN
         [ResponseCache(CacheProfileName = "CacheInfini")]
         private async Task<string> PINSysLogin(string loginName, string password)
         {
-
             try
             {
                 // If we're calling the real PIN service, then we must use a different http client...
-                var _cli = _eidssApiOptions.MockPINService == true ? _httpClient : new System.Net.Http.HttpClient();
+                var _cli = _eidssApiOptions.MockPINService == true ? _httpClient : new HttpClient();
 
                 // formulate the url...
                 var url = string.Format(_eidssApiOptions.LoginUrl, _eidssApiOptions.PINUrl, loginName, password);
@@ -170,7 +158,7 @@ namespace EIDSS.ClientLibrary.ApiClients.PIN
                 var contentStream = await httpResponse.Content.ReadAsStreamAsync();
 
                 // Get the response from the stream...
-                var response = await JsonSerializer.DeserializeAsync<string>(contentStream, this.SerializationOptions);
+                var response = await JsonSerializer.DeserializeAsync<string>(contentStream, SerializationOptions);
 
                 return response;
             }
@@ -179,10 +167,6 @@ namespace EIDSS.ClientLibrary.ApiClients.PIN
                 _logger.LogError(ex.Message);
                 throw;
             }
-
         }
-
-
-        
     }
 }

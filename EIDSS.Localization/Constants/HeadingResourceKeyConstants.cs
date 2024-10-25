@@ -380,6 +380,8 @@ namespace EIDSS.Localization.Constants
         public static readonly string PersonEmploymentSchoolInformationHeading = (int) InterfaceEditorResourceSetEnum.PersonEmploymentSchoolInformation + "1114" + (long) InterfaceEditorTypeEnum.Heading;
         public static readonly string PersonEmploymentSchoolInformationWorkAddressHeading = (int)InterfaceEditorResourceSetEnum.PersonEmploymentSchoolInformation + "1116" + (long)InterfaceEditorTypeEnum.Heading;
         public static readonly string PersonEmploymentSchoolInformationSchoolAddressHeading = (int)InterfaceEditorResourceSetEnum.PersonEmploymentSchoolInformation + "1125" + (long)InterfaceEditorTypeEnum.Heading;
+        public static readonly string SchoolAddress = (int)InterfaceEditorResourceSetEnum.Global + "4858" + (long)InterfaceEditorTypeEnum.Heading;
+        public static readonly string EmploymentAddress = (int)InterfaceEditorResourceSetEnum.Global + "4859" + (long)InterfaceEditorTypeEnum.Heading;
 
         //fix for localization 10/30/2023
         public static readonly string PermanentAddressAddressHeading = (int)InterfaceEditorResourceSetEnum.PersonAddress + "4849" + (long)InterfaceEditorTypeEnum.Heading;
@@ -435,6 +437,9 @@ namespace EIDSS.Localization.Constants
         public static readonly string WeeklyReportingFormSummaryPageHeading = (int)InterfaceEditorResourceSetEnum.WeeklyReportingFormSummary + "773" + (long)InterfaceEditorTypeEnum.Heading;
         public static readonly string WeeklyReportingFormSummaryNotifiableDiseaseAcuteFlaccidParalysisHeading = (int) InterfaceEditorResourceSetEnum.WeeklyReportingFormSummary + "774" + (long) InterfaceEditorTypeEnum.Heading;
         public static readonly string WeeklyReportingFormSummaryReportingPeriodHeading = (int)InterfaceEditorResourceSetEnum.WeeklyReportingFormSummary + "775" + (long)InterfaceEditorTypeEnum.Heading;
+
+        public static readonly string ReasonForDiseaseChangeHeading = (int)InterfaceEditorResourceSetEnum.Global + "4864" + (long)InterfaceEditorTypeEnum.Heading;
+        public static readonly string ChangeDiagnosisHistoryHeading = (int)InterfaceEditorResourceSetEnum.Global + "4866" + (long)InterfaceEditorTypeEnum.Heading;
 
         #endregion
 
@@ -660,7 +665,7 @@ namespace EIDSS.Localization.Constants
         public static readonly string OutbreakUpdatesEditRecordHeading = (int)InterfaceEditorResourceSetEnum.OutbreakUpdates + "2772" + (long)InterfaceEditorTypeEnum.Heading;
 
         //fixes for localization 10/20/2023
-        public static readonly string OutbreakEpiCurveHeading = (int)InterfaceEditorResourceSetEnum.OutbreakAnalysis + "4816" + (long)InterfaceEditorTypeEnum.Heading;
+        public static readonly string OutbreakEpiCurveHeading = (int)InterfaceEditorResourceSetEnum.OutbreakAnalysis + "4816" + (long)InterfaceEditorTypeEnum.Heading; //TODO: We don't have GG value for this. It's AZ bugs.
         #endregion
 
         #region Vector Module Resources

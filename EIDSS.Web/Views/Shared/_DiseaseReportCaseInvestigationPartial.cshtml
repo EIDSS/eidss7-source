@@ -20,7 +20,6 @@
         Label = Localizer.GetString(Model.isOutbreakCase ? FieldLabelResourceKeyConstants.CreateHumanCaseInvestigatorOrganizationFieldLabel : FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationInvestigatingOrganizationFieldLabel),
         Endpoint = Url.Action("GetOrganizationsForLookup", "CrossCutting", new {Area = "CrossCutting", organizationSiteAssociation = (int) OrganizationSiteAssociations.OrganizationsWithOrWithoutSite, accessoryCode = EIDSSConstants.HACodeList.HumanHACode}),
         isVisible = true,
-        CustomJsOnChangeFunction = "UpdateInvestigatingOrgForFinalOutcome",
         defaultSelect2Selection = defaultReference
     };
 
@@ -324,6 +323,13 @@ else
                     }
                 </div>
             </div>
+            @*<div class="form-row">
+                            <div class="form-group col-md-6">
+                            <label asp-for="@Model.ExposureLocationDescription" field-label-for="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationExposureLocationFieldLabel" class="control-label"></label>
+                            <input asp-for="@Model.ExposureLocationDescription" class="form-control">
+                            </div>
+                            </div>*@
+
         </div>
     </div>
     <div id="divLocationView">
@@ -444,12 +450,4 @@ else
             $("#divLocationView").prop("style", "display: none;");
         }
     }
-
-    function UpdateInvestigatingOrgForFinalOutcome(data)
-    {
-        var InvestigatingOrg = $("#InvestigatedByOfficeDD").val();
-
-        HumanDiseaseHelpers.setInvestigationOffice(InvestigatingOrg);
-    }
-
 </script>

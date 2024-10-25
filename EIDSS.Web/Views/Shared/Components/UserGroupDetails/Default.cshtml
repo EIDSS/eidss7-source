@@ -95,6 +95,7 @@
                 }
             },
             onFinished: function (event) {
+                /*var valid = $("#userGroupWizard").steps("validateStep", $("#userGroupInfoForm"));*/
                 var valid = true;
                 var strDefault = $("#InformationSection_UserGroupDetails_strDefault").val();
                 if (strDefault == null || strDefault == "")
@@ -129,6 +130,7 @@
     };
 
     function resetForm() {
+        /*var siteID = $("#siteIDHidden").val();*/
 
         $('#userGroupInfoForm').find(':input').each(function () {
             switch (this.type) {
@@ -145,6 +147,7 @@
              }
         });
 
+           /* $("#siteIDLabel").val = siteID;*/
     };
 
     function SetUsersAndGroupsData(usersAndGroupsModel) {
@@ -350,6 +353,8 @@
         alert($("[id$=SearchCriteria_idfEmployeeGroup]").val());
         filterControlsData = {
             UsersAndGroupsSection_idfEmployeeGroup: $("[id$=SearchCriteria_idfEmployeeGroup]").val()
+            //systemFunctionId: $("#systemFunctionId").val(),
+            //searchBox: $('#SearchBox').val()
         }
         alert(filterControlsData);
         return JSON.stringify(filterControlsData);

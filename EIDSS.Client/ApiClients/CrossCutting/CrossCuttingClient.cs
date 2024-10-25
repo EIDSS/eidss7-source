@@ -15,19 +15,17 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
-using EIDSS.Domain.RequestModels.Administration.Security;
+using EIDSS.ClientLibrary.Extensions;
 
 namespace EIDSS.ClientLibrary.ApiClients.CrossCutting
 {
-    public partial interface ICrossCuttingClient
+    public interface ICrossCuttingClient
     {
         Task<List<ActorGetListViewModel>> GetActorList(ActorGetRequestModel request);
 
@@ -65,7 +63,7 @@ namespace EIDSS.ClientLibrary.ApiClients.CrossCutting
 
         Task<List<BaseReferenceTypeListViewModel>> GetReferenceTypesByIdPaged(ReferenceTypeByIdRequestModel request);
 
-        Task<List<CountryModel>> GetCountryList(string languageId);
+        Task<List<CountryModel>> GetCountryList(string languageId, string? nameFilter = null);
 
         Task<List<StreetModel>> GetStreetList(long locationId);
 
@@ -128,6 +126,8 @@ namespace EIDSS.ClientLibrary.ApiClients.CrossCutting
         Task<List<SiteModel>> GetGblSiteList(SiteGblGetRequestModel request, CancellationToken cancellationToken = default);
 
         Task<List<UserModel>> GetGblUserList(UserGetRequestModel request, CancellationToken cancellationToken = default);
+        
+        Task<APIPostResponseModel> DeleteMatrixVersion(long idfVersion);
     }
 
     public partial class CrossCuttingClient : BaseApiClient, ICrossCuttingClient
@@ -457,21 +457,8 @@ namespace EIDSS.ClientLibrary.ApiClients.CrossCutting
 
         public async Task<List<BaseReferenceViewModel>> GetBaseReferenceList(string langId, string referenceTypeName, long? intHACode)
         {
-            try
-            {
-                var url = string.Format(_eidssApiOptions.GetBaseReferenceListCrossCuttingPath, _eidssApiOptions.BaseUrl, langId, referenceTypeName, intHACode);
-                var httpResponse = await _httpClient.GetAsync(new Uri(url));
-
-                httpResponse.EnsureSuccessStatusCode();
-                var contentStream = await httpResponse.Content.ReadAsStreamAsync();
-
-                return await JsonSerializer.DeserializeAsync<List<BaseReferenceViewModel>>(contentStream, SerializationOptions);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message, new object[] { referenceTypeName, intHACode });
-                throw;
-            }
+            var url = string.Format(_eidssApiOptions.GetBaseReferenceListCrossCuttingPath, _eidssApiOptions.BaseUrl, langId, referenceTypeName, intHACode);
+            return await GetAsync<List<BaseReferenceViewModel>>(url);
         }
 
         public async Task<List<BaseReferenceEditorsViewModel>> GetBaseReferenceList(BaseReferenceEditorGetRequestModel request)
@@ -536,15 +523,10 @@ namespace EIDSS.ClientLibrary.ApiClients.CrossCutting
             return await JsonSerializer.DeserializeAsync<List<GisLocationChildLevelModel>>(contentStream, SerializationOptions);
         }
 
-        public async Task<List<CountryModel>> GetCountryList(string languageId)
+        public async Task<List<CountryModel>> GetCountryList(string languageId, string? nameFilter = null)
         {
-            var url = string.Format(_eidssApiOptions.GetCountryListPath, _eidssApiOptions.BaseUrl, languageId);
-            var httpResponse = await _httpClient.GetAsync(new Uri(url));
-
-            httpResponse.EnsureSuccessStatusCode();
-            var contentStream = await httpResponse.Content.ReadAsStreamAsync();
-
-            return await JsonSerializer.DeserializeAsync<List<CountryModel>>(contentStream, SerializationOptions);
+            var url = string.Format(_eidssApiOptions.GetCountryListPath, _eidssApiOptions.BaseUrl) +  new { languageId, nameFilter}.ToQueryString();
+            return await GetAsync<List<CountryModel>>(url);
         }
 
         public async Task<List<GisLocationLevelModel>> GetGisLocationLevels(string languageId)
@@ -697,6 +679,25 @@ namespace EIDSS.ClientLibrary.ApiClients.CrossCutting
                 _logger.LogError(ex.Message, new object[] { saveRequestModel });
                 throw;
             }
+            //return returnResult;
+        }
+
+        public async Task<APIPostResponseModel> DeleteMatrixVersion(long idfVersion)
+        {
+            var url = string.Format(_eidssApiOptions.DeleteMatrixVersionPath, _eidssApiOptions.BaseUrl, idfVersion);
+            var httpResponse = await _httpClient.DeleteAsync(new Uri(url));
+
+            httpResponse.EnsureSuccessStatusCode();
+            var contentStream = await httpResponse.Content.ReadAsStreamAsync();
+
+            var response = await JsonSerializer.DeserializeAsync<APIPostResponseModel>(contentStream,
+                new JsonSerializerOptions
+                {
+                    IgnoreNullValues = true,
+                    PropertyNameCaseInsensitive = true
+                });
+
+            return response;
         }
 
         /// <summary>

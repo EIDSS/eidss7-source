@@ -10,6 +10,15 @@ using System.Threading.Tasks;
 
 namespace EIDSS.Api.Helpers
 {
+    //public class AutoMapperProfile : Profile
+    //{
+    //    public AutoMapperProfile()
+    //    {
+    //        CreateMap<ApplicationUser, UserViewModel>();
+    //        //CreateMap<RegisterModel, User>();
+    //        CreateMap<UpdateViewModel, ApplicationUser>();
+    //    }
+    //}
 
     /// <summary>
     /// ApplicationUser Mapster model mapping profile.

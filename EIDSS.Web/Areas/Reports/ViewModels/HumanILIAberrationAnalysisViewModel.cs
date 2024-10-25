@@ -21,15 +21,11 @@ namespace EIDSS.Web.Areas.Reports.ViewModels
 
         [DisplayName("Date From")]
         [LocalizedRequired]
-        [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}")]
-        //[LocalizedDateLessThanOrEqualToToday]
         [DateComparer(nameof(StartIssueDate), "StartIssueDate", nameof(EndIssueDate), "EndIssueDate", CompareTypeEnum.LessThanOrEqualTo, nameof(FieldLabelResourceKeyConstants.DateFromFieldLabel), nameof(FieldLabelResourceKeyConstants.DateToFieldLabel))]
         public string StartIssueDate { get; set; }
 
         [DisplayName("Date To")]
         [LocalizedRequired]
-        [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}")]
-        //[LocalizedDateLessThanOrEqualToToday]
         [DateComparer(nameof(EndIssueDate), "EndIssueDate", nameof(StartIssueDate), "StartIssueDate", CompareTypeEnum.GreaterThanOrEqualTo, nameof(FieldLabelResourceKeyConstants.DateToFieldLabel), nameof(FieldLabelResourceKeyConstants.DateFromFieldLabel))]
         public string EndIssueDate { get; set; }
 

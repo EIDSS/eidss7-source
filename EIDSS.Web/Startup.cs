@@ -1,4 +1,9 @@
+using System;
+using System.Net;
+using System.Threading.Tasks;
+using EIDSS.ClientLibrary;
 using EIDSS.ClientLibrary.Configurations;
+using EIDSS.ClientLibrary.Events;
 using EIDSS.ClientLibrary.Services;
 using EIDSS.Domain.Attributes;
 using EIDSS.Localization.Extensions;
@@ -6,54 +11,42 @@ using EIDSS.Web.ActionFilters;
 using EIDSS.Web.Extensions;
 using EIDSS.Web.Helpers;
 using EIDSS.Web.Services;
+using EIDSS.Web.Validators;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.ResponseCaching;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Serilog;
-using System;
-using System.Net;
-using System.Threading.Tasks;
-using EIDSS.ClientLibrary;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.ResponseCaching;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Http.Connections;
-using Microsoft.Extensions.Options;
-using EIDSS.ClientLibrary.Events;
 
 namespace EIDSS.Web
 {
     public class Startup
     {
-        public IWebHostEnvironment _env { get; }
+        private readonly IConfiguration _configuration;
 
-        public Startup(IConfiguration configuration, IWebHostEnvironment env)
+        public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
-            _env = env;
+            _configuration = configuration;
 
             Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(Configuration)
+                .ReadFrom.Configuration(_configuration)
                 .CreateLogger();
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public virtual void ConfigureServices(IServiceCollection services)
         {
-            services.AddEIDSSLocalization(Configuration);
+            services.AddEIDSSLocalization(_configuration);
 
             services.AddSingleton<RequestHandler>();
-
-            //services.AddSingleton(typeof(Microsoft.Extensions.Logging.ILogger), logger);
 
             services.ConfigureApiClientExtensions();
 
@@ -62,7 +55,7 @@ namespace EIDSS.Web
 
             services.AddTransient<IApplicationContext, ApplicationContext>();
 
-            services.AddSingleton<IConfiguration>(Configuration);
+            services.AddSingleton(_configuration);
 
             services.AddScoped<ITokenService, TokenService>();
 
@@ -80,13 +73,15 @@ namespace EIDSS.Web
             services.AddScoped<PersonDeduplicationSessionStateContainerService>();
             services.AddScoped<HumanDiseaseReportDeduplicationSessionStateContainerService>();
             services.AddScoped<FarmStateContainer>();
-            services.AddScoped<PersonStateContainer>();
+            services.AddScoped<IPersonStateContainerResolver, PersonStateContainerResolver>();
+            services.AddScoped<IHdrStateContainer, HdrStateContainer>();
             services.AddScoped<FarmDeduplicationSessionStateContainerService>();
             services.AddScoped<UsersAndGroupsSessionStateContainerService>();
             services.AddScoped<VeterinaryDiseaseReportDeduplicationSessionStateContainerService>();
 
             services.AddScoped<LoginRedirectionAttribute>();
             services.AddScoped<CustomCookieAuthenticationEvents>();
+            services.AddScoped<ISpreadsheetValidatorFactory, SpreadsheetValidatorFactory>();
 
             services.AddAuthentication("EidssCookie")
                 .AddCookie("EidssCookie", options =>
@@ -102,7 +97,6 @@ namespace EIDSS.Web
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                     options.Cookie.Path = "/";
                     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-                    //options.EventsType = typeof(CustomCookieAuthenticationEvents);
                 });
 
             services.AddDataProtection()
@@ -129,16 +123,14 @@ namespace EIDSS.Web
                 o.ViewLocationExpanders.Add(new SubAreaViewLocationExpander());
             });
 
-            //Response caching...
             services.AddResponseCaching();
 
-            //Blazor
             services.AddRazorPages();
             services.AddServerSideBlazor()
                 .AddCircuitOptions(options =>
-                    {
-                        options.DetailedErrors = true;
-                    })
+                {
+                    options.DetailedErrors = true;
+                })
                 .AddHubOptions(options =>
                  {
                      options.MaximumReceiveMessageSize = 1024000000;
@@ -149,36 +141,33 @@ namespace EIDSS.Web
 
             services.AddControllersWithViews();
 
-            //Configuration
-            services.Configure<EidssApiOptions>(Configuration.GetSection(EidssApiOptions.EidssApi));
-            services.Configure<EidssApiConfigurationOptions>(Configuration.GetSection(EidssApiConfigurationOptions.EidssApiConfiguration));
+            services.Configure<EidssApiOptions>(_configuration.GetSection(EidssApiOptions.EidssApi));
+            services.Configure<EidssApiConfigurationOptions>(_configuration.GetSection(EidssApiConfigurationOptions.EidssApiConfiguration));
             services.Configure<ProtectedConfigurationSettings>(
-                Configuration.GetSection(ProtectedConfigurationSettings.ProtectedConfigurationSection));
+                _configuration.GetSection(ProtectedConfigurationSettings.ProtectedConfigurationSection));
             services.AddMemoryCache();
 
             services.AddMvc(options =>
-                {
-                    options.EnableEndpointRouting = false;
-                    options.CacheProfiles.Add("Cache30", new Microsoft.AspNetCore.Mvc.CacheProfile() { Duration = 30, VaryByQueryKeys = new string[] { "*" } });
-                    options.CacheProfiles.Add("Cache60", new Microsoft.AspNetCore.Mvc.CacheProfile() { Duration = 60, VaryByQueryKeys = new string[] { "*" } });
-                    options.CacheProfiles.Add("Cache5Min", new Microsoft.AspNetCore.Mvc.CacheProfile() { Duration = 300, VaryByQueryKeys = new string[] { "*" } });
-                    options.CacheProfiles.Add("Cache10Min", new Microsoft.AspNetCore.Mvc.CacheProfile() { Duration = 600, VaryByQueryKeys = new string[] { "*" } });
-                    options.CacheProfiles.Add("CacheHour", new Microsoft.AspNetCore.Mvc.CacheProfile() { Duration = 3600, VaryByQueryKeys = new string[] { "*" } });
-                    options.CacheProfiles.Add("CacheInfini", new Microsoft.AspNetCore.Mvc.CacheProfile() { Duration = 31104000, VaryByQueryKeys = new string[] { "*" } });
-                }).AddViewLocalization();
+            {
+                options.EnableEndpointRouting = false;
+                options.CacheProfiles.Add("Cache30", new Microsoft.AspNetCore.Mvc.CacheProfile() { Duration = 30, VaryByQueryKeys = new string[] { "*" } });
+                options.CacheProfiles.Add("Cache60", new Microsoft.AspNetCore.Mvc.CacheProfile() { Duration = 60, VaryByQueryKeys = new string[] { "*" } });
+                options.CacheProfiles.Add("Cache5Min", new Microsoft.AspNetCore.Mvc.CacheProfile() { Duration = 300, VaryByQueryKeys = new string[] { "*" } });
+                options.CacheProfiles.Add("Cache10Min", new Microsoft.AspNetCore.Mvc.CacheProfile() { Duration = 600, VaryByQueryKeys = new string[] { "*" } });
+                options.CacheProfiles.Add("CacheHour", new Microsoft.AspNetCore.Mvc.CacheProfile() { Duration = 3600, VaryByQueryKeys = new string[] { "*" } });
+                options.CacheProfiles.Add("CacheInfini", new Microsoft.AspNetCore.Mvc.CacheProfile() { Duration = 31104000, VaryByQueryKeys = new string[] { "*" } });
+            }).AddViewLocalization();
             services.AddTransient<IAppVersionService, AppVersionService>();
 
-            // Configuration service.  This service replaces the ConfigFactory.
             services.AddSingleton<IUserConfigurationService, UserConfigurationService>();
-
+            services.AddSingleton<IReportServiceProxyHttpClient, ReportServiceProxyHttpClient>();
             services.AddScoped<TimeZoneService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsEnvironment("Development") || env.IsEnvironment("QA-GG Local Debug") ||
-                env.IsEnvironment("QA-AJ Local Debug") || env.IsEnvironment("AJDEVLocal"))
+            if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
@@ -186,30 +175,17 @@ namespace EIDSS.Web
             {
                 app.UseExceptionHandler("/Error");
                 app.UseStatusCodePagesWithRedirects("/Error/{0}");
+                app.UseHsts();
             }
 
-            //if (env.IsDevelopment())
-            //{
-            //    app.UseDeveloperExceptionPage();
-            //}
-            //else
-            //{
-            //    app.UseExceptionHandler("/Error");
-            //    app.UseStatusCodePagesWithRedirects("/Error/{0}");
-            //}
+            app.UseHttpsRedirection();
+            app.UseCookiePolicy();
 
             app.UseEIDSSLocalization();
 
             app.UseStaticFiles();
 
             app.UseRouting();
-
-            //var cookiePolicyOptions = new CookiePolicyOptions
-            //{
-            //    MinimumSameSitePolicy = SameSiteMode.Strict,
-            //    HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
-            //    Secure = CookieSecurePolicy.None,
-            //};
 
             app.UseAuthentication();
 
@@ -225,16 +201,10 @@ namespace EIDSS.Web
 
             app.UseAuthorization();
 
-            app.UseCookiePolicy();
-
             app.UseSession();
 
-            //ApplicationContext.Configure(app.ApplicationServices.GetRequiredService<IHttpContextAccessor>());
-
-            // using Serilog
             app.UseSerilogRequestLogging();
 
-            // Response caching...
             app.UseResponseCaching();
             app.Use(async (context, next) =>
             {
@@ -268,18 +238,15 @@ namespace EIDSS.Web
                 await next();
             });
 
-            //Blazor
             app.UseEndpoints(endpoints =>
             {
-                //endpoints.MapRazorPages();
                 endpoints.MapControllerRoute("subarearoute", "{area:exists}/{subarea:exists}/{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute("areaRoute", "{area:exists}/{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapBlazorHub(options =>
-                    {
-                        options.WebSockets.CloseTimeout = new TimeSpan(0, 20, 0);
-                       // options.Transports = HttpTransportType.LongPolling;
-                    });
+                {
+                    options.WebSockets.CloseTimeout = new TimeSpan(0, 20, 0);
+                });
             });
         }
     }

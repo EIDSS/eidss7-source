@@ -99,6 +99,7 @@ namespace EIDSS.Localization.Helpers
             MergeAttribute(context.Attributes, "data-val-datepatientfirstsoughtcare-firstdate", FirstDateElement);
             MergeAttribute(context.Attributes, "data-val-datepatientfirstsoughtcare-seconddate", SecondDateElement);
             MergeAttribute(context.Attributes, "data-val-datepatientfirstsoughtcare-thirddate", ThirdDateElement);
+            //MergeAttribute(context.Attributes, "data-val-datepatientfirstsoughtcare-compare", Compare.ToString());
             MergeAttribute(context.Attributes, "data-val-datepatientfirstsoughtcare-language", CurrentCulture.TwoLetterISOLanguageName);
         }
 

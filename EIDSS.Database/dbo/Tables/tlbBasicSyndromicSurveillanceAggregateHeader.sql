@@ -30,83 +30,63 @@
 
 GO
 
--- =============================================
--- Author:		Romasheva Svetlana
--- Create date: 2013-09-24
--- Description:	Trigger for correct problems 
---              with replication and checkin in the same time
--- =============================================
-CREATE TRIGGER [dbo].[trtBasicSyndromicSurveillanceAggregateHeaderReplicationUp] 
+CREATE TRIGGER [dbo].[TR_tlbBasicSyndromicSurveillanceAggregateHeader_Insert_DF] 
    ON  [dbo].[tlbBasicSyndromicSurveillanceAggregateHeader]
    for INSERT
    NOT FOR REPLICATION
 AS 
 BEGIN
 	SET NOCOUNT ON;
-	
-	--DECLARE @context VARCHAR(50)
-	--SET @context = dbo.fnGetContext()
 
-	delete  nID
-	from  dbo.tflNewID as nID
-		inner join inserted as ins
-		on   ins.idfAggregateHeader = nID.idfKey1
-	where  nID.strTableName = 'tflBasicSyndromicSurveillanceAggregateHeaderFiltered'
+	declare @guid uniqueidentifier = newid()
+	declare @strTableName nvarchar(128) = N'tlbBasicSyndromicSurveillanceAggregateHeader' + cast(@guid as nvarchar(36)) collate Cyrillic_General_CI_AS
 
-	insert into dbo.tflNewID 
+	insert into [dbo].[tflNewID] 
 		(
-			strTableName, 
-			idfKey1, 
-			idfKey2
+			[strTableName], 
+			[idfKey1], 
+			[idfKey2]
 		)
 	select  
-			'tflBasicSyndromicSurveillanceAggregateHeaderFiltered', 
-			ins.idfAggregateHeader, 
-			sg.idfSiteGroup
+			@strTableName, 
+			ins.[idfAggregateHeader], 
+			sg.[idfSiteGroup]
 	from  inserted as ins
-		inner join dbo.tflSiteToSiteGroup as stsg
-		on   stsg.idfsSite = ins.idfsSite
+		inner join [dbo].[tflSiteToSiteGroup] as stsg with(nolock)
+		on   stsg.[idfsSite] = ins.[idfsSite]
 		
-		inner join dbo.tflSiteGroup sg
-		on	sg.idfSiteGroup = stsg.idfSiteGroup
-			and sg.idfsRayon is null
-			and sg.idfsCentralSite is null
-			and sg.intRowStatus = 0
+		inner join [dbo].[tflSiteGroup] sg with(nolock)
+		on	sg.[idfSiteGroup] = stsg.[idfSiteGroup]
+			and sg.[idfsRayon] is null
+			and sg.[idfsCentralSite] is null
+			and sg.[intRowStatus] = 0
 			
-		left join dbo.tflBasicSyndromicSurveillanceAggregateHeaderFiltered as bsshf
-		on  bsshf.idfAggregateHeader = ins.idfAggregateHeader
-			and bsshf.idfSiteGroup = sg.idfSiteGroup
-	where  bsshf.idfBasicSyndromicSurveillanceAggregateHeaderFiltered is null
+		left join [dbo].[tflBasicSyndromicSurveillanceAggregateHeaderFiltered] as cf
+		on  cf.[idfAggregateHeader] = ins.[idfAggregateHeader]
+			and cf.[idfSiteGroup] = sg.[idfSiteGroup]
+	where  cf.[idfBasicSyndromicSurveillanceAggregateHeaderFiltered] is null
 
-	insert into dbo.tflBasicSyndromicSurveillanceAggregateHeaderFiltered 
+	insert into [dbo].[tflBasicSyndromicSurveillanceAggregateHeaderFiltered]
 		(
-			idfBasicSyndromicSurveillanceAggregateHeaderFiltered, 
-			idfAggregateHeader, 
-			idfSiteGroup
+			[idfBasicSyndromicSurveillanceAggregateHeaderFiltered], 
+			[idfAggregateHeader], 
+			[idfSiteGroup]
 		)
 	select 
-			nID.NewID, 
-			ins.idfAggregateHeader, 
-			nID.idfKey2
+			nID.[NewID], 
+			ins.[idfAggregateHeader], 
+			nID.[idfKey2]
 	from  inserted as ins
-		inner join dbo.tflNewID as nID
-		on  nID.strTableName = 'tflBasicSyndromicSurveillanceAggregateHeaderFiltered'
-			and nID.idfKey1 = ins.idfAggregateHeader
-			and nID.idfKey2 is not null
-		left join dbo.tflBasicSyndromicSurveillanceAggregateHeaderFiltered as bsshf
-		on   bsshf.idfBasicSyndromicSurveillanceAggregateHeaderFiltered = nID.NewID
-	where  bsshf.idfBasicSyndromicSurveillanceAggregateHeaderFiltered is null
-
-	delete  nID
-	from  dbo.tflNewID as nID
-		inner join inserted as ins
-		on   ins.idfAggregateHeader = nID.idfKey1
-	where  nID.strTableName = 'tflBasicSyndromicSurveillanceAggregateHeaderFiltered'
-	
+		inner join [dbo].[tflNewID] as nID
+		on  nID.[strTableName] = @strTableName collate Cyrillic_General_CI_AS
+			and nID.[idfKey1] = ins.[idfAggregateHeader]
+			and nID.[idfKey2] is not null
+		left join [dbo].[tflBasicSyndromicSurveillanceAggregateHeaderFiltered] as cf
+		on   cf.[idfBasicSyndromicSurveillanceAggregateHeaderFiltered] = nID.[NewID]
+	where  cf.[idfBasicSyndromicSurveillanceAggregateHeaderFiltered] is null
 
 	SET NOCOUNT OFF;
 END
-
 
 
 GO

@@ -48,7 +48,7 @@
                         <TestDetails Sample="Model.Sample" Test="Model.Test" Transfer="Model.Transfer" />
                     </ChildContent>
                 </RadzenPanel>
-                <RadzenPanel AllowCollapse="true" Collapsed="false" Style="width: 100%;">
+                <RadzenPanel AllowCollapse="true" Collapsed="false" Style="width: 100%;">  @*Expand=@(() => OnAdditionalTestDetailsExpand(@Model.Test))*@
                     <HeaderTemplate>
                         <div class="laboratoryDetailsModalSectionHeading">
                             <span class="laboratoryDetailsModalSectionHeadingText">@Localizer.GetString(HeadingResourceKeyConstants.LaboratorySampleTestDetailsModalAdditionalTestDetailsHeading)</span>

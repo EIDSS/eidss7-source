@@ -21,13 +21,11 @@ namespace EIDSS.Web.ViewModels.CrossCutting
         public bool IsFirstLoadIndicator { get; set; } = true;
         public Select2Configruation TimeIntervalUnitSelect { get; set; }
 
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         [LocalizedDateLessThanOrEqualToToday]
         [DateComparer(nameof(StartDate), "StartDate", nameof(EndDate), nameof(EndDate), CompareTypeEnum.LessThanOrEqualTo, nameof(FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsStartDateFieldLabel), nameof(FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsEndDateFieldLabel))]
         [IsValidDate]
         public DateTime? StartDate { get; set; }
 
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         [LocalizedDateLessThanOrEqualToToday]
         [DateComparer(nameof(EndDate), nameof(EndDate), nameof(StartDate), "StartDate", CompareTypeEnum.GreaterThanOrEqualTo, nameof(FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsEndDateFieldLabel), nameof(FieldLabelResourceKeyConstants.SearchHumanAggregateDiseaseReportsStartDateFieldLabel))]
         [IsValidDate]

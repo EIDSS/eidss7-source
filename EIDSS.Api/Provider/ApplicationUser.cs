@@ -60,10 +60,59 @@ namespace EIDSS.Api.Providers
 
         #endregion
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ApplicationUser() : base()
         {
+            // Instantiate password history...
+            //PasswordHistory = new List<ASPNetUserPreviousPassword>();
+            
         }
 
+
+        //public async Task GenerateUserIdentityAsync(UserManager<ApplicationUser> userManager, ApplicationUser user)
+        //{
+        //    var userIdentity = await userManager.GetClaimsAsync(this);
+
+        //    var user = userManager.Users.Where(w => w.UserName == this.NormalizedUserName.Name).FirstOrDefault();
+        //    var roles = ModelFactory.GetUserRolesAndPermissions(user.idfUserID, user.UserName);
+
+        //    // Add custom user claims here
+        //    if (roles != null && roles.Count > 0)
+        //        roles.ForEach(r => userIdentity.AddClaim(new Claim(ClaimTypes.UserData, String.Format("{0}.{1}", new string[] { r.PermissionId.ToString().Trim(), r.PermissionLevel.ToString() }))));
+
+        //    return userIdentity;
+
+        //    var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        //    identity.AddClaim(new Claim(ClaimTypes.Name, this.UserName));
+
+
+        //    return identity;
+        //}
+
+        ///// <summary>
+        ///// Creates an identity object for a user.
+        ///// </summary>
+        ///// <param name="manager"></param>
+        ///// <param name="authenticationType"></param>
+        ///// <returns></returns>
+        //public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager, string authenticationType)
+        //{
+        //    // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
+        //    var userIdentity = await manager.CreateAsync(this, authenticationType);
+
+
+        //    //var user = manager.Users.Where(w => w.UserName == userIdentity.Name).FirstOrDefault();
+        //    //var roles = ModelFactory.GetUserRolesAndPermissions(user.idfUserID, user.UserName);
+
+        //    //// Add custom user claims here
+        //    //if (roles != null && roles.Count > 0)
+        //    //    roles.ForEach(r => userIdentity.AddClaim(new Claim(ClaimTypes.UserData, String.Format("{0}.{1}", new string[] { r.PermissionId.ToString().Trim(), r.PermissionLevel.ToString() }))));
+
+        //    return userIdentity;
+        //}
     }
 
 }

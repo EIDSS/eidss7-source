@@ -1,14 +1,8 @@
 ﻿namespace EIDSS.ClientLibrary.Configurations
 {
-
-    public class EidssGlobalSettingsOptions
-    {
-        public virtual string LeafletApiUrl { get; set; }
-
-    }
-
     /// <summary>
     /// Contains application settings.
+    /// Please make all properties virtual!
     /// </summary>
     public class EidssApiOptions
     {
@@ -73,6 +67,7 @@
 
         #region Organization
 
+        public virtual string OrganizationSearch { get; set; }
         public virtual string GetDepartmentListPath { get; set; }
         public virtual string GetOrganizationDetailPath { get; set; }
         public virtual string GetOrganizationListPath { get; set; }
@@ -380,7 +375,7 @@
         public virtual string SaveDiseasePath { get; set; }
         public virtual string GetDiseasesListPath { get; set; }
         public virtual string GetDiseasesDetailPath { get; set; }
-        
+
         public virtual string GetGisLocationPath { get; set; }
         public virtual string GetGisLocationCurrentPath { get; set; }
         public virtual string GetGisLocationChildPath { get; set; }
@@ -437,6 +432,7 @@
         public virtual string GetGblUserListPath { get; set; }
         public virtual string GetDiseaseTestListPath { get; set; }
         public virtual string GetBaseReferenceLookupListPath { get; set; }
+        public string GetAgeTypesAsyncPath { get; set; }
 
         #endregion Cross Cutting
 
@@ -497,7 +493,7 @@
         public virtual string GetParameterTypeEditorMappingAsyncPath { get; set; }
         public virtual string GetFlexFormRuleListPath { get; set; }
         public virtual string GetFlexFormRuleActionsListPath { get; set; }
-        
+
         #endregion Flex Form
 
         #region Reports
@@ -631,9 +627,10 @@
         public virtual string DedupePersonFarmPath { get; set; }
         public virtual string DedupePersonHumanDiseasePath { get; set; }
         public virtual string DedupePersonRecordsPath { get; set; }
-
-
         public virtual string DedupeHumanDiseaseReportPath { get; set; }
+        public string IsPersonalIDExistsAsyncPath { get; set; }
+        public string UpdatePersonAsyncPath { get; set; }
+        public string GetChangeDiagnosisHistoryAsyncPath { get; set; }
 
         #region PIN
         public virtual string LoginUrl { get; set; }
@@ -767,7 +764,6 @@
         #region xsite
 
         public virtual string GetXSiteDocumentList { get; set; }
-        public virtual string GetXSiteHelpFile { get; set; }
 
         #endregion xsite
 

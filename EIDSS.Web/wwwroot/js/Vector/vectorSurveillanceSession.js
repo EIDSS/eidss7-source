@@ -61,7 +61,14 @@ function initializeSidebarVectorSession(cancelButtonText, finishButtonText, next
             delete: deleteButtonText,
             loading: loadingMessageText
         },
-        onInit: function (event) { },
+        onInit: function (event) {
+            $("#vectorWizard .steps ul").append('<li id="saveStep" role="tab"><a href="#" role="menuitem"><span class="fa-stack text-muted"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-save fa-stack-1x fa-inverse"></i></span>  <span class="stepTitleText">' + finishButtonText + '</span></a></li>');
+
+            $(document).on('click', '#saveStep', function (e) {
+                e.preventDefault();
+                $("#vectorWizard").steps("finish");
+            });
+},
         onCanceled: function (event) {
             VectorSurveillanceSession.DotNetReference.invokeMethodAsync('OnCancel');
         },
@@ -90,14 +97,59 @@ function initializeSidebarVectorSession(cancelButtonText, finishButtonText, next
         onDeleting: function (event) {
             VectorSurveillanceSession.DotNetReference.invokeMethodAsync("OnDelete");
         },
-        onFinished: function (event) {
-            $("#saveButton").removeAttr("href");
-            $("#processing").addClass("fas fa-sync fa-spin");
-            validateSurveillanceSession();
-            VectorSurveillanceSession.DotNetReference.invokeMethodAsync("OnSave");
+        onFinished: async function (event) {
+            var isVectorSurveillanceSessionSummaryValid = await VectorSurveillanceSessionSummary.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar");
+            var isVectorSurveillanceSessionLocationValid = await VectorSurveillanceSessionLocation.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar");
+            var isVectorSurveillanceSessionDetailedCollectionsValid = await VectorSurveillanceSessionDetailedCollections.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar");
+            var isVectorSurveillanceSessionAggregateCollectionsValid = await VectorSurveillanceSessionAggregateCollections.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar");
+
+            hideDefaultStepIcons();
+            setWizardState(isVectorSurveillanceSessionSummaryValid, "#vectorWizard-t-0");
+            setWizardState(isVectorSurveillanceSessionLocationValid, "#vectorWizard-t-1");
+            setWizardState(isVectorSurveillanceSessionDetailedCollectionsValid, "#vectorWizard-t-2");
+            setWizardState(isVectorSurveillanceSessionAggregateCollectionsValid, "#vectorWizard-t-3");
+
+            if (isVectorSurveillanceSessionSummaryValid &&
+                isVectorSurveillanceSessionLocationValid &&
+                isVectorSurveillanceSessionDetailedCollectionsValid &&
+                isVectorSurveillanceSessionAggregateCollectionsValid
+            ) {
+                VectorSurveillanceSession.DotNetReference.invokeMethodAsync("OnSave");
+            } else {
+                $("#saveButton").removeAttr("href");
+                $("#processing").addClass("fas fa-sync fa-spin");
+                if (!isVectorSurveillanceSessionSummaryValid) {
+                    $("#vectorWizard").steps("setStep", 0);
+                } else if (!isVectorSurveillanceSessionLocationValid) {
+                    $("#vectorWizard").steps("setStep", 1);
+                } else if (!isVectorSurveillanceSessionDetailedCollectionsValid) {
+                    $("#vectorWizard").steps("setStep", 2);
+                } else if (!isVectorSurveillanceSessionAggregateCollectionsValid) {
+                    $("#vectorWizard").steps("setStep", 3);
+                }
+            }
+            
         }
     });
 };
+
+function setWizardState(isValid, stringId) {
+    if (isValid) {
+        $(stringId).find("#erroredStep").hide();
+        $(stringId).find("#completedStep").show();
+    } else {
+        $(stringId).find("#erroredStep").show();
+        $(stringId).find("#completedStep").hide();
+    }
+}
+
+function hideDefaultStepIcons() {
+    $("#vectorWizard-t-0").find("#step").hide();
+    $("#vectorWizard-t-1").find("#step").hide();
+    $("#vectorWizard-t-2").find("#step").hide();
+    $("#vectorWizard-t-3").find("#step").hide();
+}
+
 
 function reportIsDisabled(reportDisabledIndicator) {
     VectorSurveillanceSession.ReportDisabledIndicator = reportDisabledIndicator;

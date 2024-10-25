@@ -1,36 +1,25 @@
-﻿using EIDSS.Api.ActionFilters;
-using EIDSS.CodeGenerator;
-using EIDSS.Api.Abstracts;
+﻿using EIDSS.Api.Abstracts;
 using EIDSS.Api.Provider;
-using EIDSS.Api.Providers;
 using EIDSS.Domain.RequestModels.Administration;
 using EIDSS.Domain.ResponseModels;
-using EIDSS.Domain.ResponseModels.Administration;
 using EIDSS.Domain.ViewModels;
-using EIDSS.Domain.ViewModels.Administration;
 using EIDSS.Repository.Interfaces;
-using EIDSS.Repository.ReturnModels;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using Serilog;
+using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Swashbuckle.AspNetCore.Annotations;
-using System.Linq;
-using System.Configuration;
-using System.Net.Http;
-using System.IO;
-using System.Text.Json;
-using System.Text;
-using Microsoft.Extensions.Options;
-using EIDSS.Repository;
-using Microsoft.Extensions.Caching.Memory;
+
+// Below usings are used in Generated Code
+using EIDSS.Domain.ViewModels.Administration;
+using EIDSS.Repository.ReturnModels;
 
 namespace EIDSS.Api.Controllers.Administration
 {
@@ -38,15 +27,16 @@ namespace EIDSS.Api.Controllers.Administration
     [ApiController]
     public partial class InterfaceEditorController : EIDSSControllerBase
     {
-        private IOptionsSnapshot<XSiteConfigurationOptions> _xsiteOptions;
-        private IxSiteContextHelper _xsitehelper;
+        private readonly IOptionsSnapshot<XSiteConfigurationOptions> _xsiteOptions;
 
-        public InterfaceEditorController(IDataRepository repository, IOptionsSnapshot<XSiteConfigurationOptions> options, IxSiteContextHelper xsitehelper, IMemoryCache memoryCache) : base(repository, memoryCache)
+        public InterfaceEditorController(
+            IDataRepository repository,
+            IOptionsSnapshot<XSiteConfigurationOptions> options,
+            IMemoryCache memoryCache)
+            : base(repository, memoryCache)
         {
             _xsiteOptions = options;
-            _xsitehelper = xsitehelper;
         }
-
 
         [HttpPost("UploadLanguageTranslation")]
         [ProducesResponseType(typeof(APIPostResponseModel), StatusCodes.Status200OK)]
@@ -64,7 +54,7 @@ namespace EIDSS.Api.Controllers.Administration
                 cancellationToken.ThrowIfCancellationRequested();
 
                 //check to see if the language already exists and return a 409 conflict result if so
-                var crossCuttingApi = new CrossCuttingController(this._repository, _xsiteOptions, _cache);
+                var crossCuttingApi = new CrossCuttingController(_repository, _xsiteOptions, _cache);
                 var crossCuttingGetResponse = await crossCuttingApi.GetLanguageListAsync(model.CurrentLangId);
                 var crossCuttingGetResult = crossCuttingGetResponse as ObjectResult;
                 var crossCuttingValueGetResults = crossCuttingGetResult.Value as List<LanguageModel>;
@@ -104,47 +94,43 @@ namespace EIDSS.Api.Controllers.Administration
                     }
                 }
 
-                //process the language file
+                // process the language file
                 var filePath = Path.GetRandomFileName();
 
                 if (model.LanguageFile.Length > 0)
                 {
-                    using (var stream = System.IO.File.Create(filePath))
+                    using var stream = System.IO.File.Create(filePath);
+                    await model.LanguageFile.CopyToAsync(stream);
+                    stream.Position = 0;
+                    using var reader = new StreamReader(stream, System.Text.Encoding.UTF8, true);
+                    string languageString;
+                    // header row
+                    languageString = await reader.ReadLineAsync();
+                    // first line
+                    languageString = await reader.ReadLineAsync();
+
+                    while (languageString != null)
                     {
-                        await model.LanguageFile.CopyToAsync(stream);
-                        stream.Position = 0;
-                        using (var reader = new StreamReader(stream, System.Text.Encoding.UTF8, true))
+                        string[] languageRecord = languageString.Split(',');
+
+                        // just call the save method for lines with translations
+                        if (!string.IsNullOrEmpty(languageRecord[6]))
                         {
-                            string languageString;
-                            languageString = await reader.ReadLineAsync(); //header row
-                            languageString = await reader.ReadLineAsync(); //first line
-
-                            while (languageString != null)
+                            var request = new InterfaceEditorResourceSaveRequestModel()
                             {
-                                string[] languageRecord = languageString.Split(',');
-                                
-                                // just call the save method for lines with translations
-                                if (!string.IsNullOrEmpty(languageRecord[6]))
-                                {
-                                    var request = new InterfaceEditorResourceSaveRequestModel()
-                                    {
-                                        idfsResourceSet = long.Parse(languageRecord[0]),
-                                        idfsResource = long.Parse(languageRecord[1]),
-                                        DefaultName = languageRecord[5],
-                                        NationalName = languageRecord[6],
-                                        isHidden = false,
-                                        isRequired = false,
-                                        User = model.User,
-                                        LanguageId = model.LanguageCode
-                                    };
-                                    var response = await SaveInterfaceEditorResource(request, cancellationToken);
-                                }
-                                
-                                languageString = await reader.ReadLineAsync(); //next line
-
-                            }
-
+                                idfsResourceSet = long.Parse(languageRecord[0]),
+                                idfsResource = long.Parse(languageRecord[1]),
+                                DefaultName = languageRecord[5],
+                                NationalName = languageRecord[6],
+                                isHidden = false,
+                                isRequired = false,
+                                User = model.User,
+                                LanguageId = model.LanguageCode
+                            };
+                            var response = await SaveInterfaceEditorResource(request, cancellationToken);
                         }
+
+                        languageString = await reader.ReadLineAsync();
                     }
                 }
                 else
@@ -159,16 +145,11 @@ namespace EIDSS.Api.Controllers.Administration
                     return BadRequest(results);
                 }
 
-
                 results = new APIPostResponseModel()
                 {
                     ReturnCode = 0,
                     ReturnMessage = "SUCCESS"
-
                 };
-
-
-
             }
             catch (Exception ex) when (ex is TaskCanceledException || ex is OperationCanceledException)
             {
@@ -182,7 +163,6 @@ namespace EIDSS.Api.Controllers.Administration
 
             return Ok(results);
         }
-
     }
 }
 

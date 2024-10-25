@@ -18,15 +18,20 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <DebugType>full</DebugType>
     <StartupObject></StartupObject>
-    <EnableNETAnalyzers>False</EnableNETAnalyzers> 
+    <EnableNETAnalyzers>False</EnableNETAnalyzers>
+    <Version>7.0.427</Version> 
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>EIDSS.Api.xml</DocumentationFile>
     <Optimize>False</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RegressionAnyCPU'">
+    <DocumentationFile>C:\Projects\EIDSSRewrite\EIDSS7\EIDSS\EIDSS.Api\EIDSS.Api.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -36,32 +41,34 @@
   <ItemGroup>
     <FileConstant Include="@(controllers)" />
     <Compile Remove="Attributes\**" />
+    <Compile Remove="Controllers\Notification\**" />
     <Content Remove="Attributes\**" />
+    <Content Remove="Controllers\Notification\**" />
     <EmbeddedResource Remove="Attributes\**" />
+    <EmbeddedResource Remove="Controllers\Notification\**" />
     <None Remove="Attributes\**" />
+    <None Remove="Controllers\Notification\**" />
   </ItemGroup>
-
 
   <ItemGroup>
     <None Remove="EIDSS.Api.xml" />
     <None Remove="SwaggerTagSorter.js" />
   </ItemGroup>
 
-
   <ItemGroup>
     <PackageReference Include="Mapster" Version="7.2.0" />
     <PackageReference Include="Mapster.DependencyInjection" Version="1.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.18" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.18" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
     <PackageReference Include="Microsoft.DependencyValidation.Analyzers" Version="0.11.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="6.0.18" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.SlowCheetah" Version="3.2.26">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -73,7 +80,8 @@
     <PackageReference Include="Serilog.Settings.Configuration" Version="3.1.0" />
     <PackageReference Include="Serilog.Sinks.Async" Version="1.4.0" />
     <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="5.6.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.4.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
     <PackageReference Include="System.ServiceModel.Http" Version="4.9.0" />
     <PackageReference Include="System.ServiceModel.Primitives" Version="4.9.0" />
     <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
@@ -84,6 +92,7 @@
     <ProjectReference Include="..\EIDSS.Domain\EIDSS.Domain.csproj" />
     <ProjectReference Include="..\EIDSS.Localization\EIDSS.Localization.csproj" />
     <ProjectReference Include="..\EIDSS.Repository\EIDSS.Repository.csproj" />
+    <ProjectReference Include="..\EIDSS.Security\EIDSS.Security.csproj" />
     <AdditionalFiles Include="CodeGeneration\AuditColumnsCodeGenerationDirectives.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AdditionalFiles>
@@ -92,7 +101,7 @@
 
   <ItemGroup>
     <Content Include="EIDSS.Api.xml">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
@@ -100,10 +109,6 @@
     <Content Update="appsettings.json">
       <TransformOnBuild>true</TransformOnBuild>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\Notification\" />
   </ItemGroup>
 
   <Target Name="CreateLogsFolder" AfterTargets="Publish">

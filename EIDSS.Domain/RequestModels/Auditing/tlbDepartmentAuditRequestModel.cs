@@ -15,8 +15,10 @@ namespace EIDSS.Domain.RequestModels.Auditing
 
         public string DepartmentNameNationalValue { get; set; }
 
+        //[JsonConverter(typeof(int))]
         public string OrderNumber { get; set; }
 
+        //[JsonConverter(typeof(int))]
         public string RowStatus { get; set; }
 
         public string RowAction { get; set; }

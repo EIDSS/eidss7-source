@@ -63759,6 +63759,30 @@ ALTER TABLE [dbo].[HumanActualAddlInfo] CHECK CONSTRAINT [FK_HumanActualAddlInfo
 set @cmd = N'
 declare @cmd nvarchar(max)
 set @cmd = N''
+ALTER TABLE [dbo].[HumanActualAddlInfo]  WITH NOCHECK ADD  CONSTRAINT [FK_HumanActualAddlInfo_BaseRef_IsAnotherPhone] FOREIGN KEY([IsAnotherPhoneID])
+REFERENCES [dbo].[[trtBaseReference]] ([[idfsBaseReference]])
+'' exec [' + @DbName + '].sys.sp_executesql @cmd set @cmd = N'' 
+     
+ALTER TABLE [dbo].[HumanActualAddlInfo] CHECK CONSTRAINT [FK_HumanActualAddlInfo_BaseRef_IsAnotherPhone]
+'' exec [' + @DbName + '].sys.sp_executesql @cmd
+' execute sp_executesql @cmd
+
+
+set @cmd = N'
+declare @cmd nvarchar(max)
+set @cmd = N''
+ALTER TABLE [dbo].[HumanActualAddlInfo]  WITH NOCHECK ADD  CONSTRAINT [FK_HumanActualAddlInfo_BaseRef_IsAnotherAddress] FOREIGN KEY([IsAnotherAddressID])
+REFERENCES [dbo].[[trtBaseReference]] ([[idfsBaseReference]])
+'' exec [' + @DbName + '].sys.sp_executesql @cmd set @cmd = N'' 
+     
+ALTER TABLE [dbo].[HumanActualAddlInfo] CHECK CONSTRAINT [FK_HumanActualAddlInfo_BaseRef_IsAnotherAddress]
+'' exec [' + @DbName + '].sys.sp_executesql @cmd
+' execute sp_executesql @cmd
+
+
+set @cmd = N'
+declare @cmd nvarchar(max)
+set @cmd = N''
 ALTER TABLE [dbo].[tlbTransferOUT]  WITH NOCHECK ADD  CONSTRAINT [FK_tlbTransferOUT_tlbOffice__idfSendToOffice_R_1517] FOREIGN KEY([idfSendToOffice])
 REFERENCES [dbo].[tlbOffice] ([idfOffice])
 '' exec [' + @DbName + '].sys.sp_executesql @cmd set @cmd = N'' 
@@ -64436,6 +64460,30 @@ REFERENCES [dbo].[tlbGeoLocation] ([idfGeoLocation])
 '' exec [' + @DbName + '].sys.sp_executesql @cmd set @cmd = N'' 
      
 ALTER TABLE [dbo].[HumanAddlInfo] CHECK CONSTRAINT [FK_HumanAddlInfo_GeoLocation_AltAddress]
+'' exec [' + @DbName + '].sys.sp_executesql @cmd
+' execute sp_executesql @cmd
+
+
+set @cmd = N'
+declare @cmd nvarchar(max)
+set @cmd = N''
+ALTER TABLE [dbo].[HumanAddlInfo]  WITH NOCHECK ADD  CONSTRAINT [FK_HumanAddlInfo_BaseRef_IsAnotherPhone] FOREIGN KEY([IsAnotherPhoneID])
+REFERENCES [dbo].[[trtBaseReference]] ([[idfsBaseReference]])
+'' exec [' + @DbName + '].sys.sp_executesql @cmd set @cmd = N'' 
+     
+ALTER TABLE [dbo].[HumanAddlInfo] CHECK CONSTRAINT [FK_HumanAddlInfo_BaseRef_IsAnotherPhone]
+'' exec [' + @DbName + '].sys.sp_executesql @cmd
+' execute sp_executesql @cmd
+
+
+set @cmd = N'
+declare @cmd nvarchar(max)
+set @cmd = N''
+ALTER TABLE [dbo].[HumanAddlInfo]  WITH NOCHECK ADD  CONSTRAINT [FK_HumanAddlInfo_BaseRef_IsAnotherAddress] FOREIGN KEY([IsAnotherAddressID])
+REFERENCES [dbo].[[trtBaseReference]] ([[idfsBaseReference]])
+'' exec [' + @DbName + '].sys.sp_executesql @cmd set @cmd = N'' 
+     
+ALTER TABLE [dbo].[HumanAddlInfo] CHECK CONSTRAINT [FK_HumanAddlInfo_BaseRef_IsAnotherAddress]
 '' exec [' + @DbName + '].sys.sp_executesql @cmd
 ' execute sp_executesql @cmd
 

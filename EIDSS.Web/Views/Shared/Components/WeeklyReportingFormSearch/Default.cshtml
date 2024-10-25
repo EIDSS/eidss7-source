@@ -1,1 +1,244 @@
-﻿
+﻿@*@model EIDSS.Web.Areas.Human.ViewModels.WeeklyReportingForm.WeeklyReportingFormSearchViewModel
+
+@{
+
+    Model.WeeklyReportFormGridConfiguration = new();
+    Model.WeeklyReportFormGridConfiguration.GridId = "weeklyReportingFormTable";
+    Model.WeeklyReportFormGridConfiguration.GridClass = "table table-sm table-striped";
+    Model.WeeklyReportFormGridConfiguration.ControlFilterID = "SearchCriteria_EIDSSReportID,SearchCriteria_StartDate,SearchCriteria_EndDate,AdminLevel1Value,AdminLevel2Value,Settlement";
+    Model.WeeklyReportFormGridConfiguration.AjaxDataUrl = Url.Action("GetWeeklyReportFormList", "WeeklyReportingFormSearch", new { Area = "Human" });
+    Model.WeeklyReportFormGridConfiguration.EnableServerSide = true;
+    Model.WeeklyReportFormGridConfiguration.EnableCustomSearching = false;
+    Model.WeeklyReportFormGridConfiguration.EnableSearching = false;
+    Model.WeeklyReportFormGridConfiguration.EnableProcessingMessage = true;
+    Model.WeeklyReportFormGridConfiguration.DeleteCompleteMethod = "checkWeeklyReportingDeleteSuccess";
+    Model.WeeklyReportFormGridConfiguration.DeleteModalAjaxUrl = @Url.Action("DeleteWeeklyReporting", "WeeklyReportingForm", new { Area = "Administration" });
+    Model.WeeklyReportFormGridConfiguration.ControlLabels.DeleteModalMessage = Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage);
+    Model.WeeklyReportFormGridConfiguration.ControlLabels.DeleteModalTitle = Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading);
+    Model.WeeklyReportFormGridConfiguration.ControlLabels.YesButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+    Model.WeeklyReportFormGridConfiguration.ControlLabels.NoButtonLabel = Localizer.GetString(ButtonResourceKeyConstants.NoButton);
+    Model.WeeklyReportFormGridConfiguration.EditType = EIDSS.Web.TagHelpers.Models.EditType.PageRedirect;
+    Model.WeeklyReportFormGridConfiguration.EditPageRedirectLink = "Details";
+    Model.WeeklyReportFormGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "EIDSSReportID", ColumnTitleHeader = String.Empty, ColumnType = Model.RecordSelectionIndicator == true ? ColumnType.Link : ColumnType.Default, ColumnHyperlinkURL = Model.RecordSelectionIndicator == true ? "#" : null, CustomLinkText = "Select", ColumnHyperlinkJSFunction = Model.RecordSelectionIndicator == true ? "selectWeeklyReportingFormRecord" : null, Visible = Model.RecordSelectionIndicator == true ? true : false });
+    Model.WeeklyReportFormGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "StartDate", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchWeeklyReportingFormsStartDateColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.WeeklyReportFormGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "AdminLevel2Name", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchWeeklyReportingFormsAdministrativelevel2ColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.WeeklyReportFormGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "SettlementName", ColumnTitleHeader = Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchWeeklyReportingFormsSettlementColumnHeading), ColumnType = ColumnType.Default, Orderable = true, Visible = true });
+    Model.WeeklyReportFormGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "EIDSSReportID", ColumnTitleHeader = "", ColumnType = ColumnType.Edit, Visible = Model.Permissions.Write });
+    Model.WeeklyReportFormGridConfiguration.ColumnNames.Add(new EIDSSColumnNames() { ColumnName = "EIDSSReportID", ColumnTitleHeader = "", ColumnType = ColumnType.Delete, Visible = Model.Permissions.Delete });
+}
+
+<form id="weeklyReportingSearchForm">
+    <div id="weeklyReportingSearchCriteria" class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-lg-11">
+                    <h4 id="searchCriteriaHeader" heading-for="@HeadingResourceKeyConstants.SearchCriteriaHeading"></h4>
+                </div>
+                <div class="col-lg-1">
+                    <span id="toggleWeeklyReportingSearchIcon" class="fas fa-caret-up align-bottom fa-2x e-dark-blue" data-toggle="collapse" data-target="#weeklyReportingSearchCriteriaForm" aria-expanded="true" onclick="toggleWeeklyReportingSearchCriteria(event);">&nbsp;</span>
+                </div>
+            </div>
+        </div>
+        <div id="weeklyReportingSearchCriteriaForm" class="card-body show">
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <label asp-for="SearchCriteria.EIDSSReportID" field-label-for="@FieldLabelResourceKeyConstants.SearchWeeklyReportingFormsReportIDFieldLabel"></label>
+                    <input asp-for="SearchCriteria.EIDSSReportID" type="text" class="form-control" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label asp-for="SearchCriteria.StartDate" field-label-for="@FieldLabelResourceKeyConstants.StartDateFieldLabel"></label>
+                    <eidss-calendar id="SearchCriteria.StartDate" name="SearchCriteria.StartDate" asp-for="SearchCriteria.StartDate" SearchFilter="true" ></eidss-calendar>
+                    <span asp-validation-for="SearchCriteria.StartDate" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="SearchCriteria.EndDate" field-label-for="@FieldLabelResourceKeyConstants.EndDateFieldLabel"></label>
+                    <eidss-calendar id="SearchCriteria.EndDate" name="SearchCriteria.EndDate" asp-for="SearchCriteria.EndDate"  SearchFilter="true"></eidss-calendar>
+                    <span asp-validation-for="SearchCriteria.EndDate" class="text-danger"></span>
+                </div>
+            </div>
+            <div id="divLocation">
+                @await Component.InvokeAsync("LocationView", Model.SearchLocationViewModel)
+            </div>
+        </div>
+        <div id="weeklyReportingSearchCriteriaCommands" class="card-footer">
+            <button id="cancelSearchCriteria" type="button" class="btn btn-outline-primary" onclick="cancelSearch('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)', event)" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+            <button id="clear" type="reset" onclick="clearControls();" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.ClearButton"></button>
+            <button id="search" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.SearchButton"></button>
+            <button id="addWeeklyReportingSearchCriteria" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.AddButton" onclick="addWeeklyReporting();" visible="@Model.Permissions.Create"></button>
+        </div>
+    </div>
+    <br />
+    <div id="weeklyReportingSearchResults" class="card">
+        <div class="card-header">
+            <h4 id="searchResultsHeader" heading-for="@HeadingResourceKeyConstants.SearchResultsHeading"></h4>
+        </div>
+        <div class="card-body">
+            <div class="col-12">
+                <eidss-grid id="@Model.WeeklyReportFormGridConfiguration.GridId"
+                            grid-configuration="@Model.WeeklyReportFormGridConfiguration"
+                            enable-server-side="@Model.WeeklyReportFormGridConfiguration.EnableServerSide"
+                            enable-processing="@Model.WeeklyReportFormGridConfiguration.EnableProcessingMessage"
+                            enable-search="@Model.WeeklyReportFormGridConfiguration.EnableSearching"
+                            class-name="@Model.WeeklyReportFormGridConfiguration.GridClass"
+                            end-point="@Model.WeeklyReportFormGridConfiguration.AjaxDataUrl"
+                            filtered-control-ids="@Model.WeeklyReportFormGridConfiguration.ControlFilterID"
+                            control-labels="@Model.WeeklyReportFormGridConfiguration.ControlLabels">
+                </eidss-grid>
+            </div>
+        </div>
+        <div id="weeklyReportingSearchResultsCommands" class="card-footer">
+            <button id="cancelSearchResults" type="button" class="btn btn-outline-primary" onclick="cancelSearch('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)', event)" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+            <button id="addWeeklyRepotingSearchResults" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.AddButton" onclick="addWeeklyReporting();"></button>
+        </div>
+
+    </div>
+</form>
+
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+        showWeeklyReportingSearchCriteria();
+
+     });
+
+        function toggleWeeklyReportingSearchCriteria(e) {
+        if ($("#weeklyReportingSearchCriteriaForm").hasClass("show")) {
+            $("#toggleWeeklyReportingSearchIcon").removeClass("fa-caret-up").addClass("fa-caret-down");
+
+            $("#weeklyReportingSearchCriteriaForm").collapse("show");
+            $("#weeklyReportingSearchCriteriaCommands").hide();
+            $("#cancelSearchCriteria").hide();
+            $("#clear").hide();
+            $("#search").hide();
+            $("#cancelSearchResults").show();
+        }
+        else {
+            $("#toggleWeeklyReportingSearchIcon").removeClass("fa-caret-down").addClass("fa-caret-up");
+            $("#weeklyReportingSearchCriteriaForm").collapse("show");
+            $("#weeklyReportingSearchResultsCommands").show();
+            $("#weeklyReportingSearchCriteriaCommands").show();
+            $("#cancelSearchCriteria").show();
+            $("#clear").show();
+            $("#search").show();
+            $("#weeklyReportingSearchResults").show();
+        }
+    };
+
+    function hideWeeklyReportingSearchCriteria() {
+        $("#toggleWeeklyReportingSearchIcon").show();
+        $("#weeklyReportingSearchCriteriaForm").collapse("hide");
+        $("#weeklyReportingSearchCriteriaCommands").hide();
+        $("#weeklyReportingSearchResultsCommands").show();
+        $("#weeklyReportingSearchResults").show();
+    };
+
+    function showWeeklyReportingSearchCriteria() {
+        $("#toggleWeeklyReportingSearchIcon").hide();
+        $("#weeklyReportingSearchCriteriaForm").collapse("show");
+        $("#weeklyReportingSearchCriteriaCommands").show();
+        $("#weeklyReportingSearchResults").hide();
+    };
+
+    function clearControls() {
+
+        $("#SearchCriteria_StartDate-error").html("");
+        $("#SearchCriteria_EndDate-error").html("");
+
+        $("#divSettlementType option:selected").html("");
+
+        }
+
+        function cancelSearch(message, event) {
+            event.preventDefault();
+            showWarningModal(message).then(response => {
+                if (response) {
+                    HistoryRedirect();
+                }
+            });
+        };
+
+        function CancelPage() {
+            $("#cancelModal").modal('show');
+        }
+
+        function HistoryRedirect() {
+            var referrer = document.referrer;
+            //If the referrer is the same page or view in the same controller we redirect to dashboard else we redirect to the referrer
+            if (referrer.search("SecurityPolicy") > -1) {
+                window.location.replace('@Url.Action("Index","Dashboard", new { area = "Administration"})');
+            }
+
+            else {
+                window.location.replace(referrer);
+            }
+        }
+
+
+
+
+    $("#search").on("click", function (e) {
+        var isValid = false;
+
+        $("#weeklyReportingSearchForm *").filter(":input:visible").each(function () {
+            if ($(this).attr("type") != undefined) {
+                if ($(this).attr("type") == "checkbox") {
+                    if ($(this).is(":checked"))
+                        isValid = true;
+                }
+                else {
+                    if ($.trim($(this).val()) != "") {
+                        isValid = true;
+                    }
+                }
+            }
+            else {
+                if ($.trim($(this).val()) != "") {
+                    isValid = true;
+                }
+            }
+        });
+
+
+
+        if (isValid == false)
+            showErrorModal('@Localizer.GetString(MessageResourceKeyConstants.EnterAtLeastOneParameterMessage)');
+        else {
+            $('#weeklyReportingSearchForm').validate({ // initialize the plugin
+                // rules & options
+            });
+            if (!$("#weeklyReportingSearchForm").valid())
+            {
+                isValid = false;
+            }
+
+            if (isValid == true) {
+                $("#weeklyReportingFormTable").DataTable().draw();
+                hideWeeklyReportingSearchCriteria();
+            }
+
+        }
+    });
+
+    function checkWeeklyReportingDeleteSuccess(response) {
+        if (response == "SUCCESS") {
+            showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');
+        }
+    };
+
+    function addWeeklyReporting() {
+        if ('@Model.ShowInModalIndicator'.toLowerCase() == "true") {
+            $("#searchWeeklyReportingModal").modal("hide");
+            $("#addWeeklyReportingModal").modal("show");
+        } else {
+            location.href='@Url.Action("Details", "WeeklyReportingForm")'
+        }
+    }
+
+
+    </script>
+
+*@

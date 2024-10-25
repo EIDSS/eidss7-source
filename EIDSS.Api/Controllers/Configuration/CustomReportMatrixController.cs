@@ -42,6 +42,7 @@ namespace EIDSS.Api.Controllers.Configuration
         [ProducesResponseType(typeof(APISaveResponseModel), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(APISaveResponseModel), StatusCodes.Status404NotFound)]
         [SwaggerOperation(Summary = "Save custom report row order", Tags = new[] { "Configurations - Matrices" })]
+        //[SystemEventActionFilterAttribute(SystemEventEnum.DoesNotParticipate)]
         public async Task<IActionResult> SaveCustomReportRowsOrder([FromBody] CustomReportRowsRowOrderSaveRequestModel request, CancellationToken cancellationToken = default)
         {
             APISaveResponseModel results = null;

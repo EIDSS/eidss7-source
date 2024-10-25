@@ -97,7 +97,7 @@ namespace EIDSS.Web.Components.Veterinary.DiseaseReport
             if (firstRender)
             {
                 ControlMeasures.FlexFormClient = FlexFormClient;
-                ControlMeasures.SetRequestParameter(Model.ControlMeasuresFlexForm);
+                await ControlMeasures.SetRequestParameter(Model.ControlMeasuresFlexForm);
 
                 await JsRuntime
                     .InvokeVoidAsync("ControlMeasuresSection.SetDotNetReference", _token,
@@ -180,17 +180,16 @@ namespace EIDSS.Web.Components.Veterinary.DiseaseReport
         /// <param name="isReview"></param>
         /// <returns></returns>
         [JSInvokable]
-        public void ReloadSection(bool isReview)
+        public async Task ReloadSection(bool isReview)
         {
             try
             {
                 IsReview = isReview;
 
-                var response = Task.Run(() => ControlMeasures.CollectAnswers(), _token);
-                response.Wait(_token);
-                Model.ControlMeasuresObservationParameters = response.Result.Answers;
+                var response = await ControlMeasures.CollectAnswers();
+                Model.ControlMeasuresObservationParameters = response.Answers;
                 Model.ControlMeasuresFlexFormAnswers = ControlMeasures.Answers;
-                ControlMeasures.Render(); 
+                await ControlMeasures.Render(); 
                 StateHasChanged();
             }
             catch (Exception e)

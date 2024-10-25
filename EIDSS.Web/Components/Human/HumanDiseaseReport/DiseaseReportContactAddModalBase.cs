@@ -62,7 +62,7 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
         ProtectedSessionStorage ProtectedSessionStore { get; set; }
 
         [Parameter]
-        public DiseaseReportContactDetailsViewModel Model { get; set; }
+        public DiseaseReportContactDetailsViewModel Model { get; set; } = new ();
 
         [Parameter]
         public LocationViewModel locationViewModel { get; set; }
@@ -99,8 +99,6 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
 
         protected bool? enableForeignLocation { get; set; } = false;
 
-        private UserPermissions userPermissions;
-
         protected IEnumerable<BaseReferenceViewModel> genderIDTypes;
 
         protected IEnumerable<BaseReferenceViewModel> nationalityList;
@@ -115,26 +113,11 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
         {
             try
             {
-                DiagService.OnOpen += ModalOpen;
-                DiagService.OnClose += ModalClose;
-
-                userPermissions = GetUserPermissions(PagePermission.CanInterpretHumanTestResult);
-
-                //canInterPretResults = !userPermissions.Execute;
-
-                userPermissions = GetUserPermissions(PagePermission.CanValidateTestHumanResultInterpretation);
-                // canValidateHumanTestResultInterpretation = !userPermissions.Execute;
-
-                //var userPreferences = ConfigurationService.GetUserPreferences(_tokenService.GetAuthenticatedUser().UserName);
-                var systemPreferences = ConfigurationService.SystemPreferences;
                 _logger = Logger;
-                if (Model == null)
-                    Model = new DiseaseReportContactDetailsViewModel();
 
                 contactDetailModal = Model;
                 EditContext = new(contactDetailModal);
 
-                //initialize the location control
                 contactDetailModal.LocationViewModel = locationViewModel;
 
                 if (!isEdit)
@@ -149,8 +132,6 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                         if (contactDetailModal.datDateofBirth != null)
                         {
                             contactDetailModal.Age = get_age(contactDetailModal.datDateofBirth);
-                            //var age = contactDetailModal.datDateofBirth - DateTime.Today.;
-                            //contactDetailModal.Age = Convert.ToInt32(age);
                         }
                     }
                     else
@@ -158,7 +139,6 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                         contactDetailModal.strFirstName = "********";
                         contactDetailModal.strLastName = "********";
                         contactDetailModal.strSecondName = "********";
-                        // contactDetailModal.datDateofBirth = "********"; 
                     }
 
                     contactDetailModal.idfContactPhoneType = personDetails.ContactPhoneNbrTypeID;
@@ -167,13 +147,10 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                     contactDetailModal.idfContactedCasePerson = personDetails.HumanMasterID;
                     contactDetailModal.AddressID = personDetails.AddressID;
                     contactDetailModal.idfHumanActual = personDetails.HumanMasterID;
-                    //contactDetailModal.idfHuman = personDetails.EIDSSPersonID;
                 }
 
-                // contactDetailModal.idfHumanActual = idfHumanActual;
                 contactDetailModal.idfHumanCase = idfHumanCase;
                 await EnableLocation(contactDetailModal.blnForeignAddress);
-                // contactDetailModal.LocationViewModel = locationViewModel;
                 contactDetailModal.idfsRegion = locationViewModel.AdminLevel1Value;
                 contactDetailModal.idfsRayon = locationViewModel.AdminLevel2Value;
                 contactDetailModal.idfsSettlement = locationViewModel.AdminLevel3Value;
@@ -183,12 +160,8 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                 contactDetailModal.strBuilding = locationViewModel.Building;
                 contactDetailModal.strApartment = locationViewModel.Apartment;
 
-                //contactDetailModal.idfContactPhoneTypeID =long.Parse(contactDetailModal.idfContactPhoneType);
-
-                //contactDetailModal.idfsHumanGender = personDetails.GenderTypeID;
-                //contactDetailModal.datDateofBirth = personDetails.DateOfBirth;
-
-                // contactDetailModal.idfContactPhoneType = personDetails.ContactPhoneCountryCode;
+                patientContactType = await CrossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), EIDSSConstants.BaseReferenceConstants.PatientContactType, null);
+                await UpdateRelation(Model.idfsPersonContactType);
             }
             catch (Exception ex)
             {
@@ -216,31 +189,7 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
 
         protected async Task RefreshLocationViewModelHandlerAsync(LocationViewModel locationViewModel)
         {
-            try
-            {
-                contactDetailModal.LocationViewModel = locationViewModel;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex.Message, ex);
-                throw;
-            }
-        }
-
-        void ModalOpen(string title, Type type, Dictionary<string, object> parameters, DialogOptions options)
-        {
-            //modal open event callback
-        }
-
-        void ModalClose(dynamic result)
-        {
-            //modal close event callback
-        }
-
-        public void Dispose()
-        {
-            DiagService.OnOpen -= ModalOpen;
-            DiagService.OnClose -= ModalClose;
+            contactDetailModal.LocationViewModel = locationViewModel;
         }
 
         protected async Task GetGenderTypesAsync(LoadDataArgs args)
@@ -260,18 +209,6 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
             try
             {
                 nationalityList = await CrossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), EIDSSConstants.BaseReferenceConstants.NationalityList, null);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex.Message, ex);
-                throw;
-            }
-        }
-        protected async Task GetPatientContactTypeAsync(LoadDataArgs args)
-        {
-            try
-            {
-                patientContactType = await CrossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), EIDSSConstants.BaseReferenceConstants.PatientContactType, null);
             }
             catch (Exception ex)
             {
@@ -315,7 +252,7 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                     var h = patientContactType.Where(x => x.IdfsBaseReference == long.Parse(Value.ToString()));
                     if (h != null && h.Count() > 0)
                     {
-                        contactDetailModal.strPersonContactType = h.FirstOrDefault().StrDefault;
+                        contactDetailModal.strPersonContactType = h.FirstOrDefault().Name ?? h.FirstOrDefault().StrDefault;
                     }
                 }
             }

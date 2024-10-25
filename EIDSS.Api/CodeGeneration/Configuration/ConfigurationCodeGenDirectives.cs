@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using EIDSS.Domain.RequestModels.Configuration;
 namespace EIDSS.Api.CodeGeneration.Configuration
 {
+    /// <summary>
+    /// </summary>
     public class GetSampleTypeDerivativeTypeMatrixListAsync : ICodeGenDirective
     {
         public string APIClassName { get => TargetedClassNames.ConfigurationController;}

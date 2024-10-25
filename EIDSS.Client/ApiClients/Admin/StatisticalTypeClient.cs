@@ -56,7 +56,7 @@ namespace EIDSS.ClientLibrary.ApiClients.Admin
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message, request);
-                throw;
+                throw; // new NotImplementedException();
             }
         }
 
@@ -80,6 +80,7 @@ namespace EIDSS.ClientLibrary.ApiClients.Admin
                     catch
                     {
                     }
+                    //????
                 }
 
                 httpResponse.EnsureSuccessStatusCode();

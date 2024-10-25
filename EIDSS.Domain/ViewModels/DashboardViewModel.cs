@@ -14,6 +14,10 @@ namespace EIDSS.Domain.ViewModels
         [Display(Name = "Language")]
         public string languageId { get; set; }
 
+        //public List<MenuViewModel> menuList { get; set; }
+
+        //public List<MenuViewModel> parentMenuList { get; set; }
+
         public List<MenuByUserViewModel> menuList { get; set; }
 
         public List<MenuByUserViewModel> parentMenuList { get; set; }

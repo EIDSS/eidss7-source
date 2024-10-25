@@ -74,6 +74,7 @@ namespace EIDSS.Api.Controllers.Administration
         [ProducesResponseType(typeof(APISaveResponseModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(APISaveResponseModel), StatusCodes.Status404NotFound)]
         [SwaggerOperation(Summary = "", Tags = new[] { "Administration - Base Reference Editors" })]
+        //[SystemEventActionFilterAttribute(SystemEventEnum.Reference_Data_Changed)]
         public async Task<IActionResult> SaveSettlementType([FromBody] SettlementTypeSaveRequestModel request, CancellationToken cancellationToken = default)
         {
             APISaveResponseModel results = null;

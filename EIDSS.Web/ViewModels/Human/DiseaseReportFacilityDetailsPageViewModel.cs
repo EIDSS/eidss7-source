@@ -5,7 +5,6 @@ using EIDSS.Localization.Enumerations;
 using EIDSS.Localization.Helpers;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace EIDSS.Web.ViewModels.Human
 {
@@ -18,11 +17,11 @@ namespace EIDSS.Web.ViewModels.Human
 
         public long? PatientPreviouslySoughtCare { get; set; }
         public long? SoughtCareFacilityID { get; set; }
+        public string? SoughtCareFacilityText { get; set; }
 
 
         [IsValidDate]
         [LocalizedDateLessThanOrEqualToToday]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         [DatePatientFirstSoughtCare(
             nameof(SoughtCareFirstDate), "FacilityDetailsSection_SoughtCareFirstDate",
             nameof(DiseaseReportNotificationPageViewModel.dateOfDiagnosis), "NotificationSection_dateOfDiagnosis",
@@ -30,12 +29,12 @@ namespace EIDSS.Web.ViewModels.Human
         )]
         public DateTime? SoughtCareFirstDate { get; set; }
         public long? NonNotifiableDiseaseID { get; set; }
+        public string? NonNotifiableDiseaseText{ get; set; }
         public long? Hospitalized { get; set; }
-        public long? HospitalID { get; set; }
+        public string HospitalizationPlace { get; set; }
 
         [IsValidDate]
         [LocalizedDateLessThanOrEqualToToday]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         [LocalizedRequiredIfTrue(nameof(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsDateOfHospitalizationFieldLabel))]
         [DateComparer(nameof(HospitalizationDate), "FacilityDetailsSection_HospitalizationDate",
             nameof(DiseaseReportSymptomsPageViewModel.SymptomsOnsetDate), "SymptomsSection_SymptomsOnsetDate",
@@ -47,7 +46,6 @@ namespace EIDSS.Web.ViewModels.Human
 
         [IsValidDate]
         [LocalizedDateLessThanOrEqualToToday]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         [LocalizedRequiredIfTrue(nameof(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsDateOfHospitalizationFieldLabel))]
         [DateComparer(nameof(HospitalizationDate), "FacilityDetailsSection_OutbreakHospitalizationDate",
             nameof(DiseaseReportSymptomsPageViewModel.SymptomsOnsetDate), "SymptomsSection_OutBreakSymptomsOnsetDate",
@@ -65,14 +63,12 @@ namespace EIDSS.Web.ViewModels.Human
             nameof(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsDateOfDischargeFieldLabel),
             nameof(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsDateOfHospitalizationFieldLabel))]
         [IsValidDate]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? DateOfDischarge { get; set; }
 
         //Drop downs
         public List<BaseReferenceViewModel> YesNoChoices { get; set; }
         public Select2Configruation FacilitySelect { get; set; }
         public Select2Configruation DiagnosisSelect { get; set; }
-        public Select2Configruation HospitalSelect { get; set; }
         public UserPermissions BaseReferencePermissions { get; set; }
         public bool IsReportClosed { get; set; } = false;
         public bool IsOutbreak { get; set; } = false;

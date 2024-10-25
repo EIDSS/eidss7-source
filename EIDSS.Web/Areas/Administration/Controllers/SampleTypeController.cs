@@ -20,9 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.Int32;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Administration.Controllers
 {
@@ -66,7 +63,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 var valuePair = dataTableQueryPostObj.ReturnSortParameter();
 
                 var strSortColumn = "intOrder";
-                if (!IsNullOrEmpty(valuePair.Key) && valuePair.Key != "KeyId")
+                if (!string.IsNullOrEmpty(valuePair.Key) && valuePair.Key != "KeyId")
                 {
                     strSortColumn = valuePair.Key;
                 }
@@ -75,11 +72,11 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 {
                     LanguageId = GetCurrentLanguage(),
                     SampleTypeSearch = referenceType.SearchBox,
-                    AdvancedSearch = IsNullOrEmpty(referenceType.SearchBox) ? null : referenceType.SearchBox,
+                    AdvancedSearch = string.IsNullOrEmpty(referenceType.SearchBox) ? null : referenceType.SearchBox,
                     Page = dataTableQueryPostObj.page,
                     PageSize = dataTableQueryPostObj.length,
                     SortColumn = strSortColumn,
-                    SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Ascending
+                    SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending
                 };
 
                 //API CALL
@@ -108,7 +105,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     list.ElementAt(i).LOINC_NUMBER,
                     list.ElementAt(i).StrHACodeNames,
                     list.ElementAt(i).IntOrder.ToString(),
-                    list.ElementAt(i).StrHACode != null ? list.ElementAt(i).StrHACode:Empty,
+                    list.ElementAt(i).StrHACode != null ? list.ElementAt(i).StrHACode : string.Empty,
                     "",
                     "",
                     ""
@@ -123,7 +120,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         [HttpPost]
         public async Task<JsonResult> Edit([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             var response = new APISaveResponseModel();
 
             try
@@ -135,12 +132,12 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     {
                         for (var i = 0; i < jsonObject["StrHACodeNames"].Children().Count(); i++)
                         {
-                            TryParse(jsonObject["StrHACodeNames"].Children().ElementAt(i)["id"]?.ToString(), out var outResult);
+                            int.TryParse(jsonObject["StrHACodeNames"].Children().ElementAt(i)["id"]?.ToString(), out var outResult);
                             intHaCodeTotal += outResult;
                         }
                     }
 
-                    var strSampleCode = Empty;
+                    var strSampleCode = string.Empty;
                     if (jsonObject["StrSampleCode"] != null)
                     {
                         strSampleCode = jsonObject["StrSampleCode"].ToString();
@@ -149,7 +146,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     var intOrder = 0;
                     if (jsonObject["IntOrder"] != null)
                     {
-                        intOrder = IsNullOrEmpty(((JValue)jsonObject["IntOrder"]).Value?.ToString()) ? 0 : Parse(jsonObject["IntOrder"].ToString());
+                        intOrder = string.IsNullOrEmpty(((JValue)jsonObject["IntOrder"]).Value?.ToString()) ? 0 : int.Parse(jsonObject["IntOrder"].ToString());
                     }
 
                     var newSampleType = new SampleTypeSaveRequestModel
@@ -162,7 +159,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                         intHACode = intHaCodeTotal,
                         intOrder = intOrder,
                         LanguageId = GetCurrentLanguage(),
-                        EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                        EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                         AuditUserName = authenticatedUser.UserName,
                         LocationId = authenticatedUser.RayonId,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -172,7 +169,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     response = await _sampleTypesClient.SaveSampleType(newSampleType);
                     response.strClientPageMessage = response.ReturnMessage switch
                     {
-                        "DOES EXIST" => Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage),
+                        "DOES EXIST" => string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage),
                             newSampleType.Default),
                         "SUCCESS" => _localizer.GetString(
                             MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage),
@@ -191,7 +188,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         [HttpPost]
         public async Task<JsonResult> Create([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             APISaveResponseModel response;
 
             try
@@ -199,7 +196,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 var intHaCodeTotal = 0;
                 if (jsonObject["IntHACode"] != null)
                 {
-                    if (IsNullOrEmpty(jsonObject["IntHACode"].ToString()))
+                    if (string.IsNullOrEmpty(jsonObject["IntHACode"].ToString()))
                     {
                         // popup a modal with message "Accessory Code is mandatory. You must enter data in this field before saving the form. Do you want to correct the value?"
                         return Json("");
@@ -208,11 +205,11 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     {
                         var a = JArray.Parse(jsonObject["IntHACode"].ToString());
 
-                        intHaCodeTotal += a.Sum(t => Parse(t["id"]?.ToString() ?? Empty));
+                        intHaCodeTotal += a.Sum(t => int.Parse(t["id"]?.ToString() ?? string.Empty));
                     }
                 }
 
-                var strSampleCode = Empty;
+                var strSampleCode = string.Empty;
                 if (jsonObject["StrSampleCode"] != null)
                 {
                     strSampleCode = jsonObject["StrSampleCode"].ToString();
@@ -221,7 +218,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 var intOrder = 0;
                 if (jsonObject["IntOrder"] != null)
                 {
-                    intOrder = IsNullOrEmpty(((JValue)jsonObject["IntOrder"]).Value?.ToString()) ? 0 : Parse(jsonObject["IntOrder"].ToString());
+                    intOrder = string.IsNullOrEmpty(((JValue)jsonObject["IntOrder"]).Value?.ToString()) ? 0 : int.Parse(jsonObject["IntOrder"].ToString());
                 }
 
                 var newSampleType = new SampleTypeSaveRequestModel
@@ -234,7 +231,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     intHACode = intHaCodeTotal,
                     intOrder = intOrder,
                     LanguageId = GetCurrentLanguage(),
-                    EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                    EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                     AuditUserName = authenticatedUser.UserName,
                     LocationId = authenticatedUser.RayonId,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -244,7 +241,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 response = await _sampleTypesClient.SaveSampleType(newSampleType);
                 response.strClientPageMessage = response.ReturnMessage switch
                 {
-                    "DOES EXIST" => Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage),
+                    "DOES EXIST" => string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage),
                         newSampleType.Default),
                     "SUCCESS" => _localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage),
                     _ => response.strClientPageMessage
@@ -259,11 +256,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             return Json(response);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         [HttpPost]
         public async Task<JsonResult> Delete([FromBody] JsonElement data)
         {
@@ -271,17 +263,17 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             var forceDelete = false;
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
                 if (jsonObject["KeyId"] != null)
                 {
                     if (jsonObject["ForceDelete"] != null)
-                        forceDelete = !IsNullOrEmpty(jsonObject["ForceDelete"].ToString()) && bool.Parse(jsonObject["ForceDelete"].ToString());
+                        forceDelete = !string.IsNullOrEmpty(jsonObject["ForceDelete"].ToString()) && bool.Parse(jsonObject["ForceDelete"].ToString());
 
                     var request = new SampleTypeSaveRequestModel
                     {
-                        DeleteAnyway = forceDelete, 
+                        DeleteAnyway = forceDelete,
                         LanguageId = GetCurrentLanguage(),
-                        EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                        EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                         AuditUserName = authenticatedUser.UserName,
                         LocationId = authenticatedUser.RayonId,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),

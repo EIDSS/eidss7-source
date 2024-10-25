@@ -193,7 +193,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
 				HumanDiseaseReportDeduplicationService.chkCheckAllFinalOutcome = false;
 				HumanDiseaseReportDeduplicationService.chkCheckAllFinalOutcome2 = false;
 
-				await EableDisableMergeButtonAsync();
+				await EnableDisableMergeButtonAsync();
 			}
 		}
 
@@ -294,7 +294,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                 HumanDiseaseReportDeduplicationService.chkCheckAllFinalOutcome = false;
                 HumanDiseaseReportDeduplicationService.chkCheckAllFinalOutcome2 = false;
 
-                await EableDisableMergeButtonAsync();
+                await EnableDisableMergeButtonAsync();
             }
         }
     }

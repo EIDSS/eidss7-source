@@ -1,0 +1,35 @@
+@using EIDSS.Domain.ViewModels.Human
+@inherits EmployerSearchBase
+
+<RadzenStack>
+    <RadzenDropDownDataGrid
+        @ref="@EmployeeDropDownDataGrid"
+        Name="@Name"
+        TextProperty="@nameof(PersonForOfficeViewModel.FullName)"
+        SelectedValue="@(SelectedEmployerText ?? string.Empty)"
+        Change="@OnEmployeeChange"
+        Disabled="@Disabled"
+        ShowSearch="false"
+        Density="@Density.Compact"
+        PageSize="@PageSize"
+        Count="@EmployeesCount"
+        MouseEnter="@LoadOnce"
+        Data="@Employees"
+        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+        AllowClear="true"
+        AllowFiltering="true"
+        ShowAdd="@ShowAddButton"
+        Add="OpenAddEmployeePopup"
+        TValue="PersonForOfficeViewModel">
+        <EmptyTemplate>
+            <RadzenStack AlignItems="@AlignItems.Center" JustifyContent="@JustifyContent.Center" Style="height: 100px;">
+                @Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)
+            </RadzenStack>
+        </EmptyTemplate>
+        <Columns>
+            <RadzenDropDownDataGridColumn
+                Property="@nameof(PersonForOfficeViewModel.FullName)"
+                Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.NameColumnHeading).Value"/>
+        </Columns>
+    </RadzenDropDownDataGrid>
+</RadzenStack>

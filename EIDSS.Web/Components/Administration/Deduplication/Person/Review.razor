@@ -1,8 +1,11 @@
 ﻿@inherits EIDSS.Web.Components.Administration.Deduplication.Person.ReviewBase
 
+@*    <div class="card">
+        <div class="card-body">*@
             <div class="form-row">
                 <div class="col-md-12">
                      <RadzenCard>
+                        @*<h4>Information</h4>*@
                         <div class="card-header" id="ReviewInformation">
                             <button class="btn d-inline-block" @onclick=@(() => EditClickAsync(0))>
                             <h4 class="d-inline-block" style="line-height: 1.5rem; padding: 0.375rem 0.75rem;">Information</h4>
@@ -43,6 +46,7 @@
             <div class="form-row">
                 <div class="col-md-12">
                       <RadzenCard>
+                    @*<h4>Employment</h4>*@
                         <div class="card-header" id="ReviewAddress">
                             <button class="btn d-inline-block" @onclick=@(() => EditClickAsync(1))>
                             <h4 class="d-inline-block" style="line-height: 1.5rem; padding: 0.375rem 0.75rem;">Employment</h4>
@@ -60,6 +64,15 @@
                       </RadzenCard>
                 </div>
             </div>
+@*            <div class="form-row">
+                <div class="col-md-12">
+                    <RadzenCard>
+                    <button id="cancelButton" class="btn btn-outline-primary" type="button" >@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
+                    <button id="saveButton" type="button" class="btn btn-primary" >@Localizer.GetString(@ButtonResourceKeyConstants.SaveButton)</button>
+                    </RadzenCard>
+                </div>*@
+@*        </div>
+    </div>*@
 
         <div class="card-footer">
             <div class="row">

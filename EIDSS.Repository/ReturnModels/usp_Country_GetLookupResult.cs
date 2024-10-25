@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EIDSS.Repository.ReturnModels
 {
-    public partial class usp_Country_GetLookupResult
+    public partial class USP_Country_GetLookupResult
     {
         public long idfsCountry { get; set; }
         public string strCountryName { get; set; }

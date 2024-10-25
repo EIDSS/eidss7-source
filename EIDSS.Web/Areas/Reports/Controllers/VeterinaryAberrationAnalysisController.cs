@@ -56,8 +56,8 @@ namespace EIDSS.Web.Areas.Reports.Controllers
         }
 
         public string ReportName { get; set; } = "Human Aberration Analysis";
-        public string StartIssueDate { get; set; } = "";// DateTime.Now.ToString("MM/dd/yyy");
-        public string EndIssueDate { get; set; } = "";// DateTime.Now.ToString("MM/dd/yyy");
+        public string StartIssueDate { get; set; } = "";
+        public string EndIssueDate { get; set; } = "";
 
         protected override string ReportServerUrl
         {

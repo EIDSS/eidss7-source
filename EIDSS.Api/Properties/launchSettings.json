@@ -1,5 +1,13 @@
 {
   "profiles": {
+    "Development": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
     "EIDSS.Api": {
       "commandName": "Project",
       "launchBrowser": true,

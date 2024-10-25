@@ -54,7 +54,8 @@ namespace EIDSS.ClientLibrary.ApiClients.Configuration
         public Task<List<DiseaseSampleTypeByDiseaseResponseModel>> GetDiseaseSampleTypeByDiseasePaged(DiseaseSampleTypeByDiseaseRequestModel request);
 
         //GRID Configuration
-        Task<List<USP_CONF_USER_GRIDS_SETResponseModel>> SetUserGridConfiguration(USP_CONF_USER_GRIDS_SETRequestModel request);
+         //Task<List<USP_CONF_USER_GRIDS_GETDETAILResponseModel>> GetUserGridConfiguration(USP_CONF_USER_GRIDS_GETDETAILRequestModel request);
+         Task<List<USP_CONF_USER_GRIDS_SETResponseModel>> SetUserGridConfiguration(USP_CONF_USER_GRIDS_SETRequestModel request);
         List<USP_CONF_USER_GRIDS_GETDETAILResponseModel> GetUserGridConfiguration(USP_CONF_USER_GRIDS_GETDETAILRequestModel request);
     }
 
@@ -800,6 +801,36 @@ namespace EIDSS.ClientLibrary.ApiClients.Configuration
             }
         }
 
+        //public async Task<List<USP_CONF_USER_GRIDS_GETDETAILResponseModel>> GetUserGridConfiguration(USP_CONF_USER_GRIDS_GETDETAILRequestModel request)
+        //{
+        //    try
+        //    {
+        //        var viewModelJson = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+        //        var url = string.Format(_eidssApiOptions.GetUserGridConfigurationPath, _eidssApiOptions.BaseUrl);
+
+        //        var httpResponse = await _httpClient.PostAsync(url, viewModelJson);
+
+        //        httpResponse.EnsureSuccessStatusCode();
+        //        var contentStream = await httpResponse.Content.ReadAsStreamAsync();
+
+        //        var response = await JsonSerializer.DeserializeAsync<List<USP_CONF_USER_GRIDS_GETDETAILResponseModel>>(contentStream,
+        //        new JsonSerializerOptions
+        //        {
+        //            IgnoreNullValues = true,
+        //            PropertyNameCaseInsensitive = true
+        //        });
+
+        //        return response;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex.Message, new object[] { request });
+        //        throw;
+        //    }
+        //    finally
+        //    {
+        //    }
+        //}
         public List<USP_CONF_USER_GRIDS_GETDETAILResponseModel> GetUserGridConfiguration(USP_CONF_USER_GRIDS_GETDETAILRequestModel request)
         {
             try

@@ -28,8 +28,18 @@
 </div>
 <div class="form-row">
     <div class="col-6 mx-auto">
+        @*<RadzenCard>*@
             @if (PersonDeduplicationService.InfoList != null)
             {
+                    @*<RadzenCheckBoxList id="rcblInfo" Name="rcblInfo" AllowClear="true" @ref="rcblInfo" TValue="int" @bind-Value=@PersonDeduplicationService.InfoValues
+                                        Orientation="Orientation.Horizontal" Change=@OnCheckBoxListInfoSelectionChangeAsync>
+                        <Items>
+                            @foreach (Field item in PersonDeduplicationService.InfoList)
+                            {
+                            <RadzenCheckBoxListItem Text="@item.Label" Value="@item.Index" Disabled="item.Disabled" Visible="@(item.Index < GenderTypeID)" Style="@item.Color" />
+                            }
+                        </Items>
+                    </RadzenCheckBoxList>*@
                 <RadzenDataList WrapItems=false AllowPaging=false Data=PersonDeduplicationService.InfoList TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
                     <Template Context="field">
                     @if (field.Index < GenderTypeID)
@@ -54,11 +64,21 @@
                     </Template>
                 </RadzenDataList>
             }
+        @*</RadzenCard>*@
     </div>
     <div class="col-6">
         <RadzenCard>
             @if (PersonDeduplicationService.InfoList2 != null)
             {
+                    @*<RadzenCheckBoxList id="rcblInfo2" Name="rcblInfo2" AllowClear="true" @ref="rcblInfo2" TValue="int" @bind-Value=@PersonDeduplicationService.InfoValues2
+                                        Orientation="Orientation.Horizontal" Change=@OnCheckBoxListInfo2SelectionChangeAsync>
+                        <Items>
+                            @foreach (Field item in PersonDeduplicationService.InfoList2)
+                            {
+                                <RadzenCheckBoxListItem Text="@item.Label" Value="@item.Index" Disabled="item.Disabled" Visible="@(item.Index < GenderTypeID)" Style="@item.Color" />
+                            }
+                        </Items>
+                    </RadzenCheckBoxList>*@
                 <RadzenDataList WrapItems=false AllowPaging=false Data=PersonDeduplicationService.InfoList2 TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
                     <Template Context="field">
                     @if (field.Index < GenderTypeID)

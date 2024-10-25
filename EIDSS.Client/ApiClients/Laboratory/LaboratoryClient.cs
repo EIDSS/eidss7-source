@@ -53,14 +53,10 @@ namespace EIDSS.ClientLibrary.ApiClients.Laboratory
 
     public partial class LaboratoryClient : BaseApiClient, ILaboratoryClient
     {
-        protected internal EidssApiConfigurationOptions EidssApiConfigurationOptions;
-
         #region Constructors
 
         public LaboratoryClient(HttpClient httpClient, IOptionsSnapshot<EidssApiOptions> eidssApiOptions, IOptions<EidssApiConfigurationOptions> eidssApiConfigurationOptions, ILogger<LaboratoryClient> logger) : base(httpClient, eidssApiOptions, logger)
         {
-            EidssApiConfigurationOptions = eidssApiConfigurationOptions.Value;
-            _httpClient = httpClient;
         }
 
         #endregion

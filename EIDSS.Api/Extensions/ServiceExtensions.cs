@@ -1,30 +1,22 @@
-﻿using EIDSS.Api.Providers;
+﻿using EIDSS.Api.Configuration;
+using EIDSS.Api.Helpers;
+using EIDSS.Api.Provider;
+using EIDSS.Api.Providers;
 using EIDSS.Repository;
 using EIDSS.Repository.Contexts;
 using EIDSS.Repository.Interfaces;
 using EIDSS.Repository.Repositories;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Threading.Tasks;
+using EIDSS.Security.Encryption;
+using MapsterMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using EIDSS.Api.Provider;
-using Mapster;
-using MapsterMapper;
-using EIDSS.Api.Helpers;
-using EIDSS.Api.Integrations.PIN.Georgia;
-using EIDSS.Repository.Providers;
-using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Sinks.MSSqlServer;
+using System.Collections.Generic;
 using System.Diagnostics;
-using Serilog.Enrichers;
 
 namespace EIDSS.Api.Extensions
 {
@@ -50,16 +42,13 @@ namespace EIDSS.Api.Extensions
         /// <param name="services"></param>
         public static void ConfigureRepositories(this IServiceCollection services)
         {
-
             services.AddSingleton<IModelProcessHelper, ModelProcessHelper>();
-            
             services.AddScoped<IDataRepository, DataRepository>();
-
-            // Register the context without using an interface...
             services.AddScoped<EIDSSContextProcedures, EIDSSContextProcedures>();
-
             services.AddSingleton<IModelPropertyMapper, ModelPropertyMapper>();
-
+            services.AddScoped<ITlbHumanActualRepository, TlbHumanActualRepository>();
+            services.AddScoped<ITrtBaseReferenceRepository, TrtBaseReferenceRepository>();
+            services.AddScoped<ITlbChangeDiagnosisHistoryRepository, TlbChangeDiagnosisHistoryRepository>();
         }
 
         /// <summary>
@@ -77,64 +66,36 @@ namespace EIDSS.Api.Extensions
         /// Registers each context used by the application
         /// </summary>
         /// <param name="services"></param>
-        /// <param name="config"></param>
-        public static void ConfigureContexts(this IServiceCollection services, Microsoft.Extensions.Configuration.IConfiguration config)
+        /// <param name="configuration"></param>
+        public static void ConfigureContexts(this IServiceCollection services, IConfiguration configuration)
         {
+            var protectedSettings = GetProtectedSettings(configuration);
 
-            var connectionOptions = new ConnectionStringOptions();
-            var connectionstringssection = config.GetSection(ConnectionStringOptions.SectionName);
+            var eidssConnectionString = GetConnectionString(configuration, "EIDSSConn", protectedSettings.EIDSSDatabaseUser, protectedSettings.EIDSSDatabasePassword);
+            var archiveConnectionString = GetConnectionString(configuration, "EIDSSArchiveConn", protectedSettings.EIDSSArchiveDatabaseUser, protectedSettings.EIDSSArchiveDatabasePassword);
 
-
-            #region Development User Secrets Initialization - EIDSS...
-
-            // Each developer uses his/her own account for the EIDSS context in development...
-            var ebuilder = new SqlConnectionStringBuilder(config.GetConnectionString("EIDSSConn"));
-            var ebuilderArchive = new SqlConnectionStringBuilder(config.GetConnectionString("EIDSSArchiveConn"));
-#if DEBUG
-            // Get username/password from user secrets only if running locally...
-            if (String.IsNullOrEmpty(ebuilder.UserID) && String.IsNullOrEmpty(ebuilder.Password))
+            Dictionary<string, string> connectionStrings = new()
             {
-                ebuilder.UserID = config["User"];
-                ebuilder.Password = config["DbPassword"];
-                connectionstringssection["EIDSSConn"] = ebuilder.ConnectionString;
-
-            }
-
-            // Get username/password from user secrets only if running locally...
-            if (String.IsNullOrEmpty(ebuilderArchive.UserID) && String.IsNullOrEmpty(ebuilderArchive.Password))
-            {
-                ebuilderArchive.UserID = config["ArchiveUser"];
-                ebuilderArchive.Password = config["ArchiveDbPassword"];
-                connectionstringssection["EIDSSArchiveConn"] = ebuilder.ConnectionString;
-            }
-
-#endif
-
-#endregion
-
-            // bind the connection strings section...
-            connectionstringssection.Bind(connectionOptions); ;
-
-            Dictionary<string, string> connStrs = new Dictionary<string, string>
-            {
-                {"EIDSS", ebuilder.ConnectionString},
-                {"EIDSSARCHIVE", ebuilderArchive.ConnectionString}
+                {"EIDSS", eidssConnectionString},
+                {"EIDSSARCHIVE", archiveConnectionString}
             };
 
-            DbContextFactory.SetConnectionString(connStrs, services);
+            DbContextFactory.SetConnectionString(connectionStrings, services);
             DbContextFactory.Connect("EIDSS");
 
             // Configure Serilog...
             // A flaw in serilog requires it to be loaded after the connection strings have been configured.
- 
+
             // Problem:  Serilog doesn't work with user secrets.  When you assign a connection string to serilog
             // for logging to the DB, it uses it as is; so during development, if using user secrets to complete
             // the connection string, Serilog won't work because it knows nothing about the update to the connection string.
 
             // To get around this, we load it here.
-            var sinkOpts = new MSSqlServerSinkOptions();
-            sinkOpts.TableName = "tauApplicationEventLog";
-            sinkOpts.AutoCreateSqlTable = false;
+            var sinkOptions = new MSSqlServerSinkOptions
+            {
+                TableName = "tauApplicationEventLog",
+                AutoCreateSqlTable = false
+            };
 
             Log.Logger = new LoggerConfiguration()
                 .Enrich.WithMachineName()
@@ -143,44 +104,82 @@ namespace EIDSS.Api.Extensions
                 .Enrich.FromLogContext()
                 .MinimumLevel.Error()
                 .WriteTo.MSSqlServer(
-                connectionString: ebuilder.ConnectionString,
-                sinkOptions: sinkOpts)
+                connectionString: eidssConnectionString,
+                sinkOptions: sinkOptions)
                .CreateLogger();
 
-            Serilog.Debugging.SelfLog.Enable(msg =>{ Debug.Print(msg); });
+            Serilog.Debugging.SelfLog.Enable(message => { Debug.Print(message); });
 
-
-#region Dynamically Configure xsite instance(s)...
-
-            var xsiteOptions = new XSiteConfigurationOptions();
-            config.GetSection(XSiteConfigurationOptions.SectionName).Bind(xsiteOptions);
-
-            // One or many or all xsite contexts can be implemented, it depends on the configuration in the XSite section...
-            // Currently xsite is localized for the following countries:
-            // US 
-            // AZ
-            // GG
-            foreach( var cfg in xsiteOptions.LanguageConfigurations)
-            {
-                var xbuilder = new SqlConnectionStringBuilder(cfg.ConnectionString);
-                var langcode = cfg.CountryISOCode.Replace("-", "").ToLower();
-                if (langcode == "enus")
-                    services.AddDbContext<xSiteContext_enus>(options => options.UseSqlServer(xbuilder.ConnectionString));
-                else if (langcode == "azl")
-                    services.AddDbContext<xSiteContext_azl>(options => options.UseSqlServer(xbuilder.ConnectionString));
-                else if (langcode == "kage")
-                    services.AddDbContext<xSiteContext_kage>(options => options.UseSqlServer(xbuilder.ConnectionString));
-            }
-
-#endregion
+            AddXSiteDbContext(services, configuration);
 
             services.AddTransient<IPasswordValidator<ApplicationUser>, CustomPasswordValidator>();
             services.AddTransient<IUserValidator<ApplicationUser>, CustomUserNamePolicy>();
 
-            // For Identity  
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+        }
+
+        private static void AddXSiteDbContext(IServiceCollection services, IConfiguration configuration)
+        {
+            var protectedSettings = GetProtectedSettings(configuration);
+
+            var xsiteOptions = new XSiteConfigurationOptions();
+            configuration.GetSection(XSiteConfigurationOptions.SectionName).Bind(xsiteOptions);
+
+            foreach (var languageConfiguration in xsiteOptions.LanguageConfigurations)
+            {
+                var langcode = languageConfiguration.CountryISOCode.Replace("-", "").ToLower();
+                if (langcode == "enus")
+                {
+                    var connectionString = GetConnectionString(languageConfiguration.ConnectionString, protectedSettings.XSiteEnUsDatabaseUser, protectedSettings.XSiteEnUsDatabasePassword);
+                    services.AddDbContext<XSiteContextEnUS>(options => options.UseSqlServer(connectionString));
+                }
+                else if (langcode == "azl")
+                {
+                    var connectionString = GetConnectionString(languageConfiguration.ConnectionString, protectedSettings.XSiteAzLDatabaseUser, protectedSettings.XSiteAzLDatabasePassword);
+                    services.AddDbContext<XSiteContextAzL>(options => options.UseSqlServer(connectionString));
+                }
+                else if (langcode == "kage")
+                {
+                    var connectionString = GetConnectionString(languageConfiguration.ConnectionString, protectedSettings.XSiteKaGeDatabaseUser, protectedSettings.XSiteKaGeDatabasePassword);
+                    services.AddDbContext<XSiteContextKaGe>(options => options.UseSqlServer(connectionString));
+                }
+            }
+        }
+
+        private static string GetConnectionString(
+            string connectionString,
+            string encryptedUserId,
+            string encryptedPassword)
+        {
+            var builder = new SqlConnectionStringBuilder(connectionString);
+
+            if (!builder.IntegratedSecurity &&
+                (string.IsNullOrEmpty(builder.UserID) ||
+                string.IsNullOrEmpty(builder.Password)))
+            {
+                builder.UserID = encryptedUserId.Decrypt();
+                builder.Password = encryptedPassword.Decrypt();
+            }
+
+            return builder.ConnectionString;
+        }
+
+        private static string GetConnectionString(
+            IConfiguration configuration,
+            string connectionStringName,
+            string encryptedUserId,
+            string encryptedPassword)
+        {
+            var connectionString = configuration.GetConnectionString(connectionStringName);
+            return GetConnectionString(connectionString, encryptedUserId, encryptedPassword);
+        }
+
+        private static ProtectedSettings GetProtectedSettings(IConfiguration configuration)
+        {
+            var protectedConfigSection = configuration.GetSection("ProtectedConfiguration");
+            return protectedConfigSection.Get<ProtectedSettings>();
         }
     }
 }

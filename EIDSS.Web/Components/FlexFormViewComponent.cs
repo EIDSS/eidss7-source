@@ -9,11 +9,13 @@ using System;
 using System.IO;
 using System.Collections.Specialized;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Linq;
 using Microsoft.Net.Http.Headers;
 using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using EIDSS.Web.Components.FlexForm;
+using EIDSS.Web.Extensions;
 using static System.Collections.Specialized.BitVector32;
 
 namespace EIDSS.Web.Components
@@ -383,31 +385,10 @@ namespace EIDSS.Web.Components
 
                     case (long)FlexibleFormEditorTypeEnum.DatePicker:
                     case (long)FlexibleFormEditorTypeEnum.DateTimePicker:
-                        string strDateformat = String.Empty;
-                        string strControlFormat = string.Empty;
-
-                        //TODO: Replace Hardcoded Date Format with culture detected one
-                        //TODO: Ensure DateTimePicker has proper implementation
-                        switch (LanguageID)
-                        {
-                            case "ar-JO":
-                            case "az-Latn-AZ":
-                            case "ka-GE":
-                            case "ru-RU":
-                                strDateformat = "dd.MM.yyyy";
-                                strControlFormat = "dd.mm.yy"; ;
-                                break;
-
-                            default:
-                                strDateformat = "MM/dd/yyyy";
-                                strControlFormat = "mm/dd/yy";
-                                break;
-                        }
-
                         if (!string.IsNullOrEmpty(strValue))
                         {
                             DateTime dt = DateTime.Parse(strValue);
-                            strValue = dt.ToString(strDateformat);
+                            strValue = dt.ToString(CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
                         }
                         strControl += "<input type='text' [ATTRIBUTES] [REQUIRED] style='position:relative;float:left;width:85%;max-width:220px'></input>";
                         strControl += "<script type='text/javascript'>$(document).ready(function(){$(\"#" + idfsParameter + "\").val(\"" + strValue + "\");";
@@ -418,16 +399,16 @@ namespace EIDSS.Web.Components
                         strControl += " showOn: \"both\",";
                         strControl += " yearRange: \"-122:+79\",";
                         strControl += " constrainInput: false,";
-                        strControl += " buttonText: \"<i class='fas fa-calendar'></i>\",";
+                        strControl += " buttonText: \"\",";
                         strControl += " beforeShow: function() {";
                         strControl += "     setTimeout(function(){";
                         strControl += "         $('.ui-datepicker').css('z-index', 9999);";
                         strControl += "     }, 0);";
                         strControl += " }";
                         strControl += "},";
-                        strControl += "$.datepicker.regional[\"" + LanguageID.Split("-")[0].ToString() + "\"],";
-                        strControl += " { dateFormat: '" + strControlFormat + "'}";
-                        strControl += " )).next('.ui-datepicker-trigger').addClass('flex-form-datepicker');";
+                        strControl += "$.datepicker.regional[\"" + CultureInfo.CurrentCulture.TwoLetterISOLanguageName + "\"],";
+                        strControl += " { dateFormat: '" + CultureInfo.CurrentCulture.DateTimeFormat.ToJavascriptShortDatePattern() + "'}";
+                        strControl += " )).next('.ui-datepicker-trigger').addClass('flex-form-datepicker fas fa-calendar');";
                         strControl += "})";
                         strControl += "</script>";
                         break;

@@ -10,7 +10,6 @@ using EIDSS.Domain.RequestModels.DataTables;
 using EIDSS.Domain.RequestModels.Human;
 using EIDSS.Domain.RequestModels.Outbreak;
 using EIDSS.Domain.ResponseModels.Human;
-using EIDSS.Domain.ResponseModels.Outbreak;
 using EIDSS.Domain.ViewModels;
 using EIDSS.Domain.ViewModels.Configuration;
 using EIDSS.Domain.ViewModels.CrossCutting;
@@ -26,6 +25,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -42,12 +42,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
     [Area("Human")]
     public class PersonDetailsController : BaseController
     {
-        //public IActionResult Index()
-        //{
-        //    return View();
-        //}
-        #region Global Variables
-
         readonly IPersonClient _personClient;
         readonly private ICrossCuttingClient _crossCuttingClient;
         readonly private IConfigurationClient _configurationClient;
@@ -64,20 +58,14 @@ namespace EIDSS.Web.Areas.Human.Controllers
         private readonly CancellationTokenSource source;
         private readonly CancellationToken token;
 
-        public string CountryId { get; set; }
-
-        #endregion
-
-        #region Constructors/Invocation
-
-        public PersonDetailsController(IPersonClient personClient, 
-            IConfiguration configuration, 
-            IConfigurationClient configurationClient, 
+        public PersonDetailsController(IPersonClient personClient,
+            IConfiguration configuration,
+            IConfigurationClient configurationClient,
             ICrossCuttingClient crossCuttingClient,
             IHumanDiseaseReportClient humanDiseaseReportClient,
             IOutbreakClient OutbreakClient,
             IPersonalIdentificationTypeMatrixClient personalIdentificationTypeMatrixClient,
-            IStringLocalizer localizer, ITokenService tokenService, 
+            IStringLocalizer localizer, ITokenService tokenService,
             ILogger<PersonDetailsController> logger) :
             base(logger, tokenService)
         {
@@ -100,13 +88,11 @@ namespace EIDSS.Web.Areas.Human.Controllers
             token = source.Token;
         }
 
-        // GET: PersonController
-        public async Task<IViewComponentResult> InvokeAsync(long? humanMasterID,int startIndex)
+        public async Task<IViewComponentResult> InvokeAsync(long? humanMasterID, int startIndex)
         {
             PersonDetailsViewModel model = new()
             {
                 StartIndex = startIndex,
-                //PersonDetails = new(),
                 PersonInformationSection = new()
                 {
                     PersonDetails = new()
@@ -223,7 +209,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
                         AdminLevel0Value = Convert.ToInt64(_configuration.GetValue<string>("EIDSSGlobalSettings:CountryID"))
                     }
                 },
-                PersonEmploymentSchoolSection = new() 
+                PersonEmploymentSchoolSection = new()
                 {
                     PersonDetails = new(),
                     WorkAddress = new()
@@ -300,8 +286,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
                     },
                     DiseaseReports = new(),
                     OutbreakCaseReports = new()
-                },
-                //ShowInModalIndicator = showInModalIndicator
+                }
             };
 
             model.HumanMasterID = humanMasterID;
@@ -319,8 +304,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
                 HumanPersonDetailsRequestModel request = new HumanPersonDetailsRequestModel();
                 request.LangID = "en-US";
                 request.HumanMasterID = humanMasterID;
-                //request.HumanMasterID = 353610000825;
-                //request.HumanMasterID = 320000767;
                 var response = await _personClient.GetHumanDiseaseReportPersonInfoAsync(request);
                 if (response != null && response.Count > 0)
                 {
@@ -331,16 +314,12 @@ namespace EIDSS.Web.Areas.Human.Controllers
                     model.PersonAddressSection.CurrentAddress.AdminLevel1Value = personInfo.HumanidfsRegion;
                     model.PersonAddressSection.CurrentAddress.AdminLevel2Text = personInfo.HumanRayon;
                     model.PersonAddressSection.CurrentAddress.AdminLevel2Value = personInfo.HumanidfsRayon;
-                    //currentAddress.SettlementText = personInfo.HumanSettlementType;
                     model.PersonAddressSection.CurrentAddress.SettlementType = personInfo.HumanidfsSettlementType;
-                    //currentAddress.Settlement = personInfo.HumanSettlement;
                     model.PersonAddressSection.CurrentAddress.SettlementId = personInfo.HumanidfsSettlement;
-                    //model.PersonAddressSection.CurrentAddress.PostalCode = personInfo.HumanstrPostalCode == null ? null : (string.IsNullOrEmpty(personInfo.HumanstrPostalCode.ToString()) ? null : Convert.ToInt64(personInfo.HumanstrPostalCode));
                     model.PersonAddressSection.CurrentAddress.PostalCodeText = personInfo.HumanstrPostalCode;
                     model.PersonAddressSection.CurrentAddress.Latitude = personInfo.HumanstrLatitude;
                     model.PersonAddressSection.CurrentAddress.Longitude = personInfo.HumanstrLongitude;
                     model.PersonAddressSection.CurrentAddress.StreetText = personInfo.HumanstrStreetName;
-                    //model.PersonAddressSection.CurrentAddress.Street = personInfo.HumanstrStreetName == null ? null : (string.IsNullOrEmpty(personInfo.HumanstrStreetName.ToString()) ? null : Convert.ToInt64(personInfo.HumanstrStreetName));
                     model.PersonAddressSection.CurrentAddress.House = personInfo.HumanstrHouse;
                     model.PersonAddressSection.CurrentAddress.Building = personInfo.HumanstrBuilding;
                     model.PersonAddressSection.CurrentAddress.Apartment = personInfo.HumanstrApartment;
@@ -353,10 +332,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
                     model.PersonAddressSection.PermanentAddress.SettlementType = personInfo.HumanPermidfsSettlementType;
                     model.PersonAddressSection.PermanentAddress.SettlementId = personInfo.HumanPermidfsSettlement;
                     model.PersonAddressSection.PermanentAddress.PostalCodeText = personInfo.HumanPermstrPostalCode;
-                    //model.PersonAddressSection.PermanentAddress.PostalCode = personInfo.HumanPermstrPostalCode == null ? null : (string.IsNullOrEmpty(personInfo.HumanPermstrPostalCode.ToString()) ? null : Convert.ToInt64(personInfo.HumanPermstrPostalCode));
-                    //model.PersonAddressSection.PermanentAddress.Latitude = personInfo.HumanPermstrLatitude.ToString();
-                    //model.PersonAddressSection.PermanentAddress.Longitude = personInfo.HumanPermstrLongitude.ToString();
-                    //model.PersonAddressSection.PermanentAddress.Street = personInfo.HumanPermstrStreetName == null ? null : (string.IsNullOrEmpty(personInfo.HumanPermstrStreetName.ToString()) ? null : Convert.ToInt64(personInfo.HumanPermstrStreetName));
                     model.PersonAddressSection.PermanentAddress.StreetText = personInfo.HumanPermstrStreetName;
                     model.PersonAddressSection.PermanentAddress.House = personInfo.HumanPermstrHouse;
                     model.PersonAddressSection.PermanentAddress.Building = personInfo.HumanPermstrBuilding;
@@ -370,10 +345,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
                     model.PersonAddressSection.AlternateAddress.SettlementType = personInfo.HumanAltidfsSettlementType;
                     model.PersonAddressSection.AlternateAddress.SettlementId = personInfo.HumanAltidfsSettlement;
                     model.PersonAddressSection.AlternateAddress.PostalCodeText = personInfo.HumanAltstrPostalCode;
-                    //model.PersonAddressSection.AlternateAddress.PostalCode = personInfo.HumanAltstrPostalCode == null ? null : (string.IsNullOrEmpty(personInfo.HumanAltstrPostalCode.ToString()) ? null : Convert.ToInt64(personInfo.HumanAltstrPostalCode));
-                    //model.PersonAddressSection.AlternateAddress.Latitude = personInfo.HumanAltstrLatitude.ToString();
-                    //model.PersonAddressSection.AlternateAddress.Longitude = personInfo.HumanAltstrLongitude.ToString();
-                    //model.PersonAddressSection.AlternateAddress.Street = personInfo.HumanAltstrStreetName == null ? null : (string.IsNullOrEmpty(personInfo.HumanAltstrStreetName.ToString()) ? null : Convert.ToInt64(personInfo.HumanAltstrStreetName));
                     model.PersonAddressSection.AlternateAddress.StreetText = personInfo.HumanAltstrStreetName;
                     model.PersonAddressSection.AlternateAddress.House = personInfo.HumanAltstrHouse;
                     model.PersonAddressSection.AlternateAddress.Building = personInfo.HumanAltstrBuilding;
@@ -387,9 +358,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
                     model.PersonEmploymentSchoolSection.WorkAddress.SettlementType = personInfo.EmployeridfsSettlementType;
                     model.PersonEmploymentSchoolSection.WorkAddress.SettlementId = personInfo.EmployeridfsSettlement;
                     model.PersonEmploymentSchoolSection.WorkAddress.PostalCodeText = personInfo.EmployerstrPostalCode;
-                    //model.PersonEmploymentSchoolSection.WorkAddress.PostalCode = personInfo.EmployerstrPostalCode == null ? null : (string.IsNullOrEmpty(personInfo.EmployerstrPostalCode.ToString()) ? null : Convert.ToInt64(personInfo.EmployerstrPostalCode));
                     model.PersonEmploymentSchoolSection.WorkAddress.StreetText = personInfo.EmployerstrStreetName;
-                    //model.PersonEmploymentSchoolSection.WorkAddress.Street = personInfo.EmployerstrStreetName == null ? null : (string.IsNullOrEmpty(personInfo.EmployerstrStreetName.ToString()) ? null : Convert.ToInt64(personInfo.EmployerstrStreetName));
                     model.PersonEmploymentSchoolSection.WorkAddress.House = personInfo.EmployerstrHouse;
                     model.PersonEmploymentSchoolSection.WorkAddress.Building = personInfo.EmployerstrBuilding;
                     model.PersonEmploymentSchoolSection.WorkAddress.Apartment = personInfo.EmployerstrApartment;
@@ -399,12 +368,9 @@ namespace EIDSS.Web.Areas.Human.Controllers
                     model.PersonEmploymentSchoolSection.SchoolAddress.AdminLevel1Value = personInfo.SchoolidfsRegion;
                     model.PersonEmploymentSchoolSection.SchoolAddress.AdminLevel2Text = personInfo.SchoolRayon;
                     model.PersonEmploymentSchoolSection.SchoolAddress.AdminLevel2Value = personInfo.SchoolidfsRayon;
-                    //schoolAddress.SettlementType = personInfo.School;
                     model.PersonEmploymentSchoolSection.SchoolAddress.SettlementId = personInfo.SchoolidfsSettlement;
                     model.PersonEmploymentSchoolSection.SchoolAddress.PostalCodeText = personInfo.SchoolstrPostalCode;
-                    //model.PersonEmploymentSchoolSection.SchoolAddress.PostalCode = personInfo.SchoolstrPostalCode == null ? null : (string.IsNullOrEmpty(personInfo.SchoolstrPostalCode.ToString()) ? null : Convert.ToInt64(personInfo.SchoolstrPostalCode));
                     model.PersonEmploymentSchoolSection.SchoolAddress.StreetText = personInfo.SchoolstrStreetName;
-                    //model.PersonEmploymentSchoolSection.SchoolAddress.Street = personInfo.SchoolstrStreetName == null ? null : (string.IsNullOrEmpty(personInfo.SchoolstrStreetName.ToString()) ? null : Convert.ToInt64(personInfo.SchoolstrStreetName));
                     model.PersonEmploymentSchoolSection.SchoolAddress.House = personInfo.SchoolstrHouse;
                     model.PersonEmploymentSchoolSection.SchoolAddress.Building = personInfo.SchoolstrBuilding;
                     model.PersonEmploymentSchoolSection.SchoolAddress.Apartment = personInfo.SchoolstrApartment;
@@ -426,7 +392,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
                         }
                     }
 
-                    //model.PersonInformationSection.PersonDetails = personInfo;
                     model.PersonInformationSection.PersonDetails = personInfo;
                     model.PersonInformationSection.PersonDetails.HumanActualId = humanMasterID;
                     model.PersonAddressSection.PersonDetails = personInfo;
@@ -481,7 +446,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
             model.PersonEmploymentSchoolSection.SchoolCountryList = await _crossCuttingClient.GetCountryList(GetCurrentLanguage()).ConfigureAwait(false);
             model.PersonEmploymentSchoolSection.SchoolCountryList.Insert(0, item2);
 
-            var viewData = new ViewDataDictionary<PersonDetailsViewModel> (ViewData, model);
+            var viewData = new ViewDataDictionary<PersonDetailsViewModel>(ViewData, model);
             return new ViewViewComponentResult()
             {
                 ViewData = viewData
@@ -490,7 +455,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
 
         [HttpPost()]
         [Route("CopyCurrentAddressToPermanentAddress")]
-        public  IActionResult CopyCurrentAddressToPermanentAddress([FromBody] JsonElement data)
+        public IActionResult CopyCurrentAddressToPermanentAddress([FromBody] JsonElement data)
         {
             try
             {
@@ -538,8 +503,8 @@ namespace EIDSS.Web.Areas.Human.Controllers
                 model.AdminLevel2Value = jsonObject["HumanidfsRayon"] == null ? null : (string.IsNullOrEmpty(jsonObject["HumanidfsRayon"].ToString()) ? null : Convert.ToInt64(jsonObject["HumanidfsRayon"]));
                 model.SettlementType = jsonObject["HumanidfsSettlementType"] == null ? null : (string.IsNullOrEmpty(jsonObject["HumanidfsSettlementType"].ToString()) ? null : Convert.ToInt64(jsonObject["HumanidfsSettlementType"]));
                 model.Settlement = jsonObject["HumanidfsSettlement"] == null ? null : (string.IsNullOrEmpty(jsonObject["HumanidfsSettlement"].ToString()) ? null : Convert.ToInt64(jsonObject["HumanidfsSettlement"]));
-                model.PostalCodeText = jsonObject["HumanidfsPostalCode"].ToString(); // == null ? null : (string.IsNullOrEmpty(jsonObject["HumanidfsPostalCode"].ToString()) ? null : Convert.ToInt64(jsonObject["HumanidfsPostalCode"].ToString()));
-                model.StreetText = jsonObject["HumanstrStreetName"].ToString();// == null ? null : (string.IsNullOrEmpty(jsonObject["HumanstrStreetName"].ToString()) ? null : Convert.ToInt64(jsonObject["HumanstrStreetName"]));
+                model.PostalCodeText = jsonObject["HumanidfsPostalCode"].ToString();
+                model.StreetText = jsonObject["HumanstrStreetName"].ToString();
                 model.House = jsonObject["HumanstrHouse"].ToString();
                 model.Building = jsonObject["HumanstrBuilding"].ToString();
                 model.Apartment = jsonObject["HumanstrApartment"].ToString();
@@ -547,8 +512,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
                 ViewData.TemplateInfo.HtmlFieldPrefix = model.CallingObjectID;
 
                 return PartialView("_PersonLocationPartial", model);
-
-                //return ViewComponent("LocationView", model);
             }
             catch (Exception ex)
             {
@@ -556,8 +519,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
                 throw;
             }
         }
-
-
 
         [HttpPost()]
         [Route("CopyCurrentAddressToWorkAddress")]
@@ -602,21 +563,17 @@ namespace EIDSS.Web.Areas.Human.Controllers
                 AdminLevel0Value = Convert.ToInt64(_configuration.GetValue<string>("EIDSSGlobalSettings:CountryID"))
             };
 
-
-            //model.PersonEmploymentSchoolSection.WorkAddress.AdminLevel1Text = personInfo.EmployerRegion;
             WorkAddressLocationViewModel.AdminLevel0Value = jsonObject["HumanidfsCountry"] == null ? null : (string.IsNullOrEmpty(jsonObject["HumanidfsCountry"].ToString()) ? null : Convert.ToInt64(jsonObject["HumanidfsCountry"]));
 
             WorkAddressLocationViewModel.AdminLevel1Value = jsonObject["HumanidfsRegion"] == null ? null : (string.IsNullOrEmpty(jsonObject["HumanidfsRegion"].ToString()) ? null : Convert.ToInt64(jsonObject["HumanidfsRegion"]));
-            //model.PersonEmploymentSchoolSection.WorkAddress.AdminLevel2Text = personInfo.EmployerRayon;
             WorkAddressLocationViewModel.AdminLevel2Value = jsonObject["HumanidfsRayon"] == null ? null : (string.IsNullOrEmpty(jsonObject["HumanidfsRayon"].ToString()) ? null : Convert.ToInt64(jsonObject["HumanidfsRayon"]));
-            //model.PersonEmploymentSchoolSection.WorkAddress.SettlementType = personInfo.EmployeridfsSettlementType;
             WorkAddressLocationViewModel.SettlementType = jsonObject["HumanidfsSettlementType"] == null ? null : (string.IsNullOrEmpty(jsonObject["HumanidfsSettlementType"].ToString()) ? null : Convert.ToInt64(jsonObject["HumanidfsSettlementType"]));
 
             WorkAddressLocationViewModel.Settlement = jsonObject["HumanidfsSettlement"] == null ? null : (string.IsNullOrEmpty(jsonObject["HumanidfsSettlement"].ToString()) ? null : Convert.ToInt64(jsonObject["HumanidfsSettlement"]));
-            //model.PersonEmploymentSchoolSection.WorkAddress.PostalCodeText = personInfo.EmployerstrPostalCode;
-            WorkAddressLocationViewModel.PostalCodeText = jsonObject["HumanidfsPostalCode"].ToString();// == null ? null : (string.IsNullOrEmpty(jsonObject["HumanidfsPostalCode"].ToString()) ? null : Convert.ToInt64(jsonObject["HumanidfsPostalCode"].ToString()));
-                                                                                                       //model.PersonEmploymentSchoolSection.WorkAddress.StreetText = personInfo.EmployerstrStreetName;
-            WorkAddressLocationViewModel.StreetText = jsonObject["HumanstrStreetName"].ToString();// == null ? null : (string.IsNullOrEmpty(jsonObject["HumanstrStreetName"].ToString()) ? null : Convert.ToInt64(jsonObject["HumanstrStreetName"]));
+
+            WorkAddressLocationViewModel.PostalCodeText = jsonObject["HumanidfsPostalCode"].ToString();
+
+            WorkAddressLocationViewModel.StreetText = jsonObject["HumanstrStreetName"].ToString();
             WorkAddressLocationViewModel.House = jsonObject["HumanstrHouse"].ToString();
             WorkAddressLocationViewModel.Building = jsonObject["HumanstrBuilding"].ToString();
             WorkAddressLocationViewModel.Apartment = jsonObject["HumanstrApartment"].ToString();
@@ -624,7 +581,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
             ViewData.TemplateInfo.HtmlFieldPrefix = WorkAddressLocationViewModel.CallingObjectID;
 
             return PartialView("_PersonLocationPartial", WorkAddressLocationViewModel);
-
         }
 
         public async Task<bool> ValidatePersonalID(string data)
@@ -658,7 +614,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
 
                 if (response != null)
                 {
-                    //var list = response.Where(a => a.IdfPersonalIDType == personalIDType).ToList();
                     var item = response.Where(a => a.IdfPersonalIDType == personalIDType).FirstOrDefault();
                     if (item != null && item.StrFieldType == "Numeric")
                     {
@@ -685,10 +640,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
             return isValid;
         }
 
-        #endregion
-
-        #region Review
-
         [HttpPost()]
         [Route("SavePerson")]
         public async Task<JsonResult> SavePerson([FromBody] JsonElement data)
@@ -711,7 +662,8 @@ namespace EIDSS.Web.Areas.Human.Controllers
                 model.PersonInformationSection.PersonDetails.FirstOrGivenName = jsonObject["FirstOrGivenName"].ToString();
                 model.PersonInformationSection.PersonDetails.SecondName = jsonObject["SecondName"].ToString();
                 model.PersonInformationSection.PersonDetails.LastOrSurname = jsonObject["LastOrSurname"].ToString();
-                model.PersonInformationSection.PersonDetails.DateOfBirth = jsonObject["DateOfBirth"].ToString();
+                model.PersonInformationSection.PersonDetails.DateOfBirth = jsonObject["DateOfBirth"] != null ? Convert.ToDateTime(jsonObject["DateOfBirth"]) : null;
+                model.PersonInformationSection.PersonDetails.DateOfDeath = jsonObject["DateOfDeath"] != null ? Convert.ToDateTime(jsonObject["DateOfDeath"]) : null;
                 model.PersonInformationSection.PersonDetails.ReportedAge = string.IsNullOrEmpty(jsonObject["ReportedAge"].ToString()) ? null : Convert.ToInt32(jsonObject["ReportedAge"]);
                 model.PersonInformationSection.PersonDetails.ReportedAgeUOMID = jsonObject["ReportedAgeUOMID"].ToString() == "-1" ? null : Convert.ToInt64(jsonObject["ReportedAgeUOMID"]);
                 model.PersonInformationSection.PersonDetails.GenderTypeID = jsonObject["GenderTypeID"].ToString() == "-1" ? null : Convert.ToInt64(jsonObject["GenderTypeID"]);
@@ -755,7 +707,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
                 model.PersonInformationSection.PersonDetails.HumanAltstrBuilding = jsonObject["HumanAltstrBuilding"]?.ToString();
                 model.PersonInformationSection.PersonDetails.HumanAltstrHouse = jsonObject["HumanAltstrHouse"]?.ToString();
                 model.PersonInformationSection.PersonDetails.HumanAltstrPostalCode = jsonObject["HumanAltidfsPostalCode"]?.ToString();
-
                 model.PersonInformationSection.PersonDetails.HomePhone = jsonObject["HomePhone"].ToString();
                 model.PersonInformationSection.PersonDetails.WorkPhone = jsonObject["WorkPhone"].ToString();
 
@@ -821,16 +772,14 @@ namespace EIDSS.Web.Areas.Human.Controllers
                     request.FirstName = model.PersonInformationSection.PersonDetails.FirstOrGivenName;
                     request.SecondName = model.PersonInformationSection.PersonDetails.SecondName;
                     request.LastName = model.PersonInformationSection.PersonDetails.LastOrSurname;
-                    request.DateOfBirth = string.IsNullOrEmpty(model.PersonInformationSection.PersonDetails.DateOfBirth) ? null : Convert.ToDateTime(model.PersonInformationSection.PersonDetails.DateOfBirth);
-                    request.ReportedAge = model.PersonInformationSection.PersonDetails.ReportedAge;
-                    request.ReportAgeUOMID = model.PersonInformationSection.PersonDetails.ReportedAgeUOMID;
+                    request.DateOfBirth = model.PersonInformationSection.PersonDetails.DateOfBirth;
+                    request.DateOfDeath = model.PersonInformationSection.PersonDetails.DateOfDeath;
                     request.HumanGenderTypeID = model.PersonInformationSection.PersonDetails.GenderTypeID;
                     request.CitizenshipTypeID = model.PersonInformationSection.PersonDetails.CitizenshipTypeID;
                     request.PassportNumber = model.PersonInformationSection.PersonDetails.PassportNumber;
 
                     request.HumanGeoLocationID = model.PersonInformationSection.PersonDetails.HumanGeoLocationID;
                     request.HumanidfsLocation = GetLowestLocationID(model.PersonInformationSection.PersonDetails.HumanidfsCountry, model.PersonInformationSection.PersonDetails.HumanidfsRegion, model.PersonInformationSection.PersonDetails.HumanidfsRayon, model.PersonInformationSection.PersonDetails.HumanidfsSettlement);
-
                     request.HumanstrStreetName = model.PersonInformationSection.PersonDetails.HumanstrStreetName;
                     request.HumanstrApartment = model.PersonInformationSection.PersonDetails.HumanstrApartment;
                     request.HumanstrBuilding = model.PersonInformationSection.PersonDetails.HumanstrBuilding;
@@ -838,7 +787,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
                     request.HumanidfsPostalCode = model.PersonInformationSection.PersonDetails.HumanstrPostalCode;
                     request.HumanstrLatitude = model.PersonInformationSection.PersonDetails.HumanstrLatitude;
                     request.HumanstrLongitude = model.PersonInformationSection.PersonDetails.HumanstrLongitude;
-
                     request.HumanPermGeoLocationID = model.PersonInformationSection.PersonDetails.HumanPermGeoLocationID;
                     request.HumanPermidfsLocation = GetLowestLocationID(model.PersonInformationSection.PersonDetails.HumanPermidfsCountry, model.PersonInformationSection.PersonDetails.HumanPermidfsRegion, model.PersonInformationSection.PersonDetails.HumanPermidfsRayon, model.PersonInformationSection.PersonDetails.HumanPermidfsSettlement);
                     request.HumanPermstrStreetName = model.PersonInformationSection.PersonDetails.HumanPermstrStreetName;
@@ -860,7 +808,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
                     request.HumanAltstrBuilding = model.PersonInformationSection.PersonDetails.HumanAltstrBuilding;
                     request.HumanAltstrHouse = model.PersonInformationSection.PersonDetails.HumanAltstrHouse;
                     request.HumanAltidfsPostalCode = model.PersonInformationSection.PersonDetails.HumanAltstrPostalCode;
-
                     request.HomePhone = model.PersonInformationSection.PersonDetails.HomePhone;
                     request.WorkPhone = model.PersonInformationSection.PersonDetails.WorkPhone;
 
@@ -882,6 +829,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
                         request.EmployeridfsLocation = model.PersonEmploymentSchoolSection.EmployerForeignidfsCountry;
                     else
                         request.EmployeridfsLocation = GetLowestLocationID(model.PersonInformationSection.PersonDetails.EmployeridfsCountry, model.PersonInformationSection.PersonDetails.EmployeridfsRegion, model.PersonInformationSection.PersonDetails.EmployeridfsRayon, model.PersonInformationSection.PersonDetails.EmployeridfsSettlement);
+
                     request.EmployerstrStreetName = model.PersonInformationSection.PersonDetails.EmployerstrStreetName;
                     request.EmployerstrApartment = model.PersonInformationSection.PersonDetails.EmployerstrApartment;
                     request.EmployerstrBuilding = model.PersonInformationSection.PersonDetails.EmployerstrBuilding;
@@ -899,6 +847,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
                         request.SchoolidfsLocation = model.PersonEmploymentSchoolSection.SchoolForeignidfsCountry;
                     else
                         request.SchoolidfsLocation = GetLowestLocationID(model.PersonInformationSection.PersonDetails.SchoolidfsCountry, model.PersonInformationSection.PersonDetails.SchoolidfsRegion, model.PersonInformationSection.PersonDetails.SchoolidfsRayon, model.PersonInformationSection.PersonDetails.SchoolidfsSettlement);
+
                     request.SchoolstrStreetName = model.PersonInformationSection.PersonDetails.SchoolstrStreetName;
                     request.SchoolstrApartment = model.PersonInformationSection.PersonDetails.SchoolstrApartment;
                     request.SchoolstrBuilding = model.PersonInformationSection.PersonDetails.SchoolstrBuilding;
@@ -925,7 +874,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
                                     model.PersonEmploymentSchoolSection.ReportsVisibleIndicator = true;
                                     model.InformationalMessage += "Record ID " + response.EIDSSPersonID + ".";
                                 }
-                                //model.InformationalMessage = _localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage);
                                 break;
                             default:
                                 throw new ApplicationException("Unable to save Person.");
@@ -950,17 +898,19 @@ namespace EIDSS.Web.Areas.Human.Controllers
         {
             string duplicateRecordsFound = string.Empty;
 
-            HumanPersonSearchRequestModel request = new();
-            request.LanguageId = GetCurrentLanguage();
-            request.Page = 1;
-            request.PageSize = 10;
-            request.SortColumn = "EIDSSPersonID";
-            request.SortOrder = "DESC";
-            request.DateOfBirthFrom = string.IsNullOrEmpty(model.DateOfBirth) ? null : DateTime.Parse(model.DateOfBirth);
-            request.DateOfBirthTo = request.DateOfBirthFrom;
-            request.idfsLocation = model.HumanidfsRegion;
-            request.LastOrSurname = model.LastOrSurname;
-            request.FirstOrGivenName = model.FirstOrGivenName;
+            HumanPersonSearchRequestModel request = new()
+            {
+                LanguageId = GetCurrentLanguage(),
+                Page = 1,
+                PageSize = 10,
+                SortColumn = "EIDSSPersonID",
+                SortOrder = "DESC",
+                DateOfBirthFrom = model.DateOfBirth,
+                DateOfBirthTo = model.DateOfBirth,
+                idfsLocation = model.HumanidfsRegion,
+                LastOrSurname = model.LastOrSurname,
+                FirstOrGivenName = model.FirstOrGivenName
+            };
 
             List<PersonViewModel> duplicateList = await _personClient.GetPersonList(request);
             if (model.HumanActualId == null && duplicateList.Count > 0)
@@ -1005,10 +955,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
             return idfsLocation;
         }
 
-        #endregion
-
-        #region Disease Reports
-
         [HttpPost]
         [Route("GetHumanDiseaseReportList")]
         public async Task<JsonResult> GetHumanDiseaseReportList([FromBody] JQueryDataTablesQueryObject dataTableQueryPostObj)
@@ -1043,7 +989,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
                     model.SortColumn = !string.IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "ReportID";
                     model.SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : "DESC";
                     model.PatientID = long.Parse((string)obj);
-                    //model.PatientID = long.Parse(JObject.Parse(dataTableQueryPostObj.postArgs.ToString())["PersonInformationSection_PersonDetails_HumanActualId"].ToString());
                     //only these three fields are required
                     model.UserEmployeeID = Convert.ToInt64(_tokenService.GetAuthenticatedUser().PersonId);
                     model.UserOrganizationID = Convert.ToInt64(_tokenService.GetAuthenticatedUser().OfficeId);
@@ -1056,9 +1001,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
                     if (list.Count > 0)
                     {
                         tableData.data.Clear();
-                        //tableData.iTotalRecords = (int)list[0].TotalCount;
-                        //tableData.iTotalDisplayRecords = (int)list[0].TotalCount;
-                        //tableData.recordsTotal = (int)list[0].TotalCount;
                         tableData.iTotalRecords = list.Count;
                         tableData.iTotalDisplayRecords = (int)list[0].RecordCount;
 
@@ -1068,14 +1010,9 @@ namespace EIDSS.Web.Areas.Human.Controllers
                             {
                                 humanDiseaseReportList.ElementAt(i).ReportKey.ToString(),
                                 humanDiseaseReportList.ElementAt(i).ReportID ?? "",
-                                //humanDiseaseReportList.ElementAt(i).LegacyReportID ?? "",
-                                //humanDiseaseReportList.ElementAt(i).PersonName ?? "",
-                                //humanDiseaseReportList.ElementAt(i).EnteredDate.HasValue ? humanDiseaseReportList.ElementAt(i).EnteredDate.Value.ToShortDateString() : "",
-                                //humanDiseaseReportList.ElementAt(i).FinalDiagnosisDate.HasValue ? humanDiseaseReportList.ElementAt(i).FinalDiagnosisDate.Value.ToShortDateString(): "",
                                 humanDiseaseReportList.ElementAt(i).DiseaseName ?? "",
                                 humanDiseaseReportList.ElementAt(i).ClassificationTypeName ?? "",
                                 humanDiseaseReportList.ElementAt(i).ReportStatusTypeName ?? ""
-                                //humanDiseaseReportList.ElementAt(i).PersonLocation ?? "",
                             };
 
                             tableData.data.Add(cols);
@@ -1087,16 +1024,10 @@ namespace EIDSS.Web.Areas.Human.Controllers
             }
             catch (Exception ex)
             {
-                //logger.LogError(ex.Message);
                 _logger.LogError(ex.Message);
                 throw;
             }
         }
-
-
-        #endregion
-
-        #region Outbreak Case Reports
 
         [HttpPost()]
         public async Task<JsonResult> GetOutbreakCaseList([FromBody] JQueryDataTablesQueryObject dataTableQueryPostObj)
@@ -1126,7 +1057,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
                 var request = new OutbreakCaseListRequestModel
                 {
                     LanguageId = GetCurrentLanguage(),
-                    //HumanMasterID = long.Parse(JObject.Parse(dataTableQueryPostObj.postArgs.ToString())["PersonEmploymentSchoolSection_OutbreakCaseReports_HumanMasterID"].ToString()),
                     HumanMasterID = long.Parse((string)obj),
                     SearchTerm = null,
                     TodaysFollowUpsIndicator = false,
@@ -1139,8 +1069,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
                 List<CaseGetListViewModel> ocl = await _OutbreakClient.GetCasesList(request);
                 IEnumerable<CaseGetListViewModel> OutbreakCaseList = ocl;
 
-                //TableData tableData = new TableData();
-                //tableData.data = new List<List<string>>();
                 tableData.iTotalRecords = ocl.Count == 0 ? 0 : ocl[0].TotalRowCount;
                 tableData.iTotalDisplayRecords = ocl.Count == 0 ? 0 : ocl[0].TotalRowCount;
                 tableData.draw = dataTableQueryPostObj.draw;
@@ -1151,8 +1079,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
                     {
                         List<string> cols = new()
                         {
-                            //((i + 1) + ((iPage-1)*iLength)).ToString(),
-                            //_OutbreakCasesViewModel.idfOutbreak.ToString(),
                             OutbreakCaseList.ElementAt(i).CaseID.ToString(),
                             OutbreakCaseList.ElementAt(i).CaseTypeName,
                             OutbreakCaseList.ElementAt(i).StatusTypeName,
@@ -1168,6 +1094,5 @@ namespace EIDSS.Web.Areas.Human.Controllers
 
             return Json(tableData);
         }
-        #endregion
     }
 }

@@ -41,6 +41,7 @@ namespace EIDSS.ClientLibrary.Services
             token.Preferences.DefaultRayonInSearchPanels = userPreferences.DefaultRayonInSearchPanels;
             token.Preferences.DefaultRegionInSearchPanels = userPreferences.DefaultRegionInSearchPanels;
             token.Preferences.UserPreferencesId = userPreferences.UserPreferencesId;
+            //authenticatedUser.Preferences.GridViewPreferences = sp.GridViewPreferences
         }
 
         public async Task UpdateUserOrganizationInToken(long employeeId, long organizationId, string languageId, AuthenticatedUser token)
@@ -64,7 +65,7 @@ namespace EIDSS.ClientLibrary.Services
                     OrganizationName = token.Organization,
                     StrOrganizationID = token.OfficeId.ToString(),
                     OrganizationFullName = token.OrganizationFullName,
-                    SiteGroupID = string.IsNullOrEmpty(token.SiteGroupID) ? (long?)null: System.Convert.ToInt64(token.SiteGroupID),
+                    SiteGroupID = string.IsNullOrEmpty(token.SiteGroupID) ? (long?)null/* TODO Change to default(_) if this is not a reference type */: System.Convert.ToInt64(token.SiteGroupID),
                     SiteID = Convert.ToInt64(token.SiteId),
                     SiteTypeID = Convert.ToInt64(token.SiteTypeId),
                     UserGroup = token.RoleMembership.Count ==0? null:token.RoleMembership[0]                   
@@ -147,5 +148,25 @@ namespace EIDSS.ClientLibrary.Services
 
 
         }
+        //public void UpdateAccessRulesAndPermissionsInToken(AuthenticatedUser token)
+        //{
+        //    var permissions = _cro.GetAccessRulesAndPermissions(token.EIDSSUserId.ToInt64).Result;
+        //    AccessRulePermission accessRuleAndPermission;
+        //    foreach (var permission in permissions)
+        //    {
+        //        accessRuleAndPermission = new AccessRulePermission()
+        //        {
+        //            AccessRuleID = permission.AccessRuleID,
+        //            AccessToGenderAndAgeDataPermissionIndicator = permission.AccessToGenderAndAgeDataPermissionIndicator,
+        //            AccessToPersonalDataPermissionIndicator = permission.AccessToPersonalDataPermissionIndicator,
+        //            DeletePermissionIndicator = permission.DeletePermissionIndicator,
+        //            ReadPermissionIndicator = permission.ReadPermissionIndicator,
+        //            WritePermissionIndicator = permission.WritePermissionIndicator,
+        //            SiteID = permission.SiteID
+        //        };
+
+        //        token.AccessRulePermissions.Add(accessRuleAndPermission);
+        //    }
+        //}
     }
 }

@@ -47,6 +47,8 @@ namespace EIDSS.Localization.Helpers
             CacheProvider = (LocalizationMemoryCacheProvider)_serviceProvider.GetService(typeof(LocalizationMemoryCacheProvider));
 
             string requiredIfResource = RequiredIf;
+            //if (RequiredIf.Contains(((long)InterfaceEditorTypeEnum.Required).ToString()) == false)
+            //    requiredIfResource = RequiredIf + (long)InterfaceEditorTypeEnum.Required;
 
             string DontRender = CacheProvider.GetRequiredResourceValueByLanguageCultureNameAndResourceKey(CurrentCulture.Name, requiredIfResource);
 

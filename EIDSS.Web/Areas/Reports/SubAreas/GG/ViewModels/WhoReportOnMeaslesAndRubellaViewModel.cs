@@ -19,13 +19,11 @@ namespace EIDSS.Web.Areas.Reports.SubAreas.GG.ViewModels
 
         [DisplayName("Date From")]
         [LocalizedRequired]
-        [DisplayFormat(DataFormatString = "{0:d}")]
         [DateComparer(nameof(DateFrom), "DateFrom", nameof(DateTo), "DateTo", CompareTypeEnum.LessThan, nameof(FieldLabelResourceKeyConstants.DateFromFieldLabel), nameof(FieldLabelResourceKeyConstants.DateToFieldLabel))]
         public string DateFrom { get; set; }
 
         [DisplayName("Date To")]
         [LocalizedRequired]
-        [DisplayFormat(DataFormatString = "{0:d}")]
         [DateComparer(nameof(DateTo), "DateTo", nameof(DateFrom), "DateFrom", CompareTypeEnum.GreaterThan, nameof(FieldLabelResourceKeyConstants.DateToFieldLabel), nameof(FieldLabelResourceKeyConstants.DateFromFieldLabel))]
         public string DateTo { get; set; }
 

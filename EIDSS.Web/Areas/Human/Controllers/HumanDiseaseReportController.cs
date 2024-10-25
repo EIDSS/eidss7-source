@@ -29,29 +29,34 @@ namespace EIDSS.Web.Areas.Human.Controllers
     public class HumanDiseaseReportController : BaseController
     {
         private readonly ICrossCuttingClient _crossCuttingClient;
-
         private readonly IConfiguration _configuration;
-        public new IConfiguration Configuration => _configuration;
-        public string CurrentLanguage { get; set; }
-        public new string CountryId { get; set; }
-
         private readonly AuthenticatedUser _authenticatedUser;
         private readonly IHumanDiseaseReportClient _humanDiseaseReportClient;
         private readonly UserPermissions _userPermissions;
         private readonly UserPermissions _userPermissionsAddEmployee;
         private readonly IPersonClient _personClient;
         private readonly IStringLocalizer _localizer;
-        private IHumanActiveSurveillanceSessionClient HumanActiveSurveillanceSessionClient { get; }
+        private readonly IHumanActiveSurveillanceSessionClient _humanActiveSurveillanceSessionClient;
 
-        public HumanDiseaseReportController(ICrossCuttingClient crossCuttingClient, IConfiguration configuration, IPersonClient personClient, IHumanDiseaseReportClient humanDiseaseReportClient, IStringLocalizer localizer
-            , ILogger<HumanDiseaseReportController> logger, ITokenService tokenService, IHumanActiveSurveillanceSessionClient humanActiveSurveillanceSessionClient) : base(logger, tokenService)
+        public string CurrentLanguage { get; set; }
+
+        public HumanDiseaseReportController(
+            ICrossCuttingClient crossCuttingClient,
+            IConfiguration configuration,
+            IPersonClient personClient,
+            IHumanDiseaseReportClient humanDiseaseReportClient,
+            IStringLocalizer localizer,
+            ILogger<HumanDiseaseReportController> logger,
+            ITokenService tokenService,
+            IHumanActiveSurveillanceSessionClient humanActiveSurveillanceSessionClient)
+            : base(logger, tokenService)
         {
             _crossCuttingClient = crossCuttingClient;
             _humanDiseaseReportClient = humanDiseaseReportClient;
             _configuration = configuration;
             _personClient = personClient;
             _localizer = localizer;
-            HumanActiveSurveillanceSessionClient = humanActiveSurveillanceSessionClient;
+            _humanActiveSurveillanceSessionClient = humanActiveSurveillanceSessionClient;
             _authenticatedUser = _tokenService.GetAuthenticatedUser();
             CountryId = _configuration.GetValue<string>("EIDSSGlobalSettings:CountryID");
             _userPermissions = GetUserPermissions(PagePermission.AccessToHumanDiseaseReportData);
@@ -64,17 +69,15 @@ namespace EIDSS.Web.Areas.Human.Controllers
             return View();
         }
 
-        public async Task<IActionResult> LoadDiseaseReport(long? humanId, long? caseId, bool isEdit = false, bool readOnly = false,
-                        int startIndex = 1, bool isConnectedDiseaseReport = false, bool isReopenClosedReport = false,
-                        long? idfMonitoringSession = null, long? idfTesting = null, bool isFromWhoExport = false)
+        public async Task<IActionResult> LoadDiseaseReport(long? humanId, long? caseId, bool isEdit = false, bool readOnly = false, int startIndex = 1, bool isReopenClosedReport = false, long? idfMonitoringSession = null, long? idfTesting = null, bool isFromWhoExport = false)
         {
             var diseaseReportPageViewModel = new DiseaseReportDetailPageViewModel
+            {
+                ReportComponent = new DiseaseReportComponentViewModel
                 {
-                    ReportComponent = new DiseaseReportComponentViewModel
-                    {
-                        StartIndex = startIndex
-                    }
-                };
+                    StartIndex = startIndex
+                }
+            };
             if (isEdit || readOnly)
                 diseaseReportPageViewModel.ReportComponent.HumanID = humanId;
             else
@@ -103,33 +106,32 @@ namespace EIDSS.Web.Areas.Human.Controllers
                 diseaseReportPageViewModel.ReportComponent.DiseaseReportContactPrintViewModel.Parameters.Add(new KeyValuePair<string, string>("PersonID", _authenticatedUser.PersonId));
             }
 
-            diseaseReportPageViewModel.ReportComponent.isConnectedDiseaseReport = isConnectedDiseaseReport;
             diseaseReportPageViewModel.ReportComponent.idfHumanCase = caseId;
             diseaseReportPageViewModel.ReportComponent.IsReopenClosedReport = isReopenClosedReport;
             diseaseReportPageViewModel.ReportComponent.PersonInfoSection = new DiseaseReportPersonalInformationPageViewModel
-                {
-                    PermissionsAccessToPersonalData = _userPermissions
-                };
+            {
+                PermissionsAccessToPersonalData = _userPermissions
+            };
 
             diseaseReportPageViewModel.ReportComponent.NotificationSection = new DiseaseReportNotificationPageViewModel();
 
             if (idfMonitoringSession != null)
             {
                 var sessionRequest = new ActiveSurveillanceSessionDetailRequestModel
-                    {
-                        LanguageID = GetCurrentLanguage(),
-                        MonitoringSessionID = idfMonitoringSession
-                    };
-                var sessionResult = await HumanActiveSurveillanceSessionClient.GetHumanActiveSurveillanceSessionDetailAsync(sessionRequest);
+                {
+                    LanguageID = GetCurrentLanguage(),
+                    MonitoringSessionID = idfMonitoringSession
+                };
+                var sessionResult = await _humanActiveSurveillanceSessionClient.GetHumanActiveSurveillanceSessionDetailAsync(sessionRequest);
 
                 diseaseReportPageViewModel.ReportComponent.NotificationSection.idfDisease = sessionResult.First().DiseaseID;
                 diseaseReportPageViewModel.ReportComponent.NotificationSection.strDisease = sessionResult.First().DiseaseName;
 
                 diseaseReportPageViewModel.ReportComponent.ReportSummary = new DiseaseReportSummaryPageViewModel
-                    {
-                        Disease = sessionResult.First().DiseaseName,
-                        ReportStatusID = (long)VeterinaryDiseaseReportStatusTypes.InProcess
-                    };
+                {
+                    Disease = sessionResult.First().DiseaseName,
+                    ReportStatusID = (long)VeterinaryDiseaseReportStatusTypes.InProcess
+                };
 
                 var reportTypeRequest = new BaseReferenceTranslationRequestModel
                 {
@@ -154,7 +156,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
                 };
 
                 var iRow = 0;
-                var testList = await HumanActiveSurveillanceSessionClient.GetActiveSurveillanceSessionTests(requestTests);
+                var testList = await _humanActiveSurveillanceSessionClient.GetActiveSurveillanceSessionTests(requestTests);
                 var personId = long.Parse(testList.First(x => x.ID == idfTesting).PersonID.ToString());
                 var testsDetailList = testList.Where(x => x.PersonID == personId)
                     .ToList()
@@ -175,23 +177,24 @@ namespace EIDSS.Web.Areas.Human.Controllers
                     .ToList();
 
                 diseaseReportPageViewModel.ReportComponent.TestsSection = new DiseaseReportTestPageViewModel
-                    {
-                        TestsConducted = YesNoValues.Yes,
-                        TestDetails = testsDetailList
-                    };
+                {
+                    TestsConducted = YesNoValues.Yes,
+                    TestDetails = testsDetailList,
+                    TestsLoaded = true,
+                };
 
                 var requestDetailedInformation = new ActiveSurveillanceSessionDetailedInformationRequestModel
-                    {
-                        LanguageId = GetCurrentLanguage(),
-                        idfMonitoringSession = idfMonitoringSession,
-                        Page = 1,
-                        PageSize = int.MaxValue - 1,
-                        SortColumn = "intOrder",
-                        SortOrder = "asc"
-                    };
+                {
+                    LanguageId = GetCurrentLanguage(),
+                    idfMonitoringSession = idfMonitoringSession,
+                    Page = 1,
+                    PageSize = int.MaxValue - 1,
+                    SortColumn = "intOrder",
+                    SortOrder = "asc"
+                };
 
-                var detailedInformation = await HumanActiveSurveillanceSessionClient.GetActiveSurveillanceSessionDetailedInformation(requestDetailedInformation);
-                var samplesDetailList = detailedInformation.Where(x => x.PersonID == personId && x.idfsSampleType != (long) SampleTypes.Unknown)
+                var detailedInformation = await _humanActiveSurveillanceSessionClient.GetActiveSurveillanceSessionDetailedInformation(requestDetailedInformation);
+                var samplesDetailList = detailedInformation.Where(x => x.PersonID == personId && x.idfsSampleType != (long)SampleTypes.Unknown)
                     .ToList()
                     .Select(item => new DiseaseReportSamplePageSampleDetailViewModel
                     {
@@ -208,19 +211,19 @@ namespace EIDSS.Web.Areas.Human.Controllers
                     .ToList();
 
                 diseaseReportPageViewModel.ReportComponent.SamplesSection = new DiseaseReportSamplePageViewModel
-                    {
-                        SamplesCollectedYN = YesNoValues.Yes,
-                        SamplesDetails = samplesDetailList
-                    };
+                {
+                    SamplesCollectedYN = YesNoValues.Yes,
+                    SamplesDetails = samplesDetailList
+                };
             }
 
             diseaseReportPageViewModel.ReportComponent.NotificationSection.PermissionsAccessToNotification = _userPermissionsAddEmployee;
             diseaseReportPageViewModel.ReportComponent.SymptomsSection = new DiseaseReportSymptomsPageViewModel();
             diseaseReportPageViewModel.ReportComponent.FacilityDetailsSection = new DiseaseReportFacilityDetailsPageViewModel
-                {
-                    YesNoChoices = new List<BaseReferenceViewModel>(),
-                    BaseReferencePermissions = _tokenService.GerUserPermissions(PagePermission.CanManageBaseReferencePage)
-                };
+            {
+                YesNoChoices = new List<BaseReferenceViewModel>(),
+                BaseReferencePermissions = _tokenService.GerUserPermissions(PagePermission.CanManageBaseReferencePage)
+            };
             diseaseReportPageViewModel.ReportComponent.SamplesSection ??= new DiseaseReportSamplePageViewModel();
             diseaseReportPageViewModel.ReportComponent.SamplesSection.YesNoChoices = new List<BaseReferenceViewModel>();
             diseaseReportPageViewModel.ReportComponent.TestsSection ??= new DiseaseReportTestPageViewModel();
@@ -246,15 +249,15 @@ namespace EIDSS.Web.Areas.Human.Controllers
             {
                 LanguageId = GetCurrentLanguage(),
                 SearchHumanCaseId = id,
-                SortColumn = "HumanDiseaseReportID", 
+                SortColumn = "HumanDiseaseReportID",
                 SortOrder = SortConstants.Ascending
             };
             var response = await _humanDiseaseReportClient.GetHumanDiseaseDetail(request);
-            if (response.First() == null) return View("Index");
-            var humanId = response.First().idfHuman;
-            var caseId = response.First().idfHumanCase;
+            if (response == null) return View("Index");
+            var humanId = response.idfHuman;
+            var caseId = response.idfHumanCase;
 
-            return RedirectToAction("LoadDiseaseReport", new {humanId, caseId, isEdit = true, readOnly = false});
+            return RedirectToAction("LoadDiseaseReport", new { humanId, caseId, isEdit = true, readOnly = false });
         }
 
         public async Task<IActionResult> SelectForReadOnly(long id)
@@ -263,15 +266,15 @@ namespace EIDSS.Web.Areas.Human.Controllers
             {
                 LanguageId = GetCurrentLanguage(),
                 SearchHumanCaseId = id,
-                SortColumn = "HumanDiseaseReportID", 
+                SortColumn = "HumanDiseaseReportID",
                 SortOrder = SortConstants.Ascending
             };
             var response = await _humanDiseaseReportClient.GetHumanDiseaseDetail(request);
-            if (response.FirstOrDefault() == null) return View("Index");
-            var humanId = response.First().idfHuman;
-            var caseId = response.First().idfHumanCase;
+            if (response == null) return View("Index");
+            var humanId = response.idfHuman;
+            var caseId = response.idfHumanCase;
 
-            return RedirectToAction("LoadDiseaseReport", new {humanId, caseId, isEdit = true, readOnly = true, StartIndex = 9 });
+            return RedirectToAction("LoadDiseaseReport", new { humanId, caseId, isEdit = true, readOnly = true, StartIndex = 9 });
         }
 
         public async Task<JsonResult> GetPersonListForOrg(int page, string data, string term)
@@ -301,7 +304,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
             var list = await _personClient.GetPersonListForOffice(request);
             if (list != null)
             {
-                select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.idfPerson.ToString(), text = item.FullName}));
+                select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.idfPerson.ToString(), text = item.FullName }));
             }
             select2DataObj.results = select2DataItems;
 
@@ -316,7 +319,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
                 LangID = GetCurrentLanguage()
             };
             var list = await _humanDiseaseReportClient.GetHumanDiseaseReportLkupCaseClassificationAsync(request);
-            select2DataObj.results = list.Where(x => x.blnInitialHumanCaseClassification 
+            select2DataObj.results = list.Where(x => x.blnInitialHumanCaseClassification
                                                      && x.strHACode.Split(',').ToList().Contains(HACodeList.HumanHACode.ToString()))
                 .Select(x => new Select2DataItem()
                 {

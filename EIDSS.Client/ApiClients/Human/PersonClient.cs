@@ -4,6 +4,7 @@ using EIDSS.Domain.RequestModels.Human;
 using EIDSS.Domain.ResponseModels;
 using EIDSS.Domain.ResponseModels.Human;
 using EIDSS.Domain.ViewModels.Human;
+using Flurl;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -16,21 +17,7 @@ using System.Threading.Tasks;
 
 namespace EIDSS.ClientLibrary.ApiClients.Human
 {
-    public partial interface IPersonClient
-    {
-        Task<List<PersonViewModel>> GetPersonList(HumanPersonSearchRequestModel request, CancellationToken cancellationToken = default);
-        Task<List<DiseaseReportPersonalInformationViewModel>> GetHumanDiseaseReportPersonInfoAsync(HumanPersonDetailsRequestModel request);
-        Task<PersonSaveResponseModel> SavePerson(PersonSaveRequestModel request);
-
-        Task<List<PersonForOfficeViewModel>> GetPersonListForOffice(GetPersonForOfficeRequestModel request);
-        Task<APIPostResponseModel> DeletePerson(long HumanMasterID, long? idfDataAuditEvent, string AuditUserName);
-        Task<APIPostResponseModel> DedupePersonFarm(PersonDedupeRequestModel request);
-        Task<APIPostResponseModel> DedupePersonHumanDisease(PersonDedupeRequestModel request);
-        Task<PersonSaveResponseModel> DedupePersonRecords(PersonRecordsDedupeRequestModel request, CancellationToken cancellationToken = default);
-
-    }
-
-    public partial class PersonClient : BaseApiClient, IPersonClient
+    public class PersonClient : BaseApiClient, IPersonClient
     {
         protected internal EidssApiConfigurationOptions _eidssApiConfigurationOptions;
 
@@ -42,33 +29,8 @@ namespace EIDSS.ClientLibrary.ApiClients.Human
 
         public async Task<List<PersonViewModel>> GetPersonList(HumanPersonSearchRequestModel request, CancellationToken cancellationToken = default)
         {
-            try
-            {
-                var getSectionsParameters = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
-                var url = string.Format(_eidssApiOptions.GetPersonListPath, _eidssApiOptions.BaseUrl);
-
-                var httpResponse = await _httpClient.PostAsync(url, getSectionsParameters, cancellationToken);
-
-                httpResponse.EnsureSuccessStatusCode();
-                var contentStream = await httpResponse.Content.ReadAsStreamAsync();
-
-                var response = await JsonSerializer.DeserializeAsync<List<PersonViewModel>>(contentStream,
-                new JsonSerializerOptions
-                {
-                    IgnoreNullValues = true,
-                    PropertyNameCaseInsensitive = true
-                });
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message, new object[] { request });
-                throw;
-            }
-            finally
-            {
-            }
+            var url = string.Format(_eidssApiOptions.GetPersonListPath, _eidssApiOptions.BaseUrl);
+            return await PostAsync<HumanPersonSearchRequestModel, List<PersonViewModel>>(url, request);
         }
 
         public async Task<List<PersonForOfficeViewModel>> GetPersonListForOffice(GetPersonForOfficeRequestModel request)
@@ -103,58 +65,16 @@ namespace EIDSS.ClientLibrary.ApiClients.Human
         }
         public async Task<List<DiseaseReportPersonalInformationViewModel>> GetHumanDiseaseReportPersonInfoAsync(HumanPersonDetailsRequestModel request)
         {
-            try
-            {
-                var getSectionsParameters = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
-                var url = string.Format(_eidssApiOptions.HumanDiseaseReportPersonInfoPath, _eidssApiOptions.BaseUrl);
-
-                var httpResponse = await _httpClient.PostAsync(url, getSectionsParameters);
-
-                httpResponse.EnsureSuccessStatusCode();
-                var contentStream = await httpResponse.Content.ReadAsStreamAsync();
-
-                var response = await JsonSerializer.DeserializeAsync<List<DiseaseReportPersonalInformationViewModel>>(contentStream,
-                new JsonSerializerOptions
-                {
-                    IgnoreNullValues = true,
-                    PropertyNameCaseInsensitive = true
-                });
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message, new object[] { request });
-                throw;
-            }
-            finally
-            {
-            }
+            var url = string.Format(_eidssApiOptions.HumanDiseaseReportPersonInfoPath, _eidssApiOptions.BaseUrl);
+            var result = await PostAsync<HumanPersonDetailsRequestModel, List<DiseaseReportPersonalInformationViewModel>>(url, request);
+            return result;
         }
 
         public async Task<PersonSaveResponseModel> SavePerson(PersonSaveRequestModel request)
         {
-            try
-            {
-                var requestJson = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
-                var url = string.Format(_eidssApiOptions.SavePersonPath, _eidssApiOptions.BaseUrl);
-
-                var httpResponse = await _httpClient.PostAsync(url, requestJson);
-                httpResponse.EnsureSuccessStatusCode();
-                var contentStream = await httpResponse.Content.ReadAsStreamAsync();
-
-                return await JsonSerializer.DeserializeAsync<PersonSaveResponseModel>(contentStream,
-                    new JsonSerializerOptions
-                    {
-                        IgnoreNullValues = true,
-                        PropertyNameCaseInsensitive = true
-                    });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message, new object[] { request });
-                throw;
-            }            
+            var url = string.Format(_eidssApiOptions.SavePersonPath, _eidssApiOptions.BaseUrl);
+            var response = await PostAsync<PersonSaveRequestModel, PersonSaveResponseModel>(url, request);
+            return response;
         }
 
         public async Task<APIPostResponseModel> DeletePerson(long HumanMasterID, long? idfDataAuditEvent, string AuditUserName)
@@ -262,6 +182,14 @@ namespace EIDSS.ClientLibrary.ApiClients.Human
                 _logger.LogError(ex.Message, new object[] { SaveRequest });
                 throw;
             }
+        }
+
+        public async Task<int> UpdatePersonAsync(UpdateHumanActualRequestModel request)
+        {
+            var path = string.Format(_eidssApiOptions.UpdatePersonAsyncPath);
+            var url = Url.Combine(_eidssApiOptions.BaseUrl, path);
+
+            return await PostAsync<UpdateHumanActualRequestModel, int>(url, request);
         }
     }
 }

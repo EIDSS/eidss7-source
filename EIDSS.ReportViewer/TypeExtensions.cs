@@ -199,12 +199,14 @@ namespace EIDSS.ReportViewer
 		}
 
 		public static T ToEnum<T>(this String name)
+		//where T : Enum
 		{
 			return (T)Enum.Parse(typeof(T), name);
 		}
 
 
 		public static T NameToEnum<T>(this String name)
+		// where T : Enum
 		{
 			return (
 				from val in Enum.GetNames(typeof(T)).AsEnumerable()

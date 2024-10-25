@@ -5,22 +5,19 @@ using EIDSS.ClientLibrary.Services;
 using EIDSS.Domain.RequestModels;
 using EIDSS.Domain.RequestModels.Configuration;
 using EIDSS.Domain.ViewModels.Configuration;
+using EIDSS.Localization.Constants;
 using EIDSS.Web.Abstracts;
 using EIDSS.Web.TagHelpers.Models.EIDSSModal;
 using EIDSS.Web.ViewModels;
 using EIDSS.Web.ViewModels.Configuration;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Localization;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.Int32;
-using static System.String;
-using EIDSS.Localization.Constants;
 
 namespace EIDSS.Web.Areas.Configuration.Controllers
 {
@@ -50,7 +47,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
         public async Task<ActionResult> Index()
         {
-            _pageViewModel.MatrixVersionList = await GetMatrixVersionsByType(MatrixTypes.HumanAggregateCase);
+            _pageViewModel.MatrixVersionList = await GetMatrixVersionsByType(EIDSSConstants.MatrixTypes.HumanAggregateCase);
             _pageViewModel.DisableNewMatrix = DoesNonActiveMatrixExist(_pageViewModel.MatrixVersionList);
             _pageViewModel.eIDSSModalConfiguration = new List<EIDSSModalConfiguration>();
             _pageViewModel.Select2Configurations = new List<Select2Configruation>();
@@ -62,7 +59,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         public async Task<IActionResult> GetMatrix(long id)
         {
             ViewBag.SelectedVersionId = id;
-            _pageViewModel.MatrixVersionList = await GetMatrixVersionsByType(MatrixTypes.HumanAggregateCase);
+            _pageViewModel.MatrixVersionList = await GetMatrixVersionsByType(EIDSSConstants.MatrixTypes.HumanAggregateCase);
             _pageViewModel.MatrixList = await LoadMatrixList(id);
 
             _pageViewModel.MatrixName = _pageViewModel.MatrixVersionList.Find(v => v.IdfVersion == id)?.MatrixName;
@@ -105,14 +102,13 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             }
 
             return View("Index", _pageViewModel);
-            //return new EmptyResult();
         }
 
         [HttpPost]
         [Route("Configuration/HumanAggregateDiseaseReportMatrixPage/ActivateMatrixVersion")]
         public async Task<ActionResult> ActivateMatrixVersion([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
             HumanAggregateCaseMatrixRequestModel headerModel = new()
             {
@@ -120,9 +116,9 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 StartDate = DateTime.Now,
                 IsActive = true,
                 IsDefault = false,
-                MatrixTypeId = MatrixTypes.HumanAggregateCase,
+                MatrixTypeId = EIDSSConstants.MatrixTypes.HumanAggregateCase,
                 VersionId = Convert.ToInt64(jsonObject["IdfVersion"]),
-                EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                 UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                 LocationId = authenticatedUser.RayonId,
@@ -139,7 +135,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [Route("Configuration/HumanAggregateDiseaseReportMatrixPage/DeleteMatrixVersion")]
         public async Task<ActionResult> DeleteMatrixVersion([FromBody] JsonElement data)
         {
-            var jObject = JObject.Parse(data.ToString() ?? Empty);
+            var jObject = JObject.Parse(data.ToString() ?? string.Empty);
             await _crossCuttingClient.DeleteMatrixVersion((long)jObject["IdfVersion"]);
             return new EmptyResult();
         }
@@ -148,10 +144,10 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [Route("Configuration/HumanAggregateDiseaseReportMatrixPage/SaveMatrix")]
         public async Task<ActionResult> SaveMatrix([FromBody] JsonElement data)
         {
-            var jsonArray = JArray.Parse(data.ToString() ?? Empty);
+            var jsonArray = JArray.Parse(data.ToString() ?? string.Empty);
             var isEmpty = (bool)jsonArray[0]["IsEmpty"];
             var isNew = (bool)jsonArray[0]["IsNew"];
-            var activeStatus = Empty;
+            var activeStatus = string.Empty;
             if (jsonArray[0]["ActiveStatus"] != null) activeStatus = jsonArray[0]["ActiveStatus"].ToString();
 
             var isActive = !(activeStatus is "nonactive" or "inactive" || isNew);
@@ -161,7 +157,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 MatrixName = jsonArray[0]["MatrixName"]?.ToString(),
                 IsActive = isActive,
                 IsDefault = false,
-                MatrixTypeId = MatrixTypes.HumanAggregateCase,
+                MatrixTypeId = EIDSSConstants.MatrixTypes.HumanAggregateCase,
                 EventTypeId = null,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                 UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
@@ -169,7 +165,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 User = authenticatedUser.UserName
             };
 
-            if (!IsNullOrEmpty(jsonArray[0]["ActivationDate"]?.ToString()) && !isNew)
+            if (!string.IsNullOrEmpty(jsonArray[0]["ActivationDate"]?.ToString()) && !isNew)
                 headerModel.StartDate = (DateTime)jsonArray[0]["ActivationDate"];
 
             if (jsonArray[0]["IdfVersion"] != null)
@@ -183,8 +179,8 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             MatrixViewModel gridModel = new()
             {
                 IdfVersion = headerResponse.KeyId,
-                InJsonString = data.ToString(), 
-                EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                InJsonString = data.ToString(),
+                EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                 UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                 LocationId = authenticatedUser.RayonId,
@@ -195,17 +191,13 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             await _client.SaveHumanAggregateDiseaseMatrix(gridModel);
 
             return Json(headerResponse);
-
-            //this will also work because i'm reloading the page from javascript which will call GetMatrix to grab the new data
-            //return new EmptyResult();
-            //return Json(response);
         }
 
         [HttpPost]
         [Route("Configuration/HumanAggregateDiseaseReportMatrixPage/DeleteMatrixRecord")]
         public async Task<ActionResult> DeleteMatrixRecord([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
             var id = (long)jsonObject["IdfAggrHumanCaseMTX"];
 
@@ -213,7 +205,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             MatrixViewModel request = new()
             {
                 IdfAggrHumanCaseMTX = id,
-                EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                 UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                 LocationId = authenticatedUser.RayonId,
@@ -260,7 +252,6 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         {
             // find if there is at least one nonactive matrix already 
             // prevent multiple nonactive matrix from being created (business rule)
-            //_pageViewModel.DisableNewMatrix = false;
             var nonActiveMatrix = _pageViewModel.MatrixVersionList.Find(v => v.DatStartDate == null);
             return nonActiveMatrix != null;
         }
@@ -269,14 +260,14 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         {
             try
             {
-                var lstDiseases = await _client.GetHumanDiseaseDiagnosisMatrixListAsync(UsingType.AggregateCaseType, HACodeList.HumanHACode, GetCurrentLanguage());
+                var lstDiseases = await _client.GetHumanDiseaseDiagnosisMatrixListAsync(EIDSSConstants.UsingType.AggregateCaseType, EIDSSConstants.HACodeList.HumanHACode, GetCurrentLanguage());
 
                 HumanAggregateCaseMatrixGetRequestModel request = new()
                 {
                     IdfVersion = selectedMatrixVersionId,
-                    PageSize = MaxValue - 1,
+                    PageSize = int.MaxValue - 1,
                     Page = 1,
-                    SortOrder = SortConstants.Ascending,
+                    SortOrder = EIDSSConstants.SortConstants.Ascending,
                     SortColumn = "intNumRow",
                     LanguageId = GetCurrentLanguage()
                 };

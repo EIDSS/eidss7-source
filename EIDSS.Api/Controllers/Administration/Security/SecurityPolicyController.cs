@@ -35,6 +35,7 @@ namespace EIDSS.Api.Controllers.Administration.Security
         [ProducesResponseType(typeof(SecurityConfigurationViewModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(SecurityConfigurationViewModel), StatusCodes.Status404NotFound)]
         [SwaggerOperation(Summary = "", Tags = new[] { "Administration - Security" })]
+        //[SystemEventActionFilterAttribute(SystemEventEnum.DoesNotParticipate)]
         public async Task<IActionResult> GetSecurityPolicy(CancellationToken cancellationToken = default)
         {
             List<SecurityConfigurationViewModel> results = null;

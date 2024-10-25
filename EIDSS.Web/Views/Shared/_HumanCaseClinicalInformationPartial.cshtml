@@ -42,13 +42,6 @@
     Model.FacilityDetailsSection.DiagnosisSelect.isVisible = true;
     Model.FacilityDetailsSection.DiagnosisSelect.IncludeAddButton = true;
     Model.FacilityDetailsSection.DiagnosisSelect.AddButtonId = "btnAddDiagnosis";
-
-    //Hospital Drop Down
-    Model.FacilityDetailsSection.HospitalSelect.DropDownId = "HospitalSelect";
-    Model.FacilityDetailsSection.HospitalSelect.Label = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsHospitalNameFieldLabel);
-    Model.FacilityDetailsSection.HospitalSelect.Endpoint = @Url.Action("GetOrganizationsForLookup", "CrossCutting", new { Area = "CrossCutting", organizationSiteAssociation = (int)OrganizationSiteAssociations.OrganizationsWithOrWithoutSite, organizationTypeID = (long)OrganizationTypes.Hospital });
-    Model.FacilityDetailsSection.HospitalSelect.ControlTargetType = DropDownTargetTypes.DropDown;
-    Model.FacilityDetailsSection.HospitalSelect.isVisible = true;
 }
 
 <form id="ClinicalInformationForm">
@@ -112,12 +105,26 @@
             <h4>@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportClinicalInformationFacilityDetailsHeading)</h4>
         </div>
         <div class="card-body">
+            @*<div class="container-fluid">*@
+@*            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <!--Did patient previously seek care?-->
+                    <label>@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsPatientPreviouslySoughtCareForSimilarSymptomsFieldLabel)</label>
+                    @for (int i = 0; i <= Model.FacilityDetailsSection.YesNoChoices.Count() - 1; i++)
+                    {
+                        <div class="form-check form-check-inline ">
+                            <input class="form-check-input" asp-for="@Model.FacilityDetailsSection.PatientPreviouslySoughtCare" type="radio" value="@Model.FacilityDetailsSection.YesNoChoices[i].IdfsBaseReference" disabled="@Model.FacilityDetailsSection.IsReportClosed" />
+                            <label class="form-check-label" asp-for="@Model.FacilityDetailsSection.PatientPreviouslySoughtCare">@Model.FacilityDetailsSection.YesNoChoices[i].Name</label>
+                        </div>
+                    }
+                </div>
+            </div>*@
             <div class="collapse show" id="facilityReveal">
                 <div class="form-row">
                     <div class="col-md-6">
                         <!--Date Patient Sought Care-->
                         <label asp-for="@Model.FacilityDetailsSection.SoughtCareFirstDate">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsDatePatientFirstSoughtCareFieldLabel)</label>
-                        <eidss-calendar asp-for="@Model.FacilityDetailsSection.SoughtCareFirstDate" id="FacilityDetailsSection_SoughtCareFirstDate" name="FacilityDetailsSection.SoughtCareFirstDate" css-class="form-control" date-format="d" shortdate=true disabled="@Model.FacilityDetailsSection.IsReportClosed"/>
+                        <eidss-calendar asp-for="@Model.FacilityDetailsSection.SoughtCareFirstDate" id="FacilityDetailsSection_SoughtCareFirstDate" name="FacilityDetailsSection.SoughtCareFirstDate" css-class="form-control" disabled="@Model.FacilityDetailsSection.IsReportClosed"/>
                         <span asp-validation-for="@Model.FacilityDetailsSection.SoughtCareFirstDate" class="text-danger" />
                     </div>
                     <div class="form-group col-md-6">
@@ -170,29 +177,20 @@
                     <div class="col-md-6">
                         <!--Date of Hospitalization-->
                         <label asp-for="@Model.FacilityDetailsSection.OutbreakHospitalizationDate">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsDateOfHospitalizationFieldLabel)</label>
-                        <eidss-calendar asp-for="@Model.FacilityDetailsSection.OutbreakHospitalizationDate" id="FacilityDetailsSection_OutbreakHospitalizationDate" name="FacilityDetailsSection.OutbreakHospitalizationDate" css-class="form-control" date-format="d" shortdate=true disabled="@Model.FacilityDetailsSection.IsReportClosed"></eidss-calendar>
+                        <eidss-calendar asp-for="@Model.FacilityDetailsSection.OutbreakHospitalizationDate" id="FacilityDetailsSection_OutbreakHospitalizationDate" name="FacilityDetailsSection.OutbreakHospitalizationDate" css-class="form-control" disabled="@Model.FacilityDetailsSection.IsReportClosed"></eidss-calendar>
                         <span asp-validation-for="@Model.FacilityDetailsSection.OutbreakHospitalizationDate" class="text-danger" />
                     </div>
                     <div class="form-group col-md-6">
                         <!--Date of Discharge-->
                         <label asp-for="@Model.FacilityDetailsSection.DateOfDischarge">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsDateOfDischargeFieldLabel)</label>
-                        <eidss-calendar asp-for="@Model.FacilityDetailsSection.DateOfDischarge" id="FacilityDetailsSection_DateOfDischarge" name="FacilityDetailsSection.DateOfDischarge" css-class="form-control" date-format="d" shortdate=true disabled="@Model.FacilityDetailsSection.IsReportClosed"></eidss-calendar>
+                        <eidss-calendar asp-for="@Model.FacilityDetailsSection.DateOfDischarge" id="FacilityDetailsSection_DateOfDischarge" name="FacilityDetailsSection.DateOfDischarge" css-class="form-control" disabled="@Model.FacilityDetailsSection.IsReportClosed"></eidss-calendar>
                         <span asp-validation-for="@Model.FacilityDetailsSection.DateOfDischarge"  class="text-danger" />
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group col-md-12">
-                        <!--Hospital Name Drop Down-->
-                        <eidss-select2DropDown id="@Model.FacilityDetailsSection.HospitalSelect.DropDownId"
-                                               control-target-id="@Model.FacilityDetailsSection.HospitalSelect.ControltargetId"
-                                               target-type="@Model.FacilityDetailsSection.HospitalSelect.ControlTargetType"
-                                               target-ajax-url="@Model.FacilityDetailsSection.HospitalSelect.ControlTargetUrl"
-                                               selectct2-default-data="@Model.FacilityDetailsSection.HospitalSelect.defaultSelect2Selection"
-                                               end-point="@Model.FacilityDetailsSection.HospitalSelect.Endpoint"
-                                               label-name="@Model.FacilityDetailsSection.HospitalSelect.Label"
-                                               is-visible="@Model.FacilityDetailsSection.HospitalSelect.isVisible"
-                                               is-disabled="@Model.FacilityDetailsSection.IsReportClosed">
-                        </eidss-select2DropDown>
+                    <div class="form-group col-md-6">
+                        <label for="@nameof(Model.FacilityDetailsSection.HospitalizationPlace)" class="control-label">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsHospitalNameFieldLabel)</label>
+                        <input id="@nameof(Model.FacilityDetailsSection.HospitalizationPlace)" asp-for="@Model.FacilityDetailsSection.HospitalizationPlace" class="form-control" disabled="@Model.IsReportClosed">
                     </div>
                 </div>
             </div>

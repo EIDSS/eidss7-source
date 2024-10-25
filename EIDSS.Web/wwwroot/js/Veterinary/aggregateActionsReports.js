@@ -38,6 +38,23 @@ VetAggregateActionsReportSanitaryMeasuresSection.SetDotNetReference = function (
     VetAggregateActionsReportSanitaryMeasuresSection.DotNetReference = pDotNetReference;
 };
 
+function setWizardState(isValid, stringId) {
+    if (isValid) {
+        $(stringId).find("#erroredStep").hide();
+        $(stringId).find("#completedStep").show();
+    } else {
+        $(stringId).find("#erroredStep").show();
+        $(stringId).find("#completedStep").hide();
+    }
+}
+
+function hideDefaultStepIcons() {
+    $("#veterinaryAggregateActionsReportWizard-t-0").find("#step").hide();
+    $("#veterinaryAggregateActionsReportWizard-t-1").find("#step").hide();
+    $("#veterinaryAggregateActionsReportWizard-t-2").find("#step").hide();
+    $("#veterinaryAggregateActionsReportWizard-t-3").find("#step").hide();
+}
+
 function initializeSidebar(cancelButtonText, finishButtonText, nextButtonText, previousButtonText, deleteButtonText, printButtonText, enableDeleteButton, enableSaveButton, loadingMessageText, cancelMessageText) {
     $("#veterinaryAggregateActionsReportWizard").steps({
         headerTag: "h4",
@@ -62,7 +79,14 @@ function initializeSidebar(cancelButtonText, finishButtonText, nextButtonText, p
             delete: deleteButtonText,
             loading: loadingMessageText
         },
-        onInit: function (event) { },
+        onInit: function (event) {
+            $("#veterinaryAggregateActionsReportWizard .steps ul").append('<li id="saveStep" role="tab"><a href="#" role="menuitem"><span class="fa-stack text-muted"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-save fa-stack-1x fa-inverse"></i></span>  <span class="stepTitleText">' + finishButtonText + '</span></a></li>');
+
+            $(document).on('click', '#saveStep', function (e) {
+                e.preventDefault();
+                $("#veterinaryAggregateActionsReportWizard").steps("finish");
+            });
+        },
         onCanceled: function (event) {
             VetAggregateActionsReport.DotNetReference.invokeMethodAsync("OnCancel");
         },
@@ -151,40 +175,37 @@ function validateSessionSection(dotNetReference, wizard, stepNumber) {
     });
 };
 
-function validateAggregateActionsReport() {
-    VetAggregateActionsReportInformationSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar").then(valid => {
-        if (valid) {
-            VetAggregateActionsReportDiagnosticInvestigationsSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar").then(valid => {
-                if (valid) {
-                    VetAggregateActionsReportTreatmentMeasuresSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar").then(valid => {
-                        if (valid) {
-                            VetAggregateActionsReportSanitaryMeasuresSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar").then(valid => {
-                                if (valid) {
-                                    VetAggregateActionsReport.DotNetReference.invokeMethodAsync("OnSubmit");
-                                } else {
-                                    $("#saveButton").attr("href", "#finish");
-                                    $("#processing").removeClass("fas fa-sync fa-spin");
-                                    $("#veterinaryAggregateActionsReportWizard").steps("setStep", 3);
-                                }
-                            });
-                        } else {
-                            $("#saveButton").attr("href", "#finish");
-                            $("#processing").removeClass("fas fa-sync fa-spin");
-                            $("#veterinaryAggregateActionsReportWizard").steps("setStep", 2);
-                        }
-                    });
-                } else {
-                    $("#saveButton").attr("href", "#finish");
-                    $("#processing").removeClass("fas fa-sync fa-spin");
-                    $("#veterinaryAggregateActionsReportWizard").steps("setStep", 1);
-                }
-            });
-        } else {
-            $("#saveButton").attr("href", "#finish");
-            $("#processing").removeClass("fas fa-sync fa-spin");
+async function validateAggregateActionsReport() {
+    var isVetAggregateActionsReportInformationSectionValid = await VetAggregateActionsReportInformationSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar");
+    var isVetAggregateActionsReportDiagnosticInvestigationsSectionValid = await VetAggregateActionsReportDiagnosticInvestigationsSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar");
+    var isVetAggregateActionsReportTreatmentMeasuresSectionValid = await VetAggregateActionsReportTreatmentMeasuresSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar");
+    var isVetAggregateActionsReportSanitaryMeasuresSectionValid = await VetAggregateActionsReportSanitaryMeasuresSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar");
+
+    hideDefaultStepIcons();
+    setWizardState(isVetAggregateActionsReportInformationSectionValid, "#veterinaryAggregateActionsReportWizard-t-0");
+    setWizardState(isVetAggregateActionsReportDiagnosticInvestigationsSectionValid, "#veterinaryAggregateActionsReportWizard-t-1");
+    setWizardState(isVetAggregateActionsReportTreatmentMeasuresSectionValid, "#veterinaryAggregateActionsReportWizard-t-2");
+    setWizardState(isVetAggregateActionsReportSanitaryMeasuresSectionValid, "#veterinaryAggregateActionsReportWizard-t-3");
+
+    if (isVetAggregateActionsReportInformationSectionValid &&
+        isVetAggregateActionsReportDiagnosticInvestigationsSectionValid &&
+        isVetAggregateActionsReportTreatmentMeasuresSectionValid &&
+        isVetAggregateActionsReportSanitaryMeasuresSectionValid
+    ) {
+        VetAggregateActionsReport.DotNetReference.invokeMethodAsync("OnSubmit");
+    } else {
+        $("#saveButton").attr("href", "#finish");
+        $("#processing").removeClass("fas fa-sync fa-spin");
+        if (!isVetAggregateActionsReportInformationSectionValid) {
             $("#veterinaryAggregateActionsReportWizard").steps("setStep", 0);
+        } else if (!isVetAggregateActionsReportDiagnosticInvestigationsSectionValid) {
+            $("#veterinaryAggregateActionsReportWizard").steps("setStep", 1);
+        } else if (!isVetAggregateActionsReportTreatmentMeasuresSectionValid) {
+            $("#veterinaryAggregateActionsReportWizard").steps("setStep", 2);
+        } else if (!isVetAggregateActionsReportSanitaryMeasuresSectionValid) {
+            $("#veterinaryAggregateActionsReportWizard").steps("setStep", 3);
         }
-    });
+    }
 };
 
 function reloadSections() {

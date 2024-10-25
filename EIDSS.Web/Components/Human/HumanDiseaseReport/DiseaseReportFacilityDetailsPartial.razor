@@ -1,0 +1,96 @@
+@using EIDSS.Web.Components.Shared.Organization
+@using EIDSS.Web.Components.Shared.YesNoUnknown
+@using EIDSS.Web.Components.Shared.NonNotifiableDiagnosis
+@using EIDSS.Web.ViewModels.Human
+
+@inherits EIDSS.Web.Components.Human.HumanDiseaseReport.DiseaseReportFacilityDetailsPartialBase
+
+@{
+    var hospitalizationDateLabel = Localizer.GetString((FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsDateOfHospitalizationFieldLabel));
+    var datePatientFirstSoughtCareLabel = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsDatePatientFirstSoughtCareFieldLabel);
+}
+
+<RadzenTemplateForm @ref="@Form" TItem="DiseaseReportFacilityDetailsPageViewModel" Data="@Model" id="FacilityDetailsForm">
+    <div class="card">
+        <div class="card-header">
+            <h4>@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportClinicalInformationFacilityDetailsHeading)</h4>
+        </div>
+        <div class="card-body">
+            <RadzenRow class="mb-lg-3">
+                <RadzenText class="label">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsPatientPreviouslySoughtCareForSimilarSymptomsFieldLabel)</RadzenText>
+                <YesNoUnknown disabled="@Model.IsReportClosed" @bind-SelectedAnswerId="@Model.PatientPreviouslySoughtCare" Name="PatientPreviouslySoughtCareRadio"></YesNoUnknown>
+                <input type="hidden" id="@nameof(Model.PatientPreviouslySoughtCare)" value="@Model.PatientPreviouslySoughtCare">
+            </RadzenRow>
+            <RadzenStack class="yes-follow-up no-gap mb-lg-3" Visible="Model.PatientPreviouslySoughtCare.GetValueOrDefault() == EIDSSConstants.YesNoValues.Yes">
+                <RadzenRow class="mb-lg-3">
+                    <RadzenColumn>
+                        <RadzenText
+                            class="label"
+                            for="SoughtCareFirstDate"
+                            Text="@datePatientFirstSoughtCareLabel"/>
+                        <HdrCustomDatePicker
+                            FieldType="@HdrCustomDatePickerFieldTypes.DateOfSoughtCareFirst"
+                            Name="SoughtCareFirstDate"
+                            @bind-Value="@HdrStateContainer.DateOfSoughtCareFirst"
+                            Change="@OnSoughtCareFirstDateChanged"
+                            disabled="@Model.IsReportClosed"/>
+                    </RadzenColumn>
+                    <RadzenColumn>
+                        <RadzenText
+                            class="label"
+                            Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsFacilityPatientFirstSoughtCareFieldLabel)"/>
+                        <OrganizationSearch
+                            Disabled="@Model.IsReportClosed"
+                            @bind-SelectedOrganizationText="@Model.SoughtCareFacilityText"
+                            @bind-SelectedOrganizationId="@Model.SoughtCareFacilityID"
+                            Name="FacilitySelectComponent"/>
+                        <input type="hidden" value="@Model.SoughtCareFacilityID" id="FacilitySelect"/>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow>
+                    <RadzenColumn>
+                        <RadzenText
+                            class="label"
+                            for="DiagnosisSelectComponent">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsNonNotifiableDiagnosisFromFacilityWherePatientFirstSoughtCareFieldLabel)</RadzenText>
+                        <NonNotifiableDiagnosisSearch
+                            Disabled="@Model.IsReportClosed"
+                            @bind-SelectedDiagnosisId="@Model.NonNotifiableDiseaseID"
+                            @bind-SelectedDiagnosisText="@Model.NonNotifiableDiseaseText"
+                            Name="DiagnosisSelectComponent"/>
+                        <input type="hidden" value="@Model.NonNotifiableDiseaseID" id="DiagnosisSelect"/>
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenStack>
+            <RadzenRow class="mb-lg-3">
+                <RadzenText class="label">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsHospitalizationFieldLabel)</RadzenText>
+                <YesNoUnknown @bind-SelectedAnswerId="@Model.Hospitalized" disabled="@Model.IsReportClosed" Name="HospitalizedRadio"></YesNoUnknown>
+                <input type="hidden" id="@nameof(@Model.Hospitalized)" value="@Model.Hospitalized">
+            </RadzenRow>
+            <RadzenStack class="yes-follow-up no-gap" Visible="Model.Hospitalized.GetValueOrDefault() == EIDSSConstants.YesNoValues.Yes">
+                <RadzenRow class="mb-lg-3">
+                    <RadzenColumn Size="6">
+                        <RadzenText
+                            class="label"
+                            for="HospitalizationDate">@hospitalizationDateLabel</RadzenText>
+                        <HdrCustomDatePicker
+                            FieldType="@HdrCustomDatePickerFieldTypes.DateOfHospitalization"
+                            Name="HospitalizationDate"
+                            @bind-Value="HdrStateContainer.DateOfHospitalization"
+                            Change="@OnHospitalizationDateChanged"
+                            disabled="@Model.IsReportClosed"/>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow>
+                    <RadzenColumn Size="6">
+                        <RadzenText class="label" for="@nameof(Model.HospitalizationPlace)">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsHospitalNameFieldLabel)</RadzenText>
+                        <RadzenTextBox
+                            class="w-100"
+                            Name="@nameof(Model.HospitalizationPlace)"
+                            @bind-Value="@Model.HospitalizationPlace"
+                            Disabled="@Model.IsReportClosed"/>
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenStack>
+        </div>
+    </div>
+</RadzenTemplateForm >

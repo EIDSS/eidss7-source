@@ -36,8 +36,10 @@
 
 <div id="diseaseReports">
     <input type="hidden" asp-for="HumanMasterID" />
+    @*<div class="container-fluid">*@
         <div class="form-row">
             <div class="col-md-11">
+                @*<h4 heading-for="@HeadingResourceKeyConstants.PersonDiseaseReportsHeading"></h4>*@
                 <h4>Disease Reports</h4>
             </div>
         </div>
@@ -61,12 +63,15 @@
                 </eidss-grid>
             </div>
         </div>
+    @*</div>*@
 </div>
 
 <script type="text/javascript">
 
     function addHumanDiseaseRept() {
+       /* alert($("#PersonInformationSection_PersonDetails_HumanActualId").val())*/
         var humanActualId = $("#PersonInformationSection_PersonDetails_HumanActualId").val();
+       /* alert(humanActualId)*/
         location.href = '@Url.Action("LoadDiseaseReport", "HumanDiseaseReport", new { area = "Human"})?humanId=' + humanActualId;
     };
 

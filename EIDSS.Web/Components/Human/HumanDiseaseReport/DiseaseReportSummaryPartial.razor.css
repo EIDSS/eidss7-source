@@ -1,0 +1,11 @@
+﻿::deep input {
+    width: 100%;
+}
+
+::deep div.rz-dropdown {
+    width: 100%;
+}
+
+::deep div.rz-row {
+    margin-bottom: 1rem;
+}

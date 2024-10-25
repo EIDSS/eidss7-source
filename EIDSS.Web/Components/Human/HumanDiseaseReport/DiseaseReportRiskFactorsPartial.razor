@@ -1,0 +1,18 @@
+@using EIDSS.Web.ViewModels.Human
+@using EIDSS.Web.Components.FlexForm
+
+@inherits EIDSS.Web.Components.Human.HumanDiseaseReport.DiseaseReportRiskFactorsPartialBase
+
+<RadzenTemplateForm @ref="@Form" TItem="@DiseaseReportCaseInvestigationRiskFactorsPageViewModel" Data="@Model" id="SymptomsForm">
+    <div class="card">
+        <div class="card-header"><h4>@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportCaseInvestigationRiskFactorsHeading)</h4></div>
+        <div class="card-body">
+            <FlexForm 
+                @ref="@FlexFormRiskFactors" 
+                FormDisabledIndicator="@Model.IsReportClosed" 
+                Request="@Model.RiskFactors"
+                ShouldBeRenderedOnLoad="@(Model.RiskFactors.idfsDiagnosis!=null)" />
+            <input type="hidden" value="@RiskFactorsObservationId" id="RiskFactorsObservationId"/>
+        </div>
+    </div>
+</RadzenTemplateForm>

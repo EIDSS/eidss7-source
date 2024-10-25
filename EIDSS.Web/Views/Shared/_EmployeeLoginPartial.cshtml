@@ -11,6 +11,7 @@
                 <h4 heading-for="@HeadingResourceKeyConstants.LoginHeading"></h4>
             </div>
         </div>
+        @*<div asp-validation-summary="All" class="text-danger"></div>*@
         <div class="form-row">
             <div class="form-group col-md-12">
                 <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.UserNameFieldLabel"></i>
@@ -24,7 +25,7 @@
             <div class="form-group col-md-12">
                 <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.PasswordFieldLabel"></i>
                 <label asp-for="@Model.Password" field-label-for="@FieldLabelResourceKeyConstants.PasswordFieldLabel"></label>
-                <input asp-for="@Model.Password" type="password" class="form-control" onchange="validatePassword();" AutoCompleteType="None" value="@Model.Password"/>
+                <input asp-for="@Model.Password" type="password" class="form-control" onchange="validatePassword();" AutoCompleteType="None"/>
                 <span asp-validation-for="@Model.Password" class="text-danger"></span>
                 <div class="text-danger" id="ValPassword"></div>
             </div>
@@ -33,7 +34,7 @@
         <div class="form-group col-md-12">
             <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.ConfirmPasswordFieldLabel"></i>
             <label asp-for="@Model.ConfirmPassword" field-label-for="@FieldLabelResourceKeyConstants.ConfirmPasswordFieldLabel"></label>
-            <input asp-for="@Model.ConfirmPassword" type="password" class="form-control" onchange="comparePassword();"   AutoCompleteType="None" value="@Model.ConfirmPassword"/>
+            <input asp-for="@Model.ConfirmPassword" type="password" class="form-control" onchange="comparePassword();"   AutoCompleteType="None"/>
             <span asp-validation-for="@Model.ConfirmPassword" class="text-danger"></span>
             <div class="text-danger" id="ValConfirmPassword"></div>
         </div>

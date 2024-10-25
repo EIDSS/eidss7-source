@@ -12,9 +12,7 @@ namespace EIDSS.Domain.RequestModels.Human
         public string FirstOrGivenName { get; set; }
         public string SecondName { get; set; }
         public string LastOrSurname { get; set; }
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? DateOfBirthFrom { get; set; }
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? DateOfBirthTo { get; set; }
         public long? GenderTypeID { get; set; }
         public long? idfsLocation { get; set; }

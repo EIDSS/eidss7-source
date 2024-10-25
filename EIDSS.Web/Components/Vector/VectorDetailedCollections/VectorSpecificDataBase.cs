@@ -67,7 +67,7 @@ namespace EIDSS.Web.Components.Vector
                      (long)FlexibleFormTypeEnum.VectorSpecificData;
             }
             
-            VectorSessionStateContainer.OnChange += OnStateContainerChangeAsync;
+            VectorSessionStateContainer.OnChange += async property => await OnStateContainerChangeAsync(property);
 
             await base.OnInitializedAsync();
         }
@@ -88,7 +88,7 @@ namespace EIDSS.Web.Components.Vector
 
         }
 
-        private void OnStateContainerChangeAsync(string property)
+        private async Task OnStateContainerChangeAsync(string property)
         {
             if (property is "DetailVectorTypeID")
             {
@@ -104,7 +104,7 @@ namespace EIDSS.Web.Components.Vector
                 }
 
                 VectorSpecificDataFlexForm ??= new FlexForm.FlexForm();
-                VectorSpecificDataFlexForm.SetRequestParameter(VectorSessionStateContainer.VectorFlexForm);
+                await VectorSpecificDataFlexForm.SetRequestParameter(VectorSessionStateContainer.VectorFlexForm);
 
                 StateHasChanged();
             }
@@ -117,7 +117,7 @@ namespace EIDSS.Web.Components.Vector
                 _source?.Cancel();
                 _source?.Dispose();
 
-                VectorSessionStateContainer.OnChange -= OnStateContainerChangeAsync;
+                VectorSessionStateContainer.OnChange -= async property => await OnStateContainerChangeAsync(property);
             }
 
             base.Dispose(disposing);

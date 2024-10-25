@@ -104,6 +104,11 @@ namespace EIDSS.Localization.Constants
         public static readonly string VeterinarySessionDiseaseSpeciesListMustBeTheSameAsCampaignMessage = (int)InterfaceEditorResourceSetEnum.VeterinaryActiveSurveillanceSession + "4136" + (long)InterfaceEditorTypeEnum.Message;
         public static readonly string VeterinaryActiveSurveillanceSessionUnabletodeletethisrecordasitcontainsdependentchildobjectsMessage = (int)InterfaceEditorResourceSetEnum.VeterinaryActiveSurveillanceSession + "948" + (long)InterfaceEditorTypeEnum.Message;
 
+        public static readonly string PersonalIDAlreadyExistsMessage = (int)InterfaceEditorResourceSetEnum.WarningMessages + "4856" + (long)InterfaceEditorTypeEnum.Message;
+
+        public static readonly string ChangedDiseaseValueShouldDifferFromDiseaseValueMessage = (int)InterfaceEditorResourceSetEnum.WarningMessages + "4862" + (long)InterfaceEditorTypeEnum.Message;
+        public static readonly string DateOfChangedDiagnosisShouldBeLaterOrSameAsDiagnosisDateMessage = (int)InterfaceEditorResourceSetEnum.WarningMessages + "4863" + (long)InterfaceEditorTypeEnum.Message;
+
         #endregion Common Resources
 
         #region Administration Module Resources
@@ -267,10 +272,10 @@ namespace EIDSS.Localization.Constants
         public static readonly string PersonInformationCivilRegistryServiceIsNotRespondingPleaseTryToFindThePersonLaterInCurrentLanguageMessage = (int)InterfaceEditorResourceSetEnum.PersonInformation + "4755" + (long)InterfaceEditorTypeEnum.Message;
 
         //HUC02 
-        public static readonly string PersonInformationDOBErrorMessage = (int) InterfaceEditorResourceSetEnum.PersonInformation + "4808" + (long) InterfaceEditorTypeEnum.Message;
-        public static readonly string PersonInformationDOBWarningMessage100Years = (int) InterfaceEditorResourceSetEnum.PersonInformation + "4809" + (long) InterfaceEditorTypeEnum.Message;
+        public static readonly string PersonInformationDOBErrorMessage = (int)InterfaceEditorResourceSetEnum.PersonInformation + "4808" + (long)InterfaceEditorTypeEnum.Message;
+        public static readonly string PersonInformationDOBWarningMessage100Years = (int)InterfaceEditorResourceSetEnum.PersonInformation + "4809" + (long)InterfaceEditorTypeEnum.Message;
 
-        public static readonly string WeeklyReportingFormTotalMustBeGreaterThanAmongThemNotifiedMessage = (int)InterfaceEditorResourceSetEnum.WeeklyReportingForm + "4811" + (long)InterfaceEditorTypeEnum.Message;		
+        public static readonly string WeeklyReportingFormTotalMustBeGreaterThanAmongThemNotifiedMessage = (int)InterfaceEditorResourceSetEnum.WeeklyReportingForm + "4811" + (long)InterfaceEditorTypeEnum.Message;
 
         #endregion Human Module Resources
 

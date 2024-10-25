@@ -240,7 +240,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 				PersonDeduplicationService.chkCheckAllEmp = false;
 				PersonDeduplicationService.chkCheckAllEmp2 = false;
 
-				await EableDisableMergeButtonAsync();
+				await EnableDisableMergeButtonAsync();
 			}
 		}
 
@@ -365,7 +365,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 				PersonDeduplicationService.chkCheckAllEmp = false;
 				PersonDeduplicationService.chkCheckAllEmp2 = false;
 
-				await EableDisableMergeButtonAsync();
+				await EnableDisableMergeButtonAsync();
 			}
 		}
 
@@ -469,7 +469,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
                 PersonDeduplicationService.chkCheckAllEmp = PersonDeduplicationService.EmpList.Where(x => !x.Checked).Count() == 0;
                 PersonDeduplicationService.chkCheckAllEmp2 = PersonDeduplicationService.EmpList2.Where(x => !x.Checked).Count() == 0;
 
-                await EableDisableMergeButtonAsync();
+                await EnableDisableMergeButtonAsync();
 			}
 		}
 
@@ -573,7 +573,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
                 PersonDeduplicationService.chkCheckAllEmp = PersonDeduplicationService.EmpList.Where(x => !x.Checked).Count() == 0;
                 PersonDeduplicationService.chkCheckAllEmp2 = PersonDeduplicationService.EmpList2.Where(x => !x.Checked).Count() == 0;
 
-                await EableDisableMergeButtonAsync();
+                await EnableDisableMergeButtonAsync();
 			}
 		}
 	}

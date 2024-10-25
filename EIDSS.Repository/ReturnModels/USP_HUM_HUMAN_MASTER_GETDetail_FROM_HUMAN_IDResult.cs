@@ -58,6 +58,27 @@ namespace EIDSS.Repository.ReturnModels
         public double? EmployerstrLongitude { get; set; }
         public bool? EmployerForeignAddressIndicator { get; set; }
         public string EmployerForeignAddressString { get; set; }
+        public long? HumanPermGeoLocationID { get; set; }
+        public long? HumanPermidfsCountry { get; set; }
+        public string HumanPermCountry { get; set; }
+        public long? HumanPermidfsRegion { get; set; }
+        public string HumanPermRegion { get; set; }
+        public long? HumanPermidfsRayon { get; set; }
+        public string HumanPermRayon { get; set; }
+        public long? HumanPermidfsSettlement { get; set; }
+        public string HumanPermSettlement { get; set; }
+        public long? HumanPermidfsSettlementType { get; set; }
+        public string HumanPermSettlementType { get; set; }
+        public string HumanPermstrPostalCode { get; set; }
+        public string HumanPermstrStreetName { get; set; }
+        public string HumanPermstrHouse { get; set; }
+        public string HumanPermstrBuilding { get; set; }
+        public string HumanPermstrApartment { get; set; }
+        public string HumanPermDescription { get; set; }
+        public double? HumanPermstrLatitude { get; set; }
+        public double? HumanPermstrLongitude { get; set; }
+        public bool? HumanPermForeignAddressIndicator { get; set; }
+        public string HumanPermForeignAddressString { get; set; }
         public long? HumanAltGeoLocationID { get; set; }
         public long? HumanAltidfsCountry { get; set; }
         public string HumanAltCountry { get; set; }
@@ -81,9 +102,13 @@ namespace EIDSS.Repository.ReturnModels
         public string HumanAltForeignAddressString { get; set; }
         public long? SchoolGeoLocationID { get; set; }
         public long? SchoolidfsCountry { get; set; }
+        public string SchoolCountry { get; set; }
         public long? SchoolidfsRegion { get; set; }
+        public string SchoolRegion { get; set; }
         public long? SchoolidfsRayon { get; set; }
+        public string SchoolRayon { get; set; }
         public long? SchoolidfsSettlement { get; set; }
+        public string SchoolSettlement { get; set; }
         public long? SchoolAltidfsSettlementType { get; set; }
         public string SchoolAltSettlementType { get; set; }
         public string SchoolstrPostalCode { get; set; }
@@ -93,10 +118,10 @@ namespace EIDSS.Repository.ReturnModels
         public string SchoolstrApartment { get; set; }
         public bool? SchoolForeignAddressIndicator { get; set; }
         public string SchoolForeignAddressString { get; set; }
-        public string DateOfBirth { get; set; }
-        public string DateOfDeath { get; set; }
-        public string EnteredDate { get; set; }
-        public string ModificationDate { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+        public DateTime? DateOfDeath { get; set; }
+        public DateTime? EnteredDate { get; set; }
+        public DateTime? ModificationDate { get; set; }
         public string FirstOrGivenName { get; set; }
         public string SecondName { get; set; }
         public string LastOrSurname { get; set; }
@@ -127,17 +152,18 @@ namespace EIDSS.Repository.ReturnModels
         public string ContactPhone2TypeName { get; set; }
         public string PersonalIDTypeName { get; set; }
         public string OccupationTypeName { get; set; }
-        public string SchoolCountry { get; set; }
-        public string SchoolRegion { get; set; }
-        public string SchoolRayon { get; set; }
-        public string SchoolSettlement { get; set; }
         public string IsAnotherPhone { get; set; }
         public string Age { get; set; }
         public string YNAnotherAddress { get; set; }
         public string YNHumanForeignAddress { get; set; }
         public string YNEmployerForeignAddress { get; set; }
+        public string YNHumPermForeignAddress { get; set; }
         public string YNHumanAltForeignAddress { get; set; }
         public string YNSchoolForeignAddress { get; set; }
         public string YNWorkSameAddress { get; set; }
+        public string YNPermanentSameAddress { get; set; }
+        public long? IsAnotherPhoneTypeID { get; set; }
+        public long? IsAnotherAddressTypeID { get; set; }
+
     }
 }

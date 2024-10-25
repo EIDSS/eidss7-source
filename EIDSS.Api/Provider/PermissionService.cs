@@ -45,6 +45,7 @@ namespace EIDSS.Api.Provider
             {
                 //Handled in Global cancellation handler and logs that the request was handled
                 cancellationToken.ThrowIfCancellationRequested();
+                //results = await _administrationRepository.GetVectorTypeListAsync(langID, strSearchVectorType, cancellationToken);
                 DataRepoArgs args = new()
                 {
                     Args = new object[] { UserId, employeeId, null,cancellationToken },
@@ -57,9 +58,11 @@ namespace EIDSS.Api.Provider
             }
             catch (Exception ex) when (ex is TaskCanceledException || ex is OperationCanceledException)
             {
+               // Log.Error("Process was cancelled");
             }
             catch (Exception ex)
             {
+                //Log.Error(ex.Message);
                 throw;
             }
 
@@ -88,9 +91,11 @@ namespace EIDSS.Api.Provider
             }
             catch (Exception ex) when (ex is TaskCanceledException || ex is OperationCanceledException)
             {
+                // Log.Error("Process was cancelled");
             }
             catch (Exception ex)
             {
+                //Log.Error(ex.Message);
                 throw;
             }
 
@@ -138,7 +143,9 @@ namespace EIDSS.Api.Provider
 
             var securityPolicy = await GetSecurityPolicy();
 
+            //TODO: check if the name can be null
             var uName = userDetail?.UserName ?? user.UserName;
+            //var claims = await CreateTokenClaims(userDetail);
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, uName),

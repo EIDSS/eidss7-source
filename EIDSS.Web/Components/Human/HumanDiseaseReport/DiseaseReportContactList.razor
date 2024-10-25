@@ -9,7 +9,7 @@
                     <h4>@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportContactsListHeading)</h4>
                 </div>
                 <div class="col-1 pull-right mb-3">
-                    <button @onclick="@(PersonSearchClicked)" Text="@Localizer.GetString(ButtonResourceKeyConstants.AddButton)" class="btn btn-outline-primary" disabled="@enableAddButton">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                    <button @onclick="@(PersonSearchClicked)" Text="@Localizer.GetString(ButtonResourceKeyConstants.AddButton)" class="btn btn-outline-primary" disabled="@IsAddButtonDisabled">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
                 </div>
             </div>
         </div>
@@ -17,17 +17,8 @@
             <RadzenPanel>
                 <div class="form-row">
                     <div class="col-md-12">
-                        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowPaging="false" AllowSorting="true" Data="@Model.ContactDetails" ExpandMode="DataGridExpandMode.Single" id="ContactsGrid" Mode="EditMode.Dialog" @ref="_grid" SelectionMode="DataGridSelectionMode.Multiple" TItem="DiseaseReportContactDetailsViewModel">
+                        <RadzenDataGrid AllowColumnReorder="true" AllowColumnResize="true" AllowPaging="false" AllowSorting="true" SelectionMode="DataGridSelectionMode.Single" Data="@Model.NotDeletedContactDetails" ExpandMode="DataGridExpandMode.Single" id="ContactsGrid" Mode="EditMode.Dialog" @ref="_grid" TItem="DiseaseReportContactDetailsViewModel">
                             <Columns>
-                                <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Width="40px" Sortable="false" Filterable="false">
-                                    <HeaderTemplate>
-                                        <RadzenCheckBox TriState="false" TValue="bool" Value="@(Model.ContactDetails.Any(i => selectedContacts != null && selectedContacts.Contains(i)))"
-                                                        Change="@(args => selectedContacts = args ? Model.ContactDetails.ToList() : null)"/>
-                                    </HeaderTemplate>
-                                    <Template Context="data">
-                                        <RadzenCheckBox TriState="false" Value="@(selectedContacts != null && selectedContacts.Contains(data))"/>
-                                    </Template>
-                                </RadzenDataGridColumn>
                                 <RadzenDataGridColumn Filterable="false" Property="RowID" Sortable="false" TItem="DiseaseReportContactDetailsViewModel" Visible="false" Width="40px"/>
                                 <RadzenDataGridColumn Filterable="false" Property="idfContactedCasePerson" Sortable="false" TItem="DiseaseReportContactDetailsViewModel" Visible="false" Width="40px"/>
                                 <RadzenDataGridColumn Property="strFirstName" TItem="DiseaseReportContactDetailsViewModel" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.ContactInformationModalFirstNameFieldLabel)">
@@ -43,7 +34,7 @@
                                 <RadzenDataGridColumn Property="strComments" TItem="DiseaseReportContactDetailsViewModel" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.VaccinationDetailsModalCommentsFieldLabel)"/>
                                 <RadzenDataGridColumn Filterable="false" Property="" Reorderable="false" Sortable="false" TItem="DiseaseReportContactDetailsViewModel" Title="" Width="50px">
                                     <Template Context="data">
-                                        @if (disableEditDelete)
+                                        @if (IsEditDeleteDisabled)
                                         {
                                             <button class="btn btn-sm disabled" disabled type="button">
                                                 <i class="fas fa-edit fa-lg"></i>
@@ -59,7 +50,7 @@
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DiseaseReportContactDetailsViewModel" Context="order" Filterable="false" Reorderable="false" Sortable="false" TextAlign="TextAlign.Center" Width="50px">
                                     <Template Context="data">
-                                        @if (disableEditDelete)
+                                        @if (IsEditDeleteDisabled)
                                         {
                                             <button class="btn btn-sm disabled" disabled type="button">
                                                 <i class="fas fa-trash fa-lg"></i>
@@ -72,20 +63,6 @@
                                             </button>
                                         }
                                     </Template>
-                                    <EditTemplate Context="data">
-                                        @if (disableEditDelete)
-                                        {
-                                            <button class="btn btn-sm disabled" disabled type="button">
-                                                <i class="fas fa-trash fa-lg"></i>
-                                            </button>
-                                        }
-                                        else
-                                        {
-                                            <button @onclick="@(() => DeleteRow(data))" class="btn btn-sm" type="button">
-                                                <i class="fas fa-trash fa-lg"></i>
-                                            </button>
-                                        }
-                                    </EditTemplate>
                                 </RadzenDataGridColumn>
                             </Columns>
                         </RadzenDataGrid>

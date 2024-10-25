@@ -721,7 +721,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                     //HumanDiseaseReportDeduplicationService.SurvivorContactsList = HumanDiseaseReportDeduplicationService.ContactsList.Select(a => a.Copy()).ToList();
                     HumanDiseaseReportDeduplicationService.SurvivorFinalOutcomeList = HumanDiseaseReportDeduplicationService.FinalOutcomeList0.Select(a => a.Copy()).ToList();
 
-                    CheckAllSurvivorfields(false);
+                    CheckAllSurvivorFields(false);
                     SelectAllSurvivorRowsAndFlexForm(false);
 
                     break;
@@ -745,7 +745,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                     //HumanDiseaseReportDeduplicationService.SurvivorContactsList = HumanDiseaseReportDeduplicationService.ContactsList2.Select(a => a.Copy()).ToList();
                     HumanDiseaseReportDeduplicationService.SurvivorFinalOutcomeList = HumanDiseaseReportDeduplicationService.FinalOutcomeList02.Select(a => a.Copy()).ToList();
 
-                    CheckAllSurvivorfields(true);
+                    CheckAllSurvivorFields(true);
                     SelectAllSurvivorRowsAndFlexForm(true);
                     break;
 				default:
@@ -796,7 +796,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                     //HumanDiseaseReportDeduplicationService.SurvivorContactsList = HumanDiseaseReportDeduplicationService.ContactsList2.Select(a => a.Copy()).ToList();
                     HumanDiseaseReportDeduplicationService.SurvivorFinalOutcomeList = HumanDiseaseReportDeduplicationService.FinalOutcomeList02.Select(a => a.Copy()).ToList();
 
-                    CheckAllSurvivorfields(true);
+                    CheckAllSurvivorFields(true);
                     SelectAllSurvivorRowsAndFlexForm(true);
                     break;
                 case 2:
@@ -829,7 +829,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                     //HumanDiseaseReportDeduplicationService.SurvivorContactsList = HumanDiseaseReportDeduplicationService.ContactsList.Select(a => a.Copy()).ToList();
                     HumanDiseaseReportDeduplicationService.SurvivorFinalOutcomeList = HumanDiseaseReportDeduplicationService.FinalOutcomeList0.Select(a => a.Copy()).ToList();
 
-                    CheckAllSurvivorfields(false);
+                    CheckAllSurvivorFields(false);
                     SelectAllSurvivorRowsAndFlexForm(false);
                     break;
                 default:
@@ -839,7 +839,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
 			await InvokeAsync(StateHasChanged);
 		}
 
-        protected void CheckAllSurvivorfields(bool record2)
+        protected void CheckAllSurvivorFields(bool record2)
         {
             if (record2 == false)
             {
@@ -1074,14 +1074,10 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                 //}
 
                 //Additional Fields
-                HumanDiseaseReportDeduplicationService.SurvivorparentHumanDiseaseReportID = HumanDiseaseReportDeduplicationService.parentHumanDiseaseReportID;
-                HumanDiseaseReportDeduplicationService.SurvivorrelatedParentHumanDiseaseReportIdList = HumanDiseaseReportDeduplicationService.relatedParentHumanDiseaseReportIdList;
-                HumanDiseaseReportDeduplicationService.SurvivorrelatedChildHumanDiseaseReportIdList = HumanDiseaseReportDeduplicationService.relatedChildHumanDiseaseReportIdList;
                 HumanDiseaseReportDeduplicationService.SurvivoridfHuman = HumanDiseaseReportDeduplicationService.idfHuman;
                 HumanDiseaseReportDeduplicationService.SurvivoridfHumanActual = HumanDiseaseReportDeduplicationService.idfHumanActual;
                 HumanDiseaseReportDeduplicationService.SurvivoridfsCaseProgressStatus = HumanDiseaseReportDeduplicationService.idfsCaseProgressStatus;
                 HumanDiseaseReportDeduplicationService.SurvivoridfsYNRelatedToOutbreak = HumanDiseaseReportDeduplicationService.idfsYNRelatedToOutbreak;
-                HumanDiseaseReportDeduplicationService.SurvivorrelatedHumanDiseaseReportIdList = HumanDiseaseReportDeduplicationService.relatedHumanDiseaseReportIdList;
                 HumanDiseaseReportDeduplicationService.SurvivorDiseaseReportTypeID = HumanDiseaseReportDeduplicationService.DiseaseReportTypeID;
                 HumanDiseaseReportDeduplicationService.SurvivorstrHumanCaseId = HumanDiseaseReportDeduplicationService.strHumanCaseId;
                 //HumanDiseaseReportDeduplicationService.SurvivordatCompletionPaperFormDate = HumanDiseaseReportDeduplicationService.datCompletionPaperFormDate;
@@ -1184,14 +1180,10 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                 //    }
                 //}
                 //Additional Fields
-                HumanDiseaseReportDeduplicationService.SurvivorparentHumanDiseaseReportID = HumanDiseaseReportDeduplicationService.parentHumanDiseaseReportID2;
-                HumanDiseaseReportDeduplicationService.SurvivorrelatedParentHumanDiseaseReportIdList = HumanDiseaseReportDeduplicationService.relatedParentHumanDiseaseReportIdList2;
-                HumanDiseaseReportDeduplicationService.SurvivorrelatedChildHumanDiseaseReportIdList = HumanDiseaseReportDeduplicationService.relatedChildHumanDiseaseReportIdList2;
                 HumanDiseaseReportDeduplicationService.SurvivoridfHuman = HumanDiseaseReportDeduplicationService.idfHuman2;
                 HumanDiseaseReportDeduplicationService.SurvivoridfHumanActual = HumanDiseaseReportDeduplicationService.idfHumanActual2;
                 HumanDiseaseReportDeduplicationService.SurvivoridfsCaseProgressStatus = HumanDiseaseReportDeduplicationService.idfsCaseProgressStatus2;
                 HumanDiseaseReportDeduplicationService.SurvivoridfsYNRelatedToOutbreak = HumanDiseaseReportDeduplicationService.idfsYNRelatedToOutbreak2;
-                HumanDiseaseReportDeduplicationService.SurvivorrelatedHumanDiseaseReportIdList = HumanDiseaseReportDeduplicationService.relatedHumanDiseaseReportIdList2;
                 HumanDiseaseReportDeduplicationService.SurvivorDiseaseReportTypeID = HumanDiseaseReportDeduplicationService.DiseaseReportTypeID2;
                 HumanDiseaseReportDeduplicationService.SurvivorstrHumanCaseId = HumanDiseaseReportDeduplicationService.strHumanCaseId2;
                 //HumanDiseaseReportDeduplicationService.SurvivordatCompletionPaperFormDate = HumanDiseaseReportDeduplicationService.datCompletionPaperFormDate2;
@@ -1728,7 +1720,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                     }
                 }
 
-                await EableDisableMergeButtonAsync();
+                await EnableDisableMergeButtonAsync();
 
             }
             catch (Exception ex)
@@ -1918,7 +1910,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
             //HumanDiseaseReportDeduplicationService.NotificationValues = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.NotificationList.Where(s => s.Checked == true).Select(s => s.Index);
             //HumanDiseaseReportDeduplicationService.NotificationValues2 = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.NotificationList2.Where(s => s.Checked == true).Select(s => s.Index);
 
-            await EableDisableMergeButtonAsync();
+            await EnableDisableMergeButtonAsync();
             TabSummaryValid();
         }
         protected async Task BindTabNotificationAsync()
@@ -1948,7 +1940,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
             HumanDiseaseReportDeduplicationService.NotificationValues = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.NotificationList.Where(s => s.Checked == true).Select(s => s.Index);
             HumanDiseaseReportDeduplicationService.NotificationValues2 = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.NotificationList2.Where(s => s.Checked == true).Select(s => s.Index);
 
-            await EableDisableMergeButtonAsync();
+            await EnableDisableMergeButtonAsync();
             TabNotificationValid();
         }
 
@@ -1973,7 +1965,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
             HumanDiseaseReportDeduplicationService.SymptomsValues = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.SymptomsList.Where(s => s.Checked == true).Select(s => s.Index);
             HumanDiseaseReportDeduplicationService.SymptomsValues2 = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.SymptomsList2.Where(s => s.Checked == true).Select(s => s.Index);
 
-            await EableDisableMergeButtonAsync();
+            await EnableDisableMergeButtonAsync();
             TabSymptomsValid();
         }
 
@@ -1995,7 +1987,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
             HumanDiseaseReportDeduplicationService.FacilityDetailsValues = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.FacilityDetailsList.Where(s => s.Checked == true).Select(s => s.Index);
             HumanDiseaseReportDeduplicationService.FacilityDetailsValues2 = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.FacilityDetailsList2.Where(s => s.Checked == true).Select(s => s.Index);
 
-            await EableDisableMergeButtonAsync();
+            await EnableDisableMergeButtonAsync();
             TabFacilityDetailsValid();
         }
 
@@ -2052,7 +2044,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                 }
             }
 
-            await EableDisableMergeButtonAsync();
+            await EnableDisableMergeButtonAsync();
             TabAntibioticVaccineHistoryValid();
         }
 
@@ -2074,7 +2066,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
             HumanDiseaseReportDeduplicationService.SamplesValues = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.SamplesList.Where(s => s.Checked == true).Select(s => s.Index);
             HumanDiseaseReportDeduplicationService.SamplesValues2 = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.SamplesList2.Where(s => s.Checked == true).Select(s => s.Index);
 
-            await EableDisableMergeButtonAsync();
+            await EnableDisableMergeButtonAsync();
             TabSamplesValid();
         }
 
@@ -2096,7 +2088,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
             HumanDiseaseReportDeduplicationService.TestsValues = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.TestsList.Where(s => s.Checked == true).Select(s => s.Index);
             HumanDiseaseReportDeduplicationService.TestsValues2 = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.TestsList2.Where(s => s.Checked == true).Select(s => s.Index);
 
-            await EableDisableMergeButtonAsync();
+            await EnableDisableMergeButtonAsync();
             TabTestValid();
         }
 
@@ -2121,7 +2113,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
             HumanDiseaseReportDeduplicationService.CaseInvestigationDetailsValues = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.CaseInvestigationDetailsList.Where(s => s.Checked == true).Select(s => s.Index);
             HumanDiseaseReportDeduplicationService.CaseInvestigationDetailsValues2 = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.CaseInvestigationDetailsList2.Where(s => s.Checked == true).Select(s => s.Index);
 
-            await EableDisableMergeButtonAsync();
+            await EnableDisableMergeButtonAsync();
             TabCaseInvestigationDetailsValid();
         }
         protected async Task BindTabRiskFactorsAsync()
@@ -2145,7 +2137,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
             HumanDiseaseReportDeduplicationService.RiskFactorsValues = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.RiskFactorsList.Where(s => s.Checked == true).Select(s => s.Index);
             HumanDiseaseReportDeduplicationService.RiskFactorsValues2 = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.RiskFactorsList2.Where(s => s.Checked == true).Select(s => s.Index);
 
-            await EableDisableMergeButtonAsync();
+            await EnableDisableMergeButtonAsync();
             TabRiskFactorsValid();
         }
 
@@ -2170,7 +2162,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
             //HumanDiseaseReportDeduplicationService.ContactsValues = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.ContactsList.Where(s => s.Checked == true).Select(s => s.Index);
             //HumanDiseaseReportDeduplicationService.ContactsValues2 = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.ContactsList2.Where(s => s.Checked == true).Select(s => s.Index);
 
-            //await EableDisableMergeButtonAsync();
+            //await EnableDisableMergeButtonAsync();
             //TabContactsValid();
 
            
@@ -2208,11 +2200,11 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
             HumanDiseaseReportDeduplicationService.FinalOutcomeValues = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.FinalOutcomeList.Where(s => s.Checked == true).Select(s => s.Index);
             HumanDiseaseReportDeduplicationService.FinalOutcomeValues2 = (IEnumerable<int>)HumanDiseaseReportDeduplicationService.FinalOutcomeList2.Where(s => s.Checked == true).Select(s => s.Index);
 
-            await EableDisableMergeButtonAsync();
+            await EnableDisableMergeButtonAsync();
             TabFinalOutcomeValid();
         }
 
-        protected async Task EableDisableMergeButtonAsync()
+        protected async Task EnableDisableMergeButtonAsync()
         {
             if (AllTabValid() == true)
             {

@@ -1,18 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using EIDSS.ClientLibrary.ApiClients.CrossCutting;
-using EIDSS.ClientLibrary.ApiClients.Reports;
 using EIDSS.ClientLibrary.Configurations;
 using EIDSS.ClientLibrary.Enumerations;
 using EIDSS.ClientLibrary.Responses;
 using EIDSS.ClientLibrary.Services;
 using EIDSS.Domain.RequestModels.CrossCutting;
 using EIDSS.Domain.ViewModels;
+using EIDSS.Security.Encryption;
 using EIDSS.Web.ActionFilters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -30,10 +29,9 @@ namespace EIDSS.Web.Areas.Reports.Controllers
 
         internal AuthenticatedUser authenticatedUser;
 
-        private ICrossCuttingClient _crossCuttingClient;
+        private readonly ICrossCuttingClient _crossCuttingClient;
 
         protected bool DisplayReportParameters { get; set; }
-
 
         public string ReportPath { get; set; }
 
@@ -47,7 +45,6 @@ namespace EIDSS.Web.Areas.Reports.Controllers
         {
             get
             {
-                //return $"/HumanForm1A3Controller/ReportImage/?originalPath={Path}";
                 return "Reports/Report/ReportImage/?originalPath={0}";
             }
         }
@@ -78,7 +75,6 @@ namespace EIDSS.Web.Areas.Reports.Controllers
 
         protected override bool ShowReportParameters
         {
-
             get
             {
                 return DisplayReportParameters;
@@ -100,7 +96,6 @@ namespace EIDSS.Web.Areas.Reports.Controllers
 
         public ReportController(IConfiguration configuration, ITokenService tokenService, ICrossCuttingClient crossCuttingClient, ILogger<ReportController> logger) : base(logger)
         {
-           
             _tokenService = tokenService;
             _crossCuttingClient = crossCuttingClient;
             _configuration = configuration;
@@ -135,10 +130,9 @@ namespace EIDSS.Web.Areas.Reports.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveReportAudit([FromBody] ReportAuditSaveJsonModel reportAuditSaveJsonViewModel)
         {
-
             ReportAuditSaveRequestModel reportAuditSaveRequestViewModel = new ReportAuditSaveRequestModel();
-                            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-                Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
 
             var authenticatedUser = _tokenService.GetAuthenticatedUser();
             reportAuditSaveRequestViewModel.strReportName = reportAuditSaveJsonViewModel.StrReportName;
@@ -149,106 +143,15 @@ namespace EIDSS.Web.Areas.Reports.Controllers
             reportAuditSaveRequestViewModel.strLastName = authenticatedUser.LastName;
             reportAuditSaveRequestViewModel.strOrganization = authenticatedUser.Organization;
             reportAuditSaveRequestViewModel.userRole = authenticatedUser.RoleMembership.Count > 0 ? authenticatedUser.RoleMembership.FirstOrDefault() : "";
-            reportAuditSaveRequestViewModel.datGeneratedDate = Convert.ToDateTime(DateTime.Now.ToString(CultureInfo.InvariantCulture)); // Convert.ToDateTime(DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"));
+            reportAuditSaveRequestViewModel.datGeneratedDate = Convert.ToDateTime(DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
             var response = await _crossCuttingClient.SaveReportAudit(reportAuditSaveRequestViewModel);
             return Ok(response);
         }
 
-
         public string GetCurrentLanguage()
         {
             return uiCultureInfo.Name;
-            //string strLangID = string.Empty;
-            //switch (uiCultureInfo.Name)
-            //{
-            //    case "az-Latn-AZ":
-            //        {
-            //            strLangID = "az-L";
-            //            break;
-            //        }
-
-            //    case "ru-RU":
-            //        {
-            //            strLangID = "ru";
-            //            break;
-            //        }
-
-            //    case "en-US":
-            //        {
-            //            strLangID = "en";
-            //            break;
-            //        }
-
-            //    case "ka-GE":
-            //        {
-            //            strLangID = "ka";
-            //            break;
-            //        }
-
-            //    case "kk-KZ":
-            //        {
-            //            strLangID = "kk";
-            //            break;
-            //        }
-
-            //    case "uz-Cyrl-UZ":
-            //        {
-            //            strLangID = "uz-C";
-            //            break;
-            //        }
-
-            //    case "uz-Latn-UZ":
-            //        {
-            //            strLangID = "uz-L";
-            //            break;
-            //        }
-
-            //    case "uk-UA":
-            //        {
-            //            strLangID = "uk";
-            //            break;
-            //        }
-
-            //    case "hy-AM":
-            //        {
-            //            strLangID = "hy";
-            //            break;
-            //        }
-
-            //    case "ar-IQ":
-            //        {
-            //            strLangID = "ar";
-            //            break;
-            //        }
-
-            //    case "vi-VN":
-            //        {
-            //            strLangID = "vi";
-            //            break;
-            //        }
-
-            //    case "lo-LA":
-            //        {
-            //            strLangID = "lo";
-            //            break;
-            //        }
-
-            //    case "th-TH":
-            //        {
-            //            strLangID = "th";
-            //            break;
-            //        }
-
-            //    default:
-            //        {
-            //            strLangID = "en";
-            //            break;
-            //        }
-            //}
-
-            //return strLangID;
         }
-
     }
 }

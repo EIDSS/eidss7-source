@@ -1,5 +1,7 @@
 ﻿@using EIDSS.Domain.ViewModels.Human
 @using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared.YesNoUnknown
+
 @inherits EIDSS.Web.Components.Human.HumanDiseaseReport.DiseaseReportTestBase
 
 <EditForm id="DiseaseReportTestsForm" Model="@Model">
@@ -11,18 +13,22 @@
                 </div>
                 <div class="col-1 pull-right mb-3">
                     <button @onclick=@(() => OpenAddModal()) Text="@Localizer.GetString(ButtonResourceKeyConstants.AddButton)" class="btn btn-outline-primary"
-                            disabled="@(EnableAddButton)">@Localizer.GetString(@ButtonResourceKeyConstants.AddButton)</button>
+                            disabled="@(EnableAddButton)">
+                        @Localizer.GetString(@ButtonResourceKeyConstants.AddButton)
+                    </button>
                 </div>
             </div>
         </div>
         <div class="card-body">
             <div class="form-row">
                 <div class="form-group col-md-12">
-                    <!--Were samples collection?-->
-                    <label for="Test">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportTestsTestsConductedFieldLabel)</label>
-                    <div class="form-check form-check-inline ">
-                        <RadzenRadioButtonList name="TestsConducted" @bind-Value="@Model.TestsConducted" TValue="long?" Data="@Model.YesNoChoices" TextProperty="Name" ValueProperty="IdfsBaseReference" Change=@((value) => OnTestsCollectedChange(value)) Disabled="@isReportClosed"/>
-                    </div>
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportTestsTestsConductedFieldLabel" CssClass="col-md-12 yes-no-unknown-container" IsRow="true" For="TestsConducted">
+                        <YesNoUnknown
+                            Name="TestsConducted"
+                            SelectedAnswerId="@Model.TestsConducted"
+                            SelectedAnswerIdChanged="@OnTestsCollectedChange"
+                            Disabled="@(isReportClosed || Model.TestDetailsForGrid.Any())"/>
+                    </InterfaceEditorResource>
                 </div>
             </div>
 
@@ -34,9 +40,8 @@
                         <RadzenDataGrid @ref="Grid" TItem="DiseaseReportTestDetailForDiseasesViewModel" Data=@Model.TestDetailsForGrid
                                         AllowPaging="false" AllowSorting="true" AllowColumnResize="true" AllowColumnReorder="true"
                                         ExpandMode="DataGridExpandMode.Single" SelectionMode="DataGridSelectionMode.Multiple" ColumnWidth="100px" Mode="EditMode.Dialog" id="TestGrid" Style="scroll-behavior:auto"
-                                        AllowColumnPicking="true" 
-                                        HeaderCellRender=@((args) => HeaderCellRender(args.Column.Property))
-                                        >
+                                        AllowColumnPicking="true"
+                                        HeaderCellRender=@((args) => HeaderCellRender(args.Column.Property))>
                             <Columns>
                                 <RadzenDataGridColumn Pickable="false" Reorderable="false" TItem="DiseaseReportTestDetailForDiseasesViewModel" Width="40px" Sortable="false" Filterable="false" Property="RowID" Visible="false" />
                                 <RadzenDataGridColumn Pickable="false" Reorderable="false" TItem="DiseaseReportTestDetailForDiseasesViewModel" Width="40px" Sortable="false" Filterable="false">
@@ -54,13 +59,13 @@
                                         @data.strFieldBarcode
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn  Reorderable="true" OrderIndex="@FindColumnOrder("strSampleTypeName")" Visible="@GetColumnVisibility("strSampleTypeName")"  TItem="DiseaseReportTestDetailForDiseasesViewModel" Property="strSampleTypeName" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanSessionSampleDetailsModalSampleTypeFieldLabel)  Width="200px">
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("strSampleTypeName")" Visible="@GetColumnVisibility("strSampleTypeName")" TItem="DiseaseReportTestDetailForDiseasesViewModel" Property="strSampleTypeName" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanSessionSampleDetailsModalSampleTypeFieldLabel) Width="200px">
                                     <Template Context="data">
                                         @data.strSampleTypeName
                                     </Template>
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("strBarcode")" Visible="@GetColumnVisibility("strBarcode")" TItem="DiseaseReportTestDetailForDiseasesViewModel" Property="strBarcode" Title=@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportLabSampleIDFieldLabel) Width="200px" />
-                                <RadzenDataGridColumn  Reorderable="true" OrderIndex="@FindColumnOrder("strDiagnosis")" Visible="@GetColumnVisibility("strDiagnosis")"  TItem="DiseaseReportTestDetailForDiseasesViewModel" Property="strDiagnosis" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.TestDetailsModalTestDiseaseFieldLabel)"  Width="200px">
+                                <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("strDiagnosis")" Visible="@GetColumnVisibility("strDiagnosis")" TItem="DiseaseReportTestDetailForDiseasesViewModel" Property="strDiagnosis" Title="@Localizer.GetString(FieldLabelResourceKeyConstants.TestDetailsModalTestDiseaseFieldLabel)" Width="200px">
                                     <Template Context="data">
                                         @data.strDiagnosis
                                     </Template>
@@ -155,11 +160,3 @@
         </div>
     </div>
 </EditForm>
-@code{
-
-        void GridHumanDiseaseReportTestClickHandler()
-        {
-        GridColumnSave("HumanDiseaseReportTest");
-        }
-
-}

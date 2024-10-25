@@ -16,13 +16,11 @@ namespace EIDSS.Web.Areas.Reports.SubAreas.GG.ViewModels
 
         [DisplayName("Start Date")]
         [LocalizedRequired]
-        [DisplayFormat(DataFormatString = "{0:d}")]
         [DateComparer(nameof(StartIssueDate), "StartIssueDate", nameof(EndIssueDate), "EndIssueDate", CompareTypeEnum.LessThan, nameof(FieldLabelResourceKeyConstants.StartDateFieldLabel), nameof(FieldLabelResourceKeyConstants.EndDateFieldLabel))]
         public string StartIssueDate { get; set; }
 
         [DisplayName("End Date")]
         [LocalizedRequired]
-        [DisplayFormat(DataFormatString = "{0:d}")]
         [DateComparer(nameof(EndIssueDate), "EndIssueDate", nameof(StartIssueDate), "StartIssueDate", CompareTypeEnum.GreaterThan, nameof(FieldLabelResourceKeyConstants.EndDateFieldLabel), nameof(FieldLabelResourceKeyConstants.StartDateFieldLabel))]
         public string EndIssueDate { get; set; }
 

@@ -22,6 +22,7 @@
                         {
                         <tr>
                             <td style="display:none;">@Model.SelectedDashboardIcons[i].idfsBaseReference</td>
+                                                        @*<input id="@(String.Format("hf_{0}", Model.SelectedDashboardIcons[i].idfsBaseReference))" type="hidden" class="idfsBaseReference" value="@Model.SelectedDashboardIcons[i].idfsBaseReference" />*@                            
                             <td>
                                 <div class="form-group col-md-6 form-check form-check-inline">
                                     <input asp-for="@Model.SelectedDashboardIcons[i].Selected" type="checkbox" class="form-check-input" />
@@ -47,16 +48,21 @@
             var count = 0;
 
             if (this.checked) {
+                /*alert("click on DashboardIconsTable checkbox!!");*/
                 $('#DashboardIconsTable').find(':input:checkbox:checked').each(function () {
                     count = count + 1;
                 });
                 if (count <= 6) {
+                    /*alert(count);*/
                     $(this).prop("checked", true);
                 } else {
+                    /*alert(count);*/
+                    /*alert("You can select up to six icons.");*/
                     showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.UserGroupDetailsYoucanselectuptosixiconsMessage)');
                     $(this).prop("checked", false);
                 }
             } else {
+                /*$row.removeClass("selected");*/
                 $(this).prop("checked", false);
             }
 

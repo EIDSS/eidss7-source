@@ -1,0 +1,142 @@
+@using EIDSS.Web.ViewModels.Human
+@using EIDSS.Web.Components.Shared.Organization
+@using EIDSS.Web.Components.Shared.YesNoUnknown
+@using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared
+@using EIDSS.Domain.ViewModels.CrossCutting
+@using EIDSS.Web.Services
+
+@inherits EIDSS.Web.Components.Human.HumanDiseaseReport.DiseaseReportCaseInvestigationBase
+
+<RadzenTemplateForm @ref="@Form" TItem="@DiseaseReportCaseInvestigationPageViewModel" Data="@Model" id="CaseInvestigationForm">
+    <div class="card">
+        <div class="card-header"><h4>@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportCaseInvestigationDetailsHeading)</h4></div>
+        <div class="card-body">
+            <input type="hidden" id="hdnidfGeoLocation" value="@Model.idfPointGeoLocation"/>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationInvestigatingOrganizationFieldLabel" IsRow="false" CssClass="col-6" For="InvestigatedByOfficeDD">
+                    <OrganizationSearch
+                        Disabled="@Model.IsReportClosed"
+                        @bind-SelectedOrganizationText="@Model.InvestigatedByOffice"
+                        SelectedOrganizationId="@HdrStateContainer.InvestigatedByOfficeId"
+                        SelectedOrganizationIdChanged="@InvestigatedByOfficeChanged"
+                        Name="InvestigatedByOfficeDDSearch"/>
+                    <input type="hidden" id="InvestigatedByOfficeDD" value="@HdrStateContainer.InvestigatedByOfficeId"/>
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationStartDateOfInvestigationFieldLabel" IsRow="false" CssClass="col-6" For="CaseInvestigationSection_StartDateofInvestigation">
+                    <HdrCustomDatePicker
+                        FieldType="@HdrCustomDatePickerFieldTypes.DateOfStartInvestigation"
+                        @bind-Value="@HdrStateContainer.DateOfStartInvestigation"
+                        Disabled="@Model.IsReportClosed"
+                        Name="CaseInvestigationSection_StartDateofInvestigation"/>
+                </InterfaceEditorResource>
+            </div>
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationCommentsFieldLabel" IsRow="false" CssClass="col-md-12" For="CaseInvestigationSection_comments">
+                    <RadzenTextArea 
+                        id="CaseInvestigationSection_comments"
+                        Name="CaseInvestigationSection_comments" 
+                        class="form-control sidebar-do-not-disable" 
+                        @bind-Value="@Model.comments" 
+                        Disabled="@Model.IsReportClosed" 
+                        Style="min-height: 100px"/>
+                </InterfaceEditorResource>
+            </div>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationLocationofExposureisknownFieldLabel" CssClass="col-md-12" IsRow="true">
+                <YesNoUnknown
+                    disabled="@Model.IsReportClosed"
+                    @bind-SelectedAnswerId="@Model.idfsYNExposureLocationKnown"
+                    Name="idfsYNExposureLocationKnown"/>
+                <input type="hidden" id="idfsYNExposureLocationKnown" value="@Model.idfsYNExposureLocationKnown"/>
+            </InterfaceEditorResource>
+            <RadzenStack class="yes-follow-up" Visible="Model.idfsYNExposureLocationKnown.GetValueOrDefault() == EIDSSConstants.YesNoValues.Yes">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationDateOfPotentialExposureFieldLabel" IsRow="true" CssClass="col-12" For="CaseInvestigationSection_ExposureDate">
+                    <HdrCustomDatePicker
+                        FieldType="@HdrCustomDatePickerFieldTypes.DateOfExposure"
+                        @bind-Value="@HdrStateContainer.DateOfExposure"
+                        Disabled="@Model.IsReportClosed"
+                        Name="CaseInvestigationSection_ExposureDate"
+                        />
+                </InterfaceEditorResource>
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationExposureLocationFieldLabel" IsRow="true" CssClass="col-12" For="idfsPointGeoLocationType">
+                    <RadzenRadioButtonList
+                        Name="idfsPointGeoLocationType"
+                        Value="Model.idfsPointGeoLocationType"
+                        Disabled="@Model.IsReportClosed"
+                        Data="@Model.ExposureLocationRD"
+                        Change="OnExposureLocationRDChange"
+                        TValue="long?" 
+                        TextProperty="Name"
+                        ValueProperty="IdfsBaseReference"/>
+                    <input type="hidden" id="idfsPointGeoLocationTypeValue" value="@Model.idfsPointGeoLocationType"/>
+                </InterfaceEditorResource>
+                <RadzenStack class="yes-follow-up no-gap">
+                    <RadzenStack Visible="@(Model.idfsPointGeoLocationType.GetValueOrDefault() == EIDSSConstants.GeoLocationTypes.Foreign)">
+                        <div class="form-row">
+                            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationLocationOfExposureForeignAddressCountryFieldLabel" IsRow="false" CssClass="col-6" For="ForeignCountryDD">
+                                <RadzenDropDown
+                                    Name="ForeignCountryDD"
+                                    AllowClear="true"
+                                    Disabled="@Model.IsReportClosed"
+                                    TValue="long?"
+                                    Style="display: flex"
+                                    Data="@ForeignCountries"
+                                    ValueProperty="idfsCountry"
+                                    TextProperty="strCountryName"
+                                    @bind-Value="@Model.idfsPointCountry"
+                                    AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"/>
+                                <input type="hidden" id="ForeignCountryDD" value="@Model.idfsPointCountry"/>
+                            </InterfaceEditorResource>
+                            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationLocationOfExposureForeignAddressAddressFieldLabel" IsRow="false" CssClass="col-6" For="strPointForeignAddress">
+                                 <RadzenTextBox
+                                    class="w-100"
+                                    Name="strPointForeignAddress"
+                                    id="strPointForeignAddress"
+                                    @bind-Value="@Model.strPointForeignAddress"
+                                    Disabled="@Model.IsReportClosed"/>
+                            </InterfaceEditorResource>
+                        </div>
+                    </RadzenStack>
+                    <RadzenStack Visible="@(Model.idfsPointGeoLocationType.GetValueOrDefault() == EIDSSConstants.GeoLocationTypes.ExactPoint || Model.idfsPointGeoLocationType.GetValueOrDefault() == EIDSSConstants.GeoLocationTypes.RelativePoint)">
+                        <LocationView Id="CaseInvestigationSection" ParmLocationViewModel="@Model.ExposureLocationAddress" @ref="@ExposureLocationAddressLocationViewComponent" />
+                    </RadzenStack>
+                    <RadzenStack class="no-gap" Visible="@(Model.idfsPointGeoLocationType.GetValueOrDefault() == EIDSSConstants.GeoLocationTypes.RelativePoint)">
+                        <div class="form-row">
+                            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationLocationOfExposureRelativePointGroundTypeFieldLabel" IsRow="false" CssClass="col-3" For="GroundTypeDD">
+                                <RadzenDropDown
+                                    Name="GroundTypeDD"
+                                    AllowClear="true"
+                                    Disabled="@Model.IsReportClosed"
+                                    TValue="long?"
+                                    Style="display: flex"
+                                    Data="@GroundTypes"
+                                    ValueProperty="@nameof(BaseReferenceViewModel.IdfsBaseReference)"
+                                    TextProperty="@nameof(BaseReferenceViewModel.Name)"
+                                    @bind-Value="@Model.idfsPointGroundType"
+                                    AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"/>
+                            </InterfaceEditorResource>
+                            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationLocationOfExposureRelativePointDistancekmFieldLabel" IsRow="false" CssClass="col-3" For="dblPointDistance">
+                                <RadzenNumeric
+                                    TValue="double?"
+                                    Name="dblPointDistance"
+                                    id="dblPointDistance"
+                                    @bind-Value="@Model.dblPointDistance"
+                                    Disabled="@Model.IsReportClosed"/>
+                            </InterfaceEditorResource>
+                             <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationLocationOfExposureRelativePointDirectionFieldLabel" IsRow="false" CssClass="col-3" For="dblPointDirection">
+                                 <RadzenNumeric
+                                     TValue="double?"
+                                     Name="dblPointDirection"
+                                     id="dblPointDirection"
+                                     @bind-Value="@Model.dblPointDirection"
+                                     Disabled="@Model.IsReportClosed"/>
+                             </InterfaceEditorResource>
+                        </div>
+                    </RadzenStack>
+                </RadzenStack>
+            </RadzenStack>
+        </div>
+    </div>
+</RadzenTemplateForm>

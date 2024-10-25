@@ -1,7 +1,5 @@
-﻿using EIDSS.ClientLibrary.ApiClients.Admin;
-using EIDSS.ClientLibrary.ApiClients.Configuration;
+﻿using EIDSS.ClientLibrary.ApiClients.Configuration;
 using EIDSS.ClientLibrary.ApiClients.CrossCutting;
-using EIDSS.ClientLibrary.ApiClients.FlexForm;
 using EIDSS.ClientLibrary.ApiClients.Human;
 using EIDSS.ClientLibrary.ApiClients.Outbreak;
 using EIDSS.ClientLibrary.Enumerations;
@@ -22,7 +20,6 @@ using EIDSS.Domain.ViewModels.Outbreak;
 using EIDSS.Localization.Constants;
 using EIDSS.Web.Abstracts;
 using EIDSS.Web.Areas.Outbreak.ViewModels;
-using EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport;
 using EIDSS.Web.Helpers;
 using EIDSS.Web.TagHelpers.Models.EIDSSModal;
 using EIDSS.Web.ViewModels;
@@ -31,7 +28,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.CodeAnalysis.Differencing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -42,7 +38,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
 
@@ -53,34 +48,23 @@ namespace EIDSS.Web.Components.Human.Outbreak
     public class HumanCase : BaseController
     {
         private readonly IOutbreakClient _OutbreakClient;
-        readonly private ICrossCuttingClient _crossCuttingClient;
-        readonly private ISettlementClient _settlementClient;
-        readonly private ICrossCuttingService _crossCuttingService;
-
-        private IConfiguration _configuration;
-        public IConfiguration Configuration { get { return _configuration; } }
-        public DiseaseReportComponentViewModel _diseaseReportComponentViewModel { get; set; }
-        internal CultureInfo uiCultureInfo = Thread.CurrentThread.CurrentUICulture;
-        internal CultureInfo cultureInfo = Thread.CurrentThread.CurrentCulture;
-        public string CurrentLanguage { get; set; }
-        public IHttpContextAccessor _httpContextAccessor;
-        public string CountryId { get; set; }
-        private readonly ITokenService _tokenService;
-        private INotificationSiteAlertService _notificationService;
+        private readonly ICrossCuttingClient _crossCuttingClient;
+        private readonly IConfiguration _configuration;
+        private DiseaseReportComponentViewModel _diseaseReportComponentViewModel;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly INotificationSiteAlertService _notificationService;
         private readonly AuthenticatedUser _authenticatedUser;
-        private IHumanDiseaseReportClient _humanDiseaseReportClient;
-        private UserPermissions userPermissions;
-        private IFlexFormClient _flexFormClient;
+        private readonly IHumanDiseaseReportClient _humanDiseaseReportClient;
         private readonly IStringLocalizer _localizer;
-        List<HumanDiseaseReportDetailViewModel> detailResponse = new List<HumanDiseaseReportDetailViewModel>();
-        private IDiseaseHumanGenderMatrixClient _diseaseHumanGenderMatrixClient;
+        private HumanDiseaseReportDetailViewModel detailResponse;
+        private readonly IDiseaseHumanGenderMatrixClient _diseaseHumanGenderMatrixClient;
         private OutbreakSessionDetailsResponseModel outbreakSessionDetail;
-        
+
         private bool IsbSessionClosed { get; set; }
         private bool IsEdit { get; set; }
         private long? CaseQuestionnaireTemplateID { get; set; }
         private long? CaseEPIObservationID { get; set; }
-        
+
 
         private enum DataType
         {
@@ -92,42 +76,44 @@ namespace EIDSS.Web.Components.Human.Outbreak
             LocationType
         }
 
-        public HumanCase(IOutbreakClient outbreakClient, ICrossCuttingClient crossCuttingClient, ISettlementClient settlementClient, IConfiguration configuration,
-                            ICrossCuttingService crossCuttingService, IHumanDiseaseReportClient humanDiseaseReportClient, ITokenService tokenService,
-                            IFlexFormClient flexFormClient, ILogger<OrganizationSearchController> logger, IStringLocalizer localizer,
-                            IDiseaseHumanGenderMatrixClient diseaseHumanGenderMatrixClient, INotificationSiteAlertService notificationService,
-                            IHttpContextAccessor httpContextAccessor) :
-            base(logger, tokenService)
+        public HumanCase(
+            IOutbreakClient outbreakClient,
+            ICrossCuttingClient crossCuttingClient,
+            IConfiguration configuration,
+            IHumanDiseaseReportClient humanDiseaseReportClient,
+            ITokenService tokenService,
+            ILogger<OrganizationSearchController> logger,
+            IStringLocalizer localizer,
+            IDiseaseHumanGenderMatrixClient diseaseHumanGenderMatrixClient,
+            INotificationSiteAlertService notificationService,
+            IHttpContextAccessor httpContextAccessor)
+            : base(logger, tokenService)
         {
             _OutbreakClient = outbreakClient;
 
             _httpContextAccessor = httpContextAccessor;
             _crossCuttingClient = crossCuttingClient;
-            _settlementClient = settlementClient;
-            _crossCuttingService = crossCuttingService;
             _humanDiseaseReportClient = humanDiseaseReportClient;
             _notificationService = notificationService;
-            _tokenService = tokenService;
             _configuration = configuration;
-            _flexFormClient = flexFormClient;
             _localizer = localizer;
             _diseaseHumanGenderMatrixClient = diseaseHumanGenderMatrixClient;
             _authenticatedUser = _tokenService.GetAuthenticatedUser();
             CountryId = _configuration.GetValue<string>("EIDSSGlobalSettings:CountryID");
-
-            CurrentLanguage = cultureInfo.Name;
         }
 
         public async Task<IViewComponentResult> InvokeAsync(HumanCaseViewModel model)
         {
             _diseaseReportComponentViewModel = model.diseaseReportComponentViewModel;
-            
+
             UserPermissions deletePermissions = GetUserPermissions(PagePermission.AccessToHumanDiseaseReportData);
             UserPermissions CanReopenClosedReport = GetUserPermissions(PagePermission.CanReopenClosedHumanDiseaseReportSession);
 
-            OutbreakSessionDetailRequestModel outbreakSessionRequest = new OutbreakSessionDetailRequestModel();
-            outbreakSessionRequest.LanguageID = GetCurrentLanguage();
-            outbreakSessionRequest.idfsOutbreak = model.idfOutbreak;
+            OutbreakSessionDetailRequestModel outbreakSessionRequest = new()
+            {
+                LanguageID = GetCurrentLanguage(),
+                idfsOutbreak = model.idfOutbreak
+            };
 
             List<OutbreakSessionDetailsResponseModel> result = await _OutbreakClient.GetSessionDetail(outbreakSessionRequest);
             outbreakSessionDetail = result.FirstOrDefault();
@@ -150,10 +136,12 @@ namespace EIDSS.Web.Components.Human.Outbreak
                     UserPermissions caseMonitoringPermissions = GetUserPermissions(PagePermission.AccessToOutbreakHumanCaseData);
 
                     _diseaseReportComponentViewModel.ReportSummary = new DiseaseReportSummaryPageViewModel();
-                    _diseaseReportComponentViewModel.NotificationSection = new DiseaseReportNotificationPageViewModel();
-                    _diseaseReportComponentViewModel.NotificationSection.isOutbreakCase = true;
-                    _diseaseReportComponentViewModel.NotificationSection.datOutbreakStartDate = outbreakSessionDetail.datStartDate;
-                    _diseaseReportComponentViewModel.NotificationSection.PermissionsAccessToNotification = new UserPermissions();
+                    _diseaseReportComponentViewModel.NotificationSection = new DiseaseReportNotificationPageViewModel
+                    {
+                        isOutbreakCase = true,
+                        datOutbreakStartDate = outbreakSessionDetail.datStartDate,
+                        PermissionsAccessToNotification = new UserPermissions()
+                    };
                     _diseaseReportComponentViewModel.NotificationSection.PermissionsAccessToNotification.Create = caseMonitoringPermissions.Create;
                     _diseaseReportComponentViewModel.NotificationSection.PermissionsAccessToNotification.Write = caseMonitoringPermissions.Write;
                     _diseaseReportComponentViewModel.NotificationSection.PermissionsAccessToNotification.Delete = caseMonitoringPermissions.Delete;
@@ -162,9 +150,11 @@ namespace EIDSS.Web.Components.Human.Outbreak
                     _diseaseReportComponentViewModel.FacilityDetailsSection = new DiseaseReportFacilityDetailsPageViewModel();
                     _diseaseReportComponentViewModel.AntibioticVaccineHistorySection = new DiseaseReportAntibioticVaccineHistoryPageViewModel();
 
-                    _diseaseReportComponentViewModel.CaseDetails = new Domain.ViewModels.Outbreak.CaseGetDetailViewModel();
-                    _diseaseReportComponentViewModel.CaseDetails.CaseMonitorings = new List<CaseMonitoringGetListViewModel>();
-                    _diseaseReportComponentViewModel.CaseDetails.Session = new OutbreakSessionDetailsResponseModel();
+                    _diseaseReportComponentViewModel.CaseDetails = new CaseGetDetailViewModel
+                    {
+                        CaseMonitorings = new List<CaseMonitoringGetListViewModel>(),
+                        Session = new OutbreakSessionDetailsResponseModel()
+                    };
 
                     if (model.SessionParameters != null)
                     {
@@ -188,21 +178,26 @@ namespace EIDSS.Web.Components.Human.Outbreak
                     _diseaseReportComponentViewModel.CaseDetails.CreatePermissionIndicator = caseMonitoringPermissions.Create;
                     _diseaseReportComponentViewModel.CaseDetails.CaseDisabledIndicator = false;
 
-                    _diseaseReportComponentViewModel.DiseaseReport = new Domain.ViewModels.Veterinary.DiseaseReportGetDetailViewModel();
-                    _diseaseReportComponentViewModel.DiseaseReport.ReportCategoryTypeID = (long)model.SessionDetails.OutbreakTypeId;
+                    _diseaseReportComponentViewModel.DiseaseReport = new Domain.ViewModels.Veterinary.DiseaseReportGetDetailViewModel
+                    {
+                        ReportCategoryTypeID = (long)model.SessionDetails.OutbreakTypeId
+                    };
 
                     _diseaseReportComponentViewModel.SamplesSection = new DiseaseReportSamplePageViewModel();
                     _diseaseReportComponentViewModel.TestsSection = new DiseaseReportTestPageViewModel();
-                    _diseaseReportComponentViewModel.CaseInvestigationSection = new DiseaseReportCaseInvestigationPageViewModel();
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.PermissionsAccessToNotification = new UserPermissions();
+                    _diseaseReportComponentViewModel.CaseInvestigationSection = new DiseaseReportCaseInvestigationPageViewModel
+                    {
+                        PermissionsAccessToNotification = new UserPermissions()
+                    };
                     _diseaseReportComponentViewModel.CaseInvestigationSection.PermissionsAccessToNotification.Write = caseMonitoringPermissions.Write;
                     _diseaseReportComponentViewModel.CaseInvestigationSection.PermissionsAccessToNotification.Delete = caseMonitoringPermissions.Delete;
                     _diseaseReportComponentViewModel.CaseInvestigationSection.PermissionsAccessToNotification.Create = caseMonitoringPermissions.Create;
                     _diseaseReportComponentViewModel.CaseInvestigationSection.isOutbreakCase = true;
 
-                    //_diseaseReportComponentViewModel.ContactListSection = new DiseaseReportContactListPageViewModel();
-                    _diseaseReportComponentViewModel.ContactListSection.ContactTracingFlexFormRequest = new FlexFormQuestionnaireGetRequestModel();
-                    _diseaseReportComponentViewModel.ContactListSection.ContactTracingFlexFormRequest.LangID = GetCurrentLanguage();
+                    _diseaseReportComponentViewModel.ContactListSection.ContactTracingFlexFormRequest = new FlexFormQuestionnaireGetRequestModel
+                    {
+                        LangID = GetCurrentLanguage()
+                    };
                     if (model.SessionParameters != null)
                     {
                         if (model.SessionParameters.ContactTracingTemplateID != null)
@@ -234,9 +229,9 @@ namespace EIDSS.Web.Components.Human.Outbreak
                 _diseaseReportComponentViewModel.CaseDetails.CaseId = model.OutbreakCaseReportUID;
                 _diseaseReportComponentViewModel.CaseDetails.Session.OutbreakTypeId = (long)OutbreakTypeEnum.Human;
 
-                HumanPersonDetailsRequestModel request = new HumanPersonDetailsRequestModel();
-                HumanPersonDetailsFromHumanIDRequestModel requestID = new HumanPersonDetailsFromHumanIDRequestModel();
-                List<DiseaseReportPersonalInformationViewModel> response = new List<DiseaseReportPersonalInformationViewModel>();
+                HumanPersonDetailsRequestModel request = new();
+                HumanPersonDetailsFromHumanIDRequestModel requestID = new();
+                List<DiseaseReportPersonalInformationViewModel> response = new();
                 if (!_diseaseReportComponentViewModel.isEdit)
                 {
                     await OnHumanDiseaseReportCreation(long.Parse(_authenticatedUser.SiteId));
@@ -263,7 +258,7 @@ namespace EIDSS.Web.Components.Human.Outbreak
                         var personInfo = response.FirstOrDefault();
                         _diseaseReportComponentViewModel.ReportSummary.PersonID = personInfo.EIDSSPersonID;
                         _diseaseReportComponentViewModel.ReportSummary.PersonName = personInfo.PatientFarmOwnerName;
-                        _diseaseReportComponentViewModel.ReportSummary.DateEntered = personInfo.EnteredDate != null ? Convert.ToDateTime(personInfo.EnteredDate).ToString() : DateTime.Today.ToString();
+                        _diseaseReportComponentViewModel.ReportSummary.DateEntered = personInfo.EnteredDate ?? DateTime.Today;
                         _diseaseReportComponentViewModel.ReportSummary.EnteredBy = _authenticatedUser.UserName;
                         _diseaseReportComponentViewModel.ReportSummary.EnteredByOrganization = _authenticatedUser.Organization;
                         if (_diseaseReportComponentViewModel.isEdit && personInfo.HumanId != 0 && personInfo.HumanActualId != 0)
@@ -284,28 +279,28 @@ namespace EIDSS.Web.Components.Human.Outbreak
                         SortColumn = "datEnteredDate",
                         SortOrder = "desc"
                     };
-                    
+
                     detailResponse = await _humanDiseaseReportClient.GetHumanDiseaseDetail(detailRequest);
 
                     //Transfer of HDR field to Outbreak for validation separation purposes.
                     //this should not be done, if it wasn't for sharing HDR with HC.
-                    _diseaseReportComponentViewModel.SymptomsSection.OutBreakSymptomsOnsetDate = detailResponse[0].datOnSetDate;
+                    _diseaseReportComponentViewModel.SymptomsSection.OutBreakSymptomsOnsetDate = detailResponse.datOnSetDate;
 
                     List<CaseGetDetailViewModel> caseDetails = await _OutbreakClient.GetCaseDetail(GetCurrentLanguage(), model.OutbreakCaseReportUID);
 
 
                     CaseEPIObservationID = caseDetails.First().CaseQuestionnaireObservationId;
 
-                    if (detailResponse.Count > 0)
+                    if (detailResponse != null)
                     {
-                        var humanDiseaseDetail = detailResponse.FirstOrDefault();
+                        var humanDiseaseDetail = detailResponse;
 
                         _diseaseReportComponentViewModel.HumanCaseClinicalInformation.datFinalDiagnosisDate = humanDiseaseDetail.datFinalDiagnosisDate;
 
                         _diseaseReportComponentViewModel.ReportSummary.ReportID = humanDiseaseDetail.strCaseId;
                         _diseaseReportComponentViewModel.ReportSummary.ReportStatus = humanDiseaseDetail.CaseProgressStatus;
                         _diseaseReportComponentViewModel.ReportSummary.ReportStatusID = humanDiseaseDetail.idfsCaseProgressStatus.Value;
-                        _diseaseReportComponentViewModel.ReportSummary.DateEntered = humanDiseaseDetail.datEnteredDate != null ? Convert.ToDateTime(humanDiseaseDetail.datEnteredDate).ToString() : DateTime.Today.ToString();
+                        _diseaseReportComponentViewModel.ReportSummary.DateEntered = humanDiseaseDetail.datEnteredDate ?? DateTime.Today;
                         _diseaseReportComponentViewModel.ReportSummary.EnteredBy = humanDiseaseDetail.EnteredByPerson;
                         _diseaseReportComponentViewModel.ReportSummary.EnteredByOrganization = humanDiseaseDetail.strOfficeEnteredBy;
                         _diseaseReportComponentViewModel.ReportSummary.ReportType = humanDiseaseDetail.ReportType;
@@ -317,20 +312,13 @@ namespace EIDSS.Web.Components.Human.Outbreak
                         _diseaseReportComponentViewModel.ReportSummary.DateLastUpdated = humanDiseaseDetail.datModificationDate.ToString();
                         _diseaseReportComponentViewModel.ReportSummary.PersonID = humanDiseaseDetail.EIDSSPersonID;
                         _diseaseReportComponentViewModel.ReportSummary.PersonName = humanDiseaseDetail.PatientFarmOwnerName;
-                        _diseaseReportComponentViewModel.ReportSummary.RelatedToReportIds = humanDiseaseDetail.relatedHumanDiseaseReportIdList;
                         _diseaseReportComponentViewModel.ReportSummary.idfHumanCase = humanDiseaseDetail.idfHumanCase;
                         _diseaseReportComponentViewModel.ReportSummary.HumanID = humanDiseaseDetail.idfHuman;
                         _diseaseReportComponentViewModel.ReportSummary.HumanActualID = humanDiseaseDetail.HumanActualId;
                         _diseaseReportComponentViewModel.ReportSummary.CaseClassification = humanDiseaseDetail.SummaryCaseClassification;
                         _diseaseReportComponentViewModel.ReportSummary.blnFinalSSD = humanDiseaseDetail.blnFinalSSD;
                         _diseaseReportComponentViewModel.ReportSummary.blnInitialSSD = humanDiseaseDetail.blnInitialSSD;
-                        _diseaseReportComponentViewModel.ReportSummary.ConnectedDiseaseReportID = humanDiseaseDetail.ConnectedDiseaseReportID;
-                        _diseaseReportComponentViewModel.ReportSummary.ConnectedDiseaseEIDSSReportID = humanDiseaseDetail.ConnectedDiseaseEIDSSReportID;
-                        _diseaseReportComponentViewModel.ReportSummary.RelateToHumanDiseaseReportID = humanDiseaseDetail.RelateToHumanDiseaseReportID;
-                        _diseaseReportComponentViewModel.ReportSummary.RelatedToHumanDiseaseEIDSSReportID = humanDiseaseDetail.RelatedToHumanDiseaseEIDSSReportID;
-                        _diseaseReportComponentViewModel.ReportSummary.relatedChildHumanDiseaseReportIdList = humanDiseaseDetail.relatedChildHumanDiseaseReportIdList;
-                        _diseaseReportComponentViewModel.ReportSummary.relatedParentHumanDiseaseReportIdList = humanDiseaseDetail.relatedParentHumanDiseaseReportIdList;
-                        
+
                         //Setting at Detail View Model
                         _diseaseReportComponentViewModel.HumanActualID = humanDiseaseDetail.HumanActualId;
                         _diseaseReportComponentViewModel.HumanID = humanDiseaseDetail.idfHuman;
@@ -347,24 +335,22 @@ namespace EIDSS.Web.Components.Human.Outbreak
                     }
                 }
                 //End
-                model.CaseReportPrintViewModal = new();
-                model.CaseReportPrintViewModal.Parameters = new List<KeyValuePair<string, string>>();
-                model.CaseReportPrintViewModal.ReportName = "HumanOutbreakCase";
-                //model.CaseReportPrintViewModal.ReportHeading = "HumanOutbreakCase";
-
-                if (detailResponse.Count > 0)
+                model.CaseReportPrintViewModal = new()
                 {
-                    if (detailResponse.First().idfHumanCase != null)
-                    {
-                        model.CaseReportPrintViewModal.Parameters.Add(new KeyValuePair<string, string>("LangID", GetCurrentLanguage()));
-                        model.CaseReportPrintViewModal.Parameters.Add(new KeyValuePair<string, string>("ObjID", model.OutbreakCaseReportUID.ToString()));
-                        model.CaseReportPrintViewModal.Parameters.Add(new KeyValuePair<string, string>("UserOrganization", _authenticatedUser.Organization));
-                        model.CaseReportPrintViewModal.Parameters.Add(new KeyValuePair<string, string>("PersonID", _authenticatedUser.PersonId.ToString()));
-                        model.CaseReportPrintViewModal.Parameters.Add(new KeyValuePair<string, string>("SiteID", _authenticatedUser.SiteId.ToString()));
-                        model.CaseReportPrintViewModal.Parameters.Add(new KeyValuePair<string, string>("UserFullName", _authenticatedUser.UserName));
-                        model.CaseReportPrintViewModal.Parameters.Add(new KeyValuePair<string, string>("IncludeSignature", "True"));
-                        model.CaseReportPrintViewModal.Parameters.Add(new KeyValuePair<string, string>("PrintDateTime", DateTime.Now.ToShortDateString().ToString(new CultureInfo(GetCurrentLanguage()))));
-                    }
+                    Parameters = new List<KeyValuePair<string, string>>(),
+                    ReportName = "HumanOutbreakCase"
+                };
+
+                if (detailResponse != null)
+                {
+                    model.CaseReportPrintViewModal.Parameters.Add(new KeyValuePair<string, string>("LangID", GetCurrentLanguage()));
+                    model.CaseReportPrintViewModal.Parameters.Add(new KeyValuePair<string, string>("ObjID", model.OutbreakCaseReportUID.ToString()));
+                    model.CaseReportPrintViewModal.Parameters.Add(new KeyValuePair<string, string>("UserOrganization", _authenticatedUser.Organization));
+                    model.CaseReportPrintViewModal.Parameters.Add(new KeyValuePair<string, string>("PersonID", _authenticatedUser.PersonId.ToString()));
+                    model.CaseReportPrintViewModal.Parameters.Add(new KeyValuePair<string, string>("SiteID", _authenticatedUser.SiteId.ToString()));
+                    model.CaseReportPrintViewModal.Parameters.Add(new KeyValuePair<string, string>("UserFullName", _authenticatedUser.UserName));
+                    model.CaseReportPrintViewModal.Parameters.Add(new KeyValuePair<string, string>("IncludeSignature", "True"));
+                    model.CaseReportPrintViewModal.Parameters.Add(new KeyValuePair<string, string>("PrintDateTime", DateTime.Now.ToShortDateString().ToString(new CultureInfo(GetCurrentLanguage()))));
                 }
 
                 if (model.diseaseReportComponentViewModel.HumanActualID != 0 && model.diseaseReportComponentViewModel.HumanActualID != null)
@@ -376,19 +362,18 @@ namespace EIDSS.Web.Components.Human.Outbreak
                     _diseaseReportComponentViewModel.HumanID = model.diseaseReportComponentViewModel.HumanID;
                 }
 
-                _diseaseReportComponentViewModel.HumanCaseLocation = await LoadCaseLocation(_diseaseReportComponentViewModel.HumanCaseLocation);
+                _diseaseReportComponentViewModel.HumanCaseLocation = LoadCaseLocation(_diseaseReportComponentViewModel.HumanCaseLocation);
 
-                _diseaseReportComponentViewModel.PersonInfoSection = await LoadPersonInfo(model.diseaseReportComponentViewModel.isEdit);
+                _diseaseReportComponentViewModel.PersonInfoSection = await LoadPersonInfo();
 
-                _diseaseReportComponentViewModel.NotificationSection = await LoadNotification(model.diseaseReportComponentViewModel.isEdit);
+                _diseaseReportComponentViewModel.NotificationSection = LoadNotification(model.diseaseReportComponentViewModel.isEdit);
                 if (_diseaseReportComponentViewModel != null && _diseaseReportComponentViewModel.PersonInfoSection != null && _diseaseReportComponentViewModel.PersonInfoSection.PersonInfo != null)
                 {
                     _diseaseReportComponentViewModel.NotificationSection.DateOfBirth = _diseaseReportComponentViewModel.PersonInfoSection.PersonInfo.DateOfBirth;
-                    _diseaseReportComponentViewModel.NotificationSection.Age = _diseaseReportComponentViewModel.PersonInfoSection.PersonInfo.Age;
                     _diseaseReportComponentViewModel.NotificationSection.GenderTypeID = _diseaseReportComponentViewModel.PersonInfoSection.PersonInfo.GenderTypeID;
                     _diseaseReportComponentViewModel.NotificationSection.GenderTypeName = _diseaseReportComponentViewModel.PersonInfoSection.PersonInfo.GenderTypeName;
                 }
-                _diseaseReportComponentViewModel.SymptomsSection = await LoadSymptoms(model.diseaseReportComponentViewModel.SymptomsSection, model.diseaseReportComponentViewModel.isEdit);
+                _diseaseReportComponentViewModel.SymptomsSection = LoadSymptoms(model.diseaseReportComponentViewModel.SymptomsSection, model.diseaseReportComponentViewModel.isEdit);
 
                 _diseaseReportComponentViewModel.FacilityDetailsSection = await LoadFacilityDetails(model.diseaseReportComponentViewModel.isEdit);
 
@@ -398,93 +383,14 @@ namespace EIDSS.Web.Components.Human.Outbreak
 
                 _diseaseReportComponentViewModel.TestsSection = await LoadTestsDetails(model.diseaseReportComponentViewModel.NotificationSection.idfDisease, model.diseaseReportComponentViewModel.isEdit);
 
-                _diseaseReportComponentViewModel.CaseInvestigationSection = await LoadCaseInvestigationDetails(model.diseaseReportComponentViewModel.isEdit);
+                _diseaseReportComponentViewModel.CaseInvestigationSection = LoadCaseInvestigationDetails(model.diseaseReportComponentViewModel.isEdit);
 
 
-                _diseaseReportComponentViewModel.RiskFactorsSection = await LoadCaseInvestigationRiskFactors(model.diseaseReportComponentViewModel.RiskFactorsSection, 
-                            model.diseaseReportComponentViewModel.isEdit, model.diseaseReportComponentViewModel.CaseDetails.Session.HumanCaseQuestionaireTemplateID,
-                            detailResponse.Count > 0 ? CaseEPIObservationID : null);
+                _diseaseReportComponentViewModel.RiskFactorsSection = LoadCaseInvestigationRiskFactors(model.diseaseReportComponentViewModel.isEdit, model.diseaseReportComponentViewModel.CaseDetails.Session.HumanCaseQuestionaireTemplateID, detailResponse != null ? CaseEPIObservationID : null);
 
-                _diseaseReportComponentViewModel.ContactListSection = await LoadContactList(model.diseaseReportComponentViewModel.NotificationSection.idfDisease, model.diseaseReportComponentViewModel.isEdit);
+                _diseaseReportComponentViewModel.ContactListSection = await LoadContactList(model.diseaseReportComponentViewModel.isEdit);
 
-                _diseaseReportComponentViewModel.FinalOutcomeSection = await LoadFinalOutComeDetails(model.diseaseReportComponentViewModel.NotificationSection.idfDisease, model.diseaseReportComponentViewModel.isEdit);
-
-                if (_diseaseReportComponentViewModel.isConnectedDiseaseReport)
-                {
-                    _diseaseReportComponentViewModel.idfHumanCaseRelatedTo = _diseaseReportComponentViewModel.idfHumanCase;
-                    _diseaseReportComponentViewModel.idfHumanCase = null;
-                    _diseaseReportComponentViewModel.strCaseId = null;
-                    _diseaseReportComponentViewModel.ReportSummary.ReportStatusID = (long)VeterinaryDiseaseReportStatusTypes.InProcess;
-                    _diseaseReportComponentViewModel.ReportSummary.ReportStatus = "In-Process";
-                    _diseaseReportComponentViewModel.ReportSummary.ReportID = null;
-                    _diseaseReportComponentViewModel.NotificationSection.isConnectedDiseaseReport = _diseaseReportComponentViewModel.isConnectedDiseaseReport;
-                    _diseaseReportComponentViewModel.NotificationSection.idfOldDisease = _diseaseReportComponentViewModel.NotificationSection.idfDisease;
-                    _diseaseReportComponentViewModel.NotificationSection.idfDisease = null;
-                    _diseaseReportComponentViewModel.NotificationSection.strDisease = null;
-                    _diseaseReportComponentViewModel.NotificationSection.dateOfDiagnosis = null;
-                    _diseaseReportComponentViewModel.NotificationSection.dateOfNotification = null;
-                    _diseaseReportComponentViewModel.SymptomsSection.idfCaseClassfication = null;
-                    _diseaseReportComponentViewModel.SymptomsSection.strCaseClassification = null;
-                    var investigatingOrg = _diseaseReportComponentViewModel.CaseInvestigationSection.idfInvestigatedByOffice;
-                    var strInvestingOrg = _diseaseReportComponentViewModel.CaseInvestigationSection.InvestigatedByOffice;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.idfInvestigatedByOffice = investigatingOrg;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.InvestigatedByOffice = strInvestingOrg;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.StartDateofInvestigation = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.comments = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.Country = null;
-
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.ExposureLocationDescription = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.Region = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.Rayon = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.IsReportClosed = false;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.strGroundType = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.strOutbreakID = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.dblPointAccuracy = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.dblPointElevation = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.dblPointLongitude = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.dblPointDistance = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.dblPointLatitude = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.dblPointDirection = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.dblPointAlignment = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.strPointForeignAddress = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.ExposureDate = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.ExposureLocationDescription = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.ExposureLocationType = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.idfsYNExposureLocationKnown = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.idfsYNRelatedToOutbreak = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.idfOutbreak = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.idfPointGeoLocation = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.idfsPointCountry = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.idfsPointGeoLocationType = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.idfsPointGroundType = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.idfsPointRayon = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.idfsPointRegion = null;
-                    _diseaseReportComponentViewModel.CaseInvestigationSection.idfsPointSettlement = null;
-
-                    _diseaseReportComponentViewModel.FinalOutcomeSection = new DiseaseReportFinalOutcomeViewModel();
-                    _diseaseReportComponentViewModel.FinalOutcomeSection.IsReportClosed = false;
-                    _diseaseReportComponentViewModel.isEdit = false;
-                    _diseaseReportComponentViewModel.NotificationSection.isEdit = false;
-                    _diseaseReportComponentViewModel.ContactListSection.isEdit = false;
-                    _diseaseReportComponentViewModel.HumanID = null;
-                    _diseaseReportComponentViewModel.NotificationSection.HumanID = null;
-                    _diseaseReportComponentViewModel.NotificationSection.idfHumanCase = null;
-                    _diseaseReportComponentViewModel.AntibioticVaccineHistorySection.HumanID = null;
-                    _diseaseReportComponentViewModel.AntibioticVaccineHistorySection.idfHumanCase = null;
-                    _diseaseReportComponentViewModel.SamplesSection.idfHumanCase = null;
-                    _diseaseReportComponentViewModel.TestsSection.idfHumanCase = null;
-                    _diseaseReportComponentViewModel.ContactListSection.idfHumanCase = null;
-                    _diseaseReportComponentViewModel.ContactListSection.HumanID = null;
-                    _diseaseReportComponentViewModel.IsReportClosed = false;
-                    _diseaseReportComponentViewModel.NotificationSection.IsReportClosed = false;
-                    _diseaseReportComponentViewModel.SymptomsSection.IsReportClosed = false;
-                    _diseaseReportComponentViewModel.FacilityDetailsSection.IsReportClosed = false;
-                    _diseaseReportComponentViewModel.AntibioticVaccineHistorySection.IsReportClosed = false;
-                    _diseaseReportComponentViewModel.SamplesSection.IsReportClosed = false;
-                    _diseaseReportComponentViewModel.TestsSection.IsReportClosed = false;
-                    _diseaseReportComponentViewModel.RiskFactorsSection.IsReportClosed = false;
-                    _diseaseReportComponentViewModel.ContactListSection.IsReportClosed = false;
-                }
+                _diseaseReportComponentViewModel.FinalOutcomeSection = LoadFinalOutComeDetails(model.diseaseReportComponentViewModel.NotificationSection.idfDisease, model.diseaseReportComponentViewModel.isEdit);
 
                 if (bSessionClosed)
                 {
@@ -510,7 +416,7 @@ namespace EIDSS.Web.Components.Human.Outbreak
                     _diseaseReportComponentViewModel.SamplesSection.idfDisease = _diseaseReportComponentViewModel.CaseDetails.DiseaseId;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
@@ -522,39 +428,23 @@ namespace EIDSS.Web.Components.Human.Outbreak
             };
         }
 
-        private async void InitializeModels(HumanCaseViewModel model)
+        private void InitializeModels(HumanCaseViewModel model)
         {
-            if (_diseaseReportComponentViewModel.ReportSummary == null)
-            {
-                _diseaseReportComponentViewModel.ReportSummary = new DiseaseReportSummaryPageViewModel();
-            }
-            if (_diseaseReportComponentViewModel.NotificationSection == null)
-            {
-                _diseaseReportComponentViewModel.NotificationSection = new DiseaseReportNotificationPageViewModel();
-            }
+            _diseaseReportComponentViewModel.ReportSummary ??= new DiseaseReportSummaryPageViewModel();
+            _diseaseReportComponentViewModel.NotificationSection ??= new DiseaseReportNotificationPageViewModel();
             _diseaseReportComponentViewModel.NotificationSection.isOutbreakCase = true;
             _diseaseReportComponentViewModel.NotificationSection.datOutbreakStartDate = outbreakSessionDetail.datStartDate;
-            if (_diseaseReportComponentViewModel.SymptomsSection == null)
-            {
-                _diseaseReportComponentViewModel.SymptomsSection = new DiseaseReportSymptomsPageViewModel();
-            }
-            if (_diseaseReportComponentViewModel.FacilityDetailsSection == null)
-            {
-                _diseaseReportComponentViewModel.FacilityDetailsSection = new DiseaseReportFacilityDetailsPageViewModel();
-            }
-            if (_diseaseReportComponentViewModel.AntibioticVaccineHistorySection == null)
-            {
-                _diseaseReportComponentViewModel.AntibioticVaccineHistorySection = new DiseaseReportAntibioticVaccineHistoryPageViewModel();
-            }
+            _diseaseReportComponentViewModel.SymptomsSection ??= new DiseaseReportSymptomsPageViewModel();
+            _diseaseReportComponentViewModel.FacilityDetailsSection ??= new DiseaseReportFacilityDetailsPageViewModel();
+            _diseaseReportComponentViewModel.AntibioticVaccineHistorySection ??= new DiseaseReportAntibioticVaccineHistoryPageViewModel();
 
-            if (_diseaseReportComponentViewModel.CaseDetails == null)
+            _diseaseReportComponentViewModel.CaseDetails ??= new CaseGetDetailViewModel
             {
-                _diseaseReportComponentViewModel.CaseDetails = new Domain.ViewModels.Outbreak.CaseGetDetailViewModel();
-                _diseaseReportComponentViewModel.CaseDetails.CaseMonitorings = new List<CaseMonitoringGetListViewModel>();
-                _diseaseReportComponentViewModel.CaseDetails.Session = new OutbreakSessionDetailsResponseModel();
-            }
+                CaseMonitorings = new List<CaseMonitoringGetListViewModel>(),
+                Session = new OutbreakSessionDetailsResponseModel()
+            };
 
-            if(_diseaseReportComponentViewModel.CaseDetails.Session == null)
+            if (_diseaseReportComponentViewModel.CaseDetails.Session == null)
             {
                 _diseaseReportComponentViewModel.CaseDetails.Session = new OutbreakSessionDetailsResponseModel();
             }
@@ -584,34 +474,19 @@ namespace EIDSS.Web.Components.Human.Outbreak
             _diseaseReportComponentViewModel.CaseDetails.CreatePermissionIndicator = caseMonitoringPermissions.Create;
             _diseaseReportComponentViewModel.CaseDetails.CaseDisabledIndicator = false;
 
-            if (_diseaseReportComponentViewModel.DiseaseReport == null)
-            {
-                _diseaseReportComponentViewModel.DiseaseReport = new Domain.ViewModels.Veterinary.DiseaseReportGetDetailViewModel();
-            }
+            _diseaseReportComponentViewModel.DiseaseReport ??= new Domain.ViewModels.Veterinary.DiseaseReportGetDetailViewModel();
             _diseaseReportComponentViewModel.DiseaseReport.ReportCategoryTypeID = (long)model.SessionDetails.OutbreakTypeId;
 
-            if (_diseaseReportComponentViewModel.SamplesSection == null)
-            {
-                _diseaseReportComponentViewModel.SamplesSection = new DiseaseReportSamplePageViewModel();
-            }
-            if (_diseaseReportComponentViewModel.TestsSection == null)
-            {
-                _diseaseReportComponentViewModel.TestsSection = new DiseaseReportTestPageViewModel();
-            }
-            if (_diseaseReportComponentViewModel.CaseInvestigationSection == null)
-            {
-                _diseaseReportComponentViewModel.CaseInvestigationSection = new DiseaseReportCaseInvestigationPageViewModel();
-            }
+            _diseaseReportComponentViewModel.SamplesSection ??= new DiseaseReportSamplePageViewModel();
+            _diseaseReportComponentViewModel.TestsSection ??= new DiseaseReportTestPageViewModel();
+            _diseaseReportComponentViewModel.CaseInvestigationSection ??= new DiseaseReportCaseInvestigationPageViewModel();
             if (_diseaseReportComponentViewModel.CaseInvestigationSection == null)
             {
                 _diseaseReportComponentViewModel.CaseInvestigationSection.PermissionsAccessToNotification = new UserPermissions();
             }
             _diseaseReportComponentViewModel.CaseInvestigationSection.isOutbreakCase = true;
 
-            if (_diseaseReportComponentViewModel.ContactListSection == null)
-            {
-                _diseaseReportComponentViewModel.ContactListSection = new DiseaseReportContactListPageViewModel();
-            }
+            _diseaseReportComponentViewModel.ContactListSection ??= new DiseaseReportContactListPageViewModel();
             if (_diseaseReportComponentViewModel.ContactListSection.ContactTracingFlexFormRequest == null)
             {
                 _diseaseReportComponentViewModel.ContactListSection.ContactTracingFlexFormRequest = new FlexFormQuestionnaireGetRequestModel();
@@ -619,7 +494,7 @@ namespace EIDSS.Web.Components.Human.Outbreak
 
             _diseaseReportComponentViewModel.ContactListSection.ContactTracingFlexFormRequest.LangID = GetCurrentLanguage();
             _diseaseReportComponentViewModel.ContactListSection.ContactTracingFlexFormRequest.idfsFormType = FlexFormTypes.OutbreakHumanContactCT;
-            
+
             if (model.SessionParameters != null)
             {
                 if (model.SessionParameters.ContactTracingTemplateID != null)
@@ -629,14 +504,8 @@ namespace EIDSS.Web.Components.Human.Outbreak
                 }
             }
 
-            if (_diseaseReportComponentViewModel.FinalOutcomeSection == null)
-            {
-                _diseaseReportComponentViewModel.FinalOutcomeSection = new DiseaseReportFinalOutcomeViewModel();
-            }
-            if (_diseaseReportComponentViewModel.PersonInfoSection == null)
-            {
-                _diseaseReportComponentViewModel.PersonInfoSection = new DiseaseReportPersonalInformationPageViewModel();
-            }
+            _diseaseReportComponentViewModel.FinalOutcomeSection ??= new DiseaseReportFinalOutcomeViewModel();
+            _diseaseReportComponentViewModel.PersonInfoSection ??= new DiseaseReportPersonalInformationPageViewModel();
             if (_diseaseReportComponentViewModel.PersonInfoSection.PersonInfo == null)
             {
                 _diseaseReportComponentViewModel.PersonInfoSection.PersonInfo = new DiseaseReportPersonalInformationViewModel();
@@ -661,21 +530,13 @@ namespace EIDSS.Web.Components.Human.Outbreak
             {
                 _diseaseReportComponentViewModel.PersonInfoSection.CurrentAddress = new LocationViewModel();
             }
-            if (_diseaseReportComponentViewModel.HumanCaseLocation == null)
-            {
-                _diseaseReportComponentViewModel.HumanCaseLocation = new LocationViewModel();
-            }
-            if (_diseaseReportComponentViewModel.HumanCaseClinicalInformation == null)
-            {
-                _diseaseReportComponentViewModel.HumanCaseClinicalInformation = new HumanCaseClinicalInformation();
-            }
+            _diseaseReportComponentViewModel.HumanCaseLocation ??= new LocationViewModel();
+            _diseaseReportComponentViewModel.HumanCaseClinicalInformation ??= new HumanCaseClinicalInformation();
         }
-        public async Task<LocationViewModel> LoadCaseLocation(LocationViewModel caseLocation)
+
+        private LocationViewModel LoadCaseLocation(LocationViewModel caseLocation)
         {
-            if (caseLocation == null)
-            {
-                caseLocation = new LocationViewModel();
-            }
+            caseLocation ??= new LocationViewModel();
 
             caseLocation.CallingObjectID = "caseLocation_";
             caseLocation.IsHorizontalLayout = true;
@@ -731,15 +592,12 @@ namespace EIDSS.Web.Components.Human.Outbreak
             caseLocation.DivHouse = false;
             caseLocation.DivLatitude = false;
             caseLocation.DivLongitude = false;
-            
+
             return caseLocation;
         }
 
-        public async Task<DiseaseReportPersonalInformationPageViewModel> LoadPersonInfo(bool? isEdit = false)
+        private async Task<DiseaseReportPersonalInformationPageViewModel> LoadPersonInfo()
         {
-            #region Person Info
-            //Current Address
-
             DiseaseReportPersonalInformationPageViewModel personalInformationPageViewModel = _diseaseReportComponentViewModel.PersonInfoSection;
             LocationViewModel currentAddress = new()
             {
@@ -799,8 +657,6 @@ namespace EIDSS.Web.Components.Human.Outbreak
                 DivLongitude = false
             };
 
-            //Work Address
-
             LocationViewModel workAddress = new()
             {
                 CallingObjectID = "workAddress_",
@@ -859,8 +715,6 @@ namespace EIDSS.Web.Components.Human.Outbreak
                 DivLatitude = false,
                 DivLongitude = false
             };
-
-            //School Address
 
             LocationViewModel schoolAddress = new()
             {
@@ -922,25 +776,31 @@ namespace EIDSS.Web.Components.Human.Outbreak
             };
             _diseaseReportComponentViewModel.PersonInfoSection.PersonalIdTypeDD = new Select2Configruation();
 
-            List<DiseaseReportPersonalInformationViewModel> response = new List<DiseaseReportPersonalInformationViewModel>();
+            List<DiseaseReportPersonalInformationViewModel> response = new();
             if (_diseaseReportComponentViewModel.HumanID == null || _diseaseReportComponentViewModel.HumanID == 0)
             {
-                HumanPersonDetailsRequestModel requestNew = new HumanPersonDetailsRequestModel();
-                requestNew.LangID = GetCurrentLanguage();
-                requestNew.HumanMasterID = _diseaseReportComponentViewModel.HumanActualID;
+                HumanPersonDetailsRequestModel requestNew = new()
+                {
+                    LangID = GetCurrentLanguage(),
+                    HumanMasterID = _diseaseReportComponentViewModel.HumanActualID
+                };
                 response = await _humanDiseaseReportClient.GetHumanDiseaseReportPersonInfoAsync(requestNew);
             }
             else
             {
-                HumanPersonDetailsFromHumanIDRequestModel requestID = new HumanPersonDetailsFromHumanIDRequestModel();
-                requestID.LanguageId = GetCurrentLanguage();
-                requestID.HumanID = _diseaseReportComponentViewModel.HumanID;
-                response = await _humanDiseaseReportClient.GetHumanDiseaseReportFromHumanIDAsync(requestID);
-                if (response == null || (response != null && response.Count() == 0))
+                HumanPersonDetailsFromHumanIDRequestModel requestID = new()
                 {
-                    HumanPersonDetailsRequestModel requestNew = new HumanPersonDetailsRequestModel();
-                    requestNew.LangID = GetCurrentLanguage();
-                    requestNew.HumanMasterID = _diseaseReportComponentViewModel.HumanID;
+                    LanguageId = GetCurrentLanguage(),
+                    HumanID = _diseaseReportComponentViewModel.HumanID
+                };
+                response = await _humanDiseaseReportClient.GetHumanDiseaseReportFromHumanIDAsync(requestID);
+                if (response == null || (response != null && response.Count == 0))
+                {
+                    HumanPersonDetailsRequestModel requestNew = new()
+                    {
+                        LangID = GetCurrentLanguage(),
+                        HumanMasterID = _diseaseReportComponentViewModel.HumanID
+                    };
                     response = await _humanDiseaseReportClient.GetHumanDiseaseReportPersonInfoAsync(requestNew);
                 }
             }
@@ -948,7 +808,6 @@ namespace EIDSS.Web.Components.Human.Outbreak
             if (response != null && response.Count > 0)
             {
                 var personInfo = response.FirstOrDefault();
-
 
                 currentAddress.AdminLevel1Text = personInfo.HumanRegion;
                 currentAddress.AdminLevel1Value = personInfo.HumanidfsRegion;
@@ -965,8 +824,6 @@ namespace EIDSS.Web.Components.Human.Outbreak
                 currentAddress.Building = personInfo.HumanstrBuilding;
                 currentAddress.Apartment = personInfo.HumanstrApartment;
 
-                //Work Address
-
                 workAddress.AdminLevel1Text = personInfo.EmployerRegion;
                 workAddress.AdminLevel1Value = personInfo.EmployeridfsRegion;
                 workAddress.AdminLevel2Text = personInfo.EmployerRayon;
@@ -979,8 +836,6 @@ namespace EIDSS.Web.Components.Human.Outbreak
                 workAddress.House = personInfo.EmployerstrHouse;
                 workAddress.Building = personInfo.EmployerstrBuilding;
                 workAddress.Apartment = personInfo.EmployerstrApartment;
-
-                //School Address
 
                 schoolAddress.AdminLevel1Text = personInfo.SchoolRegion;
                 schoolAddress.AdminLevel1Value = personInfo.SchoolidfsRegion;
@@ -1016,19 +871,23 @@ namespace EIDSS.Web.Components.Human.Outbreak
             personalInformationPageViewModel.CurrentAddress = currentAddress;
             personalInformationPageViewModel.WorkAddress = workAddress;
             personalInformationPageViewModel.SchoolAddress = schoolAddress;
-            #endregion
+
             return personalInformationPageViewModel;
         }
 
-        public async Task<DiseaseReportSymptomsPageViewModel> LoadSymptoms(DiseaseReportSymptomsPageViewModel symptomsSection, bool isEdit = false)
+        private DiseaseReportSymptomsPageViewModel LoadSymptoms(DiseaseReportSymptomsPageViewModel symptomsSection, bool isEdit = false)
         {
             if (!isEdit)
             {
-                symptomsSection = new DiseaseReportSymptomsPageViewModel();
-                symptomsSection.HumanDiseaseSymptoms = new FlexFormQuestionnaireGetRequestModel();
-                symptomsSection.HumanDiseaseSymptoms.idfsFormType = (long?)FlexFormType.HumanDiseaseClinicalSymptoms;
-                symptomsSection.HumanDiseaseSymptoms.idfsDiagnosis = outbreakSessionDetail.idfsDiagnosisOrDiagnosisGroup;
-                symptomsSection.HumanDiseaseSymptoms.idfObservation = null;
+                symptomsSection = new DiseaseReportSymptomsPageViewModel
+                {
+                    HumanDiseaseSymptoms = new FlexFormQuestionnaireGetRequestModel
+                    {
+                        idfsFormType = (long?)FlexFormType.HumanDiseaseClinicalSymptoms,
+                        idfsDiagnosis = outbreakSessionDetail.idfsDiagnosisOrDiagnosisGroup,
+                        idfObservation = null
+                    }
+                };
             }
 
             symptomsSection.HumanDiseaseSymptoms.ObserationFieldID = "idfCaseObservationSymptoms";
@@ -1037,8 +896,10 @@ namespace EIDSS.Web.Components.Human.Outbreak
             symptomsSection.HumanDiseaseSymptoms.SubmitButtonID = "btnDummy";
             symptomsSection.HumanDiseaseSymptoms.CallbackFunction = "getFlexFormAnswers10034501();";
             symptomsSection.HumanDiseaseSymptoms.CallbackErrorFunction = "SaveHDR();";
-            symptomsSection.caseClassficationDD = new Select2Configruation();
-            symptomsSection.caseClassficationDD.ConfigureForPartial = false;
+            symptomsSection.caseClassficationDD = new Select2Configruation
+            {
+                ConfigureForPartial = false
+            };
 
             return symptomsSection;
         }
@@ -1046,17 +907,20 @@ namespace EIDSS.Web.Components.Human.Outbreak
         [HttpPost]
         public async Task<IActionResult> ReloadSymptoms([FromBody] JsonElement data)
         {
-
             var jsonObject = JObject.Parse(data.ToString());
-            var isEdit = jsonObject["isEdit"] != null && jsonObject["isEdit"].ToString() != string.Empty ? Convert.ToBoolean(jsonObject["isEdit"].ToString()) : false;
+            var isEdit = jsonObject["isEdit"] != null && jsonObject["isEdit"].ToString() != string.Empty && Convert.ToBoolean(jsonObject["isEdit"].ToString());
             long? idfHumanCase = jsonObject["idfHumanCase"] != null && jsonObject["idfHumanCase"].ToString() != string.Empty ? long.Parse(jsonObject["idfHumanCase"].ToString()) : null;
             long? diseaseId = jsonObject["diseaseId"] != null && jsonObject["diseaseId"].ToString() != string.Empty ? long.Parse(jsonObject["diseaseId"].ToString()) : null;
-            var isReportClosed = jsonObject["isReportClosed"] != null && jsonObject["isReportClosed"].ToString() != string.Empty ? Convert.ToBoolean(jsonObject["isReportClosed"].ToString()) : false;
+            var isReportClosed = jsonObject["isReportClosed"] != null && jsonObject["isReportClosed"].ToString() != string.Empty && Convert.ToBoolean(jsonObject["isReportClosed"].ToString());
 
-            DiseaseReportSymptomsPageViewModel symptomsSection = new DiseaseReportSymptomsPageViewModel();
-            symptomsSection.caseClassficationDD = new Select2Configruation();
-            symptomsSection.caseClassficationDD.ConfigureForPartial = true;
-            symptomsSection.IsReportClosed = isReportClosed;
+            DiseaseReportSymptomsPageViewModel symptomsSection = new()
+            {
+                caseClassficationDD = new Select2Configruation
+                {
+                    ConfigureForPartial = true
+                },
+                IsReportClosed = isReportClosed
+            };
             if (isEdit && idfHumanCase != 0 && idfHumanCase != null)
             {
                 var detailRequest = new HumanDiseaseReportDetailRequestModel()
@@ -1069,14 +933,14 @@ namespace EIDSS.Web.Components.Human.Outbreak
                     SortOrder = "desc"
                 };
                 detailResponse = await _humanDiseaseReportClient.GetHumanDiseaseDetail(detailRequest);
-                if (detailResponse != null && detailResponse.Count > 0)
+                if (detailResponse != null)
                 {
-                    symptomsSection.OutBreakSymptomsOnsetDate = detailResponse.FirstOrDefault().datOnSetDate;
-                    symptomsSection.strCaseClassification = detailResponse.FirstOrDefault().InitialCaseStatus;
-                    symptomsSection.idfCaseClassfication = detailResponse.FirstOrDefault().idfsInitialCaseStatus;
-                    symptomsSection.blnInitialSSD = detailResponse.FirstOrDefault().blnInitialSSD;
-                    symptomsSection.blnFinalSSD = detailResponse.FirstOrDefault().blnFinalSSD;
-                    if (detailResponse.FirstOrDefault().CaseProgressStatus == VeterinaryDiseaseReportStatusTypes.Closed.ToString())
+                    symptomsSection.OutBreakSymptomsOnsetDate = detailResponse.datOnSetDate;
+                    symptomsSection.strCaseClassification = detailResponse.InitialCaseStatus;
+                    symptomsSection.idfCaseClassfication = detailResponse.idfsInitialCaseStatus;
+                    symptomsSection.blnInitialSSD = detailResponse.blnInitialSSD;
+                    symptomsSection.blnFinalSSD = detailResponse.blnFinalSSD;
+                    if (detailResponse.CaseProgressStatus == VeterinaryDiseaseReportStatusTypes.Closed.ToString())
                     {
                         symptomsSection.IsReportClosed = true;
                     }
@@ -1090,19 +954,21 @@ namespace EIDSS.Web.Components.Human.Outbreak
                 symptomsSection.strCaseClassification = !string.IsNullOrEmpty(jsonObject["strCaseClassification"].ToString()) ? jsonObject["strCaseClassification"].ToString() : null;
             }
 
-            symptomsSection.HumanDiseaseSymptoms = new FlexFormQuestionnaireGetRequestModel();
-            symptomsSection.HumanDiseaseSymptoms.idfsFormType = (long?)FlexFormType.HumanCaseQuestionnaire;
-            symptomsSection.HumanDiseaseSymptoms.idfsDiagnosis = null;
-            symptomsSection.HumanDiseaseSymptoms.idfObservation = null;
-            symptomsSection.HumanDiseaseSymptoms.ObserationFieldID = "idfCaseObservationSymptoms";
-            symptomsSection.HumanDiseaseSymptoms.SubmitButtonID = "btnDummy";
-            symptomsSection.HumanDiseaseSymptoms.LangID = GetCurrentLanguage();
-            symptomsSection.HumanDiseaseSymptoms.Title = _localizer.GetString(FieldLabelResourceKeyConstants.CreateHumanCaseListofSymptomsFieldLabel);
-            symptomsSection.HumanDiseaseSymptoms.CallbackFunction = "getFlexFormAnswers10034501();";
-            symptomsSection.HumanDiseaseSymptoms.CallbackErrorFunction = "SaveHDR();";
+            symptomsSection.HumanDiseaseSymptoms = new FlexFormQuestionnaireGetRequestModel
+            {
+                idfsFormType = (long?)FlexFormType.HumanCaseQuestionnaire,
+                idfsDiagnosis = null,
+                idfObservation = null,
+                ObserationFieldID = "idfCaseObservationSymptoms",
+                SubmitButtonID = "btnDummy",
+                LangID = GetCurrentLanguage(),
+                Title = _localizer.GetString(FieldLabelResourceKeyConstants.CreateHumanCaseListofSymptomsFieldLabel),
+                CallbackFunction = "getFlexFormAnswers10034501();",
+                CallbackErrorFunction = "SaveHDR();"
+            };
 
-            if (isEdit && idfHumanCase != 0 && idfHumanCase != null && detailResponse != null && detailResponse.Count > 0)
-                symptomsSection.HumanDiseaseSymptoms.idfObservation = detailResponse.FirstOrDefault().idfCSObservation;
+            if (isEdit && idfHumanCase != 0 && idfHumanCase != null && detailResponse != null)
+                symptomsSection.HumanDiseaseSymptoms.idfObservation = detailResponse.idfCSObservation;
             if (diseaseId != null && diseaseId != 0)
             {
                 symptomsSection.HumanDiseaseSymptoms.idfsDiagnosis = diseaseId;
@@ -1111,7 +977,7 @@ namespace EIDSS.Web.Components.Human.Outbreak
             return PartialView("_DiseaseReportSymptomsPartial", symptomsSection);
         }
 
-        public async Task<DiseaseReportNotificationPageViewModel> LoadNotification(bool isEdit = false)
+        private DiseaseReportNotificationPageViewModel LoadNotification(bool isEdit = false)
         {
             DiseaseReportNotificationPageViewModel notificationSection = _diseaseReportComponentViewModel.NotificationSection;
             _diseaseReportComponentViewModel.NotificationSection.idfHumanCase = _diseaseReportComponentViewModel.idfHumanCase;
@@ -1129,14 +995,16 @@ namespace EIDSS.Web.Components.Human.Outbreak
             notificationSection.hospitalNameDD = new Select2Configruation();
             notificationSection.currentLocationOfPatientDD = new Select2Configruation();
             notificationSection.eIDSSModalConfiguration = new List<EIDSSModalConfiguration>();
-            notificationSection.EmployeeDetails = new ViewModels.Administration.EmployeePersonalInfoPageViewModel();
-            notificationSection.EmployeeDetails.PersonalIdTypeDD = new Select2Configruation();
-            notificationSection.EmployeeDetails.DepartmentDD = new Select2Configruation();
-            notificationSection.EmployeeDetails.eIDSSModalConfiguration = new List<EIDSSModalConfiguration>();
-            notificationSection.EmployeeDetails.EmployeeCategoryList = new List<BaseReferenceViewModel>();
-            notificationSection.EmployeeDetails.OrganizationDD = new Select2Configruation();
-            notificationSection.EmployeeDetails.PositionDD = new Select2Configruation();
-            notificationSection.EmployeeDetails.SiteDD = new Select2Configruation();
+            notificationSection.EmployeeDetails = new ViewModels.Administration.EmployeePersonalInfoPageViewModel
+            {
+                PersonalIdTypeDD = new Select2Configruation(),
+                DepartmentDD = new Select2Configruation(),
+                eIDSSModalConfiguration = new List<EIDSSModalConfiguration>(),
+                EmployeeCategoryList = new List<BaseReferenceViewModel>(),
+                OrganizationDD = new Select2Configruation(),
+                PositionDD = new Select2Configruation(),
+                SiteDD = new Select2Configruation()
+            };
             UserPermissions employeeuserPermissions = GetUserPermissions(PagePermission.CanAccessEmployeesList_WithoutManagingAccessRights);
             notificationSection.EmployeeDetails.CanManageReferencesandConfiguratuionsPermission = employeeuserPermissions;
             UserPermissions userAccountsuserPermissions = GetUserPermissions(PagePermission.CanManageUserAccounts);
@@ -1144,43 +1012,41 @@ namespace EIDSS.Web.Components.Human.Outbreak
             var CanAccessOrganizationsList = GetUserPermissions(PagePermission.CanAccessOrganizationsList);
             notificationSection.EmployeeDetails.CanAccessOrganizationsList = CanAccessOrganizationsList;
 
-            if (isEdit && detailResponse != null && detailResponse.Count > 0)
+            if (isEdit && detailResponse != null)
             {
-                var detailRecord = detailResponse.FirstOrDefault();
+                notificationSection.dateOfCompletion = detailResponse.datCompletionPaperFormDate;
 
-                notificationSection.dateOfCompletion = detailRecord.datCompletionPaperFormDate;
+                notificationSection.localIdentifier = detailResponse.strLocalIdentifier;
 
-                notificationSection.localIdentifier = detailRecord.strLocalIdentifier;
+                notificationSection.idfDisease = detailResponse.idfsFinalDiagnosis;
+                notificationSection.strDisease = detailResponse.strFinalDiagnosis;
 
-                notificationSection.idfDisease = detailRecord.idfsFinalDiagnosis;
-                notificationSection.strDisease = detailRecord.strFinalDiagnosis;
+                notificationSection.dateOfDiagnosis = detailResponse.DateOfDiagnosis;
 
-                notificationSection.dateOfDiagnosis = detailRecord.datDateOfDiagnosis;
+                notificationSection.dateOfNotification = detailResponse.datNotificationDate;
 
-                notificationSection.dateOfNotification = detailRecord.datNotificationDate;
+                notificationSection.idfNotificationSentByFacility = detailResponse.idfSentByOffice;
+                notificationSection.strNotificationSentByFacility = detailResponse.SentByOffice;
+                notificationSection.idfNotificationSentByName = detailResponse.idfSentByPerson;
+                notificationSection.strNotificationSentByName = detailResponse.SentByPerson;
 
-                notificationSection.idfNotificationSentByFacility = detailRecord.idfSentByOffice;
-                notificationSection.strNotificationSentByFacility = detailRecord.SentByOffice;
-                notificationSection.idfNotificationSentByName = detailRecord.idfSentByPerson;
-                notificationSection.strNotificationSentByName = detailRecord.SentByPerson;
+                notificationSection.idfNotificationReceivedByFacility = detailResponse.idfReceivedByOffice;
+                notificationSection.strNotificationReceivedByFacility = detailResponse.ReceivedByOffice;
+                notificationSection.idfNotificationReceivedByName = detailResponse.idfReceivedByPerson;
+                notificationSection.strNotificationReceivedByName = detailResponse.ReceivedByPerson;
 
-                notificationSection.idfNotificationReceivedByFacility = detailRecord.idfReceivedByOffice;
-                notificationSection.strNotificationReceivedByFacility = detailRecord.ReceivedByOffice;
-                notificationSection.idfNotificationReceivedByName = detailRecord.idfReceivedByPerson;
-                notificationSection.strNotificationReceivedByName = detailRecord.ReceivedByPerson;
+                notificationSection.idfStatusOfPatient = detailResponse.idfsFinalState;
+                notificationSection.strStatusOfPatient = detailResponse.PatientStatus;
 
-                notificationSection.idfStatusOfPatient = detailRecord.idfsFinalState;
-                notificationSection.strStatusOfPatient = detailRecord.PatientStatus;
+                notificationSection.idfHospitalName = detailResponse.idfHospital;
+                notificationSection.strHospitalName = detailResponse.HospitalName;
 
-                notificationSection.idfHospitalName = detailRecord.idfHospital;
-                notificationSection.strHospitalName = detailRecord.HospitalName;
+                notificationSection.idfCurrentLocationOfPatient = detailResponse.idfsHospitalizationStatus;
+                notificationSection.strCurrentLocationOfPatient = detailResponse.HospitalizationStatus;
 
-                notificationSection.idfCurrentLocationOfPatient = detailRecord.idfsHospitalizationStatus;
-                notificationSection.strCurrentLocationOfPatient = detailRecord.HospitalizationStatus;
+                notificationSection.strOtherLocation = detailResponse.strCurrentLocation;
 
-                notificationSection.strOtherLocation = detailRecord.strCurrentLocation;
-
-                if (detailRecord.CaseProgressStatus == VeterinaryDiseaseReportStatusTypes.Closed.ToString())
+                if (detailResponse.CaseProgressStatus == VeterinaryDiseaseReportStatusTypes.Closed.ToString())
                 {
                     notificationSection.IsReportClosed = true;
                 }
@@ -1188,21 +1054,14 @@ namespace EIDSS.Web.Components.Human.Outbreak
             return notificationSection;
         }
 
-        [Route("CheckAgeAndValidateDiseaseCase")]
-        [HttpPost]
-
-        public async Task<bool> CheckAgeAndValidateDiseaseCase([FromBody] JsonElement data)
-        {
-            return false;
-        }
-
         public async Task<DiseaseReportFacilityDetailsPageViewModel> LoadFacilityDetails(bool isEdit = false)
         {
-            DiseaseReportFacilityDetailsPageViewModel facilityDetailsSection = new DiseaseReportFacilityDetailsPageViewModel();
-            facilityDetailsSection.HospitalSelect = new();
-            facilityDetailsSection.DiagnosisSelect = new();
-            facilityDetailsSection.FacilitySelect = new();
-            facilityDetailsSection.IsReportClosed = _diseaseReportComponentViewModel.IsReportClosed;
+            DiseaseReportFacilityDetailsPageViewModel facilityDetailsSection = new()
+            {
+                DiagnosisSelect = new(),
+                FacilitySelect = new(),
+                IsReportClosed = _diseaseReportComponentViewModel.IsReportClosed
+            };
 
             //get the yes/no choices for radio buttons
             var list = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), BaseReferenceConstants.YesNoValueList, HACodeList.HumanHACode);
@@ -1212,63 +1071,61 @@ namespace EIDSS.Web.Components.Human.Outbreak
             facilityDetailsSection.PatientPreviouslySoughtCare = Convert.ToInt64(YesNoUnknown.No);
             facilityDetailsSection.Hospitalized = Convert.ToInt64(YesNoUnknown.No);
 
-            if (detailResponse != null && detailResponse.Count > 0)
+            //get the dates from other sections used for comparison
+            //populate the model for edit
+            if (detailResponse != null && isEdit)
             {
-                var detail = detailResponse.FirstOrDefault();
-                if (detail != null)
-                {
-                    //get the dates from other sections used for comparison
-                    //populate the model for edit
-                    if (isEdit)
-                    {
-                        //sought care?
-                        facilityDetailsSection.PatientPreviouslySoughtCare = detail.idfsYNPreviouslySoughtCare;
-                        facilityDetailsSection.SoughtCareFacilityID = detail.idfSoughtCareFacility;
-                        facilityDetailsSection.FacilitySelect.defaultSelect2Selection = new Select2DataItem() { id = detail.idfSoughtCareFacility.ToString(), text = detail.strSoughtCareFacility };
-                        facilityDetailsSection.SoughtCareFirstDate = detail.datFirstSoughtCareDate;
-                        facilityDetailsSection.NonNotifiableDiseaseID = detail.idfsNonNotifiableDiagnosis;
-                        facilityDetailsSection.DiagnosisSelect.defaultSelect2Selection = new Select2DataItem() { id = detail.idfsNonNotifiableDiagnosis.ToString(), text = detail.stridfsNonNotifiableDiagnosis };
+                //sought care?
+                facilityDetailsSection.PatientPreviouslySoughtCare = detailResponse.idfsYNPreviouslySoughtCare;
+                facilityDetailsSection.SoughtCareFacilityID = detailResponse.idfSoughtCareFacility;
+                facilityDetailsSection.SoughtCareFacilityText = detailResponse.strSoughtCareFacility;
+                facilityDetailsSection.FacilitySelect.defaultSelect2Selection = new Select2DataItem() { id = detailResponse.idfSoughtCareFacility.ToString(), text = detailResponse.strSoughtCareFacility };
+                facilityDetailsSection.SoughtCareFirstDate = detailResponse.datFirstSoughtCareDate;
+                facilityDetailsSection.NonNotifiableDiseaseID = detailResponse.idfsNonNotifiableDiagnosis;
+                facilityDetailsSection.NonNotifiableDiseaseText = detailResponse.stridfsNonNotifiableDiagnosis;
+                facilityDetailsSection.DiagnosisSelect.defaultSelect2Selection = new Select2DataItem() { id = detailResponse.idfsNonNotifiableDiagnosis.ToString(), text = detailResponse.stridfsNonNotifiableDiagnosis };
 
-                        //hospitalized?
-                        facilityDetailsSection.Hospitalized = detail.idfsYNHospitalization;
-                        facilityDetailsSection.HospitalID = detail.idfHospital;
-                        facilityDetailsSection.HospitalSelect.defaultSelect2Selection = new Select2DataItem() { id = detail.idfHospital.ToString(), text = detail.HospitalName };
-                        facilityDetailsSection.OutbreakHospitalizationDate = detail.datHospitalizationDate;
-                        facilityDetailsSection.IsOutbreak = true;
-                        facilityDetailsSection.DateOfDischarge = detail.datDischargeDate;
-                    }
-                }
+                //hospitalized?
+                facilityDetailsSection.Hospitalized = detailResponse.idfsYNHospitalization;
+                facilityDetailsSection.HospitalizationPlace = detailResponse.strHospitalizationPlace;
+                facilityDetailsSection.OutbreakHospitalizationDate = detailResponse.datHospitalizationDate;
+                facilityDetailsSection.IsOutbreak = true;
+                facilityDetailsSection.DateOfDischarge = detailResponse.datDischargeDate;
             }
             return facilityDetailsSection;
         }
 
         public async Task<DiseaseReportAntibioticVaccineHistoryPageViewModel> LoadAntibioticVaccineHistoryDetails(bool isEdit = false)
         {
-            DiseaseReportAntibioticVaccineHistoryPageViewModel antibioticVaccineHistoryDetailsSection = new DiseaseReportAntibioticVaccineHistoryPageViewModel();
-            antibioticVaccineHistoryDetailsSection.IsReportClosed = _diseaseReportComponentViewModel.IsReportClosed;
-            antibioticVaccineHistoryDetailsSection.antibioticsHistory = new List<DiseaseReportAntiviralTherapiesViewModel>();
-            antibioticVaccineHistoryDetailsSection.vaccinationHistory = new List<DiseaseReportVaccinationViewModel>();
-
-            if (isEdit && detailResponse != null && detailResponse.Count > 0)
+            DiseaseReportAntibioticVaccineHistoryPageViewModel antibioticVaccineHistoryDetailsSection = new()
             {
-                antibioticVaccineHistoryDetailsSection.idfsYNAntimicrobialTherapy = detailResponse.FirstOrDefault().idfsYNAntimicrobialTherapy;
-                antibioticVaccineHistoryDetailsSection.idfsYNSpecificVaccinationAdministered = detailResponse.FirstOrDefault().idfsYNSpecificVaccinationAdministered;
-                HumanAntiviralTherapiesAndVaccinationRequestModel request = new HumanAntiviralTherapiesAndVaccinationRequestModel();
-                request.idfHumanCase = _diseaseReportComponentViewModel.idfHumanCase;
-                request.LangID = GetCurrentLanguage();
+                IsReportClosed = _diseaseReportComponentViewModel.IsReportClosed,
+                antibioticsHistory = new List<DiseaseReportAntiviralTherapiesViewModel>(),
+                vaccinationHistory = new List<DiseaseReportVaccinationViewModel>()
+            };
+
+            if (isEdit && detailResponse != null)
+            {
+                antibioticVaccineHistoryDetailsSection.idfsYNAntimicrobialTherapy = detailResponse.idfsYNAntimicrobialTherapy;
+                antibioticVaccineHistoryDetailsSection.idfsYNSpecificVaccinationAdministered = detailResponse.idfsYNSpecificVaccinationAdministered;
+                HumanAntiviralTherapiesAndVaccinationRequestModel request = new()
+                {
+                    idfHumanCase = _diseaseReportComponentViewModel.idfHumanCase,
+                    LangID = GetCurrentLanguage()
+                };
 
                 var antiViralTherapiesReponse = await _humanDiseaseReportClient.GetAntiviralTherapisListAsync(request);
                 var vaccinationResponse = await _humanDiseaseReportClient.GetVaccinationListAsync(request);
 
                 antibioticVaccineHistoryDetailsSection.antibioticsHistory = antiViralTherapiesReponse;
                 antibioticVaccineHistoryDetailsSection.vaccinationHistory = vaccinationResponse;
-                antibioticVaccineHistoryDetailsSection.AdditionalInforMation = detailResponse.FirstOrDefault().strClinicalNotes;
+                antibioticVaccineHistoryDetailsSection.AdditionalInforMation = detailResponse.strClinicalNotes;
             }
 
             return antibioticVaccineHistoryDetailsSection;
         }
 
-        public async Task<DiseaseReportCaseInvestigationPageViewModel> LoadCaseInvestigationDetails(bool isEdit = false)
+        private DiseaseReportCaseInvestigationPageViewModel LoadCaseInvestigationDetails(bool isEdit = false)
         {
             DiseaseReportCaseInvestigationPageViewModel caseInvestigationPageViewModelSection = _diseaseReportComponentViewModel.CaseInvestigationSection;
             caseInvestigationPageViewModelSection.InvestigatedByOfficeDD = new Select2Configruation();
@@ -1333,9 +1190,9 @@ namespace EIDSS.Web.Components.Human.Outbreak
             caseInvestigationPageViewModelSection.ExposureLocationAddress = exposureLocationAddress;
             caseInvestigationPageViewModelSection.CurrentDate = DateTime.Today;
 
-            if (isEdit && detailResponse != null && detailResponse.Count > 0)
+            if (isEdit && detailResponse != null)
             {
-                var detailRecord = detailResponse.FirstOrDefault();
+                var detailRecord = detailResponse;
                 caseInvestigationPageViewModelSection.idfInvestigatedByOffice = detailRecord.idfInvestigatedByOffice;
                 caseInvestigationPageViewModelSection.InvestigatedByOffice = detailRecord.InvestigatedByOffice;
                 caseInvestigationPageViewModelSection.StartDateofInvestigation = detailRecord.StartDateofInvestigation;
@@ -1379,8 +1236,8 @@ namespace EIDSS.Web.Components.Human.Outbreak
                 exposureLocationAddress.AdminLevel3Value = detailRecord.idfsPointSettlement;
                 exposureLocationAddress.Latitude = detailRecord.dblPointLatitude;
                 exposureLocationAddress.Longitude = detailRecord.dblPointLongitude;
-                exposureLocationAddress.Elevation = detailRecord.dblPointElevation != null ? Convert.ToInt32(detailRecord.dblPointElevation) : (int?)null;
-                //1345550000000
+                exposureLocationAddress.Elevation = detailRecord.dblPointElevation != null ? Convert.ToInt32(detailRecord.dblPointElevation) : null;
+
                 caseInvestigationPageViewModelSection.ExposureLocationAddress = exposureLocationAddress;
                 //Direction not available
                 caseInvestigationPageViewModelSection.dblPointDirection = detailRecord.dblPointAlignment;
@@ -1396,73 +1253,71 @@ namespace EIDSS.Web.Components.Human.Outbreak
 
         public async Task<DiseaseReportSamplePageViewModel> LoadSampleDetails(long? diseaseId, bool isEdit = false)
         {
-            DiseaseReportSamplePageViewModel diseaseReportSamplePageViewModelSection = new();
-            diseaseReportSamplePageViewModelSection.idfHumanCase = _diseaseReportComponentViewModel.idfHumanCase;
-            diseaseReportSamplePageViewModelSection.strCaseId = _diseaseReportComponentViewModel.strCaseId;
-            diseaseReportSamplePageViewModelSection.YesNoChoices = new();
-            diseaseReportSamplePageViewModelSection.idfDisease = diseaseId;
-            diseaseReportSamplePageViewModelSection.AddSampleModel = new DiseaseReportSamplePageSampleDetailViewModel();
-            diseaseReportSamplePageViewModelSection.AddSampleModel.idfDisease = diseaseId;
-            diseaseReportSamplePageViewModelSection.SamplesDetails = new();
-            diseaseReportSamplePageViewModelSection.IsReportClosed = _diseaseReportComponentViewModel.IsReportClosed;
-
-            diseaseReportSamplePageViewModelSection.Permissions = GetUserPermissions(PagePermission.AccessToHumanDiseaseReportClinicalInformation);
-
-            if (isEdit && detailResponse != null && detailResponse.Count > 0)
+            DiseaseReportSamplePageViewModel diseaseReportSamplePageViewModelSection = new()
             {
-                var _ = detailResponse.FirstOrDefault();
-                if (_ != null)
+                idfHumanCase = _diseaseReportComponentViewModel.idfHumanCase,
+                strCaseId = _diseaseReportComponentViewModel.strCaseId,
+                YesNoChoices = new(),
+                idfDisease = diseaseId,
+                AddSampleModel = new DiseaseReportSamplePageSampleDetailViewModel
                 {
-                    diseaseReportSamplePageViewModelSection.AddSampleModel.SymptomsOnsetDate = _.datOnSetDate;
-                    diseaseReportSamplePageViewModelSection.SamplesCollectedYN = _.idfsYNSpecimenCollected;
-                    diseaseReportSamplePageViewModelSection.SamplesDetails = new();
+                    idfDisease = diseaseId
+                },
+                SamplesDetails = new(),
+                IsReportClosed = _diseaseReportComponentViewModel.IsReportClosed,
+                Permissions = GetUserPermissions(PagePermission.AccessToHumanDiseaseReportClinicalInformation)
+            };
 
+            if (isEdit && detailResponse != null)
+            {
+                diseaseReportSamplePageViewModelSection.AddSampleModel.SymptomsOnsetDate = detailResponse.datOnSetDate;
+                diseaseReportSamplePageViewModelSection.SamplesCollectedYN = detailResponse.idfsYNSpecimenCollected;
+                diseaseReportSamplePageViewModelSection.SamplesDetails = new();
 
-                    var request = new HumanDiseaseReportSamplesRequestModel()
+                var request = new HumanDiseaseReportSamplesRequestModel()
+                {
+                    idfHumanCase = detailResponse.idfHumanCase,
+                    LangID = GetCurrentLanguage()
+                };
+                var list = await _humanDiseaseReportClient.GetHumanDiseaseReportSamplesListAsync(request);
+                List<DiseaseReportSamplePageSampleDetailViewModel> samplesDetailList = new();
+                int i = 0;
+                foreach (var item in list)
+                {
+                    //map the incoming human samples list to the generic list so we can reuse samples component
+                    samplesDetailList.Add(new DiseaseReportSamplePageSampleDetailViewModel()
                     {
-                        idfHumanCase = _.idfHumanCase,
-                        LangID = GetCurrentLanguage()
-                    };
-                    var list = await _humanDiseaseReportClient.GetHumanDiseaseReportSamplesListAsync(request);
-                    List<DiseaseReportSamplePageSampleDetailViewModel> samplesDetailList = new List<DiseaseReportSamplePageSampleDetailViewModel>();
-                    int i = 0;
-                    foreach (var item in list)
-                    {
-                        //map the incoming human samples list to the generic list so we can reuse samples component
-                        samplesDetailList.Add(new DiseaseReportSamplePageSampleDetailViewModel()
-                        {
-                            RowID = i + 1,
-                            AccessionDate = item.datAccession,
-                            idfMaterial = item.idfMaterial,
-                            AdditionalTestNotes = item.strNote,
-                            CollectedByOfficer = item.strFieldCollectedByPerson,
-                            CollectedByOfficerID = item.idfFieldCollectedByPerson,
-                            CollectedByOrganization = item.strFieldCollectedByOffice,
-                            CollectedByOrganizationID = item.idfFieldCollectedByOffice,
-                            CollectionDate = item.datFieldCollectionDate,
-                            strBarcode = item.strBarcode, //TODO - not available from stored proc
-                            LocalSampleId = item.strFieldBarcode, //TODO - not available from stored proc
-                            SampleConditionRecieved = item.strCondition,
-                            SampleKey = item.idfMaterial.GetValueOrDefault(),
-                            SampleType = item.strSampleTypeName,
-                            SampleTypeID = item.idfsSampleType,
-                            SentDate = item.datFieldSentDate,
-                            SentToOrganization = item.strSendToOffice,
-                            SentToOrganizationID = item.idfSendToOffice,
-                            SymptomsOnsetDate = _.datOnSetDate,
-                            blnAccessioned = item.blnAccessioned,
-                            sampleGuid = item.sampleGuid,
-                            idfsSiteSentToOrg = item.idfsSite,
-                            SampleStatus = item.SampleStatusTypeName,
-                            LabSampleID = item.strBarcode,
-                            FunctionalAreaName = item.FunctionalAreaName,
-                            FunctionalAreaID = item.FunctionalAreaID,
-                            strNote = item.strNote
-                        });
-                    }
-                    diseaseReportSamplePageViewModelSection.SamplesDetails = samplesDetailList;
-                    diseaseReportSamplePageViewModelSection.ActiveSamplesDetails = samplesDetailList;
+                        RowID = i + 1,
+                        AccessionDate = item.datAccession,
+                        idfMaterial = item.idfMaterial,
+                        AdditionalTestNotes = item.strNote,
+                        CollectedByOfficer = item.strFieldCollectedByPerson,
+                        CollectedByOfficerID = item.idfFieldCollectedByPerson,
+                        CollectedByOrganization = item.strFieldCollectedByOffice,
+                        CollectedByOrganizationID = item.idfFieldCollectedByOffice,
+                        CollectionDate = item.datFieldCollectionDate,
+                        strBarcode = item.strBarcode,
+                        LocalSampleId = item.strFieldBarcode,
+                        SampleConditionRecieved = item.strCondition,
+                        SampleKey = item.idfMaterial.GetValueOrDefault(),
+                        SampleType = item.strSampleTypeName,
+                        SampleTypeID = item.idfsSampleType,
+                        SentDate = item.datFieldSentDate,
+                        SentToOrganization = item.strSendToOffice,
+                        SentToOrganizationID = item.idfSendToOffice,
+                        SymptomsOnsetDate = detailResponse.datOnSetDate,
+                        blnAccessioned = item.blnAccessioned,
+                        sampleGuid = item.sampleGuid,
+                        idfsSiteSentToOrg = item.idfsSite,
+                        SampleStatus = item.SampleStatusTypeName,
+                        LabSampleID = item.strBarcode,
+                        FunctionalAreaName = item.FunctionalAreaName,
+                        FunctionalAreaID = item.FunctionalAreaID,
+                        strNote = item.strNote
+                    });
                 }
+                diseaseReportSamplePageViewModelSection.SamplesDetails = samplesDetailList;
+                diseaseReportSamplePageViewModelSection.ActiveSamplesDetails = samplesDetailList;
             }
 
             return diseaseReportSamplePageViewModelSection;
@@ -1484,118 +1339,113 @@ namespace EIDSS.Web.Components.Human.Outbreak
 
             diseaseReportTestsPageViewModelSection.Permissions = GetUserPermissions(PagePermission.AccessToHumanDiseaseReportClinicalInformation);
 
-            if (isEdit && detailResponse != null && detailResponse.Count > 0)
+            if (isEdit && detailResponse != null)
             {
-                var _ = detailResponse.FirstOrDefault();
-                if (_ != null)
+                diseaseReportTestsPageViewModelSection.TestsConducted = detailResponse.idfsYNTestsConducted;
+                diseaseReportTestsPageViewModelSection.TestDetails = new();
+                var request = new HumanTestListRequestModel()
                 {
-                    diseaseReportTestsPageViewModelSection.TestsConducted = _.idfsYNTestsConducted;
-                    diseaseReportTestsPageViewModelSection.TestDetails = new();
-                    var request = new HumanTestListRequestModel()
-                    {
-                        idfHumanCase = _.idfHumanCase,
-                        LangID = GetCurrentLanguage(),
-                        SearchDiagnosis = null
-                    };
-                    var list = await _humanDiseaseReportClient.GetHumanDiseaseReportTestListAsync(request);
-                    diseaseReportTestsPageViewModelSection.TestDetails = list;
-                    if (list.Count > 0)
-                        diseaseReportTestsPageViewModelSection.TestsConducted = (long)YesNoUnknown.Yes;
-                    else
-                        diseaseReportTestsPageViewModelSection.TestsConducted = (long)YesNoUnknown.No;
+                    idfHumanCase = detailResponse.idfHumanCase,
+                    LangID = GetCurrentLanguage(),
+                    SearchDiagnosis = null
+                };
+                var list = await _humanDiseaseReportClient.GetHumanDiseaseReportTestListAsync(request);
+                diseaseReportTestsPageViewModelSection.TestDetails = list;
+                if (list.Count > 0)
+                    diseaseReportTestsPageViewModelSection.TestsConducted = (long)YesNoUnknown.Yes;
+                else
+                    diseaseReportTestsPageViewModelSection.TestsConducted = (long)YesNoUnknown.No;
 
-                    var samplerequest = new HumanDiseaseReportSamplesRequestModel()
-                    {
-                        idfHumanCase = _.idfHumanCase,
-                        LangID = GetCurrentLanguage()
-                    };
+                var samplerequest = new HumanDiseaseReportSamplesRequestModel()
+                {
+                    idfHumanCase = detailResponse.idfHumanCase,
+                    LangID = GetCurrentLanguage()
+                };
 
-                    var sampleList = await _humanDiseaseReportClient.GetHumanDiseaseReportSamplesListAsync(samplerequest);
-                    List<DiseaseReportSamplePageSampleDetailViewModel> samplesDetailList = new List<DiseaseReportSamplePageSampleDetailViewModel>();
-                    int i = 0;
-                    foreach (var item in sampleList)
+                var sampleList = await _humanDiseaseReportClient.GetHumanDiseaseReportSamplesListAsync(samplerequest);
+                List<DiseaseReportSamplePageSampleDetailViewModel> samplesDetailList = new();
+                int i = 0;
+                foreach (var item in sampleList)
+                {
+                    //map the incoming human samples list to the generic list so we can reuse samples component
+                    samplesDetailList.Add(new DiseaseReportSamplePageSampleDetailViewModel()
                     {
-                        //map the incoming human samples list to the generic list so we can reuse samples component
-                        samplesDetailList.Add(new DiseaseReportSamplePageSampleDetailViewModel()
-                        {
-                            RowID = i + 1,
-                            AccessionDate = item.datAccession,
-                            AdditionalTestNotes = item.strNote,
-                            CollectedByOfficer = item.strFieldCollectedByPerson,
-                            CollectedByOfficerID = item.idfFieldCollectedByPerson,
-                            CollectedByOrganization = item.strFieldCollectedByOffice,
-                            CollectedByOrganizationID = item.idfFieldCollectedByOffice,
-                            CollectionDate = item.datFieldCollectionDate,
-                            strBarcode = item.strBarcode, //TODO - not available from stored proc
-                            LocalSampleId = item.strFieldBarcode, //TODO - not available from stored proc
-                            SampleConditionRecieved = item.strCondition,
-                            SampleKey = item.idfMaterial.GetValueOrDefault(),
-                            SampleType = item.strSampleTypeName,
-                            SampleTypeID = item.idfsSampleType,
-                            SentDate = item.datFieldSentDate,
-                            SentToOrganization = item.strSendToOffice,
-                            SentToOrganizationID = item.idfSendToOffice,
-                            SymptomsOnsetDate = _.datOnSetDate,
-                            blnAccessioned = item.blnAccessioned,
-                            intRowStatus = item.intRowStatus,
-                            SampleStatus = item.SampleStatusTypeName,
-                            LabSampleID = item.strBarcode,
-                            FunctionalAreaName = item.FunctionalAreaName,
-                            FunctionalAreaID = item.FunctionalAreaID,
-                            strNote = item.strNote
-                        });
-                    }
-                    diseaseReportTestsPageViewModelSection.SamplesDetails = samplesDetailList;
+                        RowID = i + 1,
+                        AccessionDate = item.datAccession,
+                        AdditionalTestNotes = item.strNote,
+                        CollectedByOfficer = item.strFieldCollectedByPerson,
+                        CollectedByOfficerID = item.idfFieldCollectedByPerson,
+                        CollectedByOrganization = item.strFieldCollectedByOffice,
+                        CollectedByOrganizationID = item.idfFieldCollectedByOffice,
+                        CollectionDate = item.datFieldCollectionDate,
+                        strBarcode = item.strBarcode,
+                        LocalSampleId = item.strFieldBarcode,
+                        SampleConditionRecieved = item.strCondition,
+                        SampleKey = item.idfMaterial.GetValueOrDefault(),
+                        SampleType = item.strSampleTypeName,
+                        SampleTypeID = item.idfsSampleType,
+                        SentDate = item.datFieldSentDate,
+                        SentToOrganization = item.strSendToOffice,
+                        SentToOrganizationID = item.idfSendToOffice,
+                        SymptomsOnsetDate = detailResponse.datOnSetDate,
+                        blnAccessioned = item.blnAccessioned,
+                        intRowStatus = item.intRowStatus,
+                        SampleStatus = item.SampleStatusTypeName,
+                        LabSampleID = item.strBarcode,
+                        FunctionalAreaName = item.FunctionalAreaName,
+                        FunctionalAreaID = item.FunctionalAreaID,
+                        strNote = item.strNote
+                    });
                 }
+                diseaseReportTestsPageViewModelSection.SamplesDetails = samplesDetailList;
             }
 
             return diseaseReportTestsPageViewModelSection;
         }
 
-        public async Task<DiseaseReportCaseInvestigationRiskFactorsPageViewModel> LoadCaseInvestigationRiskFactors(
-                DiseaseReportCaseInvestigationRiskFactorsPageViewModel riskFactorsSection,
-                bool isEdit = false, long? idfsFormTemplate = null, long? idfObservation = null)
+        private DiseaseReportCaseInvestigationRiskFactorsPageViewModel LoadCaseInvestigationRiskFactors(bool isEdit = false, long? idfsFormTemplate = null, long? idfObservation = null)
         {
+            var riskFactorsSection = new DiseaseReportCaseInvestigationRiskFactorsPageViewModel();
             if (idfsFormTemplate != null)
             {
-                riskFactorsSection = new DiseaseReportCaseInvestigationRiskFactorsPageViewModel();
-                riskFactorsSection.RiskFactors = new FlexFormQuestionnaireGetRequestModel();
-                riskFactorsSection.RiskFactors.idfsFormType = (long?)FlexFormType.HumanCaseQuestionnaire;
-                riskFactorsSection.RiskFactors.idfsFormTemplate = idfsFormTemplate;
-                riskFactorsSection.RiskFactors.idfObservation = isEdit ? idfObservation : null;
-                riskFactorsSection.RiskFactors.SubmitButtonID = "btnDummy";
-                riskFactorsSection.RiskFactors.LangID = GetCurrentLanguage();
-                riskFactorsSection.RiskFactors.Title = _localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportRiskFactorsListofRiskFactorsHeading);
-                riskFactorsSection.RiskFactors.CallbackFunction = "SaveHDR();";
-                riskFactorsSection.RiskFactors.ObserationFieldID = "idfCaseObservationRiskFactors";
-            }
-            else
-            {
-                riskFactorsSection = new DiseaseReportCaseInvestigationRiskFactorsPageViewModel();
+                riskFactorsSection.RiskFactors = new FlexFormQuestionnaireGetRequestModel
+                {
+                    idfsFormType = (long?)FlexFormType.HumanCaseQuestionnaire,
+                    idfsFormTemplate = idfsFormTemplate,
+                    idfObservation = isEdit ? idfObservation : null,
+                    SubmitButtonID = "btnDummy",
+                    LangID = GetCurrentLanguage(),
+                    Title = _localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportRiskFactorsListofRiskFactorsHeading),
+                    CallbackFunction = "SaveHDR();",
+                    ObserationFieldID = "idfCaseObservationRiskFactors"
+                };
             }
 
             return riskFactorsSection;
         }
 
-        public async Task<IActionResult> ReloadRiskFactors()
+        public IActionResult ReloadRiskFactors()
         {
-
-        DiseaseReportCaseInvestigationRiskFactorsPageViewModel riskFactorsSection = new DiseaseReportCaseInvestigationRiskFactorsPageViewModel();
-            riskFactorsSection.RiskFactors = new FlexFormQuestionnaireGetRequestModel();
-            riskFactorsSection.IsReportClosed = IsbSessionClosed;
-            riskFactorsSection.RiskFactors.idfsFormType = (long?)FlexFormType.HumanCaseQuestionnaire;
-            riskFactorsSection.RiskFactors.idfsFormTemplate = CaseQuestionnaireTemplateID;
-            riskFactorsSection.RiskFactors.idfObservation = IsEdit? CaseEPIObservationID : null;
-            riskFactorsSection.RiskFactors.SubmitButtonID = "btnDummy";
-            riskFactorsSection.RiskFactors.LangID = GetCurrentLanguage();
-            riskFactorsSection.RiskFactors.Title = _localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportRiskFactorsListofRiskFactorsHeading);
-            riskFactorsSection.RiskFactors.CallbackFunction = "SaveHDR();";
-            riskFactorsSection.RiskFactors.ObserationFieldID = "idfCaseObservationRiskFactors";
+            DiseaseReportCaseInvestigationRiskFactorsPageViewModel riskFactorsSection = new()
+            {
+                IsReportClosed = IsbSessionClosed,
+                RiskFactors = new FlexFormQuestionnaireGetRequestModel
+                {
+                    idfsFormType = (long?)FlexFormType.HumanCaseQuestionnaire,
+                    idfsFormTemplate = CaseQuestionnaireTemplateID,
+                    idfObservation = IsEdit ? CaseEPIObservationID : null,
+                    SubmitButtonID = "btnDummy",
+                    LangID = GetCurrentLanguage(),
+                    Title = _localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportRiskFactorsListofRiskFactorsHeading),
+                    CallbackFunction = "SaveHDR();",
+                    ObserationFieldID = "idfCaseObservationRiskFactors"
+                }
+            };
 
             return PartialView("_DiseaseReportRiskFactorsPartial", riskFactorsSection);
         }
 
-        public async Task<DiseaseReportContactListPageViewModel> LoadContactList(long? diseaseId, bool isEdit = false)
+        private async Task<DiseaseReportContactListPageViewModel> LoadContactList(bool isEdit = false)
         {
             DiseaseReportContactListPageViewModel contactListSection = _diseaseReportComponentViewModel.ContactListSection;
             contactListSection.ContactDetails = new List<DiseaseReportContactDetailsViewModel>();
@@ -1605,9 +1455,11 @@ namespace EIDSS.Web.Components.Human.Outbreak
             {
                 contactListSection.idfHumanCase = _diseaseReportComponentViewModel.idfHumanCase;
                 contactListSection.HumanID = _diseaseReportComponentViewModel.HumanID;
-                HumanDiseaseContactListRequestModel request = new HumanDiseaseContactListRequestModel();
-                request.idfHumanCase = _diseaseReportComponentViewModel.idfHumanCase;
-                request.LangId = GetCurrentLanguage();
+                HumanDiseaseContactListRequestModel request = new()
+                {
+                    idfHumanCase = _diseaseReportComponentViewModel.idfHumanCase,
+                    LangId = GetCurrentLanguage()
+                };
                 var response = await _humanDiseaseReportClient.GetHumanDiseaseContactListAsync(request);
                 if (response != null)
                 {
@@ -1655,97 +1507,51 @@ namespace EIDSS.Web.Components.Human.Outbreak
             return contactListSection;
         }
 
-        public List<BaseReferenceViewModel> GetRadioButtonChoicesAsync()
+        private List<BaseReferenceViewModel> GetRadioButtonChoicesAsync()
         {
             //get the yes/no choices for radio buttons
-            List<BaseReferenceViewModel> YesNoChoices = _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), EIDSSConstants.BaseReferenceConstants.YesNoValueList, EIDSSConstants.HACodeList.HumanHACode).Result;
+            List<BaseReferenceViewModel> YesNoChoices = _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), BaseReferenceConstants.YesNoValueList, HACodeList.HumanHACode).Result;
             return YesNoChoices;
         }
 
-        public List<BaseReferenceViewModel> GetExposureLocation()
+        private List<BaseReferenceViewModel> GetExposureLocation()
         {
             //get the yes/no choices for radio buttons
-            List<BaseReferenceViewModel> GeoLocationList = _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), EIDSSConstants.BaseReferenceConstants.GeoLocationType, EIDSSConstants.HACodeList.HumanHACode).Result;
+            List<BaseReferenceViewModel> GeoLocationList = _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), BaseReferenceConstants.GeoLocationType, HACodeList.HumanHACode).Result;
             return GeoLocationList;
         }
 
-        public async Task<JsonResult> GetInitalCaseClassification(int page, string data, string term)
+        private DiseaseReportFinalOutcomeViewModel LoadFinalOutComeDetails(long? diseaseId, bool isEdit = false)
         {
-            List<Select2DataItem> select2DataItems = new();
-            Select2DataResults select2DataObj = new();
-            HumanDiseaseReportLkupCaseClassificationRequestModel request = new HumanDiseaseReportLkupCaseClassificationRequestModel();
-            request.LangID = GetCurrentLanguage();
-
-            try
+            DiseaseReportFinalOutcomeViewModel diseaseReportFinalOutcomeViewModelSection = new()
             {
-                var list = await _humanDiseaseReportClient.GetHumanDiseaseReportLkupCaseClassificationAsync(request);
+                idfHumanCase = _diseaseReportComponentViewModel.idfHumanCase,
+                strCaseId = _diseaseReportComponentViewModel.strCaseId,
 
-                if (list != null)
-                {
-                    foreach (var item in list)
-                    {
-                        if (item.blnInitialHumanCaseClassification)
-                        {
-                            select2DataItems.Add(new Select2DataItem() { id = item.idfsCaseClassification.ToString(), text = item.strDefault });
-                        }
-                    }
-                }
-                select2DataObj.results = select2DataItems;
-            }
-            catch (Exception ex)
+                idfDisease = diseaseId,
+                Permissions = GetUserPermissions(PagePermission.AccessToHumanDiseaseReportClinicalInformation),
+
+                IsReportClosed = _diseaseReportComponentViewModel.IsReportClosed,
+                idfInvestigatedByOffice = _diseaseReportComponentViewModel.CaseInvestigationSection.idfInvestigatedByOffice
+            };
+
+            if (isEdit && detailResponse != null)
             {
-                _logger.LogError(ex.Message, null);
-                throw;
-            }
-
-            return Json(select2DataObj);
-        }
-
-        [HttpGet]
-        public async Task<bool> UpdateInvestigatingOrgForFinalOutcome(DiseaseReportCaseInvestigationPageViewModel data)
-        {
-            try
-            {
-
-            }
-            catch (Exception ex)
-            {
-                throw;
+                diseaseReportFinalOutcomeViewModelSection.blnInitialSSD = detailResponse.blnInitialSSD;
+                diseaseReportFinalOutcomeViewModelSection.blnFinalSSD = detailResponse.blnFinalSSD;
+                diseaseReportFinalOutcomeViewModelSection.idfsFinalCaseStatus = detailResponse.idfsFinalCaseStatus;
+                diseaseReportFinalOutcomeViewModelSection.idfsOutCome = detailResponse.idfsOutCome;
+                diseaseReportFinalOutcomeViewModelSection.idfInvestigatedByPerson = detailResponse.idfInvestigatedByPerson;
+                diseaseReportFinalOutcomeViewModelSection.strEpidemiologistsName = detailResponse.strEpidemiologistsName;
+                diseaseReportFinalOutcomeViewModelSection.blnLabDiagBasis = detailResponse.blnLabDiagBasis;
+                diseaseReportFinalOutcomeViewModelSection.blnClinicalDiagBasis = detailResponse.blnClinicalDiagBasis;
+                diseaseReportFinalOutcomeViewModelSection.blnEpiDiagBasis = detailResponse.blnEpiDiagBasis;
+                diseaseReportFinalOutcomeViewModelSection.datFinalCaseClassificationDate = detailResponse.datFinalCaseClassificationDate;
+                diseaseReportFinalOutcomeViewModelSection.datDateOfDeath = detailResponse.datDateOfDeath;
+                diseaseReportFinalOutcomeViewModelSection.datDateOfDischarge = detailResponse.datDischargeDate;
+                diseaseReportFinalOutcomeViewModelSection.Comments = detailResponse.strSummaryNotes;
             }
 
-            return true;
-        }
-
-        public async Task<DiseaseReportFinalOutcomeViewModel> LoadFinalOutComeDetails(long? diseaseId, bool isEdit = false)
-        {
-            DiseaseReportFinalOutcomeViewModel diseaseReportFinalOutcomeViewModelSection = new();
-            diseaseReportFinalOutcomeViewModelSection.idfHumanCase = _diseaseReportComponentViewModel.idfHumanCase;
-            diseaseReportFinalOutcomeViewModelSection.strCaseId = _diseaseReportComponentViewModel.strCaseId;
-
-            diseaseReportFinalOutcomeViewModelSection.idfDisease = diseaseId;
-            diseaseReportFinalOutcomeViewModelSection.Permissions = GetUserPermissions(PagePermission.AccessToHumanDiseaseReportClinicalInformation);
-
-            diseaseReportFinalOutcomeViewModelSection.IsReportClosed = _diseaseReportComponentViewModel.IsReportClosed;
-            diseaseReportFinalOutcomeViewModelSection.idfInvestigatedByOffice = _diseaseReportComponentViewModel.CaseInvestigationSection.idfInvestigatedByOffice;
-            if (isEdit && detailResponse != null && detailResponse.Count > 0)
-            {
-                var _ = detailResponse.FirstOrDefault();
-                if (_ != null)
-                {
-                    diseaseReportFinalOutcomeViewModelSection.blnInitialSSD = _.blnInitialSSD;
-                    diseaseReportFinalOutcomeViewModelSection.blnFinalSSD = _.blnFinalSSD;
-                    diseaseReportFinalOutcomeViewModelSection.idfsFinalCaseStatus = _.idfsFinalCaseStatus;
-                    diseaseReportFinalOutcomeViewModelSection.idfsOutCome = _.idfsOutCome;
-                    diseaseReportFinalOutcomeViewModelSection.idfInvestigatedByPerson = _.idfInvestigatedByPerson;
-                    diseaseReportFinalOutcomeViewModelSection.strEpidemiologistsName = _.strEpidemiologistsName;
-                    diseaseReportFinalOutcomeViewModelSection.blnLabDiagBasis = _.blnLabDiagBasis;
-                    diseaseReportFinalOutcomeViewModelSection.blnClinicalDiagBasis = _.blnClinicalDiagBasis;
-                    diseaseReportFinalOutcomeViewModelSection.blnEpiDiagBasis = _.blnEpiDiagBasis;
-                    diseaseReportFinalOutcomeViewModelSection.datFinalCaseClassificationDate = _.datFinalCaseClassificationDate;
-                    diseaseReportFinalOutcomeViewModelSection.datDateOfDeath = _.datDateOfDeath;
-                    diseaseReportFinalOutcomeViewModelSection.Comments = _.strSummaryNotes;
-                }
-            }
             return diseaseReportFinalOutcomeViewModelSection;
         }
 
@@ -1761,12 +1567,12 @@ namespace EIDSS.Web.Components.Human.Outbreak
                 SortOrder = "desc"
             };
             var response = await _humanDiseaseReportClient.GetHumanDiseaseDetail(request);
-            if (response.FirstOrDefault() != null)
+            if (response != null)
             {
-                var humanId = response.FirstOrDefault().idfHuman;
-                var caseId = response.FirstOrDefault().idfHumanCase;
+                var humanId = response.idfHuman;
+                var caseId = response.idfHumanCase;
 
-                return RedirectToAction("LoadDiseaseReport", new { humanId = humanId, caseId = caseId, isEdit = true, readOnly = false });
+                return RedirectToAction("LoadDiseaseReport", new { humanId, caseId, isEdit = true, readOnly = false });
             }
 
             return View("Index");
@@ -1778,111 +1584,106 @@ namespace EIDSS.Web.Components.Human.Outbreak
         {
             try
             {
-                OutbreakCaseCreateRequestModel request = new OutbreakCaseCreateRequestModel();
-                OutbreakCaseSaveResponseModel response = new OutbreakCaseSaveResponseModel();
+                OutbreakCaseCreateRequestModel request = new();
+                OutbreakCaseSaveResponseModel response = new();
 
-                //General--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 request.LangID = GetCurrentLanguage();
                 request.intRowStatus = 0;
                 request.User = _authenticatedUser.UserName;
 
-                //Outbreak Case Details------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                request.OutbreakCaseReportUID = (long?) GetJsonValue(data, "OutbreakCaseReportUID", DataType.Long);
-                request.idfOutbreak = (long?) GetJsonValue(data, "idfOutbreak", DataType.Long);
-                request.idfHumanCase = (long?) GetJsonValue(data, "idfHumanCase", DataType.Long);
+                request.OutbreakCaseReportUID = (long?)GetJsonValue(data, "OutbreakCaseReportUID", DataType.Long);
+                request.idfOutbreak = (long?)GetJsonValue(data, "idfOutbreak", DataType.Long);
+                request.idfHumanCase = (long?)GetJsonValue(data, "idfHumanCase", DataType.Long);
 
-                //Human Disease related items for creation-----------------------------------------------------------------------------------------------------------------------------------------------------
-                request.idfHumanActual = (long?) GetJsonValue(data, "idfHumanActual", DataType.Long);
+                request.idfHumanActual = (long?)GetJsonValue(data, "idfHumanActual", DataType.Long);
                 request.idfsDiagnosisOrDiagnosisGroup =
-                    (long?) GetJsonValue(data, "idfsDiagnosisOrDiagnosisGroup", DataType.Long);
+                    (long?)GetJsonValue(data, "idfsDiagnosisOrDiagnosisGroup", DataType.Long);
 
-                //Notification Section (Outbreak/Human)--------------------------------------------------------------------------------------------------------------------------------------------------------
-                request.datNotificationDate = (DateTime?) GetJsonValue(data, "datNotificationDate", DataType.DateTime);
-                request.idfSentByOffice = (long?) GetJsonValue(data, "notificationSentByFacilityDD", DataType.Long);
-                request.idfSentByPerson = (long?) GetJsonValue(data, "notificationSentByNameDD", DataType.Long);
+                request.datNotificationDate = (DateTime?)GetJsonValue(data, "datNotificationDate", DataType.DateTime);
+                request.idfSentByOffice = (long?)GetJsonValue(data, "notificationSentByFacilityDD", DataType.Long);
+                request.idfSentByPerson = (long?)GetJsonValue(data, "notificationSentByNameDD", DataType.Long);
                 request.idfReceivedByOffice =
-                    (long?) GetJsonValue(data, "notificationReceivedByFacilityDD", DataType.Long);
-                request.idfReceivedByPerson = (long?) GetJsonValue(data, "notificationReceivedByNameDD", DataType.Long);
+                    (long?)GetJsonValue(data, "notificationReceivedByFacilityDD", DataType.Long);
+                request.idfReceivedByPerson = (long?)GetJsonValue(data, "notificationReceivedByNameDD", DataType.Long);
 
-                //Case Location--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                LocationViewModel location = new LocationViewModel();
-                location.AdminLevel0Value = long.Parse(CountryId);
-                location.AdminLevel1Value = (long?) GetJsonValue(data, "AdminLevel1Value", DataType.Long);
-                location.AdminLevel2Value = (long?) GetJsonValue(data, "AdminLevel2Value", DataType.Long);
-                location.AdminLevel3Value = (long?) GetJsonValue(data, "AdminLevel3Value", DataType.Long);
-                location.AdminLevel4Value = (long?) GetJsonValue(data, "AdminLevel4Value", DataType.Long);
-                location.AdminLevel5Value = (long?) GetJsonValue(data, "AdminLevel5Value", DataType.Long);
-                location.AdminLevel6Value = (long?) GetJsonValue(data, "AdminLevel6Value", DataType.Long);
+                LocationViewModel location = new()
+                {
+                    AdminLevel0Value = long.Parse(CountryId),
+                    AdminLevel1Value = (long?)GetJsonValue(data, "AdminLevel1Value", DataType.Long),
+                    AdminLevel2Value = (long?)GetJsonValue(data, "AdminLevel2Value", DataType.Long),
+                    AdminLevel3Value = (long?)GetJsonValue(data, "AdminLevel3Value", DataType.Long),
+                    AdminLevel4Value = (long?)GetJsonValue(data, "AdminLevel4Value", DataType.Long),
+                    AdminLevel5Value = (long?)GetJsonValue(data, "AdminLevel5Value", DataType.Long),
+                    AdminLevel6Value = (long?)GetJsonValue(data, "AdminLevel6Value", DataType.Long)
+                };
 
-                request.CaseGeoLocationID = (long?) GetJsonValue(data, "idfGeoLocation", DataType.Long);
+                request.CaseGeoLocationID = (long?)GetJsonValue(data, "idfGeoLocation", DataType.Long);
                 request.CaseidfsLocation = Common.GetLocationId(location);
                 request.CasestrStreetName = GetJsonValue(data, "Street", DataType.String).ToString();
                 request.CasestrApartment = GetJsonValue(data, "Apartment", DataType.String).ToString();
                 request.CasestrBuilding = GetJsonValue(data, "Building", DataType.String).ToString();
                 request.CasestrHouse = GetJsonValue(data, "House", DataType.String).ToString();
                 request.CaseidfsPostalCode = GetJsonValue(data, "PostalCode", DataType.String).ToString();
-                request.CasestrLatitude = (double?) GetJsonValue(data, "intLocationLatitude", DataType.Double);
-                request.CasestrLongitude = (double?) GetJsonValue(data, "intLocationLongitude", DataType.Double);
+                request.CasestrLatitude = (double?)GetJsonValue(data, "intLocationLatitude", DataType.Double);
+                request.CasestrLongitude = (double?)GetJsonValue(data, "intLocationLongitude", DataType.Double);
 
                 var jsonObject = JObject.Parse(data.ToString());
 
-                //Clinical Information-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                request.CaseStatusID = (long?) GetJsonValue(data, "CaseStatusID", DataType.Long);
-                request.datOnSetDate = (DateTime?) GetJsonValue(data, "SymptomsOnsetDate", DataType.DateTime);
+                request.CaseStatusID = (long?)GetJsonValue(data, "CaseStatusID", DataType.Long);
+                request.datOnSetDate = (DateTime?)GetJsonValue(data, "SymptomsOnsetDate", DataType.DateTime);
                 request.datFinalDiagnosisDate =
-                    (DateTime?) GetJsonValue(data, "datFinalDiagnosisDate", DataType.DateTime);
-                request.idfHospital = (long?) GetJsonValue(data, "idfHospital", DataType.Long);
+                    (DateTime?)GetJsonValue(data, "datFinalDiagnosisDate", DataType.DateTime);
+                request.strHospitalName = jsonObject["strHospitalName"] != null ? jsonObject["strHospitalName"].ToString() : "";
                 request.datHospitalizationDate =
                 (DateTime?)GetJsonValue(data, "datOutbreakHospitalizationDate", DataType.DateTime);
-                request.datDischargeDate = (DateTime?) GetJsonValue(data, "datDischargeDate", DataType.DateTime);
+                request.datDischargeDate = (DateTime?)GetJsonValue(data, "datDischargeDate", DataType.DateTime);
                 request.Antimicrobials = JsonConvert.SerializeObject(
                     JObject.Parse(jsonObject["vaccionationAntiViralTherapies"].ToString())["antibioticsHistory"]);
                 request.vaccinations = JsonConvert.SerializeObject(
                     JObject.Parse(jsonObject["vaccionationAntiViralTherapies"].ToString())["vaccinationHistory"]);
                 request.strClinicalNotes = GetJsonValue(data, "additionalInforMation", DataType.String).ToString();
-                request.idfsYNHospitalization = (long?) GetJsonValue(data, "idfsYNHospitalization", DataType.Long);
+                request.idfsYNHospitalization = (long?)GetJsonValue(data, "idfsYNHospitalization", DataType.Long);
                 request.idfsYNAntimicrobialTherapy =
-                    (long?) GetJsonValue(data, "idfsYNAntimicrobialTherapy", DataType.Long);
+                    (long?)GetJsonValue(data, "idfsYNAntimicrobialTherapy", DataType.Long);
                 request.idfsYNSpecIFicVaccinationAdministered =
-                    (long?) GetJsonValue(data, "idfsYNSpecificVaccinationAdministered", DataType.Long);
-                request.idfCSObservation = (long?) GetJsonValue(data, "idfCSObservation", DataType.Long);
+                    (long?)GetJsonValue(data, "idfsYNSpecificVaccinationAdministered", DataType.Long);
+                request.idfCSObservation = (long?)GetJsonValue(data, "idfCSObservation", DataType.Long);
 
-                //Outbreak Investigation-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                request.idfInvestigatedByOffice = (long?) GetJsonValue(data, "idfInvestigatedByOffice", DataType.Long);
-                request.idfInvestigatedByPerson = (long?) GetJsonValue(data, "idfInvestigatedByPerson", DataType.Long);
+                request.idfInvestigatedByOffice = (long?)GetJsonValue(data, "idfInvestigatedByOffice", DataType.Long);
+                request.idfInvestigatedByPerson = (long?)GetJsonValue(data, "idfInvestigatedByPerson", DataType.Long);
                 request.StartDateofInvestigation =
-                    (DateTime?) GetJsonValue(data, "datInvestigationStartDate", DataType.DateTime);
+                    (DateTime?)GetJsonValue(data, "datInvestigationStartDate", DataType.DateTime);
                 request.OutbreakCaseClassificationID =
-                    (long?) GetJsonValue(data, "OutbreakCaseClassificationID", DataType.Long);
+                    (long?)GetJsonValue(data, "OutbreakCaseClassificationID", DataType.Long);
                 request.IsPrimaryCaseFlag =
                     GetJsonValue(data, "isPrimaryCaseFlag", DataType.String).ToString() == "True" ? "t" : "f";
                 request.strNote = GetJsonValue(data, "strNote", DataType.String).ToString();
-                request.OutbreakCaseObservationID = (long?) GetJsonValue(data, "idfEpiObservation", DataType.Long);
+                request.OutbreakCaseObservationID = (long?)GetJsonValue(data, "idfEpiObservation", DataType.Long);
 
-                //Case Monitoring------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 if (jsonObject["caseMonitoringsModel"] != null && !string.IsNullOrEmpty(jsonObject["caseMonitoringsModel"].ToString()))
                 {
                     var caseMonitoringsModel = jsonObject["caseMonitoringsModel"].ToString();
-                    List<CaseMonitoringSaveRequestModel> caseMonitorings = new List<CaseMonitoringSaveRequestModel>();
-                    CaseMonitoringSaveRequestModel caseMonitoring = new CaseMonitoringSaveRequestModel();
+                    List<CaseMonitoringSaveRequestModel> caseMonitorings = new();
+                    CaseMonitoringSaveRequestModel caseMonitoring = new();
 
                     foreach (JObject item in JArray.Parse(caseMonitoringsModel))
                     {
-                        caseMonitoring = new CaseMonitoringSaveRequestModel();
-
-                        caseMonitoring.CaseMonitoringID = (long) GetJsonValue(item, "caseMonitoringId", DataType.Long);
-                        caseMonitoring.ObservationID = (long?) GetJsonValue(item, "observationId", DataType.Long);
-                        caseMonitoring.InvestigatedByOrganizationID =
-                            (long?) GetJsonValue(item, "investigatedByOrganizationId", DataType.Long);
-                        caseMonitoring.InvestigatedByPersonID =
-                            (long?) GetJsonValue(item, "investigatedByPersonId", DataType.Long);
-                        caseMonitoring.MonitoringDate =
-                            (DateTime?) GetJsonValue(item, "monitoringDate", DataType.DateTime);
-                        caseMonitoring.RowStatus =
-                            (int)GetJsonValue(item, "rowStatus", DataType.Int);
-                        caseMonitoring.RowAction =
-                            (int)GetJsonValue(item, "rowAction", DataType.Int);
-                        caseMonitoring.AdditionalComments = GetJsonValue(item, "additionalComments", DataType.String).ToString();
+                        caseMonitoring = new CaseMonitoringSaveRequestModel
+                        {
+                            CaseMonitoringID = (long)GetJsonValue(item, "caseMonitoringId", DataType.Long),
+                            ObservationID = (long?)GetJsonValue(item, "observationId", DataType.Long),
+                            InvestigatedByOrganizationID =
+                            (long?)GetJsonValue(item, "investigatedByOrganizationId", DataType.Long),
+                            InvestigatedByPersonID =
+                            (long?)GetJsonValue(item, "investigatedByPersonId", DataType.Long),
+                            MonitoringDate =
+                            (DateTime?)GetJsonValue(item, "monitoringDate", DataType.DateTime),
+                            RowStatus =
+                            (int)GetJsonValue(item, "rowStatus", DataType.Int),
+                            RowAction =
+                            (int)GetJsonValue(item, "rowAction", DataType.Int),
+                            AdditionalComments = GetJsonValue(item, "additionalComments", DataType.String).ToString()
+                        };
 
                         caseMonitorings.Add(caseMonitoring);
                     }
@@ -1891,7 +1692,6 @@ namespace EIDSS.Web.Components.Human.Outbreak
                     request.Events = null;
                 }
 
-                //Contacts-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 if (jsonObject["contactsModel"] != null)
                 {
                     var contactModel = jsonObject["contactsModel"].ToString();
@@ -1905,26 +1705,26 @@ namespace EIDSS.Web.Components.Human.Outbreak
                             var contactList = new List<ContactGetListViewModel>();
                             var contactItem = new ContactGetListViewModel();
 
-                            var contactCount = 0;
                             var serContactModel = JsonConvert.SerializeObject(parsedContactModel);
                             request.CaseContacts = serContactModel;
                             foreach (var item in parsedContactModel)
                             {
-                                contactItem = new ContactGetListViewModel();
-
-                                contactItem.ContactedHumanCasePersonID = !string.IsNullOrEmpty(item["contactedHumanCasePersonID"].ToString()) && long.Parse(item["contactedHumanCasePersonID"].ToString()) != 0 ? long.Parse(item["contactedHumanCasePersonID"].ToString()) : null;
-                                contactItem.HumanMasterID = long.Parse(item["humanMasterID"].ToString());
-                                contactItem.ContactTypeID = !string.IsNullOrEmpty(item["contactTypeID"].ToString()) && long.Parse(item["contactTypeID"].ToString()) != 0 ? long.Parse(item["contactTypeID"].ToString()) : null;
-                                contactItem.HumanID = !string.IsNullOrEmpty(item["humanID"].ToString()) && long.Parse(item["humanID"].ToString()) != 0 ? long.Parse(item["humanID"].ToString()) : null;
-                                contactItem.DateOfLastContact = string.IsNullOrEmpty(item["dateOfLastContact"].ToString()) ? null : DateTime.Parse(item["dateOfLastContact"].ToString());
-                                contactItem.PlaceOfLastContact = !string.IsNullOrEmpty(item["placeOfLastContact"].ToString()) ? item["placeOfLastContact"].ToString() : null;
-                                contactItem.ContactRelationshipTypeID = !string.IsNullOrEmpty(item["contactRelationshipTypeID"].ToString()) && long.Parse(item["contactRelationshipTypeID"].ToString()) != 0 ? long.Parse(item["contactRelationshipTypeID"].ToString()) : null;
-                                contactItem.Comment = !string.IsNullOrEmpty(item["comment"].ToString()) ? item["comment"].ToString() : null;
-                                contactItem.ContactTracingObservationID = !string.IsNullOrEmpty(item["contactTracingObservationID"].ToString()) && long.Parse(item["contactTracingObservationID"].ToString()) != 0 ? long.Parse(item["contactTracingObservationID"].ToString()) : null;
-                                contactItem.ContactStatusID = !string.IsNullOrEmpty(item["contactStatusID"].ToString()) && long.Parse(item["contactStatusID"].ToString()) != 0 ? long.Parse(item["contactStatusID"].ToString()) : null;
-                                contactItem.CaseContactID = long.Parse(item["caseContactID"].ToString());
-                                contactItem.RowAction = int.Parse(item["rowAction"].ToString());
-                                contactItem.RowStatus = int.Parse(item["rowStatus"].ToString());
+                                contactItem = new ContactGetListViewModel
+                                {
+                                    ContactedHumanCasePersonID = !string.IsNullOrEmpty(item["contactedHumanCasePersonID"].ToString()) && long.Parse(item["contactedHumanCasePersonID"].ToString()) != 0 ? long.Parse(item["contactedHumanCasePersonID"].ToString()) : null,
+                                    HumanMasterID = long.Parse(item["humanMasterID"].ToString()),
+                                    ContactTypeID = !string.IsNullOrEmpty(item["contactTypeID"].ToString()) && long.Parse(item["contactTypeID"].ToString()) != 0 ? long.Parse(item["contactTypeID"].ToString()) : null,
+                                    HumanID = !string.IsNullOrEmpty(item["humanID"].ToString()) && long.Parse(item["humanID"].ToString()) != 0 ? long.Parse(item["humanID"].ToString()) : null,
+                                    DateOfLastContact = string.IsNullOrEmpty(item["dateOfLastContact"].ToString()) ? null : DateTime.Parse(item["dateOfLastContact"].ToString()),
+                                    PlaceOfLastContact = !string.IsNullOrEmpty(item["placeOfLastContact"].ToString()) ? item["placeOfLastContact"].ToString() : null,
+                                    ContactRelationshipTypeID = !string.IsNullOrEmpty(item["contactRelationshipTypeID"].ToString()) && long.Parse(item["contactRelationshipTypeID"].ToString()) != 0 ? long.Parse(item["contactRelationshipTypeID"].ToString()) : null,
+                                    Comment = !string.IsNullOrEmpty(item["comment"].ToString()) ? item["comment"].ToString() : null,
+                                    ContactTracingObservationID = !string.IsNullOrEmpty(item["contactTracingObservationID"].ToString()) && long.Parse(item["contactTracingObservationID"].ToString()) != 0 ? long.Parse(item["contactTracingObservationID"].ToString()) : null,
+                                    ContactStatusID = !string.IsNullOrEmpty(item["contactStatusID"].ToString()) && long.Parse(item["contactStatusID"].ToString()) != 0 ? long.Parse(item["contactStatusID"].ToString()) : null,
+                                    CaseContactID = long.Parse(item["caseContactID"].ToString()),
+                                    RowAction = int.Parse(item["rowAction"].ToString()),
+                                    RowStatus = int.Parse(item["rowStatus"].ToString())
+                                };
 
                                 contactList.Add(contactItem);
                             }
@@ -1934,19 +1734,20 @@ namespace EIDSS.Web.Components.Human.Outbreak
                     }
                 }
 
-                //Samples--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 long lSiteID = 1;
                 var sampleDetails = JObject.Parse(jsonObject["sampleModel"].ToString())["samplesDetails"];
-                List<SampleSaveRequestModel> samples = new List<SampleSaveRequestModel>();
+                List<SampleSaveRequestModel> samples = new();
 
                 foreach (var item in sampleDetails)
                 {
-                    SampleSaveRequestModel Sample = new SampleSaveRequestModel();
-                    Sample.SampleTypeID =
+                    SampleSaveRequestModel Sample = new()
+                    {
+                        SampleTypeID =
                         !string.IsNullOrEmpty(item["sampleTypeID"].ToString()) &&
                         long.Parse(item["sampleTypeID"].ToString()) != 0
                             ? long.Parse(item["sampleTypeID"].ToString())
-                            : null;
+                            : null
+                    };
                     var blnNumberingSchema =
                         !string.IsNullOrEmpty(item["blnNumberingSchema"].ToString()) &&
                         int.Parse(item["blnNumberingSchema"].ToString()) != 0
@@ -2017,23 +1818,22 @@ namespace EIDSS.Web.Components.Human.Outbreak
                 var strSamplesNew = System.Text.Json.JsonSerializer.Serialize(samples);
 
                 request.CaseSamples = strSamplesNew;
-                request.idfsYNSpecimenCollected = (long?) GetJsonValue(data, "idfsYNSpecimenCollected", DataType.Long);
+                request.idfsYNSpecimenCollected = (long?)GetJsonValue(data, "idfsYNSpecimenCollected", DataType.Long);
 
-                //Tests----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                request.idfsYNTestsConducted = (long?) GetJsonValue(data, "idfsYNTestsConducted", DataType.Long);
+                request.idfsYNTestsConducted = (long?)GetJsonValue(data, "idfsYNTestsConducted", DataType.Long);
 
                 var testDetails = JObject.Parse(jsonObject["testModel"].ToString())["testDetails"];
 
-                List<LaboratoryTestSaveRequestModel> tests = new List<LaboratoryTestSaveRequestModel>();
+                List<LaboratoryTestSaveRequestModel> tests = new();
                 List<LaboratoryTestInterpretationSaveRequestModel> testInterpretations =
-                    new List<LaboratoryTestInterpretationSaveRequestModel>();
+                    new();
 
                 var count = 0;
                 foreach (var item in testDetails)
                 {
-                    LaboratoryTestSaveRequestModel testRequest = new LaboratoryTestSaveRequestModel();
+                    LaboratoryTestSaveRequestModel testRequest = new();
                     LaboratoryTestInterpretationSaveRequestModel interpretationRequest =
-                        new LaboratoryTestInterpretationSaveRequestModel();
+                        new();
                     testRequest.SampleID =
                         !string.IsNullOrEmpty(item["idfMaterial"].ToString()) &&
                         long.Parse(item["idfMaterial"].ToString()) != 0
@@ -2047,7 +1847,7 @@ namespace EIDSS.Web.Components.Human.Outbreak
 
                     if (testRequest.TestID == 0)
                     {
-                        count = count + 1;
+                        count++;
                         testRequest.TestID = count;
                     }
 
@@ -2112,9 +1912,7 @@ namespace EIDSS.Web.Components.Human.Outbreak
                             ? long.Parse(item["idfsDiagnosis"].ToString())
                             : 0;
                     testRequest.NonLaboratoryTestIndicator =
-                        !string.IsNullOrEmpty(item["blnNonLaboratoryTest"].ToString())
-                            ? Convert.ToBoolean(item["blnNonLaboratoryTest"].ToString())
-                            : false;
+                        !string.IsNullOrEmpty(item["blnNonLaboratoryTest"].ToString()) && Convert.ToBoolean(item["blnNonLaboratoryTest"].ToString());
 
                     interpretationRequest.TestID = testRequest.TestID;
                     interpretationRequest.TestInterpretationID =
@@ -2157,9 +1955,7 @@ namespace EIDSS.Web.Components.Human.Outbreak
                             ? int.Parse(item["intRowStatus"].ToString())
                             : 0;
                     interpretationRequest.ValidatedStatusIndicator =
-                        !string.IsNullOrEmpty(item["blnValidateStatus"].ToString())
-                            ? Convert.ToBoolean(item["blnValidateStatus"].ToString())
-                            : false;
+                        !string.IsNullOrEmpty(item["blnValidateStatus"].ToString()) && Convert.ToBoolean(item["blnValidateStatus"].ToString());
                     interpretationRequest.DiseaseID = request.idfHumanCase;
                     interpretationRequest.RowAction =
                         item["rowAction"] != null ? int.Parse(item["rowAction"].ToString()) : 2;
@@ -2204,7 +2000,7 @@ namespace EIDSS.Web.Components.Human.Outbreak
             return null;
         }
 
-        private object GetJsonValue(object data, string strKeyword, DataType dt)
+        private static object GetJsonValue(object data, string strKeyword, DataType dt)
         {
             var jsonObject = JObject.Parse(data.ToString());
             var value = jsonObject[strKeyword] != null ? ((jsonObject[strKeyword].ToString() == "") ? null : jsonObject[strKeyword].ToString()) : null;
@@ -2228,7 +2024,7 @@ namespace EIDSS.Web.Components.Human.Outbreak
                         returnValue = long.Parse(value);
                         break;
                     case DataType.Double:
-                        returnValue = Double.Parse(value);
+                        returnValue = double.Parse(value);
                         break;
                 }
             }
@@ -2252,18 +2048,17 @@ namespace EIDSS.Web.Components.Human.Outbreak
         [Route("DeleteHumanCaseReport")]
         public async Task<IActionResult> DeleteHumanCaseReport([FromBody] JsonElement data)
         {
-            HumanDiseaseReportDeleteRequestModel request = new HumanDiseaseReportDeleteRequestModel();
+            HumanDiseaseReportDeleteRequestModel request = new();
             var jsonObject = JObject.Parse(data.ToString());
             long? idfHumanCase = !string.IsNullOrEmpty(jsonObject["idfHumanCase"].ToString()) && long.Parse(jsonObject["idfHumanCase"].ToString()) != 0 ? long.Parse(jsonObject["idfHumanCase"].ToString()) : null;
             request.idfHumanCase = !string.IsNullOrEmpty(jsonObject["idfHumanCase"].ToString()) && long.Parse(jsonObject["idfHumanCase"].ToString()) != 0 ? long.Parse(jsonObject["idfHumanCase"].ToString()) : null;
             request.LangID = GetCurrentLanguage();
-            var response = await _humanDiseaseReportClient.DeleteHumanDiseaseReport(idfHumanCase,Convert.ToInt64( _authenticatedUser.EIDSSUserId) , Convert.ToInt64(_authenticatedUser.SiteId),false);
+            var response = await _humanDiseaseReportClient.DeleteHumanDiseaseReport(idfHumanCase, Convert.ToInt64(_authenticatedUser.EIDSSUserId), Convert.ToInt64(_authenticatedUser.SiteId), false);
             return Ok(response);
         }
 
         public async Task<bool> CheckDiseaseForGender(string data)
         {
-
             JObject jsonObject = JObject.Parse(data);
             long? disease = !string.IsNullOrEmpty(jsonObject["disease"].ToString()) && long.Parse(jsonObject["disease"].ToString()) != 0 ? long.Parse(jsonObject["disease"].ToString()) : null;
             long? gender = !string.IsNullOrEmpty(jsonObject["gender"].ToString()) && long.Parse(jsonObject["gender"].ToString()) != 0 ? long.Parse(jsonObject["gender"].ToString()) : null;
@@ -2271,9 +2066,11 @@ namespace EIDSS.Web.Components.Human.Outbreak
 
             try
             {
-                GenderForDiseaseOrDiagnosisGroupDiseaseMatrixGetRequestModel request = new GenderForDiseaseOrDiagnosisGroupDiseaseMatrixGetRequestModel();
-                request.LanguageID = GetCurrentLanguage();
-                request.DiseaseID = disease;
+                GenderForDiseaseOrDiagnosisGroupDiseaseMatrixGetRequestModel request = new()
+                {
+                    LanguageID = GetCurrentLanguage(),
+                    DiseaseID = disease
+                };
                 var response = await _diseaseHumanGenderMatrixClient.GetGenderForDiseaseOrDiagnosisGroupMatrix(request);
                 if (response != null && response.Count > 0)
                 {
@@ -2289,26 +2086,6 @@ namespace EIDSS.Web.Components.Human.Outbreak
             }
             return isInValid;
         }
-
-        //protected async Task OnHumanDiseaseReportCreation(long? siteID)
-        //{
-        //    try
-        //    {
-        //        var eventTypeId = Convert.ToInt64(_authenticatedUser.SiteId) == siteID
-        //            ? SystemEventLogTypes.NEW_HUMAN_DISEASE_REPORT_CREATED_ATYOURSITE
-        //            : SystemEventLogTypes.NEW_HUMAN_DISEASE_REPORT_CREATED_ATANOTHERSITE;
-
-        //        if (_diseaseReportComponentViewModel.PendingSaveNotifications.All(x => x.NotificationTypeID != (long)eventTypeId))
-        //            _diseaseReportComponentViewModel.PendingSaveNotifications.Add(await _notificationService.CreateNotification(0,
-        //                ObjectTypeEnum.HumanDiseaseReport, eventTypeId, siteID.Value, null));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex.Message, null);
-        //        throw;
-        //    }
-        //}
-
 
         protected async Task OnHumanDiseaseReportCreation(long? siteID)
         {
@@ -2331,7 +2108,6 @@ namespace EIDSS.Web.Components.Human.Outbreak
 
         public async Task GetSiteAlertForInitialCaseClassification(string data)
         {
-
             JObject jsonObject = JObject.Parse(data);
             long? classification = !string.IsNullOrEmpty(jsonObject["idfCaseClassfication"].ToString()) && long.Parse(jsonObject["idfCaseClassfication"].ToString()) != 0 ? long.Parse(jsonObject["idfCaseClassfication"].ToString()) : null;
             long? idfHumanCase = !string.IsNullOrEmpty(jsonObject["idfHumanCase"].ToString()) && long.Parse(jsonObject["idfHumanCase"].ToString()) != 0 ? long.Parse(jsonObject["idfHumanCase"].ToString()) : null;
@@ -2366,7 +2142,6 @@ namespace EIDSS.Web.Components.Human.Outbreak
         }
         public async Task GetSiteAlertForReopenClosedHDR(string data)
         {
-
             JObject jsonObject = JObject.Parse(data);
 
             long? idfHumanCase = !string.IsNullOrEmpty(jsonObject["idfHumanCase"].ToString()) && long.Parse(jsonObject["idfHumanCase"].ToString()) != 0 ? long.Parse(jsonObject["idfHumanCase"].ToString()) : null;
@@ -2394,20 +2169,6 @@ namespace EIDSS.Web.Components.Human.Outbreak
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-            }
-        }
-        public async Task GetNeighboringSiteAlerts(long? siteID, SystemEventLogTypes eventTypeId)
-        {
-            var neighboringSiteList = await _notificationService.GetNeighboringSiteList(siteID);
-
-            if (neighboringSiteList is {Count: > 0})
-            {
-                foreach (var item in neighboringSiteList)
-                {
-                    _notificationService.Events ??= new List<EventSaveRequestModel>();
-                    _notificationService.Events.Add(await _notificationService.CreateEvent(0,
-                        _diseaseReportComponentViewModel.DiseaseReport.DiseaseID, eventTypeId, item.SiteID.Value, null));
-                }
             }
         }
     }

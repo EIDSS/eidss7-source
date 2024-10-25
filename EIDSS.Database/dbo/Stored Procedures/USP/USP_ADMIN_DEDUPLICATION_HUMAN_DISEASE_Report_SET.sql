@@ -16,7 +16,6 @@ CREATE PROCEDURE [dbo].[USP_ADMIN_DEDUPLICATION_HUMAN_DISEASE_Report_SET]
     @SupersededDiseaseReportID BIGINT,
     @LanguageID NVARCHAR(50),
     @SurvivorDiseaseReportID BIGINT,
-    @idfHumanCaseRelatedTo BIGINT = NULL,
     @idfHuman BIGINT = NULL,                              -- tlbHumanCase.idfHuman
     @idfHumanActual BIGINT,                               -- tlbHumanActual.idfHumanActual
     @strHumanCaseId NVARCHAR(200) = '(new)',

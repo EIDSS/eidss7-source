@@ -50,106 +50,62 @@ CREATE PROCEDURE [dbo].[USP_GBL_BASE_REFERENCE_GETList]
 )
 AS
 	DECLARE @HACodeMax BIGINT = 510;
-	DECLARE @ReturnMsg VARCHAR(MAX) = 'Success';
-	DECLARE @ReturnCode BIGINT = 0;
-	DECLARE @HAList TABLE(
-		intHACode INT
+	DECLARE @idfsLanguage BIGINT = dbo.FN_GBL_LanguageCode_Get(@LangID)
 
-	)
 
-	DECLARE @trtBaseReference TABLE (
-	    idfsBaseReference	  BIGINT,
-		idfsReferenceType	  BIGINT,
-		strBaseReferenceCode  NVARCHAR(200),
-		strDefault			  NVARCHAR(200),
-		[name]				  NVARCHAR(200),
-		intHACode			  INT,
-		intOrder			  INT,
-		intRowStatus		  INT,
-		blnSystem			  BIT,
-		intDefaultHACode	  BIGINT,
-		strHACode			  NVARCHAR(200),
-		EditorSettings		  BIGINT
-	)
-
-	IF @intHACode IS NOT NULL
-	INSERT INTO @HAList
-	(
-	    intHACode
-	)
-	SELECT intHACode FROM dbo.FN_GBL_SplitHACode(@intHACode, @HACodeMax)
-
-	BEGIN TRY
-		INSERT INTO @trtBaseReference
 		SELECT 
 			br.idfsBaseReference,
 			br.idfsReferenceType,
 			br.strBaseReferenceCode,
-			strDefault = CASE WHEN @ReferenceTypeName = 'Disease' THEN
-				(SELECT TOP 1 ISNULL(sg.strTextString, brg.strDefault)FROM trtDiagnosisToDiagnosisGroup dg
-				INNER Join dbo.trtBaseReference brg ON dg.idfsDiagnosisGroup = brg.idfsBaseReference
-				LEFT JOIN dbo.trtStringNameTranslation AS sg ON brg.idfsBaseReference = sg.idfsBaseReference AND sg.idfsLanguage = dbo.FN_GBL_LanguageCode_Get(@LangID)
-				WHERE dg.idfsDiagnosis = br.idfsBaseReference AND brg.strDefault IS NOT NULL)
-			ELSE br.strDefault END,
-			ISNULL(s.strTextString, br.strDefault) AS [name],
+			strDefault = 
+				CASE 
+					WHEN @ReferenceTypeName = N'Disease' collate Cyrillic_General_CI_AS THEN
+						diag_group.strDefault
+					ELSE br.strDefault
+				END,
+			[name] =
+				CASE 
+					WHEN @ReferenceTypeName = N'Disease' collate Cyrillic_General_CI_AS THEN
+						diag_group.[name]
+					ELSE ISNULL(s.strTextString, br.strDefault)
+				END,
 			br.intHACode,
 			br.intOrder,
 			br.intRowStatus,
 			br.blnSystem,
 			rt.intDefaultHACode,
-			CASE WHEN ISNULL(@intHACode,0) = 0 THEN NULL ELSE dbo.FN_GBL_SPLITHACODEASSTRING(br.intHACode, 510) END AS strHACode,
-			EditorSettings
+			CASE WHEN @intHACode IS NULL OR @intHACode = 0 THEN NULL ELSE dbo.FN_GBL_SPLITHACODEASSTRING(br.intHACode, 510) END AS strHACode,
+			isnull(rt_id.EditorSettings, rt.EditorSettings) AS EditorSettings
 		FROM dbo.trtBaseReference br
 		INNER JOIN dbo.trtReferenceType AS rt ON rt.idfsReferenceType = br.idfsReferenceType
-		LEFT JOIN dbo.trtStringNameTranslation AS s ON br.idfsBaseReference = s.idfsBaseReference AND s.idfsLanguage = dbo.FN_GBL_LanguageCode_Get(@LangID)
-		LEFT JOIN dbo.trtHACodeList HA ON HA.intHACode = br.intHACode
-		LEFT JOIN dbo.trtBaseReference HAR ON HAR.idfsBaseReference = HA.idfsCodeName
-		
+		LEFT JOIN dbo.trtStringNameTranslation AS s ON br.idfsBaseReference = s.idfsBaseReference AND s.idfsLanguage = @idfsLanguage
+
+		LEFT JOIN dbo.trtReferenceType AS rt_id ON rt_id.idfsReferenceType = br.idfsBaseReference
+
+		OUTER APPLY
+		(	SELECT TOP 1 brg.strDefault, ISNULL(sg.strTextString, brg.strDefault) AS [name]
+			FROM dbo.trtDiagnosisToDiagnosisGroup dg
+			INNER Join dbo.trtBaseReference brg ON dg.idfsDiagnosisGroup = brg.idfsBaseReference
+			LEFT JOIN dbo.trtStringNameTranslation AS sg ON brg.idfsBaseReference = sg.idfsBaseReference AND sg.idfsLanguage = @idfsLanguage
+			WHERE dg.idfsDiagnosis = br.idfsBaseReference AND brg.strDefault IS NOT NULL
+					AND dg.intRowStatus = 0
+					AND @ReferenceTypeName = N'Disease' collate Cyrillic_General_CI_AS
+			ORDER BY dg.idfDiagnosisToDiagnosisGroup
+		) diag_group
+
 		WHERE 
 			br.idfsBaseReference NOT IN (19000146,19000011,19000019,19000537,19000529,19000530,19000531,19000532,19000533,19000534,19000535,19000125,19000123,19000122,
 												 19000143,19000050,19000126,19000121,19000075,19000124,19000012,19000164,19000019,19000503,19000530,19000510,19000506,19000505,
 												 19000509,19000511,19000508,19000507,19000022,19000131,19000070,19000066,19000071,19000069,19000029,19000032,19000101,19000525,
-												 19000033,19000532,19000534,19000533,19000152,19000056,19000060,19000109,19000062,19000045,19000046,19000516,19000074,19000147,
+												 19000033,19000532,19000534,19000533,19000152,19000056,19000060,19000109,19000062,19000045,19000046,19000516,19000074,
 												 19000130,19000535,19000531,19000087,19000079,19000529,19000119,19000524,19000084,19000519,19000166,19000086,19000090,19000141,
 												 19000140)
-			AND	
-			br.intRowStatus = 0	
-			AND
-		((EXISTS 
-				(SELECT intHACode FROM dbo.FN_GBL_SplitHACode(@intHACode, @HACodeMax) 
-				INTERSECT 
-				SELECT intHACode FROM dbo.FN_GBL_SplitHACode(br.intHACode, @HACodeMax)) 
-				OR @intHACode IS NULL OR @intHACode = 0 OR br.intHACode = @intHACode))
-		AND rt.strReferenceTypeName = IIF(@ReferenceTypeName IS NOT NULL, @ReferenceTypeName, rt.strReferenceTypeName )
-		
-		ORDER BY 
-			br.intOrder,
-			[name]
+			AND	br.intRowStatus = 0	
+			AND (	br.intHACode & @intHACode > 0
+					OR br.intHACode IS NULL
+					OR @intHACode IS NULL OR @intHACode = 0
+				)
+		AND (	@ReferenceTypeName IS NULL
+				OR rt.strReferenceTypeName = @ReferenceTypeName collate Cyrillic_General_CI_AS
+			)
 
-		 UPDATE @trtBaseReference
-		 SET EditorSettings = RT.EditorSettings
-		 FROM trtReferenceType RT
-		 WHERE RT.idfsReferenceType = idfsBaseReference
-
-		 SELECT
-			idfsBaseReference,
-			idfsReferenceType,
-			strBaseReferenceCode,
-			strDefault,
-			[name],
-			intHACode,
-			intOrder,
-			intRowStatus,
-			blnSystem,
-			intDefaultHACode,
-			strHACode,
-			EditorSettings
-		 FROM
-			@trtBaseReference
-	END TRY  
-
-	BEGIN CATCH 
-
-		THROW;
-
-	END CATCH;

@@ -151,6 +151,29 @@ namespace EIDSS.ClientLibrary.ApiClients.Human
             finally
             {
             }
+            //using (MemoryStream ms = new MemoryStream())
+            //{
+            //    var url = string.Format(_eidssApiOptions.HumanActiveSurveillanceSessionDetailAsyncPath, _eidssApiOptions.BaseUrl);
+            //    var aj = new MediaTypeWithQualityHeaderValue("application/json");
+
+            //    await JsonSerializer.SerializeAsync(ms, request);
+            //    ms.Seek(0, SeekOrigin.Begin);
+
+            //    var requestmessage = new HttpRequestMessage(HttpMethod.Post, url);
+            //    requestmessage.Headers.Accept.Add(aj);
+
+            //    using (var requestContent = new StreamContent(ms))
+            //    {
+            //        requestmessage.Content = requestContent;
+            //        requestContent.Headers.ContentType = aj;
+            //        using (var response = await _httpClient.SendAsync(requestmessage, HttpCompletionOption.ResponseHeadersRead))
+            //        {
+            //            response.EnsureSuccessStatusCode();
+            //            var content = await response.Content.ReadAsStreamAsync();
+            //            return await JsonSerializer.DeserializeAsync<List<ActiveSurveillanceSessionDetailResponseModel>>(content, this.SerializationOptions);
+            //        }
+            //    }
+            //}
         }
 
         /// <summary>
@@ -175,6 +198,29 @@ namespace EIDSS.ClientLibrary.ApiClients.Human
                 }, cancellationToken);
 
             return response;
+            //using (MemoryStream ms = new MemoryStream())
+            //{
+            //    var url = string.Format(_eidssApiOptions.HumanActiveSurveillanceSessionDetailedInformationAsyncPath, _eidssApiOptions.BaseUrl);
+            //    var aj = new MediaTypeWithQualityHeaderValue("application/json");
+
+            //    await JsonSerializer.SerializeAsync(ms, request);
+            //    ms.Seek(0, SeekOrigin.Begin);
+
+            //    var requestmessage = new HttpRequestMessage(HttpMethod.Post, url);
+            //    requestmessage.Headers.Accept.Add(aj);
+
+            //    using (var requestContent = new StreamContent(ms))
+            //    {
+            //        requestmessage.Content = requestContent;
+            //        requestContent.Headers.ContentType = aj;
+            //        using (var response = await _httpClient.SendAsync(requestmessage, HttpCompletionOption.ResponseHeadersRead))
+            //        {
+            //            response.EnsureSuccessStatusCode();
+            //            var content = await response.Content.ReadAsStreamAsync();
+            //            return await JsonSerializer.DeserializeAsync<List<ActiveSurveillanceSessionDetailedInformationResponseModel>>(content, this.SerializationOptions);
+            //        }
+            //    }
+            //}
         }
 
         /// <summary>
@@ -199,6 +245,29 @@ namespace EIDSS.ClientLibrary.ApiClients.Human
                 }, cancellationToken);
 
             return response;
+            //using (MemoryStream ms = new MemoryStream())
+            //{
+            //    var url = string.Format(_eidssApiOptions.HumanActiveSurveillanceSessionTestsAsyncPath, _eidssApiOptions.BaseUrl);
+            //    var aj = new MediaTypeWithQualityHeaderValue("application/json");
+
+            //    await JsonSerializer.SerializeAsync(ms, request);
+            //    ms.Seek(0, SeekOrigin.Begin);
+
+            //    var requestmessage = new HttpRequestMessage(HttpMethod.Post, url);
+            //    requestmessage.Headers.Accept.Add(aj);
+
+            //    using (var requestContent = new StreamContent(ms))
+            //    {
+            //        requestmessage.Content = requestContent;
+            //        requestContent.Headers.ContentType = aj;
+            //        using (var response = await _httpClient.SendAsync(requestmessage, HttpCompletionOption.ResponseHeadersRead))
+            //        {
+            //            response.EnsureSuccessStatusCode();
+            //            var content = await response.Content.ReadAsStreamAsync();
+            //            return await JsonSerializer.DeserializeAsync<List<ActiveSurveillanceSessionTestsResponseModel>>(content, this.SerializationOptions);
+            //        }
+            //    }
+            //}
         }
 
         /// <summary>
@@ -223,6 +292,29 @@ namespace EIDSS.ClientLibrary.ApiClients.Human
                 }, cancellationToken);
 
             return response;
+            //using (MemoryStream ms = new MemoryStream())
+            //{
+            //    var url = string.Format(_eidssApiOptions.HumanActiveSurveillanceSessionActionsAsyncPath, _eidssApiOptions.BaseUrl);
+            //    var aj = new MediaTypeWithQualityHeaderValue("application/json");
+
+            //    await JsonSerializer.SerializeAsync(ms, request);
+            //    ms.Seek(0, SeekOrigin.Begin);
+
+            //    var requestmessage = new HttpRequestMessage(HttpMethod.Post, url);
+            //    requestmessage.Headers.Accept.Add(aj);
+
+            //    using (var requestContent = new StreamContent(ms))
+            //    {
+            //        requestmessage.Content = requestContent;
+            //        requestContent.Headers.ContentType = aj;
+            //        using (var response = await _httpClient.SendAsync(requestmessage, HttpCompletionOption.ResponseHeadersRead))
+            //        {
+            //            response.EnsureSuccessStatusCode();
+            //            var content = await response.Content.ReadAsStreamAsync();
+            //            return await JsonSerializer.DeserializeAsync<List<ActiveSurveillanceSessionActionsResponseModel>>(content, this.SerializationOptions);
+            //        }
+            //    }
+            //}
         }
 
         /// <summary>
@@ -247,6 +339,29 @@ namespace EIDSS.ClientLibrary.ApiClients.Human
                 }, cancellationToken);
 
             return response;
+            //using (MemoryStream ms = new MemoryStream())
+            //{
+            //    var url = string.Format(_eidssApiOptions.HumanActiveSurveillanceSessionTestNamesAsyncPath, _eidssApiOptions.BaseUrl);
+            //    var aj = new MediaTypeWithQualityHeaderValue("application/json");
+
+            //    await JsonSerializer.SerializeAsync(ms, request);
+            //    ms.Seek(0, SeekOrigin.Begin);
+
+            //    var requestmessage = new HttpRequestMessage(HttpMethod.Post, url);
+            //    requestmessage.Headers.Accept.Add(aj);
+
+            //    using (var requestContent = new StreamContent(ms))
+            //    {
+            //        requestmessage.Content = requestContent;
+            //        requestContent.Headers.ContentType = aj;
+            //        using (var response = await _httpClient.SendAsync(requestmessage, HttpCompletionOption.ResponseHeadersRead))
+            //        {
+            //            response.EnsureSuccessStatusCode();
+            //            var content = await response.Content.ReadAsStreamAsync();
+            //            return await JsonSerializer.DeserializeAsync<List<ActiveSurveillanceSessionTestNamesResponseModel>>(content, this.SerializationOptions);
+            //        }
+            //    }
+            //}
         }
 
         /// <summary>
@@ -271,6 +386,29 @@ namespace EIDSS.ClientLibrary.ApiClients.Human
                 }, cancellationToken);
 
             return response;
+            //using (MemoryStream ms = new MemoryStream())
+            //{
+            //    var url = string.Format(_eidssApiOptions.HumanActiveSurveillanceSessionSetAsyncPath, _eidssApiOptions.BaseUrl);
+            //    var aj = new MediaTypeWithQualityHeaderValue("application/json");
+
+            //    await JsonSerializer.SerializeAsync(ms, request);
+            //    ms.Seek(0, SeekOrigin.Begin);
+
+            //    var requestmessage = new HttpRequestMessage(HttpMethod.Post, url);
+            //    requestmessage.Headers.Accept.Add(aj);
+
+            //    using (var requestContent = new StreamContent(ms))
+            //    {
+            //        requestmessage.Content = requestContent;
+            //        requestContent.Headers.ContentType = aj;
+            //        using (var response = await _httpClient.SendAsync(requestmessage, HttpCompletionOption.ResponseHeadersRead))
+            //        {
+            //            response.EnsureSuccessStatusCode();
+            //            var content = await response.Content.ReadAsStreamAsync();
+            //            return await JsonSerializer.DeserializeAsync<List<ActiveSurveillanceSessionSaveResponseModel>>(content, this.SerializationOptions);
+            //        }
+            //    }
+            //}
         }
 
         /// <summary>
@@ -295,6 +433,29 @@ namespace EIDSS.ClientLibrary.ApiClients.Human
                 }, cancellationToken);
 
             return response;
+            //using (MemoryStream ms = new MemoryStream())
+            //{
+            //    var url = string.Format(_eidssApiOptions.HumanActiveSurveillanceDiseaseSampleTypeListAsyncPath, _eidssApiOptions.BaseUrl);
+            //    var aj = new MediaTypeWithQualityHeaderValue("application/json");
+
+            //    await JsonSerializer.SerializeAsync(ms, request);
+            //    ms.Seek(0, SeekOrigin.Begin);
+
+            //    var requestmessage = new HttpRequestMessage(HttpMethod.Post, url);
+            //    requestmessage.Headers.Accept.Add(aj);
+
+            //    using (var requestContent = new StreamContent(ms))
+            //    {
+            //        requestmessage.Content = requestContent;
+            //        requestContent.Headers.ContentType = aj;
+            //        using (var response = await _httpClient.SendAsync(requestmessage, HttpCompletionOption.ResponseHeadersRead))
+            //        {
+            //            response.EnsureSuccessStatusCode();
+            //            var content = await response.Content.ReadAsStreamAsync();
+            //            return await JsonSerializer.DeserializeAsync<List<ActiveSurveillanceSessionDiseaseSampleTypeResponseModel>>(content, this.SerializationOptions);
+            //        }
+            //    }
+            //}
         }
 
         /// <summary>
@@ -341,6 +502,29 @@ namespace EIDSS.ClientLibrary.ApiClients.Human
                 }, cancellationToken);
 
             return response;
+            //using (MemoryStream ms = new MemoryStream())
+            //{
+            //    var url = string.Format(_eidssApiOptions.HumanActiveSurveillanceSessionSamplesListPath, _eidssApiOptions.BaseUrl);
+            //    var aj = new MediaTypeWithQualityHeaderValue("application/json");
+
+            //    await JsonSerializer.SerializeAsync(ms, request);
+            //    ms.Seek(0, SeekOrigin.Begin);
+
+            //    var requestmessage = new HttpRequestMessage(HttpMethod.Post, url);
+            //    requestmessage.Headers.Accept.Add(aj);
+
+            //    using (var requestContent = new StreamContent(ms))
+            //    {
+            //        requestmessage.Content = requestContent;
+            //        requestContent.Headers.ContentType = aj;
+            //        using (var response = await _httpClient.SendAsync(requestmessage, HttpCompletionOption.ResponseHeadersRead))
+            //        {
+            //            response.EnsureSuccessStatusCode();
+            //            var content = await response.Content.ReadAsStreamAsync();
+            //            return await JsonSerializer.DeserializeAsync<List<ActiveSurveillanceSessionSamplesResponseModel>>(content, this.SerializationOptions);
+            //        }
+            //    }
+            //}
         }
 
         /// <summary>
@@ -365,6 +549,29 @@ namespace EIDSS.ClientLibrary.ApiClients.Human
                 }, cancellationToken);
 
             return response;
+            //using (MemoryStream ms = new MemoryStream())
+            //{
+            //    var url = string.Format(_eidssApiOptions.GetHumanActiveSurveillanceDiseaseReportsListAsyncPath, _eidssApiOptions.BaseUrl);
+            //    var aj = new MediaTypeWithQualityHeaderValue("application/json");
+
+            //    await JsonSerializer.SerializeAsync(ms, request);
+            //    ms.Seek(0, SeekOrigin.Begin);
+
+            //    var requestmessage = new HttpRequestMessage(HttpMethod.Post, url);
+            //    requestmessage.Headers.Accept.Add(aj);
+
+            //    using (var requestContent = new StreamContent(ms))
+            //    {
+            //        requestmessage.Content = requestContent;
+            //        requestContent.Headers.ContentType = aj;
+            //        using (var response = await _httpClient.SendAsync(requestmessage, HttpCompletionOption.ResponseHeadersRead))
+            //        {
+            //            response.EnsureSuccessStatusCode();
+            //            var content = await response.Content.ReadAsStreamAsync();
+            //            return await JsonSerializer.DeserializeAsync<List<ActiveSurveillanceSessionDiseaseReportsResponseModel>>(content, this.SerializationOptions);
+            //        }
+            //    }
+            //}
         }
     }
 }

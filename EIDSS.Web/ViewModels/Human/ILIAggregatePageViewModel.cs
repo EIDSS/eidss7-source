@@ -23,20 +23,12 @@ namespace EIDSS.Web.ViewModels.Human
         public string LegacyFormID { get; set; }
 
         [DisplayName("Weeks From")]
-        //[LocalizedRequired]
-        //[LocalizedDateLessThanOrEqualToToday]
         [DateComparer(nameof(WeeksFrom),nameof(WeeksFrom), nameof(WeeksTo), nameof(WeeksTo), CompareTypeEnum.LessThanOrEqualTo,nameof(FieldLabelResourceKeyConstants.SearchILIAggregateWeeksFromFieldLabel),nameof(FieldLabelResourceKeyConstants.SearchILIAggregateWeeksToFieldLabel))]
         
-        //[DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? WeeksFrom { get; set; }
 
         [DisplayName("Weeks To")]
-        //[LocalizedRequired]
-        //[LocalizedDateLessThanOrEqualToToday]
         [DateComparer(nameof(WeeksTo), nameof(WeeksTo), nameof(WeeksFrom), nameof(WeeksFrom), CompareTypeEnum.GreaterThanOrEqualTo, nameof(FieldLabelResourceKeyConstants.SearchILIAggregateWeeksToFieldLabel), nameof(FieldLabelResourceKeyConstants.SearchILIAggregateWeeksFromFieldLabel))]
-
-        //[IntegerComparer(nameof(WeeksTo), nameof(WeeksFrom), CompareTypeEnum.GreaterThanOrEqualTo, nameof(MessageResourceKeyConstants.ReportsYearSelectedInToFilterShallBeGreaterThanYearSelectedInFromFilterYearsMessage))]
-        //[DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? WeeksTo { get; set; }
         
         public List<OrganizationGetListViewModel> HospitalList { get; set; }

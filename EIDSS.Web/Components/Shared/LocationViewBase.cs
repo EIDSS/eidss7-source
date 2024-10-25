@@ -34,8 +34,6 @@ namespace EIDSS.Web.Components.Shared
     public class LocationViewBase : BaseComponent, IDisposable
     {
     
-        #region Dependency Injection
-
         [Inject] private ICrossCuttingClient CrossCuttingClient { get; set; }
 
         [Inject] private ISettlementClient SettlementClient { get; set; }
@@ -48,22 +46,16 @@ namespace EIDSS.Web.Components.Shared
 
         [Inject] DialogService DialogService { get; set; }
 
-        #endregion Dependency Injection
-
-        #region Parameters
-
         [Parameter] public EventCallback<LocationViewModel> LocationViewModelChanged { get; set; }
 
         [Parameter] public LocationViewModel ParmLocationViewModel { get; set; }
+        
+        [Parameter] public bool IsValidationRequired { get; set; } = true;
 
         [Inject]
         private IAdministrativeUnitsClient AdministrativeUnitsClient { get; set; }
 
         [Parameter] public bool Refresh { get; set; } = false;
-
-        #endregion Parameaters
-
-        #region Properties
 
         protected bool ShowAddStreet { get; set; } = true;
         protected bool ShowAddPostalCode { get; set; } = true;
@@ -79,10 +71,6 @@ namespace EIDSS.Web.Components.Shared
         protected List<GisLocationLevelModel> LocationControlLevels { get; set; }
         protected List<GisLocationCurrentLevelModel> CountryList { get; set; }
 
-        #endregion Properties
-
-        #region Member Variables
-
         private string _photonUrl;
         private string _defaultPhotonUrl;
         private float lat;
@@ -95,51 +83,13 @@ namespace EIDSS.Web.Components.Shared
         private int AdminHierarchyLevel;
         private int DetailAdminHierarchyLevel;
         private DrawHandler _drawHandler;
-        private readonly LatLng _markerLatLng = new() { Lat = 47.5574007f, Lng = 16.3918687f };
         private JsInteropClasses jsClass;
-
-        #endregion Member Variables
-
-        #region Methods
-
-        #region Lifecycle Methods
 
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
 
             jsClass = new(JsRuntime);
-
-            //var marker = new Marker(_markerLatLng)
-            //{
-            //    Draggable = false,
-            //    Title = "Marker 1",
-            //    Popup = new Popup { Content = string.Format("I am at {0:0.00}° lat, {1:0.00}° lng", _markerLatLng.Lat, _markerLatLng.Lng) },
-            //    Tooltip = new Leaflet.Models.Tooltip { Content = "Click and drag to move me" }
-            //};
-
-            //_map = new Map(JsRuntime)
-            //{
-            //    Center = _markerLatLng,
-            //    Zoom = 4.8f
-            //};
-
-            //_map.OnInitialized += () =>
-            //{
-            //    _map.AddLayer(new TileLayer
-            //    {
-            //        UrlTemplate = "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            //        Attribution = "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
-            //    });
-
-            //    _map.AddLayer(marker);
-            //};
-
-            //_drawHandler = new DrawHandler(_map, JsRuntime);
-
-            //marker.OnMove += OnDrag;
-            //marker.OnMoveEnd += OnDragEnd;
-
 
             _logger = Logger;
             SelectedBottomLevelList = null;
@@ -151,35 +101,17 @@ namespace EIDSS.Web.Components.Shared
             token = source.Token;
 
             authenticatedUser = _tokenService.GetAuthenticatedUser();
-            //LocationViewModel = ParmLocationViewModel;
             if (ParmLocationViewModel != null)
             {
                 LocationViewModel = ParmLocationViewModel;
                 await InitializeAsync();
             }
-            //initialize Control
-          //  await InitializeAsync();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (firstRender)
-            {
-
-                //var lDotNetReference = DotNetObjectReference.Create(this);
-                //await JsRuntime.InvokeVoidAsync("GLOBAL.SetDotnetReference", token, lDotNetReference);
-
-                //await JsRuntime.InvokeVoidAsync("addInputElement", "divPostalCode");
-            }
-
             await base.OnAfterRenderAsync(firstRender);
         }
-
-        //protected override async Task OnParametersSetAsync()
-        //{
-          
-        //    await base.OnParametersSetAsync();
-        //}
 
         public async Task RefreshComponent(LocationViewModel locationViewModel)
         {
@@ -196,10 +128,6 @@ namespace EIDSS.Web.Components.Shared
             source?.Dispose();
             jsClass?.Dispose();
         }
-
-        #endregion
-
-        #region Protected Methods and Delegates
 
         private async Task InitializeAsync()
         {
@@ -220,12 +148,9 @@ namespace EIDSS.Web.Components.Shared
                 await SetupLocationHierarchyAsync();
 
                 await PopulateDataAsync();
-
             }
         }
-
    
-        //Setting up the Location Level Hierarchy
         private async Task SetupLocationHierarchyAsync()
         {
             LocationControlLevels ??= await CrossCuttingClient.GetGisLocationLevels(GetCurrentLanguage());
@@ -321,11 +246,8 @@ namespace EIDSS.Web.Components.Shared
             await FillAdminLevel6();
             await FillStreetAsync();
             await FillPostalCode();
-
-            //await RefreshAtAdminLevel0();
         }
 
-        //Fill Admin Level0 and Enable/Disable based on parameter properties
         protected async Task FillAdminLevel0()
         {
             if (LocationViewModel.AdminLevel0Value != null)
@@ -333,8 +255,6 @@ namespace EIDSS.Web.Components.Shared
                 CountryList ??= await CrossCuttingClient.GetGisLocationCurrentLevel(GetCurrentLanguage(), 0,true);
                 if (CountryList != null)
                 {
-                    var filteredCountryList =
-                        CountryList.Where(l => l.strHASC != null).OrderBy(l => l.strHASC).ToList();
                     LocationViewModel.AdminLevel0List = CountryList;
 
                     LocationViewModel.AdminLevel0Text = LocationViewModel.AdminLevel0List
@@ -718,10 +638,6 @@ namespace EIDSS.Web.Components.Shared
                     else if (LocationViewModel.Settlement != null)
                         LocationViewModel.AdminLevel3Value = LocationViewModel.Settlement;
 
-                    //LocationViewModel.AdminLevel3LevelType =
-                    //    LocationViewModel.AdminLevel3List.FirstOrDefault(l => l.LevelType != null) != null
-                    //        ? LocationViewModel.AdminLevel3List.FirstOrDefault(l => l.LevelType != null)?.LevelType
-                    //        : null;
                     if (LocationViewModel.AdminLevel3List != null)
                     {
                         LocationViewModel.BottomAdminLevel = LocationViewModel.AdminLevel3Value;
@@ -775,8 +691,6 @@ namespace EIDSS.Web.Components.Shared
                     LocationViewModel.BottomAdminLevel = LocationViewModel.AdminLevel3Value;
                     SelectedBottomLevelList = LocationViewModel.AdminLevel3List;
                     SelectedBottomLevelNumber = 3;
-                    //await UpdateSettlementTypeAsync(LocationViewModel.AdminLevel3List,
-                    //    LocationViewModel.AdminLevel3Value);
                     RefreshAtBottom();
                     await FillStreetAsync();
                     await FillPostalCode();
@@ -1016,8 +930,11 @@ namespace EIDSS.Web.Components.Shared
                 LocationViewModel.PostalCodeList = new List<PostalCodeViewModel>();
                 LocationViewModel.PostalCodeText = null;
                 LocationViewModel.EnablePostalCode = false;
+                LocationViewModel.Apartment = null;
                 LocationViewModel.EnableApartment = false;
+                LocationViewModel.Building = null;
                 LocationViewModel.EnableBuilding = false;
+                LocationViewModel.House = null;
                 LocationViewModel.EnableHouse = false;
                 LocationViewModel.EnableSettlementType = false;
                 LocationViewModel.SettlementType = null;
@@ -1028,8 +945,6 @@ namespace EIDSS.Web.Components.Shared
         {
             LocationViewModel.BottomAdminLevel = null;
             LocationViewModel.AdminLevel3Value = null;
-            //if (SelectedBottomLevelList != null)
-            //{
             switch (SelectedBottomLevelNumber)
                 {
                     case 0:
@@ -1044,12 +959,6 @@ namespace EIDSS.Web.Components.Shared
                             filteredSettlementList = SelectedBottomLevelList
                                 .Where(s => s.LevelType == LocationViewModel.SettlementType).ToList();
                         LocationViewModel.AdminLevel3List = filteredSettlementList;
-                        //if (LocationViewModel.SettlementType == null)
-                            
-
-                        //LocationViewModel.AdminLevel3List.Insert(0,
-                        //    new GisLocationChildLevelModel
-                        //    { idfsReference = null, idfsGISReferenceType = null, Name = "" });
                         if (DetailAdminHierarchyLevel ==0)
                         { 
                             await UpdateSettlementTypeAsync(filteredSettlementList, LocationViewModel.AdminLevel2Value);
@@ -1063,11 +972,6 @@ namespace EIDSS.Web.Components.Shared
                     case 6:
                         break;
                 }
-            //}
-            //else
-            //{
-            //    //LocationViewModel.SettlementType
-            //}
         }
 
         protected async Task FillSettlementType()
@@ -1161,14 +1065,12 @@ namespace EIDSS.Web.Components.Shared
                 else
                 {
                     LocationViewModel.SettlementType = null;
-                    //LocationViewModel.DivSettlementType = false;
                     LocationViewModel.EnableSettlementType = false;
                 }
             }
             else
             {
                 LocationViewModel.SettlementType = null;
-                //LocationViewModel.DivSettlementType = false;
                 LocationViewModel.EnableSettlementType = false;
 
             }
@@ -1208,17 +1110,6 @@ namespace EIDSS.Web.Components.Shared
 
         protected void OnBlur(MouseEventArgs args)
         {
-        }
-
-        protected Task OnFilterKeyPress(KeyboardEventArgs args)
-        {
-            var key = args.Code ?? args.Key;
-            if (args.Key == "Enter")
-            {
-                //call login or what ever you want when user pressed Enter
-            }
-
-            return Task.CompletedTask;
         }
 
         protected  async Task AddStreet()
@@ -1282,8 +1173,6 @@ namespace EIDSS.Web.Components.Shared
 
             if (!string.IsNullOrEmpty(args.Filter))
             {
-                //SelectedStreet = args.Filter;
-                //query = query.Where(c => c.StreetName.ToLower()== args.Filter.ToLower()).ToList();
                query = query.Where(c => c.StreetName.ToLower().Contains(args.Filter.ToLower())).ToList();
 
                 if (query.Count ==0 )
@@ -1374,7 +1263,6 @@ namespace EIDSS.Web.Components.Shared
                 if (!LocationViewModel.AlwaysDisabled)
                     LocationViewModel.EnableStreet = true;
 
-                // LocationViewModel.EnableStreet = true; // Enable the street drop down even when no streets exist in case the user wants to add a new street.
                 LocationViewModel.StreetText ??= null;
             }
             else
@@ -1448,14 +1336,7 @@ namespace EIDSS.Web.Components.Shared
                 if (LocationViewModel.AdminLevel3Value != null)
                 {
                     request.idfsAdminLevel = (long)AdministrativeLevelReferenceIds.AdminLevel3Id;
-                    if (checkForParentLevel)
-                    {
-                        //request.idfsSettlement = null;
-                        //request.idfsAdminLevel = (long)AdministrativeLevelReferenceIds.AdminLevel2Id;
-                    }
-                    //request.idfsCountry = LocationViewModel.AdminLevel0Value;
-                    //request.idfsRegion = LocationViewModel.AdminLevel1Value;
-                    //request.idfsRayon = LocationViewModel.AdminLevel2Value;
+
                 } else if (LocationViewModel.AdminLevel2Value != null)
                 {
                     request.idfsAdminLevel = (long)AdministrativeLevelReferenceIds.AdminLevel2Id;
@@ -1520,46 +1401,6 @@ namespace EIDSS.Web.Components.Shared
             }
 
            
-        }
-
-        protected async Task OnLongitudeChange(object value)
-        {
-            //var longitude = (double?)value;
-
-            //if(longitude is not null && longitude >= 180)
-            //{
-            //    LocationViewModel.Longitude = 180;
-            //}
-            //else if(longitude is not null && longitude <= -180)
-            //{
-            //    LocationViewModel.Longitude = -180;
-            //}
-            //else
-            //{
-            //    LocationViewModel.Longitude = longitude;
-            //}
-            
-            //await InvokeAsync(StateHasChanged);
-        }
-
-        protected async Task OnLatitudeChange(object value)
-        {
-            //var latitude = (double?)value;
-
-            //if (latitude is not null && latitude >= 85)
-            //{
-            //    LocationViewModel.Latitude = 85;
-            //}
-            //else if (latitude is not null && latitude <= -85)
-            //{
-            //    LocationViewModel.Latitude = -85;
-            //}
-            //else
-            //{
-            //    LocationViewModel.Latitude = latitude;
-            //}
-
-            await InvokeAsync(StateHasChanged);
         }
 
         private async Task SetMapUrl()
@@ -1702,7 +1543,6 @@ namespace EIDSS.Web.Components.Shared
             }
             else
             {
-                // Reverse look up by latitude and longitude
                 zoom = "12";
                 if (LocationViewModel.Longitude != null)
                     if (LocationViewModel.Latitude != null)
@@ -1724,55 +1564,7 @@ namespace EIDSS.Web.Components.Shared
         {
             var zoom = "";
 
-            // Look up by location.
             var query = $"{LocationViewModel.LeafletAPIUrl}api/?q=";
-            //if (LocationViewModel.AdminLevel3Value != null)
-            //    if (LocationViewModel.AdminLevel3List.FirstOrDefault(a =>
-            //            a.idfsReference == LocationViewModel.AdminLevel3Value) != null)
-            //    {
-            //        LocationViewModel.AdminLevel3Text = LocationViewModel.AdminLevel3List
-            //            .FirstOrDefault(a => a.idfsReference == LocationViewModel.AdminLevel3Value)
-            //            ?.Name;
-            //        query += LocationViewModel.AdminLevel3Text;
-            //        zoom = "12";
-            //    }
-
-            //if (LocationViewModel.AdminLevel3Value != null)
-            //    if (LocationViewModel.AdminLevel2List.FirstOrDefault(a =>
-            //            a.idfsReference == LocationViewModel.AdminLevel2Value) != null)
-            //    {
-            //        LocationViewModel.AdminLevel2Text = LocationViewModel.AdminLevel2List
-            //            .FirstOrDefault(a => a.idfsReference == LocationViewModel.AdminLevel2Value)
-            //            ?.Name;
-            //        if (query != "")
-            //            query += "+";
-
-            //        query += LocationViewModel.AdminLevel2Text;
-
-            //        if (zoom == "")
-            //            zoom = "10";
-            //    }
-
-            //if (LocationViewModel.AdminLevel1Value != null)
-            //    if (LocationViewModel.AdminLevel1List.FirstOrDefault(a =>
-            //            a.idfsReference == LocationViewModel.AdminLevel1Value) != null)
-            //    {
-            //        LocationViewModel.AdminLevel1Text = LocationViewModel.AdminLevel1List
-            //            .FirstOrDefault(a => a.idfsReference == LocationViewModel.AdminLevel1Value)
-            //            ?.Name;
-            //        // Do not include "Other Rayons" as the mapping API will not recognize it.
-            //        if (LocationViewModel.AdminLevel1Text?.ToLower() != OTHER_RAYONS)
-            //        {
-            //            if (query != "")
-            //                query += "+";
-
-            //            query += LocationViewModel.AdminLevel1Text;
-
-            //            if (zoom == "")
-            //                zoom = "8";
-            //        }
-            //    }
-
             if (query == $"{LocationViewModel.LeafletAPIUrl}api/?q=")
                 if (LocationViewModel.AdminLevel0Value != null)
                 {
@@ -1782,8 +1574,6 @@ namespace EIDSS.Web.Components.Shared
                     query += LocationViewModel.AdminLevel0Text + "&osm_tag=place:country&zoom=16&location_bias_scale=0.5";
                     zoom = "8";
                 }
-
-            // Close out JavaScript variable for query and add the zoom variable.
 
             _defaultPhotonUrl = query;
             LocationViewModel.Zoom = zoom;
@@ -1802,11 +1592,7 @@ namespace EIDSS.Web.Components.Shared
             _photonUrl = LocationViewModel.MapUrl;
             
             
-             var flag = await JsRuntime.InvokeAsync<bool>("GetLatLongForLeaflet", token, _photonUrl, _defaultPhotonUrl, lat, lan, DotNetObjectReference.Create(this));
-
-            //var response= await Http.GetAsync(_photonUrl).hea;
-
-            //var result = await jsClass.GetLatLongForLeaflet(_photonUrl,js);
+             await JsRuntime.InvokeAsync<bool>("GetLatLongForLeaflet", token, _photonUrl, _defaultPhotonUrl, lat, lan, DotNetObjectReference.Create(this));
         }
 
         [JSInvokable]
@@ -1821,11 +1607,7 @@ namespace EIDSS.Web.Components.Shared
                 { "UpdateLatLong", UpdateLatLongHandler }
             };
 
-            //LocationViewModel.Latitude = _latLong.lat;
-            //LocationViewModel.Longitude = _latLong.lon;
             await InvokeAsync(StateHasChanged);
-
-            //await DiagService.OpenAsync<EIDSS.Web.Components.Leaflet.LeafletMapBase>("Show Map", dialogParams);
 
             await DiagService.OpenAsync<LeafletMap>(Localizer.GetString(HeadingResourceKeyConstants.LocationSetLocationHeading), 
                 dialogParams, new DialogOptions() { Width = "650px", Resizable = false, Draggable = false });
@@ -1855,9 +1637,5 @@ namespace EIDSS.Web.Components.Shared
             LocationViewModel.EnableAdminLevel3 = false;
             await InvokeAsync(StateHasChanged);
         }
-
-        #endregion
-
-        #endregion 
     }
 }

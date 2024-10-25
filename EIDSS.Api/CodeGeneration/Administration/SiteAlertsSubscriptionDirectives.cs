@@ -27,4 +27,19 @@ using EIDSS.Api.CodeGeneration.Control;
 
 namespace EIDSS.Api.CodeGeneration.Administration
 {
+    //public class GetSiteAlertsSubscriptionList : ICodeGenDirective
+    //{
+    //    public string APIClassName { get => TargetedClassNames.SiteAlertsSubscriptionController; }
+
+    //    public string APIGroupName => "Administration - Site Alert Subscription";
+
+    //    public Type APIReturnType { get => typeof(EventSubscriptionTypeModel[]); }
+
+    //    public string MethodParameters { get => "EventSubscriptionGetRequestModel request, CancellationToken cancellationToken = default"; }
+
+    //    public APIMethodVerbEnumeration MethodVerb { get => APIMethodVerbEnumeration.GET_USING_POST_VERB; }
+
+    //    public Type RepositoryReturnType { get => typeof(USP_CONF_GetEventSubcriptionTypes_GETResult[]); }
+    //    public string SummaryInfo => "";
+    //}
 }

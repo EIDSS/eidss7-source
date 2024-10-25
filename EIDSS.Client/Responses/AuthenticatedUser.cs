@@ -78,6 +78,10 @@ namespace EIDSS.ClientLibrary.Responses
         /// </summary>
         [DataMember]
         public virtual string Institution { get; internal set; }
+        //{
+        //    get => _institution;
+        //    private set => SetInstitution(value);
+        //}
 
         /// <summary>       
         /// Date and time the token was issued in universal time (GMT).
@@ -266,6 +270,8 @@ namespace EIDSS.ClientLibrary.Responses
                  select perms).FirstOrDefault();
 
 
+            //Permission result = Claims.Find(item =>
+            //item.PermissionType.ToLower().Replace(" ","") == permissionType.ToLower().Replace(" ",""));
             return result;
         }
 
@@ -311,6 +317,14 @@ namespace EIDSS.ClientLibrary.Responses
              Preferences =new UserPreferences(userConfigurationService);
         }
 
+        ///// <summary>
+        ///// Returns an instance of the EIDSSAuthenticatedUser class.
+        ///// </summary>
+        ///// <returns></returns>
+        //public EIDSSAuthenticatedUser Instance()
+        //{
+        //    return new EIDSSAuthenticatedUser();
+        //}
 
         /// <summary>
         /// Returns the entire list of the logged in user's permissions.
@@ -351,6 +365,7 @@ namespace EIDSS.ClientLibrary.Responses
             var ret = RoleMembership.Where(a => a.Replace(" ", string.Empty).ToLower() == r);
 
             return !(ret == null || ret.Count() == 0);
+            //return RoleMembership.Any(a => a.ToLower() == role.ToEnumString().ToLower());
         }
 
         /// <summary>

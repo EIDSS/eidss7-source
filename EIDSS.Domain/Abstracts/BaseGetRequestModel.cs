@@ -16,6 +16,7 @@ namespace EIDSS.Domain.Abstracts
         /// <summary>
         /// An ISO 639-1/2 or a combination of ISO 639-1/2 and a valid Country Code, i.e., en or eng or en-US or eng-US
         /// </summary>
+        //[Required]
         [MapToParameter(new string[] { "langID", "languageId", "LanguageID", "LangID" })]
         public string LanguageId { get; set; }
 

@@ -12,10 +12,18 @@
 namespace EIDSS.CodeGenerator
 {
 
+    //[Generator]
     public class AuditClassGenerator : ISourceGenerator
     {
         public void Execute(GeneratorExecutionContext context)
         {
+
+            //#if DEBUG
+            //            if (!Debugger.IsAttached)
+            //            {
+            //                Debugger.Launch();
+            //            }
+            //#endif
             string auditcolumn = string.Empty;
             string audittablename = string.Empty;
             string columnname = string.Empty;
@@ -163,9 +171,12 @@ namespace EIDSS.Repository.Auditing
             catch (Exception ex)
             {
                 var msg = ex.Message;
+                // Eat it...               var msg = ex.Message;
                 if (ex.InnerException != null) msg += " " + ex.InnerException.Message;
                 msg += " Error occurred while generating method {0} for API Client Class {1}. Parms:  FileName: {2}, ReturnType:{3}, MethodParameters: {4}, Stack Trace:{5}";
                 throw new Exception(msg);
+            //    context.ReportDiagnostic(Diagnostic.Create( 
+            //        new DiagnosticDescriptor("AUDITING-CODE-GEN001", "Generation Error", msg, "Error", DiagnosticSeverity.Error, false),null,null));
             }
             modelidx = -1;
         }
@@ -176,8 +187,20 @@ namespace EIDSS.Repository.Auditing
     }
 
 
+    //class ClientGenConstants
+    //{
+    //    public string ClientClassName { get; set; }
+    //    public string MethodName { get; set; }
+    //    public string MethodParms { get; set; }
+    //    public string MethodVerb { get; set; }
+    //    public string ReturnType { get; set; }
+    //    public string SummaryInfo { get; set; }
+    //    public string URL { get; set; }
+
+    //}
     class AuditSourceSourceController
     {
+        //public StringBuilder InterfaceMembers { get; set; } = new StringBuilder();
         public StringBuilder Source { get; set; } = new StringBuilder();
         public string FileName { get; set; }
     }

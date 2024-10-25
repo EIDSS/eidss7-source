@@ -1,20 +1,16 @@
-﻿using System;
-using EIDSS.Domain.Abstracts;
-using EIDSS.Domain.Attributes;
-using System.ComponentModel.DataAnnotations;
+﻿using EIDSS.Domain.Attributes;
 using EIDSS.Domain.Enumerations;
+using System;
 
 namespace EIDSS.Domain.RequestModels.Human
 {
-    [DataUpdateType(Enumerations.DataUpdateTypeEnum.Update,DataAuditObjectTypeEnum.HumanCase)]
+    [DataUpdateType(DataUpdateTypeEnum.Update, DataAuditObjectTypeEnum.HumanCase)]
     public class HumanSetDiseaseReportRequestModel
     {
- 
+
         public string LanguageID { get; set; }
 
         public long? idfHumanCase { get; set; }
-
-        public long? idfHumanCaseRelatedTo { get; set; }
 
         public long? idfHuman { get; set; }
 
@@ -134,6 +130,8 @@ namespace EIDSS.Domain.RequestModels.Human
 
         public long? idfsOutcome { get; set; }
 
+        public DateTime? DateOfBirth { get; set; }
+
         public DateTime? datDateofDeath { get; set; }
 
         public long? idfsCaseProgressStatus { get; set; }
@@ -204,5 +202,11 @@ namespace EIDSS.Domain.RequestModels.Human
         private DateTime DateEntered { get; } = DateTime.Now;
 
         private DateTime DateModified { get; } = DateTime.Now;
+
+        public long? DiseaseId { get; set; }
+        public DateTime? DateOfDiagnosis { get; set; }
+        public long? ChangedDiseaseId { get; set; }
+        public DateTime? DateOfChangedDiagnosis { get; set; }
+        public long? ChangeDiagnosisReasonId { get; set; }
     }
 }

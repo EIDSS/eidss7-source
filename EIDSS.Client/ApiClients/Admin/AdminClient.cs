@@ -382,6 +382,7 @@ namespace EIDSS.ClientLibrary.ApiClients.Admin
                 AdvancedSearch = advancedSearch
             };
 
+            //var request = "{'AdvancedSearch': null,'IdfsReferenceType': 19000110,'LanguageId':'en','Page': 0,'PageSize': 10,'SortColumn': 'IntOrder','SortOrder': 'desc'}";
             try
             {
 
@@ -389,6 +390,7 @@ namespace EIDSS.ClientLibrary.ApiClients.Admin
                 var sc = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
                 // new c# string concatenation...
+                //var url = $"{_eidssApiOptions.BaseUrl}{_eidssApiOptions.GetBaseReferenceListPath}";
                 var url = string.Format(_eidssApiOptions.GetBaseReferenceListPath, _eidssApiOptions.BaseUrl);
                 // new using statement...
                 var httpResponse = await _httpClient.PostAsync(url, sc);
@@ -471,6 +473,7 @@ namespace EIDSS.ClientLibrary.ApiClients.Admin
             {
                 var sc = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
                 // new c# string concatenation...
+                //var url = $"{_eidssApiOptions.BaseUrl}{_eidssApiOptions.GetBaseReferenceListPath}";
                 var url = string.Format(_eidssApiOptions.GetAgeGroupListPath, _eidssApiOptions.BaseUrl);
                 // new using statement...
                 var httpResponse = await _httpClient.PostAsync(url, sc);

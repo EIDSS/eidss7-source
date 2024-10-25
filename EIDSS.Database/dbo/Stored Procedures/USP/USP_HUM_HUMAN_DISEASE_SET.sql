@@ -91,7 +91,6 @@ CREATE PROCEDURE [dbo].[USP_HUM_HUMAN_DISEASE_SET]
 (
     @LanguageID NVARCHAR(50),
     @idfHumanCase BIGINT = NULL,                          -- tlbHumanCase.idfHumanCase Primary Key
-    @idfHumanCaseRelatedTo BIGINT = NULL,
     @idfHuman BIGINT = NULL,                              -- tlbHumanCase.idfHuman
     @idfHumanActual BIGINT,                               -- tlbHumanActual.idfHumanActual
     @strHumanCaseId NVARCHAR(200) = '(new)',
@@ -152,7 +151,8 @@ CREATE PROCEDURE [dbo].[USP_HUM_HUMAN_DISEASE_SET]
     @strNote NVARCHAR(MAX) = NULL,                        --tlbhumancase.strNote
     @idfsFinalCaseStatus BIGINT = NULL,                   --tlbHuanCase.idfsFinalCaseStatus 
     @idfsOutcome BIGINT = NULL,                           -- --tlbHumanCase.idfsOutcome 
-    @datDateofDeath DATETIME = NULL,                      -- tlbHumanCase.datDateOfDeath 
+	@DateOfBirth DATETIME = NULL,
+    @datDateofDeath DATETIME = NULL,
     @idfsCaseProgressStatus BIGINT = 10109001,            --	tlbHumanCase.reportStatus, default = In-process
     @idfPersonEnteredBy BIGINT = NULL,
     @strClinicalNotes NVARCHAR(2000) = NULL,
@@ -184,7 +184,12 @@ CREATE PROCEDURE [dbo].[USP_HUM_HUMAN_DISEASE_SET]
     @idfsSite BIGINT = NULL,
     @AuditUser NVARCHAR(100) = '',
     @idfParentMonitoringSession BIGINT = NULL,
-    @ConnectedTestId BIGINT = NULL
+    @ConnectedTestId BIGINT = NULL,
+    @DiseaseId BIGINT = NULL,
+    @DateOfDiagnosis DATETIME = NULL,
+    @ChangedDiseaseId BIGINT = NULL,
+    @DateOfChangedDiagnosis DATETIME = NULL,
+    @ChangeDiagnosisReasonId BIGINT = NULL
 )
 AS
 DECLARE @ReturnCode INT = 0,
@@ -258,20 +263,22 @@ DECLARE @ReturnCode INT = 0,
         @ActionStatusTypeID BIGINT,
         @ActionDate DATETIME = NULL,
         @Comments NVARCHAR(500) = NULL,
-        @DiseaseID BIGINT,
+        @CurrentDiseaseID BIGINT,
         @idfMonitoringSessionToDiagnosis BIGINT,
         @DateEntered DATETIME = GETDATE(),
         @idfMaterial BIGINT,
                                                                               -- Data audit
         @AuditUserID BIGINT = NULL,
         @AuditSiteID BIGINT = NULL,
+        @AuditPersonID BIGINT = NULL,
         @DataAuditEventID BIGINT = NULL,
         @DataAuditEventTypeID BIGINT = NULL,
         @ObjectTypeID BIGINT = 10017078,                                      -- Human disease report
         @ObjectID BIGINT = @idfHumanCase,
         @ObjectTableID BIGINT = 75610000000,                                  -- tlbHumanCase
-        @ObjectHumanDiseaseReportRelationshipTableID BIGINT = 53577790000000, -- HumanDiseaseReportRelationship
-        @ObjectObservationTableID BIGINT = 75640000000;                       -- tlbObservation
+        @ObjectObservationTableID BIGINT = 75640000000,                       -- tlbObservation
+        @ObjectChangeDiagnosisHistoryTableID BIGINT = 706820000000;			  -- tlbChangeDiagnosisHistory
+
 -- End data audit
 DECLARE @SamplesTemp TABLE
 (
@@ -531,6 +538,11 @@ DECLARE @ActivityParameters TABLE
 );
 BEGIN
     BEGIN TRY
+		IF @DiseaseId IS NULL
+			set @DiseaseId = @idfsFinalDiagnosis
+		IF @DateOfDiagnosis IS NULL
+			set	@DateOfDiagnosis = @datDateOfDiagnosis
+
         SET @AuditUser = ISNULL(@AuditUser, '');
 
         SET @SamplesParameters = REPLACE(@SamplesParameters, '"0001-01-01T00:00:00"', 'null')
@@ -643,10 +655,12 @@ BEGIN
         BEGIN TRANSACTION
 
         -- Data audit
-        -- Get and set user and site identifiers
-        SELECT @AuditUserID = userInfo.UserId,
-               @AuditSiteID = userInfo.SiteId
-        FROM dbo.FN_UserSiteInformation(@AuditUser) userInfo;
+        -- Get and set user, person and site identifiers
+        SELECT @AuditUserID		= userInfo.UserId,
+               @AuditSiteID		= userInfo.SiteId,
+			   @AuditPersonID	= userInfo.PersonId
+        FROM dbo.FN_UserSiteInformation(@AuditUser) userInfo
+		JOIN dbo.tstUserTable ut ON ut.idfUserID = userInfo.UserId
         -- End data audit
 
         IF @idfHumanCase IS NULL
@@ -683,10 +697,7 @@ BEGIN
                                               @DataAuditEventID OUTPUT;
         -- End data audit
 
-        SET @DiseaseID = @idfsFinalDiagnosis;
-
-        DECLARE @HumanDiseasereportRelnUID BIGINT,
-                @COPYHUMANACTUALTOHUMAN_ReturnCode INT = 0;
+        SET @CurrentDiseaseID = ISNULL(@ChangedDiseaseId, @DiseaseId);
 
         -- Create a human record from human actual if not already present
         IF @idfHumanActual IS NOT NULL -- AND @idfHumanCase IS  NULL
@@ -765,8 +776,10 @@ BEGIN
                 idfHumanCase,
                 idfHuman,
                 strCaseId,
+		idfsTentativeDiagnosis,
                 idfsFinalDiagnosis,
                 datTentativeDiagnosisDate,
+		datFinalDiagnosisDate,
                 datNotIFicationDate,
                 idfsFinalState,
                 strLocalIdentifier,
@@ -836,8 +849,10 @@ BEGIN
             (   @idfHumanCase,
                 @idfHuman,
                 @strHumanCaseId,
-                @idfsFinalDiagnosis,
-                @datDateOfDiagnosis,
+                @DiseaseId,
+                @ChangedDiseaseId,
+                @DateOfDiagnosis,
+                @DateOfChangedDiagnosis,
                 @datNotificationDate,
                 @idfsFinalState,
                 @strLocalIdentifier,
@@ -952,84 +967,6 @@ BEGIN
             WHERE idfObjectDetail = @idfEpiObservation
                   AND idfDataAuditEvent IS NULL;
             -- End data audit
-
-            DECLARE @RelatedToRoot BIGINT;
-
-            IF @idfHumanCaseRelatedTo IS NOT NULL
-            BEGIN
-                -- Establish the root
-                IF NOT EXISTS
-                (
-                    SELECT *
-                    FROM dbo.HumanDiseaseReportRelationship
-                    WHERE (HumanDiseaseReportID = @idfHumanCaseRelatedTo)
-                          AND (RelatedToHumanDiseaseReportIdRoot IS NOT NULL)
-                          AND (intRowStatus = 0)
-                )
-                BEGIN
-                    SET @RelatedToRoot = @idfHumanCaseRelatedTo;
-                END
-                ELSE
-                BEGIN
-                    SELECT @RelatedToRoot = RelatedToHumanDiseaseReportIdRoot
-                    FROM dbo.HumanDiseaseReportRelationship
-                    WHERE (HumanDiseaseReportID = @idfHumanCaseRelatedTo)
-                          AND (RelatedToHumanDiseaseReportIdRoot IS NOT NULL)
-                          AND (intRowStatus = 0);
-                END
-                -- End establishing the root
-
-                INSERT INTO @SuppressSelect
-                EXEC dbo.USP_GBL_NEXTKEYID_GET 'HumanDiseaseReportRelationship',
-                                               @HumanDiseasereportRelnUID OUTPUT;
-
-                INSERT INTO dbo.HumanDiseaseReportRelationship
-                (
-                    HumanDiseasereportRelnUID,
-                    HumanDiseaseReportID,
-                    RelateToHumanDiseaseReportID,
-                    RelatedToHumanDiseaseReportIdRoot,
-                    RelationshipTypeID,
-                    intRowStatus,
-                    AuditCreateUser,
-                    AuditCreateDTM,
-                    rowguid
-                )
-                VALUES
-                (   @HumanDiseasereportRelnUID,
-                    @idfHumanCase,
-                    @idfHumanCaseRelatedTo,
-                    @RelatedToRoot,
-                    10503001, -- Linked Copy Parent
-                    0,
-                    @AuditUser,
-                    GETDATE(),
-                    NEWID()
-                );
-
-                -- Data audit
-                INSERT INTO dbo.tauDataAuditDetailCreate
-                (
-                    idfDataAuditEvent,
-                    idfObjectTable,
-                    idfObject,
-                    SourceSystemNameID,
-                    SourceSystemKeyValue,
-                    AuditCreateUser, 
-                    strObject
-                )
-                VALUES
-                (@DataAuditEventID,
-                 @ObjectHumanDiseaseReportRelationshipTableID,
-                 @HumanDiseasereportRelnUID,
-                 10519001,
-                 '[{"idfDataAuditEvent":' + CAST(@DataAuditEventID AS NVARCHAR(300)) + ',"idfObjectTable":'
-                 + CAST(@ObjectHumanDiseaseReportRelationshipTableID AS NVARCHAR(300)) + '}]',
-                 @AuditUser, 
-                 @strHumanCaseId
-                );
-            -- End data audit
-            END
         END
         ELSE
         BEGIN
@@ -1181,10 +1118,10 @@ BEGIN
 
             UPDATE dbo.tlbHumanCase
             SET strCaseId = @strHumanCaseId,
-                idfsTentativeDiagnosis = @idfsFinalDiagnosis,
-                idfsFinalDiagnosis = @idfsFinalDiagnosis,
-                datTentativeDiagnosisDate = @datDateOfDiagnosis,
-                datFinalDiagnosisDate = @datDateOfDiagnosis,
+                idfsTentativeDiagnosis = @DiseaseId,
+                idfsFinalDiagnosis = @ChangedDiseaseId,
+                datTentativeDiagnosisDate = @DateOfDiagnosis,
+                datFinalDiagnosisDate = @DateOfChangedDiagnosis,
                 datNotIFicationDate = @datNotificationDate,
                 idfsFinalState = @idfsFinalState,
                 idfSentByOffice = @idfSentByOffice,
@@ -3742,6 +3679,70 @@ BEGIN
             WHERE idfObjectDetail = @idfEpiObservation
                   AND idfDataAuditEvent IS NULL;
         -- End data audit
+
+		-- Changed Diagnosis Reason
+			IF @ChangeDiagnosisReasonId IS NOT NULL
+			BEGIN
+				
+				DECLARE @idfChangeDiagnosisHistory BIGINT
+				-- Get next key value
+				INSERT INTO @SuppressSelect
+				EXEC dbo.USP_GBL_NEXTKEYID_GET 'tlbChangeDiagnosisHistory', @idfChangeDiagnosisHistory OUTPUT;
+
+				insert into	dbo.tlbChangeDiagnosisHistory
+				(	idfChangeDiagnosisHistory,
+					idfHumanCase,
+					idfPerson,
+					idfsPreviousDiagnosis,
+					idfsCurrentDiagnosis,
+					idfsChangeDiagnosisReason,
+					datChangedDate,
+					strReason,
+					intRowStatus,
+					SourceSystemKeyValue,
+					AuditCreateUser,
+					AuditCreateDTM
+				)
+				select		@idfChangeDiagnosisHistory,
+							hc_current.HumanDiseaseReportID,
+							@AuditPersonID,
+							hc_prev.FinalDiagnosisID,
+							hc_current.FinalDiagnosisID,
+							@ChangeDiagnosisReasonId,
+							cast(GETDATE() as date),
+							N'',
+							0,
+							'[{"idfChangeDiagnosisHistory":' + CAST(@idfChangeDiagnosisHistory AS NVARCHAR(300)) + '}]',
+							@AuditUser,
+							GETDATE()
+				from		@HumanDiseaseReportAfterEdit hc_current
+				left join	@HumanDiseaseReportBeforeEdit hc_prev
+				on			hc_prev.HumanDiseaseReportID = hc_current.HumanDiseaseReportID
+
+				-- Data audit
+				INSERT INTO dbo.tauDataAuditDetailCreate
+				(
+					idfDataAuditEvent,
+					idfObjectTable,
+					idfObject,
+					SourceSystemNameID,
+					SourceSystemKeyValue,
+					AuditCreateUser, 
+					strObject
+				)
+				VALUES
+				(@DataAuditEventID,
+				 @ObjectChangeDiagnosisHistoryTableID,
+				 @idfChangeDiagnosisHistory,
+				 10519001,
+				 '[{"idfDataAuditEvent":' + CAST(@DataAuditEventID AS NVARCHAR(300)) + ',"idfObjectTable":'
+				 + CAST(@ObjectChangeDiagnosisHistoryTableID AS NVARCHAR(300)) + ',"idfObject":'
+				 + CAST(@ObjectChangeDiagnosisHistoryTableID AS NVARCHAR(300)) + ',"idfObjectDetail":null}]',
+				 @AuditUser, 
+				 @strHumanCaseId
+				);
+
+			END
         END
 
         -- Set samples
@@ -3764,7 +3765,7 @@ BEGIN
                     @CurrentSiteID = CurrentSiteID,
                     @RowStatus = RowStatus,
                     @SentToOrganizationID = SentToOrganizationID,
-                    @DiseaseID = DiseaseID,
+                    @CurrentDiseaseID = DiseaseID,
                     @ReadOnlyIndicator = ReadOnlyIndicator,
                     @HumanID = HumanID,
                     @HumanMasterID = HumanMasterID,
@@ -3799,7 +3800,7 @@ BEGIN
                                                  @SampleStatusTypeID = @SampleStatusTypeID,
                                                  @Comments = @Comments,
                                                  @CurrentSiteID = @CurrentSiteID,
-                                                 @DiseaseID = @DiseaseID,
+                                                 @DiseaseID = @CurrentDiseaseID,
                                                  @BirdStatusTypeID = NULL,
                                                  @RowStatus = @RowStatus,
                                                  @RowAction = @RowAction
@@ -3823,7 +3824,7 @@ BEGIN
                     @TestCategoryTypeID = TestCategoryTypeID,
                     @TestResultTypeID = TestResultTypeID,
                     @TestStatusTypeID = TestStatusTypeID,
-                    @DiseaseID = DiseaseID,
+                    @CurrentDiseaseID = DiseaseID,
                     @SampleID = SampleID,
                     @Comments = Comments,
                     @RowStatus = RowStatus,
@@ -3871,7 +3872,7 @@ BEGIN
                                                @TestCategoryTypeID = @TestCategoryTypeID,
                                                @TestResultTypeID = @TestResultTypeID,
                                                @TestStatusTypeID = @TestStatusTypeID,
-                                               @DiseaseID = @DiseaseID,
+                                               @DiseaseID = @CurrentDiseaseID,
                                                @SampleID = @SampleID,
                                                @BatchTestID = NULL,
                                                @ObservationID = NULL,
@@ -4127,7 +4128,7 @@ BEGIN
                 SELECT TOP 1
                     @RowID = TestInterpretationID,
                     @TestInterpretationID = TestInterpretationID,
-                    @DiseaseID = DiseaseID,
+                    @CurrentDiseaseID = DiseaseID,
                     @InterpretedStatusTypeID = InterpretedStatusTypeID,
                     @ValidatedByOrganizationID = ValidatedByOrganizationID,
                     @ValidatedByPersonID = ValidatedByPersonID,
@@ -4146,26 +4147,26 @@ BEGIN
                 FROM @TestsInterpretationParametersTemp;
 
                 INSERT INTO @SuppressSelect
-                EXECUTE dbo.USSP_GBL_TEST_INTERPRETATIONS_SET @AuditUser,
-                                                              @DataAuditEventID,
-                                                              @strHumanCaseId,
-                                                              @TestInterpretationID OUTPUT,
-                                                              @DiseaseID,
-                                                              @InterpretedStatusTypeID,
-                                                              @ValidatedByOrganizationID,
-                                                              @ValidatedByPersonID,
-                                                              @InterpretedByOrganizationID,
-                                                              @InterpretedByPersonID,
-                                                              @TestID,
-                                                              @ValidatedStatusIndicator,
-                                                              @ReportSessionCreatedIndicator,
-                                                              @ValidatedComment,
-                                                              @InterpretedComment,
-                                                              @ValidatedDate,
-                                                              @InterpretedDate,
-                                                              @RowStatus,
-                                                              @ReadOnlyIndicator,
-                                                              @RowAction;
+                EXECUTE dbo.USSP_GBL_TEST_INTERPRETATIONS_SET @AuditUserName = @AuditUser,
+                                                              @DataAuditEventID = @DataAuditEventID,
+                                                              @EIDSSObjectID = @strHumanCaseId,
+                                                              @TestInterpretationID = @TestInterpretationID OUTPUT,
+                                                              @DiseaseID = @CurrentDiseaseID,
+                                                              @InterpretedStatusTypeID = @InterpretedStatusTypeID,
+                                                              @ValidatedByOrganizationID = @ValidatedByOrganizationID,
+                                                              @ValidatedByPersonID = @ValidatedByPersonID,
+                                                              @InterpretedByOrganizationID = @InterpretedByOrganizationID,
+                                                              @InterpretedByPersonID = @InterpretedByPersonID,
+                                                              @TestID = @TestID,
+                                                              @ValidateStatusIndicator = @ValidatedStatusIndicator,
+                                                              @ReportSessionCreatedIndicator = @ReportSessionCreatedIndicator,
+                                                              @ValidationComment = @ValidatedComment,
+                                                              @InterpretationComment = @InterpretedComment,
+                                                              @ValidationDate = @ValidatedDate,
+                                                              @InterpretationDate = @InterpretedDate,
+                                                              @RowStatus = @RowStatus,
+                                                              @ReadOnlyIndicator = @ReadOnlyIndicator,
+                                                              @RowAction = @RowAction;
 
                 DELETE FROM @TestsInterpretationParametersTemp
                 WHERE TestInterpretationID = @RowID;
@@ -4238,15 +4239,38 @@ BEGIN
                                        @strHumanCaseId;
         END
 
-        -- Update the human record if a date of death is provided.
-        IF @datDateofDeath IS NOT NULL
-        BEGIN
-            DECLARE @BeforeDateOfDeath DATETIME
-                =   (
-                        SELECT datDateOfDeath FROM dbo.tlbHuman WHERE @idfHuman = @idfHuman
-                    );
+        -- Update the human record.
+        DECLARE @BeforeDateOfDeath DATETIME,
+				@BeforeDateOfBirth DATETIME,
+				@BeforePatientAge INT,
+				@BeforeHumanAgeType BIGINT
+		
+		DECLARE @idfObjectTable_tlbHumanActual BIGINT = 4573200000000;
+		DECLARE @ObjectTable_HumanAddlInfo BIGINT = 53577690000000;
+        
+		SELECT	@BeforeDateOfDeath = h.datDateOfDeath,
+				@BeforeDateOfBirth = h.datDateofBirth,
+				@BeforePatientAge = hai.ReportedAge,
+				@BeforeHumanAgeType = hai.ReportedAgeUOMID
+		FROM dbo.tlbHuman h
+		left join dbo.HumanAddlInfo hai
+		on hai.HumanAdditionalInfo = h.idfHuman
+		WHERE h.idfHuman = @idfHuman
 
-            UPDATE dbo.tlbHuman
+
+        IF		(	@datDateofDeath is not null 
+					and @BeforeDateOfDeath is null
+				)
+			or	(	@datDateofDeath is null 
+					and @BeforeDateOfDeath is not null
+				)
+			or	(	@datDateofDeath is not null 
+					and @BeforeDateOfDeath is not null 
+					and @datDateofDeath <> @BeforeDateOfDeath
+				)
+        BEGIN
+
+			UPDATE dbo.tlbHuman
             SET datDateofDeath = @datDateofDeath,
                 AuditUpdateDTM = GETDATE(),
                 AuditUpdateUser = @AuditUser
@@ -4279,12 +4303,247 @@ BEGIN
              @AuditUser, 
              @strHumanCaseId
             );
+
+			DECLARE @BeforeDateOfDeath_tlbHumanActual DATETIME
+				=   (
+						SELECT datDateOfDeath FROM dbo.tlbHumanActual WHERE @idfHuman = @idfHumanActual
+					);
+
+
+			IF		(	@datDateofDeath is not null 
+						and @BeforeDateOfDeath_tlbHumanActual is null
+					)
+				or	(	@datDateofDeath is null 
+						and @BeforeDateOfDeath_tlbHumanActual is not null
+					)
+				or	(	@datDateofDeath is not null 
+						and @BeforeDateOfDeath_tlbHumanActual is not null 
+						and @datDateofDeath <> @BeforeDateOfDeath_tlbHumanActual
+					)
+			BEGIN
+
+				UPDATE dbo.tlbHumanActual
+				SET datDateofDeath = @datDateofDeath,
+					AuditUpdateDTM = GETDATE(),
+					AuditUpdateUser = @AuditUser
+				WHERE idfHumanActual = @idfHumanActual;
+
+				INSERT INTO dbo.tauDataAuditDetailUpdate
+				(
+					idfDataAuditEvent,
+					idfObjectTable,
+					idfColumn,
+					idfObject,
+					idfObjectDetail,
+					strOldValue,
+					strNewValue,
+					AuditCreateDTM,
+					AuditCreateUser, 
+					strObject
+				)
+				VALUES
+				(@DataAuditEventID,
+				 @idfObjectTable_tlbHumanActual,
+				 4573290000000,
+				 @idfHumanActual,
+				 NULL,
+				 @BeforeDateOfDeath_tlbHumanActual,
+				 @datDateofDeath,
+				 GETDATE(),
+				 @AuditUser, 
+				 @strHumanCaseId
+				);
+			END
         END
+
+		-- Update Date Of Birth in tlbHuman and tlbHumanActual if needed
+		IF (ISNULL(@DateOfBirth, 0) <> ISNULL(@BeforeDateOfBirth, 0))
+        BEGIN
+			UPDATE dbo.tlbHuman
+            SET datDateofBirth = @DateOfBirth,
+                AuditUpdateDTM = GETDATE(),
+                AuditUpdateUser = @AuditUser
+            WHERE idfHuman = @idfHuman;
+
+            SET @ObjectTableID = 75600000000; -- tlbHuman
+
+            INSERT INTO dbo.tauDataAuditDetailUpdate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfColumn,
+                idfObject,
+                idfObjectDetail,
+                strOldValue,
+                strNewValue,
+                AuditCreateDTM,
+                AuditCreateUser, 
+                strObject
+            )
+            VALUES
+            (
+				@DataAuditEventID,
+				@ObjectTableID,
+				79330000000,
+				@idfHuman,
+				NULL,
+				@BeforeDateOfBirth,
+				@DateOfBirth,
+				GETDATE(),
+				@AuditUser, 
+				@strHumanCaseId
+            );
+
+			DECLARE @BeforeDateOfBirth_tlbHumanActual DATETIME
+			SELECT @BeforeDateOfBirth_tlbHumanActual = datDateofBirth FROM dbo.tlbHumanActual WHERE @idfHuman = @idfHumanActual
+
+			IF (ISNULL(@DateOfBirth, 0) <> ISNULL(@BeforeDateOfBirth_tlbHumanActual, 0))
+			BEGIN
+				UPDATE dbo.tlbHumanActual
+				SET datDateofBirth = @DateOfBirth,
+					AuditUpdateDTM = GETDATE(),
+					AuditUpdateUser = @AuditUser
+				WHERE idfHumanActual = @idfHumanActual;
+
+				INSERT INTO dbo.tauDataAuditDetailUpdate
+				(
+					idfDataAuditEvent,
+					idfObjectTable,
+					idfColumn,
+					idfObject,
+					idfObjectDetail,
+					strOldValue,
+					strNewValue,
+					AuditCreateDTM,
+					AuditCreateUser, 
+					strObject
+				)
+				VALUES
+				(
+					@DataAuditEventID,
+					@idfObjectTable_tlbHumanActual,
+					4573280000000,
+					@idfHumanActual,
+					NULL,
+					@BeforeDateOfBirth_tlbHumanActual,
+					@DateOfBirth,
+					GETDATE(),
+					@AuditUser, 
+					@strHumanCaseId
+				);
+			END
+        END
+
+        IF		(	@intPatientAge is not null 
+					and @BeforePatientAge is null
+				)
+			or	(	@intPatientAge is null 
+					and @BeforePatientAge is not null
+				)
+			or	(	@intPatientAge is not null 
+					and @BeforePatientAge is not null 
+					and @intPatientAge <> @BeforePatientAge
+				)
+			or	(	@idfsHumanAgeType is not null 
+					and @BeforeHumanAgeType is null
+				)
+			or	(	@idfsHumanAgeType is null 
+					and @BeforeHumanAgeType is not null
+				)
+			or	(	@idfsHumanAgeType is not null 
+					and @BeforeHumanAgeType is not null 
+					and @idfsHumanAgeType <> @BeforeHumanAgeType
+				)
+		BEGIN
+			UPDATE HumanAddlInfo
+            SET ReportedAge = @intPatientAge,
+				ReportedAgeUOMID = @idfsHumanAgeType,
+				ReportedAgeDTM = GETDATE(),
+                AuditUpdateDTM = GETDATE(),
+                AuditUpdateUser = @AuditUser
+            WHERE HumanAdditionalInfo = @idfHuman;
+
+			IF		(	@intPatientAge is not null 
+						and @BeforePatientAge is null
+					)
+				or	(	@intPatientAge is null 
+						and @BeforePatientAge is not null
+					)
+				or	(	@intPatientAge is not null 
+						and @BeforePatientAge is not null 
+						and @intPatientAge <> @BeforePatientAge
+					)
+			BEGIN
+				INSERT INTO dbo.tauDataAuditDetailUpdate
+				(
+					idfDataAuditEvent,
+					idfObjectTable,
+					idfColumn,
+					idfObject,
+					idfObjectDetail,
+					strOldValue,
+					strNewValue,
+					AuditCreateDTM,
+					AuditCreateUser, 
+					strObject
+				)
+				VALUES
+				(@DataAuditEventID,
+				 @ObjectTable_HumanAddlInfo,
+				 51586890000001,
+				 @idfHuman,
+				 NULL,
+				 @BeforePatientAge,
+				 @intPatientAge,
+				 GETDATE(),
+				 @AuditUser, 
+				 @strHumanCaseId
+				);
+			END
+
+			IF		(	@idfsHumanAgeType is not null 
+						and @BeforeHumanAgeType is null
+					)
+				or	(	@idfsHumanAgeType is null 
+						and @BeforeHumanAgeType is not null
+					)
+				or	(	@idfsHumanAgeType is not null 
+						and @BeforeHumanAgeType is not null 
+						and @idfsHumanAgeType <> @BeforeHumanAgeType
+					)
+			BEGIN
+				INSERT INTO dbo.tauDataAuditDetailUpdate
+				(
+					idfDataAuditEvent,
+					idfObjectTable,
+					idfColumn,
+					idfObject,
+					idfObjectDetail,
+					strOldValue,
+					strNewValue,
+					AuditCreateDTM,
+					AuditCreateUser, 
+					strObject
+				)
+				VALUES
+				(@DataAuditEventID,
+				 @ObjectTable_HumanAddlInfo,
+				 51586890000002,
+				 @idfHuman,
+				 NULL,
+				 @BeforeHumanAgeType,
+				 @idfsHumanAgeType,
+				 GETDATE(),
+				 @AuditUser, 
+				 @strHumanCaseId
+				);
+			END
+		END
 
         -- Update the connected test record if a connected test ID is provided.
         IF @ConnectedTestId IS NOT NULL
         BEGIN
-            SELECT @DiseaseID = T.idfsDiagnosis,
+            SELECT @CurrentDiseaseID = T.idfsDiagnosis,
                    @HumanMasterID = HA.idfHumanActual,
                    @idfMaterial = T.idfMaterial
             FROM dbo.tlbTesting T
@@ -4307,7 +4566,7 @@ BEGIN
                     ON H.idfHuman = M.idfHuman
                 INNER JOIN dbo.tlbHumanActual HA
                     ON HA.idfHumanActual = H.idfHumanActual
-            WHERE T.idfsDiagnosis = @DiseaseID
+            WHERE T.idfsDiagnosis = @CurrentDiseaseID
                   AND HA.idfHumanActual = @HumanMasterID
                   AND T.idfMaterial = @idfMaterial;
 

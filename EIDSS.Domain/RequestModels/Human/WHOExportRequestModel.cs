@@ -12,11 +12,9 @@ namespace EIDSS.Domain.RequestModels.Human
     public class WHOExportRequestModel
     {
         public string LangID { get; set; }
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         [LocalizedDateLessThanOrEqualToToday]
         [LocalizedRequiredIfTrue(nameof(FieldLabelResourceKeyConstants.HumanExporttoCISIDDateFromFieldLabel))]
         public DateTime? DateFrom { get; set; }
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         [LocalizedDateLessThanOrEqualToToday]
         [LocalizedRequiredIfTrue(nameof(FieldLabelResourceKeyConstants.HumanExporttoCISIDDateToFieldLabel))]
         public DateTime? DateTo { get; set; }

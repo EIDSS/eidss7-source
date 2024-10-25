@@ -30,7 +30,6 @@ namespace EIDSS.ClientLibrary.ApiClients.Admin
     {
         public PreferenceClient(HttpClient httpClient, IOptionsSnapshot<EidssApiOptions> eidssApiOptions, ILogger<PreferenceClient> logger, IUserConfigurationService userConfigurationService) : base(httpClient, eidssApiOptions, logger, userConfigurationService)
         {
-            _userConfigurationService = userConfigurationService;
         }
 
         public async Task<SystemPreferences> InitializeSystemPreferences()
@@ -55,6 +54,7 @@ namespace EIDSS.ClientLibrary.ApiClients.Admin
                 prefs.SystemPreferencesId = response.SystemPreferenceID;
 
                 //load into config factory....
+                //ConfigFactory.SetSystemPreferences(prefs);
                 _userConfigurationService.SystemPreferences = prefs;
 
                 return prefs;
@@ -98,11 +98,22 @@ namespace EIDSS.ClientLibrary.ApiClients.Admin
 
                     prefs.UserPreferencesId = response.UserPreferenceUID;
 
+
+                    //prefs = System.Text.Json.JsonSerializer.Deserialize<UserPreferences>(response.preferenceDetail,
+                    //      new JsonSerializerOptions
+                    //      {
+                    //          IgnoreNullValues = true,
+                    //          PropertyNameCaseInsensitive = false
+                    //      });
+                    //prefs.UserPreferencesId = response.UserPreferenceUID;
+
                 }
 
                 prefs.UserId = userId;
 
                 //load into config factory....
+                //ConfigFactory.SetUserPreferences(prefs);
+                //TODO: remove commented if session-User approach works//_userConfigurationService.SetUserPreferences(prefs, userId);
                 _userConfigurationService.SetUserPreferences(prefs, String.Empty, userId);
 
                 return prefs;
@@ -176,6 +187,10 @@ namespace EIDSS.ClientLibrary.ApiClients.Admin
 
 
                 var httpResponse = await _httpClient.SendAsync(postRequest);
+
+                //var userPrefsJson = new StringContent(System.Text.Json.JsonSerializer.Serialize(jsonContainer), Encoding.UTF8, "application/json");
+
+                //var httpResponse = await _httpClient.PostAsync(new Uri(url), userPrefsJson).ConfigureAwait(false);
 
                 // Throws an exception if the call to the service failed...
                 httpResponse.EnsureSuccessStatusCode();

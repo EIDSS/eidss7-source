@@ -27,5 +27,74 @@ namespace EIDSS.Api.Controllers.Administration.Security
         public UserGroupController(IDataRepository repository, IMemoryCache memoryCache) : base(repository, memoryCache)
         {
         }
+
+        //[HttpGet("GetUserGroupDetail")]
+        //[ProducesResponseType(typeof(UserGroupDetailViewModel[]), StatusCodes.Status200OK)]
+        //[ProducesResponseType(typeof(UserGroupDetailViewModel[]), StatusCodes.Status401Unauthorized)]
+        //public async Task<IActionResult> GetUserGroupDetail(long? idfEmployeeGroup, string langId, string user, CancellationToken cancellationToken = default)
+        //{
+        //    // This method was auto generated!
+        //    UserGroupDetailViewModel[] results = null;
+        //    try
+        //    {
+        //        //Handled in Global cancellation handler and logs that the request was handled
+        //        cancellationToken.ThrowIfCancellationRequested();
+
+        //        DataRepoArgs args = new()
+        //        {
+        //            Args = new object[] { idfEmployeeGroup, langId, user, null, cancellationToken },
+        //            MappedReturnType = typeof(UserGroupDetailViewModel[]),
+        //            RepoMethodReturnType = typeof(USP_ADMIN_EMPLOYEEGROUP_GETDETAILResult[])
+        //        };
+        //        results = await _repository.Get(args) as UserGroupDetailViewModel[];
+        //    }
+        //    catch (Exception ex) when (ex is TaskCanceledException || ex is OperationCanceledException)
+        //    {
+        //        Log.Error("Process was cancelled");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Log.Error(ex.Message);
+        //        throw;
+        //    }
+        //    return Ok(results.FirstOrDefault());
+        //}
+
+        //[HttpPost("GetUserGroupList")]
+        //[ProducesResponseType(typeof(UserGroupViewModel), StatusCodes.Status200OK)]
+        //[ProducesResponseType(typeof(UserGroupViewModel), StatusCodes.Status401Unauthorized)]
+        //public async Task<IActionResult> GetUserGroupList([FromBody] UserGroupGetRequestModel request, CancellationToken cancellationToken = default)
+        //{
+        //    // This method was auto generated!
+        //    UserGroupViewModel[] results = null;
+        //    try
+        //    {
+        //        //Handled in Global cancellation handler and logs that the request was handled
+        //        cancellationToken.ThrowIfCancellationRequested();
+        //        DataRepoArgs args = new()
+        //        {
+        //            Args = new object[] {request.strName, request.strDescription, request.LanguageId, request.user, request.Page, request.PageSize, request.SortColumn, request.SortOrder, null, cancellationToken },
+        //            MappedReturnType = typeof(UserGroupViewModel[]),
+        //            RepoMethodReturnType = typeof(USP_ADMIN_EMPLOYEEGROUP_GETLISTResult[])
+        //        };
+
+        //        // Forwards the call to context method:  
+        //        var _ = await _repository.Get(args) as UserGroupViewModel[];
+
+        //        if (_ != null && _.Length > 0)
+        //            results = _;
+        //    }
+        //    catch (Exception ex) when (ex is TaskCanceledException || ex is OperationCanceledException)
+        //    {
+        //        Log.Error("Process was cancelled.");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Log.Error(ex.Message);
+        //        throw;
+        //    }
+
+        //    return Ok(results);
+        //}
     }
 }

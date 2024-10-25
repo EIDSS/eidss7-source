@@ -34,6 +34,7 @@ namespace EIDSS.Domain.RequestModels.Outbreak
         public long? CaseStatusID { get; set; }
         public DateTime? datOnSetDate { get; set; }
         public DateTime? datFinalDiagnosisDate { get; set; }
+        public string? strHospitalName { get; set; }
         public long? idfHospital { get; set; }
         public DateTime? datHospitalizationDate { get; set; }
         public DateTime? datDischargeDate { get; set; }

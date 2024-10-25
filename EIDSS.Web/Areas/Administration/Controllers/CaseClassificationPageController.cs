@@ -19,8 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Administration.Controllers
 {
@@ -61,7 +59,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 var valuePair = dataTableQueryPostObj.ReturnSortParameter();
 
                 var strSortColumn = "intOrder";
-                if (!IsNullOrEmpty(valuePair.Key) && valuePair.Key != "KeyId") strSortColumn = valuePair.Key;
+                if (!string.IsNullOrEmpty(valuePair.Key) && valuePair.Key != "KeyId") strSortColumn = valuePair.Key;
 
                 var request = new CaseClassificationGetRequestModel
                 {
@@ -70,7 +68,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     Page = dataTableQueryPostObj.page,
                     PageSize = dataTableQueryPostObj.length,
                     SortColumn = strSortColumn,
-                    SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Ascending
+                    SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending
                 };
 
                 list = await _caseClassificationClient.GetCaseClassificationList(request);
@@ -101,7 +99,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     list.ElementAt(i).blnInitialHumanCaseClassification.ToString(),
                     list.ElementAt(i).blnFinalHumanCaseClassification.ToString(),
                     list.ElementAt(i).IntOrder.ToString(),
-                    list.ElementAt(i).StrHACode != null ? list.ElementAt(i).StrHACode : Empty,
+                    list.ElementAt(i).StrHACode != null ? list.ElementAt(i).StrHACode : string.Empty,
                     "",
                     ""
                 };
@@ -115,7 +113,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         [HttpPost]
         public async Task<JsonResult> Create([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             var response = new APISaveResponseModel();
 
             try
@@ -123,13 +121,13 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 var intHaCodeTotal = 0;
                 if (jsonObject["IntHACode"] != null)
                 {
-                    if (IsNullOrEmpty(jsonObject["IntHACode"].ToString()))
+                    if (string.IsNullOrEmpty(jsonObject["IntHACode"].ToString()))
                         // popup a modal with message "Accessory Code is mandatory. You must enter data in this field before saving the form. Do you want to correct the value?"
                         return Json("");
 
                     var a = JArray.Parse(jsonObject["IntHACode"].ToString());
 
-                    intHaCodeTotal += a.Sum(t => int.Parse(t["id"]?.ToString() ?? Empty));
+                    intHaCodeTotal += a.Sum(t => int.Parse(t["id"]?.ToString() ?? string.Empty));
                 }
 
                 var blnInitialHumanCaseClassification = false;
@@ -154,11 +152,11 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     BlnInitialHumanCaseClassification = blnInitialHumanCaseClassification,
                     BlnFinalHumanCaseClassification = blnFinalHumanCaseClassification,
                     intHACode = intHaCodeTotal,
-                    intOrder = !IsNullOrEmpty(jsonObject["IntOrder"]?.ToString())
+                    intOrder = !string.IsNullOrEmpty(jsonObject["IntOrder"]?.ToString())
                         ? int.Parse(jsonObject["IntOrder"].ToString())
                         : 0,
                     LanguageId = GetCurrentLanguage(),
-                    EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                    EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                     AuditUserName = authenticatedUser.UserName,
                     LocationId = authenticatedUser.RayonId,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -168,7 +166,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 response = await _caseClassificationClient.SaveCaseClassification(request);
                 response.strClientPageMessage = response.ReturnMessage switch
                 {
-                    "DOES EXIST" => Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage),
+                    "DOES EXIST" => string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage),
                         request.Default),
                     "SUCCESS" => _localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage),
                     _ => response.strClientPageMessage
@@ -185,7 +183,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         [HttpPost]
         public async Task<JsonResult> Edit([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             var response = new APISaveResponseModel();
 
             try
@@ -219,11 +217,11 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                         BlnInitialHumanCaseClassification = blnInitialHumanCaseClassification,
                         BlnFinalHumanCaseClassification = blnFinalHumanCaseClassification,
                         intHACode = intHaCodeTotal,
-                        intOrder = !IsNullOrEmpty(jsonObject["IntOrder"]?.ToString())
+                        intOrder = !string.IsNullOrEmpty(jsonObject["IntOrder"]?.ToString())
                             ? int.Parse(jsonObject["IntOrder"].ToString())
                             : 0,
                         LanguageId = GetCurrentLanguage(),
-                        EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                        EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                         AuditUserName = authenticatedUser.UserName,
                         LocationId = authenticatedUser.RayonId,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -233,7 +231,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     response = await _caseClassificationClient.SaveCaseClassification(request);
                     response.strClientPageMessage = response.ReturnMessage switch
                     {
-                        "DOES EXIST" => Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage),
+                        "DOES EXIST" => string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage),
                             request.Default),
                         "SUCCESS" => _localizer.GetString(
                             MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage),
@@ -259,14 +257,14 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
                 if (jsonObject["KeyId"] != null)
                 {
                     var request = new CaseClassificationSaveRequestModel
                     {
-                        DeleteAnyway = true, 
+                        DeleteAnyway = true,
                         LanguageId = GetCurrentLanguage(),
-                        EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                        EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                         AuditUserName = authenticatedUser.UserName,
                         LocationId = authenticatedUser.RayonId,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),

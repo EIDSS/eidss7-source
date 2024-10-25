@@ -1,122 +1,39 @@
-﻿using EIDSS.ClientLibrary.ApiClients.CrossCutting;
+﻿using EIDSS.ClientLibrary.ApiClients.Configuration;
+using EIDSS.ClientLibrary.ApiClients.CrossCutting;
 using EIDSS.ClientLibrary.Enumerations;
+using EIDSS.ClientLibrary.Services;
+using EIDSS.Domain.Enumerations;
 using EIDSS.Domain.RequestModels.Administration;
+using EIDSS.Domain.ViewModels;
+using EIDSS.Domain.ViewModels.Human;
 using EIDSS.Localization.Constants;
 using EIDSS.Web.Abstracts;
+using EIDSS.Web.Components.CrossCutting;
+using EIDSS.Web.Enumerations;
+using EIDSS.Web.Services;
 using EIDSS.Web.ViewModels.Human;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using Microsoft.JSInterop;
-using EIDSS.Domain.ViewModels;
-using EIDSS.Web.Enumerations;
-using EIDSS.Web.Components.CrossCutting;
-using EIDSS.Domain.ViewModels.Human;
-using EIDSS.Web.Services;
 using System.Linq;
-using EIDSS.Domain.Enumerations;
-using EIDSS.ClientLibrary.Services;
-using EIDSS.ClientLibrary.ApiClients.Configuration;
 using System.Linq.Dynamic.Core;
-using static System.String;
+using System.Threading.Tasks;
 
 namespace EIDSS.Web.Components.Human.HumanDiseaseReport
 {
     public class DiseaseReportTestBase : BaseComponent
     {
-        #region Grid Column Reorder Picker
-
         [Inject]
         private IConfigurationClient ConfigurationClient { get; set; }
 
         [Inject]
         protected GridContainerServices GridContainerServices { get; set; }
-
-        public GridExtensionBase GridExtension { get; set; }
-
-        protected override void OnInitialized()
-        {
-            GridExtension = new GridExtensionBase();
-            GridColumnLoad("HumanDiseaseReportTest");
-
-            base.OnInitialized();
-        }
-
-        public void GridColumnLoad(string columnNameId)
-        {
-            try
-            {
-                GridContainerServices.GridColumnConfig = GridExtension.GridColumnLoad(columnNameId, _tokenService, ConfigurationClient);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-            }
-        }
-
-        public void GridColumnSave(string columnNameId)
-        {
-            try
-            {
-                GridExtension.GridColumnSave(columnNameId, _tokenService, ConfigurationClient, Grid.ColumnsCollection.ToDynamicList(), GridContainerServices);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-            }
-        }
-
-        public int FindColumnOrder(string columnName)
-        {
-            var index = 0;
-            try
-            {
-                index = GridExtension.FindColumnOrder(columnName);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-            }
-            return index;
-        }
-
-        public bool GetColumnVisibility(string columnName)
-        {
-            var visible = true;
-            try
-            {
-                visible = GridExtension.GetColumnVisibility(columnName);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-            }
-            return visible;
-        }
-
-        public void HeaderCellRender(string propertyName)
-        {
-            try
-            {
-                GridContainerServices.VisibleColumnList = GridExtension.HandleVisibilityList(GridContainerServices, propertyName);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-            }
-        }
-
-        #endregion Grid Column Reorder Picker
-
-        [Parameter]
-        public DiseaseReportTestPageViewModel Model { get; set; }
 
         [Inject]
         private IJSRuntime JsRuntime { get; set; }
@@ -133,9 +50,8 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
         [Inject]
         protected INotificationSiteAlertService NotificationService { get; set; }
 
-        protected bool ShowTestGrid;
-
-        protected bool EnableAddButton;
+        [Parameter]
+        public DiseaseReportTestPageViewModel Model { get; set; }
 
         [Parameter]
         public bool isReportClosed { get; set; }
@@ -143,17 +59,31 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
         [Parameter]
         public bool CanAddTests { get; set; }
 
-        public IList<DiseaseReportTestDetailForDiseasesViewModel> SelectedTests;
+        protected IList<DiseaseReportTestDetailForDiseasesViewModel> SelectedTests;
 
         protected RadzenDataGrid<DiseaseReportTestDetailForDiseasesViewModel> Grid;
+
+        protected bool ShowTestGrid;
+
+        protected bool EnableAddButton;
+
+        protected bool DisableEditDelete;
 
         private UserPermissions _userPermissions;
 
         private UserPermissions _canAddTestResultsForHumanCaseSession;
 
-        protected bool AccessToHumanDiseaseReportData { get; set; }
+        private bool _accessToHumanDiseaseReportData;
 
-        protected bool DisableEditDelete { get; set; }
+        private GridExtensionBase _gridExtension;
+
+        protected override void OnInitialized()
+        {
+            _gridExtension = new GridExtensionBase();
+            GridColumnLoad("HumanDiseaseReportTest");
+
+            base.OnInitialized();
+        }
 
         protected override async Task OnInitializedAsync()
         {
@@ -165,11 +95,11 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
 
                 _userPermissions = GetUserPermissions(PagePermission.AccessToHumanDiseaseReportData);
 
-                AccessToHumanDiseaseReportData = _userPermissions.Create;
+                _accessToHumanDiseaseReportData = _userPermissions.Create;
 
                 _canAddTestResultsForHumanCaseSession = GetUserPermissions(PagePermission.CanAddTestResultsForHumanCase_Session);
 
-                if (AccessToHumanDiseaseReportData)
+                if (_accessToHumanDiseaseReportData)
                     DisableEditDelete = false;
 
                 if (isReportClosed)
@@ -186,21 +116,17 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
 
                 Model.TestDetailsForGrid = Model.TestDetails;
 
-                if (StateContainer.Model?.SamplesDetails != null)
+                if (StateContainer.SampleModel?.SamplesDetails != null)
                 {
-                    Model.SamplesDetails = StateContainer.Model.SamplesDetails;
+                    Model.SamplesDetails = StateContainer.SampleModel.SamplesDetails;
                 }
 
                 await JsRuntime.InvokeAsync<string>("SetTestData", Model);
-                //subscribe to the modal dialog events
-                // DiagService.OnOpen += ModalOpen;
-                // DiagService.OnClose += ModalClose;
 
-                //get the yes / no choices for radio buttons
-                var list = await CrossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), BaseReferenceConstants.YesNoValueList, HACodeList.HumanHACode);
+                // get the yes / no choices for radio buttons
+                var list = await CrossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), EIDSSConstants.BaseReferenceConstants.YesNoValueList, EIDSSConstants.HACodeList.HumanHACode);
                 Model.YesNoChoices = list;
 
-                //check the sample panel
                 ToggleTestPanel();
             }
             catch (Exception ex)
@@ -208,19 +134,20 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                 _logger.LogError(ex.Message);
             }
         }
-
-        protected void OnTestsCollectedChange(long? value)
+        protected async Task OnTestsCollectedChange(long? value)
         {
+            Model.TestsConducted = value;
             ToggleTestPanel();
+            await JsRuntime.InvokeAsync<string>("SetTestData", Model);
         }
 
-        public async Task GetPageParams()
+        private async Task GetPageParams()
         {
             try
             {
                 const string elementId = "diseaseDD";
                 var resultData = await JsRuntime.InvokeAsync<string>("getDomElementValue", elementId);
-                if (!IsNullOrEmpty(resultData))
+                if (!string.IsNullOrEmpty(resultData))
                 {
                     Model.idfDisease = Convert.ToInt64(resultData);
                 }
@@ -235,14 +162,14 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
         {
             try
             {
-                if (AccessToHumanDiseaseReportData && _canAddTestResultsForHumanCaseSession.Execute && Model.SamplesDetails is
-                    {
-                        Count: > 0
-                    })
+                var hasActiveSamples = HasActiveSamples();
+                if (_accessToHumanDiseaseReportData &&
+                    _canAddTestResultsForHumanCaseSession.Execute &&
+                    hasActiveSamples)
                 {
                     if (Model.TestsConducted.GetValueOrDefault() != (long)YesNoUnknown.Yes)
                     {
-                        ShowTestGrid = Model.SamplesDetails is {Count: > 0};
+                        ShowTestGrid = Model.TestDetailsForGrid.Count > 0;
                         EnableAddButton = true;
                     }
                     else
@@ -265,9 +192,9 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
             }
         }
 
-        public void Dispose()
+        protected bool HasActiveSamples()
         {
-            StateContainer.OnChange -= StateHasChanged;
+            return StateContainer.SampleModel?.SamplesDetails?.Count(d => d.intRowStatus == (int)RowStatusTypeEnum.Active) > 0;
         }
 
         protected async Task OpenAddModal()
@@ -276,9 +203,12 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
             {
                 await GetPageParams();
 
+                Model.SamplesDetails = StateContainer.SampleModel.SamplesDetails;
+                var diseaseId = GetDiseaseId();
+
                 var dialogParams = new Dictionary<string, object>
                 {
-                    {"idfDisease", Model.idfDisease},
+                    {"idfDisease", diseaseId},
                     {"idfHumanCase", Model.idfHumanCase},
                     {"strCaseId", Model.strCaseId},
                     {"LocalSampleID", Model.LocalSampleID},
@@ -291,31 +221,29 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                 if (result == null)
                     return;
 
-                if (((EditContext) result).Validate())
+                if (((EditContext)result).Validate())
                 {
                     var obj = (DiseaseReportTestDetailForDiseasesViewModel)result.Model;
                     var item = new DiseaseReportTestDetailForDiseasesViewModel();
-                    if (Model.TestDetails != null)
-                    {
-                    }
+
                     switch (Model.SamplesDetails)
                     {
-                        case {Count: > 0} when Model.idfHumanCase is null or 0:
+                        case { Count: > 0 } when Model.idfHumanCase is null or 0:
                             item.NewRecordId = Model.SamplesDetails.Find(a => a.LocalSampleId == obj.strFieldBarcode).NewRecordId;
                             item.idfMaterial = obj.idfMaterial == 0 ? Model.SamplesDetails.Find(a => a.LocalSampleId == obj.strFieldBarcode).NewRecordId : obj.idfMaterial;
                             break;
-                        case {Count: > 0} when Model.idfHumanCase != null && Model.idfHumanCase != 0:
-                        {
-                            item.idfMaterial = obj.idfMaterial == 0 ? Model.SamplesDetails.Find(a => a.LocalSampleId == obj.strFieldBarcode).SampleKey : obj.idfMaterial;
-
-                            if (item.idfMaterial == 0)
+                        case { Count: > 0 } when Model.idfHumanCase != null && Model.idfHumanCase != 0:
                             {
-                                item.NewRecordId = Model.SamplesDetails.Find(a => a.LocalSampleId == obj.strFieldBarcode).NewRecordId;
-                                item.idfMaterial = obj.idfMaterial == 0 ? Model.SamplesDetails.Find(a => a.LocalSampleId == obj.strFieldBarcode).NewRecordId : obj.idfMaterial;
-                            }
+                                item.idfMaterial = obj.idfMaterial == 0 ? Model.SamplesDetails.Find(a => a.LocalSampleId == obj.strFieldBarcode).SampleKey : obj.idfMaterial;
 
-                            break;
-                        }
+                                if (item.idfMaterial == 0)
+                                {
+                                    item.NewRecordId = Model.SamplesDetails.Find(a => a.LocalSampleId == obj.strFieldBarcode).NewRecordId;
+                                    item.idfMaterial = obj.idfMaterial == 0 ? Model.SamplesDetails.Find(a => a.LocalSampleId == obj.strFieldBarcode).NewRecordId : obj.idfMaterial;
+                                }
+
+                                break;
+                            }
                     }
 
                     item.intRowStatus = (int)RowStatusTypeEnum.Active;
@@ -398,10 +326,12 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
             try
             {
                 await GetPageParams();
+
+                var diseaseId = GetDiseaseId();
                 var dialogParams = new Dictionary<string, object>
                 {
                     {"Model", data},
-                    {"idfDisease", Model.idfDisease},
+                    {"idfDisease", diseaseId},
                     {"idfHumanCase", Model.idfHumanCase},
                     {"strCaseId", Model.strCaseId},
                     {"LocalSampleID", Model.LocalSampleID},
@@ -415,7 +345,7 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                 if (result == null)
                     return;
 
-                if (((EditContext) result).Validate())
+                if (((EditContext)result).Validate())
                 {
                     var obj = (DiseaseReportTestDetailForDiseasesViewModel)result.Model;
                     var item = new DiseaseReportTestDetailForDiseasesViewModel();
@@ -425,10 +355,8 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                         var count = Model.TestDetails.Count;
                         var oldItem = Model.TestDetails.Find(x => x.RowID == obj.RowID);
 
-                        //int count = Model.SamplesDetails.Count;
                         item.RowID = obj.RowID;
                         item.idfMaterial = obj.idfMaterial;
-                        //item.new = obj.ID;
                         item.idfHumanCase = obj.idfHumanCase;
                         item.idfFieldCollectedByOffice = obj.idfFieldCollectedByOffice;
                         item.RowAction = (int)RowActionTypeEnum.Update;
@@ -449,7 +377,7 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                         item.idfFieldCollectedByOffice = obj.idfFieldCollectedByOffice;
 
                         if (obj.idfTestValidation is null or <= 0)
-                            item.idfTestValidation = item.RowID *-1;
+                            item.idfTestValidation = item.RowID * -1;
                         else
                             item.idfTestValidation = obj.idfTestValidation;
 
@@ -511,10 +439,6 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
                             await Grid.Reload();
                     }
                 }
-                else
-                {
-                    //Logger.LogInformation("HandleSubmit called: Form is INVALID");
-                }
             }
             catch (Exception ex)
             {
@@ -555,7 +479,12 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
             }
         }
 
-        public async Task GetSiteAlertForTestResultCreation()
+        private long? GetDiseaseId()
+        {
+            return StateContainer.NotificationModel.ChangedDiseaseId ?? Model.idfDisease;
+        }
+
+        private async Task GetSiteAlertForTestResultCreation()
         {
             try
             {
@@ -574,7 +503,7 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
             }
         }
 
-        public async Task GetSiteAlertForLabTestResultAmendment()
+        private async Task GetSiteAlertForLabTestResultAmendment()
         {
             try
             {
@@ -593,7 +522,7 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
             }
         }
 
-        public async Task GetSiteAlertForTestInterpretation()
+        private async Task GetSiteAlertForTestInterpretation()
         {
             try
             {
@@ -610,6 +539,75 @@ namespace EIDSS.Web.Components.Human.HumanDiseaseReport
             {
                 _logger.LogError(ex.Message);
             }
+        }
+
+        private void GridColumnLoad(string columnNameId)
+        {
+            try
+            {
+                GridContainerServices.GridColumnConfig = _gridExtension.GridColumnLoad(columnNameId, _tokenService, ConfigurationClient);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
+        }
+
+        protected void GridColumnSave(string columnNameId)
+        {
+            try
+            {
+                _gridExtension.GridColumnSave(columnNameId, _tokenService, ConfigurationClient, Grid.ColumnsCollection.ToDynamicList(), GridContainerServices);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
+        }
+
+        protected int FindColumnOrder(string columnName)
+        {
+            var index = 0;
+            try
+            {
+                index = _gridExtension.FindColumnOrder(columnName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
+            return index;
+        }
+
+        protected bool GetColumnVisibility(string columnName)
+        {
+            var visible = true;
+            try
+            {
+                visible = _gridExtension.GetColumnVisibility(columnName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
+            return visible;
+        }
+
+        protected void HeaderCellRender(string propertyName)
+        {
+            try
+            {
+                GridContainerServices.VisibleColumnList = _gridExtension.HandleVisibilityList(GridContainerServices, propertyName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
+        }
+
+        protected void GridHumanDiseaseReportTestClickHandler()
+        {
+            GridColumnSave("HumanDiseaseReportTest");
         }
     }
 }

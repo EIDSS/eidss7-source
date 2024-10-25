@@ -19,9 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.Int32;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Configuration.Controllers
 {
@@ -63,7 +60,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             //Sorting
             var valuePair = dataTableQueryPostObj.ReturnSortParameter();
             var strSortColumn = "IntOrder";
-            if (!IsNullOrEmpty(valuePair.Key) && valuePair.Key != "IdfPersonalIDType")
+            if (!string.IsNullOrEmpty(valuePair.Key) && valuePair.Key != "IdfPersonalIDType")
             {
                 strSortColumn = valuePair.Key;
             }
@@ -74,8 +71,8 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 Page = dataTableQueryPostObj.page,
                 PageSize = dataTableQueryPostObj.length,
                 SortColumn = strSortColumn,
-                SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Ascending
-            };            
+                SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending
+            };
 
             var response = await _personalIdentificationTypeMatrixClient.GetPersonalIdentificationTypeMatrixList(request);
             IEnumerable<PersonalIdentificationTypeMatrixViewModel> matrixList = response;
@@ -97,10 +94,10 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 {
                     (row + i + 1).ToString(),
                     matrixList.ElementAt(i).IdfPersonalIDType.ToString(),
-                    matrixList.ElementAt(i).StrPersonalIDType ?? Empty,
-                    matrixList.ElementAt(i).StrFieldType ?? Empty,
+                    matrixList.ElementAt(i).StrPersonalIDType ?? string.Empty,
+                    matrixList.ElementAt(i).StrFieldType ?? string.Empty,
                     matrixList.ElementAt(i).Length.ToString(),
-                    matrixList.ElementAt(i).IntOrder.ToString()                        
+                    matrixList.ElementAt(i).IntOrder.ToString()
                 };
                 tableData.data.Add(cols);
             }
@@ -112,44 +109,44 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [Route("DeletePersonalIdentificationTypeMatrix")]
         public async Task<JsonResult> DeletePersonalIdentificationTypeMatrix([FromBody] JsonElement json)
         {
-            var jsonObject = JObject.Parse(json.ToString() ?? Empty);
-            var personalIdType = long.Parse(jsonObject["IdfPersonalIDType"]?.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(json.ToString() ?? string.Empty);
+            var personalIdType = long.Parse(jsonObject["IdfPersonalIDType"]?.ToString() ?? string.Empty);
 
             var request = new PersonalIdentificationTypeMatrixSaveRequestModel
             {
                 IdfPersonalIDType = personalIdType,
-                EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                 UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                 LocationId = authenticatedUser.RayonId,
                 User = authenticatedUser.UserName
             };
             var response = await _personalIdentificationTypeMatrixClient.DeletePersonalIdentificationTypeMatrix(request);
-            
-            return Json(response);            
+
+            return Json(response);
         }
 
         [HttpPost]
         [Route("AddPersonalIdentificationTypeMatrix")]
         public async Task<JsonResult> AddPersonalIdentificationTypeMatrix([FromBody] JsonElement json)
         {
-            var jsonObject = JObject.Parse(json.ToString() ?? Empty);
-            
+            var jsonObject = JObject.Parse(json.ToString() ?? string.Empty);
+
             var saveRequest = new PersonalIdentificationTypeMatrixSaveRequestModel
             {
-                IdfPersonalIDType = long.Parse(jsonObject["IdfPersonalIDType"]?[0]?["id"]?.ToString() ?? Empty),
+                IdfPersonalIDType = long.Parse(jsonObject["IdfPersonalIDType"]?[0]?["id"]?.ToString() ?? string.Empty),
                 StrFieldType = jsonObject["IdfsFieldType"]?[0]?["text"]?.ToString(),
-                Length = Parse(jsonObject["IntLength"]?.ToString() ?? Empty),
-                EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                Length = int.Parse(jsonObject["IntLength"]?.ToString() ?? string.Empty),
+                EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                 UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                 LocationId = authenticatedUser.RayonId,
                 User = authenticatedUser.UserName,
-                IntOrder = IsNullOrEmpty(jsonObject["IntOrder"]?.ToString()) ? 0 : Parse(jsonObject["IntOrder"].ToString())
+                IntOrder = string.IsNullOrEmpty(jsonObject["IntOrder"]?.ToString()) ? 0 : int.Parse(jsonObject["IntOrder"].ToString())
             };
 
             var response = await _personalIdentificationTypeMatrixClient.SavePersonalIdentificationTypeMatrix(saveRequest);
-            response.strClientPageMessage = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), jsonObject["IdfPersonalIDType"]?[0]?["text"]);
+            response.strClientPageMessage = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), jsonObject["IdfPersonalIDType"]?[0]?["text"]);
 
             return Json(response);
         }
@@ -163,16 +160,16 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             try
             {
 
-                list.Add(new SelectDataItemViewModel { ID = "0", Name = PersonalIDTypeMatriceAttributeTypes.AlphaNumeric });
-                list.Add(new SelectDataItemViewModel { ID = "1", Name = PersonalIDTypeMatriceAttributeTypes.Numeric });
+                list.Add(new SelectDataItemViewModel { ID = "0", Name = EIDSSConstants.PersonalIDTypeMatriceAttributeTypes.AlphaNumeric });
+                list.Add(new SelectDataItemViewModel { ID = "1", Name = EIDSSConstants.PersonalIDTypeMatriceAttributeTypes.Numeric });
 
-                if (!IsNullOrEmpty(term))
+                if (!string.IsNullOrEmpty(term))
                 {
                     var toList = list.Where(c => c.Name != null && c.Name.Contains(term, StringComparison.CurrentCultureIgnoreCase)).ToList();
                     list = toList;
                 }
 
-                select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.ID, text = item.Name}));
+                select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.ID, text = item.Name }));
 
                 select2DataObj.results = select2DataItems;
             }

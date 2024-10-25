@@ -85,7 +85,7 @@
                     <label asp-for="DiagnosisId" field-label-for="@(FieldLabelResourceKeyConstants.DiagnosisFieldLabel + "," + Model.LanguageId)"></label>
                     <div class="input-group">
                         <select asp-for="DiagnosisId" style="width: 100%;" multiple
-                                asp-items="@(new SelectList(Model.DiagnosisList, "IdfsBaseReference", "Name", null, "StrDefault"))" class="form-control">
+                                asp-items="@(new SelectList(Model.DiagnosisList, "DiseaseID", "DiseaseName"))" class="form-control">
                         </select>
                     </div>
                 </div>

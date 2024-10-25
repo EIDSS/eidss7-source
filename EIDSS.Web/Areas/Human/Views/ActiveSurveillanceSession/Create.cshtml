@@ -38,6 +38,13 @@
             },
             onInit: function (event) {
                 $("#printButton").hide();
+
+                $("#HumanActiveSurveillanceSessionWizard .steps ul").append('<li id="saveStep" role="tab"><a href="#" role="menuitem"><span class="fa-stack text-muted"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-save fa-stack-1x fa-inverse"></i></span>  <span class="stepTitleText">@Localizer.GetString(@ButtonResourceKeyConstants.SaveButton)</span></a></li>');
+
+                $(document).on('click', '#saveStep', function (e) {
+                    e.preventDefault();
+                    $("#HumanActiveSurveillanceSessionWizard").steps("finish");
+                });
             },
             onCanceled: function (event) {
                 HumanActiveSurveillanceSession.DotNetReference.invokeMethodAsync("Cancel");
@@ -76,21 +83,18 @@
             onPrinting: function (event) {
                 HumanActiveSurveillanceSession.DotNetReference.invokeMethodAsync("OnPrint");
             },
-            onFinished: function (event) {
+            onFinished: async function (event) {
                 var bValidated = true;
-                
-                for (var iSection = 0; iSection < 6; iSection++) {
-                    validateHAS("HumanActiveSurveillanceSessionWizard", iSection, undefined);
-                }
+                var isHumanActiveSurveillanceSessionValid = await HumanActiveSurveillanceSession.DotNetReference.invokeMethodAsync("ValidateSection");
 
-                for (var iSection = 0; iSection < 6; iSection++){
-                    if ($("#HumanActiveSurveillanceSessionWizard-t-" + iSection + " #erroredStep").is(":visible")){
-                        bValidated = false;
-                        break;
-                    }
-                }
+                hideDefaultStepIcons();
+                setWizardState(isHumanActiveSurveillanceSessionValid, "#HumanActiveSurveillanceSessionWizard-t-0");
+                $("#HumanActiveSurveillanceSessionWizard-t-1").find("#completedStep").show();
+                $("#HumanActiveSurveillanceSessionWizard-t-2").find("#completedStep").show();
+                $("#HumanActiveSurveillanceSessionWizard-t-3").find("#completedStep").show();
+                $("#HumanActiveSurveillanceSessionWizard-t-4").find("#completedStep").show();
 
-                if (bValidated) {
+                if (isHumanActiveSurveillanceSessionValid) {
                     $(".fa-stack.text-muted").hide();
                     HumanActiveSurveillanceSession.DotNetReference.invokeMethodAsync("Submit");
                 }
@@ -108,6 +112,24 @@
         HumanActiveSurveillanceSession.SetDotNetReference = function (pDotNetReference) {
             HumanActiveSurveillanceSession.DotNetReference = pDotNetReference;
         };
+
+    function setWizardState(isValid, stringId) {
+        if (isValid) {
+            $(stringId).find("#erroredStep").hide();
+            $(stringId).find("#completedStep").show();
+        } else {
+            $(stringId).find("#erroredStep").show();
+            $(stringId).find("#completedStep").hide();
+        }
+    }
+
+    function hideDefaultStepIcons() {
+        $("#HumanActiveSurveillanceSessionWizard-t-0").find("#step").hide();
+        $("#HumanActiveSurveillanceSessionWizard-t-1").find("#step").hide();
+        $("#HumanActiveSurveillanceSessionWizard-t-2").find("#step").hide();
+        $("#HumanActiveSurveillanceSessionWizard-t-3").find("#step").hide();
+        $("#HumanActiveSurveillanceSessionWizard-t-4").find("#step").hide();
+    }
 
     function validateHAS(wizard, stepNumber, nextStepNumber) {
         var result = new Promise(function (validateSection, reject) {

@@ -103,11 +103,19 @@
 }
 
 <div id="OutbreakCaseReportsForm">
+    @*<input type="hidden" asp-for="HumanMasterID" />*@
+    @*<div class="container-fluid">*@
         <div class="form-row">
             <div class="col-md-11">
+                @*<h4 heading-for="@HeadingResourceKeyConstants.OutbreakCaseReportsHeading"></h4>*@
                 <h4>Outbreak Case Reports</h4>
             </div>
         </div>
+        @*<div class="form-row">
+            <div class="col-md-12 text-right">
+                <button id="addOutbreakCaseReport" type="button" class="btn btn-outline-primary" onclick="addOutbreakCaseReport();" button-for="@ButtonResourceKeyConstants.AddButton"></button>
+            </div>
+        </div>*@
         <div class="form-row">
             <div class="col-12">
                 <eidss-grid id="@Model.eidssGridConfiguration.GridId"
@@ -125,4 +133,5 @@
                 </eidss-grid>
             </div>
         </div>
+    @*</div>*@
 </div>

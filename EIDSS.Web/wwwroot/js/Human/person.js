@@ -19,36 +19,52 @@ var PersonAddEdit = (function () {
     *
     */
 
-    function validatePerson() {
-        PersonAddEdit.PersonInformationSection.DotNetReference.invokeMethodAsync("ValidateSection", true).then(valid => {
-            if (valid) {
-                PersonAddEdit.PersonAddressSection.DotNetReference.invokeMethodAsync("ValidateSection").then(valid => {
-                    if (valid) {
-                        PersonAddEdit.PersonEmploymentSchoolSection.DotNetReference.invokeMethodAsync("ValidateSection").then(valid => {
-                            if (valid) {
-                                PersonAddEdit.DotNetReference.invokeMethodAsync("OnSubmit");
-                            }
-                            else {
-                                $("#saveButton").attr("href", "#finish");
-                                $("#processing").removeClass("fas fa-sync fa-spin");
-                                $("#personDetailsWizard").steps("setStep", 2);
-                            }
-                        });
-                    }
-                    else {
-                        $("#saveButton").attr("href", "#finish");
-                        $("#processing").removeClass("fas fa-sync fa-spin");
-                        $("#personDetailsWizard").steps("setStep", 1);
-                    }
-                });
-            }
-            else {
-                $("#saveButton").attr("href", "#finish");
-                $("#processing").removeClass("fas fa-sync fa-spin");
+    async function validatePerson() {
+
+        var isPersonInformationSectionValid = await PersonAddEdit.PersonInformationSection.DotNetReference.invokeMethodAsync("ValidateSection", true);
+        var isPersonAddressSectionValid = await PersonAddEdit.PersonAddressSection.DotNetReference.invokeMethodAsync("ValidateSection");
+        var isPersonEmploymentSchoolSectionValid = await PersonAddEdit.PersonEmploymentSchoolSection.DotNetReference.invokeMethodAsync("ValidateSection");
+
+        hideDefaultStepIcons();
+        setWizardState(isPersonInformationSectionValid, "#personDetailsWizard-t-0");
+        setWizardState(isPersonAddressSectionValid, "#personDetailsWizard-t-1");
+        setWizardState(isPersonEmploymentSchoolSectionValid, "#personDetailsWizard-t-2");
+        $("#personDetailsWizard-t-2").find("#completedStep").show();
+
+        if (isPersonInformationSectionValid &&
+            isPersonAddressSectionValid &&
+            isPersonEmploymentSchoolSectionValid
+        ) {
+            PersonAddEdit.DotNetReference.invokeMethodAsync("OnSubmit");
+        } else {
+            $("#saveButton").attr("href", "#finish");
+            $("#processing").removeClass("fas fa-sync fa-spin");
+
+            if (!isPersonInformationSectionValid) {
                 $("#personDetailsWizard").steps("setStep", 0);
+            } else if (!isPersonAddressSectionValid) {
+                $("#personDetailsWizard").steps("setStep", 1);
+            } else if (!isPersonEmploymentSchoolSectionValid) {
+                $("#personDetailsWizard").steps("setStep", 2);
             }
-        });
+        }
     };
+
+    function hideDefaultStepIcons() {
+        $("#personDetailsWizard-t-0").find("#step").hide();
+        $("#personDetailsWizard-t-1").find("#step").hide();
+        $("#personDetailsWizard-t-2").find("#step").hide();
+    };
+
+    function setWizardState(isValid, stringId) {
+        if (isValid) {
+            $(stringId).find("#erroredStep").hide();
+            $(stringId).find("#completedStep").show();
+        } else {
+            $(stringId).find("#erroredStep").show();
+            $(stringId).find("#completedStep").hide();
+        }
+    }
 
     /*
     * Public Members
@@ -119,7 +135,14 @@ var PersonAddEdit = (function () {
             data: {
                 eventNamespace: "PersonDetails"
             },
-            onInit: function (event) { },
+            onInit: function (event) {
+                $("#personDetailsWizard .steps ul").append('<li id="saveStep" role="tab"><a href="#" role="menuitem"><span class="fa-stack text-muted"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-save fa-stack-1x fa-inverse"></i></span>  <span class="stepTitleText">' + finishButtonText +'</span></a></li>');
+
+                $(document).on('click', '#saveStep', function (e) {
+                    e.preventDefault();
+                    $("#personDetailsWizard").steps("finish");
+                });
+            },
             onCanceled: function (event) {
                 PersonAddEdit.DotNetReference.invokeMethodAsync("OnCancel");
             },

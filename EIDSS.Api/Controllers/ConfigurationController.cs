@@ -51,6 +51,7 @@ namespace EIDSS.Api.Controllers
             {
                 //Handled in Global cancellation handler and logs that the request was handled
                 cancellationToken.ThrowIfCancellationRequested();
+                //results = await _administrationRepository.GetVectorTypeListAsync(langID, strSearchVectorType, cancellationToken);
                 DataRepoArgs args = new()
                 {
                     Args = new object[] {usingType, intHACode, strLanguageID, null, cancellationToken},
@@ -91,6 +92,7 @@ namespace EIDSS.Api.Controllers
             {
                 //Handled in Global cancellation handler and logs that the request was handled
                 cancellationToken.ThrowIfCancellationRequested();
+                //results = await _administrationRepository.GetVectorTypeListAsync(langID, strSearchVectorType, cancellationToken);
                 DataRepoArgs args = new()
                 {
                     Args = new object[] {usingType, intHACode, strLanguageID, null, cancellationToken},
@@ -864,7 +866,7 @@ namespace EIDSS.Api.Controllers
                     RepoMethodReturnType = typeof(List<USP_CONF_USER_GRIDS_GETDETAILResult>)
                 };
                 var testResults =
-                    _repository.GetSynchronously(args);
+                    _repository.GetSynchronously(args); // as List<USP_CONF_USER_GRIDS_GETDETAILResponseModel>;
                 // Forwards the call to context method:  
                 results = _repository.GetSynchronously(args) as List<USP_CONF_USER_GRIDS_GETDETAILResponseModel>;
             }

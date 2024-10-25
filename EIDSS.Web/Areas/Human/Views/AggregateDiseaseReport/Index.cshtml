@@ -61,6 +61,7 @@
             $.ajax({
                 url: "AggregateDiseaseReport/ReloadLocationControl",
 
+                @*url: '@Url.Action("ReloadLocationControlAsync", "AggregateDiseaseReport", new { Area = "Human" })',*@
                 type: 'post',
                 data: JSON.stringify(selectedDataList),
                 dataType: 'json',
@@ -84,6 +85,9 @@
 
     // Show the detail modal for fixed or reference types
     $("#btnPrint2").on('click', function() {
+        //set the currently selected item
+        //  SetSeletedParameter(data);
+
         //retrieve the current item into a model
         var model = GetSelectedParameter();
 
@@ -99,18 +103,22 @@
                 $("#printModal").modal('show');
             },
             complete: function (resp) {
+                //alert('complete');
             },
             error: function (request, error) {
+                //alert(error);
             }
         });
     });
 
     //Get properties to retrieve
     function GetSelectedParameter() {
+        //ddlDataEntrySiteList
         var table = $('#reportsTable').DataTable();
         var rowCount = table.rows().count();
         var pageNo = table.page() + 1;
        SearchCriteria_LegacyReportID
+        //alert(pageNo + " " + rowCount);
         var model = {};
         model.LangID = $("#SelectedDetail_LanguageId").val();
         model.ReportTitle = 'SearchForHumanAggregateDiseaseReport';

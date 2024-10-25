@@ -265,6 +265,24 @@ namespace EIDSS.Domain.ViewModels.CrossCutting
 
         public bool AlwaysDisabled { get; set; }
 
+        public static LocationViewModel DisableTemplate = new LocationViewModel()
+        {
+            EnableAdminLevel1 = false,
+            EnableAdminLevel2 = false,
+            EnableAdminLevel3 = false,
+            EnableAdminLevel4 = false,
+            EnableAdminLevel5 = false,
+            EnableAdminLevel6 = false,
+            EnableSettlement = false,
+            EnableSettlementType = false,
+            OperationType = LocationViewOperationType.ReadOnly,
+            EnablePostalCode = false,
+            EnableStreet = false,
+            EnableHouse = false,
+            EnableBuilding = false,
+            EnableApartment = false,
+        };
+
         public void EnableLatLong()
         {
             this.EnabledLatitude = true;
@@ -381,6 +399,25 @@ namespace EIDSS.Domain.ViewModels.CrossCutting
             EnabledElevation = true;
             EnabledLongitude = true;
             EnabledLatitude = true;
+        }
+
+        public void SetFrom(LocationViewModel model)
+        {
+            EnableAdminLevel1 = model.EnableAdminLevel1;
+            EnableAdminLevel2 = model.EnableAdminLevel2;
+            EnableAdminLevel3 = model.EnableAdminLevel3;
+            EnableAdminLevel4 = model.EnableAdminLevel4;
+            EnableAdminLevel5 = model.EnableAdminLevel5;
+            EnableAdminLevel6 = model.EnableAdminLevel6;
+            EnableSettlement = model.EnableSettlement;
+            EnableSettlementType = model.EnableSettlementType;
+            EnablePostalCode = model.EnablePostalCode;
+            EnableStreet = model.EnableStreet;
+            EnableHouse = model.EnableHouse;
+            EnableBuilding = model.EnableBuilding;
+            EnableApartment = model.EnableApartment;
+            EnabledLongitude = model.EnableApartment;
+            EnabledLatitude = model.EnableApartment;
         }
     }
 

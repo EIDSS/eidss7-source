@@ -73,6 +73,7 @@
     </div>
     <div class="card">
         <div id="divSymptomsList">
+            @*@if (Model.HumanDiseaseSymptoms != null)*@
             @await Component.InvokeAsync("FlexFormView", Model.HumanDiseaseSymptoms)
         </div>
     </div>

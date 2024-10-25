@@ -10,5 +10,6 @@ namespace EIDSS.Domain.ResponseModels.Administration
     public class SampleTypeSaveRequestResponseModel : APIPostResponseModel
     {
         public long IdfsSampleType { get; set; }
+        //public IEnumerable<string> Errors { get; set; }
     }
 }

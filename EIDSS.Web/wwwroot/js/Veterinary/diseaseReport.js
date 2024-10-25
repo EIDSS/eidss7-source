@@ -168,7 +168,7 @@ function initializeCaseSidebar(cancelButtonText, finishButtonText, nextButtonTex
             delete: deleteButtonText,
             loading: loadingMessageText
         },
-        onInit: function (event) { },
+        onInit: function (event) {},
         onCanceled: function(event) {
              VeterinaryDiseaseReport.DotNetReference.invokeMethodAsync("OnCancel");
         },
@@ -278,12 +278,19 @@ function initializeReportSidebar(cancelButtonText,
             delete: deleteButtonText,
             loading: loadingMessageText
         },
-        onInit: function(event) {},
+        onInit: function (event) {
+            $("#caseDiseaseReportWizard .steps ul").append('<li id="saveStep" role="tab"><a href="#" role="menuitem"><span class="fa-stack text-muted"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-save fa-stack-1x fa-inverse"></i></span>  <span class="stepTitleText">' + finishButtonText + '</span></a></li>');
+
+            $(document).on('click', '#saveStep', function (e) {
+                e.preventDefault();
+                $("#caseDiseaseReportWizard").steps("finish");
+            });
+        },
         onCanceled: function (event) { VeterinaryDiseaseReport.DotNetReference.invokeMethodAsync("OnCancel"); },
         onPrinting: function (event) {
             VeterinaryDiseaseReport.DotNetReference.invokeMethodAsync("OnPrint");
         },
-        onStepChanging: function (event, currentIndex, newIndex) {
+        onStepChanging: async function (event, currentIndex, newIndex) {
             var stepCount = $("#caseDiseaseReportWizard").steps("getStepCount");
 
             if (newIndex === stepCount - 1) {
@@ -299,52 +306,50 @@ function initializeReportSidebar(cancelButtonText,
                     reloadLivestockSections(false, currentIndex);
             }
 
+            var isDiseaseReportSummaryValid = await DiseaseReportSummary.DotNetReference.invokeMethodAsync("ValidateSummary");
+            setWizardState(!isDiseaseReportSummaryValid , "#caseDiseaseReportWizard-t-0");
+            if (!isDiseaseReportSummaryValid) {
+                toggleCaseReportSummary("hide");
+            }
+
             switch (currentIndex) {
                 case 0: //Farm Details
-                    toggleCaseReportSummary("hide");
-                    validateReportSection(FarmDetailsSection.DotNetReference, "caseDiseaseReportWizard", currentIndex);
+                    var farmResult = await FarmDetailsSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar");
+                    if (farmResult && !isDiseaseReportSummaryValid) {
+                        $("#caseDiseaseReportWizard-t-0").find("#erroredStep").hide();
+                        $("#caseDiseaseReportWizard-t-0").find("#completedStep").show();
+                    }
                     break;
                 case 1: //Notification Section
-                    toggleCaseReportSummary("hide");
                     validateReportSection(NotificationSection.DotNetReference, "caseDiseaseReportWizard", currentIndex);
                     break;
                 case 2: //Farm Inventory Section
-                    toggleCaseReportSummary("hide");
                     validateReportSection(FarmInventorySection.DotNetReference, "caseDiseaseReportWizard", currentIndex);
                     break;
                 case 3: //Farm Epidemiological Info Section
-                    toggleCaseReportSummary("hide");
                     return true;
                 case 4: //Species/Clinical Investigation Section
-                    toggleCaseReportSummary("hide");
                     validateReportSection(ClinicalInvestigationSection.DotNetReference,
                         "caseDiseaseReportWizard",
                         currentIndex);
                     break;
                 case 5: //Vaccinations Section
-                    toggleCaseReportSummary("hide");
                     return true;
                 case 6: //Samples (Avian) or Animals (Livestock) Section
-                    toggleCaseReportSummary("hide");
                     return true;
                 case 7: //Penside Tests (Avian) or Control Measures (Livestock) Section
-                    toggleCaseReportSummary("hide");
                     return true;
                     break;
                 case 8: //Laboratory Tests and Results Summary and Interpretations (Avian) or Samples (Livestock) Section
-                    toggleCaseReportSummary("hide");
                     return true;
                     break;
                 case 9: //Case Logs (Avian) or Penside Tests (Livestock) Section
-                    toggleCaseReportSummary("hide");
                     return true;
                     break;
                 case 10: //Laboratory Tests and Results Summary and Interpretations (Livestock)
-                    toggleCaseReportSummary("hide");
                     return true;
                     break;
                 case 11: //Case Logs (Livestock) Section
-                    toggleCaseReportSummary("hide");
                     return true;
                     break;
                 default:
@@ -371,6 +376,31 @@ function initializeReportSidebar(cancelButtonText,
         }
     });
 };
+
+function setWizardState(isValid, stringId) {
+    if (isValid) {
+        $(stringId).find("#erroredStep").hide();
+        $(stringId).find("#completedStep").show();
+    } else {
+        $(stringId).find("#erroredStep").show();
+        $(stringId).find("#completedStep").hide();
+    }
+}
+
+function hideDefaultStepIcons() {
+    $("#caseDiseaseReportWizard-t-0").find("#step").hide();
+    $("#caseDiseaseReportWizard-t-1").find("#step").hide();
+    $("#caseDiseaseReportWizard-t-2").find("#step").hide();
+    $("#caseDiseaseReportWizard-t-3").find("#step").hide();
+    $("#caseDiseaseReportWizard-t-4").find("#step").hide();
+    $("#caseDiseaseReportWizard-t-5").find("#step").hide();
+    $("#caseDiseaseReportWizard-t-6").find("#step").hide();
+    $("#caseDiseaseReportWizard-t-7").find("#step").hide();
+    $("#caseDiseaseReportWizard-t-8").find("#step").hide();
+    $("#caseDiseaseReportWizard-t-9").find("#step").hide();
+    $("#caseDiseaseReportWizard-t-10").find("#step").hide();
+    $("#caseDiseaseReportWizard-t-11").find("#step").hide();
+}
 
 function navigateToReviewStep(reviewStep) {
     $("#caseDiseaseReportWizard").steps("setStep", reviewStep);
@@ -410,231 +440,121 @@ function validateReportSection(dotNetReference, wizard, stepNumber) {
 //
 //
 //
-function validateAvianDiseaseReport(laboratoryTestInterpretationId, deleteReportIndicator) {
-    DiseaseReportSummary.DotNetReference.invokeMethodAsync("ValidateSummary").then(valid => {
-        if (valid === "") {
-            FarmDetailsSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar").then(valid => {
-                if (valid) {
-                    NotificationSection.DotNetReference.invokeMethodAsync("ValidateSectionForSubmit").then(valid => {
-                        if (valid === "") {
-                            FarmInventorySection.DotNetReference.invokeMethodAsync("ValidateSection").then(valid => {
-                                if (valid) {
-                                    FarmEpidemiologicalInformationSection.DotNetReference
-                                        .invokeMethodAsync("ValidateSection").then(
-                                            valid => {
-                                                if (valid) {
-                                                    ClinicalInvestigationSection.DotNetReference.invokeMethodAsync("ValidateSection").then(
-                                                        valid => {
-                                                            if (valid) {
-                                                                if (
-                                                                    laboratoryTestInterpretationId)
-                                                                    LaboratoryTestsAndResultsSummaryAndInterpretationSection
-                                                                        .DotNetReference
-                                                                        .invokeMethodAsync(
-                                                                            "OnSubmitConnectedDiseaseReport",
-                                                                            laboratoryTestInterpretationId);
-                                                                else {
-                                                                    if (
-                                                                        deleteReportIndicator ===
-                                                                            "true") {
-                                                                        VeterinaryDiseaseReport
-                                                                            .DotNetReference
-                                                                            .invokeMethodAsync(
-                                                                                "OnDelete");
-                                                                    } else {
-                                                                        for (var iSection = 0; iSection < 11; iSection++) {
-                                                                            $("#caseDiseaseReportWizard" + "-t-" + iSection).find("#erroredStep").hide();
-                                                                            $("#caseDiseaseReportWizard" + "-t-" + iSection).find("#completedStep").show();
-                                                                        }
+async function validateAvianDiseaseReport(laboratoryTestInterpretationId, deleteReportIndicator) {
+    var isDiseaseReportSummaryValid = await DiseaseReportSummary.DotNetReference.invokeMethodAsync("ValidateSummary");
+    var isFarmDetailsSection = await FarmDetailsSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar");
+    var isNotificationSectionValid = await NotificationSection.DotNetReference.invokeMethodAsync("ValidateSectionForSubmit");
+    var isFarmInventorySectionValid = await FarmInventorySection.DotNetReference.invokeMethodAsync("ValidateSection");
+    var isFarmEpidemiologicalInformationSection = await FarmEpidemiologicalInformationSection.DotNetReference.invokeMethodAsync("ValidateSection");
+    var isClinicalInvestigationSection = await ClinicalInvestigationSection.DotNetReference.invokeMethodAsync("ValidateSection");
 
-                                                                        $(".fa-stack.text-muted").hide();
-
-                                                                        VeterinaryDiseaseReport
-                                                                            .DotNetReference
-                                                                            .invokeMethodAsync(
-                                                                                "OnSubmit");
-                                                                    }
-                                                                }
-                                                            } else {
-                                                                $("#saveButton").attr("href", "#finish");
-                                                                $("#processing").removeClass("fas fa-sync fa-spin");
-                                                                $("#caseDiseaseReportWizard").steps("setStep", 4);
-                                                            }
-                                                        });
-                                                } else {
-                                                    $("#saveButton").attr("href", "#finish");
-                                                    $("#processing").removeClass("fas fa-sync fa-spin");
-                                                    $("#caseDiseaseReportWizard").steps("setStep", 3);
-                                                }
-                                            });
-                                } else {
-                                    $("#saveButton").attr("href", "#finish");
-                                    $("#processing").removeClass("fas fa-sync fa-spin");
-                                    $("#caseDiseaseReportWizard").steps("setStep", 2);
-                                }
-                            });
-                        } else {
-                            $("#saveButton").attr("href", "#finish");
-                            $("#processing").removeClass("fas fa-sync fa-spin");
-                            $("#caseDiseaseReportWizard").steps("setStep", 1);
-                            $("#" + valid).focus();
-                        }
-                    });
-                } else {
-                    $("#saveButton").attr("href", "#finish");
-                    $("#processing").removeClass("fas fa-sync fa-spin");
-                    $("#caseDiseaseReportWizard").steps("setStep", 0);
-                }
-            });
-        } else {
-            $("#saveButton").attr("href", "#finish");
-            $("#processing").removeClass("fas fa-sync fa-spin");
-            $("#caseDiseaseReportWizard").steps("setStep", 0);
+    if (isDiseaseReportSummaryValid)
+    {
+        $("#caseDiseaseReportWizard").steps("setStep", 0);
+        $("#" + isDiseaseReportSummaryValid).focus();
+        $("#divCaseReportSummary").one('shown.bs.collapse hidden.bs.collapse', function () {
             toggleCaseReportSummary("show");
-            $("#" + valid).focus();
+        });
+    } else if (isNotificationSectionValid)
+    {
+        $("#caseDiseaseReportWizard").steps("setStep", 1);
+        $("#" + isNotificationSectionValid).focus();
+        $("#divCaseReportSummary").one('shown.bs.collapse hidden.bs.collapse', function () {
+            toggleCaseReportSummary("show");
+        });
+        return;
+    }
+
+    hideDefaultStepIcons();
+    setWizardState(!isDiseaseReportSummaryValid && isFarmDetailsSection, "#caseDiseaseReportWizard-t-0");
+    setWizardState(!isNotificationSectionValid, "#caseDiseaseReportWizard-t-1");
+    setWizardState(isFarmInventorySectionValid, "#caseDiseaseReportWizard-t-2");
+    setWizardState(isFarmEpidemiologicalInformationSection, "#caseDiseaseReportWizard-t-3");
+    setWizardState(isClinicalInvestigationSection, "#caseDiseaseReportWizard-t-4");
+
+    $("#caseDiseaseReportWizard-t-5").find("#completedStep").show();
+    $("#caseDiseaseReportWizard-t-6").find("#completedStep").show();
+    $("#caseDiseaseReportWizard-t-7").find("#completedStep").show();
+    $("#caseDiseaseReportWizard-t-8").find("#completedStep").show();
+    $("#caseDiseaseReportWizard-t-9").find("#completedStep").show();
+
+    if (!isDiseaseReportSummaryValid &&
+        isFarmDetailsSection &&
+        !isNotificationSectionValid &&
+        isFarmInventorySectionValid &&
+        isFarmEpidemiologicalInformationSection &&
+        isClinicalInvestigationSection
+    ) {
+        if (laboratoryTestInterpretationId) LaboratoryTestsAndResultsSummaryAndInterpretationSection.DotNetReference.invokeMethodAsync("OnSubmitConnectedDiseaseReport",laboratoryTestInterpretationId);
+        else {
+            if (deleteReportIndicator === "true")
+                VeterinaryDiseaseReport.DotNetReference.invokeMethodAsync("OnDelete");
+            else
+                VeterinaryDiseaseReport.DotNetReference.invokeMethodAsync("OnSubmit");
         }
-    });
+    }
 };
 
 //
 //
 //
-function validateLivestockDiseaseReport(laboratoryTestInterpretationId, deleteReportIndicator) {
-    DiseaseReportSummary.DotNetReference.invokeMethodAsync("ValidateSummary").then(valid => {
-        if (valid === "") {
-            FarmDetailsSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar").then(valid => {
-                if (valid) {
-                    NotificationSection.DotNetReference.invokeMethodAsync("ValidateSectionForSubmit").then(valid => {
-                        if (valid === "") {
-                            FarmInventorySection.DotNetReference.invokeMethodAsync("ValidateSection").then(valid => {
-                                if (valid) {
-                                    FarmEpidemiologicalInformationSection.DotNetReference
-                                        .invokeMethodAsync("ValidateSection").then(
-                                            valid => {
-                                                if (valid) {
-                                                    ClinicalInvestigationSection.DotNetReference
-                                                        .invokeMethodAsync("ValidateSection").then(
-                                                            valid => {
-                                                                if (valid) {
-                                                                    AnimalsSection.DotNetReference
-                                                                        .invokeMethodAsync("ValidateSection").then(
-                                                                            valid => {
-                                                                                if (valid) {
-                                                                                    if (ControlMeasuresSection
-                                                                                        .DotNetReference) {
-                                                                                        ControlMeasuresSection
-                                                                                            .DotNetReference
-                                                                                            .invokeMethodAsync(
-                                                                                                "ValidateSection").then(
-                                                                                                valid => {
-                                                                                                    if (valid) {
-                                                                                                        if (
-                                                                                                            laboratoryTestInterpretationId)
-                                                                                                            LaboratoryTestsAndResultsSummaryAndInterpretationSection
-                                                                                                                .DotNetReference
-                                                                                                                .invokeMethodAsync(
-                                                                                                                    "OnSubmitConnectedDiseaseReport",
-                                                                                                                    laboratoryTestInterpretationId);
-                                                                                                        else {
-                                                                                                            if (
-                                                                                                                deleteReportIndicator === "true") {
-                                                                                                                VeterinaryDiseaseReport
-                                                                                                                    .DotNetReference
-                                                                                                                    .invokeMethodAsync(
-                                                                                                                        "OnDelete");
-                                                                                                            } else {
-                                                                                                                for (var iSection = 0; iSection < 13; iSection++) {
-                                                                                                                    $("#caseDiseaseReportWizard" + "-t-" + iSection).find("#erroredStep").hide();
-                                                                                                                    $("#caseDiseaseReportWizard" + "-t-" + iSection).find("#completedStep").show();
-                                                                                                                }
+async function validateLivestockDiseaseReport(laboratoryTestInterpretationId, deleteReportIndicator) {
+    var isDiseaseReportSummaryValid = await DiseaseReportSummary.DotNetReference.invokeMethodAsync("ValidateSummary");
+    var isFarmDetailsSection = await FarmDetailsSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar");
+    var isNotificationSectionValid = await NotificationSection.DotNetReference.invokeMethodAsync("ValidateSectionForSubmit");
+    var isFarmInventorySectionValid = await FarmInventorySection.DotNetReference.invokeMethodAsync("ValidateSection");
+    var isFarmEpidemiologicalInformationSectionValid = await FarmEpidemiologicalInformationSection.DotNetReference.invokeMethodAsync("ValidateSection");
+    var isClinicalInvestigationSectionValid = await ClinicalInvestigationSection.DotNetReference.invokeMethodAsync("ValidateSection");
+    var isAnimalsSectionvalid = await AnimalsSection.DotNetReference.invokeMethodAsync("ValidateSection");
+    var isControlMeasuresSectionValid = await ControlMeasuresSection.DotNetReference.invokeMethodAsync("ValidateSection");
 
-                                                                                                                $(".fa-stack.text-muted").hide();
-
-                                                                                                                VeterinaryDiseaseReport
-                                                                                                                    .DotNetReference
-                                                                                                                    .invokeMethodAsync(
-                                                                                                                        "OnSubmit");
-                                                                                                            }
-                                                                                                        }
-                                                                                                    } else {
-                                                                                                        $("#saveButton")
-                                                                                                            .attr(
-                                                                                                                "href",
-                                                                                                                "#finish");
-                                                                                                        $("#processing")
-                                                                                                            .removeClass(
-                                                                                                                "fas fa-sync fa-spin");
-                                                                                                        $(
-                                                                                                                "#caseDiseaseReportWizard")
-                                                                                                            .steps(
-                                                                                                                "setStep",
-                                                                                                                7);
-                                                                                                    }
-                                                                                                });
-                                                                                    } else {
-                                                                                        if (
-                                                                                            laboratoryTestInterpretationId)
-                                                                                            LaboratoryTestsAndResultsSummaryAndInterpretationSection
-                                                                                                .DotNetReference
-                                                                                                .invokeMethodAsync(
-                                                                                                    "OnSubmitConnectedDiseaseReport",
-                                                                                                    laboratoryTestInterpretationId);
-                                                                                        else {
-                                                                                            VeterinaryDiseaseReport
-                                                                                                .DotNetReference
-                                                                                                .invokeMethodAsync(
-                                                                                                    "OnSubmit");
-                                                                                        }
-                                                                                    }
-                                                                                } else {
-                                                                                    $("#saveButton").attr("href",
-                                                                                        "#finish");
-                                                                                    $("#processing")
-                                                                                        .removeClass(
-                                                                                            "fas fa-sync fa-spin");
-                                                                                    $("#caseDiseaseReportWizard")
-                                                                                        .steps("setStep", 5);
-                                                                                }
-                                                                            });
-                                                                } else {
-                                                                    $("#saveButton").attr("href", "#finish");
-                                                                    $("#processing").removeClass("fas fa-sync fa-spin");
-                                                                    $("#caseDiseaseReportWizard").steps("setStep", 4);
-                                                                }
-                                                            });
-                                                } else {
-                                                    $("#saveButton").attr("href", "#finish");
-                                                    $("#processing").removeClass("fas fa-sync fa-spin");
-                                                    $("#caseDiseaseReportWizard").steps("setStep", 3);
-                                                }
-                                            });
-                                } else {
-                                    $("#saveButton").attr("href", "#finish");
-                                    $("#processing").removeClass("fas fa-sync fa-spin");
-                                    $("#caseDiseaseReportWizard").steps("setStep", 2);
-                                }
-                            });
-                        } else {
-                            $("#saveButton").attr("href", "#finish");
-                            $("#processing").removeClass("fas fa-sync fa-spin");
-                            $("#caseDiseaseReportWizard").steps("setStep", 1);
-                            $("#" + valid).focus();
-                        }
-                    });
-                } else {
-                    $("#saveButton").attr("href", "#finish");
-                    $("#processing").removeClass("fas fa-sync fa-spin");
-                    $("#caseDiseaseReportWizard").steps("setStep", 0);
-                }
-            });
-        } else {
-            $("#saveButton").attr("href", "#finish");
-            $("#processing").removeClass("fas fa-sync fa-spin");
-            $("#caseDiseaseReportWizard").steps("setStep", 0);
+    if (isDiseaseReportSummaryValid) {
+        $("#caseDiseaseReportWizard").steps("setStep", 0);
+        $("#" + isDiseaseReportSummaryValid).focus();
+        $("#divCaseReportSummary").one('shown.bs.collapse hidden.bs.collapse', function () {
             toggleCaseReportSummary("show");
-            $("#" + valid).focus();
+        });
+    } else if (isNotificationSectionValid) {
+        $("#caseDiseaseReportWizard").steps("setStep", 1);
+        $("#" + isNotificationSectionValid).focus();
+        $("#divCaseReportSummary").one('shown.bs.collapse hidden.bs.collapse', function () {
+            toggleCaseReportSummary("show");
+        });
+        return;
+    }
+
+    hideDefaultStepIcons();
+    setWizardState(!isDiseaseReportSummaryValid && isFarmDetailsSection, "#caseDiseaseReportWizard-t-0");
+    setWizardState(!isNotificationSectionValid, "#caseDiseaseReportWizard-t-1");
+    setWizardState(isFarmInventorySectionValid, "#caseDiseaseReportWizard-t-2");
+    setWizardState(isFarmEpidemiologicalInformationSectionValid, "#caseDiseaseReportWizard-t-3");
+    setWizardState(isClinicalInvestigationSectionValid, "#caseDiseaseReportWizard-t-4");
+
+    $("#caseDiseaseReportWizard-t-5").find("#completedStep").show();
+    $("#caseDiseaseReportWizard-t-6").find("#completedStep").show();
+    setWizardState(isControlMeasuresSectionValid, "#caseDiseaseReportWizard-t-7");
+    $("#caseDiseaseReportWizard-t-8").find("#completedStep").show();
+    $("#caseDiseaseReportWizard-t-9").find("#completedStep").show();
+    $("#caseDiseaseReportWizard-t-10").find("#completedStep").show();
+    $("#caseDiseaseReportWizard-t-11").find("#completedStep").show();
+
+    if (!isDiseaseReportSummaryValid &&
+        isFarmDetailsSection &&
+        !isNotificationSectionValid &&
+        isFarmInventorySectionValid &&
+        isFarmEpidemiologicalInformationSectionValid &&
+        isClinicalInvestigationSectionValid &&
+        isAnimalsSectionvalid &&
+        isControlMeasuresSectionValid
+    ) {
+        if (laboratoryTestInterpretationId) LaboratoryTestsAndResultsSummaryAndInterpretationSection.DotNetReference.invokeMethodAsync("OnSubmitConnectedDiseaseReport", laboratoryTestInterpretationId);
+        else {
+            if (deleteReportIndicator === "true")
+                VeterinaryDiseaseReport.DotNetReference.invokeMethodAsync("OnDelete");
+            else
+                VeterinaryDiseaseReport.DotNetReference.invokeMethodAsync("OnSubmit");
         }
-    });
+    }
 };
 
 //

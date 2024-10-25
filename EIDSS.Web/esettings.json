@@ -4,6 +4,8 @@
     "PIN_Password": "",
     "SSRS_Domain": "",
     "SSRS_UserName": "",
-    "SSRS_Password": ""
+    "SSRS_Password": "",
+    "LocalizationDatabaseUser": "",
+    "LocalizationDatabasePassword": ""
   }
 }

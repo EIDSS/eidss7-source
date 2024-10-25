@@ -1,19 +1,16 @@
-﻿using EIDSS.ClientLibrary.ApiClients.CrossCutting;
+﻿using System;
+using System.Globalization;
+using System.Net;
+using System.Threading;
+using EIDSS.ClientLibrary.ApiClients.CrossCutting;
+using EIDSS.ClientLibrary.Configurations;
 using EIDSS.ClientLibrary.Responses;
 using EIDSS.ClientLibrary.Services;
+using EIDSS.Security.Encryption;
 using EIDSS.Web.ActionFilters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using EIDSS.ClientLibrary.Configurations;
-using Microsoft.Extensions.Options;
 
 namespace EIDSS.Web.Areas.Reports.Controllers
 {
@@ -29,7 +26,7 @@ namespace EIDSS.Web.Areas.Reports.Controllers
 
         private ICrossCuttingClient _crossCuttingClient;
 
-        protected  bool  DisplayReportParameters { get; set; }
+        protected bool DisplayReportParameters { get; set; }
 
         public string ReportPath { get; set; }
 
@@ -43,7 +40,6 @@ namespace EIDSS.Web.Areas.Reports.Controllers
         {
             get
             {
-                //return $"/HumanForm1A3Controller/ReportImage/?originalPath={Path}";
                 return "Reports/Report/ReportImage/?originalPath={0}";
             }
         }
@@ -69,7 +65,6 @@ namespace EIDSS.Web.Areas.Reports.Controllers
 
         protected override bool ShowReportParameters
         {
-
             get
             {
                 return DisplayReportParameters;
@@ -83,7 +78,6 @@ namespace EIDSS.Web.Areas.Reports.Controllers
 
         public CustomReportController(IConfiguration configuration, ITokenService tokenService, ICrossCuttingClient crossCuttingClient, ILogger<CustomReportController> logger) : base(logger)
         {
-
             _tokenService = tokenService;
             _crossCuttingClient = crossCuttingClient;
             _configuration = configuration;
@@ -101,16 +95,10 @@ namespace EIDSS.Web.Areas.Reports.Controllers
             ReportPath = $"{Path}/{ReportFileName}";
 
             DisplayReportParameters = _configuration.GetValue<bool>("ReportServer:ShowReportParameters");
-
-
-
         }
 
         public IActionResult Index()
         {
-
-
-
             return View();
         }
     }

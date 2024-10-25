@@ -83,6 +83,8 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
         public async Task<IActionResult> Index()
         {
+            //temporary disable this module - until we refactor this solution #122527
+            return RedirectToAction("index", "Dashboard");
 
             //get the modules
             var moduleRequest = new InterfaceEditorModuleGetRequestModel()

@@ -77,6 +77,7 @@ namespace EIDSS.ReportViewer
 			};
 
 			var jsonResult = Json(new { CurrentPage = contentData.CurrentPage, Content = content, TotalPages = contentData.TotalPages }
+					//new Newtonsoft.Json.JsonSerializerSettings() //{ // ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver() //}
 			);
 
 			return jsonResult;
@@ -173,9 +174,15 @@ namespace EIDSS.ReportViewer
 			var sb = new System.Text.StringBuilder();
 			sb.AppendLine("<html>");
 			sb.AppendLine("	<body>");
+			//sb.AppendLine($"		<img src='data:image/tiff;base64,{Convert.ToBase64String(contentData.ReportData)}' />");
 			sb.AppendLine($"		{content}");
 			sb.AppendLine("		<script type='text/javascript'>");
 			sb.AppendLine("			(function() {");
+			/*
+			sb.AppendLine("				var beforePrint = function() {");
+			sb.AppendLine("					console.log('Functionality to run before printing.');");
+			sb.AppendLine("				};");
+			*/
 			sb.AppendLine("				var afterPrint = function() {");
 			sb.AppendLine("					window.onfocus = function() { window.close(); };");
 			sb.AppendLine("					window.onmousemove = function() { window.close(); };");
@@ -185,12 +192,14 @@ namespace EIDSS.ReportViewer
 			sb.AppendLine("					var mediaQueryList = window.matchMedia('print');");
 			sb.AppendLine("					mediaQueryList.addListener(function(mql) {");
 			sb.AppendLine("						if (mql.matches) {");
+			//sb.AppendLine("							beforePrint();");
 			sb.AppendLine("						} else {");
 			sb.AppendLine("							afterPrint();");
 			sb.AppendLine("						}");
 			sb.AppendLine("					});");
 			sb.AppendLine("				}");
 
+			//sb.AppendLine("				window.onbeforeprint = beforePrint;");
 			sb.AppendLine("				window.onafterprint = afterPrint;");
 
 			sb.AppendLine("			}());");

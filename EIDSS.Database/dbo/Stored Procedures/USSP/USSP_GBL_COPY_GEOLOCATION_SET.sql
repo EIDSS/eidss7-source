@@ -57,20 +57,21 @@ DECLARE @GeoLocationBeforeEdit TABLE
     GroundTypeID BIGINT,
     GeoLocationTypeID BIGINT,
     LocationID BIGINT,
-    PostalCode NVARCHAR(200),
-    StreetName NVARCHAR(200),
-    House NVARCHAR(200),
-    Building NVARCHAR(200),
-    Apartment NVARCHAR(200),
-    AddressDescription NVARCHAR(200),
+    PostalCode NVARCHAR(200) collate Cyrillic_General_CI_AS,
+    StreetName NVARCHAR(200) collate Cyrillic_General_CI_AS,
+    House NVARCHAR(200) collate Cyrillic_General_CI_AS,
+    Building NVARCHAR(200) collate Cyrillic_General_CI_AS,
+    Apartment NVARCHAR(200) collate Cyrillic_General_CI_AS,
+    AddressDescription NVARCHAR(200) collate Cyrillic_General_CI_AS,
     Distance FLOAT,
     Latitude FLOAT,
     Longitude FLOAT,
     Accuracy FLOAT,
     Alignment FLOAT,
     ForeignAddressIndicator BIT,
-    ForeignAddressString NVARCHAR(200),
-    ShortAddressString NVARCHAR(2000)
+    ForeignAddressString NVARCHAR(200) collate Cyrillic_General_CI_AS,
+	AddressString NVARCHAR(2000) collate Cyrillic_General_CI_AS,
+    ShortAddressString NVARCHAR(2000) collate Cyrillic_General_CI_AS
 );
 DECLARE @GeoLocationAfterEdit TABLE
 (
@@ -79,20 +80,21 @@ DECLARE @GeoLocationAfterEdit TABLE
     GroundTypeID BIGINT,
     GeoLocationTypeID BIGINT,
     LocationID BIGINT,
-    PostalCode NVARCHAR(200),
-    StreetName NVARCHAR(200),
-    House NVARCHAR(200),
-    Building NVARCHAR(200),
-    Apartment NVARCHAR(200),
-    AddressDescription NVARCHAR(200),
+    PostalCode NVARCHAR(200) collate Cyrillic_General_CI_AS,
+    StreetName NVARCHAR(200) collate Cyrillic_General_CI_AS,
+    House NVARCHAR(200) collate Cyrillic_General_CI_AS,
+    Building NVARCHAR(200) collate Cyrillic_General_CI_AS,
+    Apartment NVARCHAR(200) collate Cyrillic_General_CI_AS,
+    AddressDescription NVARCHAR(200) collate Cyrillic_General_CI_AS,
     Distance FLOAT,
     Latitude FLOAT,
     Longitude FLOAT,
     Accuracy FLOAT,
     Alignment FLOAT,
     ForeignAddressIndicator BIT,
-    ForeignAddressString NVARCHAR(200),
-    ShortAddressString NVARCHAR(2000)
+    ForeignAddressString NVARCHAR(200) collate Cyrillic_General_CI_AS,
+	AddressString NVARCHAR(2000) collate Cyrillic_General_CI_AS,
+    ShortAddressString NVARCHAR(2000) collate Cyrillic_General_CI_AS
 );
 BEGIN
     BEGIN TRY
@@ -106,7 +108,7 @@ BEGIN
 
         IF NOT EXISTS
         (
-            SELECT *
+            SELECT 1
             FROM dbo.tlbGeoLocation
             WHERE idfGeoLocation = @GeoLocationIDCopy
         )
@@ -133,6 +135,10 @@ BEGIN
                 strPostCode,
                 idfsResidentType,
                 idfsLocation,
+				blnForeignAddress,
+				strForeignAddress,
+				strAddressString,
+				strShortAddressString,
                 SourceSystemNameID,
                 SourceSystemKeyValue,
                 AuditCreateUser
@@ -157,6 +163,10 @@ BEGIN
                    strPostCode,
                    idfsResidentType,
                    idfsLocation,
+				   blnForeignAddress,
+				   strForeignAddress,
+				   strAddressString,
+				   strShortAddressString,
                    10519001,
                    '[{"idfGeoLocation":' + CAST(@GeoLocationIDCopy AS NVARCHAR(300)) + '}]',
                    @AuditUserName
@@ -164,53 +174,58 @@ BEGIN
             WHERE idfGeoLocationShared = @GeoLocationID;
 
             -- Data audit
-            INSERT INTO dbo.tauDataAuditDetailCreate
-            (
-                idfDataAuditEvent,
-                idfObjectTable,
-                idfObject,
-                SourceSystemNameID,
-                SourceSystemKeyValue,
-                AuditCreateUser
-            )
-            VALUES
-            (@DataAuditEventID,
-             @ObjectGeoLocationTableID,
-             @GeoLocationIDCopy,
-             10519001,
-             '[{"idfDataAuditEvent":' + CAST(@DataAuditEventID AS NVARCHAR(300)) + ',"idfObjectTable":'
-             + CAST(@ObjectGeoLocationTableID AS NVARCHAR(300)) + '}]',
-             @AuditUserName
-            );
+			if @DataAuditEventID is not null
+			begin
+				INSERT INTO dbo.tauDataAuditDetailCreate
+				(
+					idfDataAuditEvent,
+					idfObjectTable,
+					idfObject,
+					SourceSystemNameID,
+					SourceSystemKeyValue,
+					AuditCreateUser
+				)
+				VALUES
+				(@DataAuditEventID,
+				 @ObjectGeoLocationTableID,
+				 @GeoLocationIDCopy,
+				 10519001,
+				 '[{"idfDataAuditEvent":' + CAST(@DataAuditEventID AS NVARCHAR(300)) + ',"idfObjectTable":'
+				 + CAST(@ObjectGeoLocationTableID AS NVARCHAR(300)) + '}]',
+				 @AuditUserName
+				);
+			end
+			else begin
 
-            -- Add data audit event for the geo-location object type
-            EXECUTE dbo.USSP_GBL_DATA_AUDIT_EVENT_SET @AuditUserID,
-                                                      @AuditSiteID,
-                                                      10016001, -- Create data audit event type
-                                                      10017025, -- Geolocation data audit object type
-                                                      @GeoLocationIDCopy,
-                                                      @ObjectGeoLocationTableID,
-                                                      NULL,
-                                                      @DataAuditEventGeoLocationID OUTPUT;
+				-- Add data audit event for the geo-location object type
+				EXECUTE dbo.USSP_GBL_DATA_AUDIT_EVENT_SET @AuditUserID,
+														  @AuditSiteID,
+														  10016001, -- Create data audit event type
+														  10017025, -- Geolocation data audit object type
+														  @GeoLocationIDCopy,
+														  @ObjectGeoLocationTableID,
+														  NULL,
+														  @DataAuditEventGeoLocationID OUTPUT;
 
-            INSERT INTO dbo.tauDataAuditDetailCreate
-            (
-                idfDataAuditEvent,
-                idfObjectTable,
-                idfObject,
-                SourceSystemNameID,
-                SourceSystemKeyValue,
-                AuditCreateUser
-            )
-            VALUES
-            (@DataAuditEventGeoLocationID,
-             @ObjectGeoLocationTableID,
-             @GeoLocationIDCopy,
-             10519001,
-             '[{"idfDataAuditEvent":' + CAST(@DataAuditEventID AS NVARCHAR(300)) + ',"idfObjectTable":'
-             + CAST(@ObjectGeoLocationTableID AS NVARCHAR(300)) + '}]',
-             @AuditUserName
-            );
+				INSERT INTO dbo.tauDataAuditDetailCreate
+				(
+					idfDataAuditEvent,
+					idfObjectTable,
+					idfObject,
+					SourceSystemNameID,
+					SourceSystemKeyValue,
+					AuditCreateUser
+				)
+				VALUES
+				(@DataAuditEventGeoLocationID,
+				 @ObjectGeoLocationTableID,
+				 @GeoLocationIDCopy,
+				 10519001,
+				 '[{"idfDataAuditEvent":' + CAST(@DataAuditEventID AS NVARCHAR(300)) + ',"idfObjectTable":'
+				 + CAST(@ObjectGeoLocationTableID AS NVARCHAR(300)) + '}]',
+				 @AuditUserName
+				);
+			end
         -- End data audit
         END
         ELSE
@@ -236,6 +251,7 @@ BEGIN
                 Alignment,
                 ForeignAddressIndicator,
                 ForeignAddressString,
+				AddressString,
                 ShortAddressString
             )
             SELECT idfGeoLocation,
@@ -256,6 +272,7 @@ BEGIN
                    dblAlignment,
                    blnForeignAddress,
                    strForeignAddress,
+				   strAddressString,
                    strShortAddressString
             FROM dbo.tlbGeoLocation
             WHERE idfGeoLocation = @GeoLocationID;
@@ -280,30 +297,96 @@ BEGIN
                 strHouse = old.strHouse,
                 strPostCode = old.strPostCode,
                 idfsResidentType = old.idfsResidentType,
-                idfsLocation = old.idfsLocation
+                idfsLocation = old.idfsLocation,
+				blnForeignAddress = old.blnForeignAddress,
+				strForeignAddress = old.strForeignAddress
             FROM dbo.tlbGeoLocation old
                 INNER JOIN dbo.tlbGeoLocation new
                     ON new.idfGeoLocation = @GeoLocationIDCopy
                        AND (
-                               ISNULL(new.idfsGroundType, 0) != ISNULL(old.idfsGroundType, 0)
-                               OR ISNULL(new.idfsGeoLocationType, 0) != ISNULL(old.idfsGeoLocationType, 0)
-                               OR ISNULL(new.idfsCountry, 0) != ISNULL(old.idfsCountry, 0)
-                               OR ISNULL(new.idfsRegion, 0) != ISNULL(old.idfsRegion, 0)
-                               OR ISNULL(new.idfsRayon, 0) != ISNULL(old.idfsRayon, 0)
-                               OR ISNULL(new.idfsSettlement, 0) != ISNULL(old.idfsSettlement, 0)
-                               OR ISNULL(new.strDescription, '') != ISNULL(old.strDescription, '')
-                               OR ISNULL(new.dblDistance, 0) != ISNULL(old.dblDistance, 0)
-                               OR ISNULL(new.dblLatitude, 0) != ISNULL(old.dblLatitude, 0)
-                               OR ISNULL(new.dblLongitude, 0) != ISNULL(old.dblLongitude, 0)
-                               OR ISNULL(new.dblAccuracy, 0) != ISNULL(old.dblAccuracy, 0)
-                               OR ISNULL(new.dblAlignment, 0) != ISNULL(old.dblAlignment, 0)
-                               OR ISNULL(new.strApartment, '') != ISNULL(old.strApartment, '')
-                               OR ISNULL(new.strBuilding, '') != ISNULL(old.strBuilding, '')
-                               OR ISNULL(new.strStreetName, '') != ISNULL(old.strStreetName, '')
-                               OR ISNULL(new.strHouse, '') != ISNULL(old.strHouse, '')
-                               OR ISNULL(new.strPostCode, '') != ISNULL(old.strPostCode, '')
-                               OR ISNULL(new.idfsResidentType, 0) != ISNULL(old.idfsResidentType, 0)
-                               OR ISNULL(new.idfsLocation, 0) != ISNULL(old.idfsLocation, 0)
+                               (new.idfsGroundType is null and old.idfsGroundType is not null)
+							   OR (new.idfsGroundType is not null and old.idfsGroundType is null)
+							   OR (new.idfsGroundType <> old.idfsGroundType)
+
+							   OR (new.idfsGeoLocationType is null and old.idfsGeoLocationType is not null)
+							   OR (new.idfsGeoLocationType is not null and old.idfsGeoLocationType is null)
+							   OR (new.idfsGeoLocationType <> old.idfsGeoLocationType)
+
+							   OR (new.idfsCountry is null and old.idfsCountry is not null)
+							   OR (new.idfsCountry is not null and old.idfsCountry is null)
+							   OR (new.idfsCountry <> old.idfsCountry)
+
+							   OR (new.idfsRegion is null and old.idfsRegion is not null)
+							   OR (new.idfsRegion is not null and old.idfsRegion is null)
+							   OR (new.idfsRegion <> old.idfsRegion)
+
+							   OR (new.idfsRayon is null and old.idfsRayon is not null)
+							   OR (new.idfsRayon is not null and old.idfsRayon is null)
+							   OR (new.idfsRayon <> old.idfsRayon)
+
+							   OR (new.idfsSettlement is null and old.idfsSettlement is not null)
+							   OR (new.idfsSettlement is not null and old.idfsSettlement is null)
+							   OR (new.idfsSettlement <> old.idfsSettlement)
+
+							   OR (new.strDescription is null and old.strDescription is not null)
+							   OR (new.strDescription is not null and old.strDescription is null)
+							   OR (new.strDescription <> old.strDescription collate Cyrillic_General_CI_AS)
+
+							   OR (new.dblDistance is null and old.dblDistance is not null)
+							   OR (new.dblDistance is not null and old.dblDistance is null)
+							   OR (new.dblDistance <> old.dblDistance)
+
+							   OR (new.dblLatitude is null and old.dblLatitude is not null)
+							   OR (new.dblLatitude is not null and old.dblLatitude is null)
+							   OR (new.dblLatitude <> old.dblLatitude)
+
+							   OR (new.dblLongitude is null and old.dblLongitude is not null)
+							   OR (new.dblLongitude is not null and old.dblLongitude is null)
+							   OR (new.dblLongitude <> old.dblLongitude)
+
+							   OR (new.dblAccuracy is null and old.dblAccuracy is not null)
+							   OR (new.dblAccuracy is not null and old.dblAccuracy is null)
+							   OR (new.dblAccuracy <> old.dblAccuracy)
+
+							   OR (new.dblAlignment is null and old.dblAlignment is not null)
+							   OR (new.dblAlignment is not null and old.dblAlignment is null)
+							   OR (new.dblAlignment <> old.dblAlignment)
+
+							   OR (new.strApartment is null and old.strApartment is not null)
+							   OR (new.strApartment is not null and old.strApartment is null)
+							   OR (new.strApartment <> old.strApartment collate Cyrillic_General_CI_AS)
+
+							   OR (new.strBuilding is null and old.strBuilding is not null)
+							   OR (new.strBuilding is not null and old.strBuilding is null)
+							   OR (new.strBuilding <> old.strBuilding collate Cyrillic_General_CI_AS)
+
+							   OR (new.strStreetName is null and old.strStreetName is not null)
+							   OR (new.strStreetName is not null and old.strStreetName is null)
+							   OR (new.strStreetName <> old.strStreetName collate Cyrillic_General_CI_AS)
+
+							   OR (new.strHouse is null and old.strHouse is not null)
+							   OR (new.strHouse is not null and old.strHouse is null)
+							   OR (new.strHouse <> old.strHouse collate Cyrillic_General_CI_AS)
+
+							   OR (new.strPostCode is null and old.strPostCode is not null)
+							   OR (new.strPostCode is not null and old.strPostCode is null)
+							   OR (new.strPostCode <> old.strPostCode collate Cyrillic_General_CI_AS)
+
+							   OR (new.idfsResidentType is null and old.idfsResidentType is not null)
+							   OR (new.idfsResidentType is not null and old.idfsResidentType is null)
+							   OR (new.idfsResidentType <> old.idfsResidentType)
+
+							   OR (new.idfsLocation is null and old.idfsLocation is not null)
+							   OR (new.idfsLocation is not null and old.idfsLocation is null)
+							   OR (new.idfsLocation <> old.idfsLocation)
+
+							   OR (new.blnForeignAddress is null and old.blnForeignAddress is not null)
+							   OR (new.blnForeignAddress is not null and old.blnForeignAddress is null)
+							   OR (new.blnForeignAddress <> old.blnForeignAddress)
+
+							   OR (new.strForeignAddress is null and old.strForeignAddress is not null)
+							   OR (new.strForeignAddress is not null and old.strForeignAddress is null)
+							   OR (new.strForeignAddress <> old.strForeignAddress collate Cyrillic_General_CI_AS)
                            )
             WHERE old.idfGeoLocation = @GeoLocationID;
 
@@ -328,6 +411,7 @@ BEGIN
                 Alignment,
                 ForeignAddressIndicator,
                 ForeignAddressString,
+				AddressString,
                 ShortAddressString
             )
             SELECT idfGeoLocation,
@@ -348,10 +432,15 @@ BEGIN
                    dblAlignment,
                    blnForeignAddress,
                    strForeignAddress,
+				   strAddressString,
                    strShortAddressString
             FROM dbo.tlbGeoLocation
             WHERE idfGeoLocation = @GeoLocationID;
 
+
+            -- Data audit
+			if @DataAuditEventID is not null
+			begin
             INSERT INTO dbo.tauDataAuditDetailUpdate
             (
                 idfDataAuditEvent,
@@ -927,6 +1016,8 @@ BEGIN
                          a.ShortAddressString IS NULL
                          AND b.ShortAddressString IS NOT NULL
                      );
+			end
+			else begin
 
             -- Add data audit event for the geo-location object type
             EXECUTE dbo.USSP_GBL_DATA_AUDIT_EVENT_SET @AuditUserID,
@@ -1513,6 +1604,7 @@ BEGIN
                          a.ShortAddressString IS NULL
                          AND b.ShortAddressString IS NOT NULL
                      );
+		end
         -- End data audit
         END
     END TRY

@@ -33,7 +33,6 @@ using System.Linq.Dynamic.Core;
 using System.Threading;
 using System.Threading.Tasks;
 using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.String;
 
 #endregion
 
@@ -275,7 +274,7 @@ namespace EIDSS.Web.Components.Human.SearchPerson
 
                 await InvokeAsync(StateHasChanged);
 
-                if (!IsNullOrEmpty(CancelUrl) && CancelUrl.Contains("/Outbreak/OutbreakCases?queryData="))
+                if (!string.IsNullOrEmpty(CancelUrl) && CancelUrl.Contains("/Outbreak/OutbreakCases?queryData="))
                 {
                     if (!VerifyOutbreakCasePermissions())
                     {
@@ -325,7 +324,7 @@ namespace EIDSS.Web.Components.Human.SearchPerson
                 ShowTitle = true,
                 ShowClose = false
             };
-            var result = await DiagService.OpenAsync<EIDSSDialog>(Empty, dialogParams, dialogOptions);
+            var result = await DiagService.OpenAsync<EIDSSDialog>(string.Empty, dialogParams, dialogOptions);
             if (result is DialogReturnResult dialogResult && dialogResult.ButtonResultText == Localizer.GetString(ButtonResourceKeyConstants.OKButton))
             {
                 //search timed out, narrow search criteria
@@ -379,7 +378,7 @@ namespace EIDSS.Web.Components.Human.SearchPerson
                 HumanPersonSearchRequestModel request;
 
                 // null out other fields if search is on person id
-                if (!IsNullOrEmpty(Model.SearchCriteria.EIDSSPersonID))
+                if (!string.IsNullOrEmpty(Model.SearchCriteria.EIDSSPersonID))
                 {
                     request = new HumanPersonSearchRequestModel
                     {
@@ -483,16 +482,16 @@ namespace EIDSS.Web.Components.Human.SearchPerson
 
                 request.PageSize = Grid.PageSize != 0 ? Grid.PageSize : 10;
 
-                if ((!IsNullOrEmpty(request.EIDSSPersonID) || !IsNullOrEmpty(request.PersonalID)) &&
+                if ((!string.IsNullOrEmpty(request.EIDSSPersonID) || !string.IsNullOrEmpty(request.PersonalID)) &&
                     request.DateOfBirthFrom is null &&
                     request.DateOfBirthTo is null &&
-                    IsNullOrEmpty(request.FirstOrGivenName) &&
+                    string.IsNullOrEmpty(request.FirstOrGivenName) &&
                     request.GenderTypeID is null &&
                     request.idfsLocation is null &&
-                    IsNullOrEmpty(request.LastOrSurname) &&
+                    string.IsNullOrEmpty(request.LastOrSurname) &&
                     request.MonitoringSessionID is null &&
                     request.PersonalIDType is null &&
-                    IsNullOrEmpty(request.SecondName) &&
+                    string.IsNullOrEmpty(request.SecondName) &&
                     request.SettlementTypeID is null)
                     request.RecordIdentifierSearchIndicator = true;
                 else
@@ -847,7 +846,7 @@ namespace EIDSS.Web.Components.Human.SearchPerson
                     case SearchModeEnum.SelectNoRedirect:
                         {
                             string building, apartment, postalCode;
-                            var house = building = apartment = postalCode = Empty;
+                            var house = building = apartment = postalCode = string.Empty;
 
                             HumanPersonDetailsRequestModel request = new()
                             {
@@ -903,7 +902,7 @@ namespace EIDSS.Web.Components.Human.SearchPerson
         {
             PersonnelIdTypes ??=
                 await CrossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), BaseReferenceConstants.PersonalIDType, null);
-            PersonnelIdTypesFiltered = args.Filter != "" ? PersonnelIdTypes.Where(x => x.Name.Contains(args.Filter, StringComparison.CurrentCultureIgnoreCase)).ToList() : PersonnelIdTypes;
+            PersonnelIdTypesFiltered = !string.IsNullOrEmpty(args.Filter) ? PersonnelIdTypes.Where(x => x.Name.Contains(args.Filter, StringComparison.CurrentCultureIgnoreCase)).ToList() : PersonnelIdTypes;
 
             await InvokeAsync(StateHasChanged);
         }
@@ -911,7 +910,7 @@ namespace EIDSS.Web.Components.Human.SearchPerson
         protected async Task GetGenderTypesAsync(LoadDataArgs args)
         {
             GenderIdTypes = await CrossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), BaseReferenceConstants.HumanGender, null);
-            if (!IsNullOrEmpty(args.Filter))
+            if (!string.IsNullOrEmpty(args.Filter))
             {
                 var toList = GenderIdTypes.Where(c => c.Name != null && c.Name.Contains(args.Filter, StringComparison.CurrentCultureIgnoreCase)).ToList();
                 GenderIdTypes = toList;
@@ -1016,8 +1015,8 @@ namespace EIDSS.Web.Components.Human.SearchPerson
                 if (prop.PropertyType == typeof(string))
                 {
                     var value = prop.GetValue(model.SearchCriteria)?.ToString()?.Trim();
-                    if (!IsNullOrWhiteSpace(value)) return true;
-                    if (!IsNullOrEmpty(value)) return true;
+                    if (!string.IsNullOrWhiteSpace(value)) return true;
+                    if (!string.IsNullOrEmpty(value)) return true;
                 }
                 else
                 {

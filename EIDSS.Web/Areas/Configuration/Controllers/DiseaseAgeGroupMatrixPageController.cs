@@ -21,9 +21,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static System.Int32;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Configuration.Controllers
 {
@@ -47,7 +44,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             _diseaseAgeGroupClient = diseaseAgeGroupClient;
             _diseaseClient = diseaseClient;
             _localizer = localizer;
-            var userPermissions = GetUserPermissions(PagePermission.CanManageReferencesAndConfigurations);            
+            var userPermissions = GetUserPermissions(PagePermission.CanManageReferencesAndConfigurations);
             _pageViewModel.UserPermissions = userPermissions;
         }
 
@@ -60,7 +57,6 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         }
 
         [HttpPost]
-        //[Route("GetList")]
         public async Task<JsonResult> GetList([FromBody] JQueryDataTablesQueryObject dataTableQueryPostObj)
         {
             var postParameterDefinitions = new { ddlDisease = "", SearchBox = "" };
@@ -69,7 +65,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             long? diseaseId = null;
             if (referenceType.ddlDisease != null)
             {
-                if (!IsNullOrEmpty(referenceType.ddlDisease))
+                if (!string.IsNullOrEmpty(referenceType.ddlDisease))
                 {
                     diseaseId = long.Parse(referenceType.ddlDisease);
                 }
@@ -79,11 +75,11 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             var valuePair = dataTableQueryPostObj.ReturnSortParameter();
 
             var strSortColumn = "StrAgeGroupDefault";
-            if (!IsNullOrEmpty(valuePair.Key) && valuePair.Key != "IdfsDiagnosisAgeGroup")
+            if (!string.IsNullOrEmpty(valuePair.Key) && valuePair.Key != "IdfsDiagnosisAgeGroup")
             {
                 strSortColumn = valuePair.Key;
             }
-            
+
             var request = new DiseaseAgeGroupGetRequestModel
             {
                 LanguageId = GetCurrentLanguage(),
@@ -91,12 +87,12 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 Page = dataTableQueryPostObj.page,
                 PageSize = dataTableQueryPostObj.length,
                 SortColumn = strSortColumn,
-                SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Ascending
+                SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending
             };
 
-            var response = await _diseaseAgeGroupClient.GetDiseaseAgeGroupMatrix(request);            
-            IEnumerable<DiseaseAgeGroupMatrixViewModel> matrixList = response;            
-            
+            var response = await _diseaseAgeGroupClient.GetDiseaseAgeGroupMatrix(request);
+            IEnumerable<DiseaseAgeGroupMatrixViewModel> matrixList = response;
+
             var tableData = new TableData
             {
                 iTotalRecords = !matrixList.Any() ? 0 : matrixList.First().TotalRowCount,
@@ -112,7 +108,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             {
                 List<string> cols = new()
                 {
-                    (row + i + 1).ToString(),                        
+                    (row + i + 1).ToString(),
                     matrixList.ElementAt(i).IdfDiagnosisAgeGroupToDiagnosis.ToString(),
                     matrixList.ElementAt(i).IdfsDiagnosisAgeGroup.ToString(),
                     matrixList.ElementAt(i).StrAgeGroupDefault,
@@ -121,21 +117,21 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 tableData.data.Add(cols);
             }
 
-            return Json(tableData);            
+            return Json(tableData);
         }
 
         [HttpPost]
         [Route("AddDiseaseAgeGroup")]
         public async Task<IActionResult> AddDiseaseAgeGroup([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
             DiseaseAgeGroupSaveRequestModel request = new()
             {
                 IdfDiagnosisAgeGroupToDiagnosis = null,
-                IdfsDiagnosis = long.Parse(jsonObject["ddlDisease"]?[0]?["id"]?.ToString() ?? Empty),
-                IdfsDiagnosisAgeGroup = long.Parse(jsonObject["IdfsDiagnosisAgeGroup"]?[0]?["id"]?.ToString() ?? Empty),
-                EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                IdfsDiagnosis = long.Parse(jsonObject["ddlDisease"]?[0]?["id"]?.ToString() ?? string.Empty),
+                IdfsDiagnosisAgeGroup = long.Parse(jsonObject["IdfsDiagnosisAgeGroup"]?[0]?["id"]?.ToString() ?? string.Empty),
+                EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                 UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                 LocationId = authenticatedUser.RayonId,
@@ -148,26 +144,26 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             {
                 response = await _diseaseAgeGroupClient.SaveDiseaseAgeGroupMatrix(request);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.Log(LogLevel.Error, ex.Message);
             }
-                                    
-            response.strDuplicatedField = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), jsonObject["IdfsDiagnosisAgeGroup"]?[0]?["text"]);
-            return Json(response);            
+
+            response.strDuplicatedField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), jsonObject["IdfsDiagnosisAgeGroup"]?[0]?["text"]);
+            return Json(response);
         }
 
         [HttpPost]
         [Route("DeleteDiseaseAgeGroup")]
         public async Task<JsonResult> DeleteDiseaseAgeGroup([FromBody] JsonElement json)
         {
-            var jsonObject = JObject.Parse(json.ToString() ?? Empty);
-            var idfDiagnosisAgeGroupToDiagnosis = long.Parse(jsonObject["IdfDiagnosisAgeGroupToDiagnosis"]?.ToString() ?? Empty);
-            
+            var jsonObject = JObject.Parse(json.ToString() ?? string.Empty);
+            var idfDiagnosisAgeGroupToDiagnosis = long.Parse(jsonObject["IdfDiagnosisAgeGroupToDiagnosis"]?.ToString() ?? string.Empty);
+
             DiseaseAgeGroupSaveRequestModel request = new()
             {
                 IdfDiagnosisAgeGroupToDiagnosis = idfDiagnosisAgeGroupToDiagnosis,
-                EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                 UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                 LocationId = authenticatedUser.RayonId,
@@ -191,18 +187,18 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                     AdvancedSearch = null,
                     SimpleSearch = null,
                     Page = 1,
-                    PageSize = MaxValue - 1,
+                    PageSize = int.MaxValue - 1,
                     SortColumn = "intOrder",
-                    SortOrder = SortConstants.Ascending,
-                    AccessoryCode = HACodeList.HumanHACode,
+                    SortOrder = EIDSSConstants.SortConstants.Ascending,
+                    AccessoryCode = EIDSSConstants.HACodeList.HumanHACode,
                     LanguageId = GetCurrentLanguage(),
                     UserEmployeeID = Convert.ToInt64(authenticatedUser.PersonId)
                 };
 
                 var list = await _diseaseClient.GetDiseasesList(request);
-                list = list.Where(a => a.IdfsUsingType == UsingType.StandardCaseType).OrderBy(d => d.IntOrder).ThenBy(d => d.StrName).ToList();
+                list = list.Where(a => a.IdfsUsingType == EIDSSConstants.UsingType.StandardCaseType).OrderBy(d => d.IntOrder).ThenBy(d => d.StrName).ToList();
 
-                select2DataItems.AddRange(list.Select(item => new Select2DataItem() {id = item.KeyId.ToString(), text = item.StrName}));
+                select2DataItems.AddRange(list.Select(item => new Select2DataItem() { id = item.KeyId.ToString(), text = item.StrName }));
                 select2DataObj.results = select2DataItems;
             }
             catch (Exception ex)

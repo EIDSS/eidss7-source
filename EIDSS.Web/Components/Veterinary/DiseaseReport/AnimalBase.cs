@@ -393,7 +393,7 @@ namespace EIDSS.Web.Components.Veterinary.DiseaseReport
                 Model.ClinicalSignsFlexFormAnswers = ClinicalSigns.Answers;
                 Model.ClinicalSignsObservationParameters = response.Answers;
 
-                ClinicalSigns.SetRequestParameter(Model.ClinicalSignsFlexFormRequest);
+                await ClinicalSigns.SetRequestParameter(Model.ClinicalSignsFlexFormRequest);
             }
         }
 

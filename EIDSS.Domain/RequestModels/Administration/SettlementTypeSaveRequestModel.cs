@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace EIDSS.Domain.RequestModels.Administration
 {
     [DataUpdateType(Enumerations.DataUpdateTypeEnum.Update)]
-    public class SettlementTypeSaveRequestModel    
+    public class SettlementTypeSaveRequestModel //: BaseReferenceEditorRequestModel    
     {        
         public long? IdfsGISBaseReference { get; set; }        
         public string LangID { get; set; }        

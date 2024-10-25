@@ -42,33 +42,42 @@ where t.idfResourceHierarchy between 1 and 9
 declare @IncludeSelf bit = 1
 
 
-;
- WITH cte
-	(
-        idfHierarchy, Lvl, SelectedRootLvl, StepParentLvl, StepParentIndex, idfsResourceSet, strResourceSet, strResourceSetUnique, StepResourceSetPath, IncludeSelf
-    )
-AS	(
-		select child.idfResourceHierarchy, child.ResourceSetNode, selectedRoot.ResourceSetNode, child.ResourceSetNode.GetAncestor(1), 0, s_child.idfsResourceSet, s_child.strResourceSet, s_child.strResourceSetUnique, cast(isnull(s_child.strResourceSetUnique, s_child.strResourceSet) as nvarchar(2000)), @IncludeSelf
-		from trtResourceSetHierarchy as selectedRoot
-		inner join #Root as rootItem
-		on rootItem.rootHId = selectedRoot.ResourceSetNode
-		inner join trtResourceSetHierarchy as child
-		   on child.ResourceSetNode.IsDescendantOf(
-			   selectedRoot.ResourceSetNode
-		   ) = 1
-		inner join trtResourceSet s_child
-		on s_child.idfsResourceSet = child.idfsResourceSet
-		where (@IncludeSelf = 1 or (child.ResourceSetNode <> selectedRoot.ResourceSetNode)) and child.intRowStatus = 0
-		union all
-		select	cte.idfHierarchy, cte.Lvl, cte.SelectedRootLvl, stepParent.ResourceSetNode.GetAncestor(1), cte.StepParentIndex + 1, cte.idfsResourceSet, cte.strResourceSet, cte.strResourceSetUnique, cast((isnull(s_stepParent.strResourceSet, s_stepParent.strResourceSet) + N'>' + cte.StepResourceSetPath) as nvarchar(2000)), cte.IncludeSelf
-		from	trtResourceSetHierarchy as stepParent
-		inner join trtResourceSet s_stepParent
-		on s_stepParent.idfsResourceSet = stepParent.idfsResourceSet
-		inner join	cte
-		on	cte.StepParentLvl = stepParent.ResourceSetNode
-		where stepParent.intRowStatus = 0
-	)
-
+	;
+	 WITH cte
+		(
+			idfHierarchy, Lvl, SelectedRootLvl, StepParentLvl, StepParentIndex, idfsResourceSet, strResourceSet, strResourceSetUnique, StepResourceSetPath, IncludeSelf
+		)
+	AS	(
+			select distinct
+					child.idfResourceHierarchy, 
+					child.ResourceSetNode, 
+					child.ResourceSetNode.GetAncestor(child.ResourceSetNode.GetLevel()-1), 
+					child.ResourceSetNode.GetAncestor(1), 
+					0, 
+					s_child.idfsResourceSet, s_child.strResourceSet, s_child.strResourceSetUnique, cast(isnull(s_child.strResourceSetUnique, s_child.strResourceSet) as nvarchar(2000)), @IncludeSelf
+			from trtResourceSetHierarchy as child
+			inner join trtResourceSet s_child
+			on s_child.idfsResourceSet = child.idfsResourceSet
+			where child.intRowStatus = 0
+					and exists	(
+							select 1 
+							from trtResourceSetHierarchy as selectedRoot
+							inner join #Root as rootItem
+							on rootItem.rootHId = selectedRoot.ResourceSetNode 
+							where child.ResourceSetNode.IsDescendantOf(selectedRoot.ResourceSetNode) = 1
+									and (@IncludeSelf = 1 or (child.ResourceSetNode <> selectedRoot.ResourceSetNode))
+								)
+			union all
+			select	cte.idfHierarchy, cte.Lvl, cte.SelectedRootLvl, stepParent.ResourceSetNode.GetAncestor(1), 
+			cte.StepParentIndex + 1, 
+			cte.idfsResourceSet, cte.strResourceSet, cte.strResourceSetUnique, cast((isnull(s_stepParent.strResourceSetUnique, s_stepParent.strResourceSet) + N'>' + cte.StepResourceSetPath) as nvarchar(2000)), cte.IncludeSelf
+			from	trtResourceSetHierarchy as stepParent
+			inner join trtResourceSet s_stepParent
+			on s_stepParent.idfsResourceSet = stepParent.idfsResourceSet
+			inner join	cte
+			on	cte.StepParentLvl = stepParent.ResourceSetNode
+			where stepParent.intRowStatus = 0
+		)
 
 	insert into #Hierarchy (idfHierarchy, Lvl, SelectedRootLvl, StepParentLvl, StepParentIndex, idfsResourceSet, strResourceSet, strResourceSetUnique, StepResourceSetPath, IncludeSelf)
 	select idfHierarchy, Lvl, SelectedRootLvl, StepParentLvl, StepParentIndex, idfsResourceSet, strResourceSet, strResourceSetUnique, StepResourceSetPath, IncludeSelf

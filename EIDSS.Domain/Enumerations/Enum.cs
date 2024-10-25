@@ -71,7 +71,9 @@
         ReportTypes = 19000133,
         YesNoValues = 19000100,
         CaseOutcomes = 19000064,
-        NonNotifiableDiagnosis = 19000149
+        NonNotifiableDiagnosis = 19000149,
+        Language = 19000049,
+        AgeType = 19000042
     }
 
     public enum BatchTestStatusTypeEnum : long
@@ -98,7 +100,7 @@
     public enum MenuIdentifiersEnum
     {
         AvianDiseaseReport = 10506027,
-        LivestockDiseaseReport =10506028
+        LivestockDiseaseReport = 10506028
     }
 
     public enum OutbreakTypeEnum : long
@@ -192,10 +194,10 @@
         AvianOutbreakCaseContactTracing = 10034509
     }
 
-    public enum FlexibleFormCheckPointEnum: long
+    public enum FlexibleFormCheckPointEnum : long
     {
         OnLoad = 10028001,
-        OnSaveWithNotify= 10028002,
+        OnSaveWithNotify = 10028002,
         OnValueChanged = 10028003,
         OnSaveWithError = 10028004
     }
@@ -343,8 +345,8 @@
         InsertAliquotDerivative = 6,
         InsertTransfer = 7,
         AccessionUpdateTransferOut = 8,
-        RejectUpdateTransferOut = 9, 
-        SampleDestruction = 10, 
+        RejectUpdateTransferOut = 9,
+        SampleDestruction = 10,
         NarrowSearchCriteria = 99
     }
 

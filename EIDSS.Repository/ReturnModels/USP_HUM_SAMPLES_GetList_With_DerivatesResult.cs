@@ -41,5 +41,6 @@ namespace EIDSS.Repository.ReturnModels
         public long idfsSite { get; set; }
         public long? FunctionalAreaID { get; set; }
         public string FunctionalAreaName { get; set; }
+        public long? DiseaseID { get; set; }
     }
 }

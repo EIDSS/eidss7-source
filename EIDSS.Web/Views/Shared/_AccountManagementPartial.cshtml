@@ -78,8 +78,11 @@
 
 
     @*DataTable*@
+    @*<div id="searchResultsDiv">*@
     <div class="row pb-5">
         <div class="col-12">
+            @*<div class="panel-body">
+                <div id="permissions" style="padding:0px;">*@
             <table id="tblUserPermission" class="table">
                 <thead>
                     <tr>
@@ -156,6 +159,7 @@
                                                 @if (item.Active == true)
                                                 {
                                                     <label><input id="@(String.Format(" Active_{0}", item.Row))" type="checkbox" class="Active" checked value="true" onchange="confirmActivateDeacivate('@item.idfEmployee','@item.Row');" /></label><br />
+                                                    @*<label><input id="@(String.Format(" Deactivated_{0}", item.Row))" type="radio" class="Deactivated" value="Deactivated" />Deactivated</label>*@
                                                 }
                                                 else if (item.SiteID == null)
                                                 {
@@ -164,12 +168,18 @@
                                                 else
                                                 {
                                                     <label><input id="@(String.Format(" Active_{0}", item.Row))" type="checkbox" class="Active" value="false" onchange="confirmActivateDeacivate('@item.idfEmployee','@item.Row');" /></label><br />
+                                                    @*<label>< input id="@(String.Format("Deactivated_{0}", item.Row))" type="radio" class="Deactivated" checked value="Deactivated" />Deactivated</label>*@
                                                 }
                                             }
                                         </div>
                                     </td>
                                     <td>
                                         <div style="display:inline-flex">
+                                            @*@if (Model.UserGroupsAndPermissions.Count > 1 && (string.IsNullOrEmpty(item.SiteName) || string.IsNullOrEmpty(item.UserGroupID)))
+                                            {
+                                                <input id="@(String.Format(" Default_{0}", item.Row))" type="radio" class="Default" value="@item.IsDefault" disabled onchange="UpdateDefaultOrg('@item.idfEmployee',true,'@item.Row');" />
+                                            }
+                                            else *@
                                             @if (item.IsDefault.Value)
                                             {
                                             <input id="@(String.Format(" Default_{0}", item.Row))" type="radio" class="Default" value="@item.IsDefault" checked onchange="UpdateDefaultOrg('@item.idfEmployee',true,'@item.Row');" />
@@ -196,6 +206,8 @@
                                     <td class="dt-center editor-delete">
                                         @if (!item.IsDefault.Value && Model.UserPermissions.Write)
                                         {
+                                            @*<a class="fas fa-trash fa-1x" onclick="DeleteOrg('@item.idfEmployee','@item.Row');"></a>*@
+
                                             <a class="fas fa-trash fa-1x" onclick="confirmDelete('@item.idfEmployee', '@item.Row');"></a>
                                         }
                                         else if (!item.IsDefault.Value)
@@ -211,6 +223,8 @@
             </table>
         </div>
     </div>
+    @*</div>*@
+    <!--<div id="mdUserPermissions" class="modal fade" data-backdrop="static" role="dialog" aria-labelledby="mdUserPermissions" aria-hidden="true">-->
     <div id="mdUserPermissions" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mdUserPermissions" aria-hidden="true" data-backdrop='static' data-keyboard='false'>
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
@@ -242,6 +256,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="CloseModalDetails();">@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
+                    @*<button type="button" class="btn btn-primary" onclick="PrepareNewRecord();">@Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>*@
                 </div>
             </div>
         </div>
@@ -276,6 +291,10 @@
     // Initialize datatable
     //################################
 
+            //if ($.fn.DataTable.isDataTable($("#tblUserPermission"))) {
+            //    alert($("#tblUserPermission").DataTable());
+            //    $("#tblUserPermission").DataTable().destroy();
+            //}
     var tableUserPerm = $('#tblUserPermission').DataTable({
         searching: false,
         lengthChange: false,
@@ -347,8 +366,10 @@
 
                 },
                 complete: function (resp) {
+                    //alert('complete');
                 },
                 error: function (request, error) {
+                    //alert(error);
                 }
             });
     }
@@ -396,6 +417,53 @@
             });
     }
 
+
+
+    @*function UpdateDefaultOrg(employeeID, rowId) {
+        var model = {};
+        model.idfPerson = employeeID;
+        var row = tableUserPerm.row(rowId - 1);
+        $.ajax({
+            url: '@Url.Action("UpdateNewDefaultOrganization", "EmployeePage")',
+            type: 'POST',
+            data: JSON.stringify(model),
+            contentType: "application/json: charset=utf-8"
+        })
+            .done(function (data) {
+                $.ajax({
+                     url: '@Url.Action("ReloadAccountManagement", "EmployeePage", new { Area = "Administration" })' + "?data=" + model.idfPerson;
+                    type: 'GET',
+                    contentType: "text/html; charset=utf-8"
+                })
+                    .done(function (data) {
+                        $("#DivAccountMgtSection").html(data);
+                        //ReloadPersonalInfo();
+                        var url = '@Url.Action("LoadPersonalInfo", "EmployeePage", new { Area = "Administration" })' + "?queryData=" + model.idfPerson;
+                        showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)');
+                         $.ajax({
+                             url: url,
+                            type: 'GET',
+                            contentType: "text/html; charset=utf-8"
+                        })
+                             .done(function (data) {
+                                 alert(JSON.stringify(data));
+                                 alert($("#DivPersonalInfoSection"));
+                                 $("#DivPersonalInfoSection").html(data);
+                                 alert($("#DivPersonalInfoSection").html());
+                        })
+                        .fail(function (error) {
+                            alert("Failure here " + error);
+                        });
+
+                    })
+                    .fail(function (error) {
+                        alert("Failure here " + error);
+                    });
+            })
+            .fail(function (error) {
+                alert("Failure here " + error);
+            });
+    }*@
 
     function confirmActivateDeacivate(employeeID, rowId) {
         var row = tableUserPerm.row(rowId - 1);

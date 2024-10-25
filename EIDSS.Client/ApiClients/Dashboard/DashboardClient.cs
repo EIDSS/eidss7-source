@@ -237,6 +237,10 @@ namespace EIDSS.ClientLibrary.ApiClients.Dashboard
                 _logger.LogError(ex.Message, new object[] { request });
                 throw;
             }
+
+
+
+            //throw new NotImplementedException();
         }
 
         public async Task<List<DashboardUsersListViewModel>> GetDashboardUsers(DashboardUsersGetRequestModel request, CancellationToken cancellationToken = default)
@@ -266,6 +270,8 @@ namespace EIDSS.ClientLibrary.ApiClients.Dashboard
                 _logger.LogError(ex.Message, new object[] { request });
                 throw;
             }
+
+            //throw new NotImplementedException();
         }
     }
 }

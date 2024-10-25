@@ -4,12 +4,14 @@ using EIDSS.Localization.Constants;
 using EIDSS.Localization.Enumerations;
 using EIDSS.Localization.Extensions;
 using EIDSS.Localization.Providers;
+using EIDSS.Web.Extensions;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Localization;
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 
@@ -34,20 +36,7 @@ namespace EIDSS.Web.TagHelpers
 
         public override int Order => 100;
 
-        public string ButtonText { get; set; } = "";
-
         public string CssClass { get; set; }
-
-        [HtmlAttributeName("show-bottom-panel")]
-        public bool ShowButtonPanel { get; set; } = false;
-
-        public bool DisplayMonthAndYear { get; set; } = false;
-
-        [HtmlAttributeName("date-format")]
-        public string DateFormat { get; set; }
-
-        [HtmlAttributeName("locale")]
-        public string Locale { get; set; } = "en-US";
 
         [HtmlAttributeName("min-date")]
         public string MinDate { get; set; }
@@ -66,22 +55,8 @@ namespace EIDSS.Web.TagHelpers
         [HtmlAttributeName("disabled")]
         public bool Disabled { get; set; } = false;
 
-        public string CultureLanguageTwoLetter { get; set; }
-
-        [HtmlAttributeName("shortdate")]
-        public bool ShortDate { get; set; } = false;
-
-        [HtmlAttributeName("validationmessage")]
-        public string ValidationMessage { get; set; }
-
-        /// <summary>
-        /// Set to true if using control in a partial view
-        /// or view component.
-        /// </summary>
-        public bool ConfigureForPartial { get; set; }
-
-        public bool DateCompare { get; set; }
-
+        [HtmlAttributeName("clear-button")]
+        public bool ClearButton { get; set; } = false;
 
         private readonly IStringLocalizer Localizer;
 
@@ -133,7 +108,6 @@ namespace EIDSS.Web.TagHelpers
 
             output.Attributes.SetAttribute("type", "text");
 
-            // Attributes
             if (!string.IsNullOrEmpty(Id))
             {
                 output.Attributes.SetAttribute("id", Id.Replace(".", "_"));
@@ -154,13 +128,9 @@ namespace EIDSS.Web.TagHelpers
                 output.Attributes.SetAttribute("disabled", "disabled");
             }
 
-            if (ShortDate)
+            if (AspFor.Model is DateTime currentValue)
             {
-                if (AspFor.Model != null)
-                {
-                    DateTime dtShortDate = DateTime.Parse(AspFor.Model.ToString());
-                    output.Attributes.Add("value", dtShortDate.ToShortDateString());
-                }
+                output.Attributes.Add("value", currentValue.ToShortDateString());
             }
             else
             {
@@ -256,17 +226,14 @@ namespace EIDSS.Web.TagHelpers
                             break;
                         case nameof(Localization.Helpers.LocalizedDateLessThanOrEqualToTodayAttribute):
                             strFutureDateValErrorMessage = Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage);
-                            var localizedDateLessThanOrEqualToTodayAttribute = AspFor.Metadata.ValidatorMetadata.OfType<Localization.Helpers.LocalizedDateLessThanOrEqualToTodayAttribute>().FirstOrDefault();
                             output.Attributes.Add("data-val-localizeddatelessthanorequaltotoday", Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage));
                             output.Attributes.Add("data-val-localizeddatelessthanorequaltotoday-language", Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName);
                             break;
                         case nameof(Localization.Helpers.IsValidDateAttribute):
-                            var IsValidDateAttribute = AspFor.Metadata.ValidatorMetadata.OfType<Localization.Helpers.IsValidDateAttribute>().FirstOrDefault();
                             output.Attributes.Add("data-val-isvaliddate", Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage));
                             output.Attributes.Add("data-val-isvaliddate-language", Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName);
                             break;
                         case nameof(Localization.Helpers.LocalizedRequiredAttribute):
-                            var localizedRequiredAttribute = AspFor.Metadata.ValidatorMetadata.OfType<Localization.Helpers.LocalizedRequiredAttribute>().FirstOrDefault();
                             CacheProvider = (LocalizationMemoryCacheProvider)ServiceProvider.GetService(typeof(LocalizationMemoryCacheProvider));
                             if (Language == null || Language.Model == null)
                                 output.Attributes.Add("data-val-required", CacheProvider.GetResourceValueByLanguageCultureNameAndResourceKey(CurrentCulture.Name, MessageResourceKeyConstants.FieldIsRequiredMessage));
@@ -293,14 +260,11 @@ namespace EIDSS.Web.TagHelpers
                 }
             }
 
-            if (Language != null)
+            if (ClearButton)
             {
-                CultureInfo cultureInfo = new(Language.Model.ToString());
-                CultureLanguageTwoLetter = cultureInfo.TwoLetterISOLanguageName;
-            }
-            else
-            {
-                CultureLanguageTwoLetter = CurrentCulture.TwoLetterISOLanguageName;
+                var clearButtonHtml = new StringBuilder();
+                clearButtonHtml.AppendLine("<button type=\"button\" class=\"ui-datepicker-trigger\" onclick=\"clearDateInput('" + Id.Replace(".", "_") + "')\"><i class=\"fas fa-times-circle\"></i></button>");
+                output.PostContent.AppendHtml(clearButtonHtml.ToString());
             }
 
             var postContent = new StringBuilder();
@@ -315,11 +279,7 @@ namespace EIDSS.Web.TagHelpers
 
             sb.AppendLine("<script>");
 
-            if (!ConfigureForPartial)
-            {
-                sb.AppendLine("$(document).ready(function() {");
-            }
-
+            sb.AppendLine("$(document).ready(function() {");
             sb.AppendLine(" $('#" + Id.Replace(".", "_") + "').datepicker(");
             sb.AppendLine("$.extend({");
             sb.AppendLine("changeMonth: true ,");
@@ -336,7 +296,7 @@ namespace EIDSS.Web.TagHelpers
             }
 
             sb.AppendLine("constrainInput: false, ");
-            sb.AppendLine("buttonText: \"<i class='fas fa-calendar'></i>\", ");
+            sb.AppendLine("buttonText: \"\", ");
 
             sb.AppendLine("beforeShow: function() {");
             sb.AppendLine("setTimeout(function(){");
@@ -346,29 +306,11 @@ namespace EIDSS.Web.TagHelpers
 
             sb.AppendLine("},");
 
-            sb.AppendLine("$.datepicker.regional[\"" + CultureLanguageTwoLetter + "\"],");
+            sb.AppendLine("$.datepicker.regional[\"" + CurrentCulture.TwoLetterISOLanguageName + "\"],");
 
-            if (CultureLanguageTwoLetter == "en")
-            {
-                sb.AppendLine("{dateFormat: 'm/dd/yy'} ");
-            }
-            else if (CultureLanguageTwoLetter == "az")
-            {
-                sb.AppendLine("{dateFormat: 'd.mm.yy'} ");
-            }
-            else if (CultureLanguageTwoLetter == "ka")
-            {
-                sb.AppendLine("{dateFormat: 'd.mm.yy'} ");
-            }
-            else if (CultureLanguageTwoLetter == "ru")
-            {
-                sb.AppendLine("{dateFormat: 'd.mm.yy'} ");
-            }
-            else
-            {
-                sb.AppendLine("{dateFormat: '" + CurrentCulture.DateTimeFormat.ShortDatePattern + "'} ");
-            }
-            sb.AppendLine("))");
+            sb.AppendLine("{dateFormat: '" + CurrentCulture.DateTimeFormat.ToJavascriptShortDatePattern() + "'} ");
+            
+            sb.AppendLine(")).next('.ui-datepicker-trigger').addClass('flex-form-datepicker fas fa-calendar');");
 
             sb.AppendLine("$(document).on ('change close', '#" + Id.Replace(".", "_") + "', function(){");
 
@@ -392,13 +334,14 @@ namespace EIDSS.Web.TagHelpers
 
             if (Disabled)
             {
-                sb.AppendLine("$('#" + Id.Replace(".", "_") + "').datepicker( \"option\", \"disabled\", true );");
+                sb.AppendLine("$('#" + Id.Replace(".", "_") + "').datepicker( \"option\", \"disabled\", true ).next('.ui-datepicker-trigger').addClass('flex-form-datepicker fas fa-calendar');");
             }
 
-            if (!ConfigureForPartial)
-            {
-                sb.AppendLine("});");
-            }
+            sb.AppendLine("});");
+
+            sb.AppendLine("function clearDateInput(inputId) {");
+            sb.AppendLine("$('#' + inputId).val(null).change();");
+            sb.AppendLine("}");
 
             sb.AppendLine("</script>");
             return sb.ToString();

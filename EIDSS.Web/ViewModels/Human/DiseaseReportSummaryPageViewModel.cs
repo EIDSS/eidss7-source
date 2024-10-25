@@ -1,15 +1,5 @@
-﻿using EIDSS.Domain.Abstracts;
-using EIDSS.Domain.ViewModels.Administration;
-using EIDSS.Domain.ViewModels.CrossCutting;
-using EIDSS.Localization.Constants;
-using EIDSS.Localization.Helpers;
-using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
-using EIDSS.Web.TagHelpers.Models.EIDSSModal;
+﻿using EIDSS.Localization.Helpers;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EIDSS.Web.ViewModels.Human
 {
@@ -23,19 +13,17 @@ namespace EIDSS.Web.ViewModels.Human
 
         public string PersonID { get; set; }
 
-        public long ReportStatusID { get; set; }
+        [LocalizedRequired]
+        public long? ReportStatusID { get; set; }
 
         public string ReportStatus { get; set; }
 
         public long idfsSite { get; set; }
 
-        [LocalizedRequired]
-        public Select2Configruation ReportStatusDD { get; set; }
-        [LocalizedRequired]
-        public Select2Configruation ReportTypeDD { get; set; }
         public bool IsReportTypeDisabled { get; set; } = false;
 
-        public long ReportTypeID { get; set; }
+        [LocalizedRequired]
+        public long? ReportTypeID { get; set; }
 
         public string ReportType { get; set; }
 
@@ -44,12 +32,9 @@ namespace EIDSS.Web.ViewModels.Human
 
         public string RelatedToReportIds { get; set; }
 
-        public string relatedParentHumanDiseaseReportIdList { get; set; }
-        public string relatedChildHumanDiseaseReportIdList { get; set; }
-
         public string PersonName { get; set; }
 
-        public string DateEntered { get; set; }
+        public DateTime? DateEntered { get; set; }
 
         public string DateLastUpdated { get; set; }
 
@@ -72,13 +57,16 @@ namespace EIDSS.Web.ViewModels.Human
 
         public bool IsReportClosed { get; set; }
 
-        public long? RelateToHumanDiseaseReportID { get; set; }
-        public string RelatedToHumanDiseaseEIDSSReportID { get; set; }
-        public long? ConnectedDiseaseReportID { get; set; }
-        public string ConnectedDiseaseEIDSSReportID { get; set; }
-
         //Default Select2 Text
         public string DefaultReportStatus { get; set; }
         public string DefaultReportType { get; set; }
+
+        public string DateEnteredFormatted
+        {
+            get
+            {
+                return DateEntered.HasValue ? DateEntered.Value.ToShortDateString() : string.Empty;
+            }
+        }
     }
 }

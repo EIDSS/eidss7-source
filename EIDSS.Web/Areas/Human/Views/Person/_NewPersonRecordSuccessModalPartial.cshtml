@@ -19,8 +19,11 @@
             </div>
             <div class="modal-footer">
                 <button id="btnAddDiseaseReport" type="button" class="btn btn-primary">Add Disease Report</button>
+                @*<button type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.AddDiseaseReportButton"></button>*@
                 <button id="btnOk" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.OKButton"></button>
+                @*<button id="btnReturnToDashboard" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.ReturnToDashboardButton"></button>*@
                 <button id="btnReturnToDashboard" type="button" class="btn btn-primary">Return To Dashboard</button>
+                @*<button id="btnOk" type="button" class="btn btn-primary">Ok</button>*@
             </div>
         </div>
     </div>
@@ -32,12 +35,22 @@
             $("#newPersonRecordSuccessModal").find("#successMessage").text(message.replace(/&quot;/g, '\"')).end(); // replace HTML &quot to show actual double quotes.
             $("#newPersonRecordSuccessModal").modal("show");
 
+            //var actions = new Object();
+            //actions.add = "";
+            //actions.ok = "";
+            //actions.return = "";
 
             $("#btnAddDiseaseReport").click(function () {
                 $("#newPersonRecordSuccessModal").modal("hide");
+                /*resolve('add');*/
                 resolve(1);
             });
+            //$("#btnReturnToDashboard").click(function () {
+            //    $("#newPersonRecordSuccessModal").modal("hide");
+            //    resolve('ok');
+            //});
             $("#btnReturnToDashboard").click(function () {
+                /*resolve('return');*/
                 resolve(2);
             });
             $("#btnOk").click( function (e) {

@@ -22,14 +22,12 @@ namespace EIDSS.Web.ViewModels.Human
         public long? idfInvestigatedByOffice { get; set; }
         public string InvestigatedByOffice { get; set; }
 
-        [DisplayFormat(DataFormatString = "{0:d}")]
         [LocalizedDateLessThanOrEqualToToday]
         [LocalizedRequiredIfTrue(nameof(FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationStartDateOfInvestigationFieldLabel))]
         [DateComparer(nameof(StartDateofInvestigation), "CaseInvestigationSection_StartDateofInvestigation", nameof(DiseaseReportNotificationPageViewModel.dateOfNotification), "NotificationSection_dateOfNotification", CompareTypeEnum.GreaterThanOrEqualTo, nameof(FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationStartDateOfInvestigationFieldLabel), nameof(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfNotificationFieldLabel))]
         [IsValidDate]
         public DateTime? StartDateofInvestigation { get; set; }
 
-        [DisplayFormat(DataFormatString = "{0:d}")]
         [LocalizedDateLessThanOrEqualToToday]
         [LocalizedRequiredIfTrue(nameof(FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationStartDateOfInvestigationFieldLabel))]
         [DateComparer(nameof(OutBreakStartDateofInvestigation), "CaseInvestigationSection_OutBreakStartDateofInvestigation", nameof(DiseaseReportNotificationPageViewModel.datOutbreakNotification), "NotificationSection_datOutbreakNotification", CompareTypeEnum.GreaterThanOrEqualTo, nameof(FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationStartDateOfInvestigationFieldLabel), nameof(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfNotificationFieldLabel))]
@@ -45,7 +43,6 @@ namespace EIDSS.Web.ViewModels.Human
         public string strOutbreakID { get; set; }
 
 
-        [DisplayFormat(DataFormatString = "{0:d}")]
         [LocalizedDateLessThanOrEqualToToday]
         [DateComparer(nameof(ExposureDate), "CaseInvestigationSection_ExposureDate", nameof(DiseaseReportSymptomsPageViewModel.SymptomsOnsetDate), "SymptomsSection_SymptomsOnsetDate", CompareTypeEnum.LessThanOrEqualTo, nameof(FieldLabelResourceKeyConstants.HumanDiseaseReportCaseInvestigationDateOfPotentialExposureFieldLabel), nameof(FieldLabelResourceKeyConstants.HumanDiseaseReportSymptomsDateOfSymptomsOnsetFieldLabel))]
         [IsValidDate]
@@ -105,7 +102,6 @@ namespace EIDSS.Web.ViewModels.Human
 
         public Select2Configruation ForeignCountryDD { get; set; }
 
-        [DisplayFormat(DataFormatString = "{0:d}")]
         public DateTime CurrentDate { get; set; }
 
         public double? dblPointAlignment { get; set; }

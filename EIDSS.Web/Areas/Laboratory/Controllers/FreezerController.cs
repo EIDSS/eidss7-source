@@ -1,6 +1,4 @@
-﻿#region Usings
-
-using EIDSS.ClientLibrary.ApiClients.Admin;
+﻿using EIDSS.ClientLibrary.ApiClients.Admin;
 using EIDSS.ClientLibrary.ApiClients.Laboratory;
 using EIDSS.ClientLibrary.Enumerations;
 using EIDSS.ClientLibrary.Services;
@@ -25,10 +23,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.String;
-
-#endregion
 
 namespace EIDSS.Web.Areas.Laboratory.Controllers
 {
@@ -42,14 +36,6 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
         private readonly UserPermissions _userPermissions;
         private readonly IStringLocalizer _localizer;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="adminClient"></param>
-        /// <param name="tokenService"></param>
-        /// <param name="localizer"></param>
-        /// <param name="logger"></param>
         public FreezerController(
             IFreezerClient client,
             IAdminClient adminClient,
@@ -65,16 +51,12 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
             _localizer = localizer;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public async Task<IActionResult> Index()
         {
             try
             {
                 await InitializeModel();
-                                                
+
                 return View(_pageViewModel);
             }
             catch (Exception ex)
@@ -84,28 +66,23 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("Laboratory/Freezer/AdvancedSearch")]
         public async Task<ActionResult> AdvancedSearch([FromBody] JsonElement data)
         {
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
                 FreezerRequestModel request = new()
                 {
                     LanguageID = GetCurrentLanguage(),
                     SiteList = authenticatedUser.SiteId,
-                    FreezerName = IsNullOrEmpty(jsonObject["FreezerName"]?.ToString().Trim()) ? null : jsonObject["FreezerName"].ToString().Trim(),
-                    Note = IsNullOrEmpty(jsonObject["Note"]?.ToString().Trim()) ? null : jsonObject["Note"].ToString().Trim(),
+                    FreezerName = string.IsNullOrEmpty(jsonObject["FreezerName"]?.ToString().Trim()) ? null : jsonObject["FreezerName"].ToString().Trim(),
+                    Note = string.IsNullOrEmpty(jsonObject["Note"]?.ToString().Trim()) ? null : jsonObject["Note"].ToString().Trim(),
                     StorageTypeID = Convert.ToInt64(jsonObject["StorageType"]?.ToString()) == 0 ? null : Convert.ToInt64(jsonObject["StorageType"]?.ToString().Trim()),
-                    Building = IsNullOrEmpty(jsonObject["Building"]?.ToString().Trim()) ? null : jsonObject["Building"].ToString().Trim(),
-                    Room = IsNullOrEmpty(jsonObject["Room"]?.ToString().Trim()) ? null : jsonObject["Room"].ToString().Trim(),
+                    Building = string.IsNullOrEmpty(jsonObject["Building"]?.ToString().Trim()) ? null : jsonObject["Building"].ToString().Trim(),
+                    Room = string.IsNullOrEmpty(jsonObject["Room"]?.ToString().Trim()) ? null : jsonObject["Room"].ToString().Trim(),
                     SearchString = null,
                     PaginationSet = 1,
                     PageSize = 9999,
@@ -125,18 +102,13 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("Laboratory/Freezer/EditFreezer")]
         public async Task<ActionResult> EditFreezer([FromBody] JsonElement data)
         {
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
                 FreezerSubdivisionRequestModel subdivisionRequest = new()
                 {
@@ -161,11 +133,11 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
                     freezer.FreezerSubdivisions = lstFreezerSubdivisions;
                 }
                 else
-                {                    
-                    var lstFreezers = await GetFreezers();                    
+                {
+                    var lstFreezers = await GetFreezers();
                     _pageViewModel.FreezerList = lstFreezers;
                     freezer = lstFreezers.First(f => f.FreezerID == subdivisionRequest.FreezerID);
-                    freezer.FreezerSubdivisions = new List<FreezerSubdivisionViewModel>();                    
+                    freezer.FreezerSubdivisions = new List<FreezerSubdivisionViewModel>();
                 }
 
                 return Json(freezer);
@@ -177,18 +149,13 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("Laboratory/Freezer/DeleteFreezer")]
         public async Task<ActionResult> DeleteFreezer([FromBody] JsonElement data)
         {
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
                 FreezerSubdivisionRequestModel subdivisionRequest = new()
                 {
@@ -207,22 +174,15 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
                 _logger.LogError(ex.Message, data);
                 throw;
             }
-
-            //return new EmptyResult();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("Laboratory/Freezer/DeleteFreezerConfirm")]
         public async Task<ActionResult> DeleteFreezerConfirm([FromBody] JsonElement data)
         {
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
                 FreezerSaveRequestModel saveRequest = new()
                 {
@@ -231,11 +191,11 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
                     OrganizationID = Convert.ToInt64(authenticatedUser.SiteId),
                     RowStatus = (int)RowStatusTypeEnum.Inactive, //delete
                     // BUILD THIS JSON?
-                    FreezerSubdivisions = null // await BuildFreezerSubdivisionParameters(saveRequest.FreezerID);
+                    FreezerSubdivisions = null
                 };
 
                 APIPostResponseModel response = await _client.SaveFreezer(saveRequest);
-                //APIPostResponseModel response = new APIPostResponseModel();
+
                 return Json(response);
             }
             catch (Exception ex)
@@ -245,18 +205,13 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("Laboratory/Freezer/CopyFreezer")]
         public async Task<ActionResult> CopyFreezer([FromBody] JsonElement data)
         {
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
                 FreezerSubdivisionRequestModel subdivisionRequest = new()
                 {
@@ -272,7 +227,7 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
                     sub.FreezerSubdivisionID *= -1;
                     sub.ParentFreezerSubdivisionID *= -1;
                     sub.FreezerName += " (Copy)"; //TODO: change to a localized value.
-                    sub.EIDSSFreezerSubdivisionID = Empty;
+                    sub.EIDSSFreezerSubdivisionID = string.Empty;
                     sub.RowAction = "I"; //TODO: change over to integer and use the enumeration for row action types in the domain layer.                    
                 }
 
@@ -286,14 +241,12 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
                     freezer.StorageTypeID = lstFreezerSubdivisions[0].StorageTypeID;
                     freezer.Building = lstFreezerSubdivisions[0].Building;
                     freezer.Room = lstFreezerSubdivisions[0].Room;
-                    //freezer.EIDSSFreezerID = lstFreezerSubdivisions[0].FreezerBarCode;
                     freezer.OrganizationID = lstFreezerSubdivisions[0].OrganizationID;
-                    freezer.FreezerSubdivisions = lstFreezerSubdivisions;                    
+                    freezer.FreezerSubdivisions = lstFreezerSubdivisions;
                 }
                 else
                 {
                     var lstFreezers = await GetFreezers();
-                    //var lstFreezers = JsonConvert.DeserializeObject<List<FreezerViewModel>>(TempData["Freezers"].ToString());
                     freezer = lstFreezers.First(f => f.FreezerID == subdivisionRequest.FreezerID);
                     freezer.FreezerSubdivisions = new List<FreezerSubdivisionViewModel>();
                 }
@@ -307,19 +260,14 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("Laboratory/Freezer/GetNodeDetails")]
         public ActionResult GetNodeDetails([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
             try
-            {               
+            {
                 // Retrieve
                 var str = HttpContext.Session.GetString("FreezerSubdivisions");
                 var lstFreezerSubdivisions = JsonConvert.DeserializeObject<List<FreezerSubdivisionViewModel>>(str);
@@ -334,32 +282,29 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("Laboratory/Freezer/SaveFreezer")]
         public async Task<ActionResult> SaveFreezer([FromBody] JsonElement data)
         {
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
                 FreezerSaveRequestModel saveRequest = new()
                 {
                     FreezerName = jsonObject["freezerName"]?.ToString(),
                     FreezerID = Convert.ToInt64(jsonObject["freezerID"]?.ToString())
                 };
 
-                var lstFreezers = await GetFreezers();                
+                var lstFreezers = await GetFreezers();
                 _pageViewModel.FreezerList = lstFreezers;
-                
-                foreach (var r in from freezer in lstFreezers where freezer.FreezerName == saveRequest.FreezerName && freezer.FreezerID != saveRequest.FreezerID select new FreezerSaveRequestResponseModel()
-                         {
-                             ReturnMessage = "DOES EXIST",
-                             StrDuplicateField = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), freezer.FreezerName)
-                         })
+
+                foreach (var r in from freezer in lstFreezers
+                                  where freezer.FreezerName == saveRequest.FreezerName && freezer.FreezerID != saveRequest.FreezerID
+                                  select new FreezerSaveRequestResponseModel()
+                                  {
+                                      ReturnMessage = "DOES EXIST",
+                                      StrDuplicateField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), freezer.FreezerName)
+                                  })
                 {
                     return Json(r);
                 }
@@ -368,13 +313,13 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
                 saveRequest.StorageTypeID = Convert.ToInt64(jsonObject["storageTypeID"]?.ToString());
                 saveRequest.OrganizationID = Convert.ToInt64(authenticatedUser.SiteId);
                 saveRequest.FreezerNote = jsonObject["freezerNote"]?.ToString();
-                saveRequest.EIDSSFreezerID = IsNullOrEmpty(jsonObject["eidssFreezerID"]?.ToString()) ? null : jsonObject["eidssFreezerID"].ToString();
+                saveRequest.EIDSSFreezerID = string.IsNullOrEmpty(jsonObject["eidssFreezerID"]?.ToString()) ? null : jsonObject["eidssFreezerID"].ToString();
                 saveRequest.Building = jsonObject["building"]?.ToString();
                 saveRequest.Room = jsonObject["room"]?.ToString();
                 saveRequest.RowStatus = Convert.ToInt32(jsonObject["rowStatus"]?.ToString());
                 saveRequest.AuditUserName = authenticatedUser.UserName;
 
-                var lstSubdivisions = JsonConvert.DeserializeObject<List<FreezerSubdivisionViewModel>>(jsonObject["freezerSubdivisions"]?.ToString() ?? Empty);
+                var lstSubdivisions = JsonConvert.DeserializeObject<List<FreezerSubdivisionViewModel>>(jsonObject["freezerSubdivisions"]?.ToString() ?? string.Empty);
 
                 // find subdivisions marked for deletion and also mark for deletion their child subdivisions
                 foreach (var sub1 in lstSubdivisions)
@@ -383,76 +328,71 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
                     {
                         // shelf
                         case (long)FreezerSubdivisionTypeEnum.Shelf when sub1.RowStatus == (int)RowStatusTypeEnum.Inactive:
-                        {
-                            foreach (var sub2 in lstSubdivisions.Where(sub2 => sub2.SubdivisionTypeID == (long) FreezerSubdivisionTypeEnum.Rack && sub2.ParentFreezerSubdivisionID == sub1.FreezerSubdivisionID))
                             {
-                                sub2.RowStatus = (int)RowStatusTypeEnum.Inactive;
-
-                                foreach (var sub3 in lstSubdivisions.Where(sub3 => sub3.SubdivisionTypeID == (long)FreezerSubdivisionTypeEnum.Box && sub3.ParentFreezerSubdivisionID == sub2.FreezerSubdivisionID))
+                                foreach (var sub2 in lstSubdivisions.Where(sub2 => sub2.SubdivisionTypeID == (long)FreezerSubdivisionTypeEnum.Rack && sub2.ParentFreezerSubdivisionID == sub1.FreezerSubdivisionID))
                                 {
-                                    sub3.RowStatus = (int)RowStatusTypeEnum.Inactive;
-                                }
-                            }
+                                    sub2.RowStatus = (int)RowStatusTypeEnum.Inactive;
 
-                            break;
-                        }
+                                    foreach (var sub3 in lstSubdivisions.Where(sub3 => sub3.SubdivisionTypeID == (long)FreezerSubdivisionTypeEnum.Box && sub3.ParentFreezerSubdivisionID == sub2.FreezerSubdivisionID))
+                                    {
+                                        sub3.RowStatus = (int)RowStatusTypeEnum.Inactive;
+                                    }
+                                }
+
+                                break;
+                            }
                         // rack
                         case (long)FreezerSubdivisionTypeEnum.Rack when sub1.RowStatus == (int)RowStatusTypeEnum.Inactive:
-                        {
-                            foreach (var sub2 in lstSubdivisions.Where(sub2 => sub2.SubdivisionTypeID == (long)FreezerSubdivisionTypeEnum.Box && sub2.ParentFreezerSubdivisionID == sub1.FreezerSubdivisionID))
                             {
-                                sub2.RowStatus = (int)RowStatusTypeEnum.Inactive;
-                            }
+                                foreach (var sub2 in lstSubdivisions.Where(sub2 => sub2.SubdivisionTypeID == (long)FreezerSubdivisionTypeEnum.Box && sub2.ParentFreezerSubdivisionID == sub1.FreezerSubdivisionID))
+                                {
+                                    sub2.RowStatus = (int)RowStatusTypeEnum.Inactive;
+                                }
 
-                            break;
-                        }
+                                break;
+                            }
                     }
                 }
 
-                    const string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-                    var lettersArray = letters.ToCharArray();
+                const string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                var lettersArray = letters.ToCharArray();
 
-                    foreach (var sub in lstSubdivisions.Where(sub => sub.SubdivisionTypeID == (long) FreezerSubdivisionTypeEnum.Box))
+                foreach (var sub in lstSubdivisions.Where(sub => sub.SubdivisionTypeID == (long)FreezerSubdivisionTypeEnum.Box))
+                {
+                    if (sub.NumberOfLocations != null)
                     {
-                        if (sub.NumberOfLocations != null)
+                        var sqrt = Math.Sqrt((double)sub.NumberOfLocations);
+
+                        if (sub.BoxPlaceAvailabilityList is null || !sub.BoxPlaceAvailabilityList.Any())
                         {
-                            var sqrt = Math.Sqrt((double)sub.NumberOfLocations);
+                            sub.BoxPlaceAvailabilityList = string.IsNullOrEmpty(sub.BoxPlaceAvailability) ? new List<FreezerSubdivisionBoxLocationAvailability>() : JsonConvert.DeserializeObject<List<FreezerSubdivisionBoxLocationAvailability>>(sub.BoxPlaceAvailability);
+                        }
 
-                            if (sub.BoxPlaceAvailabilityList is null || !sub.BoxPlaceAvailabilityList.Any())
+                        for (var i = 0; i < sqrt; i++)
+                        {
+                            for (var j = 1; j <= sqrt; j++)
                             {
-                                sub.BoxPlaceAvailabilityList = IsNullOrEmpty(sub.BoxPlaceAvailability) ? new List<FreezerSubdivisionBoxLocationAvailability>() : JsonConvert.DeserializeObject<List<FreezerSubdivisionBoxLocationAvailability>>(sub.BoxPlaceAvailability);
-                            }
-
-                            for (var i = 0; i < sqrt; i++)
-                            {
-                                for (var j = 1; j <= sqrt; j++)
+                                if (sub.BoxPlaceAvailabilityList.All(x => x.BoxLocation != lettersArray[i] + j.ToString()))
                                 {
-                                    if (sub.BoxPlaceAvailabilityList.All(x => x.BoxLocation != lettersArray[i] + j.ToString()))
+                                    sub.BoxPlaceAvailabilityList.Add(new FreezerSubdivisionBoxLocationAvailability
                                     {
-                                        sub.BoxPlaceAvailabilityList.Add(new FreezerSubdivisionBoxLocationAvailability
-                                        {
-                                            AvailabilityIndicator = true,
-                                            BoxLocation = lettersArray[i] + j.ToString()
-                                        });
-                                    }
+                                        AvailabilityIndicator = true,
+                                        BoxLocation = lettersArray[i] + j.ToString()
+                                    });
                                 }
                             }
                         }
-
-                        sub.BoxPlaceAvailability = JsonConvert.SerializeObject(sub.BoxPlaceAvailabilityList);
                     }
-                  
+
+                    sub.BoxPlaceAvailability = JsonConvert.SerializeObject(sub.BoxPlaceAvailabilityList);
+                }
+
                 saveRequest.FreezerSubdivisions = JsonConvert.SerializeObject(lstSubdivisions);
 
                 // save freezer                
                 var response = await _client.SaveFreezer(saveRequest);
 
-                // get new list
-                //lstFreezers = await GetFreezers();
-                //ModelState.Clear();
-                //_pageViewModel.FreezerList = lstFreezers;
-
-                return Json(response);                
+                return Json(response);
             }
             catch (Exception ex)
             {
@@ -464,20 +404,18 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
 
         [HttpGet]
         [Route("Laboratory/ReloadFreezerList")]
-        public async Task<ActionResult> ReloadFreezerList() 
+        public async Task<ActionResult> ReloadFreezerList()
         {
             ModelState.Clear();
-            var lstFreezers = await GetFreezers();            
+            var lstFreezers = await GetFreezers();
             _pageViewModel.FreezerList = lstFreezers;
 
             return Json(_pageViewModel.FreezerList);
-
-            //return View("Index", _pageViewModel.FreezerList);
         }
 
         [HttpPost]
         [Route("Laboratory/Freezer")]
-        public async Task<ActionResult> Index(FreezerPageViewModel model) //([FromBody] JsonElement data)
+        public async Task<ActionResult> Index(FreezerPageViewModel model)
         {
             ModelState.Clear();
             await InitializeModel();
@@ -507,7 +445,7 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
                     new("ReportTitle", "Print")
                 };
 
-                _pageViewModel.PrintParametersJSON = System.Text.Json.JsonSerializer.Serialize(_pageViewModel.PrintParameters);                
+                _pageViewModel.PrintParametersJSON = System.Text.Json.JsonSerializer.Serialize(_pageViewModel.PrintParameters);
             }
             _pageViewModel.ShowBarcodeModal = model.ShowBarcodeModal;
             _pageViewModel.ShowPrintModal = model.ShowPrintModal;
@@ -526,12 +464,12 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
                 1,
                 99999,
                 "intOrder",
-                SortConstants.Ascending);
+                EIDSSConstants.SortConstants.Ascending);
 
             var lstStorageTypes = storageTypes.ToList();
             lstStorageTypes.Insert(0, new Domain.ViewModels.Administration.BaseReferenceEditorsViewModel
             {
-                StrName = Empty,
+                StrName = string.Empty,
                 KeyId = 0
             });
 
@@ -544,12 +482,12 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
                 1,
                 99999,
                 "intOrder",
-                SortConstants.Ascending);
+                EIDSSConstants.SortConstants.Ascending);
 
             var lstSubdivisionTypes = subdivisionTypes.ToList();
             lstSubdivisionTypes.Insert(0, new Domain.ViewModels.Administration.BaseReferenceEditorsViewModel
             {
-                StrName = Empty,
+                StrName = string.Empty,
                 KeyId = -1
             });
 
@@ -562,12 +500,12 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
                 1,
                 99999,
                 "intOrder",
-                SortConstants.Ascending);
+                EIDSSConstants.SortConstants.Ascending);
 
             var lstBoxSizeTypes = boxSizeTypes.ToList();
             lstBoxSizeTypes.Insert(0, new Domain.ViewModels.Administration.BaseReferenceEditorsViewModel
             {
-                StrName = Empty,
+                StrName = string.Empty,
                 KeyId = -1
             });
 
@@ -590,24 +528,18 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="freezerSubdivision"></param>
-        /// <param name="lstFreezerSubdivisions"></param>
-        /// <returns></returns>
         private static bool CanDeleteSubdivision(FreezerSubdivisionViewModel freezerSubdivision, List<FreezerSubdivisionViewModel> lstFreezerSubdivisions)
         {
             var boxLocationAvailability = new List<FreezerSubdivisionBoxLocationAvailability>();
 
-            if (!IsNullOrEmpty(freezerSubdivision.BoxPlaceAvailability))
+            if (!string.IsNullOrEmpty(freezerSubdivision.BoxPlaceAvailability))
             {
                 boxLocationAvailability = JsonConvert.DeserializeObject<List<FreezerSubdivisionBoxLocationAvailability>>(freezerSubdivision.BoxPlaceAvailability);
             }
 
             if (lstFreezerSubdivisions.Any(x => x.ParentFreezerSubdivisionID == freezerSubdivision.FreezerSubdivisionID && x.ParentFreezerSubdivisionID != null))
             {
-                freezerSubdivision.RowAction = RecordConstants.Delete;
+                freezerSubdivision.RowAction = EIDSSConstants.RecordConstants.Delete;
                 freezerSubdivision.RowStatus = (int)RowStatusTypeEnum.Inactive;
                 return true;
             }
@@ -621,24 +553,20 @@ namespace EIDSS.Web.Areas.Laboratory.Controllers
                     }
                     else
                     {
-                        freezerSubdivision.RowAction = RecordConstants.Delete;
+                        freezerSubdivision.RowAction = EIDSSConstants.RecordConstants.Delete;
                         freezerSubdivision.RowStatus = (int)RowStatusTypeEnum.Inactive;
                         return true;
                     }
                 }
                 else
                 {
-                    freezerSubdivision.RowAction = RecordConstants.Delete;
+                    freezerSubdivision.RowAction = EIDSSConstants.RecordConstants.Delete;
                     freezerSubdivision.RowStatus = (int)RowStatusTypeEnum.Inactive;
                     return true;
                 }
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         private async Task<List<FreezerViewModel>> GetFreezers()
         {
 

@@ -1,111 +1,83 @@
-﻿using System;
-using System.Threading.Tasks;
-using EIDSS.Web.Abstracts;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
+﻿using EIDSS.ClientLibrary.ApiClients.Outbreak;
+using EIDSS.ClientLibrary.Services;
 using EIDSS.Domain.RequestModels.Outbreak;
 using EIDSS.Domain.ResponseModels.Outbreak;
-using EIDSS.ClientLibrary.Services;
-using EIDSS.ClientLibrary.ApiClients.Outbreak;
-using System.IO;
-using EIDSS.Web.Areas.Outbreak.ViewModels;
-using System.Net.Http.Headers;
+using EIDSS.Web.Abstracts;
+using EIDSS.Web.Validators;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
-namespace EIDSS.Web.Areas.Outbreak.Controllers
+namespace EIDSS.Web.Areas.Outbreak.Controllers;
+
+[Area("Outbreak")]
+[Controller]
+public class DocumentController(
+    IOutbreakClient outbreakClient,
+    ITokenService tokenService,
+    ISpreadsheetValidatorFactory spreadsheetValidatorFactory,
+    ILogger<OutbreakPageController> logger)
+    : BaseController(logger, tokenService)
 {
-    [Area("Outbreak")]
-    [Controller]
-    public class DocumentController : BaseController
+    public async Task<IActionResult> Display(long idfOutbreakNote)
     {
-        public DocumentViewModel _documentViewModel;
+        return await GetNoteFile(idfOutbreakNote, "inline");
+    }
 
-        private readonly IOutbreakClient _OutbreakClient;
+    public async Task<IActionResult> Download(long idfOutbreakNote)
+    {
+        return await GetNoteFile(idfOutbreakNote, "attachment");
+    }
 
-        public DocumentController(IOutbreakClient OutbreakClient, ITokenService tokenService, ILogger<OutbreakPageController> logger) : base(logger, tokenService)
+    private async Task<IActionResult> GetNoteFile(long idfOutbreakNote, string contentDispositionHeaderValue)
+    {
+        var request = new OutbreakNoteRequestModel
         {
-            _OutbreakClient = OutbreakClient;
-            _documentViewModel = new DocumentViewModel();
-        }
+            idfOutbreakNote = idfOutbreakNote
+        };
 
-        public async Task<IActionResult> Display(long idfOutbreakNote)
+        List<OutbreakNoteFileResponseModel> response = await outbreakClient.GetNoteFile(request);
+
+        var uploadFileName = response[0].UploadFileName;
+
+        var cd = new System.Net.Http.Headers.ContentDispositionHeaderValue(contentDispositionHeaderValue)
         {
-            OutbreakNoteRequestModel request = new OutbreakNoteRequestModel();
-            request.idfOutbreakNote = idfOutbreakNote;
+            FileNameStar = uploadFileName
+        };
 
-            List<OutbreakNoteFileResponseModel> response = await _OutbreakClient.GetNoteFile(request);
-            //byte[] byteArray = response[0].UploadFileObject;
+        Response.Headers.Append(HeaderNames.ContentDisposition, cd.ToString());
 
-            var cd = new System.Net.Http.Headers.ContentDispositionHeaderValue("inline")
-            {
-                FileNameStar = response[0].UploadFileName
-            };
+        var extension = Path.GetExtension(uploadFileName);
+        var mimeType = GetMimeType(extension);
 
-            Response.Headers.Add(HeaderNames.ContentDisposition, cd.ToString());
+        var fileData = response[0].UploadFileObject;
+        var validator = spreadsheetValidatorFactory.GetValidator(extension);
+        var outputData = validator != null ? await validator.CleanUp(fileData) : fileData;
 
-            string strMimeType = string.Empty;
-            string strExtension = response[0].UploadFileName.ToString();
-            int iExtensionIndex = strExtension.LastIndexOf('.');
-            
-            strExtension = strExtension.Substring(iExtensionIndex);
+        return File(outputData, mimeType);
+    }
 
-            switch (strExtension)
-            {
-                case ".doc":
-                    strMimeType = "application/msword";
-                    break;
-                case ".docx":
-                    strMimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-                    break;
-                case ".xls":
-                    strMimeType = "application/vnd.ms-excel";
-                    break;
-                case ".xlsx":
-                    strMimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                    break;
-                case ".ppt":
-                    strMimeType = "application/vnd.ms-powerpoint";
-                    break;
-                case ".pptx":
-                    strMimeType = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-                    break;
-                case ".jpeg":
-                    strMimeType = "image/jpeg";
-                    break;
-                case ".jpg":
-                    strMimeType = "image/jpeg";
-                    break;
-                case ".png":
-                    strMimeType = "image/png";
-                    break;
-                case ".pdf":
-                    strMimeType = "application/pdf";
-                    break;
-                case ".txt":
-                    strMimeType = "text/plain";
-                    break;
-
-            }
-            return File(response[0].UploadFileObject, strMimeType);
-        }
-
-        public async Task<IActionResult> Download(long idfOutbreakNote)
+    private static string GetMimeType(string extension)
+    {
+        return extension switch
         {
-            OutbreakNoteRequestModel request = new OutbreakNoteRequestModel();
-            request.idfOutbreakNote = idfOutbreakNote;
-
-            List<OutbreakNoteFileResponseModel> response = await _OutbreakClient.GetNoteFile(request);
-            //byte[] byteArray = response[0].UploadFileObject;
-
-            var cd = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
-            {
-                FileNameStar = response[0].UploadFileName
-            };
-
-            Response.Headers.Add(HeaderNames.ContentDisposition, cd.ToString());
-
-            return File(response[0].UploadFileObject, "application/pdf");
-        }
+            ".doc" => "application/msword",
+            ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ".xls" => "application/vnd.ms-excel",
+            ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            ".ppt" => "application/vnd.ms-powerpoint",
+            ".pptx" => "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            ".jpeg" => "image/jpeg",
+            ".jpg" => "image/jpeg",
+            ".png" => "image/png",
+            ".pdf" => "application/pdf",
+            ".txt" => "text/plain",
+            ".csv" => "text/csv",
+            _ => string.Empty,
+        };
     }
 }

@@ -31,37 +31,49 @@ DECLARE @idfCurrentResidenceAddress BIGINT
 DECLARE @idfEmployerAddress BIGINT
 DECLARE @idfRegistrationAddress BIGINT
 DECLARE @idfSchoolAddress BIGINT
-DECLARE @idfRootCurrentResidenceAddress BIGINT
-DECLARE @idfRootEmployerAddress BIGINT
-DECLARE @idfRootRegistrationAddress BIGINT
-DECLARE @idfRootSchoolAddress BIGINT
+DECLARE @idfAltAddress BIGINT
+
+DECLARE @idfCopyCurrentResidenceAddress BIGINT
+DECLARE @idfCopyEmployerAddress BIGINT
+DECLARE @idfCopyRegistrationAddress BIGINT
+DECLARE @idfCopySchoolAddress BIGINT
+DECLARE @idfCopyAltAddress BIGINT
 
 BEGIN
     BEGIN TRY
-        SELECT @idfCurrentResidenceAddress = idfCurrentResidenceAddress,
-               @idfEmployerAddress = idfEmployerAddress,
-               @idfRegistrationAddress = idfRegistrationAddress
-        FROM dbo.tlbHumanActual
-        WHERE idfHumanActual = @idfHumanActual
+        SELECT @idfCurrentResidenceAddress = ha.idfCurrentResidenceAddress,
+               @idfEmployerAddress = ha.idfEmployerAddress,
+               @idfRegistrationAddress = ha.idfRegistrationAddress,
+			   @idfSchoolAddress = haai.SchoolAddressID,
+			   @idfAltAddress = haai.AltAddressID
+        FROM dbo.tlbHumanActual ha
+		left join dbo.HumanActualAddlInfo haai
+		on	haai.HumanActualAddlInfoUID = ha.idfHumanActual
+        WHERE ha.idfHumanActual = @idfHumanActual
 
         IF @idfHuman IS NULL
             EXEC dbo.USP_GBL_NEXTKEYID_GET 'tlbHuman', @idfHuman OUTPUT
 
-        -- Get id for root idfCurrentResidenceAddress
-        SET @idfRootCurrentResidenceAddress = NULL
-        SELECT @idfRootCurrentResidenceAddress = dbo.tlbHuman.idfCurrentResidenceAddress
+        -- Get ids for copies of idfCurrentResidenceAddress, idfEmployerAddress, idfRegistrationAddress
+        SET @idfCopyCurrentResidenceAddress = NULL
+        SET @idfCopyEmployerAddress = NULL
+        SET @idfCopyRegistrationAddress = NULL
+        SELECT @idfCopyCurrentResidenceAddress = dbo.tlbHuman.idfCurrentResidenceAddress,
+               @idfCopyEmployerAddress = dbo.tlbHuman.idfEmployerAddress,
+			   @idfCopyRegistrationAddress = dbo.tlbHuman.idfRegistrationAddress
         FROM dbo.tlbHuman
         WHERE dbo.tlbHuman.idfHuman = @idfHuman
 
-        IF @idfRootCurrentResidenceAddress IS NULL
+        -- Generate id for copy of idfCurrentResidenceAddress
+        IF @idfCopyCurrentResidenceAddress IS NULL
            AND NOT @idfCurrentResidenceAddress IS NULL
         BEGIN
             EXEC dbo.USP_GBL_NEXTKEYID_GET 'tlbGeoLocation',
-                                           @idfRootCurrentResidenceAddress OUTPUT
+                                           @idfCopyCurrentResidenceAddress OUTPUT
 
-            -- Copy addresses for root human
+            -- Copy current residence address
             EXEC dbo.USP_GBL_GEOLOCATION_COPY @idfCurrentResidenceAddress,
-                                              @idfRootCurrentResidenceAddress,
+                                              @idfCopyCurrentResidenceAddress,
                                               0,
                                               @returnCode,
                                               @returnMsg
@@ -75,21 +87,16 @@ BEGIN
             END
         END
 
-        -- Get id for root idfEmployerAddress
-        SET @idfRootEmployerAddress = NULL
-        SELECT @idfRootEmployerAddress = dbo.tlbHuman.idfEmployerAddress
-        FROM dbo.tlbHuman
-        WHERE dbo.tlbHuman.idfHuman = @idfHuman
-
-        IF @idfRootEmployerAddress IS NULL
+        -- Generate id for copy of idfEmployerAddress
+        IF @idfCopyEmployerAddress IS NULL
            AND NOT @idfEmployerAddress IS NULL
         BEGIN
             EXEC dbo.USP_GBL_NEXTKEYID_GET 'tlbGeoLocation',
-                                           @idfRootEmployerAddress OUTPUT
+                                           @idfCopyEmployerAddress OUTPUT
 
-            -- Copy addresses for employer
+            -- Copy employer address
             EXEC dbo.USP_GBL_GEOLOCATION_COPY @idfEmployerAddress,
-                                              @idfRootEmployerAddress,
+                                              @idfCopyEmployerAddress,
                                               0,
                                               @returnCode,
                                               @returnMsg
@@ -103,21 +110,16 @@ BEGIN
             END
         END
 
-        -- Get id for root idfRegistrationAddress
-        SET @idfRootRegistrationAddress = NULL
-        SELECT @idfRootRegistrationAddress = dbo.tlbHuman.idfRegistrationAddress
-        FROM dbo.tlbHuman
-        WHERE dbo.tlbHuman.idfHumanActual = @idfHuman
-
-        IF @idfRootRegistrationAddress IS NULL
+        -- Generate id for copy of idfRegistrationAddress
+        IF @idfCopyRegistrationAddress IS NULL
            AND NOT @idfRegistrationAddress IS NULL
         BEGIN
             EXEC dbo.USP_GBL_NEXTKEYID_GET 'tlbGeoLocation',
-                                           @idfRootRegistrationAddress OUTPUT
+                                           @idfCopyRegistrationAddress OUTPUT
 
-            -- Copy registration addresses 
+            -- Copy registration address 
             EXEC dbo.USP_GBL_GEOLOCATION_COPY @idfRegistrationAddress,
-                                              @idfRootRegistrationAddress,
+                                              @idfCopyRegistrationAddress,
                                               0,
                                               @returnCode,
                                               @returnMsg
@@ -139,9 +141,9 @@ BEGIN
                 idfsOccupationType = ha.idfsOccupationType,
                 idfsNationality = ha.idfsNationality,
                 idfsHumanGender = ha.idfsHumanGender,
-                idfCurrentResidenceAddress = @idfRootCurrentResidenceAddress,
-                idfEmployerAddress = @idfRootEmployerAddress,
-                idfRegistrationAddress = @idfRootRegistrationAddress,
+                idfCurrentResidenceAddress = @idfCopyCurrentResidenceAddress,
+                idfEmployerAddress = @idfCopyEmployerAddress,
+                idfRegistrationAddress = @idfCopyRegistrationAddress,
                 datDateofBirth = ha.datDateofBirth,
                 datDateOfDeath = ha.datDateOfDeath,
                 strLastName = ha.strLastName,
@@ -191,9 +193,9 @@ BEGIN
                    idfsOccupationType,
                    idfsNationality,
                    idfsHumanGender,
-                   @idfRootCurrentResidenceAddress,
-                   @idfRootEmployerAddress,
-                   @idfRootRegistrationAddress,
+                   @idfCopyCurrentResidenceAddress,
+                   @idfCopyEmployerAddress,
+                   @idfCopyRegistrationAddress,
                    datDateofBirth,
                    datDateOfDeath,
                    strLastName,
@@ -214,28 +216,54 @@ BEGIN
 
         -- Insert/Update Additional Info
 
-        -- Get id for root idfSchoolAddress
-        SET @idfRootSchoolAddress = NULL
-        SELECT @idfRootSchoolAddress = dbo.HumanAddlInfo.SchoolAddressID
+        -- Get ids for copies of SchoolAddressID and AltAddressID
+        SET @idfCopySchoolAddress = NULL
+		SET @idfCopyAltAddress = NULL
+        SELECT @idfCopySchoolAddress = dbo.HumanAddlInfo.SchoolAddressID,
+		       @idfCopyAltAddress = dbo.HumanAddlInfo.AltAddressID
         FROM dbo.HumanAddlInfo
         WHERE dbo.HumanAddlInfo.HumanAdditionalInfo = @idfHuman
 
-        IF @idfRootSchoolAddress IS NULL
+        -- Generate id for copy of SchoolAddressID
+        IF @idfCopySchoolAddress IS NULL
            AND NOT @idfSchoolAddress IS NULL
         BEGIN
             EXEC dbo.USP_GBL_NEXTKEYID_GET 'tlbGeoLocation',
-                                           @idfRootSchoolAddress OUTPUT
+                                           @idfCopySchoolAddress OUTPUT
 
-            -- Copy addresses for root human
+            -- Copy school address
             EXEC dbo.USP_GBL_GEOLOCATION_COPY @idfSchoolAddress,
-                                              @idfRootSchoolAddress,
+                                              @idfCopySchoolAddress,
                                               0,
                                               @returnCode,
                                               @returnMsg
 
             IF @returnCode <> 0
             BEGIN
-                SET @returnMsg = 'Failed to copy employer address'
+                SET @returnMsg = 'Failed to copy school address'
+                SELECT @returnCode 'ReturnCode',
+                       @returnMsg 'ReturnMessage'
+                RETURN
+            END
+        END
+
+        -- Generate id for copy of AltAddressID
+        IF @idfCopyAltAddress IS NULL
+           AND NOT @idfAltAddress IS NULL
+        BEGIN
+            EXEC dbo.USP_GBL_NEXTKEYID_GET 'tlbGeoLocation',
+                                           @idfCopyAltAddress OUTPUT
+
+            -- Copy alternative address
+            EXEC dbo.USP_GBL_GEOLOCATION_COPY @idfAltAddress,
+                                              @idfCopyAltAddress,
+                                              0,
+                                              @returnCode,
+                                              @returnMsg
+
+            IF @returnCode <> 0
+            BEGIN
+                SET @returnMsg = 'Failed to copy alternative address'
                 SELECT @returnCode 'ReturnCode',
                        @returnMsg 'ReturnMessage'
                 RETURN
@@ -244,22 +272,19 @@ BEGIN
 
         IF EXISTS
         (
-            SELECT *
+            SELECT 1
             FROM dbo.HumanAddlInfo
             WHERE HumanAdditionalInfo = @idfHuman
         )
         BEGIN
             UPDATE dbo.HumanAddlInfo
-            SET ReportedAge = haai.ReportedAge,
-                ReportedAgeUOMID = haai.ReportedAgeUOMID,
-                ReportedAgeDTM = haai.ReportedAgeDTM,
-                PassportNbr = haai.PassportNbr,
+            SET PassportNbr = haai.PassportNbr,
                 IsEmployedID = haai.IsEmployedID,
                 EmployerPhoneNbr = haai.EmployerPhoneNbr,
                 EmployedDTM = haai.EmployedDTM,
                 IsStudentID = haai.IsStudentID,
                 SchoolPhoneNbr = haai.SchoolPhoneNbr,
-                SchoolAddressID = haai.SchoolAddressID,
+                SchoolAddressID = @idfCopySchoolAddress,
                 SchoolLastAttendDTM = haai.SchoolLastAttendDTM,
                 ContactPhoneCountryCode = haai.ContactPhoneCountryCode,
                 ContactPhoneNbr = haai.ContactPhoneNbr,
@@ -267,8 +292,10 @@ BEGIN
                 ContactPhone2CountryCode = haai.ContactPhone2CountryCode,
                 ContactPhone2Nbr = haai.ContactPhone2Nbr,
                 ContactPhone2NbrTypeID = haai.ContactPhone2NbrTypeID,
-                AltAddressID = haai.AltAddressID,
-                SchoolName = haai.SchoolName
+                AltAddressID = @idfCopyAltAddress,
+                SchoolName = haai.SchoolName,
+				IsAnotherPhoneID = haai.IsAnotherPhoneID,
+				IsAnotherAddressID = haai.IsAnotherAddressID
             FROM dbo.HumanAddlInfo hai
                 INNER JOIN dbo.humanActualAddlInfo haai
                     ON hai.HumanAdditionalInfo = haai.HumanActualAddlInfoUID
@@ -297,7 +324,10 @@ BEGIN
                 ContactPhone2Nbr,
                 ContactPhone2NbrTypeID,
                 SchoolName,
-                intRowStatus
+                intRowStatus,
+				AltAddressID,
+				IsAnotherPhoneID,
+				IsAnotherAddressID
             )
             SELECT @idfHuman,
                    ReportedAge,
@@ -309,7 +339,7 @@ BEGIN
                    EmployedDTM,
                    IsStudentID,
                    SchoolPhoneNbr,
-                   @idfRootSchoolAddress,
+                   @idfCopySchoolAddress,
                    SchoolLastAttendDTM,
                    ContactPhoneCountryCode,
                    ContactPhoneNbr,
@@ -318,7 +348,10 @@ BEGIN
                    ContactPhone2Nbr,
                    ContactPhone2NbrTypeID,
                    SchoolName,
-                   intRowStatus
+                   intRowStatus,
+				   @idfCopyAltAddress,
+				   IsAnotherPhoneID,
+				   IsAnotherAddressID
             FROM dbo.humanActualAddlInfo
             WHERE HumanActualAddlInfoUID = @idfHumanActual
         END

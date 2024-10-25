@@ -23,6 +23,8 @@ namespace EIDSS.ClientLibrary.ApiClients.Configuration
     }
     public partial class VectorTypeFieldTestMatrixClient : BaseApiClient ,IVectorTypeFieldTestMatrixClient
     {
+        ///api/Configuration/VectorTypeFieldTestMatrix/DeleteFieldTestMatrix
+        ///#region Vector Type Field Test Matrix
         protected internal EidssApiConfigurationOptions _eidssApiConfigurationOptions;
 
         public VectorTypeFieldTestMatrixClient(HttpClient httpClient, IOptionsSnapshot<EidssApiOptions> eidssApiOptions, IOptionsSnapshot<EidssApiConfigurationOptions> eidssApiConfigurationOptions,

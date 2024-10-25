@@ -45,7 +45,6 @@ namespace EIDSS.Web.Components.Human.Person
 
         protected RadzenTemplateForm<PersonStateContainer> Form { get; set; }
         protected IEnumerable<BaseReferenceViewModel> OccupationTypes { get; set; }
-        protected IEnumerable<BaseReferenceViewModel> YesNoUnknownList { get; set; }
         protected List<CountryModel> Countries { get; set; }
         protected RadzenTextBox EmployerNameControl { get; set; }
         protected RadzenTextBox EmployerPhoneNumberControl { get; set; }
@@ -77,7 +76,11 @@ namespace EIDSS.Web.Components.Human.Person
         string house;
         string building;
         string apartment;
-
+        private long? foreignWorkCountryID;
+        private string foreignWorkAddress;
+        private LocationViewModel originalPersonEmploymentAddressLocationModel = new LocationViewModel();
+        private LocationViewModel originalPersonSchoolAddressLocationModel = new LocationViewModel();
+        
         #endregion
 
         #endregion
@@ -94,15 +97,14 @@ namespace EIDSS.Web.Components.Human.Person
             _source = new CancellationTokenSource();
             _token = _source.Token;
 
-            YesNoUnknownList = await CrossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), EIDSSConstants.BaseReferenceConstants.YesNoValueList, null); //TODO YesNoUnknown Localization
+            Countries = await CrossCuttingClient.GetCountryList(GetCurrentLanguage());
+            SaveOriginalLocationViewsState();
 
             await base.OnInitializedAsync();
         }
 
         public void Dispose()
         {
-            StateContainer.OnChange -= async (property) => await OnStateContainerChangeAsync(property);
-
             _source?.Cancel();
             _source?.Dispose();
         }
@@ -112,14 +114,9 @@ namespace EIDSS.Web.Components.Human.Person
         {
             if (firstRender)
             {
-                StateContainer.OnChange += async (property) => await OnStateContainerChangeAsync(property);
-
                 var dotNetReference = DotNetObjectReference.Create(this);
                 await JsRuntime.InvokeVoidAsync("PersonAddEdit.PersonEmploymentSchoolSection.SetDotNetReference", _token, dotNetReference);
-
-                await EmploymentAddressLocationViewComponent.RefreshComponent(StateContainer.PersonEmploymentAddressLocationModel);
-                await SchoolAddressLocationViewComponent.RefreshComponent(StateContainer.PersonSchoolAddressLocationModel);
-
+                await ToggleLocationControlReadOnly();
             }
         }
 
@@ -131,7 +128,7 @@ namespace EIDSS.Web.Components.Human.Person
         {
             await EmploymentAddressLocationViewComponent.RefreshComponent(StateContainer.PersonEmploymentAddressLocationModel);
             await SchoolAddressLocationViewComponent.RefreshComponent(StateContainer.PersonSchoolAddressLocationModel);
-
+            await ToggleLocationControlReadOnly(StateContainer.WorkAddressSameAsCurrentAddress);
         }
 
         protected void UpdateEmploymentAddressHandlerAsync(LocationViewModel locationViewModel)
@@ -171,103 +168,10 @@ namespace EIDSS.Web.Components.Human.Person
             }
         }
 
-        protected async Task OccupationTypeChangedAsync(object value)
-        {
-            //if (Convert.ToInt64(value) == EIDSSConstants.PersonalIDTypes.Unknown)
-            //{
-            //    model.SearchCriteria.PersonalID = null;
-            //    personalIDDisabled = true;
-            //}
-            //else
-            //{
-            //    personalIDDisabled = false;
-            //}
-            //await InvokeAsync(StateHasChanged);
-        }
-
-        public async Task GetCountriesAsync(LoadDataArgs args)
-        {
-            try
-            {
-                Countries = await CrossCuttingClient.GetCountryList(GetCurrentLanguage());
-                await InvokeAsync(StateHasChanged);
-
-                //model.PersonEmploymentSchoolSection.WorkCountryList = await _crossCuttingClient.GetCountryList(GetCurrentLanguage()).ConfigureAwait(false);
-                //model.PersonEmploymentSchoolSection.WorkCountryList.Insert(0, item2);
-
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message, null);
-                throw;
-            }
-        }
-
-        protected async Task CountryChangedAsync(object value)
-        {
-            //if (Convert.ToInt64(value) == EIDSSConstants.PersonalIDTypes.Unknown)
-            //{
-            //    model.SearchCriteria.PersonalID = null;
-            //    personalIDDisabled = true;
-            //}
-            //else
-            //{
-            //    personalIDDisabled = false;
-            //}
-            //await InvokeAsync(StateHasChanged);
-        }
-
-        public void SetEmploymentHidden(long? value)
-        {
-            if (value == Convert.ToInt64(EIDSSConstants.YesNoValueList.Yes))
-            {
-                StateContainer.IsEmploymentHidden = false;
-            }
-            else if (value == Convert.ToInt64(EIDSSConstants.YesNoValueList.No))
-            {
-                StateContainer.IsEmploymentHidden = true;
-            }
-            else if (value == Convert.ToInt64(EIDSSConstants.YesNoValueList.Unknown))
-            {
-                StateContainer.IsEmploymentHidden = true;
-            }
-        }
-
-        public void SetSchoolHidden(long? value)
-        {
-            if (value == Convert.ToInt64(EIDSSConstants.YesNoValueList.Yes))
-            {
-                StateContainer.IsSchoolHidden = false;
-            }
-            else if (value == Convert.ToInt64(EIDSSConstants.YesNoValueList.No))
-            {
-                StateContainer.IsSchoolHidden = true;
-            }
-            else if (value == Convert.ToInt64(EIDSSConstants.YesNoValueList.Unknown))
-            {
-                StateContainer.IsSchoolHidden = true;
-            }
-        }
-
-        public void WorkSameAsCurrentAddress(bool isChecked)
+        public async Task MakeWorkSameAsCurrentAddress(bool isChecked)
         {
             if (isChecked)
             {
-                // save the perm address location to local variables before overriding with current address
-                adminLevel0Value = StateContainer.PersonEmploymentAddressLocationModel.AdminLevel0Value;
-                adminLevel1Value = StateContainer.PersonEmploymentAddressLocationModel.AdminLevel1Value;
-                adminLevel2Value = StateContainer.PersonEmploymentAddressLocationModel.AdminLevel2Value;
-                settlementType = StateContainer.PersonEmploymentAddressLocationModel.SettlementType;
-                adminLevel3Value = StateContainer.PersonEmploymentAddressLocationModel.AdminLevel3Value;
-                adminLevel1Text = StateContainer.PersonEmploymentAddressLocationModel.AdminLevel1Text;
-                adminLevel2Text = StateContainer.PersonEmploymentAddressLocationModel.AdminLevel2Text;
-                adminLevel3Text = StateContainer.PersonEmploymentAddressLocationModel.AdminLevel3Text;
-                postalCodeText = StateContainer.PersonEmploymentAddressLocationModel.PostalCodeText;
-                streetText = StateContainer.PersonEmploymentAddressLocationModel.StreetText;
-                house = StateContainer.PersonEmploymentAddressLocationModel.House;
-                building = StateContainer.PersonEmploymentAddressLocationModel.Building;
-                apartment = StateContainer.PersonEmploymentAddressLocationModel.Apartment;
-
                 // override perm address
                 StateContainer.PersonEmploymentAddressLocationModel.AdminLevel0Value = StateContainer.PersonCurrentAddressLocationModel.AdminLevel0Value;
                 StateContainer.PersonEmploymentAddressLocationModel.AdminLevel1Value = StateContainer.PersonCurrentAddressLocationModel.AdminLevel1Value;
@@ -284,24 +188,61 @@ namespace EIDSS.Web.Components.Human.Person
                 StateContainer.PersonEmploymentAddressLocationModel.House = StateContainer.PersonCurrentAddressLocationModel.House;
                 StateContainer.PersonEmploymentAddressLocationModel.Building = StateContainer.PersonCurrentAddressLocationModel.Building;
                 StateContainer.PersonEmploymentAddressLocationModel.Apartment = StateContainer.PersonCurrentAddressLocationModel.Apartment;
+
+                StateContainer.IsForeignWorkAddress = false;
+                await ResetWorkAddress(false);
             }
             else
             {
                 // restore values from local variables
-                StateContainer.PersonEmploymentAddressLocationModel.AdminLevel0Value = adminLevel0Value;
-                StateContainer.PersonEmploymentAddressLocationModel.AdminLevel1Value = adminLevel1Value;
-                StateContainer.PersonEmploymentAddressLocationModel.AdminLevel2Value = adminLevel2Value;
-                StateContainer.PersonEmploymentAddressLocationModel.SettlementType = settlementType;
-                StateContainer.PersonEmploymentAddressLocationModel.AdminLevel3Value = adminLevel3Value;
-                StateContainer.PersonEmploymentAddressLocationModel.AdminLevel1Text = adminLevel1Text;
-                StateContainer.PersonEmploymentAddressLocationModel.AdminLevel2Text = adminLevel2Text;
-                StateContainer.PersonEmploymentAddressLocationModel.AdminLevel3Text = adminLevel3Text;
-                StateContainer.PersonEmploymentAddressLocationModel.PostalCodeText = postalCodeText;
-                StateContainer.PersonEmploymentAddressLocationModel.StreetText = streetText;
-                StateContainer.PersonEmploymentAddressLocationModel.House = house;
-                StateContainer.PersonEmploymentAddressLocationModel.Building = building;
-                StateContainer.PersonEmploymentAddressLocationModel.Apartment = apartment;
+                StateContainer.PersonEmploymentAddressLocationModel.AdminLevel0Value = null;
+                StateContainer.PersonEmploymentAddressLocationModel.AdminLevel1Value = null;
+                StateContainer.PersonEmploymentAddressLocationModel.AdminLevel2Value = null;
+                StateContainer.PersonEmploymentAddressLocationModel.SettlementType = null;
+                StateContainer.PersonEmploymentAddressLocationModel.AdminLevel3Value = null;
+                StateContainer.PersonEmploymentAddressLocationModel.AdminLevel1Text = null;
+                StateContainer.PersonEmploymentAddressLocationModel.AdminLevel2Text = null;
+                StateContainer.PersonEmploymentAddressLocationModel.AdminLevel3Text = null;
+                StateContainer.PersonEmploymentAddressLocationModel.PostalCodeText = null;
+                StateContainer.PersonEmploymentAddressLocationModel.StreetText = null;
+                StateContainer.PersonEmploymentAddressLocationModel.House = null;
+                StateContainer.PersonEmploymentAddressLocationModel.Building = null;
+                StateContainer.PersonEmploymentAddressLocationModel.Apartment = null;
             }
+
+            await RefreshComponent();
+        }
+
+        public async Task ResetWorkAddress(bool isChecked)
+        {
+            if (isChecked)
+            {
+                StateContainer.WorkAddressSameAsCurrentAddress = false;
+                await MakeWorkSameAsCurrentAddress(false);
+            }
+
+            StateContainer.ForeignWorkCountryID = null;
+            StateContainer.ForeignWorkAddress = null;
+        }
+
+        private async Task ToggleLocationControlReadOnly(bool value)
+        {
+            StateContainer.PersonEmploymentAddressLocationModel.EnableAdminLevel1 = !value;
+            StateContainer.PersonEmploymentAddressLocationModel.EnableAdminLevel2 = !value;
+            StateContainer.PersonEmploymentAddressLocationModel.EnableAdminLevel3 = !value;
+            StateContainer.PersonEmploymentAddressLocationModel.EnableAdminLevel4 = !value;
+            StateContainer.PersonEmploymentAddressLocationModel.EnableAdminLevel5 = !value;
+            StateContainer.PersonEmploymentAddressLocationModel.EnableAdminLevel6 = !value;
+            StateContainer.PersonEmploymentAddressLocationModel.EnableSettlement = !value;
+            StateContainer.PersonEmploymentAddressLocationModel.EnableSettlementType = !value;
+            StateContainer.PersonEmploymentAddressLocationModel.OperationType = value? LocationViewOperationType.ReadOnly : null;
+            StateContainer.PersonEmploymentAddressLocationModel.EnablePostalCode = !value;
+            StateContainer.PersonEmploymentAddressLocationModel.EnableStreet = !value;
+            StateContainer.PersonEmploymentAddressLocationModel.EnableHouse = !value;
+            StateContainer.PersonEmploymentAddressLocationModel.EnableBuilding = !value;
+            StateContainer.PersonEmploymentAddressLocationModel.EnableApartment = !value;
+
+            await InvokeAsync(StateHasChanged);
         }
 
         #endregion
@@ -340,37 +281,28 @@ namespace EIDSS.Web.Components.Human.Person
 
         private async Task ToggleLocationControlReadOnly()
         {
-            StateContainer.PersonEmploymentAddressLocationModel.EnableAdminLevel1 = !StateContainer.IsReadOnly;
-            StateContainer.PersonEmploymentAddressLocationModel.EnableAdminLevel2 = !StateContainer.IsReadOnly;
-            StateContainer.PersonEmploymentAddressLocationModel.EnableAdminLevel3 = !StateContainer.IsReadOnly;
-            StateContainer.PersonEmploymentAddressLocationModel.EnableAdminLevel4 = !StateContainer.IsReadOnly;
-            StateContainer.PersonEmploymentAddressLocationModel.EnableAdminLevel5 = !StateContainer.IsReadOnly;
-            StateContainer.PersonEmploymentAddressLocationModel.EnableAdminLevel6 = !StateContainer.IsReadOnly;
-            StateContainer.PersonEmploymentAddressLocationModel.EnableSettlement = !StateContainer.IsReadOnly;
-            StateContainer.PersonEmploymentAddressLocationModel.EnableSettlementType = !StateContainer.IsReadOnly;
-            StateContainer.PersonEmploymentAddressLocationModel.OperationType = StateContainer.IsReadOnly ? LocationViewOperationType.ReadOnly : null;
-            StateContainer.PersonEmploymentAddressLocationModel.EnablePostalCode = !StateContainer.IsReadOnly;
-            StateContainer.PersonEmploymentAddressLocationModel.EnableStreet = !StateContainer.IsReadOnly;
-            StateContainer.PersonEmploymentAddressLocationModel.EnableHouse = !StateContainer.IsReadOnly;
-            StateContainer.PersonEmploymentAddressLocationModel.EnableBuilding = !StateContainer.IsReadOnly;
-            StateContainer.PersonEmploymentAddressLocationModel.EnableApartment = !StateContainer.IsReadOnly;
+            if (StateContainer.IsReadOnly)
+            {
+                SaveOriginalLocationViewsState();
 
-            StateContainer.PersonSchoolAddressLocationModel.EnableAdminLevel1 = !StateContainer.IsReadOnly;
-            StateContainer.PersonSchoolAddressLocationModel.EnableAdminLevel2 = !StateContainer.IsReadOnly;
-            StateContainer.PersonSchoolAddressLocationModel.EnableAdminLevel3 = !StateContainer.IsReadOnly;
-            StateContainer.PersonSchoolAddressLocationModel.EnableAdminLevel4 = !StateContainer.IsReadOnly;
-            StateContainer.PersonSchoolAddressLocationModel.EnableAdminLevel5 = !StateContainer.IsReadOnly;
-            StateContainer.PersonSchoolAddressLocationModel.EnableAdminLevel6 = !StateContainer.IsReadOnly;
-            StateContainer.PersonSchoolAddressLocationModel.EnableSettlement = !StateContainer.IsReadOnly;
-            StateContainer.PersonSchoolAddressLocationModel.EnableSettlementType = !StateContainer.IsReadOnly;
-            StateContainer.PersonSchoolAddressLocationModel.OperationType = StateContainer.IsReadOnly ? LocationViewOperationType.ReadOnly : null;
-            StateContainer.PersonSchoolAddressLocationModel.EnablePostalCode = !StateContainer.IsReadOnly;
-            StateContainer.PersonSchoolAddressLocationModel.EnableStreet = !StateContainer.IsReadOnly;
-            StateContainer.PersonSchoolAddressLocationModel.EnableHouse = !StateContainer.IsReadOnly;
-            StateContainer.PersonSchoolAddressLocationModel.EnableBuilding = !StateContainer.IsReadOnly;
-            StateContainer.PersonSchoolAddressLocationModel.EnableApartment = !StateContainer.IsReadOnly;
+                StateContainer.PersonEmploymentAddressLocationModel.SetFrom(LocationViewModel.DisableTemplate);
+                StateContainer.PersonSchoolAddressLocationModel.SetFrom(LocationViewModel.DisableTemplate);
+            }
+            else 
+            {
+                StateContainer.PersonEmploymentAddressLocationModel.SetFrom(originalPersonEmploymentAddressLocationModel);
+                StateContainer.PersonEmploymentAddressLocationModel.OperationType = null;
+                StateContainer.PersonSchoolAddressLocationModel.SetFrom(originalPersonSchoolAddressLocationModel);
+                StateContainer.PersonSchoolAddressLocationModel.OperationType = null;
+            }
 
             await InvokeAsync(StateHasChanged);
+        }
+
+        private void SaveOriginalLocationViewsState()
+        {
+            originalPersonEmploymentAddressLocationModel.SetFrom(StateContainer.PersonEmploymentAddressLocationModel);
+            originalPersonSchoolAddressLocationModel.SetFrom(StateContainer.PersonSchoolAddressLocationModel);
         }
 
         /// <summary>
@@ -391,6 +323,10 @@ namespace EIDSS.Web.Components.Human.Person
             }
 
             await ToggleLocationControlReadOnly();
+            if (StateContainer.WorkAddressSameAsCurrentAddress)
+            {
+                await RefreshComponent();
+            }
         }
 
         #endregion SetPersonDisabledIndicators

@@ -17,6 +17,18 @@
 
 <div>
 
+@*    @if (@Model.UserPermissions != null)
+    {
+        @if (@Model.UserPermissions.Create)
+        {
+            <div class="row">
+                    <div class="col-md-12">
+                        <button type="button" id="@Model.PageLevelAddButtonID" class="btn btn-primary mt-3" data-toggle='modal' data-backdrop='static' data-keyboard='false' data-target='#@Model.PageLevelAddButtonModal'>@Model.PageLevelAddButtonModalText</button>
+                    </div>
+            </div>
+        }
+    }*@
+
     <div class="row">
         <div class="col-md-12 py-4">
             <component type="typeof(ILIAggregateFormEdit)" render-mode="ServerPrerendered" param-header="@Model" />
@@ -26,8 +38,85 @@
 </div>
 
 
+<!-- Cancel Changes Modal-->
+@*<div class="modal fade" id="mdCancel" tabindex="-1" aria-labelledby="mdCancelLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                    @Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)
+            </div>
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn-sm btn-secondary"
+                        data-dismiss="modal">
+                    @Localizer.GetString(ButtonResourceKeyConstants.NoButton)
+                </button>
+                <button id="btnCancelConfirm"
+                        class="btn-sm btn-primary"
+                        asp-action="Index">
+                    @Localizer.GetString(ButtonResourceKeyConstants.YesButton)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>*@
 
 
+
+@*
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#btnAddHospital").prop("disabled", true);        
+
+        //if ($("#txtDateLastSaved").val() == "0001-01-01") {
+        //    $("#txtDateLastSaved").val('test123');
+        //}
+
+        if ($("#txtFormID").val().length > 0) {
+            $("#btnDeleteILIAggregate").prop("disabled", false);
+            $("#btnAddHospital").prop("disabled", false);
+        }
+
+        $("#btnCancel").on('click', function () {
+            //$("#mdCancel").show();
+            alert("cancel clicked");
+        });
+
+        $("#btnCancelConfirm").on('click', function () {
+            window.location.href = window.location.href;
+        });
+
+    });
+
+    function CheckSuccess(data) {
+
+        var stringified_data = JSON.stringify(data);
+        var parsed_data = JSON.parse(stringified_data);
+
+        //console.log(parsed_data);
+
+        var start = window.location.href.indexOf("Index");
+        var url = window.location.href.substr(0, start);
+        //console.log(url);
+
+        if (parsed_data.refreshPage === true) {
+            //alert("true refreshpage");
+            window.location.href = url + "?queryData=" + parsed_data.strFormID;
+        }
+
+    }
+
+</script>*@
 
 
 

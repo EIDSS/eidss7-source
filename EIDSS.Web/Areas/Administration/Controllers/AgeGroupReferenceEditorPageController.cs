@@ -3,6 +3,7 @@ using EIDSS.ClientLibrary.Enumerations;
 using EIDSS.ClientLibrary.Services;
 using EIDSS.Domain.RequestModels.Administration;
 using EIDSS.Domain.RequestModels.DataTables;
+using EIDSS.Domain.ResponseModels;
 using EIDSS.Domain.ResponseModels.Administration;
 using EIDSS.Domain.ViewModels;
 using EIDSS.Localization.Constants;
@@ -19,10 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using EIDSS.Domain.ResponseModels;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.Int32;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Administration.Controllers
 {
@@ -68,8 +65,8 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 LanguageId = GetCurrentLanguage(),
                 Page = dataTableQueryPostObj.page,
                 PageSize = dataTableQueryPostObj.length,
-                SortColumn = (!IsNullOrEmpty(valuePair.Key) & valuePair.Key != "BaseReferenceId") ? valuePair.Key : "Intorder",
-                SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Ascending,
+                SortColumn = (!string.IsNullOrEmpty(valuePair.Key) & valuePair.Key != "BaseReferenceId") ? valuePair.Key : "Intorder",
+                SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending,
             };
             //API CALL
             _baseReferencePageViewModel.baseReferenceListViewModel = await
@@ -94,17 +91,17 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     sortedReferenceList.ElementAt(i).KeyId.ToString(),
                     sortedReferenceList.ElementAt(i).StrDefault != null
                         ? sortedReferenceList.ElementAt(i).StrDefault
-                        : Empty,
+                        : string.Empty,
                     sortedReferenceList.ElementAt(i).StrName != null
                         ? sortedReferenceList.ElementAt(i).StrName
-                        : Empty,
+                        : string.Empty,
                     sortedReferenceList.ElementAt(i).IntLowerBoundary.ToString(),
                     sortedReferenceList.ElementAt(i).IntUpperBoundary.ToString(),
                     sortedReferenceList.ElementAt(i).AgeTypeName,
                     sortedReferenceList.ElementAt(i).idfsAgeType.ToString(),
                     sortedReferenceList.ElementAt(i).IntOrder.ToString(),
-                    Empty,
-                    Empty
+                    string.Empty,
+                    string.Empty
                 };
                 tableData.data.Add(cols);
             }
@@ -120,13 +117,13 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         [HttpPost]
         public async Task<IActionResult> AddNewAgeGroup([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             var serializer = JsonSerializer.Serialize(data);
             var response = new AgeGroupSaveRequestResponseModel();
             var ageGroupBaseReferenceSaveRequestModel = new AgeGroupSaveRequestModel
             {
                 LanguageId = GetCurrentLanguage(),
-                EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                 AuditUserName = authenticatedUser.UserName,
                 LocationId = authenticatedUser.RayonId,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -140,7 +137,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     long ageTypeId = 0;
                     for (var i = 0; i < jsonObject["AgeTypeName"].Children().Count(); i++)
                     {
-                        TryParse(jsonObject["AgeTypeName"].Children().ElementAt(i)["id"]?.ToString(), out var outResult);
+                        int.TryParse(jsonObject["AgeTypeName"].Children().ElementAt(i)["id"]?.ToString(), out var outResult);
                         ageTypeId = outResult;
                     }
                     ageGroupBaseReferenceSaveRequestModel.IdfsAgeType = ageTypeId;
@@ -156,32 +153,30 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 if (jsonObject["IntLowerBoundary"] != null)
                 {
                     // MVB 03.15.22 -  Bug fix 3072
-                    TryParse(jsonObject["IntLowerBoundary"].ToString(), out var lowerBound);
+                    int.TryParse(jsonObject["IntLowerBoundary"].ToString(), out var lowerBound);
                     ageGroupBaseReferenceSaveRequestModel.IntLowerBoundary = lowerBound;
                 }
                 if (jsonObject["IntUpperBoundary"] != null)
                 {
-                    TryParse(jsonObject["IntUpperBoundary"].ToString(), out var upperBound);
+                    int.TryParse(jsonObject["IntUpperBoundary"].ToString(), out var upperBound);
                     ageGroupBaseReferenceSaveRequestModel.IntUpperBoundary = upperBound;
                 }
                 if (jsonObject["IntOrder"] != null)
                 {
-                    TryParse(jsonObject["IntOrder"].ToString(), out var intOrder);
+                    int.TryParse(jsonObject["IntOrder"].ToString(), out var intOrder);
                     ageGroupBaseReferenceSaveRequestModel.IntOrder = intOrder;
                 }
                 response = await _adminClient.SaveAgeGroup(ageGroupBaseReferenceSaveRequestModel);
-                response.strDuplicatedField = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateReferenceValueMessage), ageGroupBaseReferenceSaveRequestModel.StrDefault);
+                response.strDuplicatedField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateReferenceValueMessage), ageGroupBaseReferenceSaveRequestModel.StrDefault);
                 response.PageAction = Domain.Enumerations.PageActions.Add;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                //throw;
             }
 
             return Json(response);
         }
-
 
         /// <summary>
         /// Edits Data
@@ -191,14 +186,14 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         [HttpPost]
         public async Task<JsonResult> EditAgeGroup([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             var serializer = JsonSerializer.Serialize(data);
-            
+
             AgeGroupSaveRequestResponseModel response;
             var ageGroupSaveRequestModel = new AgeGroupSaveRequestModel
             {
                 LanguageId = GetCurrentLanguage(),
-                EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                 AuditUserName = authenticatedUser.UserName,
                 LocationId = authenticatedUser.RayonId,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -209,17 +204,17 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 if (jsonObject["IntLowerBoundary"] != null)
                 {
                     // MVB 03.15.22 -  Bug fix 3073
-                    TryParse(jsonObject["IntLowerBoundary"].ToString(), out var lowerBound);
+                    int.TryParse(jsonObject["IntLowerBoundary"].ToString(), out var lowerBound);
                     ageGroupSaveRequestModel.IntLowerBoundary = lowerBound;
                 }
                 if (jsonObject["IntUpperBoundary"] != null)
                 {
-                    TryParse(jsonObject["IntUpperBoundary"].ToString(), out var upperBound);
+                    int.TryParse(jsonObject["IntUpperBoundary"].ToString(), out var upperBound);
                     ageGroupSaveRequestModel.IntUpperBoundary = upperBound;
                 }
                 if (jsonObject["IntOrder"] != null)
                 {
-                    ageGroupSaveRequestModel.IntOrder = Parse(jsonObject["IntOrder"].ToString());
+                    ageGroupSaveRequestModel.IntOrder = int.Parse(jsonObject["IntOrder"].ToString());
                 }
                 if (jsonObject["BaseReferenceId"] != null)
                 {
@@ -230,7 +225,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     long sumHaCode = 0;
                     for (var i = 0; i < jsonObject["AgeTypeName"].Children().Count(); i++)
                     {
-                        TryParse(jsonObject["AgeTypeName"].Children().ElementAt(i)["id"]?.ToString(), out var outResult);
+                        int.TryParse(jsonObject["AgeTypeName"].Children().ElementAt(i)["id"]?.ToString(), out var outResult);
                         sumHaCode += outResult;
                     }
                     ageGroupSaveRequestModel.IdfsAgeType = sumHaCode;
@@ -250,7 +245,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 _logger.LogError(ex.Message);
                 throw;
             }
-            response.strDuplicatedField = Format(_localizer.GetString(MessageResourceKeyConstants.ItIsNotPossibleToHaveTwoRecordsWithSameValueDoYouWantToCorrectValueMessage), ageGroupSaveRequestModel.StrDefault);
+            response.strDuplicatedField = string.Format(_localizer.GetString(MessageResourceKeyConstants.ItIsNotPossibleToHaveTwoRecordsWithSameValueDoYouWantToCorrectValueMessage), ageGroupSaveRequestModel.StrDefault);
             response.PageAction = Domain.Enumerations.PageActions.Edit;
             return Json(response);
         }
@@ -267,13 +262,13 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
                 var request = new AgeGroupSaveRequestModel
                 {
-                    DeleteAnyway = true, 
+                    DeleteAnyway = true,
                     LanguageId = GetCurrentLanguage(),
-                    EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                    EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                     AuditUserName = authenticatedUser.UserName,
                     LocationId = authenticatedUser.RayonId,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),

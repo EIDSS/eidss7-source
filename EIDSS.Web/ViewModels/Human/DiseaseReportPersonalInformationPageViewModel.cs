@@ -24,6 +24,8 @@ namespace EIDSS.Web.ViewModels.Human
 
         public Select2Configruation OccupationDD { get; set; }
 
+        public Select2Configruation AgeTypeDD { get; set; }
+
         public LocationViewModel CurrentAddress { get; set; }
 
         public LocationViewModel WorkAddress { get; set; }

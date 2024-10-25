@@ -140,7 +140,7 @@ namespace EIDSS.Web.Components.Veterinary.DiseaseReport
                     ClinicalInvestigation.FlexFormClient = FlexFormClient;
 
                     if (SpeciesId is not null)
-                        ClinicalInvestigation.SetRequestParameter(Model.FarmInventory
+                        await ClinicalInvestigation.SetRequestParameter(Model.FarmInventory
                             .First(x => x.SpeciesID is not null && x.SpeciesID == SpeciesId).SpeciesClinicalInvestigationFlexFormRequest);
 
                     await InvokeAsync(StateHasChanged);
@@ -182,7 +182,7 @@ namespace EIDSS.Web.Components.Veterinary.DiseaseReport
         /// <summary>
         /// 
         /// </summary>
-        private void LoadClinicalInvestigationReviewFlexFormCollection()
+        private async Task LoadClinicalInvestigationReviewFlexFormCollection()
         {
             foreach (var farmInventoryItem in Model.FarmInventory)
             {
@@ -215,7 +215,7 @@ namespace EIDSS.Web.Components.Veterinary.DiseaseReport
                             .SpeciesClinicalInvestigationFlexFormRequest.TagID =
                         (long) farmInventoryItem.SpeciesID;
 
-                    reviewForm.SetRequestParameter(Model.FarmInventory
+                    await reviewForm.SetRequestParameter(Model.FarmInventory
                         .First(x => x.SpeciesID == farmInventoryItem.SpeciesID)
                         .SpeciesClinicalInvestigationFlexFormRequest);
                     reviewForm.Request.Title = farmInventoryItem.Species;
@@ -232,30 +232,29 @@ namespace EIDSS.Web.Components.Veterinary.DiseaseReport
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        protected void OnSpeciesChange(object value)
+        protected async Task OnSpeciesChange(long? value)
         {
             try
             {
                 if (value is null) return;
                 if (PriorSpeciesId is not null)
                 {
-                    var response = Task.Run(() => ClinicalInvestigation.CollectAnswers(), _token);
-                    response.Wait(_token);
+                    var response = await ClinicalInvestigation.CollectAnswers();
                     Model.FarmInventory.First(x => x.SpeciesID == PriorSpeciesId)
-                        .SpeciesClinicalInvestigationFlexFormRequest.idfsFormTemplate = response.Result.idfsFormTemplate;
+                        .SpeciesClinicalInvestigationFlexFormRequest.idfsFormTemplate = response.idfsFormTemplate;
                     Model.FarmInventory.First(x => x.SpeciesID == PriorSpeciesId)
                         .SpeciesClinicalInvestigationFlexFormAnswers = ClinicalInvestigation.Answers;
                     Model.FarmInventory.First(x => x.SpeciesID == PriorSpeciesId)
                         .SpeciesClinicalInvestigationFlexFormRequest.ReviewAnswers = ClinicalInvestigation.Answers;
                     Model.FarmInventory.First(x => x.SpeciesID == PriorSpeciesId)
-                        .SpeciesClinicalInvestigationObservationParameters = response.Result.Answers;
+                        .SpeciesClinicalInvestigationObservationParameters = response.Answers;
                 }
 
                 ClinicalInvestigation.Answers = Model.FarmInventory.First(x => x.SpeciesID == SpeciesId)
                     .SpeciesClinicalInvestigationFlexFormAnswers;
                 PriorSpeciesId = SpeciesId;
 
-                ClinicalInvestigation.SetRequestParameter(Model.FarmInventory
+                await ClinicalInvestigation.SetRequestParameter(Model.FarmInventory
                         .First(x => x.SpeciesID == SpeciesId).SpeciesClinicalInvestigationFlexFormRequest);
             }
             catch (Exception ex)
@@ -275,7 +274,7 @@ namespace EIDSS.Web.Components.Veterinary.DiseaseReport
         protected async Task OnCopyClick()
         {
             await ClinicalInvestigation.CollectAnswers();
-            ClinicalInvestigation.Render();
+            await ClinicalInvestigation.Render();
 
             CopiedAnswers = ClinicalInvestigation.Answers;
         }
@@ -287,14 +286,14 @@ namespace EIDSS.Web.Components.Veterinary.DiseaseReport
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        protected void OnPasteClick()
+        protected async Task OnPasteClick()
         {
             Model.FarmInventory.First(x => x.SpeciesID == SpeciesId).SpeciesClinicalInvestigationFlexFormAnswers =
                 CopiedAnswers;
 
             ClinicalInvestigation.Answers = Model.FarmInventory.First(x => x.SpeciesID == SpeciesId)
                 .SpeciesClinicalInvestigationFlexFormAnswers;
-            ClinicalInvestigation.Render();
+            await ClinicalInvestigation.Render();
         }
 
         #endregion
@@ -383,7 +382,7 @@ namespace EIDSS.Web.Components.Veterinary.DiseaseReport
         /// <param name="isReview"></param>
         /// <param name="currentStepNumber"></param>
         [JSInvokable]
-        public void ReloadSection(bool isReview, int currentStepNumber)
+        public async Task ReloadSection(bool isReview, int currentStepNumber)
         {
             IsReview = isReview;
 
@@ -425,7 +424,7 @@ namespace EIDSS.Web.Components.Veterinary.DiseaseReport
                     if (isReview)
                     {
                         ReviewClinicalInvestigations = new List<FlexForm.FlexForm>();
-                        LoadClinicalInvestigationReviewFlexFormCollection();
+                        await LoadClinicalInvestigationReviewFlexFormCollection();
 
                         if (Model.FarmInventory.Any(x => x.RecordType == RecordTypeConstants.Species))
                         {
@@ -435,11 +434,11 @@ namespace EIDSS.Web.Components.Veterinary.DiseaseReport
                                     .SpeciesID;
 
                             ClinicalInvestigation.FlexFormClient = FlexFormClient;
-                            ClinicalInvestigation.SetRequestParameter(Model.FarmInventory
+                            await ClinicalInvestigation.SetRequestParameter(Model.FarmInventory
                                 .First().SpeciesClinicalInvestigationFlexFormRequest);
                         }
 
-                        ReviewClinicalInvestigations[index].Render();
+                        await ReviewClinicalInvestigations[index].Render();
 
                         if (farmInventoryItem.SpeciesID < 0)
                         {
@@ -476,7 +475,7 @@ namespace EIDSS.Web.Components.Veterinary.DiseaseReport
                                 .SpeciesID;
 
                         ClinicalInvestigation.FlexFormClient = FlexFormClient;
-                        ClinicalInvestigation.SetRequestParameter(Model.FarmInventory
+                        await ClinicalInvestigation.SetRequestParameter(Model.FarmInventory
                             .First().SpeciesClinicalInvestigationFlexFormRequest);
 
                         if (SpeciesId is null)
@@ -501,7 +500,7 @@ namespace EIDSS.Web.Components.Veterinary.DiseaseReport
 
                     PriorSpeciesId = SpeciesId;
 
-                    ClinicalInvestigation.Render();
+                    await ClinicalInvestigation.Render();
                 }
 
                 StateHasChanged();

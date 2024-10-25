@@ -9,6 +9,7 @@ using System;
 using System.IO;
 using System.Collections.Specialized;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace EIDSS.Web.Components
@@ -262,7 +263,7 @@ namespace EIDSS.Web.Components
                     if (!string.IsNullOrEmpty(strValue))
                     {
                         DateTime dt = DateTime.Parse(strValue);
-                        strValue = dt.ToString("yyyy-MM-dd");
+                        strValue = dt.ToString(CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
                     }
                     strControl += "<input type='date' [ATTRIBUTES]></input>";
                     strControl += "<script type='text/javascript'>$(document).ready(function(){$(\"#" + idfsParameter + "\").val(\"" + strValue + "\");});</script>";

@@ -1,11 +1,10 @@
-﻿#region Usings
-
-using EIDSS.ClientLibrary.ApiClients.Administration.Security;
+﻿using EIDSS.ClientLibrary.ApiClients.Administration.Security;
 using EIDSS.ClientLibrary.ApiClients.CrossCutting;
 using EIDSS.ClientLibrary.Enumerations;
 using EIDSS.ClientLibrary.Services;
 using EIDSS.Domain.Enumerations;
 using EIDSS.Domain.RequestModels.Administration.Security;
+using EIDSS.Domain.RequestModels.CrossCutting;
 using EIDSS.Domain.RequestModels.DataTables;
 using EIDSS.Domain.ViewModels;
 using EIDSS.Domain.ViewModels.Administration;
@@ -26,52 +25,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using EIDSS.Domain.RequestModels.CrossCutting;
-using static System.Int32;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.String;
-
-#endregion
 
 namespace EIDSS.Web.Administration.Security.Controllers
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [Area("Administration")]
     [SubArea("Security")]
     [Controller]
     public class ConfigurableFiltrationController : BaseController
     {
-        #region Globals
-
-        #region Member Variables
-
         private readonly ICrossCuttingClient _crossCuttingClient;
         private readonly IConfigurableFiltrationClient _configurableFiltrationClient;
         private readonly IStringLocalizer _localizer;
         private readonly UserPermissions _configurableFiltrationPermissions;
 
-        #endregion
-
-        #region Properties
-
         [TempData]
         public string InformationalMessage { get; set; }
 
-        #endregion
-
-        #endregion
-
-        #region Constructor
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="configurableFiltrationClient"></param>
-        /// <param name="crossCuttingClient"></param>
-        /// <param name="localizer"></param>
-        /// <param name="logger"></param>
         public ConfigurableFiltrationController(IConfigurableFiltrationClient configurableFiltrationClient, ICrossCuttingClient crossCuttingClient, IStringLocalizer localizer, ITokenService tokenService,
             ILogger<ConfigurableFiltrationController> logger) : base(logger, tokenService)
         {
@@ -83,10 +52,6 @@ namespace EIDSS.Web.Administration.Security.Controllers
             _configurableFiltrationPermissions = GetUserPermissions(PagePermission.CanModifyRulesOfConfigurableFiltration);
         }
 
-        #endregion
-
-        #region Search Access Rule
-
         /// <summary>
         /// Loads the list view.  This is the default view for this controller.
         /// </summary>
@@ -95,7 +60,7 @@ namespace EIDSS.Web.Administration.Security.Controllers
         {
             ConfigurableFiltrationSearchViewModel model = new()
             {
-                SearchCriteria = new AccessRuleGetRequestModel() { SortColumn = "AccessRuleID", SortOrder = SortConstants.Ascending },
+                SearchCriteria = new AccessRuleGetRequestModel() { SortColumn = "AccessRuleID", SortOrder = EIDSSConstants.SortConstants.Ascending },
                 ShowSearchResults = false,
                 ConfigurableFiltrationPermissions = _configurableFiltrationPermissions
             };
@@ -105,10 +70,6 @@ namespace EIDSS.Web.Administration.Security.Controllers
             return View(model);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         [HttpPost()]
         public IActionResult List(ConfigurableFiltrationSearchViewModel model)
         {
@@ -120,11 +81,6 @@ namespace EIDSS.Web.Administration.Security.Controllers
             return View(model);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dataTableQueryPostObj"></param>
-        /// <returns></returns>
         [HttpPost()]
         [Route("GetAccessRuleListDataTable")]
         public async Task<JsonResult> GetAccessRuleListDataTable([FromBody] JQueryDataTablesQueryObject dataTableQueryPostObj)
@@ -145,11 +101,11 @@ namespace EIDSS.Web.Administration.Security.Controllers
                 var postParameterDefinitions = new { SearchCriteria_AccessRuleID = "", SearchCriteria_AccessRuleName = "", SearchCriteria_BorderingAreaRuleIndicator = "", SearchCriteria_DefaultRuleIndicator = "", SearchCriteria_ReciprocalRuleIndicator = "", SearchCriteria_AccessToGenderAndAgeDataPermissionIndicator = "", SearchCriteria_AccessToPersonalDataPermissionIndicator = "", SearchCriteria_CreatePermissionIndicator = "", SearchCriteria_DeletePermissionIndicator = "", SearchCriteria_ReadPermissionIndicator = "", SearchCriteria_WritePermissionIndicator = "", SearchCriteria_GrantingActorSiteCode = "", SearchCriteria_GrantingActorSiteHASCCode = "", SearchCriteria_GrantingActorSiteName = "", SearchCriteria_ReceivingActorSiteCode = "", SearchCriteria_ReceivingActorSiteHASCCode = "", SearchCriteria_ReceivingActorSiteName = "" };
                 var searchCriteria = JsonConvert.DeserializeAnonymousType(dataTableQueryPostObj.postArgs, postParameterDefinitions);
 
-                if (!IsNullOrEmpty(Request.Cookies["ConfigurableFiltrationSearchPerformedIndicator"]))
+                if (!string.IsNullOrEmpty(Request.Cookies["ConfigurableFiltrationSearchPerformedIndicator"]))
                 {
                     if (Request.Cookies["ConfigurableFiltrationSearchPerformedIndicator"] == "true")
                     {
-                        if (!IsNullOrEmpty(Request.Cookies["ConfigurableFiltrationSearchCriteria"]))
+                        if (!string.IsNullOrEmpty(Request.Cookies["ConfigurableFiltrationSearchCriteria"]))
                         {
                             searchCriteria = JsonConvert.DeserializeAnonymousType(Request.Cookies["ConfigurableFiltrationSearchCriteria"], postParameterDefinitions);
 
@@ -162,23 +118,23 @@ namespace EIDSS.Web.Administration.Security.Controllers
 
                 if (criteriaEnteredIndicator == false)
                 {
-                    if (!IsNullOrEmpty(searchCriteria.SearchCriteria_AccessRuleID)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_AccessRuleName)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_AccessToGenderAndAgeDataPermissionIndicator)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_AccessToPersonalDataPermissionIndicator)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_BorderingAreaRuleIndicator)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_CreatePermissionIndicator)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_DefaultRuleIndicator)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_DeletePermissionIndicator)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_GrantingActorSiteCode)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_GrantingActorSiteHASCCode)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_GrantingActorSiteName)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_ReadPermissionIndicator)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_ReceivingActorSiteCode)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_ReceivingActorSiteHASCCode)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_ReceivingActorSiteName)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_ReciprocalRuleIndicator)
-                        || !IsNullOrEmpty(searchCriteria.SearchCriteria_WritePermissionIndicator))
+                    if (!string.IsNullOrEmpty(searchCriteria.SearchCriteria_AccessRuleID)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_AccessRuleName)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_AccessToGenderAndAgeDataPermissionIndicator)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_AccessToPersonalDataPermissionIndicator)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_BorderingAreaRuleIndicator)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_CreatePermissionIndicator)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_DefaultRuleIndicator)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_DeletePermissionIndicator)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_GrantingActorSiteCode)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_GrantingActorSiteHASCCode)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_GrantingActorSiteName)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_ReadPermissionIndicator)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_ReceivingActorSiteCode)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_ReceivingActorSiteHASCCode)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_ReceivingActorSiteName)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_ReciprocalRuleIndicator)
+                        || !string.IsNullOrEmpty(searchCriteria.SearchCriteria_WritePermissionIndicator))
                     {
                         criteriaEnteredIndicator = true;
                     }
@@ -196,22 +152,22 @@ namespace EIDSS.Web.Administration.Security.Controllers
                 model.Page = iPage;
                 model.PageSize = iLength;
                 model.SortColumn = "AccessRuleID";
-                model.SortOrder = SortConstants.Ascending;
-                model.AccessRuleID = IsNullOrEmpty(searchCriteria.SearchCriteria_AccessRuleID) ? null : Convert.ToInt64(searchCriteria.SearchCriteria_AccessRuleID);
-                model.AccessRuleName = IsNullOrEmpty(searchCriteria.SearchCriteria_AccessRuleName) ? null : searchCriteria.SearchCriteria_AccessRuleName;
+                model.SortOrder = EIDSSConstants.SortConstants.Ascending;
+                model.AccessRuleID = string.IsNullOrEmpty(searchCriteria.SearchCriteria_AccessRuleID) ? null : Convert.ToInt64(searchCriteria.SearchCriteria_AccessRuleID);
+                model.AccessRuleName = string.IsNullOrEmpty(searchCriteria.SearchCriteria_AccessRuleName) ? null : searchCriteria.SearchCriteria_AccessRuleName;
                 model.AccessToGenderAndAgeDataPermissionIndicator = Convert.ToBoolean(searchCriteria.SearchCriteria_AccessToGenderAndAgeDataPermissionIndicator);
                 model.AccessToPersonalDataPermissionIndicator = Convert.ToBoolean(searchCriteria.SearchCriteria_AccessToPersonalDataPermissionIndicator);
                 model.BorderingAreaRuleIndicator = Convert.ToBoolean(searchCriteria.SearchCriteria_BorderingAreaRuleIndicator);
                 model.CreatePermissionIndicator = Convert.ToBoolean(searchCriteria.SearchCriteria_CreatePermissionIndicator);
                 model.DefaultRuleIndicator = Convert.ToBoolean(searchCriteria.SearchCriteria_DefaultRuleIndicator);
                 model.DeletePermissionIndicator = Convert.ToBoolean(searchCriteria.SearchCriteria_DeletePermissionIndicator);
-                model.GrantingActorSiteCode = IsNullOrEmpty(searchCriteria.SearchCriteria_GrantingActorSiteCode) ? null : searchCriteria.SearchCriteria_GrantingActorSiteCode;
-                model.GrantingActorSiteHASCCode = IsNullOrEmpty(searchCriteria.SearchCriteria_GrantingActorSiteHASCCode) ? null : searchCriteria.SearchCriteria_GrantingActorSiteHASCCode;
-                model.GrantingActorSiteName = IsNullOrEmpty(searchCriteria.SearchCriteria_GrantingActorSiteName) ? null : searchCriteria.SearchCriteria_GrantingActorSiteName;
+                model.GrantingActorSiteCode = string.IsNullOrEmpty(searchCriteria.SearchCriteria_GrantingActorSiteCode) ? null : searchCriteria.SearchCriteria_GrantingActorSiteCode;
+                model.GrantingActorSiteHASCCode = string.IsNullOrEmpty(searchCriteria.SearchCriteria_GrantingActorSiteHASCCode) ? null : searchCriteria.SearchCriteria_GrantingActorSiteHASCCode;
+                model.GrantingActorSiteName = string.IsNullOrEmpty(searchCriteria.SearchCriteria_GrantingActorSiteName) ? null : searchCriteria.SearchCriteria_GrantingActorSiteName;
                 model.ReadPermissionIndicator = Convert.ToBoolean(searchCriteria.SearchCriteria_ReadPermissionIndicator);
-                model.ReceivingActorSiteCode = IsNullOrEmpty(searchCriteria.SearchCriteria_ReceivingActorSiteCode) ? null : searchCriteria.SearchCriteria_ReceivingActorSiteCode;
-                model.ReceivingActorSiteHASCCode = IsNullOrEmpty(searchCriteria.SearchCriteria_ReceivingActorSiteHASCCode) ? null : searchCriteria.SearchCriteria_ReceivingActorSiteHASCCode;
-                model.ReceivingActorSiteName = IsNullOrEmpty(searchCriteria.SearchCriteria_ReceivingActorSiteName) ? null : searchCriteria.SearchCriteria_ReceivingActorSiteName;
+                model.ReceivingActorSiteCode = string.IsNullOrEmpty(searchCriteria.SearchCriteria_ReceivingActorSiteCode) ? null : searchCriteria.SearchCriteria_ReceivingActorSiteCode;
+                model.ReceivingActorSiteHASCCode = string.IsNullOrEmpty(searchCriteria.SearchCriteria_ReceivingActorSiteHASCCode) ? null : searchCriteria.SearchCriteria_ReceivingActorSiteHASCCode;
+                model.ReceivingActorSiteName = string.IsNullOrEmpty(searchCriteria.SearchCriteria_ReceivingActorSiteName) ? null : searchCriteria.SearchCriteria_ReceivingActorSiteName;
                 model.ReciprocalRuleIndicator = Convert.ToBoolean(searchCriteria.SearchCriteria_ReciprocalRuleIndicator);
                 model.WritePermissionIndicator = Convert.ToBoolean(searchCriteria.SearchCriteria_WritePermissionIndicator);
 
@@ -255,34 +211,29 @@ namespace EIDSS.Web.Administration.Security.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         [HttpPost()]
         [Route("DuplicateActorCheck")]
         public async Task<JsonResult> DuplicateActorCheck([FromBody] JsonElement data)
         {
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
                 var request = new AccessRuleGetRequestModel()
                 {
-                    GrantingActorSiteGroupID = IsNullOrEmpty(jsonObject["GrantingActorSiteGroupID"]?.ToString()) ? null : Convert.ToInt64(jsonObject["GrantingActorSiteGroupID"]),
-                    GrantingActorSiteID = IsNullOrEmpty(jsonObject["GrantingActorSiteID"]?.ToString()) ? null : Convert.ToInt64(jsonObject["GrantingActorSiteID"]),
-                    ReceivingActorSiteGroups = IsNullOrEmpty(jsonObject["SiteGroups"]?.ToString()) ? null : jsonObject["SiteGroups"].ToString(),
-                    ReceivingActorSites = IsNullOrEmpty(jsonObject["Sites"]?.ToString()) ? null : jsonObject["Sites"].ToString(),
-                    ReceivingActorUserGroups = IsNullOrEmpty(jsonObject["UserGroups"]?.ToString()) ? null : jsonObject["UserGroups"].ToString(),
-                    ReceivingActorUsers = IsNullOrEmpty(jsonObject["Users"]?.ToString()) ? null : jsonObject["Users"].ToString()
+                    GrantingActorSiteGroupID = string.IsNullOrEmpty(jsonObject["GrantingActorSiteGroupID"]?.ToString()) ? null : Convert.ToInt64(jsonObject["GrantingActorSiteGroupID"]),
+                    GrantingActorSiteID = string.IsNullOrEmpty(jsonObject["GrantingActorSiteID"]?.ToString()) ? null : Convert.ToInt64(jsonObject["GrantingActorSiteID"]),
+                    ReceivingActorSiteGroups = string.IsNullOrEmpty(jsonObject["SiteGroups"]?.ToString()) ? null : jsonObject["SiteGroups"].ToString(),
+                    ReceivingActorSites = string.IsNullOrEmpty(jsonObject["Sites"]?.ToString()) ? null : jsonObject["Sites"].ToString(),
+                    ReceivingActorUserGroups = string.IsNullOrEmpty(jsonObject["UserGroups"]?.ToString()) ? null : jsonObject["UserGroups"].ToString(),
+                    ReceivingActorUsers = string.IsNullOrEmpty(jsonObject["Users"]?.ToString()) ? null : jsonObject["Users"].ToString()
                 };
 
                 {
                     request.Page = 1;
                     request.PageSize = 10;
                     request.SortColumn = "AccessRuleID";
-                    request.SortOrder = SortConstants.Ascending;
+                    request.SortOrder = EIDSSConstants.SortConstants.Ascending;
 
                     var list = await _configurableFiltrationClient.GetAccessRuleList(request);
 
@@ -296,15 +247,6 @@ namespace EIDSS.Web.Administration.Security.Controllers
             }
         }
 
-        #endregion
-
-        #region Access Rule Details
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public async Task<IActionResult> Details(long? id)
         {
             try
@@ -358,11 +300,6 @@ namespace EIDSS.Web.Administration.Security.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="accessRuleId"></param>
-        /// <returns></returns>
         [HttpPost()]
         public async Task<JsonResult> GetReceivingActorList([FromBody] long? accessRuleId)
         {
@@ -373,9 +310,9 @@ namespace EIDSS.Web.Administration.Security.Controllers
                     LanguageId = GetCurrentLanguage(),
                     AccessRuleID = accessRuleId,
                     Page = 1,
-                    PageSize = MaxValue - 1,
+                    PageSize = int.MaxValue - 1,
                     SortColumn = "ActorName",
-                    SortOrder = SortConstants.Ascending,
+                    SortOrder = EIDSSConstants.SortConstants.Ascending,
                 };
 
                 List<AccessRuleActorGetListViewModel> list = new();
@@ -432,24 +369,19 @@ namespace EIDSS.Web.Administration.Security.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         [HttpPost()]
         [Route("SaveAccessRule")]
         public async Task<IActionResult> SaveAccessRule([FromBody] JsonElement data)
         {
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
                 ConfigurableFiltrationDetailsViewModel model = new()
                 {
                     AccessRuleDetails = new AccessRuleGetDetailViewModel
                     {
-                        AccessRuleID = IsNullOrEmpty(jsonObject["AccessRuleID"]?.ToString()) ? null : Convert.ToInt64(jsonObject["AccessRuleID"]),
+                        AccessRuleID = string.IsNullOrEmpty(jsonObject["AccessRuleID"]?.ToString()) ? null : Convert.ToInt64(jsonObject["AccessRuleID"]),
                         AccessRuleName = jsonObject["AccessRuleName"]?.ToString(),
                         AccessToGenderAndAgeDataPermissionIndicator = Convert.ToBoolean(jsonObject["AccessToGenderAndAgeDataPermissionIndicator"]?.ToString()),
                         AccessToPersonalDataPermissionIndicator = Convert.ToBoolean(jsonObject["AccessToPersonalDataPermissionIndicator"]?.ToString()),
@@ -457,8 +389,8 @@ namespace EIDSS.Web.Administration.Security.Controllers
                         CreatePermissionIndicator = Convert.ToBoolean(jsonObject["CreatePermissionIndicator"]?.ToString()),
                         DefaultRuleIndicator = Convert.ToBoolean(jsonObject["DefaultRuleIndicator"]?.ToString()),
                         DeletePermissionIndicator = Convert.ToBoolean(jsonObject["DeletePermissionIndicator"]?.ToString()),
-                        GrantingActorSiteGroupID = IsNullOrEmpty(jsonObject["GrantingActorSiteGroupID"]?.ToString()) ? null : Convert.ToInt64(jsonObject["GrantingActorSiteGroupID"]),
-                        GrantingActorSiteID = IsNullOrEmpty(jsonObject["GrantingActorSiteID"]?.ToString()) ? null : Convert.ToInt64(jsonObject["GrantingActorSiteID"]),
+                        GrantingActorSiteGroupID = string.IsNullOrEmpty(jsonObject["GrantingActorSiteGroupID"]?.ToString()) ? null : Convert.ToInt64(jsonObject["GrantingActorSiteGroupID"]),
+                        GrantingActorSiteID = string.IsNullOrEmpty(jsonObject["GrantingActorSiteID"]?.ToString()) ? null : Convert.ToInt64(jsonObject["GrantingActorSiteID"]),
                         ReadPermissionIndicator = Convert.ToBoolean(jsonObject["ReadPermissionIndicator"].ToString()),
                         ReciprocalRuleIndicator = Convert.ToBoolean(jsonObject["ReciprocalRuleIndicator"].ToString()),
                         RowStatus = (int)RowStatusTypeEnum.Active,
@@ -488,7 +420,7 @@ namespace EIDSS.Web.Administration.Security.Controllers
                         {
                             model.AccessRuleDetails.AccessRuleID = response.KeyId;
 
-                            model.InformationalMessage = Format(_localizer.GetString(MessageResourceKeyConstants.AccessRuleCreatedSuccessfullyMessage) + ".", response.KeyId.ToString());
+                            model.InformationalMessage = string.Format(_localizer.GetString(MessageResourceKeyConstants.AccessRuleCreatedSuccessfullyMessage) + ".", response.KeyId.ToString());
                         }
                         else
                             model.InformationalMessage = _localizer.GetString(MessageResourceKeyConstants.AccessRuleUpdatedSuccessfullyMessage);
@@ -552,43 +484,41 @@ namespace EIDSS.Web.Administration.Security.Controllers
                     {
                         case 0:
                             return RedirectToAction(nameof(List), "ConfigurableFiltration");
-
-                            //model.InformationalMessage = _localizer.GetString(MessageResourceKeyConstants.AccessRuleDeletedSuccessfullyMessage);
                         case -1:
-                        {
-                            ConfigurableFiltrationDetailsViewModel model = new()
                             {
-                                AccessRuleDetails = await _configurableFiltrationClient.GetAccessRuleDetail(GetCurrentLanguage(), accessRuleId),
-                                DeleteVisibleIndicator = _configurableFiltrationPermissions.Execute,
-                                SearchActorViewModel = new SearchActorViewModel
+                                ConfigurableFiltrationDetailsViewModel model = new()
                                 {
-                                    ShowSearchResults = false,
-                                    ModalTitle = _localizer.GetString(HeadingResourceKeyConstants.SearchActorsModalHeading),
-                                    ActorTypeList = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), "Employee Type", 0).ConfigureAwait(false)
-                                }
-                            };
-                            BaseReferenceViewModel actorType = new()
-                            {
-                                IdfsBaseReference = Convert.ToInt64(ActorTypeEnum.Site),
-                                Name = _localizer.GetString(FieldLabelResourceKeyConstants.SiteFieldLabel)
-                            };
-                            model.SearchActorViewModel.ActorTypeList.Add(actorType);
-                            actorType = new BaseReferenceViewModel
-                            {
-                                IdfsBaseReference = Convert.ToInt64(ActorTypeEnum.SiteGroup),
-                                Name = _localizer.GetString(FieldLabelResourceKeyConstants.SiteGroupFieldLabel)
-                            };
-                            model.SearchActorViewModel.ActorTypeList.Add(actorType);
-                            model.SearchActorViewModel.SearchCriteria = new ActorGetRequestModel();
+                                    AccessRuleDetails = await _configurableFiltrationClient.GetAccessRuleDetail(GetCurrentLanguage(), accessRuleId),
+                                    DeleteVisibleIndicator = _configurableFiltrationPermissions.Execute,
+                                    SearchActorViewModel = new SearchActorViewModel
+                                    {
+                                        ShowSearchResults = false,
+                                        ModalTitle = _localizer.GetString(HeadingResourceKeyConstants.SearchActorsModalHeading),
+                                        ActorTypeList = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), "Employee Type", 0).ConfigureAwait(false)
+                                    }
+                                };
+                                BaseReferenceViewModel actorType = new()
+                                {
+                                    IdfsBaseReference = Convert.ToInt64(ActorTypeEnum.Site),
+                                    Name = _localizer.GetString(FieldLabelResourceKeyConstants.SiteFieldLabel)
+                                };
+                                model.SearchActorViewModel.ActorTypeList.Add(actorType);
+                                actorType = new BaseReferenceViewModel
+                                {
+                                    IdfsBaseReference = Convert.ToInt64(ActorTypeEnum.SiteGroup),
+                                    Name = _localizer.GetString(FieldLabelResourceKeyConstants.SiteGroupFieldLabel)
+                                };
+                                model.SearchActorViewModel.ActorTypeList.Add(actorType);
+                                model.SearchActorViewModel.SearchCriteria = new ActorGetRequestModel();
 
-                            TempData["AccessRuleID"] = model.AccessRuleDetails.AccessRuleID.ToString();
+                                TempData["AccessRuleID"] = model.AccessRuleDetails.AccessRuleID.ToString();
 
-                            model.ErrorMessage = _localizer.GetString(MessageResourceKeyConstants.UnableToDeleteContainsChildObjectsMessage);
+                                model.ErrorMessage = _localizer.GetString(MessageResourceKeyConstants.UnableToDeleteContainsChildObjectsMessage);
 
-                            ViewBag.JavaScriptFunction = "showErrorModal('" + model.ErrorMessage + "');";
+                                ViewBag.JavaScriptFunction = "showErrorModal('" + model.ErrorMessage + "');";
 
-                            return View("Details", model);
-                        }
+                                return View("Details", model);
+                            }
                         default:
                             throw new ApplicationException("Unable to delete access rule.");
                     }
@@ -605,10 +535,6 @@ namespace EIDSS.Web.Administration.Security.Controllers
             }
         }
 
-        #endregion
-
-        #region Receiving Actors
-
         /// <summary>
         /// Deletes an organization.
         /// </summary>
@@ -619,7 +545,7 @@ namespace EIDSS.Web.Administration.Security.Controllers
         {
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             }
             catch (Exception ex)
             {
@@ -628,7 +554,5 @@ namespace EIDSS.Web.Administration.Security.Controllers
 
             return Json(data);
         }
-
-        #endregion
     }
 }

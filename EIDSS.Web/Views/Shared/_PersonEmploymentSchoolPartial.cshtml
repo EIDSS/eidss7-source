@@ -1,4 +1,5 @@
-﻿@model EIDSS.Web.Areas.Human.ViewModels.Person.PersonEmploymentSchoolViewModel
+﻿@*@model EIDSS.Web.Areas.Human.ViewModels.Person.PersonDetailsViewModel*@
+@model EIDSS.Web.Areas.Human.ViewModels.Person.PersonEmploymentSchoolViewModel
 
 @{
     //Radio Buttons
@@ -69,7 +70,7 @@
                 </div>
                 <div class="form-group col-md-6">
                     <label asp-for="PersonDetails.EmployedDateLastPresent" field-label-for="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationDateofLastPresenceatWorkFieldLabel"></label>
-                    <eidss-calendar id="PersonDetails.EmployedDateLastPresent" asp-for="PersonDetails.EmployedDateLastPresent" css-class="form-control" date-format="d"></eidss-calendar>
+                    <eidss-calendar id="PersonDetails.EmployedDateLastPresent" asp-for="PersonDetails.EmployedDateLastPresent" css-class="form-control"></eidss-calendar>
                 </div>
             </div>
             <div class="form-row">
@@ -92,6 +93,8 @@
                     <div id="ValWorkPhone" class="text-danger"></div>
                 </div>
             </div>
+            @*@if (Model.PersonDetails.YNWorkSameAddress == "No")
+            {*@
             <div class="form-row">
                 <div class="form-group col-md-6">
                     @if (Model.PersonDetails.EmployerForeignAddressIndicator != null && Model.PersonDetails.EmployerForeignAddressIndicator.Value)
@@ -120,6 +123,7 @@
                 </div>
             </div>
             <div id="divWorkAddress">
+                @*@await Component.InvokeAsync("LocationView", Model.PersonEmploymentSchoolSection.WorkAddress)*@
                 <partial name="_PersonLocationPartial" for="@Model.WorkAddress" />
             </div>
         </div>
@@ -165,7 +169,7 @@
             <div class="form-row">
                 <div class="form-group col-md-6">
                     <label asp-for="PersonDetails.SchoolDateLastAttended" field-label-for="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationDateofLastPresenceatSchoolFieldLabel"></label>
-                    <eidss-calendar id="PersonDetails.SchoolDateLastAttended" asp-for="PersonDetails.SchoolDateLastAttended" css-class="form-control" date-format="d"></eidss-calendar>
+                    <eidss-calendar id="PersonDetails.SchoolDateLastAttended" asp-for="PersonDetails.SchoolDateLastAttended" css-class="form-control"></eidss-calendar>
                 </div>
             </div>
             <div class="form-row">
@@ -203,9 +207,12 @@
                 </div>
             </div>
             <div id="divSchoolAddress">
+                @*<label asp-for="@Model.PersonEmploymentSchoolSection.SchoolAddress" field-label-for="@FieldLabelResourceKeyConstants.PersonEmployerSchoolInformationSchoolAddressAddressFieldLabel" class="control-label"></label>*@
+                @*@await Component.InvokeAsync("LocationView", Model.PersonEmploymentSchoolSection.SchoolAddress)*@
                 <partial name="_PersonLocationPartial" for="@Model.SchoolAddress" />
             </div>
         </div>
+        @*<div id="divSchoolAddress" style="display:none">*@
         <div id="divDiseaseReports" visible-if="@Model.ReportsVisibleIndicator">
             <partial name="_DiseaseReportsPartial" for="@Model.DiseaseReports" />
         </div>
@@ -236,10 +243,12 @@
 
             YNWorkSameAddress = $("#YNWorkSameAddress").val();
             if (YNWorkSameAddress == 'Yes') {
+                /*$("#divWorkAddress").prop("style", "display: none;");*/
                 $('#divWorkAddress').find('*').attr('disabled', true);
             }
             else {
                 $("#divWorkAddress").prop("style", "display: block;");
+                /*$('#divWorkAddress').find('*').attr('disabled', false);*/
             }
 
             IsThisPersonCurrentlyAttendSchool = $("input[name='PersonEmploymentSchoolSection.PersonDetails.IsThisPersonCurrentlyAttendSchool']:checked").val();
@@ -279,14 +288,17 @@
         });
 
     function CheckEmployed(e) {
+        /*alert(e.value)*/
         $("#hdfEmployed").val(e.value);
         Item = e.value;
         if (Item != null && Item != "" && Item == '10100001') {
+            /*alert("Show")*/
             $("#DivPersonEmployed").prop("style", "display: block;");    //Show
             $("#divWorkAddress").show();
             $("#divWorkForeignAddress").hide();
         }
         else {
+            /*alert("Hide")*/
             $("#DivPersonEmployed").prop("style", "display: none;");   //Hide
         };
     };
@@ -295,11 +307,13 @@
         $("#hdfAttendSchool").val(e.value);
         Item = e.value;
         if (Item != null && Item != "" && Item == '10100001') {
+            /*alert("Show")*/
             $("#DivPersonAttendingSchool").prop("style", "display: block;");    //Show
             $("#divSchoolAddress").show();
             $("#divSchoolForeignAddress").hide();
         }
         else {
+            /*alert("Hide")*/
             $("#DivPersonAttendingSchool").prop("style", "display: none;");   //Hide
         };
     };
@@ -336,6 +350,7 @@
             request.HumanidfsCountry = $("#PersonAddressSection_CurrentAddress_AdminLevel0Value").val();
             request.HumanidfsRegion = $("#PersonAddressSection_CurrentAddress_AdminLevel1Value").val();
             request.HumanidfsRayon = $("#PersonAddressSection_CurrentAddress_AdminLevel2Value").val();
+            /*request.HumanidfsSettlement = $("#PersonAddressSection_CurrentAddress_Settlement").val();*/
             request.HumanidfsSettlement = $("#PersonAddressSection_CurrentAddress_AdminLevel3Value").val();
             request.HumanidfsSettlementType = $("#PersonAddressSection_CurrentAddress_SettlementType").val();
 
@@ -345,6 +360,7 @@
             request.HumanstrHouse = $("#PersonAddressSection_CurrentAddress_House").val();
             request.HumanidfsPostalCode = $("#PersonAddressSection_CurrentAddress_PostalCodeText").val();
             var addressDiv = $('#divWorkAddress');
+            /*alert("submitPersonDetails request")*/
             $.ajax({
                 url: '@Url.Action("CopyCurrentAddressToWorkAddress", "PersonDetails", new { Area = "Human" })',
                 data: JSON.stringify(request),
@@ -359,7 +375,9 @@
             });
         }
         else {
+            //debugger;
             $('#divWorkAddress').find('*').attr('disabled', false);
+            /*alert('WorkSameAddress not')*/
             // work Address data fields shall be cleared and available for data entry
 
             $("#PersonInformationSection_PersonDetails_EmployerGeoLocationID").prop("disabled", false);
@@ -367,6 +385,7 @@
 
             $("#PersonEmploymentSchoolSection_WorkAddress_AdminLevel1Value").val('');
             $("#PersonEmploymentSchoolSection_WorkAddress_AdminLevel2Value").val('');
+            /*request.HumanidfsSettlement = $("#PersonEmploymentSchoolSection_WorkAddress_Settlement").val();*/
             $("#PersonEmploymentSchoolSection_WorkAddress_AdminLevel3Value").val('');
             $("#PersonEmploymentSchoolSection_WorkAddress_SettlementType").val('');
 
@@ -382,6 +401,7 @@
             request.HumanidfsCountry = $("#PersonEmploymentSchoolSection_WorkAddress_AdminLevel0Value").val();
             request.HumanidfsRegion = $("#PersonEmploymentSchoolSection_WorkAddress_AdminLevel1Value").val();
             request.HumanidfsRayon = $("#PersonEmploymentSchoolSection_WorkAddress_AdminLevel2Value").val();
+            /*request.HumanidfsSettlement = $("#PersonEmploymentSchoolSection_WorkAddress_Settlement").val();*/
             request.HumanidfsSettlement = $("#PersonEmploymentSchoolSection_WorkAddress_AdminLevel3Value").val();
             request.HumanidfsSettlementType = $("#PersonEmploymentSchoolSection_WorkAddress_SettlementType").val();
 

@@ -60,7 +60,7 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
                 SessionDetails = new OutbreakSessionDetailsResponseModel
                 {
                     datStartDate = DateTime.Today,
-                    Today = DateTime.Today.ToString("MM/dd/yyyy")
+                    Today = DateTime.Today.ToShortDateString()
                 },
                 DefaultOutbreakStatus = Common.GetBaseReferenceTranslation(GetCurrentLanguage(), OutbreakStatus.InProgress, crossCuttingClient)
             };
@@ -216,7 +216,7 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
             if (_outbreakSessionViewModel.SessionDetails?.datStartDate != null)
             {
                 var dtStartDate = (DateTime) _outbreakSessionViewModel.SessionDetails.datStartDate;
-                _outbreakSessionViewModel.SessionDetails.Today = DateTime.Today.ToString("MM/dd/yyyy");
+                _outbreakSessionViewModel.SessionDetails.Today = DateTime.Today.ToShortDateString();
                 _outbreakSessionViewModel.SessionDetails.datStartDate = dtStartDate.Date;
             }
 

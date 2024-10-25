@@ -198,6 +198,7 @@
         </div>
         <div id="AggregateDiseaseReportSearchResultsCommands" class="card-footer">
                  <button id="btnPrint2" type="button" class="btn btn-default" button-for="@ButtonResourceKeyConstants.PrintButton"></button>
+       @*     <button id="btnPrint" type="button" class="btn btn-default" button-for="@ButtonResourceKeyConstants.PrintButton" onclick="printReport();"></button>*@
             <button id="cancelSearchResults" type="button" class="btn btn-outline-primary" onclick="cancelReportSearchResults('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)', event)" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
             <button id="addAggregateDiseaseReportSearchResults" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.AddButton" onclick="addAggregateDiseaseReport();"></button>
         </div>
@@ -407,14 +408,17 @@
             $("#OrganizationSelect").prop("disabled", false);
             $("#divOrganization").removeClass("hide-element");
             $("#divOrganization").addClass("show-element");
-            var orgControl = "OrganizationSelect";
-            refreshOrgByLocationAdminSelection(orgControl, $("#SelectedAdminLevel").val());
+            //if ($("#AdministrativeLevelSelect").val() != null && $("#AdministrativeLevelSelect").val() !== '') {
+                var orgControl = "OrganizationSelect";
+                refreshOrgByLocationAdminSelection(orgControl, $("#SelectedAdminLevel").val());
+            //};
         }
         else {
             $("#OrganizationSelect").prop("disabled", true);
             $("#divOrganization").removeClass("show-element");
             $("#divOrganization").addClass("hide-element");
         };
+        /*alert(request.administrativeUnitTypeID)*/
         var addressDiv = $('#divLocation');
 
         $.ajax({
@@ -424,6 +428,7 @@
                 dataType: "html",
                 type: "POST",
                 success: function (response) {
+                    /*alert('success')*/
                     addressDiv.html(response);
                 }
             });

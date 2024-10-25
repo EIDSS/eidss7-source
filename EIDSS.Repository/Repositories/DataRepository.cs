@@ -150,6 +150,7 @@ namespace EIDSS.Repository.Repositories
                     result = meth.Invoke(_spcontext, args.Args);
                 }
             }
+            // This should never happen!!!!!!
             else throw new Exception(string.Format("Internal Error:  Unable to locate a method that returns type {0}", args.RepoMethodReturnType.ToString()));
 
             // Map it and return...
@@ -199,6 +200,7 @@ namespace EIDSS.Repository.Repositories
         private List<DataOpModelInfo> BuildContextMethodParameterValuesFromModel(object model, MethodInfo mi)
         {
             List<DataOpModelInfo> ret = new List<DataOpModelInfo>();
+            //Dictionary<PropertyInfo, object> modelpropertylist = new Dictionary<PropertyInfo, object>();
             Dictionary<PropertyInfo, propertyInfoObjectContainer> modelpropertylist = 
                 new Dictionary<PropertyInfo, propertyInfoObjectContainer>();
 
@@ -276,12 +278,12 @@ namespace EIDSS.Repository.Repositories
                             : mp.Name,
                         PropertyValue = propWithmpAttribs.Key != null
                             ? propWithmpAttribs.Key.GetValue(propWithmpAttribs.Value.Model)
-                            : mp.GetValue(om.Model)
+                            : mp.GetValue(om.Model) //om) //om.Model)
                     });
                     if( propWithmpAttribs.Key != null)
                         _modelPropertyMapper.AddModelMap(propWithmpAttribs.Key, mi, p, propWithmpAttribs.Value.PropertyClassName);
                     else
-                        _modelPropertyMapper.AddModelMap(mp, mi, p, om.PropertyClassName);
+                        _modelPropertyMapper.AddModelMap(mp, mi, p, om.PropertyClassName); // ""); //om.PropertyClassName);
                 }
                 else // no property maps to this parameter... this is either the returnValue or cancellationToken.  In either case, we don't set the value...
                 {
@@ -362,10 +364,11 @@ namespace EIDSS.Repository.Repositories
         /// <param name="methodname"></param>
         /// <param name="model"></param>
         /// <returns></returns>
-        private IEnumerable<MappingInfo> GetModelMappingInfo(string methodname)
+        private IEnumerable<MappingInfo> GetModelMappingInfo(string methodname) //, object model)
         {
             var cache = _modelPropertyMapper.GetModelMapCollection(methodname);
             return cache
+                //.Where(w => w.MethodInfo.Name == methodname)
                 .Select(s => s.MapInfo);
         }
 

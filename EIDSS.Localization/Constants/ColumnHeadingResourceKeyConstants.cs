@@ -171,28 +171,28 @@ namespace EIDSS.Localization.Constants
         public static readonly string SiteDetailsWriteColumnHeading = (int)InterfaceEditorResourceSetEnum.SiteDetails + "618" + (long)InterfaceEditorTypeEnum.ColumnHeading;
 
         //SAUC30 - Restore a Data Audit Log Transaction
-        public static readonly string DataAuditLogDetailsActionColumnHeading = (int)InterfaceEditorResourceSetEnum.DataAuditLogDetails + "2997" + (long)InterfaceEditorTypeEnum.ColumnHeading;		
-        public static readonly string DataAuditLogDetailsChangedColumnNameColumnHeading = (int)InterfaceEditorResourceSetEnum.DataAuditLogDetails + "2998" + (long)InterfaceEditorTypeEnum.ColumnHeading;		
-        public static readonly string DataAuditLogDetailsOldColumnValueColumnHeading = (int)InterfaceEditorResourceSetEnum.DataAuditLogDetails + "2999" + (long)InterfaceEditorTypeEnum.ColumnHeading;		
-        public static readonly string DataAuditLogDetailsNewColumnValueColumnHeading = (int)InterfaceEditorResourceSetEnum.DataAuditLogDetails + "3000" + (long)InterfaceEditorTypeEnum.ColumnHeading;		
-        public static readonly string DataAuditLogDetailsObjectIDColumnHeading = (int)InterfaceEditorResourceSetEnum.DataAuditLogDetails + "3001" + (long)InterfaceEditorTypeEnum.ColumnHeading;		
-        public static readonly string DataAuditLogDetailsObjectID1ColumnHeading = (int)InterfaceEditorResourceSetEnum.DataAuditLogDetails + "3002" + (long)InterfaceEditorTypeEnum.ColumnHeading;		
+        public static readonly string DataAuditLogDetailsActionColumnHeading = (int)InterfaceEditorResourceSetEnum.DataAuditLogDetails + "2997" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string DataAuditLogDetailsChangedColumnNameColumnHeading = (int)InterfaceEditorResourceSetEnum.DataAuditLogDetails + "2998" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string DataAuditLogDetailsOldColumnValueColumnHeading = (int)InterfaceEditorResourceSetEnum.DataAuditLogDetails + "2999" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string DataAuditLogDetailsNewColumnValueColumnHeading = (int)InterfaceEditorResourceSetEnum.DataAuditLogDetails + "3000" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string DataAuditLogDetailsObjectIDColumnHeading = (int)InterfaceEditorResourceSetEnum.DataAuditLogDetails + "3001" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string DataAuditLogDetailsObjectID1ColumnHeading = (int)InterfaceEditorResourceSetEnum.DataAuditLogDetails + "3002" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string DataAuditLogDetailsTableNameColumnHeading = (int)InterfaceEditorResourceSetEnum.DataAuditLogDetails + "3003" + (long)InterfaceEditorTypeEnum.ColumnHeading;
 
         //SAUC31 - Search for a Data Audit Log Transaction
-        public static readonly string SearchDataAuditLogTransactionDateColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchDataAuditLog + "3010" + (long)InterfaceEditorTypeEnum.ColumnHeading;		
-        public static readonly string SearchDataAuditLogObjectTypeColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchDataAuditLog + "3011" + (long)InterfaceEditorTypeEnum.ColumnHeading;		
-        public static readonly string SearchDataAuditLogSiteColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchDataAuditLog + "3012" + (long)InterfaceEditorTypeEnum.ColumnHeading;		
-        public static readonly string SearchDataAuditLogUserColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchDataAuditLog + "3013" + (long)InterfaceEditorTypeEnum.ColumnHeading;		
-        public static readonly string SearchDataAuditLogActionColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchDataAuditLog + "2997" + (long)InterfaceEditorTypeEnum.ColumnHeading;		
-        public static readonly string SearchDataAuditLogSiteNameColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchDataAuditLog + "252" + (long)InterfaceEditorTypeEnum.ColumnHeading;		
-        public static readonly string SearchDataAuditLogSiteIDColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchDataAuditLog + "650" + (long)InterfaceEditorTypeEnum.ColumnHeading;		
+        public static readonly string SearchDataAuditLogTransactionDateColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchDataAuditLog + "3010" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string SearchDataAuditLogObjectTypeColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchDataAuditLog + "3011" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string SearchDataAuditLogSiteColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchDataAuditLog + "3012" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string SearchDataAuditLogUserColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchDataAuditLog + "3013" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string SearchDataAuditLogActionColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchDataAuditLog + "2997" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string SearchDataAuditLogSiteNameColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchDataAuditLog + "252" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string SearchDataAuditLogSiteIDColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchDataAuditLog + "650" + (long)InterfaceEditorTypeEnum.ColumnHeading;
 
         //SAUC32 - User Search for Data Audit Log Transactions
-        public static readonly string SearchUserDataAuditLogTransactionDateColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchUserDataAuditLog + "3010" + (long)InterfaceEditorTypeEnum.ColumnHeading;		
-        public static readonly string SearchUserDataAuditLogAttributeColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchUserDataAuditLog + "3016" + (long)InterfaceEditorTypeEnum.ColumnHeading;		
-        public static readonly string SearchUserDataAuditLogOldValueColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchUserDataAuditLog + "3018" + (long)InterfaceEditorTypeEnum.ColumnHeading;		
-        public static readonly string SearchUserDataAuditLogNewValueColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchUserDataAuditLog + "3019" + (long)InterfaceEditorTypeEnum.ColumnHeading;		
+        public static readonly string SearchUserDataAuditLogTransactionDateColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchUserDataAuditLog + "3010" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string SearchUserDataAuditLogAttributeColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchUserDataAuditLog + "3016" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string SearchUserDataAuditLogOldValueColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchUserDataAuditLog + "3018" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string SearchUserDataAuditLogNewValueColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchUserDataAuditLog + "3019" + (long)InterfaceEditorTypeEnum.ColumnHeading;
 
         //SAUC54 - System Functions
         public static readonly string SystemFunctionsNameColumnHeading = (int)InterfaceEditorResourceSetEnum.SystemFunctions + "501" + (long)InterfaceEditorTypeEnum.ColumnHeading;
@@ -227,7 +227,7 @@ namespace EIDSS.Localization.Constants
         public static readonly string SearchSiteGroupsSiteGroupTypeColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchSiteGroups + "657" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string SearchSiteGroupsAdministrativeLevel3NameColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchSiteGroups + "603" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string SearchSiteGroupsAdministrativeLevelColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchSiteGroups + "508" + (long)InterfaceEditorTypeEnum.ColumnHeading;
-        
+
         public static readonly string SiteGroupSitesSiteNameColumnHeading = (int)InterfaceEditorResourceSetEnum.SiteGroupSites + "252" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string SiteGroupSitesEIDSSSiteIDColumnHeading = (int)InterfaceEditorResourceSetEnum.SiteGroupSites + "653" + (long)InterfaceEditorTypeEnum.ColumnHeading;
 
@@ -464,12 +464,12 @@ namespace EIDSS.Localization.Constants
 
         //SCUC22 - Configure Unique Numbering Schema
         public static readonly string UniqueNumberingSchemaRowColumnHeading = (int)InterfaceEditorResourceSetEnum.UniqueNumberingSchema + "235" + (long)InterfaceEditorTypeEnum.ColumnHeading;
-        public static readonly string UniqueNumberingSchemaIDTypeDefaultColumnHeading = (int) InterfaceEditorResourceSetEnum.UniqueNumberingSchema + "787" + (long) InterfaceEditorTypeEnum.ColumnHeading;
-        public static readonly string UniqueNumberingSchemaIDTypeNationalColumnHeading = (int) InterfaceEditorResourceSetEnum.UniqueNumberingSchema + "788" + (long) InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string UniqueNumberingSchemaIDTypeDefaultColumnHeading = (int)InterfaceEditorResourceSetEnum.UniqueNumberingSchema + "787" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string UniqueNumberingSchemaIDTypeNationalColumnHeading = (int)InterfaceEditorResourceSetEnum.UniqueNumberingSchema + "788" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string UniqueNumberingSchemaPrefixColumnHeading = (int)InterfaceEditorResourceSetEnum.UniqueNumberingSchema + "789" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string UniqueNumberingSchemaSiteIDColumnHeading = (int)InterfaceEditorResourceSetEnum.UniqueNumberingSchema + "650" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string UniqueNumberingSchemaYearColumnHeading = (int)InterfaceEditorResourceSetEnum.UniqueNumberingSchema + "790" + (long)InterfaceEditorTypeEnum.ColumnHeading;
-        public static readonly string UniqueNumberingSchemaLastDocumentNumberColumnHeading = (int)InterfaceEditorResourceSetEnum.UniqueNumberingSchema + "791" + (long)InterfaceEditorTypeEnum.ColumnHeading;				
+        public static readonly string UniqueNumberingSchemaLastDocumentNumberColumnHeading = (int)InterfaceEditorResourceSetEnum.UniqueNumberingSchema + "791" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string UniqueNumberingSchemaNextNumberValueColumnHeading = (int)InterfaceEditorResourceSetEnum.UniqueNumberingSchema + "792" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string UniqueNumberingSchemaSpecialCharacterColumnHeading = (int)InterfaceEditorResourceSetEnum.UniqueNumberingSchema + "793" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string UniqueNumberingSchemaSuffixColumnHeading = (int)InterfaceEditorResourceSetEnum.UniqueNumberingSchema + "794" + (long)InterfaceEditorTypeEnum.ColumnHeading;
@@ -489,7 +489,7 @@ namespace EIDSS.Localization.Constants
         public static readonly string HumanSessionDetailedSamplesFieldSampleIDColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanSessionDetailedSamples + "896" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string HumanSessionDetailedSamplesCollectionDateColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanSessionDetailedSamples + "897" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string HumanSessionDetailedSamplesSentToOrganizationColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanSessionDetailedSamples + "898" + (long)InterfaceEditorTypeEnum.ColumnHeading;
-        
+
         //Aliquots/Derivatives
         public static readonly string HumanSessionDetailedSamplesLabSampleIDColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanSessionDetailedSamples + "691" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string HumanSessionDetailedSamplesStatusColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanSessionDetailedSamples + "707" + (long)InterfaceEditorTypeEnum.ColumnHeading;
@@ -673,9 +673,9 @@ namespace EIDSS.Localization.Constants
         public static readonly string SearchWeeklyReportingFormsAdministrativeLevel1ColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchWeeklyReportingForms + "604" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string SearchWeeklyReportingFormsAdministrativelevel2ColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchWeeklyReportingForms + "603" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string SearchWeeklyReportingFormsSettlementColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchWeeklyReportingForms + "752" + (long)InterfaceEditorTypeEnum.ColumnHeading;
-        
+
         //HAUC10 - Search for Weekly Reporting Form
-        public static readonly string WeeklyReportingFormICD10ColumnHeading = (int) InterfaceEditorResourceSetEnum.WeeklyReportingForm + "93" + (long) InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string WeeklyReportingFormICD10ColumnHeading = (int)InterfaceEditorResourceSetEnum.WeeklyReportingForm + "93" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string WeeklyReportingFormDiseaseColumnHeading = (int)InterfaceEditorResourceSetEnum.WeeklyReportingForm + "662" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string WeeklyReportingFormTotalColumnHeading = (int)InterfaceEditorResourceSetEnum.WeeklyReportingForm + "782" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string WeeklyReportingFormAmongthemnotifiedColumnHeading = (int)InterfaceEditorResourceSetEnum.WeeklyReportingForm + "784" + (long)InterfaceEditorTypeEnum.ColumnHeading;
@@ -694,7 +694,14 @@ namespace EIDSS.Localization.Constants
         public static readonly string WeeklyReportingFormSummaryTotalColumnHeading = (int)InterfaceEditorResourceSetEnum.WeeklyReportingFormSummary + "783" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string WeeklyReportingFormSummaryAmongThemNotifiedColumnHeading = (int)InterfaceEditorResourceSetEnum.WeeklyReportingFormSummary + "784" + (long)InterfaceEditorTypeEnum.ColumnHeading;
 
-        public static readonly string WeeklyReportingFormAcuteFlaccidParalysisColumnHeading = (int)InterfaceEditorResourceSetEnum.WeeklyReportingForm + "4810" + (long)InterfaceEditorTypeEnum.ColumnHeading;		
+        public static readonly string WeeklyReportingFormAcuteFlaccidParalysisColumnHeading = (int)InterfaceEditorResourceSetEnum.WeeklyReportingForm + "4810" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+
+        public static readonly string DiseaseReportChangeDiagnosisHistoryModalDateOfChange = (int)InterfaceEditorResourceSetEnum.Global + "4867" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string DiseaseReportChangeDiagnosisHistoryModalChangedByOrganization = (int)InterfaceEditorResourceSetEnum.Global + "4868" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string DiseaseReportChangeDiagnosisHistoryModalChangedByPerson = (int)InterfaceEditorResourceSetEnum.Global + "4869" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string DiseaseReportChangeDiagnosisHistoryModalPreviousDisease = (int)InterfaceEditorResourceSetEnum.Global + "4870" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string DiseaseReportChangeDiagnosisHistoryModalChangedDisease = (int)InterfaceEditorResourceSetEnum.Global + "4871" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string DiseaseReportChangeDiagnosisHistoryModalReason = (int)InterfaceEditorResourceSetEnum.Global + "4872" + (long)InterfaceEditorTypeEnum.ColumnHeading;
 
         #endregion
 
@@ -851,7 +858,7 @@ namespace EIDSS.Localization.Constants
         public static readonly string OutbreakCasesTPatientFarmOwnerColumnHeading = (int)InterfaceEditorResourceSetEnum.OutbreakCases + "688" + (long)InterfaceEditorTypeEnum.ColumnHeading;
 
         //OMUC11
-        public static readonly string OutbreakContactsPersonFarmIDButtonText = (int) InterfaceEditorResourceSetEnum.OutbreakContacts + "3602" + (long) InterfaceEditorTypeEnum.ButtonText;
+        public static readonly string OutbreakContactsPersonFarmIDButtonText = (int)InterfaceEditorResourceSetEnum.OutbreakContacts + "3602" + (long)InterfaceEditorTypeEnum.ButtonText;
         public static readonly string OutbreakContactsNameColumnHeading = (int)InterfaceEditorResourceSetEnum.OutbreakContacts + "501" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string OutbreakContactsGenderColumnHeading = (int)InterfaceEditorResourceSetEnum.OutbreakContacts + "86" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string OutbreakContactsDateOfLastContactColumnHeading = (int)InterfaceEditorResourceSetEnum.OutbreakContacts + "2559" + (long)InterfaceEditorTypeEnum.ColumnHeading;
@@ -904,8 +911,8 @@ namespace EIDSS.Localization.Constants
         public static readonly string VectorAggregateCollectionRecordIDColumnHeading = (int)InterfaceEditorResourceSetEnum.VectorAggregateCollection + "2607" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string VectorAggregateCollectionVectorTypeColumnHeading = (int)InterfaceEditorResourceSetEnum.VectorAggregateCollection + "278" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string VectorAggregateCollectionCollectionDateColumnHeading = (int)InterfaceEditorResourceSetEnum.VectorAggregateCollection + "897" + (long)InterfaceEditorTypeEnum.ColumnHeading;
-        public static readonly string VectorAggregateCollectionNumberOfPoolsVectorsCollectedColumnHeading = (int) InterfaceEditorResourceSetEnum.VectorAggregateCollection + "2608" + (long) InterfaceEditorTypeEnum.ColumnHeading;
-        public static readonly string VectorAggregateCollectionDiseaseNumberOfPositivePoolsVectorsColumnHeading = (int) InterfaceEditorResourceSetEnum.VectorAggregateCollection + "2609" + (long) InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string VectorAggregateCollectionNumberOfPoolsVectorsCollectedColumnHeading = (int)InterfaceEditorResourceSetEnum.VectorAggregateCollection + "2608" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string VectorAggregateCollectionDiseaseNumberOfPositivePoolsVectorsColumnHeading = (int)InterfaceEditorResourceSetEnum.VectorAggregateCollection + "2609" + (long)InterfaceEditorTypeEnum.ColumnHeading;
 
         //VUC05 - Enter Detailed Collection Record
         public static readonly string VectorDetailedCollectionSamplesLabSampleIDColumnHeading = (int)InterfaceEditorResourceSetEnum.VectorDetailedCollectionSamples + "691" + (long)InterfaceEditorTypeEnum.ColumnHeading;
@@ -941,7 +948,7 @@ namespace EIDSS.Localization.Constants
 
         //VSUC06 - Enter Aggregate Collection Record
         public static readonly string VectorAggregateCollectionDiseaseColumnHeading = (int)InterfaceEditorResourceSetEnum.VectorAggregateCollection + "662" + (long)InterfaceEditorTypeEnum.ColumnHeading;
-        public static readonly string VectorAggregateCollectionNumberOfPositivePoolsVectorsColumnHeading = (int) InterfaceEditorResourceSetEnum.VectorAggregateCollection + "2641" + (long) InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string VectorAggregateCollectionNumberOfPositivePoolsVectorsColumnHeading = (int)InterfaceEditorResourceSetEnum.VectorAggregateCollection + "2641" + (long)InterfaceEditorTypeEnum.ColumnHeading;
 
         //VSUC03 - Search for Vector Surveillance Session
         public static readonly string SearchVectorSurveillanceSessionsSessionIDColumnHeading = (int)InterfaceEditorResourceSetEnum.SearchVectorSurveillanceSessions + "817" + (long)InterfaceEditorTypeEnum.ColumnHeading;
@@ -1090,7 +1097,7 @@ namespace EIDSS.Localization.Constants
         public static readonly string LivestockDiseaseReportAnimalsAgeColumnHeading = (int)InterfaceEditorResourceSetEnum.LivestockDiseaseReportAnimals + "2492" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string LivestockDiseaseReportAnimalsSexColumnHeading = (int)InterfaceEditorResourceSetEnum.LivestockDiseaseReportAnimals + "2493" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string LivestockDiseaseReportAnimalsStatusColumnHeading = (int)InterfaceEditorResourceSetEnum.LivestockDiseaseReportAnimals + "707" + (long)InterfaceEditorTypeEnum.ColumnHeading;
-        public static readonly string LivestockDiseaseReportAnimalsNoteAdditionalInfoColumnHeading = (int) InterfaceEditorResourceSetEnum.LivestockDiseaseReportAnimals + "2494" + (long) InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string LivestockDiseaseReportAnimalsNoteAdditionalInfoColumnHeading = (int)InterfaceEditorResourceSetEnum.LivestockDiseaseReportAnimals + "2494" + (long)InterfaceEditorTypeEnum.ColumnHeading;
 
         public static readonly string LivestockDiseaseReportSamplesLabSampleIDColumnHeading = (int)InterfaceEditorResourceSetEnum.LivestockDiseaseReportSamples + "691" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string LivestockDiseaseReportSamplesSampleTypeColumnHeading = (int)InterfaceEditorResourceSetEnum.LivestockDiseaseReportSamples + "236" + (long)InterfaceEditorTypeEnum.ColumnHeading;
@@ -1143,7 +1150,7 @@ namespace EIDSS.Localization.Constants
         public static readonly string AvianDiseaseReportFarmFlockSpeciesDeadColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportFarmFlockSpecies + "2476" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string AvianDiseaseReportFarmFlockSpeciesSickColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportFarmFlockSpecies + "2477" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string AvianDiseaseReportFarmFlockSpeciesStartOfSignsColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportFarmFlockSpecies + "2478" + (long)InterfaceEditorTypeEnum.ColumnHeading;
-        public static readonly string AvianDiseaseReportFarmFlockSpeciesAverageAgeWeeksColumnHeading = (int) InterfaceEditorResourceSetEnum.AvianDiseaseReportFarmFlockSpecies + "2480" + (long) InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string AvianDiseaseReportFarmFlockSpeciesAverageAgeWeeksColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportFarmFlockSpecies + "2480" + (long)InterfaceEditorTypeEnum.ColumnHeading;
 
         public static readonly string AvianDiseaseReportSamplesLabSampleIDColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportSamples + "691" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string AvianDiseaseReportSamplesSampleTypeColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportSamples + "236" + (long)InterfaceEditorTypeEnum.ColumnHeading;
@@ -1171,7 +1178,7 @@ namespace EIDSS.Localization.Constants
         public static readonly string AvianDiseaseReportLabTestsSpeciesColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportLabTests + "254" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string AvianDiseaseReportLabTestsTestDiseaseColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportLabTests + "901" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string AvianDiseaseReportLabTestsTestNameColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportLabTests + "267" + (long)InterfaceEditorTypeEnum.ColumnHeading;
-        public static readonly string AvianDiseaseReportLabTestsResultObservationColumnHeading = (int) InterfaceEditorResourceSetEnum.AvianDiseaseReportLabTests + "2506" + (long) InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string AvianDiseaseReportLabTestsResultObservationColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportLabTests + "2506" + (long)InterfaceEditorTypeEnum.ColumnHeading;
 
         public static readonly string AvianDiseaseReportResultsSummaryInterpretationSpeciesColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportResultsSummaryInterpretation + "254" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string AvianDiseaseReportResultsSummaryInterpretationDiseaseColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportResultsSummaryInterpretation + "662" + (long)InterfaceEditorTypeEnum.ColumnHeading;
@@ -1181,13 +1188,13 @@ namespace EIDSS.Localization.Constants
         public static readonly string AvianDiseaseReportResultsSummaryInterpretationLabSampleIDColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportResultsSummaryInterpretation + "691" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string AvianDiseaseReportResultsSummaryInterpretationSampleTypeColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportResultsSummaryInterpretation + "236" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string AvianDiseaseReportResultsSummaryInterpretationFieldSampleIDColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportResultsSummaryInterpretation + "896" + (long)InterfaceEditorTypeEnum.ColumnHeading;
-        public static readonly string AvianDiseaseReportResultsSummaryInterpretationRuleOutRuleInColumnHeading = (int) InterfaceEditorResourceSetEnum.AvianDiseaseReportResultsSummaryInterpretation + "2508" + (long) InterfaceEditorTypeEnum.ColumnHeading;
-        public static readonly string AvianDiseaseReportResultsSummaryInterpretationCommentsRuleOutRuleInColumnHeading = (int) InterfaceEditorResourceSetEnum.AvianDiseaseReportResultsSummaryInterpretation + "2509" + (long) InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string AvianDiseaseReportResultsSummaryInterpretationRuleOutRuleInColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportResultsSummaryInterpretation + "2508" + (long)InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string AvianDiseaseReportResultsSummaryInterpretationCommentsRuleOutRuleInColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportResultsSummaryInterpretation + "2509" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string AvianDiseaseReportResultsSummaryInterpretationDateInterpretedColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportResultsSummaryInterpretation + "2510" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string AvianDiseaseReportResultsSummaryInterpretationInterpretedByColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportResultsSummaryInterpretation + "2511" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string AvianDiseaseReportResultsSummaryInterpretationValidatedColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportResultsSummaryInterpretation + "2512" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string AvianDiseaseReportResultsSummaryInterpretationValidatedByColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportResultsSummaryInterpretation + "2513" + (long)InterfaceEditorTypeEnum.ColumnHeading;
-        public static readonly string AvianDiseaseReportResultsSummaryInterpretationCommentsValidatedColumnHeading = (int) InterfaceEditorResourceSetEnum.AvianDiseaseReportResultsSummaryInterpretation + "2514" + (long) InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string AvianDiseaseReportResultsSummaryInterpretationCommentsValidatedColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportResultsSummaryInterpretation + "2514" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string AvianDiseaseReportResultsSummaryInterpretationDateValidatedColumnHeading = (int)InterfaceEditorResourceSetEnum.AvianDiseaseReportResultsSummaryInterpretation + "2515" + (long)InterfaceEditorTypeEnum.ColumnHeading;
 
         //VUC10 - Search for an Animal Disease Report
@@ -1259,7 +1266,7 @@ namespace EIDSS.Localization.Constants
         public static readonly string SelectedAggregateDiseaseReportsSettlementColumnHeading = (int)InterfaceEditorResourceSetEnum.SelectedAggregateDiseaseReports + "752" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string SelectedAggregateDiseaseReportsOrganizationColumnHeading = (int)InterfaceEditorResourceSetEnum.SelectedAggregateDiseaseReports + "661" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string HumanAggregateDiseaseReportSummaryDiseaseColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanAggregateDiseaseReportSummary + "662" + (long)InterfaceEditorTypeEnum.ColumnHeading;
-        public static readonly string HumanAggregateDiseaseReportSummaryICD10ColumnHeading = (int) InterfaceEditorResourceSetEnum.HumanAggregateDiseaseReportSummary + "93" + (long) InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string HumanAggregateDiseaseReportSummaryICD10ColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanAggregateDiseaseReportSummary + "93" + (long)InterfaceEditorTypeEnum.ColumnHeading;
 
         //HAUC01 - Enter Human Aggregate Disease Reports
         public static readonly string HumanAggregateDiseaseReportDiseaseColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanAggregateDiseaseReport + "662" + (long)InterfaceEditorTypeEnum.ColumnHeading;
@@ -1273,7 +1280,7 @@ namespace EIDSS.Localization.Constants
         public static readonly string CampaignInformationSpeciesColumnHeading = (int)InterfaceEditorResourceSetEnum.CampaignInformation + "254" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string CampaignInformationSampleTypeColumnHeading = (int)InterfaceEditorResourceSetEnum.CampaignInformation + "236" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string CampaignInformationPlannedNumberColumnHeading = (int)InterfaceEditorResourceSetEnum.CampaignInformation + "832" + (long)InterfaceEditorTypeEnum.ColumnHeading;
-        public static readonly string CampaignInformationCommentsDescriptionsColumnHeading = (int) InterfaceEditorResourceSetEnum.CampaignInformation + "2517" + (long) InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string CampaignInformationCommentsDescriptionsColumnHeading = (int)InterfaceEditorResourceSetEnum.CampaignInformation + "2517" + (long)InterfaceEditorTypeEnum.ColumnHeading;
 
 
         public static readonly string HumanActiveSurveillanceCampaignSessionIDColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanActiveSurveillanceCampaign + "817" + (long)InterfaceEditorTypeEnum.ColumnHeading;
@@ -1305,7 +1312,7 @@ namespace EIDSS.Localization.Constants
         public static readonly string HumanExporttoCISIDAreaIDColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanExporttoCISID + "4613" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string HumanExporttoCISIDDateofonsetofrashColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanExporttoCISID + "4614" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string HumanExporttoCISIDAgeofrashonsetColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanExporttoCISID + "4615" + (long)InterfaceEditorTypeEnum.ColumnHeading;
-        public static readonly string HumanExporttoCISIDNumberofmeaslesrubellavaccineColumnHeading = (int) InterfaceEditorResourceSetEnum.HumanExporttoCISID + "4616" + (long) InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string HumanExporttoCISIDNumberofmeaslesrubellavaccineColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanExporttoCISID + "4616" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string HumanExporttoCISIDDateoflastmeaslesvaccinationColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanExporttoCISID + "4617" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string HumanExporttoCISIDDateofnotificationColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanExporttoCISID + "4618" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string HumanExporttoCISIDDateofinvestigationColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanExporttoCISID + "4619" + (long)InterfaceEditorTypeEnum.ColumnHeading;
@@ -1314,7 +1321,7 @@ namespace EIDSS.Localization.Constants
         public static readonly string HumanExporttoCISIDDurationofrashColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanExporttoCISID + "4622" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string HumanExporttoCISIDOutcomeColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanExporttoCISID + "4623" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string HumanExporttoCISIDSourceofInfectionColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanExporttoCISID + "4624" + (long)InterfaceEditorTypeEnum.ColumnHeading;
-        public static readonly string HumanExporttoCISIDOutbreakrelatedColumnHeading = (int) InterfaceEditorResourceSetEnum.HumanExporttoCISID + "4625" + (long) InterfaceEditorTypeEnum.ColumnHeading;
+        public static readonly string HumanExporttoCISIDOutbreakrelatedColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanExporttoCISID + "4625" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string HumanExporttoCISIDComplicationsColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanExporttoCISID + "4626" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string HumanExporttoCISIDEncephalitisColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanExporttoCISID + "4627" + (long)InterfaceEditorTypeEnum.ColumnHeading;
         public static readonly string HumanExporttoCISIDPneumoniaColumnHeading = (int)InterfaceEditorResourceSetEnum.HumanExporttoCISID + "4628" + (long)InterfaceEditorTypeEnum.ColumnHeading;
@@ -1367,6 +1374,5 @@ namespace EIDSS.Localization.Constants
         public static readonly string MainPageNotificationsGridNotifiedByColumnHeading = (int)InterfaceEditorResourceSetEnum.Global + "4821" + (long)InterfaceEditorTypeEnum.ColumnHeading;
 
         public static readonly string MainPageELECTRONICINTEGRATEDDISEASESURVEILLANCESYSTEMHeading = (int)InterfaceEditorResourceSetEnum.Global + "4822" + (long)InterfaceEditorTypeEnum.ColumnHeading;
-
     }
 }

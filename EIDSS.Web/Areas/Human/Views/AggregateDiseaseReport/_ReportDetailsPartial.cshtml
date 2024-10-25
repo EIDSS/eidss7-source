@@ -372,11 +372,21 @@
         </div>
     </div>
 </form>
+@*<form id="reportDeleteForm" class="hidden" method="post" asp-action="Delete">
+        <input type="hidden" id="reportID" name="reportID" />
+    </form>*@
 
 <partial name="_NonUserEmployeePersonalInfoPartial" for="EmployeeDetails" />
+@*@{
+
+        @await Component.InvokeAsync("AddNonUserEmployee", Model.EmployeeDetails)
+    }*@
 
 <script type="text/javascript">
     $(document).ready(function () {
+        //if ($("#SelectedAdminLevel").val() != null && $("#SelectedAdminLevel").val() != '') {
+        //    var orgControl = "AggregateDiseaseReportDetails_Organization";
+        //    refreshDetailsOrgByLocationAdminSelection(orgControl, $("#SelectedAdminLevel").val());
         if ($("#ReportDetailsSection_SelectedAdminLevel").val() != null && $("#ReportDetailsSection_SelectedAdminLevel").val() != '') {
             var orgControl = "ReportDetailsSection_Organization";
             refreshDetailsOrgByLocationAdminSelection(orgControl, $("#ReportDetailsSection_SelectedAdminLevel").val());
@@ -386,8 +396,15 @@
     function initializeReportDetailsSection() {
     };
 
+    @*function selectAggregateDiseaseReportRecord(reportKey) {
+	    location.href = '@Url.Action("Details", "AggregateDiseaseReport", new { Area = "Human", id = 'reportKey' })';
+	    $("#reportWizard").steps("setStep", 2);
+    };*@
+
     function refreshDetailsOrgByLocationAdminSelection(orgControl, selectedAdminLevelControl) {
-       //Check the cotrols
+        /*alert(orgControl)*/
+        /*alert(selectedAdminLevelControl)*/
+       // check the cotrols
        //Call the controller method
         //Load the orgcontrol with data.
         var administrativeUnitID = $(selectedAdminLevelControl).val();
@@ -395,6 +412,7 @@
         console.log(administrativeUnitID);
         $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfsAdministrativeUnit").val(administrativeUnitID);
 
+        /*$("#ReportDetailsSection_AggregateDiseaseReportDetails_idfsAdministrativeUnit").val(administrativeUnitID);*/
         var url = '@Url.Action("GetOrganizationsByAdministrativeLevelID", "AggregateDiseaseReport")?data=' + administrativeUnitID+"&page=1";
         $.ajax({
             url: url,
@@ -421,4 +439,24 @@
          });
 
     };
+
+    @*$('#ReportDetailsSection_Organization').select2({
+        ajax: {
+            url: function (parms) {
+                if (parms.page == undefined)
+                    parms.page = 1;
+                if (parms.term == undefined)
+                    parms.term = null;
+                return '@Url.Action("GetOrganizationsByAdministrativeLevelID", "AggregateDiseaseReport")?data=' + $("#ReportDetailsSection_AggregateDiseaseReportDetails_idfsAdministrativeUnit").val() + "&page=" + parms.page +"&term="+ parms.term
+            }
+        },
+        width: '75%',
+        theme: 'bootstrap',
+        tags: false,
+        closeOnSelect: true,
+        allowClear: true,
+        minimumInputLength: 0,
+        multiple: false,
+        placeholder: ' '
+    });*@
 </script>

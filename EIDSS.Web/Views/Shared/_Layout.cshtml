@@ -8,7 +8,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - EIDSS</title>
 
-
     <!--Bootstrap Styles-->
     <link href="~/lib/twitter-bootstrap/css/bootstrap.css" rel="stylesheet" />
 
@@ -29,7 +28,6 @@
     <base href="~/" />
     <link rel="stylesheet" href="_content/Radzen.Blazor/css/default-base.css" />
     <link rel="stylesheet" href="~/lib/Radzen/css/eidss-radzen-overrides.css" />
-    
 
     <!--JQuery Steps Styles-->
     <link rel="stylesheet" href="~/lib/jquery-steps/css/jquery.steps.css" />
@@ -40,16 +38,19 @@
     <!--Leaflet Styles-->
     <link href="~/lib/leaflet/leaflet.min.css" rel="stylesheet" />
 
-     <!--multiselect-->
+    <!--multiselect-->
     <link href="~/lib/multi-select/css/multi-select.css" rel="stylesheet" />
 
     <!--EIDSS Styles-->
     <link href="~/css/EIDSS7Styles-1.0.0.css" media="screen" rel="stylesheet" /> <!-- media="screen" to avoid css conflicts in print media -->
+
     <link rel="stylesheet" href="~/css/site.css" />
     <link href="~/css/laboratory.css" rel="stylesheet" />
 
     <!--Bootstrap-datapicker style-->
     <link href="~/lib/bootstrap-datepicker/css/bootstrap-datepicker3.css" rel="stylesheet" />
+
+    <link href="EIDSS.Web.styles.css" rel="stylesheet">
 
     <!--jQuery and jQuery UI-->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -84,13 +85,8 @@
     <script src="~/lib/DataTables/js/dataTables.rowReorder.js"></script>
     <script src="~/lib/DataTables/js/rowReorder.bootstrap4.js"></script>
 
-
     <!--Moment Library-->
-    <script src="~/lib/moment.js/moment.js"></script>
     <script src="~/lib/moment.js/moment-with-locales.js"></script>
-    <script src="~/lib/moment.js/locale/az.js"></script>
-    <script src="~/lib/moment.js/locale/ka.js"></script>
-    <script src="~/lib/moment.js/locale/ru.js"></script>
 
     <!--Function History and Steps Libraries-->
     <script src="~/js/History/FunctionHistory.js"></script>
@@ -99,27 +95,20 @@
     <!--Leaflet Library-->
     <script src="~/lib/leaflet/leaflet.min.js"></script>
 
-
     <!--multiselect-->
-    <script href="~/lib/multi-select/js/jquery.multi-select.js" ></script>
+    <script href="~/lib/multi-select/js/jquery.multi-select.js"></script>
 
     <!-- Location Control-->
     <script src="~/js/Shared/locationControl.js"></script>
 
-    <!--Bootstrap-date-picker-->
     <!--EIDSS Specific-->
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/Custom/EIDSSSSideBarNav.js"></script>
     <script src="~/lib/onscan/onscan.min.js"></script>
 
     <script type="text/javascript">
-        /// some script
-
-        // jquery ready start
         $(document).ready(function () {
-            // jQuery code
-
-            //////////////////////// Prevent closing from click inside dropdown
+            // Prevent closing from click inside dropdown
             $(document).on('click', '.dropdown-menu', function (e) {
                 e.stopPropagation();
             });
@@ -136,114 +125,92 @@
                     })
                 });
             }
-
-        }); // jquery end
+        });
     </script>
     @if (HttpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
     {
-        @Html.Partial("~/Views/Shared/_KeepAlive.cshtml")
+        <partial name="~/Views/Shared/_KeepAlive.cshtml" />
     }
 </head>
 <body lang="en">
-
-
-<header>
-    <nav class="navbar navbar-expand-lg fixed-top navbar-light bg-white border-bottom">
-     
-        @(await Component.InvokeAsync("MenuView"))
-    </nav>
-</header>
-<div class="container-fluid" style="padding-top: 8em;">
-    <main role="main" class="pb-3">
-        @RenderBody()
-        <component type="typeof(RadzenDialog)" render-mode="ServerPrerendered"/>
-    </main>
-</div>
-<div id="blazor-error-ui">
-    <environment include="Staging,Production">
-        An error has occurred. This application may no longer respond until reloaded.
-    </environment>
-    <environment include="Development">
-        An unhandled exception has occurred. See browser dev tools for details.
-    </environment>
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
-</div>
-<footer class="border-top container-fluid m-auto py-3">
-    <div class="row">
-        <div class="col-6 text-left">
-            <span>
-                    Disclaimer | @AppVersionService.GetYears() © Black & Veatch. All Rights Reserved.
-            </span>
-        </div>
-        <div class="col-6 text-right">
-            <span>
-                Build: @AppVersionService.Version | Environment:
-                <environment names="Release">
-                    <strong>Production</strong>
-                </environment>
-                <environment names="BV">
-                    <strong>Production-like Testbed</strong>
-                </environment>
-                <environment names="DemoAM">
-                     <strong>Demo (Armenia)</strong>
-                </environment>
-                 <environment names="DemoGE">
-                     <strong>Demo (Georgia)</strong>
-                </environment>
-                <environment names="DemoAZ">
-                    <strong>Demo (Azerbaijan)</strong>
-                </environment>
-                <environment names="UAT">
-                    <strong>UAT</strong>
-                </environment>
-                <environment names="BVAzure">
-                    <strong>Cloud-based Testbed</strong>
-                </environment>
-                <environment exclude="Production,BV,UAT,DemoAM,DemoGE,DemoAZ,BVAzure">
-                    <strong>Test</strong>
-                </environment>
-            </span>
-        </div>
+    <header>
+        <nav class="navbar navbar-expand-lg fixed-top navbar-light bg-white border-bottom">
+            @(await Component.InvokeAsync("MenuView"))
+        </nav>
+    </header>
+    <div class="container-fluid" style="padding-top: 8em;">
+        <main role="main" class="pb-3">
+            @RenderBody()
+            <component type="typeof(RadzenDialog)" render-mode="ServerPrerendered" />
+        </main>
     </div>
-</footer>
+    <div id="blazor-error-ui">
+        <environment include="Staging,Production">
+            An error has occurred. This application may no longer respond until reloaded.
+        </environment>
+        <environment include="Development">
+            An unhandled exception has occurred. See browser dev tools for details.
+        </environment>
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <footer class="border-top container-fluid m-auto py-3">
+        <div class="row">
+            <div class="col-6 text-left">
+                <span>
+                    Disclaimer | @AppVersionService.GetYears() © Black & Veatch. All Rights Reserved.
+                </span>
+            </div>
+            <div class="col-6 text-right">
+                <span>
+                    Build: @AppVersionService.Version | Environment:
+                    <environment names="Release">
+                        <strong>Production</strong>
+                    </environment>
+                    <environment names="Dev">
+                        <strong>Development</strong>
+                    </environment>
+                </span>
+            </div>
+        </div>
+    </footer>
 
-<script type="text/javascript" src="~/Custom/EIDSSGrid.js"></script>
-<script src="~/js/menu.js"></script>
+    <script type="text/javascript" src="~/Custom/EIDSSGrid.js"></script>
+    <script src="~/js/menu.js"></script>
 
-@*Blazor*@
-<script src="_framework/blazor.server.js" autostart="false"></script>
-<script>
-    
-    Blazor.start({
-        configureSignalR: function (builder) {
-            var b = builder.build();
+    @*Blazor*@
+    <script src="_framework/blazor.server.js" autostart="false"></script>
+    <script>
+
+        Blazor.start({
+            configureSignalR: function (builder) {
+                var b = builder.build();
                 b.serverTimeoutInMilliseconds = 6000000;
                 b.keepAliveIntervalInMillisecons = 6000000;
-            builder.build = () => {
-                return b;
-            };
-        },
+                builder.build = () => {
+                    return b;
+                };
+            }
         }).then(() => {
-            
+
             Blazor.defaultReconnectionHandler._reconnectCallback = function (d) {
                 document.location.reload();
             }
         });
-</script>
+    </script>
 
-<script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
+    <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
 
-<script src="~/js/Blazor/JavaScriptBootProcess.js"></script>
-<script src="~/js/crossCutting/crossCutting.js"></script>
-<script src="~/js/Blazor/HumanDiseaseReportHelper.js"></script>
-<script src="~/js/Blazor/leafletBlazorInterops.js"></script>
-<script src="~/js/Blazor/LeafletBlazorLatLong.js"></script>
+    <script src="~/js/Blazor/JavaScriptBootProcess.js"></script>
+    <script src="~/js/crossCutting/crossCutting.js"></script>
+    <script src="~/js/Blazor/HumanDiseaseReportHelper.js"></script>
+    <script src="~/js/Blazor/leafletBlazorInterops.js"></script>
+    <script src="~/js/Blazor/LeafletBlazorLatLong.js"></script>
 
-@RenderSection("Scripts", required: false)
-@RenderSection("AdditionalHeadContent", required: false)
-@RenderSection("Content", false)
-@RenderSection("runreport", required: false)
-@RenderSection("LocationControlScript", required: false)
+    @RenderSection("Scripts", required: false)
+    @RenderSection("AdditionalHeadContent", required: false)
+    @RenderSection("Content", false)
+    @RenderSection("runreport", required: false)
+    @RenderSection("LocationControlScript", required: false)
 </body>
 </html>

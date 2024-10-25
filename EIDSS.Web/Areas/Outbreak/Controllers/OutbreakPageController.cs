@@ -1,6 +1,4 @@
-﻿#region Usings
-
-using EIDSS.ClientLibrary.ApiClients.Administration.Security;
+﻿using EIDSS.ClientLibrary.ApiClients.Administration.Security;
 using EIDSS.ClientLibrary.ApiClients.Configuration;
 using EIDSS.ClientLibrary.ApiClients.CrossCutting;
 using EIDSS.ClientLibrary.ApiClients.Outbreak;
@@ -25,11 +23,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.String;
-using GISAdministrativeUnitTypes = EIDSS.ClientLibrary.Enumerations.GISAdministrativeUnitTypes;
-
-#endregion
 
 namespace EIDSS.Web.Areas.Outbreak.Controllers
 {
@@ -37,8 +30,6 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
     [Controller]
     public class OutbreakPageController : BaseController
     {
-        #region Globals
-
         public OutbreakPageViewModel OutbreakPageViewModel;
         private readonly ISiteClient _siteClient;
         private readonly AuthenticatedUser _authenticatedUser;
@@ -47,10 +38,6 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
         private readonly IConfigurationClient _configurationClient;
         private readonly IStringLocalizer _localizer;
         private readonly UserPreferences _userPreferences;
-
-        #endregion
-
-        #region Constructors
 
         public OutbreakPageController(IOutbreakClient outbreakClient, ISiteClient siteClient, ICrossCuttingClient crossCuttingClient, IConfigurationClient configurationClient, IStringLocalizer localizer,
             ITokenService tokenService, ILogger<OutbreakPageController> logger) : base(logger, tokenService)
@@ -79,26 +66,13 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
             };
         }
 
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public IActionResult Index()
         {
             return View(OutbreakPageViewModel);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="searchModel"></param>
-        /// <returns></returns>
         [HttpPost]
-        public Task<IActionResult> PrintOutbreakSessions([FromBody]  OutbreakSearchForOutbreaksPrint searchModel)
+        public Task<IActionResult> PrintOutbreakSessions([FromBody] OutbreakSearchForOutbreaksPrint searchModel)
         {
             searchModel.LangID = GetCurrentLanguage();
             searchModel.ReportTitle = _localizer.GetString(HeadingResourceKeyConstants.OutbreakManagementListOutbreakManagementListHeading);
@@ -140,7 +114,7 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
                 new("PageNumber", searchModel.PageNumber),
                 new("SortOrder", searchModel.SortOrder),
                 new("PageSize", searchModel.PageSize),
-                new("OutbreakID", IsNullOrEmpty(searchModel.OutbreakID) ? Empty : searchModel.OutbreakID),
+                new("OutbreakID", string.IsNullOrEmpty(searchModel.OutbreakID) ? string.Empty : searchModel.OutbreakID),
                 new("QuickSearch", ""),
                 new("UserSiteID", _authenticatedUser.SiteId),
                 new("UserOrganizationID", _authenticatedUser.OfficeId.ToString()),
@@ -149,23 +123,23 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
                 new("PrintDateTime", DateTime.Now.ToShortDateString().ToString(new CultureInfo(GetCurrentLanguage())))
             };
 
-            if (!IsNullOrEmpty(searchModel.AdministrativeLevelID))
+            if (!string.IsNullOrEmpty(searchModel.AdministrativeLevelID))
                 OutbreakPageViewModel.OutbreakReportPrintViewModel.Parameters.Add(new KeyValuePair<string, string>("AdministrativeLevelID", searchModel.AdministrativeLevelID));
-            if (!IsNullOrEmpty(searchModel.OutbreakTypeID))
+            if (!string.IsNullOrEmpty(searchModel.OutbreakTypeID))
                 OutbreakPageViewModel.OutbreakReportPrintViewModel.Parameters.Add(new KeyValuePair<string, string>("OutbreakTypeID", searchModel.OutbreakTypeID));
-            if (!IsNullOrEmpty(searchModel.OutbreakStatusTypeID))
+            if (!string.IsNullOrEmpty(searchModel.OutbreakStatusTypeID))
                 OutbreakPageViewModel.OutbreakReportPrintViewModel.Parameters.Add(new KeyValuePair<string, string>("OutbreakStatusTypeID", searchModel.OutbreakStatusTypeID));
-            if (!IsNullOrEmpty(searchModel.StartDateFrom))
+            if (!string.IsNullOrEmpty(searchModel.StartDateFrom))
             {
                 DateTime? startDate = Convert.ToDateTime(searchModel.StartDateFrom);
                 OutbreakPageViewModel.OutbreakReportPrintViewModel.Parameters.Add(new KeyValuePair<string, string>("StartDateFrom", startDate.Value.ToString("d", cultureInfo)));
             }
-            if (!IsNullOrEmpty(searchModel.StartDateTo))
+            if (!string.IsNullOrEmpty(searchModel.StartDateTo))
             {
                 DateTime? endDate = Convert.ToDateTime(searchModel.StartDateTo);
                 OutbreakPageViewModel.OutbreakReportPrintViewModel.Parameters.Add(new KeyValuePair<string, string>("StartDateTo", endDate.Value.ToString("d", cultureInfo)));
             }
-            if (!IsNullOrEmpty(searchModel.SearchDiagnosisGroup))
+            if (!string.IsNullOrEmpty(searchModel.SearchDiagnosisGroup))
                 OutbreakPageViewModel.OutbreakReportPrintViewModel.Parameters.Add(new KeyValuePair<string, string>("SearchDiagnosesGroup", searchModel.SearchDiagnosisGroup));
 
             OutbreakPageViewModel.OutbreakReportPrintViewModel.ReportName = "SearchForOutbreaks";
@@ -174,16 +148,11 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
             return Task.FromResult<IActionResult>(PartialView("_PrintOutbreakSessionsPartial", OutbreakPageViewModel));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
         public async Task<IActionResult> Search(OutbreakSessionSearchRequestModel request)
         {
             await BuildSessionLocationControl(null);
 
-            var outbreakStatusTypes = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), BaseReferenceConstants.OutbreakStatus, (int)AccessoryCodes.NoneHACode);
+            var outbreakStatusTypes = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), EIDSSConstants.BaseReferenceConstants.OutbreakStatus, (int)AccessoryCodes.NoneHACode);
             if (outbreakStatusTypes.Any(x => x.IdfsBaseReference ==
                                              (long)OutbreakSessionStatus.InProgress))
             {
@@ -194,11 +163,6 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
             return View(OutbreakPageViewModel);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dataTableQueryPostObj"></param>
-        /// <returns></returns>
         [HttpPost]
         public async Task<JsonResult> GetList([FromBody] JQueryDataTablesQueryObject dataTableQueryPostObj)
         {
@@ -219,7 +183,7 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
                 if (JObject.Parse(dataTableQueryPostObj.postArgs)["AdminLevel" + i + "Value"] == null) continue;
                 if (JObject.Parse(dataTableQueryPostObj.postArgs)["AdminLevel" + i + "Value"]?.ToString() != "")
                 {
-                    locationId = long.Parse(JObject.Parse(dataTableQueryPostObj.postArgs)["AdminLevel" + i + "Value"]?.ToString() ?? Empty);
+                    locationId = long.Parse(JObject.Parse(dataTableQueryPostObj.postArgs)["AdminLevel" + i + "Value"]?.ToString() ?? string.Empty);
                 }
             }
 
@@ -242,7 +206,7 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
             {
                 if (JObject.Parse(dataTableQueryPostObj.postArgs)["OutbreakTypeId"]?.ToString() != "")
                 {
-                    outbreakTypeId = long.Parse(JObject.Parse(dataTableQueryPostObj.postArgs)["OutbreakTypeId"]?.ToString() ?? Empty);
+                    outbreakTypeId = long.Parse(JObject.Parse(dataTableQueryPostObj.postArgs)["OutbreakTypeId"]?.ToString() ?? string.Empty);
                 }
             }
 
@@ -250,7 +214,7 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
             {
                 if (JObject.Parse(dataTableQueryPostObj.postArgs)["idfsDiagnosisOrDiagnosisGroup"]?.ToString() != "")
                 {
-                    searchDiagnosesGroup = long.Parse(JObject.Parse(dataTableQueryPostObj.postArgs)["idfsDiagnosisOrDiagnosisGroup"]?.ToString() ?? Empty);
+                    searchDiagnosesGroup = long.Parse(JObject.Parse(dataTableQueryPostObj.postArgs)["idfsDiagnosisOrDiagnosisGroup"]?.ToString() ?? string.Empty);
                 }
             }
 
@@ -262,8 +226,7 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
                     if (JObject.Parse(dataTableQueryPostObj.postArgs)["SearchCriteria_StartDateFrom"]?.ToString() != "")
                     {
                         startDateFrom =
-                            DateTime.Parse(JObject.Parse(dataTableQueryPostObj.postArgs)["SearchCriteria_StartDateFrom"]?.ToString() ??
-                                           Empty);
+                            DateTime.Parse(JObject.Parse(dataTableQueryPostObj.postArgs)["SearchCriteria_StartDateFrom"]?.ToString() ?? string.Empty);
                     }
                 }
 
@@ -272,8 +235,7 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
                     if (JObject.Parse(dataTableQueryPostObj.postArgs)["SearchCriteria_StartDateTo"]?.ToString() != "")
                     {
                         startDateTo =
-                            DateTime.Parse(JObject.Parse(dataTableQueryPostObj.postArgs)["SearchCriteria_StartDateTo"]?.ToString() ??
-                                           Empty);
+                            DateTime.Parse(JObject.Parse(dataTableQueryPostObj.postArgs)["SearchCriteria_StartDateTo"]?.ToString() ?? string.Empty);
                     }
                 }
             }
@@ -290,7 +252,7 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
             {
                 if (JObject.Parse(dataTableQueryPostObj.postArgs)["idfsOutbreakStatus"]?.ToString() != "")
                 {
-                    outbreakStatusTypeId = long.Parse(JObject.Parse(dataTableQueryPostObj.postArgs)["idfsOutbreakStatus"]?.ToString() ?? Empty);
+                    outbreakStatusTypeId = long.Parse(JObject.Parse(dataTableQueryPostObj.postArgs)["idfsOutbreakStatus"]?.ToString() ?? string.Empty);
                 }
             }
 
@@ -300,8 +262,8 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
                 QuickSearch = JObject.Parse(dataTableQueryPostObj.postArgs)["SearchBox"]?.ToString(),
                 PageNumber = iPage,
                 PageSize = iLength,
-                SortColumn = !IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "OutbreakStatusOrder",
-                SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Descending,
+                SortColumn = !string.IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "OutbreakStatusOrder",
+                SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Descending,
                 ApplySiteFiltrationIndicator = _authenticatedUser.SiteTypeId >= (long)SiteTypes.ThirdLevel,
                 UserEmployeeID = long.Parse(_authenticatedUser.PersonId),
                 UserOrganizationID = _authenticatedUser.OfficeId,
@@ -352,11 +314,6 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
             return Json(tableData);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="administrativeUnitType"></param>
-        /// <returns></returns>
         private async Task BuildSessionLocationControl(long? administrativeUnitType)
         {
             var sessionLocationViewModel = new LocationViewModel();
@@ -371,7 +328,7 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
                     Page = 1,
                     PageSize = 10,
                     SortColumn = "idfsAggrCaseType",
-                    SortOrder = SortConstants.Ascending
+                    SortOrder = EIDSSConstants.SortConstants.Ascending
                 };
 
                 await _configurationClient.GetAggregateSettings(aggregateSettingsGetRequestModel);
@@ -459,8 +416,6 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
             }
             OutbreakPageViewModel.SessionLocationViewModel = sessionLocationViewModel;
         }
-
-        #endregion
 
         public class OutbreakSearchForOutbreaksPrint
         {

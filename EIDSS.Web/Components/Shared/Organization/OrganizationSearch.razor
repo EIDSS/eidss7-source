@@ -1,0 +1,51 @@
+@using EIDSS.Domain.ViewModels.Administration
+
+@inherits OrganizationSearchBase
+
+<RadzenStack>
+    <RadzenDropDownDataGrid
+        SelectedValue="@(SelectedOrganizationText ?? string.Empty)"
+        MouseEnter="@LoadFirstDataPageOnce"
+        Name="@Name"
+        id="@ComponentId"
+        AllowClear="true"
+        AllowColumnResize="true"
+        Change="@OnOrganizationChanged"
+        Data="@Organizations"
+        PageSize="@PageSize"
+        Count="@OrganizationCount"
+        Disabled="@Disabled"
+        LoadData="@LoadData"
+        FocusFilterOnPopup="true"
+        AllowSorting="true"
+        ShowSearch="false"
+        Density="@Density.Compact"
+        TValue="OrganizationGetSearchModelResult?"
+        TextProperty="@nameof(OrganizationGetSearchModelResult.AbbreviatedName)">
+        <EmptyTemplate>
+            <RadzenStack AlignItems="@AlignItems.Center" JustifyContent="@JustifyContent.Center" Style="height: 100px;">
+                @Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)
+            </RadzenStack>
+        </EmptyTemplate>
+        <Columns>
+            <RadzenDropDownDataGridColumn
+                Property="@nameof(OrganizationGetSearchModelResult.AbbreviatedName)"
+                Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.AbbreviationColumnHeading)"
+                Width="200px"/>
+            <RadzenDropDownDataGridColumn
+                Property="@nameof(OrganizationGetSearchModelResult.FullName)"
+                Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OrganizationFullNameColumnHeading)"
+                Width="200px"/>
+            <RadzenDropDownDataGridColumn
+                Property="@nameof(OrganizationGetSearchModelResult.Address)"
+                Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OrganizationAddressColumnHeading)"
+                Sortable="false"
+                Width="150px"/>
+            <RadzenDropDownDataGridColumn
+                Visible="false"
+                Property="@nameof(OrganizationGetSearchModelResult.UniqueKey)"
+                Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.UniqueOrganizationIDColumnHeading)"
+                Width="150px"/>
+        </Columns>
+    </RadzenDropDownDataGrid>
+</RadzenStack>

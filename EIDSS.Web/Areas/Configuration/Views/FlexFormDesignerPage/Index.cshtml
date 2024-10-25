@@ -219,6 +219,7 @@
                                             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center">
                                                 <input ID="btnCancel" type="button" class="btn btn-default" value="@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)" onclick="flexForm.restoreOriginalDetails();" />
                                                 <input ID="btnSubmit" type="button" class="btn btn-primary" value="@Localizer.GetString(ButtonResourceKeyConstants.SaveButton)" onclick="flexForm.updateItem();" />
+                                                @*<input ID="btnAddParameter" type="button" class="btn btn-primary" style="display:none" value="Add Parameter" />*@
                                             </div>
                                         </div>
                                     </div>
@@ -348,6 +349,12 @@
                                             </div>
                                         </div>
                                         <div id="dTemplateRules" style="display:none">
+                                            @*<asp:TreeView ID="tvTemplateRules"  Height="300px" ImageSet="XPFileExplorer" NodeIndent="15" ShowLines="True">
+                                                    <HoverNodeStyle Font-Underline="True" ForeColor="#6666AA" />
+                                                    <NodeStyle Font-Names="Tahoma" Font-Size="8pt" ForeColor="Black" HorizontalPadding="2px" NodeSpacing="0px" VerticalPadding="2px"></NodeStyle>
+                                                    <ParentNodeStyle Font-Bold="False" />
+                                                    <SelectedNodeStyle BackColor="#B5B5B5" Font-Underline="False" HorizontalPadding="0px" VerticalPadding="0px" />
+                                                </asp:TreeView>*@
                                         </div>
                                     </div>
                                 </div>
@@ -573,6 +580,16 @@
                                         <input type="button" id="bSearchDeterminants" onclick="flexForm.SearchDeterminants();" class="btn btn-primary btn-sm" value='@Localizer.GetString(ButtonResourceKeyConstants.SearchButton)' />
                                     </div>
                                 </div>
+@*                                <div class="flex-designer">
+                                    <table id="t19" class="table table-striped" role="grid" aria-describedby="">
+                                        <thead>
+                                            <tr role="row" class="table-striped-header">
+                                                <th>@Localizer.GetString(HeadingResourceKeyConstants.SearchResultsHeading)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="SearchDeterminantsResults"></tbody>
+                                    </table>
+                                </div>*@
                             </fieldset>
                         </div>
                     </div>
@@ -852,6 +869,7 @@
 <div id="dParameterTypes" class="modal fade" data-backdrop="static" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
+            @*<partial name="/Areas/Configuration/Views/ParameterTypeEditorPage/Index.cshtml" />*@
         </div>
     </div>
 </div>

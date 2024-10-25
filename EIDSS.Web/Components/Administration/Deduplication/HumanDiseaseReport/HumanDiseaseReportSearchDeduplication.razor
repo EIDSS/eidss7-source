@@ -215,6 +215,7 @@
             <div class="card-footer">
                 <div class="row">
                     <div class="col-md-12">
+                      @*  <button id="printButton" class="btn btn-outline-primary" type="button" @onclick=@(() => PrintSearchResults())>@Localizer.GetString(ButtonResourceKeyConstants.PrintButton)</button>*@
                         <button id="cancelButtonResults" class="btn btn-outline-primary" type="button" @onclick="@(() => CancelSearchClicked())">@Localizer.GetString(ButtonResourceKeyConstants.CancelButton)</button>
                     </div>
                 </div>

@@ -1,217 +1,85 @@
-﻿@using System.Threading.Tasks;
-@using EIDSS.ClientLibrary.ApiClients.FlexForm;
-@using EIDSS.Web.ViewModels.CrossCutting;
-@using EIDSS.Domain.RequestModels.FlexForm;
-@using EIDSS.Domain.ResponseModels.FlexForm;
-@using System.Collections.Generic;
-@using System.Linq;
-@using EIDSS.ReportViewer
-@using Newtonsoft.Json;
+﻿@inherits FlexFormMatrixSummaryBase
 
-
-@if (ShouldRender())
-{
-    <div class="card-header">
-        <h6>@Title</h6>
-    </div>
-    <div class="card-body">
-        <table cellspacing="0" cellpadding="0">
-            <tbody>
-                <tr>
-                    @if (Sections != null)
+<div class="card-header">
+    <h6>@title</h6>
+</div>
+<div class="card-body">
+    <table cellspacing="0" cellpadding="0">
+        <tbody>
+            <tr>
+                @if (sections != null)
+                {
+                    @foreach (var section in sections) //Build columns headers
                     {
-                        @foreach (var section in Sections) //Build columns headers
+                        foreach (var _section in sections) //Matrix columns
                         {
-                            foreach (var _section in Sections) //Matrix columns
+                            foreach (var matrixColumn in Request.MatrixColumns)
                             {
-                                foreach (var matrixColumn in request.MatrixColumns)
+                                <th>@matrixColumn </th>
+                            }
+
+                            foreach (var item in flexForm) //Parameter Columns
+                            {
+                                //TODO: skip sections and labels until proper implementation
+                                if (item.idfsSection == item.idfsParameter || item.idfsEditor is null)
+                                    continue;
+
+                                if (item.idfsSection == _section.idfsSection)
                                 {
-                                    <th>@matrixColumn </th>
+                                    <th>@item.ParameterName</th>
                                 }
+                            }
+                        }
+                    }
+                }
+            </tr>
 
-                                foreach (var item in flexForm) //Parameter Columns
+            @foreach (var matrixDataRow in Request.MatrixData)
+            {
+                <tr>
+                    @if (sections != null)
+                    {
+                        @foreach (var section in sections)
+                        {
+                            foreach (var data in matrixDataRow.MatrixData)
+                            {
+                                <td>@data</td>
+                            }
+
+                            foreach (var item in flexForm)
+                            {
+                                //TODO: skip sections and labels until proper implementation
+                                if (item.idfsSection == item.idfsParameter || item.idfsEditor is null)
+                                    continue;
+
+                                if (section.idfsSection == item.idfsSection)
                                 {
-                                    //TODO: skip sections and labels until proper implementation
-                                    if (item.idfsSection == item.idfsParameter || item.idfsEditor is null)
-                                        continue;
+                                    var iTotalValue = 0;
 
-                                    if (item.idfsSection == _section.idfsSection)
+                                    @if (answers != null)
                                     {
-                                        <th>@item.ParameterName</th>
+                                        var itemRows = answers.Where(x => x.idfsParameter == item.idfsParameter && x.idfRow == matrixDataRow.idfRow).ToList();
+                                        foreach (var itemRow in itemRows)
+                                        {
+                                            if (int.TryParse(itemRow.varValue, out var iValue))
+                                            {
+                                                iTotalValue += iValue;
+                                            }
+                                        }
                                     }
+
+                                    var strValue = iTotalValue.ToString();
+                                    strValue = strValue == "0" ? string.Empty : strValue;
+
+                                    <td>
+                                        <RadzenTextBox Value="@strValue" class="form-control rounded-0" Disabled="true" />
+                                    </td>
                                 }
                             }
                         }
                     }
                 </tr>
-
-                @{
-                    var answerRowNumbers = (Answers is { Count: > 0 }) ? Answers.DistinctBy(x => x.intNumRow).OrderBy(x => x.intNumRow).Select(x => x.intNumRow).ToList() : new List<int?>();
-                    var currentMatrixRowIndex = 0;
-
-                    @foreach (var matrixDataRow in request.MatrixData)
-                    {
-                        <tr>
-                            @if (Sections != null)
-                            {
-                                @foreach (var section in Sections)
-                                {
-                                    foreach (var data in matrixDataRow.MatrixData)
-                                    {
-                                        <td>@data</td>
-                                    }
-
-                                    foreach (var item in flexForm)
-                                    {
-                                        //TODO: skip sections and labels until proper implementation
-                                        if (item.idfsSection == item.idfsParameter || item.idfsEditor is null)
-                                            continue;
-
-                                        if (section.idfsSection == item.idfsSection)
-                                        {
-                                            var iTotalValue = 0;
-
-                                            @if (Answers != null)
-                                            {
-                                                // see if there is an answer set for the current row
-                                                var currentAnswerRowNumber = answerRowNumbers.FirstOrDefault(x => x == currentMatrixRowIndex);
-                                                if (currentAnswerRowNumber != null)
-                                                {
-                                                    var itemRows = Answers.Where(x => x.idfsParameter == item.idfsParameter && x.intNumRow == currentAnswerRowNumber).ToList();
-                                                    foreach (var itemRow in itemRows)
-                                                    {
-                                                        if (int.TryParse(itemRow.varValue, out var iValue))
-                                                        {
-                                                            iTotalValue += iValue;
-                                                        }
-                                                    }
-                                                }
-
-                                            }
-
-                                            var strValue = iTotalValue.ToString();
-                                            strValue = strValue == "0" ? string.Empty : strValue;
-
-                                            <td>
-                                                <RadzenTextBox Value="@strValue" class="form-control rounded-0" Disabled="true" />
-                                            </td>
-                                        }
-
-                                    }
-                                }
-                            }
-
-                        </tr>
-
-                        currentMatrixRowIndex++;
-
-                    }
-                }
-            </tbody>
-        </table>
-    </div>
-
-    FlexFormLoading = false;
-}
-
-@code {
-    [Inject]
-    public IFlexFormClient _flexFormClient { get; set; }
-
-    [Parameter]
-    public FlexFormQuestionnaireGetRequestModel request { get; set; }
-
-    private List<FlexFormQuestionnaireResponseModel> flexForm { get; set; }
-    private string Title { get; set; }
-    private string LanguageID { get; set; }
-    private List<Section> Sections { get; set; }
-    private long? idfsSection { get; set; }
-    private List<FlexFormActivityParametersListResponseModel> Answers { get; set; }
-
-    private static bool FlexFormLoading { get; set; } = false;
-
-    private class Section
-    {
-        public long idfsSection { get; set; }
-        public bool blnGrid { get; set; }
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-
-        Sections = new List<Section>();
-        await base.OnAfterRenderAsync(firstRender);
-
-        if (firstRender)
-        {
-            FlexFormLoading = true;
-            await Render();
-            //StateHasChanged();
-        }
-
-    }
-
-    protected override bool ShouldRender()
-    {
-        return FlexFormLoading;
-    }
-
-    public async Task Render()
-    {
-        await LoadQuestionnaire();
-        FlexFormLoading = true;
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async Task LoadQuestionnaire()
-    {
-        Title = request.Title;
-        long? idfsFormTemplate = null;
-        Section SectionItem = new Section();
-
-        flexForm = await _flexFormClient.GetQuestionnaire(request);
-
-        LanguageID = request.LangID;
-        if (flexForm.Count > 0)
-        {
-            idfsFormTemplate = flexForm[0].idfsFormTemplate;
-        }
-
-        if (!string.IsNullOrEmpty(request.observationList))
-        {
-            var answersRequest = new FlexFormActivityParametersGetRequestModel
-                {
-                    observationList = request.observationList,
-                    LangID = request.LangID
-                };
-
-            Answers = await _flexFormClient.GetAnswers(answersRequest);
-        }
-
-        //Iterate through to create section containers
-        foreach (var item in flexForm)
-        {
-            //TODO: skip sections and labels until proper implementation
-            if (item.idfsSection == item.idfsParameter || item.idfsEditor is null)
-                continue;
-
-            if (item.idfsSection != null && item.idfsSection != idfsSection)
-            {
-                SectionItem = new Section
-                    {
-                        blnGrid = (bool)(item.blnGrid ?? false),
-                        idfsSection = (long)item.idfsSection
-                    };
-
-                idfsSection = (long)item.idfsSection;
-                Sections.Add(SectionItem);
             }
-        }
-    }
-
-}
+        </tbody>
+    </table>
+</div>

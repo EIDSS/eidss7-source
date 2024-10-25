@@ -1,0 +1,11 @@
+@inherits SSRSViewerBase
+
+@if (Parameters != null)
+{
+    <CascadingValue Value=this>
+        @Parameters
+    </CascadingValue>
+}
+<div style="height: 450px; width: 100%;" class="ssrsviewer">
+    <iframe style="border: 0" src="@ReportUrl" @onload=OnLoad></iframe>
+</div>

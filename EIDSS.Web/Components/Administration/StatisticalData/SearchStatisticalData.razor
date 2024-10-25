@@ -149,6 +149,7 @@
                         </button>
                     </div>
                     <div class="card-body @(showSearchResults ?  "d-block" : "d-none" )">
+                        @*<div class="row justify-content-center m-3">*@
                         <div class="col-12">
                             <RadzenDataGrid 
                                 TItem="StatisticalDataResponseModel" 
@@ -166,11 +167,13 @@
                                     ShowPagingSummary="true" 
                                     Count="@StatisticalDataResultsCount">
                                 <Columns>
+                                    @* <RadzenDataGridColumn TItem="StatisticalDataResponseModel" Property="idfStatistic" Title="Id" Width="50px"  />*@
                                     <RadzenDataGridColumn TItem="StatisticalDataResponseModel" Property="varValue" Width="40%" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchStatisticalDataRecordValueColumnHeading)" />
                                     <RadzenDataGridColumn TItem="StatisticalDataResponseModel" Property="strStatisticalAgeGroup" Width="100%" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchStatisticalDataRecordStatisticalAgeGroupColumnHeading)" />
                                     <RadzenDataGridColumn TItem="StatisticalDataResponseModel" Property="ParameterType" Width="100%" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchStatisticalDataRecordParameterTypeColumnHeading)" />
                                     <RadzenDataGridColumn TItem="StatisticalDataResponseModel" Property="setnParameterName" Width="100%" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchStatisticalDataRecordParameterColumnHeading)" />
                                     <RadzenDataGridColumn TItem="StatisticalDataResponseModel" Property="setnPeriodTypeName" Width="100%" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchStatisticalDataRecordStatisticalPeriodTypeColumnHeading)" />
+                                    @* <RadzenDataGridColumn TItem="StatisticalDataResponseModel" Property="datStatisticStartDate" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchStatisticalDataRecordStartDateforPeriodColumnHeading)" FormatString="{0:ddMMyyyy}" />*@
                                     <RadzenDataGridColumn TItem="StatisticalDataResponseModel" Property="datStatisticStartDate" Width="100%" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchStatisticalDataRecordStartDateforPeriodColumnHeading)">
                                         <Template Context="data">
                                             @(DateTime.Parse(data.datStatisticStartDate.ToString()).ToShortDateString())
@@ -187,8 +190,11 @@
                                 </Columns>
                             </RadzenDataGrid>
                         </div>
+                        @*</div>*@
                     </div>
                     <div id="statisticalDataSearchResultsCommands" class="card-footer">
+                        @* <button id="cancelSearchResults" type="button" class="btn btn-outline-primary" onclick="cancelSearch('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)', event)" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+                        <button id="addStatisticalDataSearchResults" type="button" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.AddButton" onclick="location.href='@Url.Action("Details", "StatisticalData")'"></button>*@
                     </div>
                 </div>
             </div>

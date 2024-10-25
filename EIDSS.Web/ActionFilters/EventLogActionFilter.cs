@@ -14,15 +14,18 @@ namespace EIDSS.Web.ActionFilters
 
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
+           // Log("OnActionExecuting", filterContext.RouteData);
         }
 
 
         public override void OnActionExecuted(ActionExecutedContext filterContext)
         {
+            //Log("OnActionExecuted", filterContext.RouteData);
         }
 
         public override void OnResultExecuting(ResultExecutingContext filterContext)
         {
+            //Log("OnResultExecuting", filterContext.RouteData);
         }
 
         public override void OnResultExecuted(ResultExecutedContext filterContext)

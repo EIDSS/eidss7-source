@@ -1,11 +1,10 @@
-﻿
-@model EIDSS.Web.ViewModels.Human.DiseaseReportPersonalInformationPageViewModel;
+﻿@model EIDSS.Web.ViewModels.Human.DiseaseReportPersonalInformationPageViewModel;
 @using EIDSS.Web.TagHelpers.Models.EIDSSModal;
 @using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
 @using EIDSS.Web.TagHelpers.Models.EIDSSGrid;
+@using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
 
 @{
-
     //Radio Buttons
     Model.PersonInfo.IsAnotherAddressList = new Dictionary<string, string>();
     Model.PersonInfo.IsAnotherAddressList.Add("10100001", "Yes");
@@ -26,7 +25,6 @@
     Model.PersonInfo.IsThisPersonCurrentlyEmployed.Add("10100002", "No");
     Model.PersonInfo.IsThisPersonCurrentlyEmployed.Add("10100003", "UnKnown");
 
-
     //Select 2
     var defaultReference = new Select2DataItem();
 
@@ -39,10 +37,6 @@
     Model.PersonalIdTypeDD.Endpoint = @Url.Action("BaseReferenceByReferenceTypeIDListForSelect2DropDown", "CrossCutting", new { Area = "CrossCutting", referenceTypeID = 19000148 });
     Model.PersonalIdTypeDD.isVisible = true;
     Model.PersonalIdTypeDD.defaultSelect2Selection = defaultReference;
-    // Model.PersonalIdTypeDD.CustomJsOnChangeFunction = "CheckPersonalIDRequired";
-    // Model.PersonalIdTypeDD.CustomJsOnClearFunction = "disablePersonalID";
-    // Model.PersonalIdTypeDD.CustomJsOnUnselectFunction = "disablePersonalID";
-
 
     defaultReference = new Select2DataItem();
 
@@ -53,7 +47,7 @@
     Model.SchoolAddressCountryDD.DropDownId = "SchoolAddressCountryDD";
     Model.SchoolAddressCountryDD.ControlTargetType = DropDownTargetTypes.DropDown;
     Model.SchoolAddressCountryDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.PersonEmployerSchoolInformationSchoolAddressCountryFieldLabel);
-    Model.SchoolAddressCountryDD.Endpoint = @Url.Action("GetCountryList", "CrossCutting", new { Area = "CrossCutting"});
+    Model.SchoolAddressCountryDD.Endpoint = @Url.Action("GetCountryList", "CrossCutting", new { Area = "CrossCutting" });
     Model.SchoolAddressCountryDD.isVisible = true;
     Model.SchoolAddressCountryDD.defaultSelect2Selection = defaultReference;
 
@@ -70,10 +64,26 @@
     Model.OccupationDD.isVisible = true;
     Model.OccupationDD.defaultSelect2Selection = defaultReference;
 
-    
+    defaultReference = new Select2DataItem();
+
+    if (Model.PersonInfo.ReportedAgeUOMID != null)
+        defaultReference = new Select2DataItem() { id = Model.PersonInfo.ReportedAgeUOMID.ToString(), text = Localizer.GetString(Model.PersonInfo.Age) };
+
+    Model.AgeTypeDD = new Select2Configruation();
+    Model.AgeTypeDD.DropDownId = "AgeTypeDD";
+    Model.AgeTypeDD.ControlTargetType = DropDownTargetTypes.DropDown;
+    Model.AgeTypeDD.Label = Localizer.GetString(FieldLabelResourceKeyConstants.PersonInformationAgeTypeFieldLabel);
+    Model.AgeTypeDD.Endpoint = @Url.Action("GetAgeTypesAsync", "AgeType", new { Area = "CrossCutting" });
+    Model.AgeTypeDD.isVisible = true;
+    Model.AgeTypeDD.AddValidationTag = false;
+    Model.AgeTypeDD.defaultSelect2Selection = defaultReference;
+
 }
 
 <form id="PersonalInfoForm">
+    @functions {
+        string FormatNullableDate(DateTime? value) => value.HasValue ? value.Value.ToString("d") : "";
+    }
     <div class="card">
         <div class="card-header"><h3 heading-for="@HeadingResourceKeyConstants.HumanDiseaseReportPersonInformationHeading"></h3></div>
         <div class="card-body">
@@ -92,6 +102,7 @@
                                            target-ajax-url="@Model.PersonalIdTypeDD.ControlTargetUrl"
                                            selectct2-default-data="@Model.PersonalIdTypeDD.defaultSelect2Selection"
                                            end-point="@Model.PersonalIdTypeDD.Endpoint"
+                                           custom-js-on-document-ready-function="@Model.AgeTypeDD.CustomJsOnLoadFunction"
                                            label-name="@Model.PersonalIdTypeDD.Label"
                                            is-visible="@Model.PersonalIdTypeDD.isVisible"
                                            is-disabled="@Model.PersonalIdTypeDD.isVisible"
@@ -118,22 +129,32 @@
                 </div>
             </div>
             <div class="form-row">
-                <div class="form-group col-md-6">
+                <div class="form-group col-md-4">
                     <label asp-for="PersonInfo.DateOfBirth" field-label-for="@FieldLabelResourceKeyConstants.PersonInformationDateOfBirthFieldLabel"></label>
-                    <input type="hidden" id="hdnDateOfBirth" value="@Model.PersonInfo.DateOfBirth" />
-                    @if (Model.PermissionsAccessToPersonalData.AccessToPersonalData)
-                    {
-                        <input asp-for="@Model.PersonInfo.DateOfBirth" class="form-control" disabled value="@Model.PersonInfo.DateOfBirth" />
-                    }
-                    else
-                    {
-                        <input asp-for="@Model.PersonInfo.DateOfBirth" class="form-control" disabled value="********" />
-                    }
-
+                    <eidss-calendar id="PersonInfo_DateOfBirth" name="PersonInfo.DateOfBirth" asp-for="@Model.PersonInfo.DateOfBirth" SearchFilter="true"
+                                    value="@FormatNullableDate(Model.PersonInfo.DateOfBirth)" max-date="@DateTime.Now" clear-button="@true"></eidss-calendar>
+                    <span asp-validation-for="@Model.PersonInfo.DateOfBirth" class="text-danger"></span>
                 </div>
-                <div class="form-group col-md-6">
-                    <label asp-for="@Model.PersonInfo.Age" field-label-for="@FieldLabelResourceKeyConstants.PersonInformationAgeFieldLabel" class="control-label"></label>
-                    <input asp-for="@Model.PersonInfo.Age" class="form-control" disabled value="@Model.PersonInfo.Age" />
+                <div class="form-group col-md-4">
+                    <label asp-for="@Model.PersonInfo.ReportedAge" field-label-for="@FieldLabelResourceKeyConstants.PersonInformationAgeFieldLabel" class="control-label"></label>
+                    <input asp-for="@Model.PersonInfo.ReportedAge" type="number" class="form-control" value="@Model.PersonInfo.ReportedAge" readonly="@(Model.PersonInfo.DateOfBirth!=null)" />
+                    <span asp-validation-for="PersonInfo.ReportedAge" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-4">
+                    <i class="fas fa-asterisk text-danger" hidden id="AgeType_Validation"></i>
+                    <eidss-select2DropDown id="@Model.AgeTypeDD.DropDownId"
+                                           name="@Model.AgeTypeDD.DropDownId"
+                                           control-target-id="@Model.AgeTypeDD.ControltargetId"
+                                           target-type="@Model.AgeTypeDD.ControlTargetType"
+                                           target-ajax-url="@Model.AgeTypeDD.ControlTargetUrl"
+                                           selectct2-default-data="@Model.AgeTypeDD.defaultSelect2Selection"
+                                           end-point="@Model.AgeTypeDD.Endpoint"
+                                           label-name="@Model.AgeTypeDD.Label"
+                                           is-visible="@Model.AgeTypeDD.isVisible"
+                                           is-disabled="@(Model.PersonInfo.DateOfBirth!=null)"
+                                           class-name="form-control"
+                                           add-validation-span="@Model.AgeTypeDD.AddValidationTag">
+                    </eidss-select2DropDown>
                 </div>
             </div>
             <div class="form-row">
@@ -313,17 +334,27 @@
                 </div>
             </div>
         </div>
+    </div>
 </form>
 <partial name="_ValidationScriptsPartial" />
 <script>
     $(document).ready(function () {
-        showAge();
+        getAgeTypes();
+        ageTypeValidation();
+        addValidationRules();
+
+        if ($('#PersonInfo_DateOfBirth').val() &&
+            !$('#PersonInfo_ReportedAge').val() ||
+            !$('#AgeTypeDD').val()) {
+            showAge();
+        }
+
         IsEmployedTypeID = $("input[name='PersonInfo.IsThisPersonCurrentlyEmployed']:checked").val();
         if (IsEmployedTypeID != null && IsEmployedTypeID != "" && IsEmployedTypeID == '@EIDSSConstants.YesNoValueList.Yes') {
-            $("#DivPersonEmployed").prop("style", "display: block;");    //Show
+            $("#DivPersonEmployed").prop("style", "display: block;");    
         }
         else {
-            $("#DivPersonEmployed").prop("style", "display: none;");   //Hide
+            $("#DivPersonEmployed").prop("style", "display: none;");   
         }
         YNWorkSameAddress = $("#YNWorkSameAddress").prop('checked');
         if (YNWorkSameAddress) {
@@ -343,52 +374,171 @@
         $('#divCurrentAddress *').attr('disabled', true);
         $('#divWorkAddress *').attr('disabled', true);
         $('#divSchoolAddress *').attr('disabled', true);
-      
+
+        $('#PersonInfo_ReportedAge').on('input', function () {
+            ageTypeValidation();
+              if ($(this).val().length > 3) {
+                $(this).val($(this).val().slice(0, 3));
+           }
+        });
+
+        $('#datDateOfDeath').on('change', showAge);
+        $("#SymptomsSection_SymptomsOnsetDate").on('change', showAge);
+        $("#NotificationSection_dateOfNotification").on('change', showAge);
+        $("#NotificationSection_dateOfDiagnosis").on('change', showAge);
+        $('#PersonInfo_DateOfBirth').on('change', onDateOfBirthChanged);
+        $('#AgeTypeDD').one('change', showAge);
     });
 
-    function showAge() {
-        var txtDateOfBirth = $("#hdnDateOfBirth").val();
-            if (txtDateOfBirth) {
-                var D; //initial Date, which should be used to calculate Age
-                var N; //difference between D and <Date of Birth>
-                var age; //result
-                var today = new Date();
-                var dateOfBirth = new Date(txtDateOfBirth);
-                var txtDateOfSymptomsOnset = $("#SymptomsSection_SymptomsOnsetDate").val();
-                var txtDateOfNotification = $("#NotificationSection_dateOfNotification").val();
-                var txtDateOfDiagnosis = $("#NotificationSection_dateOfDiagnosis").val();
-                var txtDateEntered = $("#ReportSummary_DateEntered").val();
+    $.validator.addMethod("ageValidation", function (value, element) {
+        var age = parseInt(value);
+        var ageType = parseInt($("#AgeTypeDD").val());
 
-                if (txtDateOfSymptomsOnset) {
-                    D = new Date(txtDateOfSymptomsOnset);
-                }
-                else { 
-                    if (txtDateOfNotification) {
-                        D = new Date(txtDateOfNotification);
-                    }
-                    else { 
-                        if (txtDateOfDiagnosis) {
-                            D = new Date(txtDateOfDiagnosis);
-                        }
-                        else { 
-                            D = new Date(txtDateEntered);
-                        }
-                    }
-                }
-                N = Math.floor(Math.abs((D.getTime() - dateOfBirth.getTime()) / (1000 * 3600 * 24)));
-                if (N >= 365) {
-                    age = Math.floor(N / 365) + " years";
-                }
-                else if (29 <= N && N < 365) {
-                    age = Math.floor(N / 29) + " months";
-                } 
-                else if (N < 29) { 
-                    age = N + " days";
-                }
+        if ((age > 200 && ageType == 10042003) ||
+            (age > 60 && ageType == 10042002) ||
+            (age > 31 && ageType == 10042001)) {
+            return false;
+        }
+        return true;
+    }, '@Localizer.GetString(MessageResourceKeyConstants.PersonInformationDOBErrorMessage)');
 
-                $("#PersonInfo_Age").val(age);
-      
+    function addValidationRules(){
+        $("#PersonInfo_ReportedAge").rules("add", {
+            ageValidation: true
+        });
+
+        $("#AgeTypeDD").rules("add", {
+            required: {
+                depends: function (element) {
+                    return $("#PersonInfo_ReportedAge").val() !== "";
+                }
             }
+        });
+
+        $("#AgeTypeDD").change(function () {
+            $("#PersonInfo_ReportedAge").valid();
+        });
+    }
+
+
+    function onDateOfBirthChanged(args) {
+        var turnOff = !!$(args.currentTarget).val();
+        switchAgeInputs(turnOff);
+
+        if (!turnOff)
+            clearAgeInputs();
+
+        showAge();
+    }
+
+    function getAgeTypes() {
+        $.ajax({
+            url: '@Model.AgeTypeDD.Endpoint',
+            type: 'GET', 
+            dataType: 'json', 
+            data: {
+                page:1
+            },
+            success: function (data) {
+
+                $('#AgeTypeDD option').not(':selected').remove();
+
+                $.each(data.results, function (index, item) {
+                    $('#AgeTypeDD').append($('<option>', {
+                        value: item.id,
+                        text: item.text
+                    }));
+                });
+            }
+        });
+    }
+
+    function clearAgeInputs() {
+        $('#PersonInfo_ReportedAge').val('');
+        $('#AgeTypeDD').val(null).change();
+        ageTypeValidation();
+    }
+
+    function ageTypeValidation() {
+        var dateOfBirth = $('#PersonInfo_DateOfBirth').val();
+        var age = $('#PersonInfo_ReportedAge').val();
+        if (!dateOfBirth && age)
+            $('#AgeType_Validation').removeAttr("hidden");
+        else
+            $('#AgeType_Validation').attr("hidden", true);
+    }
+
+    function switchAgeInputs(turnOff) { 
+        $('#PersonInfo_ReportedAge').prop('readonly', turnOff);
+        $('#AgeTypeDD').prop('disabled', turnOff);
+    }
+
+    function createDateFromString(dateStr) {
+        var day, month, year;
+
+        var formatDDMMYYYY = /^(\d{2})\.(\d{2})\.(\d{4})$/; // Matches dd.mm.yyyy
+
+        if (formatDDMMYYYY.test(dateStr)) {
+            [, day, month, year] = dateStr.match(formatDDMMYYYY).map(Number);
+            month -= 1; // Adjust for JavaScript's 0-based months
+            return new Date(year, month, day);
+        }
+
+        return new Date(dateStr);
+    }
+
+    function showAge() {
+        var txtDateOfBirth = $("#PersonInfo_DateOfBirth").val();
+        var txtDateOfDeath = JSON.parse(localStorage.getItem('finalOutcomeModel') ?? '{}')?.datDateOfDeath;
+        if (txtDateOfBirth) {
+            var D; //initial Date, which should be used to calculate Age
+            var N; //difference between D and <Date of Birth>
+            var age;
+            var ageType;
+            var today = new Date();
+            var dateOfBirth = createDateFromString(txtDateOfBirth);
+            var txtDateOfSymptomsOnset = $("#SymptomsSection_SymptomsOnsetDate").val();
+            var txtDateOfNotification = $("#NotificationSection_dateOfNotification").val();
+            var txtDateOfDiagnosis = $("#NotificationSection_dateOfDiagnosis").val();
+            var txtDateEntered = $("#ReportSummary_DateEnteredFormatted").val();
+
+            if (txtDateOfSymptomsOnset) {
+                D = createDateFromString(txtDateOfSymptomsOnset);
+            }
+            else {
+                if (txtDateOfNotification) {
+                    D = createDateFromString(txtDateOfNotification);
+                }
+                else {
+                    if (txtDateOfDiagnosis) {
+                        D = createDateFromString(txtDateOfDiagnosis);
+                    }
+                    else {
+                        D = createDateFromString(txtDateEntered);
+                    }
+                }
+            }
+            if (txtDateOfDeath && createDateFromString(txtDateOfDeath) < D) {
+                D = createDateFromString(txtDateOfDeath);
+            }
+
+            $.ajax({
+                url: '@Url.Action("GetCalculatedAgeAndAgeTypeAsync", "AgeType", new { Area = "CrossCutting"})',
+                type: 'GET',
+                dataType:'json',
+                data: {
+                    dateOfBirth: dateOfBirth.toDateString(),
+                    D: D.toDateString()
+                },
+                success: function (response) {
+                    $("#PersonInfo_ReportedAge").val(response.age);
+                    $("#AgeTypeDD").val(response.ageType).trigger("change");
+                },
+                error: function (xhr, status, error) {
+                    console.error('Age calculations failed:', status, error);
+                }
+            });
+        }
     };
 
 </script>

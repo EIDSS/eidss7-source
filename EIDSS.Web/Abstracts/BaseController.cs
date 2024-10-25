@@ -1,43 +1,31 @@
-﻿#region Using Statements
-
-using EIDSS.ClientLibrary.Enumerations;
+﻿using EIDSS.ClientLibrary.Enumerations;
 using EIDSS.ClientLibrary.Responses;
 using EIDSS.ClientLibrary.Services;
 using EIDSS.Domain.ViewModels;
 using EIDSS.Web.ActionFilters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Threading;
-using Microsoft.AspNetCore.Authorization;
-
-#endregion
 
 namespace EIDSS.Web.Abstracts
 {
+    [RequireHttps]
     [ServiceFilter(typeof(LoginRedirectionAttribute))]
     [Authorize]
     public abstract class BaseController : Controller
     {
-        #region Global Values
-
         protected internal ILogger _logger;
         internal readonly ITokenService _tokenService;
         internal CultureInfo uiCultureInfo = Thread.CurrentThread.CurrentUICulture;
         internal CultureInfo cultureInfo = Thread.CurrentThread.CurrentCulture;
         internal AuthenticatedUser authenticatedUser;
-        private readonly IConfiguration _configuration;
-        internal IConfiguration Configuration { get { return _configuration; } }
         public string CountryId { get; set; }
 
-        #endregion
-
-        #region Constructors
-
         public BaseController(ILogger logger, ITokenService tokenService)
+            : this(logger)
         {
-            _logger = logger;
             _tokenService = tokenService;
         }
 
@@ -45,8 +33,6 @@ namespace EIDSS.Web.Abstracts
         {
             _logger = logger;
         }
-
-        #endregion
 
         public UserPermissions GetUserPermissions(PagePermission pageEnum)
         {

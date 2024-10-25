@@ -2,6 +2,7 @@
 using EIDSS.Domain.ViewModels.Administration;
 using EIDSS.Domain.ViewModels.CrossCutting;
 using EIDSS.Localization.Constants;
+using EIDSS.Localization.Enumerations;
 using EIDSS.Localization.Helpers;
 using System;
 using System.Collections.Generic;
@@ -13,10 +14,9 @@ namespace EIDSS.Domain.ViewModels.Human
 {
     public class DiseaseReportPersonalInformationViewModel
     {
-        	
+        public string PatientFarmOwnerName { get; set; }
         public long? HumanActualId { get; set; }	
         public long HumanId { get; set; }
-        public string PatientFarmOwnerName { get; set; }
         public string EIDSSPersonID { get; set; }
         public long? OccupationTypeID { get; set; }
         public long? CitizenshipTypeID { get; set; }
@@ -82,6 +82,10 @@ namespace EIDSS.Domain.ViewModels.Human
         public string HumanPermstrBuilding { get; set; }
         public string HumanPermstrApartment { get; set; }
         public string HumanPermDescription { get; set; }
+        public double? HumanPermstrLatitude { get; set; }
+        public double? HumanPermstrLongitude { get; set; }
+        public bool? HumanPermForeignAddressIndicator { get; set; }
+        public string HumanPermForeignAddressString { get; set; }
         public long? HumanAltGeoLocationID { get; set; }
         public long? HumanAltidfsCountry { get; set; }
         public string HumanAltCountry { get; set; }
@@ -105,9 +109,13 @@ namespace EIDSS.Domain.ViewModels.Human
         public string HumanAltForeignAddressString { get; set; }
         public long? SchoolGeoLocationID { get; set; }
         public long? SchoolidfsCountry { get; set; }
+        public string SchoolCountry { get; set; }
         public long? SchoolidfsRegion { get; set; }
+        public string SchoolRegion { get; set; }
         public long? SchoolidfsRayon { get; set; }
+        public string SchoolRayon { get; set; }
         public long? SchoolidfsSettlement { get; set; }
+        public string SchoolSettlement { get; set; }
         public long? SchoolAltidfsSettlementType { get; set; }
         public string SchoolAltSettlementType { get; set; }
         public string SchoolstrPostalCode { get; set; }
@@ -118,11 +126,11 @@ namespace EIDSS.Domain.ViewModels.Human
         public bool? SchoolForeignAddressIndicator { get; set; }
         public string SchoolForeignAddressString { get; set; }
         [LocalizedDateLessThanOrEqualToToday]
-        public string DateOfBirth { get; set; }
-        public string DateOfDeath { get; set; }
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+        [IsValidDate]
+        public DateTime? DateOfBirth { get; set; }
+        public DateTime? DateOfDeath { get; set; }
         public DateTime? EnteredDate { get; set; }
-        public string ModificationDate { get; set; }
+        public DateTime? ModificationDate { get; set; }
         public string FirstOrGivenName { get; set; }
         public string SecondName { get; set; }
         [LocalizedRequiredIfTrue(nameof(FieldLabelResourceKeyConstants.PersonInformationLastNameFieldLabel))]
@@ -139,13 +147,11 @@ namespace EIDSS.Domain.ViewModels.Human
         public string IsEmployedTypeName { get; set; }
         public string EmployerPhone { get; set; }
         [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}")]
         public DateTime? EmployedDateLastPresent { get; set; }
         public long? IsStudentTypeID { get; set; }
         public string IsStudentTypeName { get; set; }
         public string SchoolName { get; set; }
         [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:MM/dd/yyyy}")]
         public DateTime? SchoolDateLastAttended { get; set; }
         public string SchoolPhone { get; set; }
         public int? ContactPhoneCountryCode { get; set; }
@@ -158,19 +164,19 @@ namespace EIDSS.Domain.ViewModels.Human
         public string ContactPhone2TypeName { get; set; }
         public string PersonalIDTypeName { get; set; }
         public string OccupationTypeName { get; set; }
-        public string SchoolCountry { get; set; }
-        public string SchoolRegion { get; set; }
-        public string SchoolRayon { get; set; }
-        public string SchoolSettlement { get; set; }
         public string IsAnotherPhone { get; set; }
         public string Age { get; set; }
         public string YNAnotherAddress { get; set; }
         public string YNHumanForeignAddress { get; set; }
         public string YNEmployerForeignAddress { get; set; }
+        public string YNHumPermForeignAddress { get; set; }
         public string YNHumanAltForeignAddress { get; set; }
         public string YNSchoolForeignAddress { get; set; }
         public string YNWorkSameAddress { get; set; }
         public string YNPermanentSameAddress { get; set; }
+        public long? IsAnotherPhoneTypeID { get; set; }
+        public long? IsAnotherAddressTypeID { get; set; }
+
         //Custom
         public Dictionary<string, string> IsAnotherAddressList { get; set; }
 

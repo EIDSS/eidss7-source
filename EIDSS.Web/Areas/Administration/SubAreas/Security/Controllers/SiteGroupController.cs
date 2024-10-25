@@ -1,6 +1,4 @@
-﻿#region Usings
-
-using EIDSS.ClientLibrary.ApiClients.Admin;
+﻿using EIDSS.ClientLibrary.ApiClients.Admin;
 using EIDSS.ClientLibrary.ApiClients.Administration.Security;
 using EIDSS.ClientLibrary.ApiClients.CrossCutting;
 using EIDSS.ClientLibrary.Enumerations;
@@ -31,13 +29,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.Int32;
-using static System.String;
 using JsonSerializer = System.Text.Json.JsonSerializer;
-
-
-#endregion
 
 namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
 {
@@ -45,8 +37,6 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
     [SubArea("Security")]
     public class SiteGroupController : BaseController
     {
-        #region Global Values
-
         private readonly ISiteGroupClient _siteGroupClient;
         private readonly ISiteClient _siteClient;
         private readonly IAdminClient _adminClient;
@@ -57,12 +47,8 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
 
         private readonly UserPermissions _siteGroupPermissions;
 
-        #endregion
-
-        #region Constructors
-
         public SiteGroupController(ISiteGroupClient siteGroupClient, ISiteClient siteClient,
-            IAdminClient adminClient, ICrossCuttingClient crossCuttingClient, IConfiguration configuration, IStringLocalizer localizer, IHttpContextAccessor httpContext, 
+            IAdminClient adminClient, ICrossCuttingClient crossCuttingClient, IConfiguration configuration, IStringLocalizer localizer, IHttpContextAccessor httpContext,
             ITokenService tokenService, ILogger<SiteGroupController> logger) : base(logger, tokenService)
         {
             _siteGroupClient = siteGroupClient;
@@ -75,10 +61,6 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
             authenticatedUser = _tokenService.GetAuthenticatedUser();
             _siteGroupPermissions = GetUserPermissions(PagePermission.CanManageEIDSSSites);
         }
-
-        #endregion
-
-        #region Search Site Groups
 
         public async Task<IActionResult> List()
         {
@@ -127,18 +109,18 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
 
             if (_httpContext.HttpContext?.Request != null)
             {
-                if (!IsNullOrEmpty(_httpContext.HttpContext.Request.Cookies["SiteGroupSearchPerformedIndicator"]))
+                if (!string.IsNullOrEmpty(_httpContext.HttpContext.Request.Cookies["SiteGroupSearchPerformedIndicator"]))
                 {
                     if (_httpContext.HttpContext.Request.Cookies["SiteGroupSearchPerformedIndicator"] == "true")
                     {
                         var postParameterDefinitions = new { SearchCriteria_SiteGroupName = "", SiteGroupTypeSelect = "", AdminLevel1Value = "", AdminLevel2Value = "", SettlementType = "", AdminLevel3Value = "" };
-                        var searchCriteria = JsonConvert.DeserializeAnonymousType(_httpContext.HttpContext.Request.Cookies["SiteGroupSearchCriteria"] ?? Empty, postParameterDefinitions);
+                        var searchCriteria = JsonConvert.DeserializeAnonymousType(_httpContext.HttpContext.Request.Cookies["SiteGroupSearchCriteria"] ?? string.Empty, postParameterDefinitions);
 
                         model.ShowSearchResults = true;
-                        model.SearchCriteria.SiteGroupName = IsNullOrEmpty(searchCriteria.SearchCriteria_SiteGroupName) ? null : searchCriteria.SearchCriteria_SiteGroupName;
-                        model.SearchCriteria.SiteGroupTypeID = IsNullOrEmpty(searchCriteria.SiteGroupTypeSelect) ? null : Convert.ToInt64(searchCriteria.SiteGroupTypeSelect);
+                        model.SearchCriteria.SiteGroupName = string.IsNullOrEmpty(searchCriteria.SearchCriteria_SiteGroupName) ? null : searchCriteria.SearchCriteria_SiteGroupName;
+                        model.SearchCriteria.SiteGroupTypeID = string.IsNullOrEmpty(searchCriteria.SiteGroupTypeSelect) ? null : Convert.ToInt64(searchCriteria.SiteGroupTypeSelect);
 
-                        var siteGroupTypes = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), BaseReferenceConstants.SiteGroupType, (int)AccessoryCodes.NoneHACode);
+                        var siteGroupTypes = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), EIDSSConstants.BaseReferenceConstants.SiteGroupType, (int)AccessoryCodes.NoneHACode);
                         if (siteGroupTypes.Any(x => x.IdfsBaseReference == model.SearchCriteria.SiteGroupTypeID))
                         {
                             var defaultData = new Select2DataItem
@@ -150,14 +132,14 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
                             model.SiteGroupTypeSelect.defaultSelect2Selection = defaultData;
                         }
 
-                        if (!IsNullOrEmpty(searchCriteria.AdminLevel3Value))
+                        if (!string.IsNullOrEmpty(searchCriteria.AdminLevel3Value))
                         {
                             model.SearchCriteria.AdministrativeLevelID =
                                 Convert.ToInt64(searchCriteria.AdminLevel2Value);
                             model.SearchLocationViewModel.AdminLevel1Value = Convert.ToInt64(searchCriteria.AdminLevel1Value);
                             model.SearchLocationViewModel.AdminLevel2Value = Convert.ToInt64(searchCriteria.AdminLevel2Value);
 
-                            if (!IsNullOrEmpty(searchCriteria.SettlementType))
+                            if (!string.IsNullOrEmpty(searchCriteria.SettlementType))
                             {
                                 model.SearchLocationViewModel.SettlementType =
                                     Convert.ToInt64(searchCriteria.SettlementType);
@@ -165,14 +147,14 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
 
                             model.SearchLocationViewModel.SettlementId = Convert.ToInt64(searchCriteria.AdminLevel3Value);
                         }
-                        else if (!IsNullOrEmpty(searchCriteria.AdminLevel2Value))
+                        else if (!string.IsNullOrEmpty(searchCriteria.AdminLevel2Value))
                         {
                             model.SearchCriteria.AdministrativeLevelID =
                                 Convert.ToInt64(searchCriteria.AdminLevel2Value);
                             model.SearchLocationViewModel.AdminLevel1Value = Convert.ToInt64(searchCriteria.AdminLevel1Value);
                             model.SearchLocationViewModel.AdminLevel2Value = Convert.ToInt64(searchCriteria.AdminLevel2Value);
 
-                            if (!IsNullOrEmpty(searchCriteria.SettlementType))
+                            if (!string.IsNullOrEmpty(searchCriteria.SettlementType))
                             {
                                 model.SearchLocationViewModel.SettlementType =
                                     Convert.ToInt64(searchCriteria.SettlementType);
@@ -180,7 +162,7 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
                         }
                         else
                         {
-                            model.SearchCriteria.AdministrativeLevelID = IsNullOrEmpty(searchCriteria.AdminLevel1Value)
+                            model.SearchCriteria.AdministrativeLevelID = string.IsNullOrEmpty(searchCriteria.AdminLevel1Value)
                                 ? null
                                 : Convert.ToInt64(searchCriteria.AdminLevel1Value);
 
@@ -196,11 +178,6 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
             return View(model);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dataTableQueryPostObj"></param>
-        /// <returns></returns>
         [HttpPost]
         public async Task<JsonResult> GetSiteGroupList([FromBody] JQueryDataTablesQueryObject dataTableQueryPostObj)
         {
@@ -220,11 +197,11 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
                 var postParameterDefinitions = new { SearchCriteria_SiteGroupName = "", SiteGroupTypeSelect = "", AdminLevel1Value = "", AdminLevel2Value = "", SettlementType = "", AdminLevel3Value = "" };
                 var searchCriteria = JsonConvert.DeserializeAnonymousType(dataTableQueryPostObj.postArgs, postParameterDefinitions);
 
-                if (!IsNullOrEmpty(Request.Cookies["SiteGroupSearchPerformedIndicator"]))
+                if (!string.IsNullOrEmpty(Request.Cookies["SiteGroupSearchPerformedIndicator"]))
                 {
                     if (Request.Cookies["SiteGroupSearchPerformedIndicator"] == "true")
                     {
-                        if (!IsNullOrEmpty(Request.Cookies["SiteGroupSearchCriteria"]))
+                        if (!string.IsNullOrEmpty(Request.Cookies["SiteGroupSearchCriteria"]))
                         {
                             searchCriteria = JsonConvert.DeserializeAnonymousType(Request.Cookies["SiteGroupSearchCriteria"], postParameterDefinitions);
 
@@ -237,12 +214,12 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
 
                 if (criteriaEnteredIndicator == false)
                 {
-                    if (!IsNullOrEmpty(searchCriteria.SearchCriteria_SiteGroupName)
-                        || !IsNullOrEmpty(searchCriteria.SiteGroupTypeSelect)
-                        || !IsNullOrEmpty(searchCriteria.AdminLevel1Value)
-                        || !IsNullOrEmpty(searchCriteria.AdminLevel2Value) 
-                        || !IsNullOrEmpty(searchCriteria.SettlementType) 
-                        || !IsNullOrEmpty(searchCriteria.AdminLevel3Value))
+                    if (!string.IsNullOrEmpty(searchCriteria.SearchCriteria_SiteGroupName)
+                        || !string.IsNullOrEmpty(searchCriteria.SiteGroupTypeSelect)
+                        || !string.IsNullOrEmpty(searchCriteria.AdminLevel1Value)
+                        || !string.IsNullOrEmpty(searchCriteria.AdminLevel2Value)
+                        || !string.IsNullOrEmpty(searchCriteria.SettlementType)
+                        || !string.IsNullOrEmpty(searchCriteria.AdminLevel3Value))
                     {
                         criteriaEnteredIndicator = true;
                     }
@@ -259,17 +236,17 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
                 model.LanguageId = GetCurrentLanguage();
                 model.Page = iPage;
                 model.PageSize = iLength;
-                model.SortColumn = !IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "SiteGroupName";
-                model.SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Ascending;
-                model.SiteGroupName = IsNullOrEmpty(searchCriteria.SearchCriteria_SiteGroupName) ? null : searchCriteria.SearchCriteria_SiteGroupName;
-                model.SiteGroupTypeID = IsNullOrEmpty(searchCriteria.SiteGroupTypeSelect) ? null : Convert.ToInt64(searchCriteria.SiteGroupTypeSelect);
+                model.SortColumn = !string.IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "SiteGroupName";
+                model.SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending;
+                model.SiteGroupName = string.IsNullOrEmpty(searchCriteria.SearchCriteria_SiteGroupName) ? null : searchCriteria.SearchCriteria_SiteGroupName;
+                model.SiteGroupTypeID = string.IsNullOrEmpty(searchCriteria.SiteGroupTypeSelect) ? null : Convert.ToInt64(searchCriteria.SiteGroupTypeSelect);
 
-                if (!IsNullOrEmpty(searchCriteria.AdminLevel3Value))
+                if (!string.IsNullOrEmpty(searchCriteria.AdminLevel3Value))
                     model.AdministrativeLevelID = Convert.ToInt64(searchCriteria.AdminLevel3Value);
-                else if (!IsNullOrEmpty(searchCriteria.AdminLevel2Value))
+                else if (!string.IsNullOrEmpty(searchCriteria.AdminLevel2Value))
                     model.AdministrativeLevelID = Convert.ToInt64(searchCriteria.AdminLevel2Value);
                 else
-                    model.AdministrativeLevelID = IsNullOrEmpty(searchCriteria.AdminLevel1Value) ? null : Convert.ToInt64(searchCriteria.AdminLevel1Value);
+                    model.AdministrativeLevelID = string.IsNullOrEmpty(searchCriteria.AdminLevel1Value) ? null : Convert.ToInt64(searchCriteria.AdminLevel1Value);
 
                 var list = await _siteGroupClient.GetSiteGroupList(model);
                 IEnumerable<SiteGroupGetListViewModel> siteGroupList = list;
@@ -281,9 +258,9 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
                 var rowCount = list[0].RowCount;
                 if (rowCount != null)
                 {
-                    tableData.iTotalRecords = (int) rowCount;
-                    tableData.iTotalDisplayRecords = (int) rowCount;
-                    tableData.recordsTotal = (int) rowCount;
+                    tableData.iTotalRecords = (int)rowCount;
+                    tableData.iTotalDisplayRecords = (int)rowCount;
+                    tableData.recordsTotal = (int)rowCount;
                 }
 
                 for (var i = 0; i < list.Count; i++)
@@ -317,10 +294,6 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
 
             return Json("");
         }
-
-        #endregion
-
-        #region Site Group Details
 
         /// <summary>
         /// Sets up a new site group or gets the details for an existing site group.
@@ -395,17 +368,13 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("SaveSiteGroup")]
         public async Task<JsonResult> SaveSiteGroup([FromBody] JsonElement data)
         {
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
                 SiteGroupDetailsViewModel model = new()
                 {
@@ -413,12 +382,12 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
                     {
                         SiteGroupDetails = new SiteGroupGetDetailViewModel
                         {
-                            SiteGroupID = IsNullOrEmpty(jsonObject["SiteGroupID"]?.ToString()) ? null : Convert.ToInt64(jsonObject["SiteGroupID"]),
-                            SiteGroupName = IsNullOrEmpty(jsonObject["SiteGroupName"]?.ToString()) ? null : jsonObject["SiteGroupName"].ToString(),
+                            SiteGroupID = string.IsNullOrEmpty(jsonObject["SiteGroupID"]?.ToString()) ? null : Convert.ToInt64(jsonObject["SiteGroupID"]),
+                            SiteGroupName = string.IsNullOrEmpty(jsonObject["SiteGroupName"]?.ToString()) ? null : jsonObject["SiteGroupName"].ToString(),
                             SiteGroupDescription = jsonObject["Description"]?.ToString(),
-                            CentralSiteID = IsNullOrEmpty(jsonObject["CentralSiteID"]?.ToString()) ? null : Convert.ToInt64(jsonObject["CentralSiteID"].ToString()),
+                            CentralSiteID = string.IsNullOrEmpty(jsonObject["CentralSiteID"]?.ToString()) ? null : Convert.ToInt64(jsonObject["CentralSiteID"].ToString()),
                             RowStatus = jsonObject["ActiveStatusIndicator"]?.ToString() == "true" ? 0 : 1,
-                            LocationID = IsNullOrEmpty(jsonObject["LocationID"]?.ToString()) ? null : Convert.ToInt64(jsonObject["LocationID"].ToString()),
+                            LocationID = string.IsNullOrEmpty(jsonObject["LocationID"]?.ToString()) ? null : Convert.ToInt64(jsonObject["LocationID"].ToString()),
                             SiteGroupTypeID = Convert.ToInt64(jsonObject["SiteGroupTypeID"]?.ToString())
                         }
                     },
@@ -463,19 +432,14 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> AddSiteGroupType([FromBody] JsonElement data)
         {
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
                 var serializer = JsonSerializer.Serialize(data);
-                
+
                 BaseReferenceSaveRequestModel request = new()
                 {
                     intHACode = null,
@@ -483,7 +447,7 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
                     Name = jsonObject["strName"]?.ToString(),
                     LanguageId = GetCurrentLanguage(),
                     ReferenceTypeId = (long)ReferenceTypes.SiteGroupType,
-                    EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                    EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                     AuditUserName = authenticatedUser.UserName,
                     LocationId = authenticatedUser.RayonId,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -494,14 +458,14 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
                     request.intOrder = 0;
                 else
                 {
-                    request.intOrder = !IsNullOrEmpty(jsonObject["intOrder"].ToString()) ? Parse(jsonObject["intOrder"].ToString()) : 0;
+                    request.intOrder = !string.IsNullOrEmpty(jsonObject["intOrder"].ToString()) ? int.Parse(jsonObject["intOrder"].ToString()) : 0;
                 }
 
                 var response = await _adminClient.SaveBaseReference(request);
 
                 if (response.ReturnMessage != "DOES EXIST") return Json(response);
                 response.strDuplicatedField = request.Default;
-                response.strClientPageMessage = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateReferenceValueMessage), response.strDuplicatedField);
+                response.strClientPageMessage = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateReferenceValueMessage), response.strDuplicatedField);
 
                 return Json(response);
             }
@@ -592,15 +556,6 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
             }
         }
 
-        #endregion
-
-        #region Sites Section
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="siteGroupId"></param>
-        /// <returns></returns>
         [HttpPost]
         public async Task<JsonResult> GetSiteList([FromBody] long? siteGroupId)
         {
@@ -623,9 +578,9 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
                 {
                     LanguageId = GetCurrentLanguage(),
                     Page = 1,
-                    PageSize = MaxValue,
-                    SortColumn = !IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "SiteName",
-                    SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Ascending,
+                    PageSize = int.MaxValue,
+                    SortColumn = !string.IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "SiteName",
+                    SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending,
                     SiteGroupID = (long)siteGroupId
                 };
 
@@ -679,7 +634,5 @@ namespace EIDSS.Web.Areas.Administration.SubAreas.Security.Controllers
 
             return Json(data);
         }
-
-        #endregion
     }
 }

@@ -30,9 +30,6 @@ namespace EIDSS.Domain.RequestModels.Human
 
         public DateTime? DateOfDeath { get; set; }
 
-        public int? ReportedAge { get; set; }
-        public long? ReportAgeUOMID { get; set; }
-
         public long? HumanGenderTypeID { get; set; }
 
         public long? OccupationTypeID { get; set; }
@@ -84,6 +81,10 @@ namespace EIDSS.Domain.RequestModels.Human
         public long? HumanGeoLocationID { get; set; }
 
         public long? HumanidfsLocation { get; set; }
+        //public long? HumanidfsCountry { get; set; }
+        //public long? HumanidfsRegion { get; set; }
+        //public long? HumanidfsRayon { get; set; }
+        //public long? HumanidfsSettlement { get; set; }
 
         public string HumanstrStreetName { get; set; }
 
@@ -102,6 +103,10 @@ namespace EIDSS.Domain.RequestModels.Human
         public long? HumanAltidfsLocation { get; set; }
         public bool? HumanAltForeignAddressIndicator { get; set; }
         public string HumanAltForeignAddressString { get; set; }
+        //public long? HumanAltidfsCountry { get; set; }
+        //public long? HumanAltidfsRegion { get; set; }
+        //public long? HumanAltidfsRayon { get; set; }
+        //public long? HumanAltidfsSettlement { get; set; }
         public string HumanAltstrStreetName { get; set; }
         public string HumanAltstrApartment { get; set; }
         public string HumanAltstrBuilding { get; set; }
@@ -138,7 +143,7 @@ namespace EIDSS.Domain.RequestModels.Human
         public long? ContactPhone2TypeID { get; set; }
         public long? idfDataAuditEvent { get; set; }
         public string AuditUser { get; set; }
-
-
+        public long? IsAnotherAddressTypeID { get; set; }
+        public long? IsAnotherPhoneTypeID { get; set; }
     }
 }

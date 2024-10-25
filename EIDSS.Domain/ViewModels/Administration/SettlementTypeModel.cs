@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EIDSS.Domain.ViewModels.Administration
 {
-    public class SettlementTypeModel
+    public class SettlementTypeModel //: BaseModel
     {
         public long? idfsReference { get; set; }
         public string name { get; set; }

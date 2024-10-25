@@ -1,8 +1,9 @@
 ﻿@using EIDSS.Domain.ViewModels.Human
 @using EIDSS.Web.Components.CrossCutting
+@using EIDSS.Web.Components.Shared.YesNoUnknown
+@using EIDSS.Domain.Enumerations
 
 @inherits HumanDiseaseReportAntibioticVaccineHistoryBase
-@implements IDisposable
 
 <EditForm id="AntibioticVaccineHistoryForm" Model="@model">
     <div class="card">
@@ -14,42 +15,37 @@
             </div>
         </div>
         <div id="humanDiseaseReportSearchCriteriaBody" class="card-body">
-            <div class="form-row">
-                <div class="form-group col-md-12">
-                    <label for="@model.AntibioticName">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryAntibioticAntiviralTherapyAdministeredFieldLabel)</label>
-                    <RadzenRadioButtonList @bind-Value="@model.idfsYNAntimicrobialTherapy" Change="@(args => DisplayAntibioticDetails(args, string.Empty))" Data="@YesNoChoices" Disabled="@isReportClosed" name="idfsYNAntimicrobialTherapy" Orientation="Orientation.Horizontal" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference">
-                    </RadzenRadioButtonList>
-                </div>
-            </div>
-            <RadzenPanel Visible="@showAntibioticDetails">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryAntibioticAntiviralTherapyAdministeredFieldLabel" CssClass="col-md-12 yes-no-unknown-container" IsRow="true" For="@model.AntibioticName">
+                <YesNoUnknown Disabled="@(isReportClosed || model.antibioticsHistory.Any(x => x.intRowStatus != (int)RowStatusTypeEnum.Inactive))"
+                              Name="idfsYNAntimicrobialTherapy"
+                              SelectedAnswerId="@model.idfsYNAntimicrobialTherapy"
+                              SelectedAnswerIdChanged="@OnIdfsYNAntimicrobialTherapyChanged" />
+            </InterfaceEditorResource>
+            <RadzenPanel class="yes-follow-up mb-4" Visible="@(model.idfsYNAntimicrobialTherapy == EIDSSConstants.YesNoValues.Yes)">
                 <ChildContent>
                     <div class="card">
-                        @*Form*@
                         <div class="form-row">
-                            <div class="form-group col-6">
+                            <div class="form-group col-4">
                                 <label class="control-label" for="@model.AntibioticName">@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryAntibioticNameColumnHeading)</label>
-                                <RadzenTextBox @bind-Value="@model.AntibioticName" class="form-control" Disabled="@isReportClosed">
-                                </RadzenTextBox>
+                                <RadzenTextBox @bind-Value="@model.AntibioticName" class="form-control" Disabled="@isReportClosed" />
                             </div>
-                            <div class="form-group col-6">
+                            <div class="form-group col-1">
                                 <label class="control-label" for="@model.Dose">@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryDoseColumnHeading)</label>
-                                <RadzenTextBox @bind-Value="model.Dose" class="form-control" Disabled="@isReportClosed">
-                                </RadzenTextBox>
+                                <RadzenTextBox @bind-Value="model.Dose" class="form-control" Disabled="@isReportClosed" />
                             </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-6">
-                                <label class="control-label" for="@model.datAntibioticFirstAdministered">@Localizer.GetString(ColumnHeadingResourceKeyConstants.DeduplicationHumanDiseaseReportAntibioticVaccineHistoryDateAntibioticFirstAdministeredColumnHeading)</label>
-                                <RadzenDatePicker @bind-Value="model.datAntibioticFirstAdministered" class="form-control-group" Disabled="@isReportClosed">
-                                </RadzenDatePicker>
+                            <div class="form-group col-3 date-with-add-container">
+                                <div class="flex-grow-1">
+                                    <label class="control-label" for="@model.datAntibioticFirstAdministered">@Localizer.GetString(ColumnHeadingResourceKeyConstants.DeduplicationHumanDiseaseReportAntibioticVaccineHistoryDateAntibioticFirstAdministeredColumnHeading)</label>
+                                    <RadzenDatePicker Style="display:flex;" @bind-Value="@model.datAntibioticFirstAdministered" id="datAntibioticFirstAdministered" class="form-control-group" Disabled="@isReportClosed" />
+                                </div>
 
                                 @if (isReportClosed)
                                 {
-                                    <button class="btn btn-outline-primary disabled" disabled value="@Localizer.GetString(ButtonResourceKeyConstants.AddButton)" type="button"></button>
+                                    <button class="btn btn-outline-primary disabled" id="addDose" disabled value="@Localizer.GetString(ButtonResourceKeyConstants.AddButton)" type="button"></button>
                                 }
                                 else
                                 {
-                                    <button @onclick="@(AddAntibioticData)" class="btn btn-outline-primary" type="button">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                                    <button @onclick="@(AddAntibioticData)" class="btn btn-outline-primary" id="addDose" type="button">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
                                 }
                             </div>
                         </div>
@@ -60,17 +56,17 @@
                             <div class="col-12">
                                 <RadzenDataGrid AllowColumnResize="true" AllowPaging="true" AllowSorting="true" Data="@model.antibioticsHistory" EditMode="DataGridEditMode.Single" ExpandMode="DataGridExpandMode.Single" IsLoading="@isLoading" PageSize="10" @ref="antibitiocDetailsgrid" TItem="DiseaseReportAntiviralTherapiesViewModel">
                                     <Columns>
-                                        <RadzenDataGridColumn Property="AntibioticID" TItem="DiseaseReportAntiviralTherapiesViewModel" Visible="false"></RadzenDataGridColumn>
-                                        <RadzenDataGridColumn Property="idfAntimicrobialTherapy" TItem="DiseaseReportAntiviralTherapiesViewModel" Visible="false"></RadzenDataGridColumn>
-                                        <RadzenDataGridColumn Property="idfHumanCase" TItem="DiseaseReportAntiviralTherapiesViewModel" Visible="false"></RadzenDataGridColumn>
+                                        <RadzenDataGridColumn Property="AntibioticID" TItem="DiseaseReportAntiviralTherapiesViewModel" Visible="false" />
+                                        <RadzenDataGridColumn Property="idfAntimicrobialTherapy" TItem="DiseaseReportAntiviralTherapiesViewModel" Visible="false" />
+                                        <RadzenDataGridColumn Property="idfHumanCase" TItem="DiseaseReportAntiviralTherapiesViewModel" Visible="false" />
                                         <RadzenDataGridColumn Property="strAntimicrobialTherapyName" TItem="DiseaseReportAntiviralTherapiesViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryAntibioticNameColumnHeading)" Visible="true">
                                             <EditTemplate Context="data">
-                                                <RadzenTextBox @bind-value="@data.strAntimicrobialTherapyName"/>
+                                                <RadzenTextBox @bind-value="@data.strAntimicrobialTherapyName" />
                                             </EditTemplate>
                                         </RadzenDataGridColumn>
                                         <RadzenDataGridColumn Property="strDosage" TItem="DiseaseReportAntiviralTherapiesViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryDoseColumnHeading)" Width="125px">
                                             <EditTemplate Context="data">
-                                                <RadzenTextBox @bind-value="@data.strDosage"/>
+                                                <RadzenTextBox @bind-value="@data.strDosage" />
                                             </EditTemplate>
                                         </RadzenDataGridColumn>
                                         <RadzenDataGridColumn Property="datFirstAdministeredDate" TItem="DiseaseReportAntiviralTherapiesViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryDateAntibioticFirstAdministeredColumnHeading)">
@@ -81,7 +77,7 @@
                                         </RadzenDataGridColumn>
                                         <RadzenDataGridColumn Filterable="false" Property="" Sortable="false" TextAlign="TextAlign.Center" TItem="DiseaseReportAntiviralTherapiesViewModel" Title="" Width="100px">
                                             <Template Context="data">
-                                                <button @onclick="@(() => EditAntibioticRow(data))" class="btn btn-sm" type="button">
+                                                <button @onclick="@(() => EditAntibioticRow(data))" class="btn btn-sm" type="button" disabled="@isReportClosed">
                                                     <i class="fas fa-edit fa-lg"></i>
                                                 </button>
                                             </Template>
@@ -96,7 +92,7 @@
                                         </RadzenDataGridColumn>
                                         <RadzenDataGridColumn Context="antibitiocDetails" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" TItem="DiseaseReportAntiviralTherapiesViewModel" Width="50px">
                                             <Template Context="data">
-                                                <button @onclick="@(() => DeleteAntibioticRow(data))" class="btn btn-sm" type="button">
+                                                <button @onclick="@(() => DeleteAntibioticRow(data))" class="btn btn-sm" type="button" disabled="@isReportClosed">
                                                     <i class="fas fa-trash fa-lg"></i>
                                                 </button>
                                             </Template>
@@ -108,107 +104,91 @@
                     </div>
                 </ChildContent>
             </RadzenPanel>
-            <div class="form-row">
-                <div class="form-group col-md-12">
-                    <label for="@model.vaccinationName">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryWasSpecificVaccinationAdministeredFieldLabel)</label>
-                    <RadzenRadioButtonList @bind-Value="@model.idfsYNSpecificVaccinationAdministered" Change="@(args => DisplayVaccinationDetails(args, string.Empty))" Data="@YesNoChoices" Disabled="@isReportClosed" Name="idfsYNSpecificVaccinationAdministered" Orientation="Orientation.Horizontal" TextProperty="Name" TValue="long?" ValueProperty="IdfsBaseReference">
-                    </RadzenRadioButtonList>
-                </div>
-            </div>
-            <RadzenPanel Visible="@showVaccinationDetails">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryWasSpecificVaccinationAdministeredFieldLabel" CssClass="col-md-12 yes-no-unknown-container" IsRow="true" For="@model.vaccinationName">
+                <YesNoUnknown Disabled="@(isReportClosed || model.vaccinationHistory.Any(x => x.intRowStatus != (int)RowStatusTypeEnum.Inactive))"
+                              Name="idfsYNSpecificVaccinationAdministered"
+                              SelectedAnswerId="model.idfsYNSpecificVaccinationAdministered"
+                              SelectedAnswerIdChanged="@OnIdfsYNSpecificVaccinationAdministeredChanged" />
+            </InterfaceEditorResource>
+            <RadzenPanel class="yes-follow-up mb-4" Visible="@(model.idfsYNSpecificVaccinationAdministered == EIDSSConstants.YesNoValues.Yes)">
                 <ChildContent>
                     <div class="card">
-                        @*Form*@
                         <div class="form-row">
-                            <div class="form-group col-6">
+                            <div class="form-group col-5">
                                 <label class="control-label" for="@model.vaccinationName">@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryVaccinationNameColumnHeading)</label>
-                                <RadzenTextBox @bind-Value="@model.vaccinationName" class="form-control" Disabled="@isReportClosed">
-                                </RadzenTextBox>
+                                <RadzenTextBox @bind-Value="@model.vaccinationName" class="form-control" Disabled="@isReportClosed" />
                             </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group col-6">
-                                <label class="control-label" for="@model.vaccinationDate">@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryDateOfVaccinationColumnHeading)</label>
-                                <RadzenDatePicker @bind-Value="model.vaccinationDate" class="form-control-group" Disabled="@isReportClosed">
-                                </RadzenDatePicker>
+                            <div class="form-group col-3 date-with-add-container">
+                                <div class="flex-grow-1">
+                                    <label class="control-label" for="@model.vaccinationDate">@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryDateOfVaccinationColumnHeading)</label>
+                                    <RadzenDatePicker @bind-Value="model.vaccinationDate" class="form-control-group" Style="display:flex;" id="vaccinationDate" Disabled="@isReportClosed" />
+                                </div>
 
                                 @if (isReportClosed)
                                 {
-                                    <button class="btn btn-outline-primary disabled" disabled value="@Localizer.GetString(ButtonResourceKeyConstants.AddButton)" type="button"></button>
+                                    <button class="btn btn-outline-primary disabled" id="addVaccination" disabled value="@Localizer.GetString(ButtonResourceKeyConstants.AddButton)" type="button"></button>
                                 }
                                 else
                                 {
-                                    <button @onclick="@(AddVaccinationData)" class="btn btn-outline-primary" type="button">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
+                                    <button @onclick="@(AddVaccinationData)" id="addVaccination" class="btn btn-outline-primary" type="button">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
                                 }
                             </div>
                         </div>
-
                     </div>
                     <div class="card" id="VaccinationDetailsResultsBody">
-                        <div class="form-row">
-                            <div class="col-12">
-                                <GridExtension OnColumnSave="GridHumanDiseaseReportVaccineClickHandler"></GridExtension>
-                                <RadzenDataGrid AllowColumnPicking="true" AllowColumnReorder="true" AllowColumnResize="true" AllowPaging="true" AllowSorting="true" Data="@model.vaccinationHistoryForGrid" EditMode="DataGridEditMode.Single" ExpandMode="DataGridExpandMode.Single" HeaderCellRender="@(args => HeaderCellRender(args.Column.Property))" IsLoading="@isLoading" PageSize="10" @ref="vaccinationDetailsgrid" TItem="DiseaseReportVaccinationViewModel">
-                                    <Columns>
-                                        <RadzenDataGridColumn OrderIndex="@FindColumnOrder("PropertyName")" Pickable="false" Property="VaccinationID" Reorderable="false" TItem="DiseaseReportVaccinationViewModel" Visible="false"></RadzenDataGridColumn>
-                                        <RadzenDataGridColumn OrderIndex="@FindColumnOrder("PropertyName")" Pickable="false" Property="HumanDiseaseReportVaccinationUID" Reorderable="false" TItem="DiseaseReportVaccinationViewModel" Visible="false"></RadzenDataGridColumn>
-                                        <RadzenDataGridColumn Pickable="false" Property="idfHumanCase" Reorderable="false" TItem="DiseaseReportVaccinationViewModel" Visible="false"></RadzenDataGridColumn>
-                                        <RadzenDataGridColumn OrderIndex="@FindColumnOrder("vaccinationName")" Property="vaccinationName" Reorderable="true" TItem="DiseaseReportVaccinationViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryVaccinationNameColumnHeading)" Visible="@GetColumnVisibility("vaccinationName")">
-                                            <EditTemplate Context="data">
-                                                <RadzenTextBox @bind-value="@data.vaccinationName"/>
-                                            </EditTemplate>
-                                        </RadzenDataGridColumn>
-                                        <RadzenDataGridColumn OrderIndex="@FindColumnOrder("vaccinationDate")" Property="vaccinationDate" Reorderable="true" TItem="DiseaseReportVaccinationViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryDateOfVaccinationColumnHeading)" Visible="@GetColumnVisibility("vaccinationDate")">
-                                            <EditTemplate Context="data">
-                                                <RadzenDatePicker @bind-value="@data.vaccinationDate" TValue="DateTime?">
-                                                </RadzenDatePicker>
-                                            </EditTemplate>
-                                        </RadzenDataGridColumn>
-                                        <RadzenDataGridColumn Filterable="false" Pickable="false" Property="" Reorderable="false" Sortable="false" TextAlign="TextAlign.Center" TItem="DiseaseReportVaccinationViewModel" Title="" Width="100px">
-                                            <Template Context="data">
-                                                <button @onclick="@(() => EditVaccinationRow(data))" class="btn btn-sm" type="button">
-                                                    <i class="fas fa-edit fa-lg"></i>
-                                                </button>
-                                            </Template>
-                                            <EditTemplate Context="data">
-                                                <button class="btn btn-sm" @onclick="_ => SaveVaccinationRow(data)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToUpdateToolTip)" type="button">
-                                                    <i class="fas fa-save fa-lg"></i>
-                                                </button>
-                                                <button class="btn btn-sm" @onclick="_ => CancelVaccinationEdit(data)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToCancelToolTip)" type="button">
-                                                    <i class="fas fa-ban fa-lg"></i>
-                                                </button>
-                                            </EditTemplate>
-                                        </RadzenDataGridColumn>
-                                        <RadzenDataGridColumn Context="data" Filterable="false" Pickable="false" Reorderable="false" Sortable="false" TextAlign="TextAlign.Center" TItem="DiseaseReportVaccinationViewModel" Width="50px">
-                                            <Template Context="data">
-                                                <button @onclick="@(() => DeleteVaccinationRow(data))" class="btn btn-sm" type="button">
-                                                    <i class="fas fa-trash fa-lg"></i>
-                                                </button>
-                                            </Template>
-                                        </RadzenDataGridColumn>
-                                    </Columns>
-                                </RadzenDataGrid>
-                            </div>
+                        <div class="form-row col-12">
+                            <GridExtension OnColumnSave="GridHumanDiseaseReportVaccineClickHandler"></GridExtension>
+                            <RadzenDataGrid AllowColumnPicking="true" AllowColumnReorder="true" AllowColumnResize="true" AllowPaging="true" AllowSorting="true" Data="@model.vaccinationHistoryForGrid" EditMode="DataGridEditMode.Single" ExpandMode="DataGridExpandMode.Single" HeaderCellRender="@(args => HeaderCellRender(args.Column.Property))" IsLoading="@isLoading" PageSize="10" @ref="vaccinationDetailsgrid" TItem="DiseaseReportVaccinationViewModel">
+                                <Columns>
+                                    <RadzenDataGridColumn OrderIndex="@FindColumnOrder("PropertyName")" Pickable="false" Property="VaccinationID" Reorderable="false" TItem="DiseaseReportVaccinationViewModel" Visible="false"></RadzenDataGridColumn>
+                                    <RadzenDataGridColumn OrderIndex="@FindColumnOrder("PropertyName")" Pickable="false" Property="HumanDiseaseReportVaccinationUID" Reorderable="false" TItem="DiseaseReportVaccinationViewModel" Visible="false"></RadzenDataGridColumn>
+                                    <RadzenDataGridColumn Pickable="false" Property="idfHumanCase" Reorderable="false" TItem="DiseaseReportVaccinationViewModel" Visible="false"></RadzenDataGridColumn>
+                                    <RadzenDataGridColumn OrderIndex="@FindColumnOrder("vaccinationName")" Property="vaccinationName" Reorderable="true" TItem="DiseaseReportVaccinationViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryVaccinationNameColumnHeading)" Visible="@GetColumnVisibility("vaccinationName")">
+                                        <EditTemplate Context="data">
+                                            <RadzenTextBox @bind-value="@data.vaccinationName" />
+                                        </EditTemplate>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn OrderIndex="@FindColumnOrder("vaccinationDate")" Property="vaccinationDate" Reorderable="true" TItem="DiseaseReportVaccinationViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryDateOfVaccinationColumnHeading)" Visible="@GetColumnVisibility("vaccinationDate")">
+                                        <EditTemplate Context="data">
+                                            <RadzenDatePicker @bind-value="@data.vaccinationDate" TValue="DateTime?">
+                                            </RadzenDatePicker>
+                                        </EditTemplate>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn Filterable="false" Pickable="false" Property="" Reorderable="false" Sortable="false" TextAlign="TextAlign.Center" TItem="DiseaseReportVaccinationViewModel" Title="" Width="100px">
+                                        <Template Context="data">
+                                            <button @onclick="@(() => EditVaccinationRow(data))" class="btn btn-sm" type="button" disabled="@isReportClosed">
+                                                <i class="fas fa-edit fa-lg"></i>
+                                            </button>
+                                        </Template>
+                                        <EditTemplate Context="data">
+                                            <button class="btn btn-sm" @onclick="_ => SaveVaccinationRow(data)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToUpdateToolTip)" type="button">
+                                                <i class="fas fa-save fa-lg"></i>
+                                            </button>
+                                            <button class="btn btn-sm" @onclick="_ => CancelVaccinationEdit(data)" title="@Localizer.GetString(TooltipResourceKeyConstants.CommonButtonsClickToCancelToolTip)" type="button">
+                                                <i class="fas fa-ban fa-lg"></i>
+                                            </button>
+                                        </EditTemplate>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn Context="data" Filterable="false" Pickable="false" Reorderable="false" Sortable="false" TextAlign="TextAlign.Center" TItem="DiseaseReportVaccinationViewModel" Width="50px">
+                                        <Template Context="data">
+                                            <button @onclick="@(() => DeleteVaccinationRow(data))" class="btn btn-sm" type="button" disabled="@isReportClosed">
+                                                <i class="fas fa-trash fa-lg"></i>
+                                            </button>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                </Columns>
+                            </RadzenDataGrid>
                         </div>
                     </div>
                 </ChildContent>
             </RadzenPanel>
 
             <div class="form-row">
-                <div class="form-group col-md-4">
+                <div class="form-group col-md-12">
                     <label for="@model.AdditionalInforMation">@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportAntibioticVaccineHistoryAdditionalInformationCommentsFieldLabel)</label>
-                    <RadzenTextBox @bind-Value="@model.AdditionalInforMation" Change="@(args => UpdateAdditionalInformationAndComments(args))" class="form-control" Disabled="@isReportClosed" Name="ClinicalInformation_AdditionalInforMation"></RadzenTextBox>
+                    <RadzenTextArea @bind-Value="@model.AdditionalInforMation" Change="@(args => UpdateAdditionalInformationAndComments(args))" class="form-control" Disabled="@isReportClosed" Name="ClinicalInformation_AdditionalInforMation" />
                 </div>
             </div>
         </div>
     </div>
 </EditForm>
-
-@code{
-
-    void GridHumanDiseaseReportVaccineClickHandler()
-    {
-        GridColumnSave("HumanDiseaseReportVaccineHistory");
-    }
-
-}

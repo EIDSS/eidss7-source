@@ -8,6 +8,7 @@ namespace EIDSS.Domain.ViewModels.Human
     public class DiseaseReportTestDetailForDiseasesViewModel
     {
         public int RowID { get; set; }
+        // public int ID { get; set; }
 
         public int RowAction { get; set; }
 

@@ -131,80 +131,62 @@ BEGIN
 END
 
 GO
--- =============================================
--- Author:		Romasheva S.
--- Create date: 2014-05-13
--- Description:	Trigger for correct problems 
---              with replication and checkin in the same time
--- =============================================
-CREATE TRIGGER [dbo].[trtAggrCaseReplicationUp] 
+
+CREATE TRIGGER [dbo].[TR_tlbAggrCase_Insert_DF] 
    ON  [dbo].[tlbAggrCase]
    for INSERT
    NOT FOR REPLICATION
 AS 
 BEGIN
 	SET NOCOUNT ON;
-	
-	--DECLARE @context VARCHAR(50)
-	--SET @context = dbo.fnGetContext()
 
-	delete  nID
-	from  dbo.tflNewID as nID
-		inner join inserted as ins
-		on   ins.idfAggrCase = nID.idfKey1
-	where  nID.strTableName = 'tlbAggrCase'
+	declare @guid uniqueidentifier = newid()
+	declare @strTableName nvarchar(128) = N'tlbAggrCase' + cast(@guid as nvarchar(36)) collate Cyrillic_General_CI_AS
 
-	insert into dbo.tflNewID 
+	insert into [dbo].[tflNewID] 
 		(
-			strTableName, 
-			idfKey1, 
-			idfKey2
+			[strTableName], 
+			[idfKey1], 
+			[idfKey2]
 		)
 	select  
-			'tlbAggrCase', 
-			ins.idfAggrCase, 
-			sg.idfSiteGroup
+			@strTableName, 
+			ins.[idfAggrCase], 
+			sg.[idfSiteGroup]
 	from  inserted as ins
-		inner join dbo.tflSiteToSiteGroup as stsg
-		on   stsg.idfsSite = ins.idfsSite
+		inner join [dbo].[tflSiteToSiteGroup] as stsg with(nolock)
+		on   stsg.[idfsSite] = ins.[idfsSite]
 		
-		inner join dbo.tflSiteGroup sg
-		on	sg.idfSiteGroup = stsg.idfSiteGroup
-			and sg.idfsRayon is null
-			and sg.idfsCentralSite is null
-			and sg.intRowStatus = 0
+		inner join [dbo].[tflSiteGroup] sg with(nolock)
+		on	sg.[idfSiteGroup] = stsg.[idfSiteGroup]
+			and sg.[idfsRayon] is null
+			and sg.[idfsCentralSite] is null
+			and sg.[intRowStatus] = 0
 			
-		left join dbo.tflAggrCaseFiltered as acf
-		on  acf.idfAggrCase = ins.idfAggrCase
-			and acf.idfSiteGroup = sg.idfSiteGroup
-	where  acf.idfAggrCaseFiltered is null
+		left join [dbo].[tflAggrCaseFiltered] as cf
+		on  cf.[idfAggrCase] = ins.[idfAggrCase]
+			and cf.[idfSiteGroup] = sg.[idfSiteGroup]
+	where  cf.[idfAggrCaseFiltered] is null
 
-	insert into dbo.tflAggrCaseFiltered 
+	insert into [dbo].[tflAggrCaseFiltered]
 		(
-			idfAggrCaseFiltered, 
-			idfAggrCase, 
-			idfSiteGroup
+			[idfAggrCaseFiltered], 
+			[idfAggrCase], 
+			[idfSiteGroup]
 		)
 	select 
-			nID.NewID, 
-			ins.idfAggrCase, 
-			nID.idfKey2
+			nID.[NewID], 
+			ins.[idfAggrCase], 
+			nID.[idfKey2]
 	from  inserted as ins
-		inner join dbo.tflNewID as nID
-		on  nID.strTableName = 'tlbAggrCase'
-			and nID.idfKey1 = ins.idfAggrCase
-			and nID.idfKey2 is not null
-		left join dbo.tflAggrCaseFiltered as acf
-		on   acf.idfAggrCaseFiltered = nID.NewID
-	where  acf.idfAggrCaseFiltered is null
-
-	delete  nID
-	from  dbo.tflNewID as nID
-		inner join inserted as ins
-		on   ins.idfAggrCase = nID.idfKey1
-	where  nID.strTableName = 'tlbAggrCase'
+		inner join [dbo].[tflNewID] as nID
+		on  nID.[strTableName] = @strTableName collate Cyrillic_General_CI_AS
+			and nID.[idfKey1] = ins.[idfAggrCase]
+			and nID.[idfKey2] is not null
+		left join [dbo].[tflAggrCaseFiltered] as cf
+		on   cf.[idfAggrCaseFiltered] = nID.[NewID]
+	where  cf.[idfAggrCaseFiltered] is null
 
 	SET NOCOUNT OFF;
 END
-
 

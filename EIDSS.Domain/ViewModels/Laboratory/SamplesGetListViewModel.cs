@@ -70,6 +70,7 @@ namespace EIDSS.Domain.ViewModels.Laboratory
         [StringLength(36)]
         public string StorageBoxPlace { get; set; }
         public string OldStorageBoxPlace { get; set; }
+        //public long OldStorageSubdivisionID { get; set; }
         public FreezerSubdivisionViewModel OldStorageSubdivision { get; set; }
         public string StorageBoxLocation { get; set; }
         public DateTime? CollectionDate { get; set; }

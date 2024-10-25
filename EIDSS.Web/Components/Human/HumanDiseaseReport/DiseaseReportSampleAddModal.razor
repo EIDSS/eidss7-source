@@ -1,36 +1,39 @@
-﻿@using EIDSS.Domain.ResponseModels.Administration
-@using EIDSS.Web.ViewModels.Human
+﻿@using EIDSS.Web.ViewModels.Human
+@using EIDSS.Web.Components.Shared.EmployerSearch
 @using EIDSS.Web.Components.CrossCutting
-
+@using EIDSS.Web.Components.Shared.Organization
 @inherits EIDSS.Web.Components.Human.HumanDiseaseReport.DiseaseReportSampleAddModalBase
 
-<RadzenTemplateForm id="humanDiseaseReportAddSamplesForm" @ref="_form" TItem="DiseaseReportSamplePageSampleDetailViewModel" Data="@sampleDetailModel" Context="AddSampleDetail" Submit="@HandleValidSamplesSubmit" OnInvalidSubmit="@HandleInvalidSamplesSubmit">
+<RadzenTemplateForm id="humanDiseaseReportAddSamplesForm" @ref="_form" TItem="DiseaseReportSamplePageSampleDetailViewModel" Data="@sampleDetailModel" Context="AddSampleDetail" Submit="@HandleValidSamplesSubmit">
     <div class="card">
         <div class="card-header">
         </div>
-        <div class="card-body">
-            <div class="form-row">
-                <input type="hidden" id="RowID" value="@sampleDetailModel.RowID" />
-                <input type="hidden" id="TempLocalSampleID" value="@sampleDetailModel.TempLocalSampleID" />
-                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportFilterSampleByDiseaseFieldLabel" IsRow="false" CssClass="col-md-6" For="FilterSampleByDisease">
-                    <RadzenCheckBox @bind-Value="@sampleDetailModel.FilterSampleByDisease" TValue="bool?" Change="@(LoadSampleTypes)" Disabled="@IsReportClosed"></RadzenCheckBox>
-                </InterfaceEditorResource>
-            </div>
-            <div class="form-row">
-                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportSampleTypeFieldLabel" IsRow="false" CssClass="col-md-6" For="SampleTypeDD">
-                    <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="SampleTypeDD" TValue="long?" Data="@sampleTypes" ValueProperty="idfsBaseReference"
-                                    TextProperty="StrDefault" @bind-Value="@sampleDetailModel.SampleTypeID" Count="@SampleCount" class="form-control"
-                                    Change="@(UpdateSampleTypeName)" Disabled="@IsReportClosed"></RadzenDropDown>
-                </InterfaceEditorResource>
-                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportLocalSampleIDFieldLabel" IsRow="false" CssClass="col-md-6" For="LocalSampleId">
-                    <RadzenTextBox @bind-Value="@sampleDetailModel.LocalSampleId" class="form-control" Disabled="@IsReportClosed"></RadzenTextBox>
-                </InterfaceEditorResource>
-            </div>
+        <div class="form-row">
+            <input type="hidden" id="RowID" value="@sampleDetailModel.RowID" />
+            <input type="hidden" id="TempLocalSampleID" value="@sampleDetailModel.TempLocalSampleID" />
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportFilterSampleByDiseaseFieldLabel" IsRow="false" CssClass="col-md-6" For="FilterSampleByDisease">
+                <RadzenCheckBox @bind-Value="@sampleDetailModel.FilterSampleByDisease" TValue="bool?" Change="@(LoadSampleTypes)" Disabled="@IsReportClosed"></RadzenCheckBox>
+            </InterfaceEditorResource>
+        </div>
+        <div class="form-row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportSampleTypeFieldLabel" IsRow="false" CssClass="col-md-6" For="SampleTypeDD">
+                <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Name="SampleTypeDD" TValue="long?" Data="@sampleTypes" ValueProperty="idfsBaseReference"
+                                TextProperty="StrDefault" @bind-Value="@sampleDetailModel.SampleTypeID" Count="@SampleCount" class="form-control"
+                                Change="@(UpdateSampleTypeName)" Disabled="@IsReportClosed"></RadzenDropDown>
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportLocalSampleIDFieldLabel" IsRow="false" CssClass="col-md-6" For="LocalSampleId">
+                <RadzenTextBox @bind-Value="@sampleDetailModel.LocalSampleId" class="form-control" Disabled="@IsReportClosed"></RadzenTextBox>
+            </InterfaceEditorResource>
         </div>
         <div class="form-row">
             <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportCollectionDateFieldLabel" IsRow="false" CssClass="col-md-4" For="CollectionDate">
-                <RadzenDatePicker id="Samples_CollectionDate" Name="Samples_CollectionDate" AllowClear="true" AllowInput="true" class="form-control-range" TValue="DateTime?"
-                                  @bind-Value="@sampleDetailModel.CollectionDate" DateFormat="d" Disabled="@IsReportClosed" />
+                <HdrCustomDatePicker
+                    FieldType="HdrCustomDatePickerFieldTypes.DateOfSampleCollection"
+                    Id="Samples_CollectionDate" 
+                    Name="Samples_CollectionDate"
+                    @bind-Value="@sampleDetailModel.CollectionDate"
+                    Change="@((DateTime? value) => { HdrStateContainer.DateOfCurrentSampleCollection = value; })"
+                    Disabled="@IsReportClosed" />
                 <RadzenCompareValidator Value="@sampleDetailModel.SymptomsOnsetDate" Component="Samples_CollectionDate" Popup="false" Operator="CompareOperator.GreaterThanEqual"
                                         Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSymptomsDateOfSymptomsOnsetFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportCollectionDateFieldLabel))"
                                         Style="display: block" />
@@ -39,35 +42,41 @@
                                         Style="display: block" />
             </InterfaceEditorResource>
             <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportCollectedByInstitutionFieldLabel" IsRow="false" CssClass="col-md-4" For="CollectedByOrganizationID">
-                <RadzenDropDown TValue="long?" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" AllowSorting="true" Data="@collectedByInstitution"
-                                LoadData="@LoadCollectedByInstitution" ValueProperty="idfOffice" TextProperty="name" @bind-Value="@sampleDetailModel.CollectedByOrganizationID"
-                                Count="@CollectedByInstitutionCount" class="form-control" Change="@(args => UpdateCollectedByOrganizationName(args))" Disabled="@IsReportClosed"></RadzenDropDown>
+                <OrganizationSearch
+                    @bind-SelectedOrganizationText="@sampleDetailModel.CollectedByOrganization"
+                    SelectedOrganizationIdChanged="@UpdateCollectedByOrganizationName"
+                    Name="CollectedByOrganizationID"/>
             </InterfaceEditorResource>
             <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportCollectedByOfficerFieldLabel" IsRow="false" CssClass="col-md-4" For="CollectedByOfficerID">
-                <div class="input-group flex-nowrap">
-                    <RadzenDropDown AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" AllowSorting="true" TValue="long?" Data="@collectedByEmployees"
-                                    LoadData="@LoadCollectedByOfficer" ValueProperty="idfPerson" TextProperty="FullName" @bind-Value="@sampleDetailModel.CollectedByOfficerID" class="form-control"
-                                    Change="@(args => UpdateCollectedByOfficeName(args))" Disabled="@(EnableCollectedByOfficer || IsReportClosed)"></RadzenDropDown>
-                    @if (canAddEmployee)
-                    {
-                        <button id="AddEmployee" type="button" @onclick=@(() => OpenEmployeeAddModal()) class="btn btn-outline-secondary btn-sm" disabled="@IsReportClosed"><span class="fas fa-plus" aria-hidden="true"></span></button>
-                    }
-                </div>
+                <EmployerSearch
+                    @ref="@CollectedByOfficerComponent"
+                    Name="notificationSentByNameComponent"
+                    @bind-SelectedEmployerText="@sampleDetailModel.CollectedByOfficer"
+                    @bind-SelectedEmployerId="@sampleDetailModel.CollectedByOfficerID"
+                    OrganizationId="@sampleDetailModel.CollectedByOrganizationID"
+                    Disabled="@(!(sampleDetailModel.CollectedByOrganizationID > 1))"
+                    ShowAddButton="@canAddEmployee"/>
             </InterfaceEditorResource>
-
-
         </div>
         <div class="form-row">
             <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportSentDateFieldLabel" IsRow="false" CssClass="col-md-6" For="CollectedByOfficerID">
-                <RadzenDatePicker id="Samples_SentDate" Name="Samples_SentDate" @bind-Value="@sampleDetailModel.SentDate" class="form-control-range" DateFormat="d" Disabled="@IsReportClosed"></RadzenDatePicker>
+                <HdrCustomDatePicker
+                    FieldType="HdrCustomDatePickerFieldTypes.DateOfSampleSent"
+                    Id="Samples_SentDate" 
+                    Name="Samples_SentDate"
+                    @bind-Value="@sampleDetailModel.SentDate"
+                    Change="@((DateTime? value) => { HdrStateContainer.DateOfCurrentSampleSent = value; })"
+                    Disabled="@IsReportClosed"/>
                 <RadzenCompareValidator Value="@sampleDetailModel.CollectionDate" Component="Samples_SentDate" Popup="false" Operator="CompareOperator.GreaterThanEqual"
                                         Text="@string.Format(Localizer.GetString(MessageResourceKeyConstants.Date2MustBeSameOrLaterThanDate1Message), Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportCollectionDateFieldLabel), Localizer.GetString(FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportDateSentFieldLabel))"
                                         Style="display: block" />
             </InterfaceEditorResource>
             <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportSentToOrganizationFieldLabel" IsRow="false" CssClass="col-md-6" For="SentToOrganizationID">
-                <RadzenDropDown TValue="long?" Name="SentToOrganizationID" @bind-Value="@sampleDetailModel.SentToOrganizationID" class="form-control" LoadData="@LoadSentToInstitution"
-                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" TextProperty="name" ValueProperty="idfOffice"
-                                Data="@sentToInstitutions" Change="@(args => UpdateSentByName(args))" Disabled="@IsReportClosed"></RadzenDropDown>
+                <OrganizationSearch
+                    @bind-SelectedOrganizationText="@sampleDetailModel.SentToOrganization"
+                    @bind-SelectedOrganizationId="@sampleDetailModel.SentToOrganizationID"
+                    Name="SentToOrganizationID"/>
+                <RadzenCustomValidator Validator="@(() => sampleDetailModel.SentToOrganizationID > 0)" Popup="false" Style="position: absolute" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)" />
             </InterfaceEditorResource>
         </div>
         <div class="form-row">

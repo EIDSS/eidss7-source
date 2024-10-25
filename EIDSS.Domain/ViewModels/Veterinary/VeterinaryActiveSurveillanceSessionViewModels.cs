@@ -18,7 +18,7 @@ namespace EIDSS.Domain.ViewModels.Veterinary
         public DateTime? EndDate { get; set; }
         public string DiseaseIdentifiers { get; set; }
         public string DiseaseNames { get; set; }
-        public string DiseaseName { get; set; }
+        public string DiseaseName { get; set; } //TODO: remove as the requirements have changed from one disease to multiple diseases per session.
         public string AdministrativeLevel0Name { get; set; }
         public string AdministrativeLevel1Name { get; set; }
         public string AdministrativeLevel2Name { get; set; }

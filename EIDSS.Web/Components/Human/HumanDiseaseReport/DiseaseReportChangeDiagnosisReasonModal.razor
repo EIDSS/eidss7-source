@@ -1,0 +1,38 @@
+﻿@using EIDSS.Domain.ViewModels.CrossCutting
+@using EIDSS.Web.ViewModels.Human
+@inherits EIDSS.Web.Components.Human.HumanDiseaseReport.DiseaseReportChangeDiagnosisReasonModalBase
+
+<RadzenTemplateForm id="AddEmployeeForm" TItem="DiseaseReportChangeDiagnosisReasonModalViewModel" Data="@Model" Submit="@OnSubmit">
+    <div class="card">
+        <div class="card-body">
+            <RadzenRow>
+                <RadzenColumn>
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <RadzenText class="label"
+                                Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportChangeDiagnosisReasonModalChangeDiagnosisReasonFieldLabel)" />
+                    <RadzenDropDown Name="ChangeDiagnosisReasonDropdown"
+                                    TValue="long?"
+                                    Data="@ChangeDiagnosisReasonList"
+                                    ValueProperty="@nameof(BaseReferenceViewModel.IdfsBaseReference)"
+                                    TextProperty="@nameof(BaseReferenceViewModel.Name)"
+                                    @bind-Value="@Model.ChangeDiagnosisReasonId"
+                                    AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    AllowClear="true"
+                                    class="form-control" />
+                    <RadzenRequiredValidator Component="ChangeDiagnosisReasonDropdown"
+                                             Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)" />
+                </RadzenColumn>
+            </RadzenRow>
+        </div>
+        <div class="card-footer">
+            <button type="button" class="btn btn-secondary"
+                    @onclick="@(() => DiagService.Close(null))">
+                @Localizer.GetString(ButtonResourceKeyConstants.CancelButton)
+            </button>
+            <button type="submit" class="btn btn-primary">
+                @Localizer.GetString(ButtonResourceKeyConstants.OKButton)
+            </button>
+        </div>
+    </div>
+</RadzenTemplateForm>

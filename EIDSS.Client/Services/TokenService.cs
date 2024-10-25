@@ -49,6 +49,15 @@ namespace EIDSS.ClientLibrary.Services
 
         public virtual AuthenticatedUser GetAuthenticatedUser()
         {
+            //TODO: remove commented if session-User approach works
+            ////////AuthenticatedUser authenticatedUser = null;
+            ////////if (ApplicationContext.GetSession("UserName") != null)
+            ////////{
+            //////   // var userName = ApplicationContext.GetSession("UserName");
+            //////    var authenticatedUser = _userConfigurationService.GetUserToken();
+            ////////}
+            //////return authenticatedUser;
+
             var sessionId = ApplicationContext.SessionId;
             var userName = ApplicationContext.GetSession("UserName");
 
@@ -144,6 +153,24 @@ namespace EIDSS.ClientLibrary.Services
 
         public AuthenticatedUser UpdateClaimsInAuthenticatedUser(List<Claim> claims)
         {
+            //TODO: remove commented if session-User approach works
+            ////var authenticatedUser =
+            ////    _userConfigurationService.GetUserToken();
+
+            ////var jwtPayload = claims.Aggregate("{", (current, c) => current + ('"' + c.Type + "\":\"" + c.Value + "\","));
+            ////jwtPayload += "}";
+
+
+            ////var settings = new JsonSerializerSettings
+            ////{
+            ////    PreserveReferencesHandling = PreserveReferencesHandling.Objects
+            ////};
+
+            ////JsonConvert.PopulateObject(jwtPayload, authenticatedUser, settings);
+
+            ////return authenticatedUser;
+
+            //TODO: consider possibility to convert authenticatedUser as an input user
             var sessionId = ApplicationContext.SessionId;
             var userName = ApplicationContext.GetSession("UserName");
 
@@ -210,6 +237,17 @@ namespace EIDSS.ClientLibrary.Services
 
         public void  UpdatePermissionsToReadOnly()
         {
+            //TODO: remove commented if session-User approach works
+            ////var userPermission = new UserPermissions();
+
+            ////if (ApplicationContext.GetSession("UserName") != null)
+            ////{
+            ////    var authenticatedUser =
+            ////        _userConfigurationService.GetUserToken();
+            ////    authenticatedUser.Claims.ToList().ForEach(p =>
+            ////        p.PermissionLevels.RemoveAll(pl => ((pl.PermissionLevelId != (long)PermissionLevelEnum.Read)) && p.PermissionId !=(long) PagePermission.CanReadArchivedData));
+            ////}
+
             var sessionId = ApplicationContext.SessionId;
             var userName = ApplicationContext.GetSession("UserName");
 
@@ -226,6 +264,25 @@ namespace EIDSS.ClientLibrary.Services
 
         public virtual UserPermissions GerUserPermissions(PagePermission permission)
         {
+            //TODO: remove commented if session-User approach works
+            ////var userPermission = new UserPermissions();
+            //////if ( ApplicationContext.GetSession("UserName") != null)
+            //////{
+            ////    var authenticatedUser = _userConfigurationService.GetUserToken();
+            ////    userPermission = new UserPermissions()
+            ////    {
+            ////        Create = authenticatedUser.UserHasPermission(permission, PermissionLevelEnum.Create),
+            ////        Read = authenticatedUser.UserHasPermission(permission, PermissionLevelEnum.Read),
+            ////        Write = authenticatedUser.UserHasPermission(permission, PermissionLevelEnum.Write),
+            ////        Delete = authenticatedUser.UserHasPermission(permission, PermissionLevelEnum.Delete),
+            ////        AccessToGenderAndAgeData = authenticatedUser.UserHasPermission(permission, PermissionLevelEnum.AccessToGenderAndAgeData),
+            ////        AccessToPersonalData = authenticatedUser.UserHasPermission(permission, PermissionLevelEnum.AccessToPersonalData),
+            ////        Execute = authenticatedUser.UserHasPermission(permission, PermissionLevelEnum.Execute)
+
+
+            ////    };
+            //////}
+            ////////return userPermission;
             var sessionId = ApplicationContext.SessionId;
             var userName = ApplicationContext.GetSession("UserName");
             var userPermission = new UserPermissions();

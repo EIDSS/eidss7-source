@@ -480,6 +480,10 @@
                         <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.DeduplicationHumanDiseaseReportNotificationOtherLocationFieldLabel"></i>
                         <label asp-for="@Model.strOtherLocation" class="control-label">@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationHumanDiseaseReportNotificationOtherLocationFieldLabel)</label>
                         <input asp-for="@Model.strOtherLocation" class="form-control" disabled="@Model.IsReportClosed">
+ @*                           @if (Model.IsReportClosed)
+                            {
+                                <input asp-for="@Model.strOtherLocation" class="form-control">
+                            }*@
                         <span asp-validation-for="strOtherLocation" class="text-danger"></span>
                     </div>
                 </div>
@@ -553,19 +557,9 @@
 
     function ShowDiseaseInSummary(data) {
         $("#ReportSummary_Disease").val(data.text);
-        var isConnectedDiseaseReport='@Model.isConnectedDiseaseReport';
-        var idfOldDisease='@Model.idfOldDisease';
-
-        if(isConnectedDiseaseReport === 'True' && idfOldDisease === data.id)
-        {
-            showErrorModal('@Localizer.GetString(MessageResourceKeyConstants.HumanDiseaseReportDiseasevalueinoriginalandconnectedDiseaseReportscannotbesameMessage)');
-        }
-        else
-        {
-            CheckDiseaseForGender(data.id);
-            CheckDiseaseForSyndromic(data.id);
-            CheckDiseaseForAgeGroup(data.id);
-        }
+        CheckDiseaseForGender(data.id);
+        CheckDiseaseForSyndromic(data.id);
+        CheckDiseaseForAgeGroup(data.id);
     }
 
     function CheckDiseaseForGender(disease)

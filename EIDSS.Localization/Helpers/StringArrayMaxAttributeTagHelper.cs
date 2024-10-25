@@ -54,6 +54,8 @@ namespace EIDSS.Localization.Helpers
 
                 ErrorMessage = CacheProvider.GetResourceValueByLanguageCultureNameAndResourceKey(CurrentCulture.Name, GetPropertyValue(ValidationMessage, typeof(MessageResourceKeyConstants)));
 
+                //ErrorMessage = CacheProvider.GetResourceValueByLanguageCultureNameAndResourceKey(CurrentCulture.Name, MessageResourceKeyConstants.EnterAtLeastOneParameterMessage);
+
                 return new ValidationResult(ErrorMessage);
             }
 
@@ -67,7 +69,9 @@ namespace EIDSS.Localization.Helpers
             IServiceProvider service = (IServiceProvider)context.ActionContext.HttpContext.RequestServices.GetService(typeof(IServiceProvider));
             CacheProvider = (LocalizationMemoryCacheProvider)service.GetService(typeof(LocalizationMemoryCacheProvider));
 
+            //ErrorMessage = CacheProvider.GetResourceValueByLanguageCultureNameAndResourceKey(CurrentCulture.Name, MessageResourceKeyConstants.EnterAtLeastOneParameterMessage);
             ErrorMessage = CacheProvider.GetResourceValueByLanguageCultureNameAndResourceKey(CurrentCulture.Name, GetPropertyValue(ValidationMessage, typeof(MessageResourceKeyConstants)));
+
 
             MergeAttribute(context.Attributes, "data-val", "true");
             MergeAttribute(context.Attributes, "data-val-localizedstringarraymax", ErrorMessage);

@@ -13,6 +13,7 @@ namespace EIDSS.Domain.ViewModels.Administration
     {
         public int SecurityPolicyConfigurationUID { get; set; }
 
+        //[Required(ErrorMessage ="Required")]
         [LocalizedRequired]
         [LocalizedRangeFrom("8","128")]
         public int MinPasswordLength { get; set; }

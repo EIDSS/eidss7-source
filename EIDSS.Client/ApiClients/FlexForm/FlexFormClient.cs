@@ -80,6 +80,7 @@ namespace EIDSS.ClientLibrary.ApiClients.FlexForm
         {
             try
             {
+                //var viewModelJson = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
                 var url = string.Format(_eidssApiOptions.GetFlexFormTypesListPath, _eidssApiOptions.BaseUrl, request.LanguageId ?? CultureNames.enUS, request.idfsFormType);
 
                 var httpResponse = await _httpClient.GetAsync(url);

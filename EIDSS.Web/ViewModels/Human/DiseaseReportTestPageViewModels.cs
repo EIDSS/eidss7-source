@@ -18,8 +18,8 @@ namespace EIDSS.Web.ViewModels.Human
         public List<BaseReferenceViewModel> YesNoChoices { get; set; }
         public long? TestsConducted { get; set; }
 
-        public List<DiseaseReportTestDetailForDiseasesViewModel> TestDetails { get; set; }
-        public List<DiseaseReportTestDetailForDiseasesViewModel> TestDetailsForGrid { get; set; }
+        public List<DiseaseReportTestDetailForDiseasesViewModel> TestDetails { get; set; } = [];
+        public List<DiseaseReportTestDetailForDiseasesViewModel> TestDetailsForGrid { get; set; } = [];
 
         //Additional Fields From Other Page
         public long? idfHumanCase { get; set; }
@@ -46,6 +46,8 @@ namespace EIDSS.Web.ViewModels.Human
         public bool IsReportClosed { get; set; } = false;
 
         public List<EventSaveRequestModel> Events { get; set; } = new List<EventSaveRequestModel>();
+
+        public bool TestsLoaded { get; set; } = false;
         //[IsValidDate]
         //  public DateTime? SymptomsOnsetDate { get; set; }
 

@@ -43,6 +43,15 @@
                                 <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
                             </div>       
                     }
+                   @* else if (field.Index < idfsInitialCaseStatus)
+                    {
+                            <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key TValue="bool" Disabled=@field.Disabled 
+                            TriState=false Style="vertical-align: top !important;" Change="@((args) => OnDataListSymptomsSelectionChangeAsync(args, field.Index))" />
+                            <div class="ml-2 d-inline-block vertical-align-middle">
+                                <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                            <span>@(field.Value)</span>
+                        </div>
+                  }*@
                     </Template>
                 </RadzenDataList>
                   <div class="card">
@@ -69,6 +78,15 @@
                                 <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
                             </div>       
                     }
+                    @*else if (field.Index < idfsInitialCaseStatus)
+                    {
+                            <RadzenCheckBox @bind-Value="field.Checked" Name=@field.Key TValue="bool" Disabled=@field.Disabled 
+                            TriState=false Style="vertical-align: top !important;"  Change="@((args) => OnDataListSymptoms2SelectionChangeAsync(args, field.Index))"/>
+                            <div class="ml-2 d-inline-block vertical-align-middle">
+                                <RadzenLabel Text="@field.Label" Component=@field.Key Style=@($"vertical-align: middle; {@field.Color}") />
+                                <span>@(field.Value)</span>
+                            </div>
+                        }*@
                     </Template>
                 </RadzenDataList>
                  <div class="card">

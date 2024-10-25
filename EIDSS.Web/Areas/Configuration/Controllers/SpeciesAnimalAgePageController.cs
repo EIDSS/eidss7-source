@@ -21,8 +21,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static System.Int64;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Configuration.Controllers
 {
@@ -65,9 +63,9 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             long? id = null;
             if (referenceType.SpeciesDD != null)
             {
-                if (!IsNullOrEmpty(referenceType.SpeciesDD))
+                if (!string.IsNullOrEmpty(referenceType.SpeciesDD))
                 {
-                    id = Parse(referenceType.SpeciesDD);
+                    id = long.Parse(referenceType.SpeciesDD);
                 }
             }
 
@@ -78,7 +76,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 var valuePair = dataTableQueryPostObj.ReturnSortParameter();
 
                 var strSortColumn = "strAnimalType";
-                if (!IsNullOrEmpty(valuePair.Key) && valuePair.Key != "KeyId")
+                if (!string.IsNullOrEmpty(valuePair.Key) && valuePair.Key != "KeyId")
                 {
                     strSortColumn = valuePair.Key;
                 }
@@ -90,7 +88,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                     Page = dataTableQueryPostObj.page,
                     PageSize = dataTableQueryPostObj.length,
                     SortColumn = strSortColumn,
-                    SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : "asc"
+                    SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : "asc"
                 };
 
                 list = await _configurationClient.GetSpeciesAnimalAgeList(request);
@@ -128,14 +126,14 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
         public async Task<JsonResult> Create([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             APISaveResponseModel response;
 
             try
             {
                 if (jsonObject["SpeciesDD"] != null)
                 {
-                    if (IsNullOrEmpty(jsonObject["SpeciesDD"][0]?["id"]?.ToString()))
+                    if (string.IsNullOrEmpty(jsonObject["SpeciesDD"][0]?["id"]?.ToString()))
                     {
                         // should select a Sample Type
                         return Json("");
@@ -145,27 +143,27 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 long idfsAnimalAge = 0;
                 if (jsonObject["idfsAnimalAge"] != null)
                 {
-                    idfsAnimalAge = Parse(jsonObject["idfsAnimalAge"][0]?["id"]?.ToString() ?? Empty);
+                    idfsAnimalAge = long.Parse(jsonObject["idfsAnimalAge"][0]?["id"]?.ToString() ?? string.Empty);
                 }
 
                 var request = new SpeciesAnimalAgeSaveRequestModel
                 {
                     idfSpeciesTypeToAnimalAge = null,
-                    idfsSpeciesType = jsonObject["SpeciesDD"]?[0]?["id"] != null ? Parse(jsonObject["SpeciesDD"][0]["id"].ToString()) : null,
+                    idfsSpeciesType = jsonObject["SpeciesDD"]?[0]?["id"] != null ? long.Parse(jsonObject["SpeciesDD"][0]["id"].ToString()) : null,
                     idfsAnimalAge = idfsAnimalAge,
-                    EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                    EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                     UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                     LocationId = authenticatedUser.RayonId,
                     User = authenticatedUser.UserName
                 };
 
-               response = await _configurationClient.SaveSpeciesAnimalAge(request);
+                response = await _configurationClient.SaveSpeciesAnimalAge(request);
 
                 response.PageAction = Domain.Enumerations.PageActions.Add;
                 response.strClientPageMessage = response.ReturnMessage switch
                 {
-                    "DOES EXIST" => Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage),
+                    "DOES EXIST" => string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage),
                         jsonObject["idfsAnimalAge"]?[0]?["text"]),
                     "SUCCESS" => _localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage),
                     _ => response.strClientPageMessage
@@ -185,13 +183,13 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         {
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
                 if (jsonObject["KeyId"] != null)
                 {
                     var request = new SpeciesAnimalAgeSaveRequestModel
                     {
-                        idfSpeciesTypeToAnimalAge = Parse(jsonObject["KeyId"].ToString()),
-                        EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                        idfSpeciesTypeToAnimalAge = long.Parse(jsonObject["KeyId"].ToString()),
+                        EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                         UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                         LocationId = authenticatedUser.RayonId,
@@ -217,16 +215,16 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [HttpPost]
         public async Task<IActionResult> AddAnimalAge([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             var request = new BaseReferenceSaveRequestModel
             {
                 BaseReferenceId = null,
                 ReferenceTypeId = 19000005,
                 Default = jsonObject["Default"]?.ToString(),
                 Name = jsonObject["Name"]?.ToString(),
-                intOrder = !IsNullOrEmpty(jsonObject["intOrder"]?.ToString()) ? int.Parse(jsonObject["intOrder"].ToString()) : 0,
+                intOrder = !string.IsNullOrEmpty(jsonObject["intOrder"]?.ToString()) ? int.Parse(jsonObject["intOrder"].ToString()) : 0,
                 LanguageId = GetCurrentLanguage(),
-                EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                 AuditUserName = authenticatedUser.UserName,
                 LocationId = authenticatedUser.RayonId,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -237,7 +235,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             response.PageAction = Domain.Enumerations.PageActions.Add;
             response.strClientPageMessage = response.ReturnMessage switch
             {
-                "DOES EXIST" => Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage),
+                "DOES EXIST" => string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage),
                     request.Default),
                 "SUCCESS" => _localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage),
                 _ => response.strClientPageMessage

@@ -481,6 +481,12 @@ namespace EIDSS.Web.Controllers
                                     saveRequest.datStatisticStartDate = fromDate;
                                     saveRequest.datStatisticFinishDate = toDate;
                                 }
+                                /*
+                                 * MessageResourceKeyConstants.StatisticalDataDateXisnotvalidstartmonthdateMessage
+                                    MessageResourceKeyConstants.StatisticalDataDateXisnotvalidstartquarterdateMessage
+                                    MessageResourceKeyConstants.StatisticalDataDateXisnotvalidstartweekdateMessage
+                                    MessageResourceKeyConstants.StatisticalDataDateXisnotvalidstartyeardateMessage
+                                 * */
 
                                 #endregion START DATE FOR PERIOD
 

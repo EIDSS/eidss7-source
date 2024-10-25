@@ -154,7 +154,8 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 	}
 
 };
-		protected Dictionary<string, int> keyDict2 = new Dictionary<string, int>()
+        //TODO: Replace usage of IsAnotherPhone and YNAnotherAddress with IsAnotherPhoneTypeID and IsAnotherAddressTypeID correspondingly in the Deduplication form
+        protected Dictionary<string, int> keyDict2 = new Dictionary<string, int>()
 {
 	{
 		"HumanRegion",
@@ -1189,8 +1190,6 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 					return true;
 				case PersonDeduplicationAddressConstants.HumanGeoLocationID:
 					return true;
-				//Case PersonDeduplicationAddressConstants.HumanAltForeignAddressIndicator
-				//    Return True
 				case PersonDeduplicationAddressConstants.HumanAltForeignAddressString:
 					return true;
 				case PersonDeduplicationAddressConstants.HumanAltGeoLocationID:
@@ -1235,8 +1234,6 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 					return true;
 				case PersonDeduplicationAddressConstants.HumanSettlement:
 					return true;
-				//Case PersonDeduplicationAddressConstants.HumanCountry
-				//    Return True
 				case PersonDeduplicationAddressConstants.HumanAltRegion:
 					return true;
 				case PersonDeduplicationAddressConstants.HumanAltRayon:
@@ -1251,9 +1248,8 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 					return true;
 				case PersonDeduplicationAddressConstants.ContactPhone2TypeName:
 					return true;
-				//Case PersonDeduplicationAddressConstants.HumanidfsCountry
-				//    Return True
-				case PersonDeduplicationAddressConstants.IsAnotherPhone:
+                //TODO: Replace usage of IsAnotherPhone and YNAnotherAddress with IsAnotherPhoneTypeID and IsAnotherAddressTypeID correspondingly in the Deduplication form
+                case PersonDeduplicationAddressConstants.IsAnotherPhone:
 					return true;
 				case PersonDeduplicationAddressConstants.YNAnotherAddress:
 					return true;
@@ -1307,8 +1303,6 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 					return true;
 				case PersonDeduplicationEmpConstants.EmployerPhone:
 					return true;
-				//Case PersonDeduplicationEmpConstants.EmployerForeignAddressIndicator
-				//    Return True
 				case PersonDeduplicationEmpConstants.EmployerForeignAddressString:
 					return true;
 				case PersonDeduplicationEmpConstants.EmployeridfsRegion:
@@ -1335,8 +1329,6 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 					return true;
 				case PersonDeduplicationEmpConstants.SchoolDateLastAttended:
 					return true;
-				//Case PersonDeduplicationEmpConstants.SchoolForeignAddressIndicator
-				//    Return True
 				case PersonDeduplicationEmpConstants.SchoolForeignAddressString:
 					return true;
 				case PersonDeduplicationEmpConstants.SchoolidfsRegion:
@@ -1404,44 +1396,42 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 		}
 
 		protected async Task OnRecordSelectionChangeAsync(int value)
-		{
-			Boolean bFirst = false;
-			if (PersonDeduplicationService.SurvivorInfoList == null)
-				bFirst = true;
+        {
+            bool bFirst = PersonDeduplicationService.SurvivorInfoList == null;
 
-			UnCheckAll();
-			if (bFirst == false)
-				ReloadTabs();
+            UnCheckAll();
+            if (bFirst == false)
+                ReloadTabs();
 
-			switch (value)
-			{
-				case 1:
-					PersonDeduplicationService.RecordSelection = 1;
-					PersonDeduplicationService.Record2Selection = 2;
-					PersonDeduplicationService.SurvivorHumanMasterID = PersonDeduplicationService.HumanMasterID;
-					PersonDeduplicationService.SupersededHumanMasterID = PersonDeduplicationService.HumanMasterID2;
+            switch (value)
+            {
+                case 1:
+                    PersonDeduplicationService.RecordSelection = 1;
+                    PersonDeduplicationService.Record2Selection = 2;
+                    PersonDeduplicationService.SurvivorHumanMasterID = PersonDeduplicationService.HumanMasterID;
+                    PersonDeduplicationService.SupersededHumanMasterID = PersonDeduplicationService.HumanMasterID2;
 
-					PersonDeduplicationService.SurvivorInfoList = PersonDeduplicationService.InfoList.Select(a => a.Copy()).ToList();
-					PersonDeduplicationService.SurvivorAddressList = PersonDeduplicationService.AddressList0.Select(a => a.Copy()).ToList();
-					PersonDeduplicationService.SurvivorEmpList = PersonDeduplicationService.EmpList0.Select(a => a.Copy()).ToList();
+                    PersonDeduplicationService.SurvivorInfoList = PersonDeduplicationService.InfoList.Select(a => a.Copy()).ToList();
+                    PersonDeduplicationService.SurvivorAddressList = PersonDeduplicationService.AddressList0.Select(a => a.Copy()).ToList();
+                    PersonDeduplicationService.SurvivorEmpList = PersonDeduplicationService.EmpList0.Select(a => a.Copy()).ToList();
 
-					CheckAllSurvivorfields(PersonDeduplicationService.InfoList, PersonDeduplicationService.InfoList2, PersonDeduplicationService.AddressList, PersonDeduplicationService.AddressList2, PersonDeduplicationService.EmpList, PersonDeduplicationService.EmpList2);
-					break;
-				case 2:
-					PersonDeduplicationService.RecordSelection = 2;
-					PersonDeduplicationService.Record2Selection = 1;
-					PersonDeduplicationService.SurvivorHumanMasterID = PersonDeduplicationService.HumanMasterID2;
-					PersonDeduplicationService.SupersededHumanMasterID = PersonDeduplicationService.HumanMasterID;
+                    CheckAllSurvivorFields(PersonDeduplicationService.InfoList, PersonDeduplicationService.InfoList2, PersonDeduplicationService.AddressList, PersonDeduplicationService.AddressList2, PersonDeduplicationService.EmpList, PersonDeduplicationService.EmpList2);
+                    break;
+                case 2:
+                    PersonDeduplicationService.RecordSelection = 2;
+                    PersonDeduplicationService.Record2Selection = 1;
+                    PersonDeduplicationService.SurvivorHumanMasterID = PersonDeduplicationService.HumanMasterID2;
+                    PersonDeduplicationService.SupersededHumanMasterID = PersonDeduplicationService.HumanMasterID;
 
-					PersonDeduplicationService.SurvivorInfoList = PersonDeduplicationService.InfoList2.Select(a => a.Copy()).ToList();
-					PersonDeduplicationService.SurvivorAddressList = PersonDeduplicationService.AddressList02.Select(a => a.Copy()).ToList();
-					PersonDeduplicationService.SurvivorEmpList = PersonDeduplicationService.EmpList02.Select(a => a.Copy()).ToList();
+                    PersonDeduplicationService.SurvivorInfoList = PersonDeduplicationService.InfoList2.Select(a => a.Copy()).ToList();
+                    PersonDeduplicationService.SurvivorAddressList = PersonDeduplicationService.AddressList02.Select(a => a.Copy()).ToList();
+                    PersonDeduplicationService.SurvivorEmpList = PersonDeduplicationService.EmpList02.Select(a => a.Copy()).ToList();
 
-					CheckAllSurvivorfields(PersonDeduplicationService.InfoList2, PersonDeduplicationService.InfoList, PersonDeduplicationService.AddressList2, PersonDeduplicationService.AddressList, PersonDeduplicationService.EmpList2, PersonDeduplicationService.EmpList);
-					break;
-				default:
-					break;
-			}
+                    CheckAllSurvivorFields(PersonDeduplicationService.InfoList2, PersonDeduplicationService.InfoList, PersonDeduplicationService.AddressList2, PersonDeduplicationService.AddressList, PersonDeduplicationService.EmpList2, PersonDeduplicationService.EmpList);
+                    break;
+                default:
+                    break;
+            }
 
             PersonDeduplicationService.chkCheckAll = value == 1;
             PersonDeduplicationService.chkCheckAll2 = value == 2;
@@ -1451,46 +1441,44 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
             PersonDeduplicationService.chkCheckAllEmp2 = value == 2;
 
             await InvokeAsync(StateHasChanged);
-		}
-		protected async Task OnRecord2SelectionChangeAsync(int value)
-		{
-			Boolean bFirst = false;
-			if (PersonDeduplicationService.SurvivorInfoList == null)
-				bFirst = true;
+        }
+        protected async Task OnRecord2SelectionChangeAsync(int value)
+        {
+            bool bFirst = PersonDeduplicationService.SurvivorInfoList == null;
 
-			UnCheckAll();
-			if (bFirst == false)
-				ReloadTabs();
+            UnCheckAll();
+            if (bFirst == false)
+                ReloadTabs();
 
-			switch (value)
-			{
-				case 1:
-					PersonDeduplicationService.RecordSelection = 2;
-					PersonDeduplicationService.Record2Selection = 1;
-					PersonDeduplicationService.SurvivorHumanMasterID = PersonDeduplicationService.HumanMasterID2;
-					PersonDeduplicationService.SupersededHumanMasterID = PersonDeduplicationService.HumanMasterID;
+            switch (value)
+            {
+                case 1:
+                    PersonDeduplicationService.RecordSelection = 2;
+                    PersonDeduplicationService.Record2Selection = 1;
+                    PersonDeduplicationService.SurvivorHumanMasterID = PersonDeduplicationService.HumanMasterID2;
+                    PersonDeduplicationService.SupersededHumanMasterID = PersonDeduplicationService.HumanMasterID;
 
-					PersonDeduplicationService.SurvivorInfoList = PersonDeduplicationService.InfoList2.Select(a => a.Copy()).ToList();
-					PersonDeduplicationService.SurvivorAddressList = PersonDeduplicationService.AddressList02.Select(a => a.Copy()).ToList();
-					PersonDeduplicationService.SurvivorEmpList = PersonDeduplicationService.EmpList02.Select(a => a.Copy()).ToList();
+                    PersonDeduplicationService.SurvivorInfoList = PersonDeduplicationService.InfoList2.Select(a => a.Copy()).ToList();
+                    PersonDeduplicationService.SurvivorAddressList = PersonDeduplicationService.AddressList02.Select(a => a.Copy()).ToList();
+                    PersonDeduplicationService.SurvivorEmpList = PersonDeduplicationService.EmpList02.Select(a => a.Copy()).ToList();
 
-					CheckAllSurvivorfields(PersonDeduplicationService.InfoList2, PersonDeduplicationService.InfoList, PersonDeduplicationService.AddressList2, PersonDeduplicationService.AddressList, PersonDeduplicationService.EmpList2, PersonDeduplicationService.EmpList);
-					break;
-				case 2:
-					PersonDeduplicationService.RecordSelection = 1;
-					PersonDeduplicationService.Record2Selection = 2;
-					PersonDeduplicationService.SurvivorHumanMasterID = PersonDeduplicationService.HumanMasterID;
-					PersonDeduplicationService.SupersededHumanMasterID = PersonDeduplicationService.HumanMasterID2;
+                    CheckAllSurvivorFields(PersonDeduplicationService.InfoList2, PersonDeduplicationService.InfoList, PersonDeduplicationService.AddressList2, PersonDeduplicationService.AddressList, PersonDeduplicationService.EmpList2, PersonDeduplicationService.EmpList);
+                    break;
+                case 2:
+                    PersonDeduplicationService.RecordSelection = 1;
+                    PersonDeduplicationService.Record2Selection = 2;
+                    PersonDeduplicationService.SurvivorHumanMasterID = PersonDeduplicationService.HumanMasterID;
+                    PersonDeduplicationService.SupersededHumanMasterID = PersonDeduplicationService.HumanMasterID2;
 
-					PersonDeduplicationService.SurvivorInfoList = PersonDeduplicationService.InfoList.Select(a => a.Copy()).ToList();
-					PersonDeduplicationService.SurvivorAddressList = PersonDeduplicationService.AddressList0.Select(a => a.Copy()).ToList();
-					PersonDeduplicationService.SurvivorEmpList = PersonDeduplicationService.EmpList0.Select(a => a.Copy()).ToList();
+                    PersonDeduplicationService.SurvivorInfoList = PersonDeduplicationService.InfoList.Select(a => a.Copy()).ToList();
+                    PersonDeduplicationService.SurvivorAddressList = PersonDeduplicationService.AddressList0.Select(a => a.Copy()).ToList();
+                    PersonDeduplicationService.SurvivorEmpList = PersonDeduplicationService.EmpList0.Select(a => a.Copy()).ToList();
 
-					CheckAllSurvivorfields(PersonDeduplicationService.InfoList, PersonDeduplicationService.InfoList2, PersonDeduplicationService.AddressList, PersonDeduplicationService.AddressList2, PersonDeduplicationService.EmpList, PersonDeduplicationService.EmpList2);
-					break;
-				default:
-					break;
-			}
+                    CheckAllSurvivorFields(PersonDeduplicationService.InfoList, PersonDeduplicationService.InfoList2, PersonDeduplicationService.AddressList, PersonDeduplicationService.AddressList2, PersonDeduplicationService.EmpList, PersonDeduplicationService.EmpList2);
+                    break;
+                default:
+                    break;
+            }
 
             PersonDeduplicationService.chkCheckAll = value == 2;
             PersonDeduplicationService.chkCheckAll2 = value == 1;
@@ -1500,9 +1488,9 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
             PersonDeduplicationService.chkCheckAllEmp2 = value == 1;
 
             await InvokeAsync(StateHasChanged);
-		}
+        }
 
-		protected void UnCheckAll()
+        protected void UnCheckAll()
 		{
 			PersonDeduplicationService.chkCheckAll = false;
 			PersonDeduplicationService.chkCheckAll2 = false;
@@ -1514,141 +1502,137 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 
         protected void ReloadTabs()
         {
-			//if (PersonDeduplicationService.RecordSelection != 0 && PersonDeduplicationService.Record2Selection != 0)
-			//{
 			//Bind Tab Info
 			PersonDeduplicationService.InfoList = null;
 			PersonDeduplicationService.InfoList2 = null;
 			PersonDeduplicationService.InfoList = PersonDeduplicationService.InfoList0.Select(a => a.Copy()).ToList();
-				PersonDeduplicationService.InfoList2 = PersonDeduplicationService.InfoList02.Select(a => a.Copy()).ToList();
+			PersonDeduplicationService.InfoList2 = PersonDeduplicationService.InfoList02.Select(a => a.Copy()).ToList();
 
-				foreach (Field item in PersonDeduplicationService.InfoList)
+			foreach (Field item in PersonDeduplicationService.InfoList)
+			{
+				if (item.Checked == true)
 				{
-					if (item.Checked == true)
-					{
-						item.Checked = true;
-						item.Disabled = true;
-						PersonDeduplicationService.InfoList2[item.Index].Checked = true;
-						PersonDeduplicationService.InfoList2[item.Index].Disabled = true;
-					}
+					item.Checked = true;
+					item.Disabled = true;
+					PersonDeduplicationService.InfoList2[item.Index].Checked = true;
+					PersonDeduplicationService.InfoList2[item.Index].Disabled = true;
 				}
+			}
 
-				PersonDeduplicationService.InfoValues = (IEnumerable<int>)PersonDeduplicationService.InfoList.Where(s => s.Checked == true).Select(s => s.Index);
-				PersonDeduplicationService.InfoValues2 = (IEnumerable<int>)PersonDeduplicationService.InfoList2.Where(s => s.Checked == true).Select(s => s.Index);
+			PersonDeduplicationService.InfoValues = (IEnumerable<int>)PersonDeduplicationService.InfoList.Where(s => s.Checked == true).Select(s => s.Index);
+			PersonDeduplicationService.InfoValues2 = (IEnumerable<int>)PersonDeduplicationService.InfoList2.Where(s => s.Checked == true).Select(s => s.Index);
 
 			//Bind Tab Address
 			PersonDeduplicationService.AddressList = null;
 			PersonDeduplicationService.AddressList2 = null;
 			PersonDeduplicationService.AddressList = PersonDeduplicationService.AddressList0.Select(a => a.Copy()).ToList();
-				PersonDeduplicationService.AddressList2 = PersonDeduplicationService.AddressList02.Select(a => a.Copy()).ToList();
+			PersonDeduplicationService.AddressList2 = PersonDeduplicationService.AddressList02.Select(a => a.Copy()).ToList();
 
-				foreach (Field item in PersonDeduplicationService.AddressList)
+			foreach (Field item in PersonDeduplicationService.AddressList)
+			{
+				if (item.Checked == true)
 				{
-					if (item.Checked == true)
+					item.Checked = true;
+					item.Disabled = true;
+					PersonDeduplicationService.AddressList2[item.Index].Checked = true;
+					PersonDeduplicationService.AddressList2[item.Index].Disabled = true;
+				}
+				else
+				if (IsInHumanAddressGroup(item.Key) == true)
+				{
+					item.Disabled = true;
+					PersonDeduplicationService.AddressList2[item.Index].Disabled = true;
+				}
+				else if (IsInHumanAltAddressGroup(item.Key) == true)
+				{
+					item.Disabled = true;
+					PersonDeduplicationService.AddressList2[item.Index].Disabled = true;
+				}
+			}
+
+			foreach (Field item in PersonDeduplicationService.AddressList)
+			{
+				if (item.Key == PersonDeduplicationAddressConstants.HumanRegion && item.Checked == true)
+				{
+					if (GroupAllChecked(item.Index, HUMANADDRESSNUMBERFIELD, PersonDeduplicationService.AddressList) == false)
 					{
-						item.Checked = true;
-						item.Disabled = true;
-						PersonDeduplicationService.AddressList2[item.Index].Checked = true;
-						PersonDeduplicationService.AddressList2[item.Index].Disabled = true;
-					}
-					else
-					if (IsInHumanAddressGroup(item.Key) == true)
-					{
-						item.Disabled = true;
-						PersonDeduplicationService.AddressList2[item.Index].Disabled = true;
-					}
-					else if (IsInHumanAltAddressGroup(item.Key) == true)
-					{
-						item.Disabled = true;
-						PersonDeduplicationService.AddressList2[item.Index].Disabled = true;
+						item.Checked = false;
+						item.Disabled = false;
+						PersonDeduplicationService.AddressList2[item.Index].Checked = false;
+						PersonDeduplicationService.AddressList2[item.Index].Disabled = false;
 					}
 				}
-
-				foreach (Field item in PersonDeduplicationService.AddressList)
+				else if (item.Key == PersonDeduplicationAddressConstants.HumanAltRegion && item.Checked == true)
 				{
-					if (item.Key == PersonDeduplicationAddressConstants.HumanRegion && item.Checked == true)
+					if (GroupAllChecked(item.Index, HUMANALTADDRESSNUMBERFIELD, PersonDeduplicationService.AddressList) == false)
 					{
-						if (GroupAllChecked(item.Index, HUMANADDRESSNUMBERFIELD, PersonDeduplicationService.AddressList) == false)
-						{
-							item.Checked = false;
-							item.Disabled = false;
-							PersonDeduplicationService.AddressList2[item.Index].Checked = false;
-							PersonDeduplicationService.AddressList2[item.Index].Disabled = false;
-						}
-					}
-					else if (item.Key == PersonDeduplicationAddressConstants.HumanAltRegion && item.Checked == true)
-					{
-						if (GroupAllChecked(item.Index, HUMANALTADDRESSNUMBERFIELD, PersonDeduplicationService.AddressList) == false)
-						{
-							item.Checked = false;
-							item.Disabled = false;
-							PersonDeduplicationService.AddressList2[item.Index].Checked = false;
-							PersonDeduplicationService.AddressList2[item.Index].Disabled = false;
-						}
+						item.Checked = false;
+						item.Disabled = false;
+						PersonDeduplicationService.AddressList2[item.Index].Checked = false;
+						PersonDeduplicationService.AddressList2[item.Index].Disabled = false;
 					}
 				}
+			}
 
-				PersonDeduplicationService.AddressValues = (IEnumerable<int>)PersonDeduplicationService.AddressList.Where(s => s.Checked == true).Select(s => s.Index);
-				PersonDeduplicationService.AddressValues2 = (IEnumerable<int>)PersonDeduplicationService.AddressList2.Where(s => s.Checked == true).Select(s => s.Index);
+			PersonDeduplicationService.AddressValues = (IEnumerable<int>)PersonDeduplicationService.AddressList.Where(s => s.Checked == true).Select(s => s.Index);
+			PersonDeduplicationService.AddressValues2 = (IEnumerable<int>)PersonDeduplicationService.AddressList2.Where(s => s.Checked == true).Select(s => s.Index);
 
 			//Bind Tab Emp 
 			PersonDeduplicationService.EmpList = null;
 			PersonDeduplicationService.EmpList2 = null;
 			PersonDeduplicationService.EmpList = PersonDeduplicationService.EmpList0.Select(a => a.Copy()).ToList();
-				PersonDeduplicationService.EmpList2 = PersonDeduplicationService.EmpList02.Select(a => a.Copy()).ToList();
+			PersonDeduplicationService.EmpList2 = PersonDeduplicationService.EmpList02.Select(a => a.Copy()).ToList();
 
-				foreach (Field item in PersonDeduplicationService.EmpList)
-				{
-                if (item.Checked == true)
+			foreach (Field item in PersonDeduplicationService.EmpList)
+			{
+                if (item.Checked)
                 {
                     item.Checked = true;
                     item.Disabled = true;
                     PersonDeduplicationService.EmpList2[item.Index].Checked = true;
                     PersonDeduplicationService.EmpList2[item.Index].Disabled = true;
                 }
-                else
-                if (IsInEmployerAddressGroup(item.Key) == true)
-					{
-						item.Disabled = true;
-						PersonDeduplicationService.EmpList2[item.Index].Disabled = true;
-					}
-					else if (IsInSchoolAddressGroup(item.Key) == true)
-					{
-						item.Disabled = true;
-						PersonDeduplicationService.EmpList2[item.Index].Disabled = true;
-					}
-				}
-
-				foreach (Field item in PersonDeduplicationService.EmpList)
+                else if (IsInEmployerAddressGroup(item.Key))
 				{
-					if (item.Key == PersonDeduplicationEmpConstants.EmployerRegion && item.Checked == true)
+					item.Disabled = true;
+					PersonDeduplicationService.EmpList2[item.Index].Disabled = true;
+				}
+				else if (IsInSchoolAddressGroup(item.Key))
+				{
+					item.Disabled = true;
+					PersonDeduplicationService.EmpList2[item.Index].Disabled = true;
+				}
+			}
+
+			foreach (Field item in PersonDeduplicationService.EmpList)
+			{
+				if (item.Key == PersonDeduplicationEmpConstants.EmployerRegion && item.Checked)
+				{
+					if (GroupAllChecked(item.Index, EMPLOYERADDRESSNUMBERFIELD, PersonDeduplicationService.EmpList) == false)
 					{
-						if (GroupAllChecked(item.Index, EMPLOYERADDRESSNUMBERFIELD, PersonDeduplicationService.EmpList) == false)
-						{
-							item.Checked = false;
-							item.Disabled = false;
-							PersonDeduplicationService.EmpList2[item.Index].Checked = false;
-							PersonDeduplicationService.EmpList2[item.Index].Disabled = false;
-						}
-					}
-					else if (item.Key == PersonDeduplicationEmpConstants.SchoolRegion && item.Checked == true)
-					{
-						if (GroupAllChecked(item.Index, SCHOOLADDRESSNUMBERFIELD, PersonDeduplicationService.EmpList) == false)
-						{
-							item.Checked = false;
-							item.Disabled = false;
-							PersonDeduplicationService.EmpList2[item.Index].Checked = false;
-							PersonDeduplicationService.EmpList2[item.Index].Disabled = false;
-						}
+						item.Checked = false;
+						item.Disabled = false;
+						PersonDeduplicationService.EmpList2[item.Index].Checked = false;
+						PersonDeduplicationService.EmpList2[item.Index].Disabled = false;
 					}
 				}
+				else if (item.Key == PersonDeduplicationEmpConstants.SchoolRegion && item.Checked)
+				{
+					if (GroupAllChecked(item.Index, SCHOOLADDRESSNUMBERFIELD, PersonDeduplicationService.EmpList) == false)
+					{
+						item.Checked = false;
+						item.Disabled = false;
+						PersonDeduplicationService.EmpList2[item.Index].Checked = false;
+						PersonDeduplicationService.EmpList2[item.Index].Disabled = false;
+					}
+				}
+			}
 
-				PersonDeduplicationService.EmpValues = (IEnumerable<int>)PersonDeduplicationService.EmpList.Where(s => s.Checked == true).Select(s => s.Index);
-				PersonDeduplicationService.EmpValues2 = (IEnumerable<int>)PersonDeduplicationService.EmpList2.Where(s => s.Checked == true).Select(s => s.Index);
-			//}
+			PersonDeduplicationService.EmpValues = (IEnumerable<int>)PersonDeduplicationService.EmpList.Where(s => s.Checked).Select(s => s.Index);
+			PersonDeduplicationService.EmpValues2 = (IEnumerable<int>)PersonDeduplicationService.EmpList2.Where(s => s.Checked).Select(s => s.Index);
 		}
 
-		protected void CheckAllSurvivorfields(IList<Field> list, IList<Field> list2, IList<Field> listAddress, IList<Field> listAddress2, IList<Field> listEmp, IList<Field> listEmp2)
+		protected void CheckAllSurvivorFields(IList<Field> list, IList<Field> list2, IList<Field> listAddress, IList<Field> listAddress2, IList<Field> listEmp, IList<Field> listEmp2)
 		{
 			foreach (Field item in list)
 			{
@@ -1671,8 +1655,6 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 
 		protected bool AllFieldValuePairsUnmatched()
 		{
-			//try
-			//{
 			foreach (Field item in PersonDeduplicationService.InfoList)
 			{
 				if (item.Value == PersonDeduplicationService.InfoList2[item.Index].Value && item.Value != null && item.Value != "")
@@ -1698,11 +1680,6 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 			}
 
 			return true;
-			//}
-			//catch (Exception ex)
-			//{
-			//	_logger.LogError(ex.Message);
-			//}
 		}
 
 		protected async Task CheckAllAsync(IList<Field> list, IList<Field> list2, bool check, bool check2, IList<Field> survivorList, string strValidTabName)
@@ -1726,8 +1703,6 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 				{
 					if (check == true)
 					{
-						check2 = false;
-						//Session(strValidTabName) = true;
 						foreach (Field item in list)
 						{
 							if (item.Checked == false)
@@ -1742,20 +1717,18 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 										label = survivorList[item.Index].Label;
 
 										if (value == null)
-										{
-											if (survivorList[item.Index].Value == null)
-												survivorList[item.Index].Label = label.Replace(": ", ": " + string.Empty);
-											else
-												survivorList[item.Index].Label = label.Replace(survivorList[item.Index].Value, "");
-										}
+                                        {
+                                            survivorList[item.Index].Label = 
+                                                survivorList[item.Index].Value == null ? 
+                                                    label.Replace(": ", ": " + string.Empty) : 
+                                                    label.Replace(survivorList[item.Index].Value, "");
+                                        }
 										else if (survivorList[item.Index].Value == null)
 										{
-											//survivorList[item.Index].Label = label.Replace("<br><font style='color:#333;font-size:12px;font-weight:normal'>", "<br><font style='color:#333;font-size:12px;font-weight:normal'>" + value);
 											survivorList[item.Index].Label = label.Replace(": ", ": " + value);
 										}
 										else if (survivorList[item.Index].Value == string.Empty)
 										{
-											//survivorList[item.Index].Label = label.Replace("<br><font style='color:#333;font-size:12px;font-weight:normal'>", "<br><font style='color:#333;font-size:12px;font-weight:normal'>" + value);
 											survivorList[item.Index].Label = label.Replace(": ", ": " + value);
 										}
 										else
@@ -1771,7 +1744,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 
 						foreach (Field item in list)
 						{
-							if (item.Checked == true && list2[item.Index].Checked == true)
+							if (item.Checked && list2[item.Index].Checked)
 							{
 								item.Disabled = true;
 							}
@@ -1779,7 +1752,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 					}
 				}
 
-				await EableDisableMergeButtonAsync();
+				await EnableDisableMergeButtonAsync();
 
 			}
 			catch (Exception ex)
@@ -1790,26 +1763,26 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 
 		protected bool TabInfoValid()
 		{
-			if (IsInfoValid() == false)
-			{
-				//spInfo.Attributes("class") = "glyphicon glyphicon-ok normalcheckmark";
-				return false;
-			}
-			else
-			{
-				//spInfo.Attributes("class") = "glyphicon glyphicon-ok passcheckmark";
-			}
+            if (IsInfoValid() == false)
+            {
+                //spInfo.Attributes("class") = "glyphicon glyphicon-ok normalcheckmark";
+                return false;
+            }
+            else
+            {
+                //spInfo.Attributes("class") = "glyphicon glyphicon-ok passcheckmark";
+            }
 			return true;
 		}
 
 		protected async Task BindTabInfoAsync()
 		{
-			PersonDeduplicationService.InfoList = PersonDeduplicationService.InfoList0.Select(a => a.Copy()).ToList();
-			PersonDeduplicationService.InfoList2 = PersonDeduplicationService.InfoList02.Select(a => a.Copy()).ToList();
-			//PersonDeduplicationService.InfoList = PersonDeduplicationService.InfoList0;
-			//PersonDeduplicationService.InfoList2 = PersonDeduplicationService.InfoList02;
+            PersonDeduplicationService.InfoList = PersonDeduplicationService.InfoList0.Select(a => a.Copy()).ToList();
+            PersonDeduplicationService.InfoList2 = PersonDeduplicationService.InfoList02.Select(a => a.Copy()).ToList();
+            //PersonDeduplicationService.InfoList = PersonDeduplicationService.InfoList0;
+            //PersonDeduplicationService.InfoList2 = PersonDeduplicationService.InfoList02;
 
-			foreach (Field item in PersonDeduplicationService.InfoList)
+            foreach (Field item in PersonDeduplicationService.InfoList)
 			{
 				if (item.Checked == true)
 				{
@@ -1823,11 +1796,11 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 			PersonDeduplicationService.InfoValues = (IEnumerable<int>)PersonDeduplicationService.InfoList.Where(s => s.Checked == true).Select(s => s.Index);
 			PersonDeduplicationService.InfoValues2 = (IEnumerable<int>)PersonDeduplicationService.InfoList2.Where(s => s.Checked == true).Select(s => s.Index);
 
-			await EableDisableMergeButtonAsync();
+			await EnableDisableMergeButtonAsync();
 			TabInfoValid();
 		}
 
-		protected async Task EableDisableMergeButtonAsync()
+		protected async Task EnableDisableMergeButtonAsync()
 		{
 			if (AllTabValid() == true)
 			{
@@ -1910,7 +1883,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 			PersonDeduplicationService.AddressValues = (IEnumerable<int>)PersonDeduplicationService.AddressList.Where(s => s.Checked == true).Select(s => s.Index);
 			PersonDeduplicationService.AddressValues2 = (IEnumerable<int>)PersonDeduplicationService.AddressList2.Where(s => s.Checked == true).Select(s => s.Index);
 
-			await EableDisableMergeButtonAsync();
+			await EnableDisableMergeButtonAsync();
 
 			TabAddressValid();
 
@@ -2103,7 +2076,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Person
 			PersonDeduplicationService.EmpValues = (IEnumerable<int>)PersonDeduplicationService.EmpList.Where(s => s.Checked == true).Select(s => s.Index);
 			PersonDeduplicationService.EmpValues2 = (IEnumerable<int>)PersonDeduplicationService.EmpList2.Where(s => s.Checked == true).Select(s => s.Index);
 
-			await EableDisableMergeButtonAsync();
+			await EnableDisableMergeButtonAsync();
 
 			TabEmpValid();
 		}

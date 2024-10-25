@@ -57,13 +57,13 @@ BEGIN
 	SET NOCOUNT ON;
 
 	BEGIN TRY
-		SELECT ISNULL(ha.strFirstName, '') + ' ' + ISNULL(ha.strLastName, '') AS PatientFarmOwnerName,
-			haai.EIDSSPersonId AS EIDSSPersonID,
+		SELECT dbo.fnConcatFullName(ha.strLastName, ha.strFirstName, ha.strSecondName) AS PatientFarmOwnerName,
+			haai.EIDSSPersonID AS EIDSSPersonID,
 			ha.idfsOccupationType AS OccupationTypeID,
 			ha.idfsNationality AS CitizenshipTypeID,
-			citizenshipType.name AS CitizenshipTypeName,
+			citizenshipType.[name] AS CitizenshipTypeName,
 			ha.idfsHumanGender AS GenderTypeID,
-			tb.name AS GenderTypeName,
+			tb.[name] AS GenderTypeName,
 
 			-- Current Address
 			ha.idfCurrentResidenceAddress AS HumanGeoLocationID,
@@ -99,13 +99,15 @@ BEGIN
 			lhEmployer.AdminLevel4ID AS EmployeridfsSettlement,
 			lhEmployer.AdminLevel4Name AS EmployerSettlement,
 			EA.idfsType AS EmployeridfsSettlementType,
-			EmpSettlementType.strDefault AS EmployerSettlementType,
+			EmpSettlementType.[name] AS EmployerSettlementType,
 			tglEmployer.strPostCode AS EmployerstrPostalCode,
 			tglEmployer.strStreetName AS EmployerstrStreetName,
 			tglEmployer.strHouse AS EmployerstrHouse,
 			tglEmployer.strBuilding AS EmployerstrBuilding,
 			tglEmployer.strApartment AS EmployerstrApartment,
 			tglEmployer.strDescription AS EmployerDescription,
+			tglEmployer.dblLatitude AS EmployerstrLatitude,
+			tglEmployer.dblLongitude AS EmployerstrLongitude,
 			tglEmployer.blnForeignAddress AS EmployerForeignAddressIndicator,
 			tglEmployer.strForeignAddress AS EmployerForeignAddressString,
 
@@ -127,6 +129,10 @@ BEGIN
 			tglRegistrationAddress.strBuilding AS HumanPermstrBuilding,
 			tglRegistrationAddress.strApartment AS HumanPermstrApartment,
 			tglRegistrationAddress.strDescription AS HumanPermDescription,
+			tglRegistrationAddress.dblLatitude AS HumanPermstrLatitude,
+			tglRegistrationAddress.dblLongitude AS HumanPermstrLongitude,
+			tglRegistrationAddress.blnForeignAddress AS HumanPermForeignAddressIndicator,
+			tglRegistrationAddress.strForeignAddress AS HumanPermForeignAddressString,
 
 			-- Alternate Address
 			haai.AltAddressID AS HumanAltGeoLocationID,
@@ -146,6 +152,8 @@ BEGIN
 			tglAlt.strBuilding AS HumanAltstrBuilding,
 			tglAlt.strApartment AS HumanAltstrApartment,
 			tglAlt.strDescription AS HumanAltDescription,
+			tglAlt.dblLatitude AS HumanAltstrLatitude,
+			tglAlt.dblLongitude AS HumanAltstrLongitude,
 			tglAlt.blnForeignAddress AS HumanAltForeignAddressIndicator,
 			tglAlt.strForeignAddress AS HumanAltForeignAddressString,
 
@@ -168,11 +176,11 @@ BEGIN
 			tglSchool.strApartment AS SchoolstrApartment,
 			tglSchool.blnForeignAddress AS SchoolForeignAddressIndicator,
 			tglSchool.strForeignAddress AS SchoolForeignAddressString,
-
-			dbo.FN_GBL_FormatDate(ha.datDateofBirth, 'mm/dd/yyyy') AS DateOfBirth,
-			dbo.FN_GBL_FormatDate(ha.datDateOfDeath, 'mm/dd/yyyy') AS DateOfDeath,
-			dbo.FN_GBL_FormatDate(ha.datEnteredDate, 'mm/dd/yyyy') AS EnteredDate,
-			dbo.FN_GBL_FormatDate(ha.datModificationDate, 'mm/dd/yyyy') AS ModificationDate,
+			
+			ha.datDateofBirth AS DateOfBirth,
+			ha.datDateOfDeath AS DateOfDeath,
+			ha.datEnteredDate AS EnteredDate,
+			ha.datModificationDate AS ModificationDate,
 			ha.strFirstName AS FirstOrGivenName,
 			ha.strSecondName AS SecondName,
 			ha.strLastName AS LastOrSurname,
@@ -185,42 +193,34 @@ BEGIN
 			haai.ReportedAgeUOMID,
 			haai.PassportNbr AS PassportNumber,
 			haai.IsEmployedID AS IsEmployedTypeID,
-			isEmployed.name AS IsEmployedTypeName,
+			isEmployed.[name] AS IsEmployedTypeName,
 			haai.EmployerPhoneNbr AS EmployerPhone,
 			haai.EmployedDTM AS EmployedDateLastPresent,
 			haai.IsStudentID AS IsStudentTypeID,
-			isStudent.name AS IsStudentTypeName,
+			isStudent.[name] AS IsStudentTypeName,
 			haai.SchoolName AS SchoolName,
 			haai.SchoolLastAttendDTM AS SchoolDateLastAttended,
 			haai.SchoolPhoneNbr AS SchoolPhone,
 			haai.ContactPhoneCountryCode,
 			haai.ContactPhoneNbr AS ContactPhone,
 			haai.ContactPhoneNbrTypeID AS ContactPhoneTypeID,
-			ContactPhoneNbrTypeID.name AS ContactPhoneTypeName,
+			ContactPhoneNbrTypeID.[name] AS ContactPhoneTypeName,
 			haai.ContactPhone2CountryCode,
 			haai.ContactPhone2Nbr AS ContactPhone2,
 			haai.ContactPhone2NbrTypeID AS ContactPhone2TypeID,
-			ContactPhone2NbrTypeID.name AS ContactPhone2TypeName,
-			personalIDType.name AS PersonalIDTypeName,
-			occupationType.name AS OccupationTypeName,
+			ContactPhone2NbrTypeID.[name] AS ContactPhone2TypeName,
+			personalIDType.[name] AS PersonalIDTypeName,
+			occupationType.[name] AS OccupationTypeName,
+
+			--TODO: Remove IsAnotherPhone and YNAnotherAddress
 			CASE 
-				WHEN haai.ContactPhone2Nbr IS NULL
-					AND haai.ContactPhone2NbrTypeID IS NULL
-					THEN 'No'
-				ELSE 'Yes'
+				WHEN haai.IsAnotherPhoneID = 10100001 /*Yes*/
+					THEN 'Yes'
+				ELSE 'No'
 				END AS IsAnotherPhone,
-			--CAST(ISNULL(haai.ReportedAge, '') AS VARCHAR(3)) + ' ' + ISNULL(HumanAgeType.name, '') AS Age,
+			cast(N'' as nvarchar(200)) AS Age, 
 			CASE 
-				WHEN haai.ReportedAge IS NULL AND haai.ReportedAgeUOMID IS NULL
-					THEN (CASE 
-							WHEN ha.datDateofBirth IS NOT NULL					
-								THEN CAST(FLOOR(DATEDIFF(DAY, ha.datDateofBirth, GETDATE ())/365.242199) AS VARCHAR(3)) + ' ' + HumanAgeType.name
-							ELSE ''
-							END)
-				ELSE CAST(ISNULL(haai.ReportedAge, '') AS VARCHAR(3)) + ' ' + ISNULL(HumanAgeType.name, '')
-				END AS Age, 
-			CASE 
-				WHEN ((ha.idfRegistrationAddress IS NOT NULL AND ha.idfRegistrationAddress > 0) OR (haai.AltAddressID IS NOT NULL AND haai.AltAddressID > 0))
+				WHEN haai.IsAnotherAddressID = 10100001 /*Yes*/
 					THEN 'Yes'
 				ELSE 'No'
 				END AS YNAnotherAddress,
@@ -265,7 +265,9 @@ BEGIN
 						dbo.FN_GBL_CreateAddressString(ISNULL(lhPerm.AdminLevel1Name, N''), ISNULL(lhPerm.AdminLevel2Name, N''), ISNULL(lhPerm.AdminLevel3Name, N''), ISNULL(tglRegistrationAddress.strPostCode, N''), ISNULL(registrationSettlementType.strDefault, N''), ISNULL(lhPerm.AdminLevel4Name, N''), ISNULL(tglRegistrationAddress.strStreetName, N''), ISNULL(tglRegistrationAddress.strHouse, N''), ISNULL(tglRegistrationAddress.strBuilding, N''), ISNULL(tglRegistrationAddress.strApartment, N''), ISNULL(tglRegistrationAddress.blnForeignAddress, N''), ISNULL(tglRegistrationAddress.strForeignAddress, N''))
 					THEN 'Yes'
 				ELSE 'No'
-				END AS YNPermanentSameAddress 
+				END AS YNPermanentSameAddress,
+			haai.IsAnotherPhoneID as IsAnotherPhoneTypeID,
+			haai.IsAnotherAddressID as IsAnotherAddressTypeID
 
 		FROM dbo.tlbHumanActual ha
 
@@ -280,37 +282,21 @@ BEGIN
 		-- Current Address
 		LEFT JOIN dbo.gisLocation HL ON HL.idfsLocation = tglHuman.idfsLocation	
 		LEFT JOIN dbo.FN_GBL_LocationHierarchy_Flattened(@LangID) lhHuman ON lhHuman.idfsLocation = tglHuman.idfsLocation			
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000001) AS humanCountry ON HL.node.IsDescendantOf(humanCountry.node) = 1
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000003) AS humanRegion ON HL.node.IsDescendantOf(humanRegion.node) = 1
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000002) AS humanRayon ON HL.node.IsDescendantOf(humanRayon.node) = 1
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000004) AS humanSettlement ON HL.node.IsDescendantOf(humanSettlement.node) = 1
 		LEFT JOIN dbo.FN_GBL_GIS_Reference(@LangID, 19000005) AS humanSettlementType ON humanSettlementType.idfsReference = HL.idfsType
 
 		-- Employer address 
 		LEFT JOIN dbo.gisLocation EA ON EA.idfsLocation = tglEmployer.idfsLocation
 		LEFT JOIN dbo.FN_GBL_LocationHierarchy_Flattened(@LangID) lhEmployer ON lhEmployer.idfsLocation = tglEmployer.idfsLocation		
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000001) AS ECountry ON EA.node.IsDescendantOf(Ecountry.node) = 1
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000003) AS ERegion ON EA.node.IsDescendantOf(ERegion.node) = 1
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000002) AS ERayon ON EA.node.IsDescendantOf(ERayon.node) = 1
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000004) AS ESettlement ON EA.node.IsDescendantOf(ESettlement.node) = 1
 		LEFT JOIN dbo.FN_GBL_GIS_Reference(@LangID, 19000005) AS EmpSettlementType ON EmpSettlementType.idfsReference = EA.idfsType
 
 		-- Permanent address 
 		LEFT JOIN dbo.gisLocation registrationLocation ON registrationLocation.idfsLocation = tglRegistrationAddress.idfsLocation
 		LEFT JOIN dbo.FN_GBL_LocationHierarchy_Flattened(@LangID) lhPerm ON lhPerm.idfsLocation = tglRegistrationAddress.idfsLocation		
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000001) AS registrationCountry ON registrationLocation.node.IsDescendantOf(registrationCountry.node) = 1
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000003) AS registrationRegion ON registrationLocation.node.IsDescendantOf(registrationRegion.node) = 1
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000002) AS registrationRayon ON registrationLocation.node.IsDescendantOf(registrationRayon.node) = 1
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000004) AS registrationSettlement ON registrationLocation.node.IsDescendantOf(registrationSettlement.node) = 1
 		LEFT JOIN dbo.FN_GBL_GIS_Reference(@LangID, 19000005) AS registrationSettlementType ON registrationSettlementType.idfsReference = registrationLocation.idfsType
 
 		-- Alternate address - new for EIDSS7
 		LEFT JOIN dbo.gisLocation AltLocation ON AltLocation.idfsLocation = tglAlt.idfsLocation
 		LEFT JOIN dbo.FN_GBL_LocationHierarchy_Flattened(@LangID) lhAlt ON lhAlt.idfsLocation = tglAlt.idfsLocation		
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000001) AS AltCountry ON AltLocation.node.IsDescendantOf(AltCountry.node) = 1
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000003) AS AltRegion ON AltLocation.node.IsDescendantOf(AltRegion.node) = 1
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000002) AS AltRayon ON AltLocation.node.IsDescendantOf(AltRayon.node) = 1
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000004) AS AltSettlement ON AltLocation.node.IsDescendantOf(AltSettlement.node) = 1
 		LEFT JOIN dbo.FN_GBL_GIS_Reference(@LangID, 19000005) AS AltSettlementType ON AltSettlementType.idfsReference = AltLocation.idfsType
 
 		LEFT JOIN dbo.FN_GBL_Repair(@LangID, 19000100) isEmployed ON IsEmployed.idfsReference = haai.IsEmployedID
@@ -324,16 +310,7 @@ BEGIN
 		-- School address - E6 school address was originally stored in idfEmployerAddress with employment type = 'Student'
 		LEFT JOIN dbo.gisLocation SchoolLocation ON SchoolLocation.idfsLocation = tglSchool.idfsLocation
 		LEFT JOIN dbo.FN_GBL_LocationHierarchy_Flattened(@LangID) lhSchool ON lhSchool.idfsLocation = tglSchool.idfsLocation		
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000001) AS schoolCountry ON SchoolLocation.node.IsDescendantOf(schoolCountry.node) = 1
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000003) AS schoolRegion ON SchoolLocation.node.IsDescendantOf(schoolRegion.node) = 1
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000002) AS schoolRayon ON SchoolLocation.node.IsDescendantOf(schoolRayon.node) = 1
-		--LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000004) AS schoolSettlement ON SchoolLocation.node.IsDescendantOf(schoolSettlement.node) = 1
 		LEFT JOIN dbo.FN_GBL_GIS_Reference(@LangID, 19000005) AS schoolSettlementType ON schoolSettlementType.idfsReference = SchoolLocation.idfsType
-
-
-		LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000042) AS HumanAgeType	ON (haai.ReportedAgeUOMID = HumanAgeType.idfsReference Or HumanAgeType.idfsReference = 10042003)
-
-
 
 		WHERE ha.idfHumanActual = @HumanMasterID;
 	END TRY

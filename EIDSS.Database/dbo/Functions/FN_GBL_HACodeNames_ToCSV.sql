@@ -36,56 +36,46 @@ CREATE FUNCTION [dbo].[FN_GBL_HACodeNames_ToCSV] (
 RETURNS NVARCHAR(4000)
 AS
 BEGIN
-	DECLARE @CSV NVARCHAR(4000) = N'', -- size string returned by STRING_AGG
-		@LanguageCode BIGINT = dbo.FN_GBL_LanguageCode_GET(@LangID);
+	DECLARE @CSV NVARCHAR(4000) = N'',
+			@HACodeMax BIGINT = 510,
+			@LanguageCode BIGINT = dbo.FN_GBL_LanguageCode_GET(@LangID);
 
 	-- if passed a null, we return a null result
 	IF (@HACode IS NULL)
 		RETURN NULL;
 
-	-- if not passed a zero, we process the list
-	IF (@HACode <> 0)
-	BEGIN
-		WITH cteOrderedResults (
-			[intHACode],
-			[strDisplayText]
-			)
-		AS (
-			SELECT TOP 100 PERCENT hcl.[intHACode],
-				COALESCE(snt.[strTextString], br.[strDefault]) AS [strDisplayText]
-			FROM [dbo].[trtHACodeList] AS hcl
-			INNER JOIN [dbo].[trtBaseReference] AS br
-				ON hcl.[idfsCodeName] = br.[idfsBaseReference]
-			LEFT OUTER JOIN [dbo].[trtStringNameTranslation] AS snt
-				ON hcl.[idfsCodeName] = snt.[idfsBaseReference]
-					AND snt.[idfsLanguage] = @LanguageCode
-			WHERE (
-					hcl.[intHACode] <> 0
-					AND hcl.intHACode <> 510
-					)
-				AND ((@HACode & hcl.[intHACode]) = hcl.[intHACode])
-			ORDER BY hcl.[intHACode] ASC
-			)
-		SELECT @CSV = STRING_AGG([strDisplayText], N', ')
-		FROM cteOrderedResults;-- needed CTE to get ordered result set due to AGGREGATE function
-
-		-- do we have a valid result to return?
-		IF (
-				@CSV IS NOT NULL
-				AND LEN(@CSV) > 0
-				)
-			RETURN @CSV;-- yes
-	END
-
-	-- if we got to here, then we need to return the display text for HACode zero (i.e. "None").
-	SELECT TOP 1 @CSV = COALESCE(snt.[strTextString], br.[strDefault])
-	FROM [dbo].[trtHACodeList] AS hcl
-	INNER JOIN [dbo].[trtBaseReference] AS br
-		ON hcl.[idfsCodeName] = br.[idfsBaseReference]
-	LEFT OUTER JOIN [dbo].[trtStringNameTranslation] AS snt
-		ON hcl.[idfsCodeName] = snt.[idfsBaseReference]
-			AND snt.[idfsLanguage] = @LanguageCode
-	WHERE hcl.[intHACode] = 0;
-
+	SET @CSV = 
+	STUFF(
+		CAST(	(	SELECT N',' + COALESCE(snt.[strTextString], br.[strDefault], N'')
+					FROM [dbo].[trtHACodeList] AS hcl
+					INNER JOIN [dbo].[trtBaseReference] AS br
+						ON hcl.[idfsCodeName] = br.[idfsBaseReference]
+					LEFT OUTER JOIN [dbo].[trtStringNameTranslation] AS snt
+						ON hcl.[idfsCodeName] = snt.[idfsBaseReference]
+							AND snt.[idfsLanguage] = @LanguageCode
+					WHERE	(	(	(	hcl.[intHACode] <> 0
+										AND hcl.intHACode <> @HACodeMax
+									)
+									AND ((@HACode & hcl.[intHACode]) = hcl.[intHACode])
+								)
+								OR	(	hcl.[intHACode] = 0
+										and not exists
+												(	select	1 
+													from	[dbo].[trtHACodeList] AS hcl_other 
+													where	((hcl_other.[intHACode] & @HACode) = hcl_other.[intHACode])
+															and hcl_other.intRowStatus = 0
+															and hcl_other.[intHACode] <> 0 
+															and hcl_other.[intHACode] <> @HACodeMax
+												)
+									)
+							)
+							AND hcl.intRowStatus = 0
+							AND @HACode IS NOT NULL
+					ORDER BY hcl.[intHACode] ASC
+					FOR XML PATH('')
+								)
+								AS NVARCHAR(4000)
+			), 1, 1, N'')
+	
 	RETURN @CSV;
 END

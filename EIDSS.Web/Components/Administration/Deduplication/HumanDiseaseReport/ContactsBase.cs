@@ -209,7 +209,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                 HumanDiseaseReportDeduplicationService.chkCheckAllContactList = false;
                 HumanDiseaseReportDeduplicationService.chkCheckAllContactList2 = false;
 
-                await EableDisableMergeButtonAsync();
+                await EnableDisableMergeButtonAsync();
 
                 //HumanDiseaseReportDeduplicationService.SurvivorContactsDetails = CopyAllInList<DiseaseReportContactDetailsViewModel>(HumanDiseaseReportDeduplicationService.contactsDetails);
                 //foreach (var item in HumanDiseaseReportDeduplicationService.contactsDetails2)
@@ -319,7 +319,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                 //        HumanDiseaseReportDeduplicationService.SurvivorContactsDetails.Add(item);
                 //    }
                 //}
-                await EableDisableMergeButtonAsync();
+                await EnableDisableMergeButtonAsync();
                 HumanDiseaseReportDeduplicationService.SurvivorContactHumanDiseaseReportID = HumanDiseaseReportDeduplicationService.SupersededHumanDiseaseReportID;
             }
         }

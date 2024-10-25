@@ -29,8 +29,6 @@ namespace EIDSS.Web.Components.Human.Person
             _source = new CancellationTokenSource();
             _token = _source.Token;
 
-            StateContainer.OnChange += async (property) => await OnStateContainerChangeAsync(property);
-
             return base.OnInitializedAsync();
         }
 
@@ -52,15 +50,11 @@ namespace EIDSS.Web.Components.Human.Person
         {
             _source?.Cancel();
             _source?.Dispose();
-            StateContainer.OnChange -= async (property) => await OnStateContainerChangeAsync(property);
         }
 
-        private async Task OnStateContainerChangeAsync(string property)
+        public async Task RefreshComponent()
         {
-            if (property == "DateEntered" || property == "DateModified")
-            {
-                await InvokeAsync(StateHasChanged);
-            }
+            await InvokeAsync(StateHasChanged);
         }
 
         #region Validation Methods

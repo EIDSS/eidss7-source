@@ -31,6 +31,15 @@
         <RadzenCard>
             @if (PersonDeduplicationService.AddressList != null)
             {
+                @*<RadzenCheckBoxList id="rcblAddress" Name="rcblAddress" AllowClear="true" @ref="rcblAddress" TValue="int" @bind-Value=@PersonDeduplicationService.AddressValues
+                                    Orientation="Orientation.Horizontal" Change=@OnCheckBoxListAddressSelectionChangeAsync>
+                    <Items>
+                        @foreach (Field item in PersonDeduplicationService.AddressList)
+                        {
+                            <RadzenCheckBoxListItem Text="@item.Label" Value="@item.Index" Disabled="item.Disabled" Visible="@(item.Index < HumanidfsRegion)" Style="@item.Color" />
+                        }
+                    </Items>
+                </RadzenCheckBoxList>*@
                 <RadzenDataList WrapItems=false AllowPaging=false Data=PersonDeduplicationService.AddressList TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
                     <Template Context="field">
                     @if (field.Index < HumanidfsRegion)
@@ -61,6 +70,15 @@
         <RadzenCard>
             @if (PersonDeduplicationService.AddressList2 != null)
             {
+                @*<RadzenCheckBoxList id="rcblAddress2" Name="rcblAddress2" AllowClear="true" @ref="rcblAddress2" TValue="int" @bind-Value=@PersonDeduplicationService.AddressValues2
+                                    Orientation="Orientation.Horizontal" Change=@OnCheckBoxListAddress2SelectionChangeAsync>
+                    <Items> 
+                        @foreach (Field item in PersonDeduplicationService.AddressList2)
+                        {
+                            <RadzenCheckBoxListItem Text="@item.Label" Value="@item.Index" Disabled="item.Disabled" Visible="@(item.Index < HumanidfsRegion)" Style="@item.Color"  />
+                        }
+                    </Items>
+                </RadzenCheckBoxList>*@
                 <RadzenDataList WrapItems=false AllowPaging=false Data=PersonDeduplicationService.AddressList2 TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
                     <Template Context="field">
                     @if (field.Index < HumanidfsRegion)

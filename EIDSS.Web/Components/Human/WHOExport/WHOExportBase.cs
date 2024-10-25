@@ -233,7 +233,7 @@ namespace EIDSS.Web.Components.Human.WHOExport
                                 object targetType = (propertyType.IsGenericType == true && propertyType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)) == true) ? Nullable.GetUnderlyingType(propertyType) : propertyType;
                                 if (targetType.GetType().Name == "RuntimeType" && ((Type)targetType).Name == "DateTime")
                                 {
-                                    sb.Append(DateTime.Parse(props[i].GetValue(row).ToString()).ToString("dd/MM/yyyy") + "\t");
+                                    sb.Append(DateTime.Parse(props[i].GetValue(row).ToString()).ToShortDateString() + "\t");
                                 }
                                 else
                                     sb.Append(props[i].GetValue(row).ToString() + "\t");

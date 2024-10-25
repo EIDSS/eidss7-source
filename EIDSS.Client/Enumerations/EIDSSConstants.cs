@@ -17,6 +17,8 @@ namespace EIDSS.ClientLibrary.Enumerations
             public const int Deleted = 1;
         }
 
+        public const string Iso8601DateTimeFormat = "yyyyMMdd";
+
         #endregion Common
 
         public struct EIDSSModules
@@ -32,6 +34,214 @@ namespace EIDSS.ClientLibrary.Enumerations
             public const string Success = "SUCCESS";
             public const string DoesExist = "DOES EXIST";
         }
+
+        //public struct CallerPages
+        //{
+        //    public const string Login = "LOGIN";
+        //    public const string LoginURL = "/login.aspx";
+
+        //    public const string Dashboard = "DASHBOARD";
+        //    public const string DashboardURL = "/Dashboard.aspx";
+
+        //    public const string ResetPassword = "RESETPASSWORD";
+        //    public const string ResetPasswordURL = "/ResetPassword.aspx";
+
+        //    public const string EmployeeAdmin = "EMPLOYEEADMIN";
+        //    public const string EmployeeAdminPrefix = "EA";
+        //    public const string EmployeeAdminURL = "/System/Administration/EmployeeAdmin.aspx";
+
+        //    public const string EmployeeDetails = "EMPLOYEEDETAILS";
+        //    public const string EmployeeDetailsPrefix = "ED";
+        //    public const string EmployeeDetailsURL = "/System/Administration/EmployeeDetails.aspx";
+
+        //    public const string Employee = "EMPLOYEE";
+        //    public const string EmployeePrefix = "EMP";
+        //    public const string EmployeeURL = "/System/Administration/EmployeeList.aspx";
+
+        //    public const string OrganizationAdmin = "ORGANIZATIONADMIN";
+        //    public const string OrganizationAdminPrefix = "OA";
+        //    public const string OrganizationAdminURL = "/System/Administration/OrganizationAdmin.aspx";
+
+        //    public const string OrganizationDetails = "ORGANIZATIONDETAILS";
+        //    public const string OrganizationDetailsPrefix = "OD";
+        //    public const string OrganizationDetailsURL = "/System/Administration/OrganizationDetails.aspx";
+
+        //    public const string SiteAdmin = "SITEADMIN";
+        //    public const string SiteAdminPrefix = "SA";
+        //    public const string SiteAdminURL = "/Security/SiteAdmin.aspx";
+
+        //    public const string SiteDetails = "SITEDETAILS";
+        //    public const string SiteDetailsPrefix = "SD";
+        //    public const string SiteDetailsURL = "/Security/SiteDetails.aspx";
+
+        //    public const string SiteGroupAdmin = "SITEGROUPADMIN";
+        //    public const string SiteGroupAdminPrefix = "SGA";
+        //    public const string SiteGroupAdminURL = "/Security/SiteGroupAdmin.aspx";
+
+        //    public const string SiteGroupDetails = "SITEGROUPDETAILS";
+        //    public const string SiteGroupDetailsPrefix = "SGD";
+        //    public const string SiteGroupDetailsURL = "/Security/SiteGroupDetails.aspx";
+
+        //    public const string SearchSiteEdit = "SEARCHSITEEDIT";
+        //    public const string SearchSiteView = "SEARCHSITEVIEW";
+        //    public const string SearchSiteDelete = "SEARCHSITEDELETE";
+        //    public const string SearchSiteAdd = "SEARCHSITEADD";
+
+        //    public const string SearchSiteGroupEdit = "SEARCHSITEGROUPEDIT";
+        //    public const string SearchSiteGroupView = "SEARCHSITEGROUPVIEW";
+        //    public const string SearchSiteGroupDelete = "SEARCHSITEGROUPDELETE";
+        //    public const string SearchSiteGroupAdd = "SEARCHSITEGROUPADD";
+
+        //    public const string Person = "PERSON";
+        //    public const string PersonURL = "/Human/Person.aspx";
+        //    public const string PersonPrefix = "PER";
+        //    public const string PersonRecordDeduplicationURL = "/System/Administration/Deduplication/PersonRecordDeduplication.aspx";
+
+        //    public const string Farm = "FARM";
+        //    public const string FarmURL = "/Veterinary/Farm.aspx";
+        //    public const string FarmPrefix = "FRM";
+        //    public const string FarmRecordDeduplicationURL = "/System/Administration/Deduplication/FarmRecordDeduplication.aspx";
+
+        //    public const string HumanDiseaseReport = "HUMANDISEASEREPORT";
+        //    public const string HumanDiseaseReportDetail = "HUMANDISEASEREPORTDETAIL";
+        //    public const string HumanDiseaseReportURL = "/Human/HumanDiseaseReport.aspx";
+        //    public const string HumanDiseaseReportPreviewURL = "/Human/HumanDiseaseReport.aspx?action=preview";
+        //    public const string HumanDiseaseReportSuffix = "_HDR";
+        //    public const string HumanDiseaseReportInitSuffix = "_HDRInit";
+        //    public const string HumanDiseaseReportSamples = "_HDRSamples";
+        //    public const string HumanDiseaseReportTests = "_HDRTests";
+        //    public const string HumanDiseaseReportContacts = "_HDRContacts";
+        //    public const string HumanDiseaseReportDeduplication = "HUMANDISEASEREPORTDEDUPLICATION";
+        //    public const string HumanDiseaseReportDeduplicationURL = "/System/Administration/Deduplication/HumanDiseaseReportDeduplication.aspx";
+
+        //    public const string HumanAggregate = "HUMANAGGREGATE";
+        //    public const string HumanAggregateURL = "/Human/AggregateDiseaseReport.aspx";
+        //    public const string HumanAggregateActionReportURL = "/Human/AggregateActionReport.aspx";
+
+        //    public const string OutbreakCaseReportURL = "~/Outbreak/Outbreak.aspx";
+
+        //    public const string SearchDiseaseReports = "SearchDiseaseReports";
+        //    public const string SearchDiseaseReports_SelectPerson = "SearchDiseaseReports_SelectPerson";
+        //    public const string SearchDiseaseReportsURL = "/Human/SearchDiseaseReports.aspx";
+        //    public const string SearchDiseaseReportsSuffix = "_SDR";
+        //    public const string HumanDiseaseReportPrefix = "HDR";
+
+        //    public const string VeterinaryAggregate = "VETERINARYAGGREGATE";
+        //    public const string VeterinaryAggregateURL = "/Veterinary/AggregateDiseaseReport.aspx";
+        //    public const string VeterinaryAggregateActionReportURL = "/Veterinary/AggregateActionReport.aspx";
+
+        //    public const string AvianVeterinaryDiseaseReport = "AVIANVETERINARYDISEASEREPORT";
+        //    public const string AvianVeterinaryDiseaseReportAddFarm = "AVIANVETERINARYDISEASEREPORTADDFARM";
+        //    public const string AvianVeterinaryDiseaseReportURL = "/Veterinary/AvianDiseaseReport.aspx";
+        //    public const string AvianDiseaseReportDeduplicationURL = "/System/Administration/Deduplication/AvianDiseaseReportDeduplication.aspx";
+
+        //    public const string LivestockVeterinaryDiseaseReport = "LIVESTOCKVETERINARYDISEASEREPORT";
+        //    public const string LivestockVeterinaryDiseaseReportAddFarm = "LIVESTOCKVETERINARYDISEASEREPORTADDFARM";
+        //    public const string LivestockVeterinaryDiseaseReportURL = "/Veterinary/LivestockDiseaseReport.aspx";
+        //    public const string LivestockDiseaseReportDeduplicationURL = "/System/Administration/Deduplication/LivestockDiseaseReportDeduplication.aspx";
+
+        //    public const string VeterinaryDiseaseReportEditMonitoringSessionShowResultSummary = "VeterinaryDiseaseReportEditMonitoringSessionShowResultSummary";
+
+        //    public const string SearchVeterinaryDiseaseReport = "SEARCHVETERINARYDISEASEREPORT";
+        //    public const string SearchVeterinaryDiseaseReportDelete = "SEARCHVETERINARYDISEASEREPORTDELETE";
+        //    public const string SearchVeterinaryDiseaseReportEdit = "SEARCHVETERINARYDISEASEREPORTEDIT";
+        //    public const string SearchVeterinaryDiseaseReportSelect = "SEARCHVETERINARYDISEASEREPORTSELECT";
+        //    public const string SearchVeterinaryDiseaseReportURL = "/Veterinary/SearchVeterinaryDiseaseReport.aspx";
+        //    public const string VeterinaryDiseaseReportPrefix = "VDR";
+
+        //    public const string LaboratorySamples = "Samples";
+        //    public const string LaboratoryTestingURL = "/Laboratory/Laboratory.aspx?Tab=Testing";
+
+        //    public const string VeterinaryActiveSurveillanceMonitoringSession = "VASMONITORINGSESSION";
+        //    public const string VeterinaryActiveSurveillanceMonitoringSessionDeleteVeterinaryDiseaseReport = "VASMSDELETEVETERINARYDISEASEREPORT";
+        //    public const string VeterinaryActiveSurveillanceMonitoringSessionEditVeterinaryDiseaseReport = "VASMSEDITVETERINARYDISEASEREPORT";
+        //    public const string VeterinaryActiveSurveillanceMonitoringSessionURL = "/Veterinary/ActiveSurveillanceSession.aspx";
+        //    public const string VeterinaryActiveSurveillanceMonitoringSessionAddFarm = "VASMONITORSESSIONADDFARM";
+        //    public const string VeterinaryMonitoringSessionPrefix = "VMS";
+
+        //    public const string VeterinaryActiveSurveillanceCampaign = "VASCAMPAIGN";
+        //    public const string VeterinaryActiveSurveillanceCampaignNewMonitoringSession = "VASCAMPAIGNNEWMONITORINGSESSION";
+        //    public const string VeterinaryActiveSurveillanceCampaignDeleteMonitoringSession = "VASCAMPAIGNDELETEMONITORINGSESSION";
+        //    public const string VeterinaryActiveSurveillanceCampaignSelectMonitoringSession = "VASCAMPAIGNSELECTMONITORINGSESSION";
+        //    public const string VeterinaryActiveSurveillanceCampaignSelectMonitoringSessionAddFarm = "VASCAMPAIGNSELECTMONITORINGSESSIONADDFARM";
+        //    public const string EditVeterinaryActiveSurveillanceCampaignSelectMonitoringSession = "EditVeterinaryActiveSurveillanceMonitoringSessionFromCampaign";
+        //    public const string ViewVeterinaryActiveSurveillanceCampaignSelectMonitoringSession = "ViewVeterinaryActiveSurveillanceMonitroingSessionFromCampaign";
+        //    public const string VeterinaryActiveSurveillanceCampaignURL = "/Veterinary/ActiveSurveillanceCampaign.aspx";
+
+        //    public const string OutbreakImportHumanDiseaseReport = "OUTBREAKIMPORTHUMANDISEASEREPORT";
+        //    public const string OutbreakImportVeterinaryDiseaseReport = "OUTBREAKIMPORTVETERINARYDISEASEREPORT";
+        //    public const string OutbreakCreateHumanDiseaseReport = "OUTBREAKCREATEHUMANDISEASEREPORT";
+        //    public const string OutbreakCreateVeterinaryDiseaseReport = "OUTBREAKCREATEVETERINARYDISEASEREPORT";
+        //    public const string OutbreakCreateVector = "OUTBREAKCREATEVECTOR";
+        //    public const string OutbreakEditVector = "OUTBREAKEDITVECTOR";
+        //    public const string OutbreakReturnFromVector = "OUTBREAKRETURNFROMVECTOR";
+
+        //    public const string OutbreakReturnFromFlexFormDesigner = "OUTBREAKRETURNFROMFLEXFORMDESIGNER";
+        //    public const string OutbreakFlexibleFormDesigner = "OUTBREAKFLEXIBLEFORMDESIGNER";
+
+        //    public const string OutbreakEditFlexForm = "OutbreakEditFlexForm";
+        //    public const string FlexibleFormDesignerURL = "/System/Administration/FlexFormDesigner.aspx";
+
+        //    public const string FarmWithVeterinaryDiseaseReport = "FARMWITHVETERINARYDISEASEREPORT";
+
+        //    public const string SettlementAdmin = "SETTLEMENTADMIN";
+        //    public const string SettlementAdminPrefix = "SA";
+        //    public const string SettlementAdminURL = "/System/Administration/SettlementAdmin.aspx";
+
+        //    public const string SettlementDetails = "SETTLEMENTDETAILS";
+        //    public const string SettlementDetailsPrefix = "SD";
+        //    public const string SettlementDetailsURL = "/System/Administration/SettlementDetails.aspx";
+
+        //    public const string StatDataAdmin = "STATISTICALDATAADMIN";
+        //    public const string StatDataAdminPrefix = "SDA";
+        //    public const var StatDataAdminURL = "/System/Administration/StatisticalDataAdmin.aspx";
+
+        //    public const string StatDataDetails = "STATISTICALDATADETAILS";
+        //    public const string StatDataDetailsPrefix = "SDD";
+        //    public const var StatDataDetailsURL = "/System/Administration/StatisticalDataDetails.aspx";
+
+        //    public const string HumanActiveSurveillanceCampaignPrefix = "HASC";
+        //    public const string HumanActiveSurveillanceCampaignSuffix = "_HASC";
+        //    public const string HumanActiveSurveillanceCampaign = "HumanActiveSurveillanceCampaign";
+
+        //    public const string HumanActiveSurveillanceCampaignDeleteMonitoringSession = "HASCAMPAIGNDELETEMONITORINGSESSION";
+        //    public const string HumanActiveSurveillanceCampaignSelectMonitoringSession = "HASCAMPAIGNSELECTMONITORINGSESSION";
+
+        //    public const string HumanActiveSurveillanceMonitoringSession = "HASMONITORINGSESSION";
+        //    public const string HumanActiveSurveillanceCampaignSearch = "HumanActiveSurveillanceCampaignSearch";
+        //    public const string HumanActiveSurveillanceCampaignIDSearch = "HumanActiveSurveillanceCampaignIDSearch";
+        //    public const string HumanActiveSurveillanceReturnToCampaignSessions = "HumanActiveSurveillanceReturnToCampaignSessions";
+        //    public const string HumanActiveSurveillanceEditCampaignSession = "HumanActiveSurveillanceEditCampaignSession";
+        //    public const string HumanActiveSurveillanceCampaignUrl = "/Human/ActiveSurveillanceCampaign.aspx";
+
+        //    public const string HumanActiveSurveillanceCampaignNewMonitoringSession = "HASCAMPAIGNNEWMONITORINGSESSION";
+        //    public const string EditHumanActiveSurveillanceCampaignSelectMonitoringSession = "EditHumanActiveSurveillanceMonitoringSessionFromCampaign";
+        //    public const string ViewHumanActiveSurveillanceCampaignSelectMonitoringSession = "ViewHumanActiveSurveillanceMonitoringSessionFromCampaign";
+        //    public const string HumanActiveSurveillanceSessionPrefix = "HASS";
+        //    public const string HumanMonitoringSessionPrefix = "HMS";
+        //    public const string HumanActiveSurveillanceSessionSuffix = "_HASS";
+        //    public const string HumanActiveSurveillanceSession = "HumanActiveSurveillanceSession";
+        //    public const string HumanActiveSurveillanceSessionSearch = "HumanActiveSurveillanceSessionSearch";
+        //    public const string HumanActiveSurveillanceSessionUrl = "/Human/ActiveSurveillanceSession.aspx";
+        //    public const string HumanActiveSurveillanceSessionDetailedInformationPersonSearch = "HumanActiveSurveillanceSessionDetailedInformationPersonSearch";
+        //    public const string HumanActiveSurveillanceSessionDetailedInformationOrganizationSearch = "HumanActiveSurveillanceSessionDetailedInformationOrganizationSearch";
+        //    public const string HumanActiveSurveillanceSessionContinue = "HumanActiveSurveillanceSessionContinue";
+
+        //    public const string SearchVectorSurveillanceSessionDelete = "SEARCHVECTORSURVEILLANCESESSIONDELETE";
+        //    public const string SearchVectorSurveillanceSessionEdit = "SEARCHVECTORSURVEILLANCESESSIONEDIT";
+        //    public const string SearchVectorSurveillanceSessionRead = "SEARCHVECTORSURVEILLANCESESSIONREAD";
+        //    public const string VectorSurveillanceSessionURL = "/Vector/VectorSurveillanceSession.aspx";
+        //    public const string VectorSurveillanceSessionPrefix = "VSS";
+
+        //    public const string FlexibleFormParameterReferenceType = "FFParameterReferenceType";
+        //    public const string FlexibleFormParameterTypeID = "FFParameterTypeID";
+        //    public const string FlexibleFormParameterquestion = "FFParameterquestion";
+
+        //    public const string PersonPreviewOutbreakCaseReport = "PersonPreviewOutbreakCaseReport";
+
+        //    public const string ChangePasswordURL = "/Security/ChangePassword.aspx";
+        //    public const string UserPreferenceURL = "/System/UserPreferences/UserPreferences.aspx";
+        //}
 
         public struct Roles
         {
@@ -987,6 +1197,7 @@ namespace EIDSS.ClientLibrary.Enumerations
 
         public struct FinalOutcome
         {
+            public const long Recovered = 10760000000;
             public const long Died = 10770000000;
         }
 
@@ -1566,6 +1777,9 @@ namespace EIDSS.ClientLibrary.Enumerations
             public const string PreviousButtonText = "<";
         }
 
+        /// <summary>
+        ///     '''
+        ///     ''' </summary>
         public struct ReportSessionTypeConstants
         {
             public const string HumanDiseaseReport = "Human Disease Report";
@@ -1665,6 +1879,8 @@ namespace EIDSS.ClientLibrary.Enumerations
             public const string CanManageUserGroups = "Can Manage User Groups";
             public const string AccessToHumanDiseaseReportData = "Access To Human Disease Report Data";
 
+            // TODO: When the Employee Token gets fixed uncomment and delete the one below this
+            // Public Const AccessToVeterinaryDiseaseReportsData As String = "Access To Veterinary Disease Reports Data"
             public const string AccessToVeterinaryDiseaseReportsData = "Access to Veterinary Cases Data";
 
             public const string AccessToLaboratorySamples = "Access To Laboratory Samples";
@@ -1679,6 +1895,8 @@ namespace EIDSS.ClientLibrary.Enumerations
             public const string AccessToSecurityLog = "Access To Security Log";
             public const string AccessToSecurityPolicy = "Access To Security Policy";
 
+            // TODO: When the Employee Token gets fixed uncomment and delete the one below this
+            // Public Const AccessToVeterinaryActiveSurveillanceCampaign As String = "Access To VET Active Surveillance Campaign"
             public const string AccessToVeterinaryActiveSurveillanceCampaign = "Access to Active Surveillance Campaign";
 
             public const string AccessToVeterinaryActiveSurveillanceSession = "Access to Active Surveillance Session";
@@ -2032,6 +2250,7 @@ namespace EIDSS.ClientLibrary.Enumerations
             public const string HumanidfsCountry = "HumanidfsCountry";
             public const string HumanForeignAddressIndicator = "HumanForeignAddressIndicator";
             public const string HumanForeignAddressString = "HumanForeignAddressString";
+            //TODO: Remove IsAnotherPhone and YNAnotherAddress from the Deduplication form
             public const string IsAnotherPhone = "IsAnotherPhone";
             public const string YNAnotherAddress = "YNAnotherAddress";
             public const string YNHumanAltForeignAddress = "YNHumanAltForeignAddress";
@@ -2050,6 +2269,9 @@ namespace EIDSS.ClientLibrary.Enumerations
             public const string HumanPermSettlement = "HumanPermSettlement";
             public const string HumanPermSettlementType = "HumanPermSettlementType";
             public const string HumanPermGeoLocationID = "HumanPermGeoLocationID";
+            //TODO: Replace usage of IsAnotherPhone and YNAnotherAddress with IsAnotherPhoneTypeID and IsAnotherAddressTypeID correspondingly in the Deduplication form
+            public const string IsAnotherPhoneTypeID = "IsAnotherPhoneTypeID";
+            public const string IsAnotherAddressTypeID = "IsAnotherAddressTypeID";
         }
 
         public struct SiteAlertTypes
@@ -2155,6 +2377,7 @@ namespace EIDSS.ClientLibrary.Enumerations
             public const string ReceivedByPerson = "ReceivedByPerson";
             public const string PatientCurrentLocation = "HospitalizationStatus";
 
+            //public const string HospitalName = "HospitalName";
             public const string OtherLocation = "strCurrentLocation";
 
             public const string DiseaseID = "idfsFinalDiagnosis";
@@ -2164,6 +2387,7 @@ namespace EIDSS.ClientLibrary.Enumerations
             public const string ReceivedByOfficeID = "idfReceivedByOffice";
             public const string ReceivedByPersonID = "idfReceivedByPerson";
             public const string PatientCurrentLocationID = "idfsHospitalizationStatus";
+            //public const string HospitalID = "idfHospital";
         }
 
         public struct DiseasereportDeduplicationSymptomsConstants
@@ -2227,6 +2451,7 @@ namespace EIDSS.ClientLibrary.Enumerations
             public const string InvestigatedByOffice = "InvestigatedByOffice";
             public const string StartDateofInvestigation = "StartDateofInvestigation";
 
+            // public const string RelatedToOutbreak  = "YNRelatedToOutbreak";
             public const string Outbreak = "strOutbreakID";
 
             public const string Comments = "strNote";
@@ -2246,6 +2471,8 @@ namespace EIDSS.ClientLibrary.Enumerations
             public const string Direction = "dblPointAlignment";
             public const string PointForeignAddress = "strPointForeignAddress";
 
+            //public const string RiskFactorList  = "idfCSObservation";
+            //public const string RelatedToOutbreakID  = "idfsYNRelatedToOutbreak";
             public const string OutbreakID = "idfOutbreak";
 
             public const string ExposureLocationKnownID = "idfsYNExposureLocationKnown";
@@ -2283,12 +2510,14 @@ namespace EIDSS.ClientLibrary.Enumerations
 
         public struct DiseasereportDeduplicationFinalOutcomeConstants
         {
+            //public const string idfHumanCase = "idfHumanCase";
             public const string FinalCaseStatus = "FinalCaseStatus";
 
             public const string DateofClassification = "DateofClassification";
             public const string BasisofDiagnosis = "strClinicalDiagnosis";
             public const string Outcome = "Outcome";
 
+            // public const string DateofDeath = "datDateofDeath";
             public const string strEpidemiologistsName = "strEpidemiologistsName";
 
             public const string strSummaryNotes = "strSummaryNotes";
@@ -2347,6 +2576,11 @@ namespace EIDSS.ClientLibrary.Enumerations
             public const string FarmAddressLocationID = "FarmAddressLocationID";
             public const string EIDSSFarmOwnerID = "EIDSSFarmOwnerID";
 
+            //public const string AvianFarmTypeID = "AvianFarmTypeID";
+            //public const string AvianProductionTypeID = "AvianProductionTypeID";
+            //public const string OwnershipStructureTypeID = "OwnershipStructureTypeID";
+            //public const string NumberOfBuildings = "NumberOfBuildings";
+            //public const string NumberOfBirdsPerBuilding = "NumberOfBirdsPerBuilding";
             public const string FarmNationalName = "FarmNationalName";
 
             public const string FarmAddressStreet = "FarmAddressStreet";

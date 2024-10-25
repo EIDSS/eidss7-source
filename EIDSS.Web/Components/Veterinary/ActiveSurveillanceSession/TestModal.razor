@@ -55,6 +55,14 @@
                 <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.TestDetailsModalTestResultFieldLabel" IsRow="false" CssClass="col-6" For="testResult">
                     <div class="input-group">
                         <RadzenDropDown Name="testResult" class="form-control" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" TValue="long?" @bind-Value="StateContainer.LaboratoryTestDetail.TestResultTypeID" LoadData="GetTestResultTypes" Data="TestResultTypes" TextProperty="strTestResultName" ValueProperty="idfsTestResult" Disabled="@Disabled" />
+                        @*@if (StateContainer.CanManageReferenceTablesPermissions.Create)
+                        {
+                        <div class="input-group-append">
+                        <button class="btn btn-outline-secondary btn-sm" id="addTestResultType" name="addTestResultType" @onclick="@OnAddTestResultTypeClick" type="button">
+                        <i class="fas fa-plus"></i>
+                        </button>
+                        </div>
+                        }*@
                     </div>
                 </InterfaceEditorResource>
             </div>

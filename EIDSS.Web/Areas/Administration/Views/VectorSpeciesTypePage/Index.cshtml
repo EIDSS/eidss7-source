@@ -250,6 +250,7 @@
                 updateNotificationEnvelopeCount();
             } else if (parsed_data.returnMessage == "DOES EXIST") {
                 $("#duplicatesModal").modal("show");
+                /*  $("#dupemsg").html(parsed_data.strClientPageMessage);*/
                 $("#dupemsg").html(parsed_data.strDuplicatedField);
             }
         };

@@ -1,5 +1,6 @@
 ﻿namespace EIDSS.Domain.RequestModels.Administration
 {
+    //[AtLeastOneProperty(ErrorMessage = "Select at least one search criterion.")]
     public class OrganizationAdvancedGetRequestModel 
     {
         public string LangID { get; set; }

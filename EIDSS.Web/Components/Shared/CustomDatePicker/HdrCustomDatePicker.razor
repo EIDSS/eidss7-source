@@ -1,0 +1,20 @@
+@inherits EIDSS.Web.Components.Shared.CustomDatePicker.CustomDatePickerBase
+
+<RadzenStack class="custom-date-picker-container">
+    <RadzenDatePicker
+        id="@Id"
+        Style="display: flex"
+        AllowClear="true"
+        Name="@Name"
+        disabled="@Disabled"
+        @bind-Value="@Value"
+        Change="@OnChange"
+        TValue="DateTime?"
+        YearRange="@($"1900:{DateTime.Now.Year}")"
+        Max="@(Max ?? DateTime.Now.ToLocalTime())"
+        DateFormat="d"/>
+    <RadzenLabel
+        class="rz-messages-error"
+        Visible="@(!string.IsNullOrWhiteSpace(WarningMassage))"
+        Text="@(WarningMassage ?? "")"/>
+</RadzenStack>

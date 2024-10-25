@@ -1,5 +1,8 @@
-﻿#region Usings
-
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
 using EIDSS.ClientLibrary.ApiClients.Admin;
 using EIDSS.ClientLibrary.Enumerations;
 using EIDSS.ClientLibrary.Responses;
@@ -15,92 +18,62 @@ using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using Radzen;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.JSInterop;
+using Radzen;
 using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.Int32;
-using static System.String;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
-
-#endregion
 
 namespace EIDSS.Web.Abstracts
 {
-    /// <summary>
-    ///
-    /// </summary>
     public class BaseComponent : ComponentBase
     {
-        #region Globals
+        [Inject]
+        protected ITokenService _tokenService { get; set; }
 
-        #region Dependencies
+        [Inject]
+        protected IStringLocalizer Localizer { get; set; }
 
-        [Inject] protected ITokenService _tokenService { get; set; }
+        [Inject]
+        protected NavigationManager NavManager { get; set; }
 
-        [Inject] protected IStringLocalizer Localizer { get; set; }
+        [Inject]
+        protected DialogService DiagService { get; set; }
 
-        [Inject] protected NavigationManager NavManager { get; set; }
+        [Inject]
+        protected IConfiguration Configuration { get; set; }
 
-        [Inject] protected DialogService DiagService { get; set; }
+        [Inject]
+        protected ProtectedSessionStorage SessionState { get; set; }
 
-        [Inject] protected IConfiguration Configuration { get; set; }
+        [Inject]
+        protected ISiteAlertsSubscriptionClient SiteAlertsSubscriptionClient { get; set; }
 
-        [Inject] protected ProtectedSessionStorage SessionState { get; set; }
+        [Inject]
+        private IJSRuntime JsRuntime { get; set; }
 
-        [Inject] protected ISiteAlertsSubscriptionClient SiteAlertsSubscriptionClient { get; set; }
-
-        [Inject] private IJSRuntime JsRuntime { get; set; }
-
-        #endregion
-
-        #region Parameters
-
-        [Parameter] public string Id { get; set; }
-
-        #endregion
-
-        #region Properties
+        [Parameter]
+        public string Id { get; set; }
 
         public string CountryID => Configuration.GetValue<string>("EIDSSGlobalSettings:CountryID");
+
         public string XSiteBaseUrl => Configuration.GetValue<string>("EIDSSGlobalSettings:XSITEBaseUrl");
 
         public DateTime UserDate { get; set; }
+
         public DateTime UTCDate { get; set; }
+
         public DateTime ServerDate { get; set; }
+
         public int TimeZoneOffset { get; set; }
 
-        private IEnumerable<EventSubscriptionTypeModel> EventTypes { get; set; }
-        public IList<EventSaveRequestModel> Events { get; set; }
+        private IEnumerable<EventSubscriptionTypeModel> _eventTypes;
 
-        #endregion
-
-        #region Member Variables
+        protected IList<EventSaveRequestModel> Events { get; set; }
 
         protected IEnumerable<int> pageSizeOptions = new[] { 10, 25, 50, 100 };
-        internal ILogger _logger;
-        internal CultureInfo cultureInfo = Thread.CurrentThread.CurrentCulture;
-        internal AuthenticatedUser authenticatedUser;
+        protected ILogger _logger;
+        protected CultureInfo cultureInfo = Thread.CurrentThread.CurrentCulture;
+        protected AuthenticatedUser authenticatedUser;
 
-        #endregion
-
-        #endregion
-
-        #region Methods
-
-        #region Security Methods
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="pageEnum"></param>
-        /// <returns></returns>
         public UserPermissions GetUserPermissions(PagePermission pageEnum)
         {
             UserPermissions userPermissions = new();
@@ -115,10 +88,6 @@ namespace EIDSS.Web.Abstracts
             return userPermissions;
         }
 
-        #endregion
-
-        #region Culture Methods
-
         /// <summary>
         /// Returns the current UI culture code; used primarily for the language ID
         /// parameter on stored procedure calls to get back the appropriate
@@ -130,10 +99,6 @@ namespace EIDSS.Web.Abstracts
             return cultureInfo.Name;
         }
 
-        #endregion
-
-        #region Local Date/Time Methods
-
         public async Task GetDates()
         {
             ServerDate = DateTime.Now;
@@ -142,19 +107,6 @@ namespace EIDSS.Web.Abstracts
             TimeZoneOffset = await JsRuntime.InvokeAsync<int>("timeZoneOffset");
         }
 
-        #endregion
-
-        #region Message Dialog Methods
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="localizedMessage"></param>
-        /// <param name="okButtonConstant"></param>
-        /// <param name="returnToDashboardButtonConstant"></param>
-        /// <param name="returnToRecordButtonConstant"></param>
-        /// <returns></returns>
         public async Task<dynamic> ShowSuccessDialog(string message, string localizedMessage, string okButtonConstant, string returnToDashboardButtonConstant, string returnToRecordButtonConstant)
         {
             List<DialogButton> buttons = new();
@@ -192,7 +144,7 @@ namespace EIDSS.Web.Abstracts
             Dictionary<string, object> dialogParams = new()
             {
                 { nameof(EIDSSDialog.DialogButtons), buttons },
-                { nameof(EIDSSDialog.Message), IsNullOrEmpty(message) ? null : Localizer.GetString(message) },
+                { nameof(EIDSSDialog.Message), string.IsNullOrEmpty(message) ? null : Localizer.GetString(message) },
                 { nameof(EIDSSDialog.LocalizedMessage), localizedMessage },
                 { nameof(EIDSSDialog.DialogType), EIDSSDialogType.Success }
             };
@@ -205,15 +157,6 @@ namespace EIDSS.Web.Abstracts
             return await DiagService.OpenAsync<EIDSSDialog>(null, dialogParams, options);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="localizedMessage"></param>
-        /// <param name="returnToDashboardButtonConstant"></param>
-        /// <param name="returnToRecordButtonConstant"></param>
-        /// <param name="returnToOutbreakSessionConstant"></param>
-        /// <returns></returns>
         public async Task<dynamic> ShowSuccessDialogWithOutbreak(string message, string localizedMessage, string returnToDashboardButtonConstant, string returnToRecordButtonConstant, string returnToOutbreakSessionConstant)
         {
             List<DialogButton> buttons = new();
@@ -251,7 +194,7 @@ namespace EIDSS.Web.Abstracts
             Dictionary<string, object> dialogParams = new()
             {
                 { nameof(EIDSSDialog.DialogButtons), buttons },
-                { nameof(EIDSSDialog.Message), IsNullOrEmpty(message) ? null : Localizer.GetString(message) },
+                { nameof(EIDSSDialog.Message), string.IsNullOrEmpty(message) ? null : Localizer.GetString(message) },
                 { nameof(EIDSSDialog.LocalizedMessage), localizedMessage },
                 { nameof(EIDSSDialog.DialogType), EIDSSDialogType.Success }
             };
@@ -263,12 +206,6 @@ namespace EIDSS.Web.Abstracts
             return await DiagService.OpenAsync<EIDSSDialog>(null, dialogParams, options);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="localizedMessage"></param>
-        /// <returns></returns>
         public async Task<dynamic> ShowInformationalDialog(string message, string localizedMessage)
         {
             List<DialogButton> buttons = new();
@@ -282,7 +219,7 @@ namespace EIDSS.Web.Abstracts
             Dictionary<string, object> dialogParams = new()
             {
                 { nameof(EIDSSDialog.DialogButtons), buttons },
-                { nameof(EIDSSDialog.Message), IsNullOrEmpty(message) ? null : Localizer.GetString(message) },
+                { nameof(EIDSSDialog.Message), string.IsNullOrEmpty(message) ? null : Localizer.GetString(message) },
                 { nameof(EIDSSDialog.LocalizedMessage), localizedMessage },
                 { nameof(EIDSSDialog.DialogType), EIDSSDialogType.Information }
             };
@@ -294,11 +231,6 @@ namespace EIDSS.Web.Abstracts
             return await DiagService.OpenAsync<EIDSSDialog>(null, dialogParams, options);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="localizedMessage"></param>
-        /// <returns></returns>
         public async Task<dynamic> ShowWarningDialog(string message, string localizedMessage)
         {
             List<DialogButton> buttons = new();
@@ -318,7 +250,7 @@ namespace EIDSS.Web.Abstracts
             Dictionary<string, object> dialogParams = new()
             {
                 { nameof(EIDSSDialog.DialogButtons), buttons },
-                { nameof(EIDSSDialog.Message), IsNullOrEmpty(message) ? null : Localizer.GetString(message) },
+                { nameof(EIDSSDialog.Message), string.IsNullOrEmpty(message) ? null : Localizer.GetString(message) },
                 { nameof(EIDSSDialog.LocalizedMessage), localizedMessage },
                 { nameof(EIDSSDialog.DialogType), EIDSSDialogType.Warning }
             };
@@ -330,11 +262,6 @@ namespace EIDSS.Web.Abstracts
             return await DiagService.OpenAsync<EIDSSDialog>(null, dialogParams, options);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="localizedMessage"></param>
-        /// <returns></returns>
         public async Task<dynamic> ShowOkWarningDialog(string message, string localizedMessage)
         {
             List<DialogButton> buttons = new();
@@ -348,7 +275,7 @@ namespace EIDSS.Web.Abstracts
             Dictionary<string, object> dialogParams = new()
             {
                 { nameof(EIDSSDialog.DialogButtons), buttons },
-                { nameof(EIDSSDialog.Message), IsNullOrEmpty(message) ? null : Localizer.GetString(message) },
+                { nameof(EIDSSDialog.Message), string.IsNullOrEmpty(message) ? null : Localizer.GetString(message) },
                 { nameof(EIDSSDialog.LocalizedMessage), localizedMessage },
                 { nameof(EIDSSDialog.DialogType), EIDSSDialogType.Warning }
             };
@@ -360,11 +287,6 @@ namespace EIDSS.Web.Abstracts
             return await DiagService.OpenAsync<EIDSSDialog>(Localizer.GetString(HeadingResourceKeyConstants.EIDSSWarningModalHeading), dialogParams, options);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="localizedMessage"></param>
-        /// <returns></returns>
         public async Task<dynamic> ShowErrorDialog(string message, string localizedMessage)
         {
             List<DialogButton> buttons = new();
@@ -378,7 +300,7 @@ namespace EIDSS.Web.Abstracts
             Dictionary<string, object> dialogParams = new()
             {
                 { nameof(EIDSSDialog.DialogButtons), buttons },
-                { nameof(EIDSSDialog.Message), IsNullOrEmpty(message) ? null : Localizer.GetString(message) },
+                { nameof(EIDSSDialog.Message), string.IsNullOrEmpty(message) ? null : Localizer.GetString(message) },
                 { nameof(EIDSSDialog.LocalizedMessage), localizedMessage },
                 { nameof(EIDSSDialog.DialogType), EIDSSDialogType.Error }
             };
@@ -390,10 +312,6 @@ namespace EIDSS.Web.Abstracts
             return await DiagService.OpenAsync<EIDSSDialog>(null, dialogParams, options);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public async Task<dynamic> ShowHtmlErrorDialog(MarkupString message)
         {
             List<DialogButton> buttons = new();
@@ -490,30 +408,22 @@ namespace EIDSS.Web.Abstracts
                 if (returnResult.ButtonResultText == Localizer.GetString(ButtonResourceKeyConstants.OKButton))
                 {
                     DiagService.Close();
-                    if (!IsNullOrEmpty(uri))
+                    if (!string.IsNullOrEmpty(uri))
                         NavManager.NavigateTo(uri, true);
                 }
         }
 
-        #endregion
-
-        #region Event Methods
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
         private async Task GetEventTypes()
         {
             try
             {
-                if (EventTypes == null)
+                if (_eventTypes == null)
                 {
                     var requestModel = new EventSubscriptionGetRequestModel()
                     {
                         LanguageId = GetCurrentLanguage(),
                         Page = 1,
-                        PageSize = MaxValue - 1,
+                        PageSize = int.MaxValue - 1,
                         SortColumn = "EventTypeName",
                         SortOrder = SortConstants.Ascending,
                         SiteAlertName = "",
@@ -522,7 +432,7 @@ namespace EIDSS.Web.Abstracts
 
                     var list = await SiteAlertsSubscriptionClient.GetSiteAlertsSubscriptionList(requestModel);
 
-                    EventTypes = list;
+                    _eventTypes = list;
                 }
             }
             catch (Exception ex)
@@ -544,7 +454,7 @@ namespace EIDSS.Web.Abstracts
         /// <returns></returns>
         public async Task<EventSaveRequestModel> CreateEvent(long objectId, long? diseaseId, SystemEventLogTypes eventTypeId, long siteId, string customMessage)
         {
-            if (EventTypes is null)
+            if (_eventTypes is null)
                 await GetEventTypes();
 
             Events ??= new List<EventSaveRequestModel>();
@@ -558,7 +468,7 @@ namespace EIDSS.Web.Abstracts
                 ObjectId = objectId,
                 DiseaseId = diseaseId,
                 EventTypeId = (long)eventTypeId,
-                InformationString = IsNullOrEmpty(customMessage) ? null : customMessage,
+                InformationString = string.IsNullOrEmpty(customMessage) ? null : customMessage,
                 SiteId = siteId, //site id of where the record was created.
                 UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                 LocationId = authenticatedUser.RayonId,
@@ -567,9 +477,5 @@ namespace EIDSS.Web.Abstracts
 
             return eventRecord;
         }
-
-        #endregion
-
-        #endregion
     }
 }

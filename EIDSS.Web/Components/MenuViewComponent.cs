@@ -35,6 +35,9 @@ namespace EIDSS.Web.Components
         internal IUserConfigurationService UserConfigurationService;
         private readonly IConfiguration _configuration;
         private readonly IApplicationContext ApplicationContext;
+        //temporary disable modules - until we refactor them #122527
+        private const int InterfaceEditorMenuId = 10506065;
+        private const int FlexFormDesignerMenuId = 10506148;
 
         public MenuViewController(IMenuClient menuClient, ILocalizationClient localizationClient, IUserConfigurationService configurationService, IConfiguration configuration, ITokenService tokenService, ILogger<MenuViewController> logger, IApplicationContext applicationContext, IOrganizationClient organizationClient) : base(logger, tokenService)
         {
@@ -70,8 +73,10 @@ namespace EIDSS.Web.Components
             if (authenticatedUser != null)
             {
                 //List<MenuViewModel> menuList = await _menuClient.GetMenuListAsync(Convert.ToInt64(authenticatedUser.EIDSSUserId), cultureInfo.Name);
-               var menuList = await _menuClient.GetMenuByUserListAsync(Convert.ToInt64(authenticatedUser.EIDSSUserId), CultureInfo.Name, authenticatedUser.IsInArchiveMode);
-
+               var menuList = (await _menuClient.GetMenuByUserListAsync(Convert.ToInt64(authenticatedUser.EIDSSUserId), CultureInfo.Name, authenticatedUser.IsInArchiveMode))
+                   .Where(x => x.EIDSSMenuId != InterfaceEditorMenuId && x.EIDSSMenuId != FlexFormDesignerMenuId)
+                   .ToList();
+               
                var menuIdExclusionList = authenticatedUser.IsInArchiveMode ? _configuration.GetValue<string>("ConnectToArchive:MenuIdExclusionList") : "";
 
                var userOrganization = await _organizationClient.GetOrganizationDetail(CultureInfo.Name, authenticatedUser.OfficeId);

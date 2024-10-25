@@ -54,14 +54,27 @@ a.navbar-brand {
     text-align: center;
     word-break: break-all;
 }
-
-label {
+.label, label {
     display: inline-block;
     font-size: 14px;
     max-width: 100%;
     margin-bottom: 2px;
     font-weight: bold;
     color: #2d5b83;
+
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+.no-gap {
+    gap: 0;
+}
+
+.padding-bottom-0 {
+    padding-bottom: 0;
+}
+
+.ml-15 {
+    margin-left: 15px;
 }
 
 input {
@@ -573,12 +586,12 @@ fieldset {
 
 legend {
     color: #2d5b83;
-    font-size: 14px !important;
+    font-size: 14px;
     font-weight: bold !important;
     text-align: left !important;
     width: auto !important;
     padding-right: 0 5px !important;
-    margin: 5px !important;
+    margin: 5px;
     border-bottom: 0px none transparent;
 }
 
@@ -801,7 +814,150 @@ button.ui-datepicker-trigger {
     padding-top: 5px;
 }
 
-/*.fas .fa-trash.disabled, fas fa-trash:disabled {
-    color: #ccc;
-    cursor: default;
-}*/
+div[id^="organization-search-"] {
+    width: 100%;
+}
+
+div[id^="popup-organization-search-"] {
+    min-width: 1000px !important;
+}
+
+div[id^="popup-organization-search-"] .rz-data-grid-data td .rz-cell-data {
+    text-wrap: pretty;
+}
+
+#NotificationsForm div[class^="rz-col-"] > input,
+#NotificationsForm div[class^="rz-col-"] > div {
+    width: 100%;
+}
+
+#NotificationsForm .rz-row {
+    margin-bottom: 1rem;
+}
+
+.ff-form .ff-section-name legend {
+    font-size: 1.2rem;
+    margin: 0 0 0 -5px;
+}
+
+.ff-label-column legend {
+    font-size: 1.2rem;
+    padding: 0;
+    margin: 0 0 0 -5px;
+}
+
+.ff-form .ff-first-header legend {
+    padding-right: 0;
+    border-bottom: 1.5px solid #2d5b83;
+}
+
+.ff-form .rz-row {
+    margin-bottom: 1rem;
+}
+
+.ff-form .param-row div[class^=rz-col] > div {
+    display: flex;
+}
+
+.ff-form .ff-checkbox {
+    display: flex;
+    justify-content: space-between;
+}
+
+.address-container > fieldset {
+    width: 100%;
+}
+
+.address-container > fieldset .form-group {
+    padding-right: 15px;
+}
+
+.address-container > fieldset > legend {
+    margin-bottom: 20px;
+    margin-left: 10px;
+    font-size: 15px;
+}
+
+.address-container input.form-control,
+#dateOfBirth_personForm,
+#dateOfBirth_HDR,
+#dateOfDeath,
+#DateOfDischarge,
+#datFinalCaseClassificationDate,
+#datDateOfDeath,
+#addDose,
+#addVaccination,
+#datAntibioticFirstAdministered input,
+#vaccinationDate input,
+.address-container .input-group-append > button
+{
+    height: calc(1.2em + 0.75rem + 2px);
+}
+
+#addDose,
+#addVaccination
+{
+    display: flex;
+    align-items: center;
+}
+
+.address-container .input-group-append > button {
+    margin-right: 0;
+}
+
+.yes-follow-up-no-left-border {
+    margin-left: 12px;
+}
+
+.yes-follow-up {
+    margin-left: 12px;
+    border-left: 1px solid lightblue;
+    padding-left: 10px;
+}
+
+.address-container .form-row.form-group > .form-group {
+    margin-bottom: 0;
+}
+
+#dblPointDistance,
+#dblPointDirection {
+    width: 100%;
+}
+
+.date-with-add-container {
+    display: flex;
+    align-items: flex-end;
+}
+
+input[name="ClinicalInformation_AdditionalInforMation"] {
+    min-height: 100px;
+}
+
+.yes-no-unknown-container {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.yes-no-unknown-component > div:not(.rz-state-disabled) .rz-radio-btn:hover,
+.yes-no-unknown-component > div:not(.rz-state-disabled) .rz-radiobutton-label:hover{
+    cursor: pointer;
+}
+
+.custom-date-picker-container {
+    gap: unset;
+}
+
+.rz-datepicker input[disabled] {
+    background-color: #f5f5f5;
+    color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.rz-datepicker input[disabled] + .rz-inputtext {
+    background-color: #f5f5f5;
+    color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.65;
+}

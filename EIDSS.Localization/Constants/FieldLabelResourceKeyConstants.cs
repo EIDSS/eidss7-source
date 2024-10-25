@@ -804,6 +804,36 @@ namespace EIDSS.Localization.Constants
         public static readonly string FarmRecordDeduplicationFarmDetailsFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmRecordDeduplication + "3471" + (long)InterfaceEditorTypeEnum.FieldLabel;
         public static readonly string FarmRecordDeduplicationAnimalDiseaseReportsFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmRecordDeduplication + "3472" + (long)InterfaceEditorTypeEnum.FieldLabel;
 
+        //public static readonly string FarmInformationDateEnteredFieldLabel = (int)InterfaceEditorResourceSetEnum.dedu + "854" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmInformationDateLastUpdatedFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmInformation + "1083" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmInformationFarmIDFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmInformation + "2403" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmInformationLegacyIDFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmInformation + "936" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmInformationFarmTypeFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmInformation + "2404" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmInformationFarmNameFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmInformation + "2430" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmInformationFarmOwnerFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmInformation + "674" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmInformationPhoneFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmInformation + "206" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmInformationFaxFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmInformation + "2431" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmInformationEmailFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmInformation + "2432" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmInformationNumberOfBarnsBuildingsFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmInformation + "2433" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmInformationNumberOfBirdsPerBarnBuildingFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmInformation + "2434" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmAddressDateEnteredFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmAddress + "854" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmAddressDateLastUpdatedFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmAddress + "1083" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmAddressAdministrativeLevel1FieldLabel = (int)InterfaceEditorResourceSetEnum.FarmAddress + "428" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmAddressAdministrativeLevel2FieldLabel = (int)InterfaceEditorResourceSetEnum.FarmAddress + "426" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmAddressAdministrativeLevel3FieldLabel = (int)InterfaceEditorResourceSetEnum.FarmAddress + "248" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmAddressAdministrativeLevel4FieldLabel = (int)InterfaceEditorResourceSetEnum.FarmAddress + "949" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmAddressAdministrativeLevel5FieldLabel = (int)InterfaceEditorResourceSetEnum.FarmAddress + "950" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmAddressAdministrativeLevel6FieldLabel = (int)InterfaceEditorResourceSetEnum.FarmAddress + "951" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmAddressSettlementTypeFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmAddress + "249" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmAddressStreetFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmAddress + "248" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmAddressBuildingFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmAddress + "31" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmAddressHouseFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmAddress + "92" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmAddressApartmentFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmAddress + "2417" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmAddressPostalCodeFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmAddress + "208" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmAddressLatitudeFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmAddress + "2418" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmAddressLongitudeFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmAddress + "2419" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        //public static readonly string FarmAddressElevationFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmAddress + "2420" + (long)InterfaceEditorTypeEnum.FieldLabel;
+
         public static readonly string FarmRecordDeduplicationSurvivorFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmRecordDeduplication + "1072" + (long)InterfaceEditorTypeEnum.FieldLabel;
         public static readonly string FarmRecordDeduplicationSupercededFieldLabel = (int)InterfaceEditorResourceSetEnum.FarmRecordDeduplication + "1073" + (long)InterfaceEditorTypeEnum.FieldLabel;
 
@@ -981,6 +1011,7 @@ namespace EIDSS.Localization.Constants
         public static readonly string PersonInformationMiddleNameFieldLabel = (int)InterfaceEditorResourceSetEnum.PersonInformation + "416" + (long)InterfaceEditorTypeEnum.FieldLabel;
         public static readonly string PersonInformationDateOfBirthFieldLabel = (int)InterfaceEditorResourceSetEnum.PersonInformation + "2565" + (long)InterfaceEditorTypeEnum.FieldLabel;
         public static readonly string PersonInformationAgeFieldLabel = (int)InterfaceEditorResourceSetEnum.PersonInformation + "1070" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        public static readonly string PersonInformationAgeTypeFieldLabel = (int)InterfaceEditorResourceSetEnum.PersonInformation + "4857" + (long)InterfaceEditorTypeEnum.FieldLabel;
         public static readonly string PersonInformationGenderFieldLabel = (int)InterfaceEditorResourceSetEnum.PersonInformation + "345" + (long)InterfaceEditorTypeEnum.FieldLabel;
         public static readonly string PersonInformationCitizenshipFieldLabel = (int)InterfaceEditorResourceSetEnum.PersonInformation + "1071" + (long)InterfaceEditorTypeEnum.FieldLabel;
         public static readonly string PersonInformationPassportNumberFieldLabel = (int)InterfaceEditorResourceSetEnum.PersonInformation + "1141" + (long)InterfaceEditorTypeEnum.FieldLabel;
@@ -1003,13 +1034,14 @@ namespace EIDSS.Localization.Constants
         public static readonly string PersonAddressCurrentAddressLongitudeFieldLabel = (int)InterfaceEditorResourceSetEnum.PersonAddressCurrentAddress + "1793" + (long)InterfaceEditorTypeEnum.FieldLabel;
         public static readonly string PersonAddressCurrentAddressCountryCodeAndNumberFieldLabel = (int)InterfaceEditorResourceSetEnum.PersonAddressCurrentAddress + "2566" + (long)InterfaceEditorTypeEnum.FieldLabel;
         public static readonly string PersonAddressCurrentAddressPhoneTypeFieldLabel = (int)InterfaceEditorResourceSetEnum.PersonAddressCurrentAddress + "2567" + (long)InterfaceEditorTypeEnum.FieldLabel;
-
+        
         public static readonly string PersonAddressIsThereAnotherPhoneNumberForThisPersonFieldLabel = (int)InterfaceEditorResourceSetEnum.PersonAddress + "1785" + (long)InterfaceEditorTypeEnum.FieldLabel;
         public static readonly string PersonCurrentAddressAlternatePhoneCountryCodeAndNumberFieldLabel = (int)InterfaceEditorResourceSetEnum.PersonCurrentAddressAlternatePhone + "2566" + (long)InterfaceEditorTypeEnum.FieldLabel;
         public static readonly string PersonCurrentAddressAlternatePhonePhoneTypeFieldLabel = (int)InterfaceEditorResourceSetEnum.PersonCurrentAddressAlternatePhone + "2567" + (long)InterfaceEditorTypeEnum.FieldLabel;
 
         public static readonly string PersonAddressIsThereAnotherAddressWhereThisPersonCanResideFieldLabel = (int)InterfaceEditorResourceSetEnum.PersonAddress + "1808" + (long)InterfaceEditorTypeEnum.FieldLabel;
         public static readonly string PersonAddressPermanentAddressSameAsCurrentAddressFieldLabel = (int)InterfaceEditorResourceSetEnum.PersonAddress + "2568" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        public static readonly string PersonAddressCurrentAddressCurrentResidenceFieldLabel = (int)InterfaceEditorResourceSetEnum.PersonAddress + "6002" + (long)InterfaceEditorTypeEnum.FieldLabel;
 
         public static readonly string PersonAddressAlternateAddressAdministrativeLevel1FieldLabel = (int)InterfaceEditorResourceSetEnum.PersonAddressAlternateAddress + "428" + (long)InterfaceEditorTypeEnum.FieldLabel;
         public static readonly string PersonAddressAlternateAddressAdministrativeLevel2FieldLabel = (int)InterfaceEditorResourceSetEnum.PersonAddressAlternateAddress + "426" + (long)InterfaceEditorTypeEnum.FieldLabel;
@@ -1194,6 +1226,10 @@ namespace EIDSS.Localization.Constants
         public static readonly string HumanDiseaseReportNotificationCurrentLocationOfPatientFieldLabel = (int)InterfaceEditorResourceSetEnum.HumanDiseaseReportNotification + "1093" + (long)InterfaceEditorTypeEnum.FieldLabel;
         public static readonly string HumanDiseaseReportNotificationHospitalNameFieldLabel = (int)InterfaceEditorResourceSetEnum.HumanDiseaseReportNotification + "1094" + (long)InterfaceEditorTypeEnum.FieldLabel;
         public static readonly string HumanDiseaseReportNotificationOtherLocationFieldLabel = (int)InterfaceEditorResourceSetEnum.HumanDiseaseReportNotification + "1095" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        public static readonly string HumanDiseaseReportNotificationChangedDiseaseFieldLabel = (int)InterfaceEditorResourceSetEnum.Global + "4860" + (long)InterfaceEditorTypeEnum.FieldLabel;
+        public static readonly string HumanDiseaseReportNotificationDateOfChangedDiagnosisFieldLabel = (int)InterfaceEditorResourceSetEnum.Global + "4861" + (long)InterfaceEditorTypeEnum.FieldLabel;
+
+        public static readonly string HumanDiseaseReportChangeDiagnosisReasonModalChangeDiagnosisReasonFieldLabel = (int)InterfaceEditorResourceSetEnum.Global + "4865" + (long)InterfaceEditorTypeEnum.FieldLabel;
 
         //Clinical Information-Symptoms
         public static readonly string HumanDiseaseReportSymptomsDateOfSymptomsOnsetFieldLabel = (int)InterfaceEditorResourceSetEnum.HumanDiseaseReportSymptoms + "1096" + (long)InterfaceEditorTypeEnum.FieldLabel;

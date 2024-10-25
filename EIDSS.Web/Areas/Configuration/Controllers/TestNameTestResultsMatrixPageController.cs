@@ -6,7 +6,6 @@ using EIDSS.ClientLibrary.Services;
 using EIDSS.Domain.RequestModels.Administration;
 using EIDSS.Domain.RequestModels.Configuration;
 using EIDSS.Domain.RequestModels.DataTables;
-using EIDSS.Domain.ViewModels.Administration;
 using EIDSS.Domain.ViewModels.Configuration;
 using EIDSS.Domain.ViewModels.CrossCutting;
 using EIDSS.Localization.Constants;
@@ -24,9 +23,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.Int32;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Configuration.Controllers
 {
@@ -62,11 +58,10 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             return View(_configurationMatrixViewModel);
         }
 
-
         [HttpPost]
         public async Task<JsonResult> GetList([FromBody] JQueryDataTablesQueryObject dataTableQueryPostObj)
         {
-            var postParameterDefinitions = new {TestNameDD = "", SearchBox = "", RadioButton2Configurations = ""};
+            var postParameterDefinitions = new { TestNameDD = "", SearchBox = "", RadioButton2Configurations = "" };
             var referenceType =
                 JsonConvert.DeserializeAnonymousType(dataTableQueryPostObj.postArgs, postParameterDefinitions);
             var valuePair = dataTableQueryPostObj.ReturnSortParameter();
@@ -74,7 +69,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             long? id = null;
             if (referenceType.TestNameDD != null)
             {
-                if (!IsNullOrEmpty(referenceType.TestNameDD))
+                if (!string.IsNullOrEmpty(referenceType.TestNameDD))
                 {
                     id = long.Parse(referenceType.TestNameDD);
                 }
@@ -83,14 +78,14 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             long? testType = null;
             if (referenceType.RadioButton2Configurations != null)
             {
-                if (!IsNullOrEmpty(referenceType.RadioButton2Configurations))
+                if (!string.IsNullOrEmpty(referenceType.RadioButton2Configurations))
                 {
                     testType = long.Parse(referenceType.RadioButton2Configurations);
                 }
             }
 
-            var sortColumn = !IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "strDefault";
-            var sortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Descending;
+            var sortColumn = !string.IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "strDefault";
+            var sortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Descending;
 
             var request = new TestNameTestResultsMatrixGetRequestModel
             {
@@ -144,14 +139,14 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
         public async Task<JsonResult> Create([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             var testResult = "";
 
             try
             {
                 if (jsonObject["idfsTestResult"] != null)
                 {
-                    if (IsNullOrEmpty(jsonObject["idfsTestResult"][0]?["id"]?.ToString()))
+                    if (string.IsNullOrEmpty(jsonObject["idfsTestResult"][0]?["id"]?.ToString()))
                     {
                         // should select a Test Name
                         return Json("");
@@ -183,14 +178,13 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
                 var request = new TestNameTestResultsMatrixSaveRequestModel
                 {
-                    //idfCollectionMethodForVectorType = null,
                     idfsTestName = jsonObject["TestNameDD"]?[0]?["id"] != null
                         ? long.Parse(jsonObject["TestNameDD"][0]["id"].ToString())
                         : null,
                     idfsTestResult = idfsTestResult,
                     idfsTestResultRelation = testType,
                     blnIndicative = blnIndicative,
-                    EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                    EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                     UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                     LocationId = authenticatedUser.RayonId,
@@ -198,8 +192,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 };
 
                 var response = await _configurationClient.SaveTestNameTestResultsMatrix(request);
-                response.strDuplicatedField =
-                    Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), testResult);
+                response.strDuplicatedField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), testResult);
 
                 if (response.idfsTestResult != 0 && response.ReturnMessage == "SUCCESS")
                 {
@@ -222,7 +215,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [Route("Edit")]
         public async Task<JsonResult> Edit([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
             if (jsonObject["KeyId"] == null) return Json("");
             long idfsTestResult = 0;
@@ -254,15 +247,15 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [HttpPost]
         public async Task<JsonResult> Delete([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             if (jsonObject["KeyId"] == null) return Json("");
 
             var request = new TestNameTestResultsMatrixSaveRequestModel
             {
-                idfsTestName = long.Parse(jsonObject["idfsTestName"]?.ToString() ?? Empty),
+                idfsTestName = long.Parse(jsonObject["idfsTestName"]?.ToString() ?? string.Empty),
                 idfsTestResult = long.Parse(jsonObject["KeyId"].ToString()),
-                idfsTestResultRelation = long.Parse(jsonObject["TestResultRelation"]?.ToString() ?? Empty),
-                EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                idfsTestResultRelation = long.Parse(jsonObject["TestResultRelation"]?.ToString() ?? string.Empty),
+                EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                 UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                 LocationId = authenticatedUser.RayonId,
@@ -270,7 +263,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             };
 
             var response = await _configurationClient.DeleteTestNameTestResultsMatrix(request);
-            
+
             if (response.ReturnMessage == "IN USE")
             {
                 // popup a modal with message “You are attempting to delete a reference value which is currently used in the system. Are you sure you want to delete the reference value?”
@@ -282,12 +275,12 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [HttpPost]
         public async Task<IActionResult> AddTestName([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
             var intHACodeTotal = 0;
             if (jsonObject["IntHACode"] != null)
             {
-                if (IsNullOrEmpty(jsonObject["IntHACode"].ToString()))
+                if (string.IsNullOrEmpty(jsonObject["IntHACode"].ToString()))
                 {
                     // popup a modal with message "Accessory Code is mandatory. You must enter data in this field before saving the form. Do you want to correct the value?"
                     return Json("");
@@ -295,35 +288,35 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
                 var a = JArray.Parse(jsonObject["IntHACode"].ToString());
 
-                intHACodeTotal += a.Sum(t => Parse(t["id"]?.ToString() ?? Empty));
+                intHACodeTotal += a.Sum(t => int.Parse(t["id"]?.ToString() ?? string.Empty));
             }
 
             var intOrder = 0;
             if (jsonObject["IntOrder"] != null)
             {
-                intOrder = IsNullOrEmpty(((JValue) jsonObject["IntOrder"]).Value?.ToString())
+                intOrder = string.IsNullOrEmpty(((JValue)jsonObject["IntOrder"]).Value?.ToString())
                     ? 0
-                    : Parse(jsonObject["IntOrder"].ToString());
+                    : int.Parse(jsonObject["IntOrder"].ToString());
             }
 
             var testType = 0;
             if (jsonObject["RadioButton2Configurations"] != null)
             {
-                testType = IsNullOrEmpty(((JValue) jsonObject["RadioButton2Configurations"]).Value?.ToString())
+                testType = string.IsNullOrEmpty(((JValue)jsonObject["RadioButton2Configurations"]).Value?.ToString())
                     ? 0
-                    : Parse(jsonObject["RadioButton2Configurations"].ToString());
+                    : int.Parse(jsonObject["RadioButton2Configurations"].ToString());
             }
 
             var request = new BaseReferenceSaveRequestModel
             {
                 BaseReferenceId = null,
-                Default = jsonObject["StrDefault"] != null ? jsonObject["StrDefault"].ToString() : Empty,
-                Name = jsonObject["StrName"] != null ? jsonObject["StrName"].ToString() : Empty,
+                Default = jsonObject["StrDefault"] != null ? jsonObject["StrDefault"].ToString() : string.Empty,
+                Name = jsonObject["StrName"] != null ? jsonObject["StrName"].ToString() : string.Empty,
                 intHACode = intHACodeTotal,
                 intOrder = intOrder,
                 LanguageId = GetCurrentLanguage(),
                 ReferenceTypeId = testType,
-                EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                 AuditUserName = authenticatedUser.UserName,
                 LocationId = authenticatedUser.RayonId,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -332,13 +325,10 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
             var response = await _adminClient.SaveBaseReference(request);
 
-            response.strDuplicatedField =
-                Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
+            response.strDuplicatedField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
 
             return Json(response);
         }
-
-        //  [Route("create")]
 
         [Route("TestNameList")]
         public async Task<JsonResult> TestNameList(int page, string data)
@@ -346,15 +336,15 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             var select2DataItems = new List<Select2DataItem>();
             var select2DataObj = new Select2DataResults();
 
-            var idfsReferenceType = BaseReferenceConstants.TestName;
+            var idfsReferenceType = EIDSSConstants.BaseReferenceConstants.TestName;
             var jsonObject = JObject.Parse(data);
             if (jsonObject["id"] != null)
             {
                 if (jsonObject["text"] != null)
                 {
-                    idfsReferenceType = (long) jsonObject["text"] == (long) ReferenceTypes.PensideTestName
-                        ? BaseReferenceConstants.PensideTestName
-                        : BaseReferenceConstants.TestName;
+                    idfsReferenceType = (long)jsonObject["text"] == (long)ReferenceTypes.PensideTestName
+                        ? EIDSSConstants.BaseReferenceConstants.PensideTestName
+                        : EIDSSConstants.BaseReferenceConstants.TestName;
                 }
             }
 
@@ -363,7 +353,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             if (list != null)
             {
                 select2DataItems.AddRange(list.Select(item => new Select2DataItem
-                    {id = item.IdfsBaseReference.ToString(), text = item.Name}));
+                { id = item.IdfsBaseReference.ToString(), text = item.Name }));
             }
 
             select2DataObj.results = select2DataItems;
@@ -376,28 +366,28 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         {
             var select2DataItems = new List<Select2DataItem>();
             var select2DataObj = new Select2DataResults();
-            var idfsReferenceType = BaseReferenceConstants.TestResult;
+            var idfsReferenceType = EIDSSConstants.BaseReferenceConstants.TestResult;
             var jsonObject = JObject.Parse(data);
 
             if (jsonObject["id"] != null)
             {
                 if (jsonObject["text"] != null)
                 {
-                    idfsReferenceType = (long) jsonObject["text"] == (long) ReferenceTypes.PensideTestName ? BaseReferenceConstants.PensideTestResult : BaseReferenceConstants.TestResult;
+                    idfsReferenceType = (long)jsonObject["text"] == (long)ReferenceTypes.PensideTestName ? EIDSSConstants.BaseReferenceConstants.PensideTestResult : EIDSSConstants.BaseReferenceConstants.TestResult;
                 }
             }
 
             var list = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), idfsReferenceType, null);
-            if (!IsNullOrEmpty(term))
+            if (!string.IsNullOrEmpty(term))
             {
                 List<BaseReferenceViewModel> toList = list.Where(c => c.Name != null && c.Name.Contains(term, StringComparison.CurrentCultureIgnoreCase)).ToList();
                 list = toList;
             }
-            select2DataItems.Add(new Select2DataItem {id = "", text = ""});
+            select2DataItems.Add(new Select2DataItem { id = "", text = "" });
             if (list != null)
             {
                 select2DataItems.AddRange(list.Select(item => new Select2DataItem
-                    {id = item.IdfsBaseReference.ToString(), text = item.Name}));
+                { id = item.IdfsBaseReference.ToString(), text = item.Name }));
             }
 
             select2DataObj.results = select2DataItems;
@@ -408,12 +398,12 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [Route("AddTestResults")]
         public async Task<IActionResult> AddTestResults([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
             var intHACodeTotal = 0;
             if (jsonObject["IntHACode"] != null)
             {
-                if (IsNullOrEmpty(jsonObject["IntHACode"].ToString()))
+                if (string.IsNullOrEmpty(jsonObject["IntHACode"].ToString()))
                 {
                     // popup a modal with message "Accessory Code is mandatory. You must enter data in this field before saving the form. Do you want to correct the value?"
                     return Json("");
@@ -421,45 +411,45 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
                 var a = JArray.Parse(jsonObject["IntHACode"].ToString());
 
-                intHACodeTotal += a.Sum(t => Parse(t["id"]?.ToString() ?? Empty));
+                intHACodeTotal += a.Sum(t => int.Parse(t["id"]?.ToString() ?? string.Empty));
             }
 
             var intOrder = 0;
             if (jsonObject["intOrder"] != null)
             {
-                intOrder = IsNullOrEmpty(((JValue) jsonObject["IntOrder"])?.Value?.ToString())
+                intOrder = string.IsNullOrEmpty(((JValue)jsonObject["IntOrder"])?.Value?.ToString())
                     ? 0
-                    : Parse(jsonObject["IntOrder"]?.ToString() ?? Empty);
+                    : int.Parse(jsonObject["IntOrder"]?.ToString() ?? string.Empty);
             }
 
             var testType = 0;
             if (jsonObject["RadioButton2Configurations"] != null)
             {
-                testType = IsNullOrEmpty(((JValue) jsonObject["RadioButton2Configurations"]).Value?.ToString())
+                testType = string.IsNullOrEmpty(((JValue)jsonObject["RadioButton2Configurations"]).Value?.ToString())
                     ? 0
-                    : Parse(jsonObject["RadioButton2Configurations"].ToString());
+                    : int.Parse(jsonObject["RadioButton2Configurations"].ToString());
             }
 
             long idfsReferenceType;
             if (testType == Convert.ToInt32(ReferenceTypes.PensideTestName))
             {
-                idfsReferenceType = (long) ReferenceTypes.PensideTestResult;
+                idfsReferenceType = (long)ReferenceTypes.PensideTestResult;
             }
             else
             {
-                idfsReferenceType = (long) ReferenceTypes.TestResults;
+                idfsReferenceType = (long)ReferenceTypes.TestResults;
             }
 
             var request = new BaseReferenceSaveRequestModel
             {
                 BaseReferenceId = null,
-                Default = jsonObject["StrDefault"] != null ? jsonObject["StrDefault"].ToString() : Empty,
-                Name = jsonObject["StrName"] != null ? jsonObject["StrName"].ToString() : Empty,
+                Default = jsonObject["StrDefault"] != null ? jsonObject["StrDefault"].ToString() : string.Empty,
+                Name = jsonObject["StrName"] != null ? jsonObject["StrName"].ToString() : string.Empty,
                 intHACode = intHACodeTotal,
                 intOrder = intOrder,
                 LanguageId = GetCurrentLanguage(),
                 ReferenceTypeId = idfsReferenceType,
-                EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                 AuditUserName = authenticatedUser.UserName,
                 LocationId = authenticatedUser.RayonId,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -469,8 +459,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             var response = await _adminClient.SaveBaseReference(request);
             if (response.ReturnMessage == "DOES EXIST")
             {
-                   response.strDuplicatedField =
-                   Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
+                response.strDuplicatedField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
             }
 
             return Json(response);

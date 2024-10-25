@@ -27,8 +27,6 @@ namespace EIDSS.Web.ViewModels.Human
 
         public long? idfHumanCase { get; set; }
 
-        public long? idfHumanCaseRelatedTo { get; set; }
-
         public string strCaseId { get; set; }
 
         public bool isEdit { get; set; }
@@ -71,9 +69,6 @@ namespace EIDSS.Web.ViewModels.Human
         public bool isDeleteEnabled { get; set; } = false;
 
         public bool isPrintEnabled { get; set; } = false;
-
-
-        public bool isConnectedDiseaseReport { get; set; } = false;
 
         public List<EventSaveRequestModel> PendingSaveEvents { get; set; } = new List<EventSaveRequestModel>();
 

@@ -1,0 +1,328 @@
+@using EIDSS.Web.Components.Shared.Organization
+@using EIDSS.Web.Components.Shared.EmployerSearch
+@using EIDSS.Web.ViewModels.Human
+@using EIDSS.Domain.ViewModels.Administration
+@using EIDSS.Web.Components.CrossCutting
+@using System.Threading
+@using EIDSS.Web.Services
+
+@inherits EIDSS.Web.Components.Human.HumanDiseaseReport.DiseaseReportNotificationPartialBase
+
+@{
+    var currentLanguage = Thread.CurrentThread.CurrentCulture.Name;
+    var isDateOfCompletionVisible = IsVisible(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfCompletionOfPaperFormFieldLabel);
+    var isLocalIdentifierCompletionVisible = IsVisible(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationLocalIdentifierFieldLabel);
+    var isLocalIdentifierCompletionRequired = IsRequired(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationLocalIdentifierFieldLabel);
+    var isDateOfNotificationVisible = IsVisible(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfNotificationFieldLabel);
+    var isDateOfDiagnosisVisible = IsVisible(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfDiagnosisFieldLabel);
+    var isStatusOfPatientAtNotificationVisible = IsVisible(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationStatusOfPatientAtTimeOfNotificationFieldLabel);
+    var isStatusOfPatientAtNotificationRequired = IsRequired(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationStatusOfPatientAtTimeOfNotificationFieldLabel);
+    var isNotificationSentByFacilityVisible = IsVisible(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationSentbyFacilityFieldLabel);
+    var isNotificationSentByFacilityRequired = IsRequired(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationSentbyFacilityFieldLabel);
+    var isNotificationNotificationSentByNameVisible = IsVisible(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationSentbyNameFieldLabel);
+    var isNotificationNotificationSentByNameRequired = IsRequired(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationSentbyNameFieldLabel);
+    var isNotificationReceivedByFacilityVisible = IsVisible(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationReceivedbyFacilityFieldLabel);
+    var isNotificationReceivedByFacilityRequired = IsRequired(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationReceivedbyFacilityFieldLabel);
+    var isNotificationNotificationReceivedByNameVisible = IsVisible(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationReceivedbyNameFieldLabel);
+    var isNotificationNotificationReceivedByNameRequired = IsRequired(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationReceivedbyNameFieldLabel);
+    var isCurrentPatientLocationVisible = IsVisible(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationCurrentLocationOfPatientFieldLabel);
+    var isCurrentPatientLocationRequired = IsRequired(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationCurrentLocationOfPatientFieldLabel);
+    var isHospitalNameVisible = IsVisible(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsHospitalNameFieldLabel);
+    var isHospitalNameRequired = IsRequired(currentLanguage, FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsHospitalNameFieldLabel);
+    var isOtherPatientLocationVisible = IsVisible(currentLanguage, FieldLabelResourceKeyConstants.DeduplicationHumanDiseaseReportNotificationOtherLocationFieldLabel);
+    var isOtherPatientLocationRequired = IsRequired(currentLanguage, FieldLabelResourceKeyConstants.DeduplicationHumanDiseaseReportNotificationOtherLocationFieldLabel);
+
+    var filedIsRequiredLabel = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage);
+    var dateOfNotificationLabel = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfNotificationFieldLabel);
+    var dateOfDiagnosisLabel = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfDiagnosisFieldLabel);
+    
+    var dateOfBirthLabel = Localizer.GetString(FieldLabelResourceKeyConstants.PersonInformationDateOfBirthFieldLabel);
+}
+
+<RadzenTemplateForm @ref="@Form" TItem="DiseaseReportNotificationPageViewModel" Data="@Model" id="NotificationsForm">
+    <div class="card">
+        <div class="card-header">
+            <h4>@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportNotificationHeading)</h4>
+        </div>
+        <div class="card-body">
+            <RadzenRow>
+                <RadzenColumn Size="6" Visible="@isDateOfCompletionVisible">
+                    <InterfaceEditorResource 
+                        InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfCompletionOfPaperFormFieldLabel"
+                        For="NotificationSection_dateOfCompletion">
+                        <HdrCustomDatePicker
+                            FieldType="@HdrCustomDatePickerFieldTypes.DateOfCompletion"
+                            Name="NotificationSection_dateOfCompletion"
+                            @bind-Value="@HdrStateContainer.DateOfCompletion"
+                            Change="@OnDateOfCompletionChanged"
+                            Disabled="@Model.IsReportClosed"/>
+                    </InterfaceEditorResource>
+                </RadzenColumn>
+                <RadzenColumn Size="6" Visible="@isLocalIdentifierCompletionVisible">
+                    @if (isLocalIdentifierCompletionRequired)
+                    {
+                        <i class="fas fa-asterisk text-danger"></i>
+                    }
+                    <RadzenText class="label"
+                                Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationLocalIdentifierFieldLabel)" />
+                    <RadzenTextBox @bind-Value="@Model.localIdentifier"
+                                   Disabled="@Model.IsReportClosed"
+                                   id="NotificationSection_localIdentifier"
+                                   Name="NotificationLocalIdentifierComponent" />
+                    <RadzenRequiredValidator Component="NotificationLocalIdentifierComponent"
+                                             Visible="@isLocalIdentifierCompletionRequired"
+                                             Text="@filedIsRequiredLabel" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow>
+                <RadzenColumn Size="6">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <RadzenText class="label"
+                                Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSummaryDiseaseFieldLabel)" />
+                    <RadzenDropDown @ref="@DiseaseDropdown"
+                                    Name="diseaseDropdown"
+                                    ValueProperty="@nameof(FilteredDiseaseGetListViewModel.DiseaseID)"
+                                    TextProperty="@nameof(FilteredDiseaseGetListViewModel.DiseaseName)"
+                                    SelectedItem="@Model.strDisease"
+                                    @bind-Value="@Model.idfDisease"
+                                    Change="@(async () => await OnDiseaseChange())"
+                                    AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    Data="@Diseases"
+                                    Disabled="@Model.isEdit"
+                                    AllowClear="true"
+                                    TValue="long?" />
+                    <input type="hidden" id="diseaseDD" value="@Model.idfDisease" />
+                    <RadzenRequiredValidator Component="diseaseDropdown"
+                                             Text="@filedIsRequiredLabel" />
+                    <RadzenCustomValidator Component="diseaseDropdown"
+                                           Validator="@(() => IsAgeOfDiseaseValid)"
+                                           Visible="@(Model.idfDisease > 0)"
+                                           Text="@Localizer.GetString(MessageResourceKeyConstants.HumanDiseaseReportTheSelectedDiseaseValueDoesNotMatchToPersonAgeMessage)" />
+                    <RadzenCustomValidator Component="diseaseDropdown"
+                                           Validator="@(() => IsGenderOfDiseaseValid)"
+                                           Visible="@(Model.idfDisease > 0)"
+                                           Text="@Localizer.GetString(MessageResourceKeyConstants.HumanDiseaseReportTheSelectedDiseaseValueDoesNotMatchToPersonGenderMessage)" />
+                </RadzenColumn>
+            </RadzenRow>
+        <RadzenRow>
+            <RadzenColumn Size="6" Visible="@isDateOfDiagnosisVisible">
+                <InterfaceEditorResource
+                    InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfDiagnosisFieldLabel"
+                    For="NotificationSection_dateOfDiagnosis">
+                    <HdrCustomDatePicker
+                        FieldType="@HdrCustomDatePickerFieldTypes.DateOfDiagnosis"
+                        Name="NotificationSection_dateOfDiagnosis"
+                        @bind-Value="@HdrStateContainer.DateOfDiagnosis"
+                        Change="@OnDateOfDiagnosisChanged"
+                        Disabled="@Model.IsReportClosed"/>
+                </InterfaceEditorResource>
+            </RadzenColumn>
+            <RadzenColumn  Size="6" Visible="@isDateOfNotificationVisible">
+                <InterfaceEditorResource
+                    InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfNotificationFieldLabel"
+                    For="NotificationSection_dateOfNotification">
+                    <HdrCustomDatePicker
+                        FieldType="@HdrCustomDatePickerFieldTypes.DateOfNotification"
+                        Name="NotificationSection_dateOfNotification"
+                        @bind-Value="@HdrStateContainer.DateOfNotification"
+                        Change="@OnDateOfNotificationChanged"
+                        Disabled="@Model.IsReportClosed"/>
+                </InterfaceEditorResource>
+            </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow>
+                <RadzenColumn Size="6" Visible="@isStatusOfPatientAtNotificationVisible">
+                    @if (isStatusOfPatientAtNotificationRequired)
+                    {
+                        <i class="fas fa-asterisk text-danger"></i>
+                    }
+                    <RadzenText class="label"
+                                Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationStatusOfPatientAtTimeOfNotificationFieldLabel)" />
+                    <RadzenDropDown Name="statusOfPatientAtNotificationDropdown"
+                                    ValueProperty="@nameof(BaseReferenceEditorsViewModel.KeyId)"
+                                    TextProperty="@nameof(BaseReferenceEditorsViewModel.StrName)"
+                                    SelectedItem="@Model.strStatusOfPatient"
+                                    @bind-Value="@Model.idfStatusOfPatient"
+                                    Data="@PatientStates"
+                                    AllowClear="true"
+                                    TValue="long?"
+                                    Disabled="@Model.IsReportClosed" />
+                    <input type="hidden" id="statusOfPatientAtNotificationDD" value="@Model.idfStatusOfPatient" />
+                    <RadzenRequiredValidator Component="statusOfPatientAtNotificationDropdown"
+                                             Visible="@isStatusOfPatientAtNotificationRequired"
+                                             Text="@filedIsRequiredLabel" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow>
+                <RadzenColumn Size="6" Visible="@isNotificationSentByFacilityVisible">
+                    @if (isNotificationSentByFacilityRequired)
+                    {
+                        <i class="fas fa-asterisk text-danger"></i>
+                    }
+                    <RadzenText class="label"
+                                Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationSentbyFacilityFieldLabel)"></RadzenText>
+                    <OrganizationSearch Disabled="@Model.IsReportClosed"
+                                        @bind-SelectedOrganizationText="@Model.strNotificationSentByFacility"
+                                        SelectedOrganizationIdChanged="SentByFacilityChanged"
+                                        Name="notificationSentByFacilityComponent" />
+                    <input type="hidden" value="@Model.idfNotificationSentByFacility" id="notificationSentByFacilityDD" />
+                    <RadzenRequiredValidator Component="notificationSentByFacilityComponent"
+                                             Visible="@((Model.blnInitialSSD is true || Model.blnFinalSSD is true) && isNotificationSentByFacilityRequired)"
+                                             Text="@filedIsRequiredLabel" />
+                </RadzenColumn>
+                <RadzenColumn Size="6" Visible="@isNotificationNotificationSentByNameVisible">
+                    @if (isNotificationNotificationSentByNameRequired)
+                    {
+                        <i class="fas fa-asterisk text-danger"></i>
+                    }
+                    <RadzenText class="label"
+                                Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationSentbyNameFieldLabel)" />
+                    <EmployerSearch @ref="@FacilitySentByNameEmployerSearch"
+                                    Name="notificationSentByNameComponent"
+                                    @bind-SelectedEmployerText="@Model.strNotificationSentByName"
+                                    @bind-SelectedEmployerId="@Model.idfNotificationSentByName"
+                                    OrganizationId="@Model.idfNotificationSentByFacility"
+                                    Disabled="@(!(Model.idfNotificationSentByFacility > 1) || Model.IsReportClosed)"
+                                    ShowAddButton="@(Model.PermissionsAccessToNotification.Create && !Model.IsReportClosed)" />
+                    <input type="hidden" id="notificationSentByNameDD" value="@Model.idfNotificationSentByName" />
+                    <RadzenRequiredValidator Component="notificationSentByNameComponent"
+                                             Visible="@isNotificationNotificationSentByNameRequired"
+                                             Text="@filedIsRequiredLabel" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow>
+                <RadzenColumn Size="6" Visible="@isNotificationReceivedByFacilityVisible">
+                    @if (isNotificationReceivedByFacilityRequired)
+                    {
+                        <i class="fas fa-asterisk text-danger"></i>
+                    }
+                    <RadzenText class="label"
+                                Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationReceivedbyFacilityFieldLabel)" />
+                    <OrganizationSearch Disabled="@Model.IsReportClosed"
+                                        @bind-SelectedOrganizationText="@Model.strNotificationReceivedByFacility"
+                                        SelectedOrganizationIdChanged="ReceivedByFacilityChanged"
+                                        Name="notificationReceivedByFacilityComponent" />
+                    <input type="hidden" value="@Model.idfNotificationReceivedByFacility" id="notificationReceivedByFacilityDD" />
+                    <RadzenRequiredValidator Component="notificationReceivedByFacilityComponent"
+                                             Visible="@isNotificationReceivedByFacilityRequired"
+                                             Text="@filedIsRequiredLabel" />
+                </RadzenColumn>
+                <RadzenColumn Size="6" Visible="@isNotificationNotificationReceivedByNameVisible">
+                    @if (isNotificationNotificationReceivedByNameRequired)
+                    {
+                        <i class="fas fa-asterisk text-danger"></i>
+                    }
+                    <RadzenText class="label"
+                                Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationNotificationReceivedbyNameFieldLabel)" />
+                    <EmployerSearch @ref="@FacilityReceivedByNameEmployerSearch"
+                                    Name="notificationReceivedByNameComponent"
+                                    @bind-SelectedEmployerText="@Model.strNotificationReceivedByName"
+                                    @bind-SelectedEmployerId="@Model.idfNotificationReceivedByName"
+                                    OrganizationId="@Model.idfNotificationReceivedByFacility"
+                                    Disabled="@(!(Model.idfNotificationReceivedByFacility > 1) || Model.IsReportClosed)"
+                                    ShowAddButton="@(Model.PermissionsAccessToNotification.Create && !Model.IsReportClosed)" />
+                    <input type="hidden" id="notificationReceivedByNameDD" value="@Model.idfNotificationReceivedByName" />
+                    <RadzenRequiredValidator Component="notificationReceivedByNameComponent"
+                                             Visible="@isNotificationNotificationReceivedByNameRequired"
+                                             Text="@filedIsRequiredLabel" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow>
+                <RadzenColumn Size="6" Visible="@isCurrentPatientLocationVisible">
+                    @if (isCurrentPatientLocationRequired)
+                    {
+                        <i class="fas fa-asterisk text-danger"></i>
+                    }
+                    <RadzenText class="label"
+                                Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationCurrentLocationOfPatientFieldLabel)" />
+                    <RadzenDropDown Name="currentLocationOfPatientComponent"
+                                    ValueProperty="@nameof(BaseReferenceEditorsViewModel.KeyId)"
+                                    TextProperty="@nameof(BaseReferenceEditorsViewModel.StrName)"
+                                    SelectedItem="@Model.strCurrentLocationOfPatient"
+                                    @bind-Value="@Model.idfCurrentLocationOfPatient"
+                                    Data="@PatientLocations"
+                                    AllowClear="true"
+                                    TValue="long?"
+                                    Disabled="@Model.IsReportClosed" />
+                    <input type="hidden" id="currentLocationOfPatientDD" value="@Model.idfCurrentLocationOfPatient" />
+                    <RadzenRequiredValidator Component="notificationReceivedByNameComponent"
+                                             Visible="@isCurrentPatientLocationRequired"
+                                             Text="@filedIsRequiredLabel" />
+                </RadzenColumn>
+                <RadzenColumn Size="6" Visible="@(isHospitalNameVisible && Model.idfCurrentLocationOfPatient == 5350000000)">
+                    @if (isHospitalNameRequired)
+                    {
+                        <i class="fas fa-asterisk text-danger"></i>
+                    }
+                    <RadzenText class="label"
+                                Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFacilityDetailsHospitalNameFieldLabel)" />
+                    <OrganizationSearch Disabled="@Model.IsReportClosed"
+                                        @bind-SelectedOrganizationText="@Model.strHospitalName"
+                                        @bind-SelectedOrganizationId="@Model.idfHospitalName"
+                                        Name="hospitalNameComponent" />
+                    <input type="hidden" id="hospitalNameDD" value="@Model.idfHospitalName" />
+                    <RadzenRequiredValidator Component="hospitalNameComponent"
+                                             Visible="@isHospitalNameRequired"
+                                             Text="@filedIsRequiredLabel" />
+                </RadzenColumn>
+                <RadzenColumn Size="6" Visible="@(isOtherPatientLocationVisible && Model.idfCurrentLocationOfPatient == 5360000000)">
+                    @if (isOtherPatientLocationRequired)
+                    {
+                        <i class="fas fa-asterisk text-danger"></i>
+                    }
+                    <RadzenText class="label"
+                                Text="@Localizer.GetString(FieldLabelResourceKeyConstants.DeduplicationHumanDiseaseReportNotificationOtherLocationFieldLabel)" />
+                    <RadzenTextBox @bind-Value="@Model.strOtherLocation"
+                                   Disabled="@Model.IsReportClosed"
+                                   id="NotificationSection_strOtherLocation"
+                                   Name="NotificationOtherLocationComponent" />
+                    <RadzenRequiredValidator Component="NotificationOtherLocationComponent"
+                                             Visible="@isOtherPatientLocationRequired"
+                                             Text="@filedIsRequiredLabel" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow>
+                <RadzenColumn Size="6">
+                    <RadzenText class="label"
+                                Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationChangedDiseaseFieldLabel)" />
+                    <RadzenStack Orientation="Orientation.Horizontal" Gap="0" Wrap="FlexWrap.NoWrap">
+                        <RadzenDropDown @ref="@ChangedDiseaseDropdown"
+                                        Name="NotificationSection_ChangedDiseaseDropdown"
+                                        ValueProperty="@nameof(FilteredDiseaseGetListViewModel.DiseaseID)"
+                                        TextProperty="@nameof(FilteredDiseaseGetListViewModel.DiseaseName)"
+                                        @bind-Value="@Model.ChangedDiseaseId"
+                                        AllowFiltering="true"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        Data="@Diseases"
+                                        AllowClear="true"
+                                        TValue="long?"
+                                        Style="width: 100%"
+                                        Change="@(async () => await OnChangedDiseaseChange())"
+                                        Disabled="@Model.IsReportClosed" />
+                        <RadzenButton Text="i"
+                                      ButtonStyle="ButtonStyle.Light"
+                                      Disabled="@IsChangeDiagnosisHistoryDisabled()"
+                                      Click="@(async () => await ShowChangeDiagnosisHistory())" />
+                    </RadzenStack>
+                    <input type="hidden" id="NotificationSection_ChangedDiseaseId" value="@Model.ChangedDiseaseId" />
+                    <input type="hidden" id="NotificationSection_ChangeDiagnosisReasonId" value="@Model.ChangeDiagnosisReasonId" />
+                    <RadzenCustomValidator Component="NotificationSection_ChangedDiseaseDropdown"
+                                           Text="@Localizer.GetString(MessageResourceKeyConstants.ChangedDiseaseValueShouldDifferFromDiseaseValueMessage)"
+                                           Validator="@(() => IsChangedDiseaseIdValid())" />
+                </RadzenColumn>
+                <RadzenColumn Size="6" Visible="@isDateOfDiagnosisVisible">
+                    <InterfaceEditorResource
+                        InterfaceEditorKey="@FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfChangedDiagnosisFieldLabel"
+                        For="NotificationSection_DateOfChangedDiagnosis">
+                        <HdrCustomDatePicker
+                            FieldType="@HdrCustomDatePickerFieldTypes.DateOfChangedDiagnosis"
+                            Name="NotificationSection_DateOfChangedDiagnosis"
+                            @bind-Value="@HdrStateContainer.DateOfChangedDiagnosis"
+                            Disabled="@IsDateOfChangedDiagnosisDisabled()"/>
+                    </InterfaceEditorResource>
+                </RadzenColumn>
+            </RadzenRow>
+        </div>
+    </div>
+</RadzenTemplateForm>

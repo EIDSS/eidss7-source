@@ -13,7 +13,7 @@ namespace EIDSS.Web.ActionFilters
     public class LoginRedirectionAttribute : ActionFilterAttribute
     {
 
-        private ITokenService _tokenService { get; }
+        private ITokenService _tokenService { get; } // this must be resolved
 
         public LoginRedirectionAttribute(ITokenService tokenService)
         {

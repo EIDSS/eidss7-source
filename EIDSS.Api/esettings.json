@@ -1,0 +1,16 @@
+{
+  "ProtectedConfiguration": {
+    "EIDSSDatabaseUser": "",
+    "EIDSSDatabasePassword": "",
+    "LocalizationDatabaseUser": "",
+    "LocalizationDatabasePassword": "",
+    "EIDSSArchiveDatabaseUser": "",
+    "EIDSSArchiveDatabasePassword": "",
+    "XSiteEnUsDatabaseUser": "",
+    "XSiteEnUsDatabasePassword": "",
+    "XSiteAzLDatabaseUser": "",
+    "XSiteAzLDatabasePassword": "",
+    "XSiteKaGeDatabaseUser": "",
+    "XSiteKaGeDatabasePassword": ""
+  }
+}

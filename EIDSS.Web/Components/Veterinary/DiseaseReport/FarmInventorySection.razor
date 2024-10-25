@@ -173,8 +173,7 @@
     <Template Context="item">
         @if (item.RecordType == RecordTypeConstants.Species)
         {
-            <RadzenDatePicker AllowClear="true" @bind-Value="item.StartOfSignsDate" Change="_ => ValidateDiseaseReportFarmInventory(Model)" DateFormat="d" Disabled="@(Model.ReportDisabledIndicator || (Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0) || (Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0))" Name="startOfSignsDate" TValue="DateTime?"/>
-            <RadzenCompareValidator Component="startOfSignsDate" Operator="CompareOperator.LessThanEqual" Popup="false" Style="position: absolute" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="DateTime.Now"/>
+            <RadzenDatePicker AllowClear="true" @bind-Value="item.StartOfSignsDate" Change="_ => ValidateDiseaseReportFarmInventory(Model)" DateFormat="d" Disabled="@(Model.ReportDisabledIndicator || (Model.WritePermissionIndicator == false && Model.DiseaseReportID > 0) || (Model.CreatePermissionIndicator == false && Model.DiseaseReportID <= 0))" Name="startOfSignsDate" TValue="DateTime?" Max="@(DateTime.Now.ToLocalTime())"/>
         }
     </Template>
 </RadzenDataGridColumn>

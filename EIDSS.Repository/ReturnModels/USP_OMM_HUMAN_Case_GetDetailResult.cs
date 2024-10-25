@@ -39,6 +39,7 @@ namespace EIDSS.Repository.ReturnModels
         public DateTime? datOnSetDate { get; set; }
         public DateTime? datFinalDiagnosisDate { get; set; }
         public long? idfHospital { get; set; }
+        public string? strHospitalizationPlace { get; set; }
         public DateTime? datHospitalizationDate { get; set; }
         public DateTime? datDischargeDate { get; set; }
         public string strClinicalNotes { get; set; }

@@ -8,9 +8,6 @@ namespace EIDSS.Repository.ReturnModels
     public partial class USP_HUM_DISEASE_GETDetailResult
     {
         public long idfHumanCase { get; set; }
-        public int? parentHumanDiseaseReportID { get; set; }
-        public string relatedParentHumanDiseaseReportIdList { get; set; }
-        public string relatedChildHumanDiseaseReportIdList { get; set; }
         public long idfHuman { get; set; }
         public long? idfsHospitalizationStatus { get; set; }
         public long? idfsYNSpecimenCollected { get; set; }
@@ -151,10 +148,14 @@ namespace EIDSS.Repository.ReturnModels
         public long? HumanActualId { get; set; }
         public bool? blnInitialSSD { get; set; }
         public bool? blnFinalSSD { get; set; }
-        public long? RelateToHumanDiseaseReportID { get; set; }
-        public string RelatedToHumanDiseaseEIDSSReportID { get; set; }
-        public long? ConnectedDiseaseReportID { get; set; }
-        public string ConnectedDiseaseEIDSSReportID { get; set; }
         public long? idfParentMonitoringSession { get; set; }
+        public long? DiseaseId { get; set; }
+        public string DiseaseName { get; set; }
+        public DateTime? DateOfDiagnosis { get; set; }
+        public long? ChangedDiseaseId { get; set; }
+        public string ChangedDiseaseName { get; set; }
+        public DateTime? DateOfChangedDiagnosis { get; set; }
+        public long? ChangeDiagnosisReasonId { get; set; }
+
     }
 }

@@ -17,13 +17,11 @@ namespace EIDSS.Web.Areas.Reports.ViewModels
 
         [DisplayName("Start Issue Date")]
         [LocalizedRequired]
-        [DisplayFormat(DataFormatString = "{0:d}")]
         public string StartIssueDate { get; set; }
 
 
         [DisplayName("End Issue Date")]
         [LocalizedRequired]
-        [DisplayFormat(DataFormatString = "{0:d}")]
         public string EndIssueDate { get; set; }
 
         public string JavascriptToRun { get; set; }

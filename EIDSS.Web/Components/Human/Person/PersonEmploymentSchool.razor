@@ -2,6 +2,7 @@
 @using EIDSS.Web.Components.CrossCutting
 @using EIDSS.Web.Components.Shared
 @using EIDSS.Web.Services
+@using EIDSS.Web.Components.Shared.YesNoUnknown
 
 @inherits EIDSS.Web.Components.Human.Person.PersonEmploymentSchoolBase
 
@@ -10,293 +11,226 @@
         <div class="col-11">
             <h4 class="title">@Localizer.GetString(HeadingResourceKeyConstants.PersonEmploymentSchoolInformationHeading)</h4>
         </div>
-        <div class="col-1 text-right">
+        <RadzenStack class="col-1 text-right" Visible="@IsNotHdrForm">
             <a id="editPersonEmploymentSchoolSectionButton" href="#personDetailsWizard-h-2" class="edit-section">
                 <span class="fas fa-edit fa-lg"></span>
             </a>
-        </div>
+        </RadzenStack>
     </div>
 </div>
 
 <RadzenTemplateForm @ref="Form" TItem="PersonStateContainer" Data="@StateContainer">
+    <div class="card">
+        <div class="card-body">
+            <div class="form-row">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationIsThisPersonCurrentlyEmployedFieldLabel" IsRow="false" CssClass="col-6">
+                    <YesNoUnknown 
+                        disabled="@StateContainer.IsReadOnly"
+                        @bind-SelectedAnswerId="@StateContainer.IsEmployedTypeID"/>
+                </InterfaceEditorResource>
+            </div>
 
-    <div class="form-row">
-        @*Is this person currently employed?*@
-        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationIsThisPersonCurrentlyEmployedFieldLabel" IsRow="false" CssClass="col-6">
-           
-            <RadzenRadioButtonList 
-                @bind-Value=@StateContainer.IsEmployedTypeID 
-                TValue="long?" 
-                Orientation="Orientation.Horizontal"            
-                Change=@(args => SetEmploymentHidden(args))
-                Data="@YesNoUnknownList"                 
-                ValueProperty="IdfsBaseReference" 
-                TextProperty="Name" Disabled="StateContainer.IsReadOnly"/>
+            <div class="form-row address-container yes-follow-up-no-left-border" hidden="@(StateContainer.IsEmployedTypeID != EIDSSConstants.YesNoValues.Yes)">
+                <fieldset>
+                    <legend>@Localizer.GetString(HeadingResourceKeyConstants.EmploymentAddress)</legend>
+                    <div class="form-row form-group">
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationOccupationFieldLabel" IsRow="false" CssClass="col-4" For="occupationType">
+                            <RadzenDropDown id="@($"occupationType-{ParentScopeModel}")"
+                                            Name="@($"occupationType-{ParentScopeModel}")"
+                                            AllowClear="true"
+                                            TValue="long?"
+                                            Data="@OccupationTypes"
+                                            LoadData="@GetOccupationTypesAsync"
+                                            ValueProperty="IdfsBaseReference"
+                                            TextProperty="Name"
+                                            @bind-Value="@StateContainer.OccupationType"
+                                            class="form-control"
+                                            AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            Disabled="StateContainer.IsReadOnly">
+                            </RadzenDropDown>
+                        </InterfaceEditorResource>
+                    </div>
+                    <div class="form-row form-group">
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationEmployerNameFieldLabel" IsRow="false" CssClass="col-4" For="employerName">
+                            <RadzenTextBox id="employerName"
+                                           Name="employerName"
+                                           @ref="EmployerNameControl"
+                                           class="form-control"
+                                           Disabled="StateContainer.IsReadOnly"
+                                           @bind-Value="@StateContainer.EmployerName">
+                            </RadzenTextBox>
+                        </InterfaceEditorResource>
 
-        </InterfaceEditorResource>
-    </div>
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressCurrentAddressCountryCodeAndNumberFieldLabel" IsRow="false" CssClass="col-4" For="employerPhoneNumber">
+                            <RadzenTextBox id="employerPhoneNumber"
+                                           Name="employerPhoneNumber"
+                                           @ref="EmployerPhoneNumberControl"
+                                           class="form-control"
+                                           Disabled="StateContainer.IsReadOnly"
+                                           @bind-Value="@StateContainer.EmployerPhoneNumber">
+                            </RadzenTextBox>
+                        </InterfaceEditorResource>
 
-    <div style="border:1px solid #2D5B83; padding:40px; margin-bottom:20px;" hidden="@StateContainer.IsEmploymentHidden">
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationDateofLastPresenceatWorkFieldLabel" IsRow="false" CssClass="col-4" For="dateOfLastPresenceAtWork">
+                            <RadzenDatePicker id="dateOfLastPresenceAtWork"
+                                              Name="dateOfLastPresenceAtWork"
+                                              AllowClear="true"
+                                              AllowInput="true"
+                                              InputClass="form-control"
+                                              class="form-control-range"
+                                              TValue="DateTime?"
+                                              Disabled="StateContainer.IsReadOnly"
+                                              @bind-Value="@StateContainer.DateOfLastPresenceAtWork"
+                                              DateFormat="d">
+                            </RadzenDatePicker>
+                        </InterfaceEditorResource>
+                    </div>
 
-        <div class="form-row">
-            @*Occupation*@
-            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationOccupationFieldLabel" IsRow="false" CssClass="col-6" For="occupationType">
-                <RadzenDropDown id="occupationType"
-                                Name="occupationType"
-                                AllowClear="true"
-                                TValue="long?"
-                                Data="@OccupationTypes"
-                                LoadData="@GetOccupationTypesAsync"
-                                ValueProperty="IdfsBaseReference"
-                                TextProperty="Name"
-                                @bind-Value="@StateContainer.OccupationType"
-                                class="form-control"
-                                AllowFiltering="true"
-                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                Change="OccupationTypeChangedAsync" Disabled="StateContainer.IsReadOnly">
-                </RadzenDropDown>
-            </InterfaceEditorResource>
-        </div>
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationWorkAddresssameasCurrentAddressFieldLabel" IsRow="false" For="chkWorkAddressSameAsCurrentAddress">
+                        <RadzenCheckBox id="chkWorkAddressSameAsCurrentAddress"
+                                        Name="chkWorkAddressSameAsCurrentAddress"
+                                        class="form-check-inline"
+                                        @bind-Value="@StateContainer.WorkAddressSameAsCurrentAddress"
+                                        TValue="bool"
+                                        Change="@((args) => MakeWorkSameAsCurrentAddress(args))" Disabled="StateContainer.IsReadOnly">
+                        </RadzenCheckBox>
+                    </InterfaceEditorResource>
 
-        <div class="form-row">
-            @*Employer Name*@
-            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationEmployerNameFieldLabel" IsRow="false" CssClass="col-6" For="employerName">
-                <RadzenTextBox id="employerName"
-                               Name="employerName"
-                               @ref="EmployerNameControl"
-                               class="form-control"
-                               @bind-Value="@StateContainer.EmployerName">
-                </RadzenTextBox>
-            </InterfaceEditorResource>
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressAlternateAddressForeignAddressFieldLabel" IsRow="false" For="chkIsForeignWorkAddress">
+                        <RadzenCheckBox id="chkIsForeignWorkAddress"
+                                        Name="chkIsForeignWorkAddress"
+                                        class="form-check-inline"
+                                        @bind-Value="@StateContainer.IsForeignWorkAddress"
+                                        TValue="bool"
+                                        Change="@((args)=> ResetWorkAddress(args))" 
+                                        Disabled="StateContainer.IsReadOnly">
+                        </RadzenCheckBox>
+                    </InterfaceEditorResource>
 
-            <!--Date of Last Presence at Work-->
-            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationDateofLastPresenceatWorkFieldLabel" IsRow="false" CssClass="col-3" For="dateOfLastPresenceAtWork">
-                <RadzenDatePicker id="dateOfLastPresenceAtWork"
-                                  Name="dateOfLastPresenceAtWork"
-                                  AllowClear="true"
-                                  AllowInput="true"
-                                  class="form-control-range"
-                                  TValue="DateTime?"
-                                  @bind-Value="@StateContainer.DateOfLastPresenceAtWork"
-                                  DateFormat="d">
-                </RadzenDatePicker>
-            </InterfaceEditorResource>
-        </div>
+                    <div class="form-row form-group" hidden="@StateContainer.IsForeignWorkAddress">
+                        <div class="col-12">
+                            <LocationView ParmLocationViewModel="@StateContainer.PersonEmploymentAddressLocationModel" Id="EmploymentAddress" LocationViewModelChanged="UpdateEmploymentAddressHandlerAsync" @ref="EmploymentAddressLocationViewComponent" IsValidationRequired="false"/>
+                        </div>
+                    </div>
+                    <div class="form-row form-group" hidden="@(!StateContainer.IsForeignWorkAddress)">
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.CountryFieldLabel" IsRow="false" CssClass="col-6" For="ddlForeigWorkCountry">
+                            <RadzenDropDown id="ddlForeigWorkCountry"
+                                            Name="ddlForeigWorkCountry"
+                                            AllowClear="true"
+                                            TValue="long?"
+                                            Data="@Countries"
+                                            ValueProperty="idfsCountry"
+                                            TextProperty="strCountryName"
+                                            @bind-Value="@StateContainer.ForeignWorkCountryID"
+                                            class="form-control"
+                                            AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            Disabled="StateContainer.IsReadOnly">
+                            </RadzenDropDown>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ForeignAddressLabel" IsRow="false" CssClass="col-6" For="foreignWorkAddress">
+                            <RadzenTextBox id="foreignWorkAddress"
+                                           Name="foreignWorkAddress"
+                                           @ref="ForeignWorkAddressControl"
+                                           class="form-control"
+                                           Disabled="StateContainer.IsReadOnly"
+                                           @bind-Value="@StateContainer.ForeignWorkAddress">
+                            </RadzenTextBox>
+                        </InterfaceEditorResource>
+                    </div>
+                </fieldset>
+            </div>
 
-        <div class="form-row">
-            <!--Employer Phone Number-->
-            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressCurrentAddressCountryCodeAndNumberFieldLabel" IsRow="false" CssClass="col-6" For="employerPhoneNumber">
-                <RadzenTextBox id="employerPhoneNumber"
-                               Name="employerPhoneNumber"
-                               @ref="EmployerPhoneNumberControl"
-                               class="form-control"
-                               @bind-Value="@StateContainer.EmployerPhoneNumber">
-                </RadzenTextBox>
-            </InterfaceEditorResource>
-        </div>
+            <div class="form-row form-group">
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationDoesthePersonCurrentlyAttendCchoolFieldLabel" IsRow="false" CssClass="col-6">
+                    <YesNoUnknown 
+                        disabled="@StateContainer.IsReadOnly"
+                        @bind-SelectedAnswerId="@StateContainer.IsStudentTypeID"/>
+                </InterfaceEditorResource>
+            </div>
 
-        <div class="form-row">
-            <!--Work Address Same as Current Address Checkbox-->
-            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationWorkAddresssameasCurrentAddressFieldLabel" IsRow="false" For="chkWorkAddressSameAsCurrentAddress">
-                <RadzenCheckBox id="chkWorkAddressSameAsCurrentAddress"
-                                Name="chkWorkAddressSameAsCurrentAddress"
-                                class="form-check-inline"
-                                @bind-Value="@StateContainer.WorkAddressSameAsCurrentAddress"  
-                                TValue="bool"
-                                Change="@((args) => WorkSameAsCurrentAddress(args))" Disabled="StateContainer.IsReadOnly">
-                </RadzenCheckBox>
-            </InterfaceEditorResource>
-        </div>
+            <div class="form-row address-container yes-follow-up-no-left-border" hidden="@(StateContainer.IsStudentTypeID != EIDSSConstants.YesNoValues.Yes)">
+                <fieldset>
+                    <legend>@Localizer.GetString(HeadingResourceKeyConstants.SchoolAddress)</legend>
 
-        <div class="form-row">
-            <!--Is Foreign Work Address?-->
-            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressAlternateAddressForeignAddressFieldLabel" IsRow="false" For="chkIsForeignWorkAddress">
-                <RadzenCheckBox id="chkIsForeignWorkAddress"
-                                Name="chkIsForeignWorkAddress"
-                                class="form-check-inline"
-                                @bind-Value="@StateContainer.IsForeignWorkAddress"
-                                TValue="bool"
-                                Change=@(args => ToggleForeignWorkAddress(args)) Disabled="StateContainer.IsReadOnly">
-                </RadzenCheckBox>
-            </InterfaceEditorResource>
-        </div>
+                    <div class="form-row form-group">
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationSchoolNameFieldLabel" IsRow="false" CssClass="col-4" For="schoolName">
+                            <RadzenTextBox id="schoolName"
+                                           Name="schoolName"
+                                           @ref="SchoolNameControl"
+                                           class="form-control"
+                                           @bind-Value="@StateContainer.SchoolName"
+                                           Disabled="StateContainer.IsReadOnly">
+                            </RadzenTextBox>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressCurrentAddressCountryCodeAndNumberFieldLabel" IsRow="false" CssClass="col-4" For="schoolPhoneNumber">
+                            <RadzenTextBox id="schoolPhoneNumber"
+                                           Name="schoolPhoneNumber"
+                                           @ref="SchoolPhoneNumberControl"
+                                           class="form-control"
+                                           @bind-Value="@StateContainer.SchoolPhoneNumber"
+                                           Disabled="StateContainer.IsReadOnly">
+                            </RadzenTextBox>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationDateofLastPresenceatSchoolFieldLabel" IsRow="false" CssClass="col-4" For="dateOfLastPresenceAtSchool">
+                            <RadzenDatePicker id="dateOfLastPresenceAtSchool"
+                                              Name="dateOfLastPresenceAtSchool"
+                                              AllowClear="true"
+                                              AllowInput="true"
+                                              class="form-control-range"
+                                              InputClass="form-control"
+                                              TValue="DateTime?"
+                                              @bind-Value="@StateContainer.DateOfLastPresenceAtSchool"
+                                              Disabled="StateContainer.IsReadOnly"
+                                              DateFormat="d">
+                            </RadzenDatePicker>
+                        </InterfaceEditorResource>
+                    </div>
 
-        <!-- Work Address-->
-        <div class="form-row" hidden="@IsWorkLocationComponentHidden">
-            <div class="col-12">
-                <LocationView ParmLocationViewModel="@StateContainer.PersonEmploymentAddressLocationModel" Id="EmploymentAddress" LocationViewModelChanged="UpdateEmploymentAddressHandlerAsync" @ref="EmploymentAddressLocationViewComponent" />
+                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressAlternateAddressForeignAddressFieldLabel" IsRow="false" For="chkIsForeignSchoolAddress">
+                        <RadzenCheckBox id="chkIsForeignSchoolAddress"
+                                        Name="chkIsForeignSchoolAddress"
+                                        class="form-check-inline"
+                                        @bind-Value="@StateContainer.IsForeignSchoolAddress"
+                                        TValue="bool"
+                                        Disabled="StateContainer.IsReadOnly">
+                        </RadzenCheckBox>
+                    </InterfaceEditorResource>
+
+                    <div class="form-row form-group" hidden="@StateContainer.IsForeignSchoolAddress">
+                        <div class="col-12">
+                            <LocationView ParmLocationViewModel="@StateContainer.PersonSchoolAddressLocationModel" Id="PesonSchoolAddress" LocationViewModelChanged="UpdateSchoolAddressHandlerAsync" @ref="SchoolAddressLocationViewComponent" IsValidationRequired="false"/>
+                        </div>
+                    </div>
+                    <div class="form-row form-group" hidden="@(!StateContainer.IsForeignSchoolAddress)">
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.CountryFieldLabel" IsRow="false" CssClass="col-6" For="ddlForeigSchoolCountry">
+                            <RadzenDropDown id="ddlForeigSchoolCountry"
+                                            Name="ddlForeigSchoolCountry"
+                                            AllowClear="true"
+                                            TValue="long?"
+                                            Data="@Countries"
+                                            ValueProperty="idfsCountry"
+                                            TextProperty="strCountryName"
+                                            @bind-Value="@StateContainer.ForeignSchoolCountryID"
+                                            class="form-control"
+                                            AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            Disabled="StateContainer.IsReadOnly">
+                            </RadzenDropDown>
+                        </InterfaceEditorResource>
+                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ForeignAddressLabel" IsRow="false" CssClass="col-6" For="foreignSchoolAddress">
+                            <RadzenTextBox id="foreignSchoolAddress"
+                                           Name="foreignSchoolAddress"
+                                           @ref="ForeignSchoolAddressControl"
+                                           class="form-control"
+                                           Disabled="StateContainer.IsReadOnly"
+                                           @bind-Value="@StateContainer.ForeignSchoolAddress">
+                            </RadzenTextBox>
+                        </InterfaceEditorResource>
+                    </div>
+                </fieldset>
             </div>
         </div>
-
-        <!--Foreign Country List-->
-        <div class="form-row" hidden="@IsForeignWorkAddressHidden">
-
-            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.CountryFieldLabel" IsRow="false" CssClass="col-6" For="ddlForeigWorkCountry">
-                <RadzenDropDown id="ddlForeigWorkCountry"
-                                Name="ddlForeigWorkCountry"
-                                AllowClear="true"
-                                TValue="long?"
-                                Data="@Countries"
-                                LoadData="@GetCountriesAsync"
-                                ValueProperty="idfsCountry"
-                                TextProperty="strCountryName"
-                                @bind-Value="@StateContainer.ForeignWorkCountryID"
-                                class="form-control"
-                                AllowFiltering="true"
-                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                Change="CountryChangedAsync" Disabled="StateContainer.IsReadOnly">
-                </RadzenDropDown>
-            </InterfaceEditorResource>
-        </div>
-
-        <!--Foreign Work Address -->
-        <div class="form-row" hidden="@IsForeignWorkAddressHidden">
-            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ForeignAddressLabel" IsRow="false" CssClass="col-6" For="foreignWorkAddress">
-                <RadzenTextBox id="foreignWorkAddress"
-                               Name="foreignWorkAddress"
-                               @ref="ForeignWorkAddressControl"
-                               class="form-control"
-                               @bind-Value="@StateContainer.ForeignWorkAddress">
-                </RadzenTextBox>
-            </InterfaceEditorResource>
-        </div>
-
     </div>
-
-    <div class="form-row">
-        <!--Does this person currently attend school-->
-        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationDoesthePersonCurrentlyAttendCchoolFieldLabel" IsRow="false" CssClass="col-6">           
-
-            <RadzenRadioButtonList 
-                @bind-Value=@StateContainer.IsStudentTypeID 
-                TValue="long?" 
-                Orientation="Orientation.Horizontal"            
-                Change=@(args => SetSchoolHidden(args))
-                Data="@YesNoUnknownList"                 
-                ValueProperty="IdfsBaseReference" 
-                TextProperty="Name" Disabled="StateContainer.IsReadOnly"/>
-
-        </InterfaceEditorResource>
-    </div>
-
-    <div style="border:1px solid #2D5B83; padding:40px;" hidden="@StateContainer.IsSchoolHidden">
-        <div class="form-row">
-            <!--School Name-->
-            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationSchoolNameFieldLabel" IsRow="false" CssClass="col-6" For="schoolName">
-                <RadzenTextBox id="schoolName"
-                               Name="schoolName"
-                               @ref="SchoolNameControl"
-                               class="form-control"
-                               @bind-Value="@StateContainer.SchoolName">
-                </RadzenTextBox>
-            </InterfaceEditorResource>
-        </div>
-
-        <div class="form-row">
-           <!--Date of Last Presence at School-->
-            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonEmploymentSchoolInformationDateofLastPresenceatSchoolFieldLabel" IsRow="false" CssClass="col-3" For="dateOfLastPresenceAtSchool">
-                <RadzenDatePicker id="dateOfLastPresenceAtSchool"
-                                  Name="dateOfLastPresenceAtSchool"
-                                  AllowClear="true"
-                                  AllowInput="true"
-                                  class="form-control-range"
-                                  TValue="DateTime?"
-                                  @bind-Value="@StateContainer.DateOfLastPresenceAtSchool"
-                                  DateFormat="d">
-                </RadzenDatePicker>
-            </InterfaceEditorResource>
-        </div>
-
-         <div class="form-row">
-            <!--School Phone Number-->
-            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressCurrentAddressCountryCodeAndNumberFieldLabel" IsRow="false" CssClass="col-6" For="schoolPhoneNumber">
-                <RadzenTextBox id="schoolPhoneNumber"
-                               Name="schoolPhoneNumber"
-                               @ref="SchoolPhoneNumberControl"
-                               class="form-control"
-                               @bind-Value="@StateContainer.SchoolPhoneNumber">
-                </RadzenTextBox>
-            </InterfaceEditorResource>
-        </div>
-        
-         <div class="form-row">
-            <!--Is Foreign School Address?-->
-            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.PersonAddressAlternateAddressForeignAddressFieldLabel" IsRow="false" For="chkIsForeignSchoolAddress">
-                <RadzenCheckBox id="chkIsForeignSchoolAddress"
-                                Name="chkIsForeignSchoolAddress"
-                                class="form-check-inline"
-                                @bind-Value="@StateContainer.IsForeignSchoolAddress"
-                                TValue="bool"
-                                Change=@(args => ToggleForeignSchoolAddress(args))>
-                                Disabled="StateContainer.IsReadOnly"
-                </RadzenCheckBox>
-            </InterfaceEditorResource>
-        </div>
-
-        <!-- School Address-->
-         <div class="form-row" hidden="@IsSchoolLocationComponentHidden">
-           <div class="col-12">
-                <LocationView ParmLocationViewModel="@StateContainer.PersonSchoolAddressLocationModel" Id="PesonSchoolAddress" LocationViewModelChanged="UpdateSchoolAddressHandlerAsync" @ref="SchoolAddressLocationViewComponent" />
-            </div>
-        </div>
-
-        <!--Foreign Country List-->
-        <div class="form-row" hidden="@IsForeignSchoolAddressHidden">
-
-            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.CountryFieldLabel" IsRow="false" CssClass="col-6" For="ddlForeigSchoolCountry">
-                <RadzenDropDown id="ddlForeigSchoolCountry"
-                                Name="ddlForeigSchoolCountry"
-                                AllowClear="true"
-                                TValue="long?"
-                                Data="@Countries"
-                                LoadData="@GetCountriesAsync"
-                                ValueProperty="idfsCountry"
-                                TextProperty="strCountryName"
-                                @bind-Value="@StateContainer.ForeignSchoolCountryID"
-                                class="form-control"
-                                AllowFiltering="true"
-                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                Change="CountryChangedAsync" Disabled="StateContainer.IsReadOnly">
-                </RadzenDropDown>
-            </InterfaceEditorResource>
-        </div>
-
-        <!--Foreign School Address -->
-        <div class="form-row" hidden="@IsForeignSchoolAddressHidden">
-            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ForeignAddressLabel" IsRow="false" CssClass="col-6" For="foreignSchoolAddress">
-                <RadzenTextBox id="foreignSchoolAddress"
-                               Name="foreignSchoolAddress"
-                               @ref="ForeignSchoolAddressControl"
-                               class="form-control"
-                               @bind-Value="@StateContainer.ForeignSchoolAddress">
-                </RadzenTextBox>
-            </InterfaceEditorResource>
-        </div>
-
-
-    </div>
-
 </RadzenTemplateForm>
-
-@code {        
-    
-    private bool IsWorkLocationComponentHidden { get; set; } = false;
-    private bool IsForeignWorkAddressHidden { get; set; } = true;
-    
-    private bool IsSchoolLocationComponentHidden { get; set; } = false;
-    private bool IsForeignSchoolAddressHidden { get; set; } = true;
-
-    public void ToggleForeignWorkAddress(bool value)
-    {
-        IsWorkLocationComponentHidden = value;
-        IsForeignWorkAddressHidden = !value;
-    }
-
-    public void ToggleForeignSchoolAddress(bool value)
-    {
-        IsSchoolLocationComponentHidden = value;
-        IsForeignSchoolAddressHidden = !value;
-    }
-
-
-}

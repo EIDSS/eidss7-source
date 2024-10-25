@@ -458,7 +458,7 @@ namespace EIDSS.Web.Components.Outbreak.Session
                         };
 
                     ContactTracing ??= new FlexForm.FlexForm();
-                    ContactTracing.SetRequestParameter(contact.ContactTracingFlexFormRequest);
+                    await ContactTracing.SetRequestParameter(contact.ContactTracingFlexFormRequest);
 
                     await InvokeAsync(StateHasChanged);
                 }

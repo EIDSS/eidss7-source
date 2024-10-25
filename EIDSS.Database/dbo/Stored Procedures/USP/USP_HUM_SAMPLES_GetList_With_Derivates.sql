@@ -61,6 +61,7 @@ BEGIN
 					,Samples.idfsSite AS idfsSite
 					,Samples.idfInDepartment as FunctionalAreaID
 					,functionalArea.name as FunctionalAreaName
+					,Samples.DiseaseID as DiseaseID
 		FROM		dbo.tlbMaterial Samples 
 		INNER JOIN	dbo.tlbHumanCase as hc ON Samples.idfHumanCase  = hc.idfHumanCase 
 		LEFT JOIN	dbo.tlbGeoLocation as Location	ON Location.idfGeoLocation = hc.idfPointGeoLocation
@@ -76,8 +77,7 @@ BEGIN
 		LEFT JOIN	FN_GBL_ReferenceRepair(@LangID, 19000015) AS sampleStatus ON sampleStatus.idfsReference = Samples.idfsSampleStatus 
 		LEFT JOIN	FN_GBL_ReferenceRepair(@LangID, 19000110) AS acessionedCond ON acessionedCond.idfsReference = Samples.idfsAccessionCondition 
 		LEFT JOIN   FN_GBL_Repair(@LangID, 19000164) functionalArea ON functionalArea.idfsReference = d.idfsDepartmentName
-		Left JOIN	dbo.tlbPerson p on p.idfPerson = Samples.idfFieldCollectedByPerson	
-		--LEFT JOIN   dbo.tstSite S ON samples.idfSendToOffice = S.idfOffice AND S.intRowStatus = 0
+		Left JOIN	dbo.tlbPerson p on p.idfPerson = Samples.idfFieldCollectedByPerson
 		WHERE		
 		Samples.idfHumanCase = @idfHumanCase
 		AND	Samples.intRowStatus = 0

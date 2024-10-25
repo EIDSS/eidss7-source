@@ -284,8 +284,11 @@
             </div>
             <div class="modal-body">
                 <span id="successMsg"></span>
+                @*@Localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyDoYouWantToAddAnotherRecordMessage)*@
             </div>
             <div class="modal-footer">
+                @*<button id="successBtnNo" type="button" class="btn btn-secondary" data-dismiss="modal">@Localizer.GetString(ButtonResourceKeyConstants.NoButton)</button>
+                    <button id="successBtnYes" type="button" class="btn btn-primary" onclick="PrepareNewRecord();"> @Localizer.GetString(ButtonResourceKeyConstants.YesButton)</button>*@
                 <button id="successBtnOK" type="button" class="btn btn-primary" data-dismiss="modal"> @Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
             </div>
         </div>
@@ -302,9 +305,10 @@
                 </button>
             </div>
             <div class="modal-body">
-                <span id="dupemsg"></span>
+                <span id="dupemsg"></span>  @*@String.Format(@Localizer.GetString(MessageResourceKeyConstants.DuplicateReferenceValueMessage))*@
             </div>
             <div class="modal-footer">
+                @*<button id="button" class="btn btn-secondary" data-dismiss="modal" onclick="ClearTableDataFromLocalStorage('BaseReferenceGrid');"> @Localizer.GetString(ButtonResourceKeyConstants.NoButton)</button>*@
                 <button id="editDupRecordButton" class="btn btn-primary" onclick="ReserveRowState('BaseReferenceGrid','duplicatesModal');"> @Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
                 <button id="createNewYesButton" onclick ="GetFromLocalStorage();" class="btn btn-primary" >@Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
             </div>
@@ -371,6 +375,7 @@
                     $("#editDupRecordButton").show();
                 }
             }
+            // alert("this is " + JSON.stringify(data));
         }
 
         //Gets Data from local storage and populates the controls

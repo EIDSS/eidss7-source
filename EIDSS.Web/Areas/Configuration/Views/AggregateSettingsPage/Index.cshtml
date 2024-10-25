@@ -40,12 +40,20 @@
                             </th>
                             <th>
                                 @Localizer.GetString(ColumnHeadingResourceKeyConstants.AggregateCaseTypeColumnHeading)
+                                @*@if (Model.UserPermissions.Create)
+                                    {
+                                        <button type="button" class="btn-sm" data-toggle='modal' data-target='#bAddDisease' style="border:1px solid #ccc;">+</button>
+                                    }*@
                             </th>
                             <th>
                                 @Localizer.GetString(ColumnHeadingResourceKeyConstants.AdministrativeLevelColumnHeading)
                             </th>
                             <th>
                                 @Localizer.GetString(ColumnHeadingResourceKeyConstants.TimeIntervalColumnHeading)
+                                @*@if (Model.UserPermissions.Create)
+                                    {
+                                        <button type="button" class="btn-sm" data-toggle='modal' data-target='#bAddSpeciesType' style="border:1px solid #ccc;">+</button>
+                                    }*@
                             </th>
                         </tr>
                     </thead>
@@ -161,6 +169,25 @@
         </div>
     }
 
+    @*<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">@Localizer.GetString(HeadingResourceKeyConstants.EIDSSModalHeading)</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @Localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage)
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">@Localizer.GetString((int)InterfaceEditorResourceSetEnum.CommonButtons + "No" + (long)InterfaceEditorTypeEnum.ButtonText)</button>
+                        <button type="button" class="btn btn-primary" onclick="PrepareNewRecord();"> @Localizer.GetString((int)InterfaceEditorResourceSetEnum.CommonButtons + "Yes" + (long)InterfaceEditorTypeEnum.ButtonText)</button>
+                    </div>
+                </div>
+            </div>
+        </div>*@
 </form>
 
 <!-- Duplicates message modal-->
@@ -240,9 +267,11 @@
 
                     },
                     complete: function (data) {
+                        //alert("ajax complete");
                         window.location.reload(true);
                     },
                     error: function (request, error) {
+                        //alert(error);
                     }
                 });
             }

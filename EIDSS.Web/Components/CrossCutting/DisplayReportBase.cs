@@ -9,13 +9,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using Radzen.Blazor;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using EIDSS.Web.Components.Shared.SSRSViewer;
 using static System.String;
 
 #endregion
@@ -40,7 +40,6 @@ namespace EIDSS.Web.Components.CrossCutting
         [Parameter] public string ReportName { get; set; }
         [Parameter] public List<KeyValuePair<string, string>> Parameters { get; set; }
         [Parameter] public string ParametersJson { get; set; }
-        [Parameter] public CultureInfo Culture { get; set; }
         [Parameter] public bool CancelButtonVisibleIndicator { get; set; }
         [Parameter] public bool RefreshComponent { get; set; }
 
@@ -48,7 +47,7 @@ namespace EIDSS.Web.Components.CrossCutting
 
         #region Properties
 
-        protected RadzenSSRSViewer Viewer { get; set; } = new RadzenSSRSViewer();
+        protected SSRSViewer Viewer { get; set; } = new ();
         protected string ReportServer { get; set; }
         private string ReportPath { get; set; }
         protected bool UseProxy { get; set; }
@@ -158,8 +157,6 @@ namespace EIDSS.Web.Components.CrossCutting
         {
             if (!firstRender)
             {
-                Viewer.DefaultCulture = Culture;
-
                 if (IsNullOrEmpty(ReportPath))
                 {
                     ReportPath = ConfigurationService.GetValue<string>("ReportServer:Path").Replace("/", Empty);

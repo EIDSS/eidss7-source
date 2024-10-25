@@ -7,6 +7,8 @@
 
 <style type="text/css">
 
+    /*.treeNode:hover*/
+
     .iconLink:hover, .treeNode:hover {
         cursor: pointer;
     }
@@ -144,12 +146,19 @@
                                 <input id="txtBuildingDetail" type="text" class="form-control detailsControl" />
                             </div>
                             
+                            @*<div class="col-4" hidden-if="@FieldLabelResourceKeyConstants.OutbreakSessionOutbreakIDFieldLabel">*@
                             <div class="pb-3">
                                 <i class="fas fa-asterisk text-danger" required-if="@FieldLabelResourceKeyConstants.FreezerDetailsFreezerNameFieldLabel"></i>
                                 <label asp-for="@Model.FreezerName">@Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsFreezerNameFieldLabel)</label>                                                                
                                 @Html.EditorFor(model => model.FreezerName, new { htmlAttributes = new { @id = "txtFreezerNameDetail", @class = "form-control detailsControl" } })
                                 <span asp-validation-for="@Model.FreezerName" class="text-danger"></span>
                             </div>
+
+                            @*<div class="pb-3">
+                                <label><span style="color:red;">*</span> @Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsFreezerNameFieldLabel)</label>                                
+                                @Html.EditorFor(model => model.FreezerName, new { htmlAttributes = new { @id = "txtFreezerNameDetail", @class = "form-control detailsControl" } })
+                                <label id="lblFreezerNameRequired" class="errorMsg" style="display:none;">Freezer Name is required</label>
+                            </div>*@
 
                             <div class="pb-3">
                                 <label>@Localizer.GetString(FieldLabelResourceKeyConstants.FreezerDetailsFreezerBarcodeFieldLabel)</label>                               
@@ -259,6 +268,7 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">
                     Advanced Search
+                    @*@Localizer.GetString(HeadingResourceKeyConstants.LaboratoryAdvancedSearchModalHeading)*@
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -300,6 +310,7 @@
                 <button id="btnCancelAdvancedSearch"
                         type="button"
                         class="btn btn-secondary">
+                    @*data-dismiss="modal"*@
                     @Localizer.GetString(ButtonResourceKeyConstants.CancelButton)
                 </button>
                 <button id="btnClearAdvancedSearch"
@@ -426,6 +437,7 @@
             </div>
             <div class="modal-body">
                 @*Unable to delete this Freezer as it contains samples.*@
+                @*@Localizer.GetString(MessageResourceKeyConstants.free)*@
                 Unable to delete this subdivision as it contains at least one sub-level.
             </div>
             <div class="modal-footer">
@@ -706,6 +718,10 @@
         /////////////////////////////////
         // Advanced Search Reset
         /////////////////////////////////
+@*        if (GetParameterValues('reset') === '1') {
+            //alert("reset = 1")
+            $("#btnReset").prop("disabled", false);
+        }*@
 
         $("#btnReset").on('click', function () {
             if (window.location.href.indexOf('?') > 0) {
@@ -731,6 +747,12 @@
             advancedSearchParams.Building = $("#txtBuildingAdvSearch").val();
             advancedSearchParams.Room = $("#txtRoomAdvSearch").val();
 
+            //var getUrl = window.location;
+            //var baseUrl = getUrl.protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+            //alert(url);
+            //alert(baseUrl);
+
+            //var url = GetBaseUrl() + "/Freezer/AdvancedSearch";
             var url = '@Url.Action("AdvancedSearch", "Freezer", new { Area = "Laboratory" })';
 
             $.ajax({
@@ -740,6 +762,8 @@
                 dataType: 'json',
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
+                    //alert("ajax success");
+                    //console.log(data);
                 },
                 complete: function (data) {
                     var url = window.location.href;
@@ -757,8 +781,22 @@
                     }
 
                     window.location.href = url + "?reset=1";
+
+                    //window.location.reload();
+                    //$("#btnReset").prop("disabled", false);
+                    //console.log(data);
+                    //alert("ajax complete");
+                    //$("#mdAdvancedSearch").modal('hide');
+                    //return false;
+                    //window.location.href = window.location.href;
+                    //window.location.reload(true);
+                    //window.location.href = window.location.href.split('?')[0]
+                    //alert(getBaseUrl());
+                    //window.location.href = getBaseUrl();
                 },
                 error: function (request, error) {
+                    //console.log(error);
+                    //alert("ajax error");
                 }
             });
         });
@@ -768,10 +806,21 @@
         /////////////////////////////////
         var freezerIdToDelete;        
         $("table td .deleteLink").on("click", function () {
+
+            //alert($(this).data("freezer-id"));
+
             freezer = new Object();
             freezer.FreezerId = $(this).data("freezer-id");
 
+            //var getUrl = window.location;
+            //var baseUrl = getUrl.protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+            //alert(baseUrl);
+            //alert(url);
+
+            //var url = GetBaseUrl() + "/Freezer/DeleteFreezer";
+
             var url = '@Url.Action("DeleteFreezer", "Freezer", new { Area = "Laboratory" })';
+            //alert(url);
 
             $.ajax({
                 url: url,
@@ -780,6 +829,8 @@
                 dataType: 'json',
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
+                    //alert("success");
+                    //console.log(data);
                     if (data == "Warning_Confirm_Delete_Text") {
                         freezerIdToDelete = freezer.FreezerId;
                         $('#mdDeleteFreezerConfirmation').modal('show');
@@ -789,8 +840,16 @@
                     }
                 },
                 complete: function (data) {
+                    //alert("ajax complete");
+                    //window.location.href = window.location.href;
+                    //window.location.reload(true);
+                    //window.location.href = window.location.href.split('?')[0]
+                    //alert(getBaseUrl());
+                    //window.location.href = getBaseUrl();
                 },
                 error: function (request, error) {
+                    //console.log(error);
+                    //alert("ajax error");
                 }
             });
 
@@ -803,6 +862,12 @@
 
             freezer = new Object();
             freezer.FreezerId = freezerIdToDelete;
+
+            //var getUrl = window.location;
+            //var baseUrl = getUrl.protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+            //alert(baseUrl);
+
+            //var url = GetBaseUrl() + "/Freezer/DeleteFreezerConfirm";
             var url = '@Url.Action("DeleteFreezerConfirm", "Freezer", new { Area = "Laboratory" })';
 
             $.ajax({
@@ -812,11 +877,26 @@
                 dataType: 'json',
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
+                    //alert("success");
+                    //console.log(data);
+                    //if (data == "Warning_Confirm_Delete_Text") {
+                    //    $('#mdDeleteFreezerConfirmation').modal('show');
+                    //}
+                    //else if (data == "Warning_Has_Samples_Body_Text") {
+                    //    $('#mdHasSamples').modal('show');
+                    //}
                 },
                 complete: function (data) {
                     window.location.reload(true);
+                    //("ajax complete");
+                    //window.location.href = window.location.href;
+                    //window.location.href = window.location.href.split('?')[0]
+                    //alert(getBaseUrl());
+                    //window.location.href = getBaseUrl();
                 },
                 error: function (request, error) {
+                    //console.log(error);
+                    //alert("ajax error");
                 }
             });
 
@@ -878,9 +958,16 @@
                     GenerateTreeView(data);
                 },
                 complete: function (data) {
+                    //alert("ajax complete");
+                    //window.location.reload(true);
+                    //window.location.href = window.location.href;
+                    //window.location.href = window.location.href.split('?')[0]
+                    //alert(getBaseUrl());
+                    //window.location.href = getBaseUrl();
                 },
                 error: function (request, error) {
                     console.log("error");
+                    //alert("ajax error");
                 }
             });
 
@@ -895,7 +982,11 @@
             e.stopPropagation();
             var isFreezerNode = false;
 
+            //var classList = $(this).attr("class");
+            //console.log(classList);
+
             if ($(this).hasClass("freezerNode")) {
+                //console.log("is freezer node");
                 isFreezerNode = true;            
             }
             HandleTreeNodeClickEvent($(this).attr('id'), isFreezerNode);
@@ -907,12 +998,21 @@
             var subdivisionId = nodeId;
             subdivisionToEdit = subdivisionId;            
 
+            //console.log(subdivisionToEdit);    
+            
+            //var element = e.target;
+
             // toggle view of tree nodes and highlight
             $("#ulFreezerTreeview").find(".nodeLabel").css("background-color", "");           
 
             $("#hfSelectedSubdivisionId").val(subdivisionId);
+
+            // check if top-level freezer node is selected
+            //if (element.hasClass("freezerNodeLabel")) {
             
             if (isFreezerNode) {
+                                
+                //console.log("freezer node");
                                 
                 $("#dvSubdivisionAttributes").hide();
                 $("#dvFreezerAttributes").show();
@@ -933,9 +1033,13 @@
             {
                 for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
 
+                    //console.log("inside loop");
+
                     if (freezerJSON.freezerSubdivisions[i].freezerSubdivisionID == subdivisionId) {
 
                         $("#btnDeleteSubdivision").prop("disabled", false);
+                        //console.log("equals");
+                        //subdivsion = freezerJSON[i];
 
                         if (freezerJSON.freezerSubdivisions[i].subdivisionTypeID === 39900000000 || freezerJSON.freezerSubdivisions[i].subdivisionTypeID === 10093001 || freezerJSON.freezerSubdivisions[i].subdivisionTypeID === 39890000000) {
 
@@ -946,6 +1050,9 @@
                             $("#txtNumberOfLocations").val(freezerJSON.freezerSubdivisions[i].numberOfLocations);
                             $("#txtBarCodeSubdivision").val(freezerJSON.freezerSubdivisions[i].eidssFreezerSubdivisionID);
                             $("#txtBarCodeFreezerDetail").val('');
+                            //alert($("#txtBarCodeSubdivision").val());
+
+                            //$("#hfBarcodeLabelCode").val(freezerJSON.freezerSubdivisions[i].eidssFreezerSubdivisionID);
 
                             $("#ddlSubdivisionType").val(freezerJSON.freezerSubdivisions[i].subdivisionTypeID);
                             $("#txtNoteSubdivision").val(freezerJSON.freezerSubdivisions[i].subdivisionNote);
@@ -1030,6 +1137,7 @@
 
             if ($.trim($(this).val()) === '') {
                 $("#lblSubdivisionNameRequired").show();
+                //$("#btnSave").prop("disabled", true);
             }
             else {
                 $("#lblSubdivisionNameRequired").hide();
@@ -1055,6 +1163,8 @@
             isChanged = true;
             var newVal = $(this).val();           
             
+            //console.log(newVal);
+
             // freezer details
             if ($(this).attr('id') == "txtBuildingDetail") {                
                 freezerJSON.building = newVal;
@@ -1079,6 +1189,8 @@
             // subdivision details
             else if ($(this).attr('id') == "txtSubdivisionName") {
                 for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
+
+                    //console.log(subdivisionToEdit);
 
                     if (freezerJSON.freezerSubdivisions[i].freezerSubdivisionID == subdivisionToEdit) {
                         
@@ -1139,6 +1251,8 @@
                 }
             }
 
+            //console.log(freezerJSON);
+
         });
 
         ////////////////////////////////////////////
@@ -1161,6 +1275,7 @@
             for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
                 if (freezerJSON.freezerSubdivisions[i].subdivisionTypeName == "Box") {
                     if (freezerJSON.freezerSubdivisions[i].boxPlaceAvailability.includes("false")) {
+                        //console.log("this box has samples");                        
                         hasSamples = true;
                         break;                        
                     }
@@ -1175,6 +1290,7 @@
             else {
                 for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
                     if (freezerJSON.freezerSubdivisions[i].parentFreezerSubdivisionID == subdivisionToEdit) {
+                        //console.log("subdivision has a sub level");
                         hasSubLevel = true;
                         break;
                     }                
@@ -1323,6 +1439,10 @@
                 $("#dvBoxSizeType").show();
 
                 $("#ddlBoxSizeType").val(-1);
+                //$("#ddlBoxSizeType").trgger('change');
+
+                //freezerJSON = freezerJSON + ", { "
+                //console.log(freezerJSON);
 
                 var box = {};
                 box.boxPlaceAvailability = null;
@@ -1353,6 +1473,9 @@
 
                 $("#btnSave").prop("disabled", true);
                 $("#btnAddSubdivision").prop("disabled", true);
+
+                //CanSaveFreezer();
+                //console.log(freezerJSON);
             }
 
             subdivisionToEdit = newId;
@@ -1371,11 +1494,14 @@
                 var shelfId = subdivisionToEdit;
                 var newShelfId = Date.now();
                 newShelfId = -Math.abs(newShelfId);
+                //console.log(newShelfId);
                 var nodeName;
 
                 for (var i = 0; i < freezerJSON.freezerSubdivisions.length; i++) {
 
                     if (freezerJSON.freezerSubdivisions[i].freezerSubdivisionID == shelfId) {
+
+                        //console.log(freezerJSON.freezerSubdivisions[i]);
 
                         nodeName = freezerJSON.freezerSubdivisions[i].freezerSubdivisionName;
 
@@ -1418,8 +1544,11 @@
 
                     if (freezerJSON.freezerSubdivisions[i].parentFreezerSubdivisionID == shelfId) {
 
+                        //alert("rack parent found");
+
                         var rackId = freezerJSON.freezerSubdivisions[i].freezerSubdivisionID;
                         var newRackId = Date.now() + i;
+                        //console.log(newRackId);
                         newRackId = -Math.abs(newRackId);
                         var nodeName;
 
@@ -1450,6 +1579,7 @@
 
                         freezerJSON.freezerSubdivisions.push(rack);
 
+                        //alert(newShelfId);
                         $("#" + newShelfId).append("<ul><li id='" + newRackId + "' class='rackNode treeNode'>Rack " + freezerJSON.freezerSubdivisions[i].freezerSubdivisionName + " (Copy)</li></ul>");
 
                         // find all boxes for the rack in the loop
@@ -1459,6 +1589,7 @@
 
                                 var boxId = freezerJSON.freezerSubdivisions[i].freezerSubdivisionID;
                                 var newBoxId = Date.now() + j;
+                                //console.log(newBoxId);
                                 newBoxId = -Math.abs(newBoxId);
 
                                 var box = {};
@@ -1498,6 +1629,7 @@
 
             // copy rack (with its boxes)
             else if ($("#" + subdivisionToEdit).hasClass("rackNode")){
+                //alert("copy rack");
 
                 var rackId = subdivisionToEdit;
                 var newRackId = Date.now();
@@ -1550,7 +1682,9 @@
 
                     if (freezerJSON.freezerSubdivisions[i].parentFreezerSubdivisionID == rackId) {
 
+                        //var boxId = freezerJSON[i].freezerSubdivisionID;
                         var newBoxId = Date.now() + i;
+                        //console.log(newBoxId);
                         newBoxId = -Math.abs(newBoxId);
 
                         var box = {};
@@ -1674,6 +1808,7 @@
             freezerJSON.freezerSubdivisions = [];
 
             // add to JSON array
+            //freezerJSON.push(freezer);
 
             // clear out treeview
             $("#ulFreezerTreeview").empty();            
@@ -1695,6 +1830,8 @@
             $("#btnDeleteSubdivision").prop("disabled", true);
 
             $("#dvSaveCancel").show();
+
+            //console.log(freezerJSON);
 
             CanSaveFreezer();
             $("#btnAddSubdivision").prop("disabled", true);
@@ -1731,9 +1868,16 @@
                         GenerateTreeView(data);
                     },
                     complete: function (data) {
+                        //alert("ajax complete");
+                        //window.location.reload(true);
+                        //window.location.href = window.location.href;
+                        //window.location.href = window.location.href.split('?')[0]
+                        //alert(getBaseUrl());
+                        //window.location.href = getBaseUrl();
                     },
                     error: function (request, error) {
                         console.log("error");
+                        //alert("ajax error");
                     }
                 });
             }            
@@ -1816,6 +1960,10 @@
         ////////////////////////////////////////////
         $("#btnSave").on('click', function () {
 
+            //freezer = new Object();
+            //freezer.FreezerId = freezerIdToEdit;
+            //subdivision.SubdivisionId = $(this).attr('id');
+
             var url = '@Url.Action("SaveFreezer", "Freezer", new { Area = "Laboratory" })';
 
             $.ajax({
@@ -1827,10 +1975,16 @@
                 success: function (data) {
 
                     CheckSuccess(data);
+
+                    //console.log("ajax success");
+                    //$("#mdSaveSuccess").modal("show");
+
                 },
                 complete: function (data) {
+                    //console.log("ajax complete");
                 },
                 error: function (request, error) {
+                    //console.log("ajax error");
                 }
             });
 
@@ -1874,6 +2028,16 @@
 
         }
 
+        //function CanAddSubdivision() {
+
+        //    if ($.trim($("#txtSubdivisionName").val()) === '') {
+        //        $("#btnAddSubdivision").prop("disabled", true);
+        //    }
+        //    else {
+        //        $("#btnAddSubdivision").prop("disabled", false);
+        //    }
+
+        //}
 
         ////////////////////////////////////////////////
         // Check for Successful Freezer Save
@@ -1903,6 +2067,7 @@
 
             freezerJSON = null;
             freezerJSON = data;
+            //console.log(freezerJSON);
 
             $("#dvFreezerDetails").show();
             $("#ulFreezerTreeview").empty();
@@ -1912,15 +2077,19 @@
             $("#txtBuildingDetail").val(data.building);
             $("#txtFreezerNameDetail").val(data.freezerName);
             $("#txtBarCodeFreezerDetail").val(data.eidssFreezerID);
+            //$("#hfBarcodeLabelCode").val(data.eidssFreezerID);
             $("#txtRoomDetail").val(data.room);
             $("#ddlStorageTypeDetail").val(data.storageTypeID);
             $("#txtNoteFreezerDetail").val(data.freezerNote);
 
+            //data = $.parseJSON(data);
             $.each(data.freezerSubdivisions, function (i, item) {
 
                 // Shelf
                 if (item.subdivisionTypeID == "39900000000") {
                     $("#ulFreezerTreeview li.freezerNode").append("<ul><li id='" + item.freezerSubdivisionID + "' class='shelfNode treeNode'><label class='nodeLabel shelfNodeLabel'>Shelf " + item.freezerSubdivisionName + "</label></li></ul>");
+                    //console.log(item);
+                    //alert(item.eIDSSFreezerSubdivisionID);
                     $("#txtBarCodeSubdivision").val(item.eidssFreezerSubdivisionID);
                 }
 
@@ -1991,6 +2160,7 @@
                             else slotColor = "red";
 
                             var slotHtml = "<i style='color: " + slotColor + "; ' class='fas fa-solid fa-circle'>"
+                            //alert("#" + item.freezerSubdivisionID + "_" + boxPlaceAvailabilityParsed[b].BoxLocation);
                             $("#" + item.freezerSubdivisionID + "_" + boxPlaceAvailabilityParsed[b].BoxLocation).html(slotHtml);
                         }
                     }
@@ -2003,6 +2173,37 @@
         //################################
         // Freezer Barcode
         //################################
+       @* $("#btnFreezerBarcode").on("click", function(){
+
+            barcode = new Object();
+            barcode.barCodeLabelCode = $("#txtBarCodeFreezerDetail").val();
+            barcode.barCodeLabelTitle = $("#txtFreezerNameDetail").val();
+
+            var url = '@Url.Action("PrintBarcode", "Freezer", new { Area = "Laboratory" })';
+
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: JSON.stringify(barcode),
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    //alert("success");
+                    //console.log(data);
+                    //GenerateTreeView(data);
+                    //console.log("success");
+                    //$("#barcodeModal").modal('show');
+                },
+                error: function (data) {
+                    //console.log("error");
+                    //console.log(data);
+                },
+                complete: function (data) {
+                    //console.log("complete");
+                    //$("#barcodeModal").modal('show');
+                }
+            });
+        });*@
 
         //################################
         // Cancel Changes Modal
@@ -2012,10 +2213,15 @@
         });
 
         $("#btnCancelChangesYes").on('click', function () {
+            //alert("yes clicked");
             window.location.href = window.location.href;
         });
 
 
+        @*$(window).unload(function() {
+            alert("are you sure?");
+            return "Handler for .unload() called.";
+        });*@
 
         $("#printButton").click(function() {
 
@@ -2033,6 +2239,27 @@
     });
 
 
+
+    @*window.addEventListener('beforeunload', function (e) {
+
+        e.preventDefault();
+
+        //alert(isChanged);
+                
+        e.returnValue = '';        
+    });*@
+
+@*    window.onbeforeunload = function(){
+      if(isChanged){
+        return "Are you sure you want to navigate away from this page?\nAll unsaved changes will be lost.";
+      }
+    };*@
+
+@*    $("html").bind("mouseleave", function () {
+        //$('#emailSignupModal').modal(); 
+        alert("are you sure you want to leave?");
+        $("html").unbind("mouseleave");
+    });*@
 
     //################################
     // Helper Functions

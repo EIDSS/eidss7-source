@@ -3,7 +3,9 @@ using EIDSS.ClientLibrary.ApiClients.Reports;
 using EIDSS.ClientLibrary.Enumerations;
 using EIDSS.ClientLibrary.Responses;
 using EIDSS.ClientLibrary.Services;
+using EIDSS.Domain.RequestModels.Administration;
 using EIDSS.Domain.ViewModels;
+using EIDSS.Domain.ViewModels.Administration;
 using EIDSS.Domain.ViewModels.CrossCutting;
 using EIDSS.Web.Areas.Reports.SubAreas.GG.ViewModels;
 using EIDSS.Web.Helpers;
@@ -30,11 +32,17 @@ namespace EIDSS.Web.Areas.Reports.SubAreas.GG.Controllers
         private readonly IReportCrossCuttingClient _reportCrossCuttingClient;
         private readonly IConfiguration _configuration;
         private readonly UserPreferences _userPreferences;
+
         internal bool archivePermission;
         internal bool includeSignaturePermission;
 
-        public ComparativeReportOfSeveralYearsByMonthsController(IConfiguration configuration, ICrossCuttingClient crossCuttingClient, IReportCrossCuttingClient reportCrossCuttingClient, ITokenService tokenService, ILogger<ComparativeReportOfSeveralYearsByMonthsController> logger) :
-                base(configuration, tokenService, crossCuttingClient, logger)
+        public ComparativeReportOfSeveralYearsByMonthsController(
+            IConfiguration configuration,
+            ICrossCuttingClient crossCuttingClient,
+            IReportCrossCuttingClient reportCrossCuttingClient,
+            ITokenService tokenService,
+            ILogger<ComparativeReportOfSeveralYearsByMonthsController> logger)
+            : base(configuration, tokenService, crossCuttingClient, logger)
         {
             _logger = logger;
             _configuration = configuration;
@@ -75,15 +83,15 @@ namespace EIDSS.Web.Areas.Reports.SubAreas.GG.Controllers
                 var counterList = await _reportCrossCuttingClient.GetHumanComparitiveCounterGG(GetCurrentLanguage());
                 var gisRegionList = new List<GisLocationChildLevelModel>();
                 var gisRayonList = new List<GisLocationChildLevelModel>();
-                var diagnosisList = new List<BaseReferenceViewModel>();
 
                 gisRegionList = await _crossCuttingClient.GetGisLocationChildLevel(GetCurrentLanguage(), IdfsCountryId);
                 if (gisRegionList.Count > 0)
                 {
                     gisRayonList = await _crossCuttingClient.GetGisLocationChildLevel(GetCurrentLanguage(), Convert.ToString(_tokenService.GetAuthenticatedUser().RegionId));
                 }
-                diagnosisList = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), BaseReferenceConstants.Disease, Convert.ToInt64(AccessoryCodes.HumanHACode));
-                diagnosisList = diagnosisList.OrderBy(x => x.StrDefault == "Not Defined" ? 1 : 0).ThenBy(x => x.StrDefault).ThenBy(x => x.Name).ToList();
+
+                var diagnosisList = await GetDiagnosisListAsync();
+
                 var comparativeReportOfSeveralYearsByMonthsViewModel = new ComparativeReportOfSeveralYearsByMonthsViewModel()
                 {
                     //Default values assignment
@@ -127,14 +135,14 @@ namespace EIDSS.Web.Areas.Reports.SubAreas.GG.Controllers
                 var counterList = await _reportCrossCuttingClient.GetHumanComparitiveCounterGG(GetCurrentLanguage());
                 var gisRegionList = new List<GisLocationChildLevelModel>();
                 var gisRayonList = new List<GisLocationChildLevelModel>();
-                var diagnosisList = new List<BaseReferenceViewModel>();
 
                 gisRegionList = await _crossCuttingClient.GetGisLocationChildLevel(GetCurrentLanguage(), IdfsCountryId);
                 if (gisRegionList.Count > 0)
                 {
                     gisRayonList = await _crossCuttingClient.GetGisLocationChildLevel(GetCurrentLanguage(), Convert.ToString(comparativeReportOfSeveralYearsByMonthsViewModel.RegionId));
                 }
-                diagnosisList = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), BaseReferenceConstants.Disease, Convert.ToInt64(AccessoryCodes.HumanHACode));
+
+                var diagnosisList = await GetDiagnosisListAsync();
 
                 comparativeReportOfSeveralYearsByMonthsViewModel.ReportLanguageModels = reportLanguageList;
                 comparativeReportOfSeveralYearsByMonthsViewModel.ReportFirstYearModels = reportFirstYearList;
@@ -239,6 +247,19 @@ namespace EIDSS.Web.Areas.Reports.SubAreas.GG.Controllers
         {
             var counterList = await _reportCrossCuttingClient.GetHumanComparitiveCounterGG(langId);
             return Ok(counterList);
+        }
+
+        private async Task<List<FilteredDiseaseGetListViewModel>> GetDiagnosisListAsync()
+        {
+            var requestDiseases = new FilteredDiseaseRequestModel
+            {
+                LanguageId = GetCurrentLanguage(),
+                AccessoryCode = HACodeList.HumanHACode,
+                UsingType = UsingType.StandardCaseType,
+                UserEmployeeID = Convert.ToInt64(_tokenService.GetAuthenticatedUser().PersonId)
+            };
+
+            return await _crossCuttingClient.GetFilteredDiseaseList(requestDiseases);
         }
     }
 }

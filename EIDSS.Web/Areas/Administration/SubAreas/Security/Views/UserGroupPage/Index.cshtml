@@ -106,6 +106,7 @@
                 </div>
                 <div id="userGroupSearchCriteriaForm" class="card-body collapse in">
                     <div class="form-row">
+                        @*<div class="form-group col-md-6" hidden-if="Group">*@
                         <div class="form-group col-md-6">
                             <label asp-for="SearchCriteria.strName" field-label-for="@FieldLabelResourceKeyConstants.SearchUserGroupsGroupFieldLabel"></label>
                             <input asp-for="SearchCriteria.strName" type="text" class="form-control" />
@@ -122,9 +123,11 @@
                             button-for="@ButtonResourceKeyConstants.CancelButton"></button>
                     <button id="clear" type="reset" onclick="clearSearchCriteria();" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.ClearButton"></button>
                     <button id="search" type="submit" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.SearchButton" ></button>
+                            @*visible="@Model.UserGroupPermissions.Read"></button>*@
                     <button id="addUserGroupSearchCriteria" type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.AddButton" 
                             onclick="addUserGroup();"
                             visible="@Model.UserGroupPermissions.Create" ></button>
+                            @*></button>*@
                 </div>
             </div>
             <input type="hidden" asp-for="SearchCriteria.SortColumn" />
@@ -160,6 +163,7 @@
                 <button id="addUserGroup" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.AddButton" 
                         onclick="addUserGroup();"
                         visible="@Model.UserGroupPermissions.Create"></button>
+                        @*onclick="location.href='@Url.Action("Details", "UserGroupPage")'"*@
             </div>
         </div>
     </div>
@@ -167,6 +171,7 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
+        //showSearchCriteria();
     });
 
     function toggleUserGroupSearchCriteria() {
@@ -234,18 +239,35 @@
     }
 
     function clearSearchCriteria() {
+       /* alert("clear");*/
+        //$('#userGroupSearchCriteriaForm').find('input:text, input:password, select')
+        //    .each(function () {
+        //        $(this).val('');
+        //    });
+/*        }*/
         $("[id$=SearchCriteria_strName]").val("").trigger("change");
         $("[id$=SearchCriteria_strDescription]").val("").trigger("change");
+        //document.getElementById("SearchCriteria_strDescription").value = "";
+        /*alert("clear complete");*/
     };
 
 
     function addUserGroup() {
+        /*alert("Add button clicked");*/
+        //$('#tblPermission').find(':input:checkbox:checked').each(function () {
+        //    alert("Uncheck checkboxes");
+        //    this.checked = false;
+        //});
         location.href='@Url.Action("Details", "UserGroupPage")'
     };
 
         function checkDeleteSuccess(response) {
         if (response == "SUCCESS") {
+            @*showInformationalModal('@Localizer.GetString(MessageResourceKeyConstants.RecordDeletedSuccessfullyMessage)');*@
         }
+        @*else if(response == "IN USE") {
+            showErrorModal('@Localizer.GetString(MessageResourceKeyConstants.CannotDeleteOrganizationConnectedToSiteMessage)');
+        }*@
     };
 
 </script>

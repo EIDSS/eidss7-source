@@ -140,6 +140,7 @@ namespace EIDSS.ClientLibrary.ApiClients.Human
 
             try
             {
+                // New....
                 var request = new HttpRequestMessage(HttpMethod.Delete, url);
                 request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
                 var httpResponse = await _httpClient.SendAsync(request);

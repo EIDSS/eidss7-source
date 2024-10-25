@@ -61,6 +61,7 @@ namespace EIDSS.Domain.RequestModels.DataTables
         /// </summary>
         public JsonElement data { get; set; }
 
+        // order: [{column: 3, dir: "asc"}]
         public string DeserializeColumns(int index)
         {
             string columnName = string.Empty;
@@ -136,6 +137,7 @@ namespace EIDSS.Domain.RequestModels.DataTables
         public Boolean searchable { get; set; }
         public Boolean orderable { get; set; }
         public string MyProperty { get; set; }
+        //{data: 0, name: "", searchable: true, orderable: false, search: {value: "", regex: false}}
     }
     public class JQueryDataTablesOrderColumnNameIndexes
     {

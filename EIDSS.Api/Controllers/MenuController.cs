@@ -21,8 +21,12 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace EIDSS.Api.Controllers
 {
-    [Route("api/Menu")]
+    /// <summary>
+    /// 
+    /// </summary>
+     [Route("api/Menu")]
     [ApiController]
+    //[Authorize]
     public partial class MenuController : EIDSSControllerBase
     {
         public EidssArchiveContext _eidssArchiveContext { get; set; }
@@ -52,6 +56,7 @@ namespace EIDSS.Api.Controllers
             List<MenuViewModel> results = null;
             try
             {
+                //results = await _administrationRepository.GetVectorTypeListAsync(langID, strSearchVectorType, cancellationToken);
                 DataRepoArgs args = new()
                 {
                     Args = new object[] { userId, languageID, employeeID ,null, cancellationToken },
@@ -93,7 +98,15 @@ namespace EIDSS.Api.Controllers
                 var menuByUserGetListResults = await _eidssArchiveContext.Procedures.USP_GBL_MENU_ByUser_GETListAsync(userId, languageID,
                     employeeID, null, cancellationToken);
 
+                //DataRepoArgs args = new()
+                //{
+                //    Args = new object[] { userId, languageID, employeeID, null, cancellationToken },
+                //    MappedReturnType = typeof(List<MenuByUserViewModel>),
+                //    RepoMethodReturnType = typeof(List<USP_GBL_MENU_ByUser_GETListResult>)
+                //};
+
                 results = (List<MenuByUserViewModel>)_mapper.Map(menuByUserGetListResults, typeof(List<USP_GBL_MENU_ByUser_GETListResult>), typeof(List<MenuByUserViewModel>));
+
 
             }
             catch (Exception ex)

@@ -46,6 +46,7 @@ namespace EIDSS.ClientLibrary.Responses
         /// Indicates the default startup language code as a standard ISO 639-1 language code.
         /// </summary>
         [DataMember]
+        //[Required]
         [Display(Name = "Startup Language")]
         [LocalizedRequired]
         public virtual string StartupLanguage
@@ -56,27 +57,42 @@ namespace EIDSS.ClientLibrary.Responses
 
         /// <summary>
         /// Default map project.
+        /// NOTE:  Discuss SAUC52 with BR to verify this functionality!
         /// </summary>
         [DataMember]
+        //[Display(Name = "Default Map Project")]
+        //[Required]
         public virtual int? DefaultMapProject { get; set; } = -1;
 
         /// <summary>
         /// Specifies the default region displayed in region specific location drop downs.
         /// </summary>
         [DataMember]
+        //[Display(Name= "Default Region in Search Panels")]
         public virtual bool DefaultRegionInSearchPanels { get; set; }
 
         /// <summary>
         /// Specifies the default rayon displayed in rayon specific location drop downs.
         /// </summary>
         [DataMember]
+        //[Display(Name = "Default Rayon in Search Panels")]
         public virtual bool DefaultRayonInSearchPanels { get; set; }
 
         /// <summary>
         /// A boolean value indicating wheter the user has the ability to print a map in the Veterinary Investigation Forms.
         /// </summary>
         [DataMember]
+        //[Display(Name = "Print Map in Veterinary Investigation Forms")]
         public virtual bool PrintMapInVetInvestigationForms { get; set; }
+
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        //[DataMember]
+        //public List<GridViewPreference> GridViewPreferences
+        //{
+        //    get; set;
+        //}
 
         public virtual List<MapProject> MapProjects { get; set; }
 
@@ -101,6 +117,7 @@ namespace EIDSS.ClientLibrary.Responses
         /// Specifies the country for which this instance of the application is configured.
         /// </summary>
         [DataMember]
+        //[Required(ErrorMessage ="Country is required")]
         [LocalizedRequired]
         public virtual string Country { get; set; } = "Georgia";
 
@@ -108,12 +125,14 @@ namespace EIDSS.ClientLibrary.Responses
         /// A boolean value indicating whether to display warning messages for final case classifications.
         /// </summary>
         [DataMember]
+        //[Display(Name = "Show warning for final case classification")]
         public virtual bool ShowWarningForFinalCaseClassification { get; set; } = false;
 
         /// <summary>
         /// A boolean value indicating whether to filter sample lists by disease.
         /// </summary>
         [DataMember]
+        //[Display(Name = "Filter samples by Disease")]
         public virtual bool FilterSamplesByDisease { get; set; } = false;
 
         /// <summary>
@@ -135,6 +154,8 @@ namespace EIDSS.ClientLibrary.Responses
         /// Specifies the maximum number of days
         /// </summary>
         [DataMember]
+        ////[Display(Name = "Number of days for which data is displayed by default")]
+        //[RegularExpression("^[0-9]{1,3}$", ErrorMessage = "Days must be number")]
         [LocalizedRequired]
         [LocalizedRangeFrom("1", "36500")]
         public virtual int NumberDaysDisplayedByDefault { get; set; } = 14;
@@ -177,9 +198,16 @@ namespace EIDSS.ClientLibrary.Responses
         {
 
         }
-        private string _activeLanguage;
+        private string _activeLanguage; // = "en-US";
+        //private IUserConfigurationService _userConfigurationService;
 
         #region Properties
+
+        ///// <summary>
+        ///// Indicates the default startup language code as a standard ISO 639-1 language code.
+        ///// </summary>
+        //[DataMember]
+        //public string StartupLanguage { get; internal set; } = "en-US";
 
         /// <summary>
         /// Indicates the row identifier that specifies this entry in the system preferences table.
@@ -199,7 +227,7 @@ namespace EIDSS.ClientLibrary.Responses
         /// </summary>
         public virtual string ActiveLanguage
         {
-            get => _activeLanguage;
+            get => _activeLanguage; // _activeLanguage == string.Empty || ActiveLanguage == null ? _startupLanguage : _activeLanguage;
             set => _activeLanguage = value;
         }
 
@@ -214,7 +242,23 @@ namespace EIDSS.ClientLibrary.Responses
             var sysPrefs = configurationService.SystemPreferences;
 
             // Take system preferences defaults...
+            this._startupLanguage = sysPrefs.StartupLanguage;
+            //this.DefaultMapProject = sysPrefs.DefaultMapProject;
+            //this.DefaultRayonInSearchPanels = sysPrefs.DefaultRayonInSearchPanels;
+            //this.DefaultRegionInSearchPanels = sysPrefs.DefaultRegionInSearchPanels;
+            //this.PrintMapInVetInvestigationForms = sysPrefs.PrintMapInVetInvestigationForms;
         }
+
+        ///// <summary>
+        ///// Constructor called from testing platform
+        ///// DO NOT CALL THIS CONSTRUCTOR FROM CODE!!!!!
+        ///// </summary>
+        ///// <param name="languageid"></param>
+        //public UserPreferences( string languageid, IUserConfigurationService configurationService) 
+        //{
+        //    this._startupLanguage = languageid;
+        //    this._startupLanguage = configurationService.SystemPreferences.StartupLanguage;
+        //}
 
     }
 }

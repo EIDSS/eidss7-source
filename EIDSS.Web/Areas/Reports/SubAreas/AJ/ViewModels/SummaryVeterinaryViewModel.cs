@@ -24,13 +24,11 @@ namespace EIDSS.Web.Areas.Reports.SubAreas.AJ.ViewModels
 
         [DisplayName("Start Issue Date")]
         [LocalizedRequired]
-        [DisplayFormat(DataFormatString = "{0:d}")]
         [DateComparer(nameof(StartIssueDate), "StartIssueDate", nameof(EndIssueDate), "EndIssueDate", CompareTypeEnum.LessThanOrEqualTo, nameof(StartIssueDate), nameof(EndIssueDate))]
         public string StartIssueDate { get; set; }
 
         [DisplayName("End Issue Date")]
         [LocalizedRequired]
-        [DisplayFormat(DataFormatString = "{0:d}")]
         [DateComparer(nameof(EndIssueDate), "EndIssueDate", nameof(StartIssueDate), "StartIssueDate", CompareTypeEnum.GreaterThanOrEqualTo, nameof(EndIssueDate), nameof(StartIssueDate))]
         public string EndIssueDate { get; set; }
 

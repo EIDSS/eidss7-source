@@ -48,16 +48,12 @@ namespace EIDSS.Localization.Helpers
 
             string hiddenIfResource = HiddenIf;
 
-            string DontRender = CacheProvider.GetHiddenResourceValueByLanguageCultureNameAndResourceKey(CurrentCulture.Name, hiddenIfResource);
+            var dontRender = CacheProvider.GetHiddenResourceByLanguageCultureNameAndResourceKey(CurrentCulture.Name, hiddenIfResource);
 
-            // If hidden resource value is set to true, then do not render the content.
-            if (DontRender != null)
+            if (dontRender)
             {
-                if (DontRender.ToLower() == LocalizationGlobalConstants.TrueResourceValue)
-                {
-                    output.TagName = null;
-                    output.SuppressOutput();
-                }
+                output.TagName = null;
+                output.SuppressOutput();
             }
         }
     }

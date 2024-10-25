@@ -29,10 +29,12 @@ DECLARE @CurrentResidenceAddressID BIGINT,
         @EmployerAddressID BIGINT,
         @RegistrationAddressID BIGINT,
         @SchoolAddressID BIGINT,
-        @RootCurrentResidenceAddressID BIGINT,
-        @RootEmployerAddressID BIGINT,
-        @RootRegistrationAddressID BIGINT,
-        @RootSchoolAddressID BIGINT,
+		@AltAddressID BIGINT,
+        @CopyCurrentResidenceAddressID BIGINT,
+        @CopyEmployerAddressID BIGINT,
+        @CopyRegistrationAddressID BIGINT,
+        @CopySchoolAddressID BIGINT,
+		@CopyAltAddress BIGINT,
         @AuditUserID BIGINT = NULL,
         @AuditSiteID BIGINT = NULL,
         @DataAuditEventTypeID BIGINT = NULL,
@@ -89,13 +91,64 @@ DECLARE @HumanAfterEdit TABLE
     EnteredDate DATETIME,
     ModificationDate DATETIME
 );
+
+DECLARE @HumanAddlInfoBeforeEdit table
+(
+    HumanID BIGINT,
+	PassportNbr NVARCHAR(20),
+    IsEmployedID BIGINT,
+    EmployerPhoneNbr NVARCHAR(200),
+    EmployedDTM DATETIME,
+    IsStudentID BIGINT,
+    SchoolPhoneNbr NVARCHAR(200),
+    SchoolAddressID BIGINT,
+    SchoolLastAttendDTM DATETIME,
+    ContactPhoneCountryCode INT,
+    ContactPhoneNbr NVARCHAR(200),
+    ContactPhoneNbrTypeID BIGINT,
+    ContactPhone2CountryCode INT,
+    ContactPhone2Nbr NVARCHAR(200),
+    ContactPhone2NbrTypeID BIGINT,
+    AltAddressID BIGINT,
+    SchoolName NVARCHAR(200),
+	IsAnotherPhoneID BIGINT,
+	IsAnotherAddressID BIGINT
+);
+
+DECLARE @HumanAddlInfoAfterEdit table
+(
+    HumanID BIGINT,
+	PassportNbr NVARCHAR(20),
+    IsEmployedID BIGINT,
+    EmployerPhoneNbr NVARCHAR(200),
+    EmployedDTM DATETIME,
+    IsStudentID BIGINT,
+    SchoolPhoneNbr NVARCHAR(200),
+    SchoolAddressID BIGINT,
+    SchoolLastAttendDTM DATETIME,
+    ContactPhoneCountryCode INT,
+    ContactPhoneNbr NVARCHAR(200),
+    ContactPhoneNbrTypeID BIGINT,
+    ContactPhone2CountryCode INT,
+    ContactPhone2Nbr NVARCHAR(200),
+    ContactPhone2NbrTypeID BIGINT,
+    AltAddressID BIGINT,
+    SchoolName NVARCHAR(200),
+	IsAnotherPhoneID BIGINT,
+	IsAnotherAddressID BIGINT
+);
+
 BEGIN
     BEGIN TRY
-        SELECT @CurrentResidenceAddressID = idfCurrentResidenceAddress,
-               @EmployerAddressID = idfEmployerAddress,
-               @RegistrationAddressID = idfRegistrationAddress
-        FROM dbo.tlbHumanActual
-        WHERE idfHumanActual = @HumanActualID;
+        SELECT @CurrentResidenceAddressID = ha.idfCurrentResidenceAddress,
+               @EmployerAddressID = ha.idfEmployerAddress,
+               @RegistrationAddressID = ha.idfRegistrationAddress,
+			   @SchoolAddressID = haai.SchoolAddressID,
+			   @AltAddressID = haai.AltAddressID
+        FROM dbo.tlbHumanActual ha
+		left join dbo.HumanActualAddlInfo haai
+		on	haai.HumanActualAddlInfoUID = ha.idfHumanActual
+        WHERE ha.idfHumanActual = @HumanActualID;
 
         SET @AuditUserName = ISNULL(@AuditUserName, '');
 
@@ -115,21 +168,27 @@ BEGIN
             SET @DataAuditEventTypeID = 10016003; -- Data audit edit event type
         END
 
-        -- Get ID for root idfCurrentResidenceAddress
-        SET @RootCurrentResidenceAddressID = NULL;
-        SELECT @RootCurrentResidenceAddressID = dbo.tlbHuman.idfCurrentResidenceAddress
+        -- Get ids for copies of idfCurrentResidenceAddress, idfEmployerAddress, idfRegistrationAddress
+        SET @CopyCurrentResidenceAddressID = NULL;
+        SET @CopyEmployerAddressID = NULL;
+        SET @CopyRegistrationAddressID = NULL;
+
+        SELECT @CopyCurrentResidenceAddressID = dbo.tlbHuman.idfCurrentResidenceAddress,
+		       @CopyEmployerAddressID = dbo.tlbHuman.idfEmployerAddress,
+			   @CopyRegistrationAddressID = dbo.tlbHuman.idfRegistrationAddress
         FROM dbo.tlbHuman
         WHERE dbo.tlbHuman.idfHuman = @HumanID;
 
-        IF @RootCurrentResidenceAddressID IS NULL
+        -- Generate id for copy of idfCurrentResidenceAddress
+        IF @CopyCurrentResidenceAddressID IS NULL
            AND NOT @CurrentResidenceAddressID IS NULL
         BEGIN
             EXEC dbo.USP_GBL_NEXTKEYID_GET 'tlbGeoLocation',
-                                           @RootCurrentResidenceAddressID OUTPUT;
+                                           @CopyCurrentResidenceAddressID OUTPUT;
 
-            -- Copy address for root human
+            -- Copy current residence address
             EXEC dbo.USSP_GBL_COPY_GEOLOCATION_SET @CurrentResidenceAddressID,
-                                                   @RootCurrentResidenceAddressID,
+                                                   @CopyCurrentResidenceAddressID,
                                                    0,
                                                    @DataAuditEventID,
                                                    @AuditUserName,
@@ -145,21 +204,16 @@ BEGIN
             END
         END
 
-        -- Get ID for root idfEmployerAddress
-        SET @RootEmployerAddressID = NULL;
-        SELECT @RootEmployerAddressID = dbo.tlbHuman.idfEmployerAddress
-        FROM dbo.tlbHuman
-        WHERE dbo.tlbHuman.idfHuman = @HumanID;
-
-        IF @RootEmployerAddressID IS NULL
+        -- Generate id for copy of idfEmployerAddress
+        IF @CopyEmployerAddressID IS NULL
            AND NOT @EmployerAddressID IS NULL
         BEGIN
             EXEC dbo.USP_GBL_NEXTKEYID_GET 'tlbGeoLocation',
-                                           @RootEmployerAddressID OUTPUT;
+                                           @CopyEmployerAddressID OUTPUT;
 
-            -- Copy address for employer
+            -- Copy employer address
             EXEC dbo.USSP_GBL_COPY_GEOLOCATION_SET @EmployerAddressID,
-                                                   @RootEmployerAddressID,
+                                                   @CopyEmployerAddressID,
                                                    0,
                                                    @DataAuditEventID,
                                                    @AuditUserName,
@@ -175,21 +229,16 @@ BEGIN
             END
         END
 
-        -- Get ID for root idfRegistrationAddress
-        SET @RootRegistrationAddressID = NULL;
-        SELECT @RootRegistrationAddressID = dbo.tlbHuman.idfRegistrationAddress
-        FROM dbo.tlbHuman
-        WHERE dbo.tlbHuman.idfHumanActual = @HumanID;
-
-        IF @RootRegistrationAddressID IS NULL
+        -- Generate id for copy of idfRegistrationAddress
+        IF @CopyRegistrationAddressID IS NULL
            AND NOT @RegistrationAddressID IS NULL
         BEGIN
             EXEC dbo.USP_GBL_NEXTKEYID_GET 'tlbGeoLocation',
-                                           @RootRegistrationAddressID OUTPUT;
+                                           @CopyRegistrationAddressID OUTPUT;
 
             -- Copy registration address
             EXEC dbo.USSP_GBL_COPY_GEOLOCATION_SET @RegistrationAddressID,
-                                                   @RootRegistrationAddressID,
+                                                   @CopyRegistrationAddressID,
                                                    0,
                                                    @DataAuditEventID,
                                                    @AuditUserName, 
@@ -263,9 +312,9 @@ BEGIN
                 idfsOccupationType = ha.idfsOccupationType,
                 idfsNationality = ha.idfsNationality,
                 idfsHumanGender = ha.idfsHumanGender,
-                idfCurrentResidenceAddress = @RootCurrentResidenceAddressID,
-                idfEmployerAddress = @RootEmployerAddressID,
-                idfRegistrationAddress = @RootRegistrationAddressID,
+                idfCurrentResidenceAddress = @CopyCurrentResidenceAddressID,
+                idfEmployerAddress = @CopyEmployerAddressID,
+                idfRegistrationAddress = @CopyRegistrationAddressID,
                 datDateofBirth = ha.datDateofBirth,
                 datDateOfDeath = ha.datDateOfDeath,
                 strLastName = ha.strLastName,
@@ -1083,9 +1132,9 @@ BEGIN
                    idfsOccupationType,
                    idfsNationality,
                    idfsHumanGender,
-                   @RootCurrentResidenceAddressID,
-                   @RootEmployerAddressID,
-                   @RootRegistrationAddressID,
+                   @CopyCurrentResidenceAddressID,
+                   @CopyEmployerAddressID,
+                   @CopyRegistrationAddressID,
                    datDateofBirth,
                    datDateOfDeath,
                    strLastName,
@@ -1130,21 +1179,24 @@ BEGIN
 
         -- Insert/Update Additional Info
 
-        -- Get id for root idfSchoolAddress
-        SET @RootSchoolAddressID = NULL;
-        SELECT @RootSchoolAddressID = dbo.HumanAddlInfo.SchoolAddressID
+        -- Get ids for copies of SchoolAddressID and AltAddressID
+        SET @CopySchoolAddressID = NULL;
+		SET @CopyAltAddress = NULL;
+        SELECT @CopySchoolAddressID = dbo.HumanAddlInfo.SchoolAddressID,
+		       @CopyAltAddress = dbo.HumanAddlInfo.AltAddressID
         FROM dbo.HumanAddlInfo
         WHERE dbo.HumanAddlInfo.HumanAdditionalInfo = @HumanID;
 
-        IF @RootSchoolAddressID IS NULL
+        -- Generate id for copy of SchoolAddressID
+        IF @CopySchoolAddressID IS NULL
            AND NOT @SchoolAddressID IS NULL
         BEGIN
             EXEC dbo.USP_GBL_NEXTKEYID_GET 'tlbGeoLocation',
-                                           @RootSchoolAddressID OUTPUT
+                                           @CopySchoolAddressID OUTPUT
 
-            -- Copy addresses for root human
+            -- Copy school address
             EXEC dbo.USSP_GBL_COPY_GEOLOCATION_SET @SchoolAddressID,
-                                                   @RootSchoolAddressID,
+                                                   @CopySchoolAddressID,
                                                    0,
                                                    @DataAuditEventID,
                                                    @AuditUserName,
@@ -1160,24 +1212,95 @@ BEGIN
             END
         END
 
-        IF EXISTS
+        -- Generate id for copy of AltAddressID
+        IF @CopyAltAddress IS NULL
+           AND NOT @AltAddressID IS NULL
+        BEGIN
+            EXEC dbo.USP_GBL_NEXTKEYID_GET 'tlbGeoLocation',
+                                           @CopyAltAddress OUTPUT
+
+            -- Copy alternative address
+            EXEC dbo.USSP_GBL_COPY_GEOLOCATION_SET @AltAddressID,
+                                                   @CopyAltAddress,
+                                                   0,
+                                                   @DataAuditEventID,
+                                                   @AuditUserName,
+                                                   @ReturnCode OUTPUT,
+                                                   @ReturnMessage OUTPUT;
+
+            IF @ReturnCode <> 0
+            BEGIN
+                SET @ReturnMessage = 'Failed to copy alternative address';
+                SELECT @ReturnCode 'ReturnCode',
+                       @ReturnMessage 'ReturnMessage';
+                RETURN;
+            END
+        END
+
+
+		DECLARE @ObjectTable_HumanAddlInfo BIGINT = 53577690000000
+        
+		IF EXISTS
         (
-            SELECT *
+            SELECT 1
             FROM dbo.HumanAddlInfo
             WHERE HumanAdditionalInfo = @HumanID
         )
         BEGIN
+			insert into @HumanAddlInfoBeforeEdit
+			(
+				HumanID,
+				PassportNbr,
+				IsEmployedID,
+				EmployerPhoneNbr,
+				EmployedDTM,
+				IsStudentID,
+				SchoolPhoneNbr,
+				SchoolAddressID,
+				SchoolLastAttendDTM,
+				ContactPhoneCountryCode,
+				ContactPhoneNbr,
+				ContactPhoneNbrTypeID,
+				ContactPhone2CountryCode,
+				ContactPhone2Nbr,
+				ContactPhone2NbrTypeID,
+				AltAddressID,
+				SchoolName,
+				IsAnotherPhoneID,
+				IsAnotherAddressID
+			)
+            SELECT
+				HumanAdditionalInfo,
+				PassportNbr,
+                IsEmployedID,
+                EmployerPhoneNbr,
+                EmployedDTM,
+                IsStudentID,
+                SchoolPhoneNbr,
+                SchoolAddressID,
+                SchoolLastAttendDTM,
+                ContactPhoneCountryCode,
+                ContactPhoneNbr,
+                ContactPhoneNbrTypeID,
+                ContactPhone2CountryCode,
+                ContactPhone2Nbr,
+                ContactPhone2NbrTypeID,
+                AltAddressID,
+                SchoolName,
+				IsAnotherPhoneID,
+				IsAnotherAddressID
+            FROM dbo.HumanAddlInfo hai
+            WHERE hai.HumanAdditionalInfo = @HumanID;
+
+
             UPDATE dbo.HumanAddlInfo
-            SET ReportedAge = haai.ReportedAge,
-                ReportedAgeUOMID = haai.ReportedAgeUOMID,
-                ReportedAgeDTM = haai.ReportedAgeDTM,
-                PassportNbr = haai.PassportNbr,
+            SET PassportNbr = haai.PassportNbr,
                 IsEmployedID = haai.IsEmployedID,
                 EmployerPhoneNbr = haai.EmployerPhoneNbr,
                 EmployedDTM = haai.EmployedDTM,
                 IsStudentID = haai.IsStudentID,
                 SchoolPhoneNbr = haai.SchoolPhoneNbr,
-                SchoolAddressID = haai.SchoolAddressID,
+                SchoolAddressID = @CopySchoolAddressID,
                 SchoolLastAttendDTM = haai.SchoolLastAttendDTM,
                 ContactPhoneCountryCode = haai.ContactPhoneCountryCode,
                 ContactPhoneNbr = haai.ContactPhoneNbr,
@@ -1185,14 +1308,589 @@ BEGIN
                 ContactPhone2CountryCode = haai.ContactPhone2CountryCode,
                 ContactPhone2Nbr = haai.ContactPhone2Nbr,
                 ContactPhone2NbrTypeID = haai.ContactPhone2NbrTypeID,
-                AltAddressID = haai.AltAddressID,
+                AltAddressID = @CopyAltAddress,
                 SchoolName = haai.SchoolName,
                 AuditUpdateDTM = GETDATE(),
-                AuditUpdateUser = @AuditUserName
+                AuditUpdateUser = @AuditUserName,
+				IsAnotherPhoneID = haai.IsAnotherPhoneID,
+				IsAnotherAddressID = haai.IsAnotherAddressID
             FROM dbo.HumanAddlInfo hai
                 INNER JOIN dbo.humanActualAddlInfo haai
                     ON hai.HumanAdditionalInfo = haai.HumanActualAddlInfoUID
             WHERE hai.HumanAdditionalInfo = @HumanID;
+
+			insert into @HumanAddlInfoAfterEdit
+			(
+				HumanID,
+				PassportNbr,
+				IsEmployedID,
+				EmployerPhoneNbr,
+				EmployedDTM,
+				IsStudentID,
+				SchoolPhoneNbr,
+				SchoolAddressID,
+				SchoolLastAttendDTM,
+				ContactPhoneCountryCode,
+				ContactPhoneNbr,
+				ContactPhoneNbrTypeID,
+				ContactPhone2CountryCode,
+				ContactPhone2Nbr,
+				ContactPhone2NbrTypeID,
+				AltAddressID,
+				SchoolName,
+				IsAnotherPhoneID,
+				IsAnotherAddressID
+			)
+            SELECT
+				HumanAdditionalInfo,
+				PassportNbr,
+                IsEmployedID,
+                EmployerPhoneNbr,
+                EmployedDTM,
+                IsStudentID,
+                SchoolPhoneNbr,
+                SchoolAddressID,
+                SchoolLastAttendDTM,
+                ContactPhoneCountryCode,
+                ContactPhoneNbr,
+                ContactPhoneNbrTypeID,
+                ContactPhone2CountryCode,
+                ContactPhone2Nbr,
+                ContactPhone2NbrTypeID,
+                AltAddressID,
+                SchoolName,
+				IsAnotherPhoneID,
+				IsAnotherAddressID
+            FROM dbo.HumanAddlInfo hai
+            WHERE hai.HumanAdditionalInfo = @HumanID;
+
+			--AltAddressID
+            INSERT INTO dbo.tauDataAuditDetailUpdate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfColumn,
+                idfObject,
+                idfObjectDetail,
+                strOldValue,
+                strNewValue
+            )
+            SELECT @DataAuditEventID,
+                   @ObjectTable_HumanAddlInfo,
+                   51586990000130,
+                   a.HumanID,
+                   NULL,
+                   b.AltAddressID,
+                   a.AltAddressID
+            FROM @HumanAddlInfoAfterEdit AS a
+                FULL JOIN @HumanAddlInfoBeforeEdit AS b
+                    ON a.HumanID = b.HumanID
+            WHERE (a.AltAddressID <> b.AltAddressID)
+                  OR (
+                         a.AltAddressID IS NOT NULL
+                         AND b.AltAddressID IS NULL
+                     )
+                  OR (
+                         a.AltAddressID IS NULL
+                         AND b.AltAddressID IS NOT NULL
+                     );
+
+			--PassportNbr
+            INSERT INTO dbo.tauDataAuditDetailUpdate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfColumn,
+                idfObject,
+                idfObjectDetail,
+                strOldValue,
+                strNewValue
+            )
+            SELECT @DataAuditEventID,
+                   @ObjectTable_HumanAddlInfo,
+                   51586990000131,
+                   a.HumanID,
+                   NULL,
+                   b.PassportNbr,
+                   a.PassportNbr
+            FROM @HumanAddlInfoAfterEdit AS a
+                FULL JOIN @HumanAddlInfoBeforeEdit AS b
+                    ON a.HumanID = b.HumanID
+            WHERE (a.PassportNbr <> b.PassportNbr)
+                  OR (
+                         a.PassportNbr IS NOT NULL
+                         AND b.PassportNbr IS NULL
+                     )
+                  OR (
+                         a.PassportNbr IS NULL
+                         AND b.PassportNbr IS NOT NULL
+                     );
+
+			--IsEmployedID
+            INSERT INTO dbo.tauDataAuditDetailUpdate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfColumn,
+                idfObject,
+                idfObjectDetail,
+                strOldValue,
+                strNewValue
+            )
+            SELECT @DataAuditEventID,
+                   @ObjectTable_HumanAddlInfo,
+                   51586990000132,
+                   a.HumanID,
+                   NULL,
+                   b.IsEmployedID,
+                   a.IsEmployedID
+            FROM @HumanAddlInfoAfterEdit AS a
+                FULL JOIN @HumanAddlInfoBeforeEdit AS b
+                    ON a.HumanID = b.HumanID
+            WHERE (a.IsEmployedID <> b.IsEmployedID)
+                  OR (
+                         a.IsEmployedID IS NOT NULL
+                         AND b.IsEmployedID IS NULL
+                     )
+                  OR (
+                         a.IsEmployedID IS NULL
+                         AND b.IsEmployedID IS NOT NULL
+                     );
+
+			--IsStudentID
+            INSERT INTO dbo.tauDataAuditDetailUpdate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfColumn,
+                idfObject,
+                idfObjectDetail,
+                strOldValue,
+                strNewValue
+            )
+            SELECT @DataAuditEventID,
+                   @ObjectTable_HumanAddlInfo,
+                   51586990000133,
+                   a.HumanID,
+                   NULL,
+                   b.IsStudentID,
+                   a.IsStudentID
+            FROM @HumanAddlInfoAfterEdit AS a
+                FULL JOIN @HumanAddlInfoBeforeEdit AS b
+                    ON a.HumanID = b.HumanID
+            WHERE (a.IsStudentID <> b.IsStudentID)
+                  OR (
+                         a.IsStudentID IS NOT NULL
+                         AND b.IsStudentID IS NULL
+                     )
+                  OR (
+                         a.IsStudentID IS NULL
+                         AND b.IsStudentID IS NOT NULL
+                     );
+
+			--EmployerPhoneNbr
+            INSERT INTO dbo.tauDataAuditDetailUpdate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfColumn,
+                idfObject,
+                idfObjectDetail,
+                strOldValue,
+                strNewValue
+            )
+            SELECT @DataAuditEventID,
+                   @ObjectTable_HumanAddlInfo,
+                   51586990000134,
+                   a.HumanID,
+                   NULL,
+                   b.EmployerPhoneNbr,
+                   a.EmployerPhoneNbr
+            FROM @HumanAddlInfoAfterEdit AS a
+                FULL JOIN @HumanAddlInfoBeforeEdit AS b
+                    ON a.HumanID = b.HumanID
+            WHERE (a.EmployerPhoneNbr <> b.EmployerPhoneNbr)
+                  OR (
+                         a.EmployerPhoneNbr IS NOT NULL
+                         AND b.EmployerPhoneNbr IS NULL
+                     )
+                  OR (
+                         a.EmployerPhoneNbr IS NULL
+                         AND b.EmployerPhoneNbr IS NOT NULL
+                     );
+
+			--EmployedDTM
+            INSERT INTO dbo.tauDataAuditDetailUpdate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfColumn,
+                idfObject,
+                idfObjectDetail,
+                strOldValue,
+                strNewValue
+            )
+            SELECT @DataAuditEventID,
+                   @ObjectTable_HumanAddlInfo,
+                   51586990000135,
+                   a.HumanID,
+                   NULL,
+                   b.EmployedDTM,
+                   a.EmployedDTM
+            FROM @HumanAddlInfoAfterEdit AS a
+                FULL JOIN @HumanAddlInfoBeforeEdit AS b
+                    ON a.HumanID = b.HumanID
+            WHERE (a.EmployedDTM <> b.EmployedDTM)
+                  OR (
+                         a.EmployedDTM IS NOT NULL
+                         AND b.EmployedDTM IS NULL
+                     )
+                  OR (
+                         a.EmployedDTM IS NULL
+                         AND b.EmployedDTM IS NOT NULL
+                     );
+
+			--SchoolName
+            INSERT INTO dbo.tauDataAuditDetailUpdate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfColumn,
+                idfObject,
+                idfObjectDetail,
+                strOldValue,
+                strNewValue
+            )
+            SELECT @DataAuditEventID,
+                   @ObjectTable_HumanAddlInfo,
+                   51586990000136,
+                   a.HumanID,
+                   NULL,
+                   b.SchoolName,
+                   a.SchoolName
+            FROM @HumanAddlInfoAfterEdit AS a
+                FULL JOIN @HumanAddlInfoBeforeEdit AS b
+                    ON a.HumanID = b.HumanID
+            WHERE (a.SchoolName <> b.SchoolName)
+                  OR (
+                         a.SchoolName IS NOT NULL
+                         AND b.SchoolName IS NULL
+                     )
+                  OR (
+                         a.SchoolName IS NULL
+                         AND b.SchoolName IS NOT NULL
+                     );
+
+			--SchoolPhoneNbr
+            INSERT INTO dbo.tauDataAuditDetailUpdate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfColumn,
+                idfObject,
+                idfObjectDetail,
+                strOldValue,
+                strNewValue
+            )
+            SELECT @DataAuditEventID,
+                   @ObjectTable_HumanAddlInfo,
+                   51586990000137,
+                   a.HumanID,
+                   NULL,
+                   b.SchoolPhoneNbr,
+                   a.SchoolPhoneNbr
+            FROM @HumanAddlInfoAfterEdit AS a
+                FULL JOIN @HumanAddlInfoBeforeEdit AS b
+                    ON a.HumanID = b.HumanID
+            WHERE (a.SchoolPhoneNbr <> b.SchoolPhoneNbr)
+                  OR (
+                         a.SchoolPhoneNbr IS NOT NULL
+                         AND b.SchoolPhoneNbr IS NULL
+                     )
+                  OR (
+                         a.SchoolPhoneNbr IS NULL
+                         AND b.SchoolPhoneNbr IS NOT NULL
+                     );
+
+			--SchoolLastAttendDTM
+            INSERT INTO dbo.tauDataAuditDetailUpdate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfColumn,
+                idfObject,
+                idfObjectDetail,
+                strOldValue,
+                strNewValue
+            )
+            SELECT @DataAuditEventID,
+                   @ObjectTable_HumanAddlInfo,
+                   51586990000138,
+                   a.HumanID,
+                   NULL,
+                   b.SchoolLastAttendDTM,
+                   a.SchoolLastAttendDTM
+            FROM @HumanAddlInfoAfterEdit AS a
+                FULL JOIN @HumanAddlInfoBeforeEdit AS b
+                    ON a.HumanID = b.HumanID
+            WHERE (a.SchoolLastAttendDTM <> b.SchoolLastAttendDTM)
+                  OR (
+                         a.SchoolLastAttendDTM IS NOT NULL
+                         AND b.SchoolLastAttendDTM IS NULL
+                     )
+                  OR (
+                         a.SchoolLastAttendDTM IS NULL
+                         AND b.SchoolLastAttendDTM IS NOT NULL
+                     );
+
+			--ContactPhone2Nbr
+            INSERT INTO dbo.tauDataAuditDetailUpdate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfColumn,
+                idfObject,
+                idfObjectDetail,
+                strOldValue,
+                strNewValue
+            )
+            SELECT @DataAuditEventID,
+                   @ObjectTable_HumanAddlInfo,
+                   51586990000139,
+                   a.HumanID,
+                   NULL,
+                   b.ContactPhone2Nbr,
+                   a.ContactPhone2Nbr
+            FROM @HumanAddlInfoAfterEdit AS a
+                FULL JOIN @HumanAddlInfoBeforeEdit AS b
+                    ON a.HumanID = b.HumanID
+            WHERE (a.ContactPhone2Nbr <> b.ContactPhone2Nbr)
+                  OR (
+                         a.ContactPhone2Nbr IS NOT NULL
+                         AND b.ContactPhone2Nbr IS NULL
+                     )
+                  OR (
+                         a.ContactPhone2Nbr IS NULL
+                         AND b.ContactPhone2Nbr IS NOT NULL
+                     );
+
+			--ContactPhone2NbrTypeID
+            INSERT INTO dbo.tauDataAuditDetailUpdate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfColumn,
+                idfObject,
+                idfObjectDetail,
+                strOldValue,
+                strNewValue
+            )
+            SELECT @DataAuditEventID,
+                   @ObjectTable_HumanAddlInfo,
+                   51586990000140,
+                   a.HumanID,
+                   NULL,
+                   b.ContactPhone2NbrTypeID,
+                   a.ContactPhone2NbrTypeID
+            FROM @HumanAddlInfoAfterEdit AS a
+                FULL JOIN @HumanAddlInfoBeforeEdit AS b
+                    ON a.HumanID = b.HumanID
+            WHERE (a.ContactPhone2NbrTypeID <> b.ContactPhone2NbrTypeID)
+                  OR (
+                         a.ContactPhone2NbrTypeID IS NOT NULL
+                         AND b.ContactPhone2NbrTypeID IS NULL
+                     )
+                  OR (
+                         a.ContactPhone2NbrTypeID IS NULL
+                         AND b.ContactPhone2NbrTypeID IS NOT NULL
+                     );
+
+			--ContactPhone2CountryCode
+            INSERT INTO dbo.tauDataAuditDetailUpdate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfColumn,
+                idfObject,
+                idfObjectDetail,
+                strOldValue,
+                strNewValue
+            )
+            SELECT @DataAuditEventID,
+                   @ObjectTable_HumanAddlInfo,
+                   51586990000141,
+                   a.HumanID,
+                   NULL,
+                   b.ContactPhone2NbrTypeID,
+                   a.ContactPhone2NbrTypeID
+            FROM @HumanAddlInfoAfterEdit AS a
+                FULL JOIN @HumanAddlInfoBeforeEdit AS b
+                    ON a.HumanID = b.HumanID
+            WHERE (a.ContactPhone2CountryCode <> b.ContactPhone2CountryCode)
+                  OR (
+                         a.ContactPhone2CountryCode IS NOT NULL
+                         AND b.ContactPhone2CountryCode IS NULL
+                     )
+                  OR (
+                         a.ContactPhone2CountryCode IS NULL
+                         AND b.ContactPhone2CountryCode IS NOT NULL
+                     );
+
+			--ContactPhoneCountryCode
+            INSERT INTO dbo.tauDataAuditDetailUpdate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfColumn,
+                idfObject,
+                idfObjectDetail,
+                strOldValue,
+                strNewValue
+            )
+            SELECT @DataAuditEventID,
+                   @ObjectTable_HumanAddlInfo,
+                   51586890000003,
+                   a.HumanID,
+                   NULL,
+                   b.ContactPhoneCountryCode,
+                   a.ContactPhoneCountryCode
+            FROM @HumanAddlInfoAfterEdit AS a
+                FULL JOIN @HumanAddlInfoBeforeEdit AS b
+                    ON a.HumanID = b.HumanID
+            WHERE (a.ContactPhoneCountryCode <> b.ContactPhoneCountryCode)
+                  OR (
+                         a.ContactPhoneCountryCode IS NOT NULL
+                         AND b.ContactPhoneCountryCode IS NULL
+                     )
+                  OR (
+                         a.ContactPhoneCountryCode IS NULL
+                         AND b.ContactPhoneCountryCode IS NOT NULL
+                     );
+
+			--ContactPhoneNbr
+            INSERT INTO dbo.tauDataAuditDetailUpdate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfColumn,
+                idfObject,
+                idfObjectDetail,
+                strOldValue,
+                strNewValue
+            )
+            SELECT @DataAuditEventID,
+                   @ObjectTable_HumanAddlInfo,
+                   51586890000004,
+                   a.HumanID,
+                   NULL,
+                   b.ContactPhoneCountryCode,
+                   a.ContactPhoneCountryCode
+            FROM @HumanAddlInfoAfterEdit AS a
+                FULL JOIN @HumanAddlInfoBeforeEdit AS b
+                    ON a.HumanID = b.HumanID
+            WHERE (a.ContactPhoneNbr <> b.ContactPhoneNbr)
+                  OR (
+                         a.ContactPhoneNbr IS NOT NULL
+                         AND b.ContactPhoneNbr IS NULL
+                     )
+                  OR (
+                         a.ContactPhoneNbr IS NULL
+                         AND b.ContactPhoneNbr IS NOT NULL
+                     );
+
+			--ContactPhoneNbrTypeID
+            INSERT INTO dbo.tauDataAuditDetailUpdate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfColumn,
+                idfObject,
+                idfObjectDetail,
+                strOldValue,
+                strNewValue
+            )
+            SELECT @DataAuditEventID,
+                   @ObjectTable_HumanAddlInfo,
+                   51586890000005,
+                   a.HumanID,
+                   NULL,
+                   b.ContactPhoneCountryCode,
+                   a.ContactPhoneCountryCode
+            FROM @HumanAddlInfoAfterEdit AS a
+                FULL JOIN @HumanAddlInfoBeforeEdit AS b
+                    ON a.HumanID = b.HumanID
+            WHERE (a.ContactPhoneNbrTypeID <> b.ContactPhoneNbrTypeID)
+                  OR (
+                         a.ContactPhoneNbrTypeID IS NOT NULL
+                         AND b.ContactPhoneNbrTypeID IS NULL
+                     )
+                  OR (
+                         a.ContactPhoneNbrTypeID IS NULL
+                         AND b.ContactPhoneNbrTypeID IS NOT NULL
+                     );
+
+			--IsAnotherPhoneID
+            INSERT INTO dbo.tauDataAuditDetailUpdate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfColumn,
+                idfObject,
+                idfObjectDetail,
+                strOldValue,
+                strNewValue
+            )
+            SELECT @DataAuditEventID,
+                   @ObjectTable_HumanAddlInfo,
+                   51586990000126,
+                   a.HumanID,
+                   NULL,
+                   b.IsAnotherPhoneID,
+                   a.IsAnotherPhoneID
+            FROM @HumanAddlInfoAfterEdit AS a
+                FULL JOIN @HumanAddlInfoBeforeEdit AS b
+                    ON a.HumanID = b.HumanID
+            WHERE (a.IsAnotherPhoneID <> b.IsAnotherPhoneID)
+                  OR (
+                         a.IsAnotherPhoneID IS NOT NULL
+                         AND b.IsAnotherPhoneID IS NULL
+                     )
+                  OR (
+                         a.IsAnotherPhoneID IS NULL
+                         AND b.IsAnotherPhoneID IS NOT NULL
+                     );
+
+			--IsAnotherAddressID
+            INSERT INTO dbo.tauDataAuditDetailUpdate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfColumn,
+                idfObject,
+                idfObjectDetail,
+                strOldValue,
+                strNewValue
+            )
+            SELECT @DataAuditEventID,
+                   @ObjectTable_HumanAddlInfo,
+                   51586990000127,
+                   a.HumanID,
+                   NULL,
+                   b.IsAnotherAddressID,
+                   a.IsAnotherAddressID
+            FROM @HumanAddlInfoAfterEdit AS a
+                FULL JOIN @HumanAddlInfoBeforeEdit AS b
+                    ON a.HumanID = b.HumanID
+            WHERE (a.IsAnotherAddressID <> b.IsAnotherAddressID)
+                  OR (
+                         a.IsAnotherAddressID IS NOT NULL
+                         AND b.IsAnotherAddressID IS NULL
+                     )
+                  OR (
+                         a.IsAnotherAddressID IS NULL
+                         AND b.IsAnotherAddressID IS NOT NULL
+                     );
+
         END
         ELSE
         BEGIN
@@ -1219,19 +1917,22 @@ BEGIN
                 SchoolName,
                 intRowStatus,
                 AuditCreateDTM,
-                AuditCreateUser
+                AuditCreateUser,
+				AltAddressID,
+				IsAnotherPhoneID,
+				IsAnotherAddressID
             )
             SELECT @HumanID,
-                   ReportedAge,
-                   ReportedAgeUOMID,
-                   ReportedAgeDTM,
+                   NULL,
+                   NULL,
+                   NULL,
                    PassportNbr,
                    IsEmployedID,
                    EmployerPhoneNbr,
                    EmployedDTM,
                    IsStudentID,
                    SchoolPhoneNbr,
-                   @RootSchoolAddressID,
+                   @CopySchoolAddressID,
                    SchoolLastAttendDTM,
                    ContactPhoneCountryCode,
                    ContactPhoneNbr,
@@ -1242,9 +1943,26 @@ BEGIN
                    SchoolName,
                    intRowStatus,
                    GETDATE(),
-                   @AuditUserName
+                   @AuditUserName,
+				   @CopyAltAddress,
+				   IsAnotherPhoneID,
+				   IsAnotherAddressID
             FROM dbo.humanActualAddlInfo
             WHERE HumanActualAddlInfoUID = @HumanActualID;
+
+            INSERT INTO dbo.tauDataAuditDetailCreate
+            (
+                idfDataAuditEvent,
+                idfObjectTable,
+                idfObject
+            )
+            VALUES
+            (
+                @DataAuditEventID, 
+                @ObjectTable_HumanAddlInfo, 
+                @HumanID
+            );
+
         END
     END TRY
     BEGIN CATCH

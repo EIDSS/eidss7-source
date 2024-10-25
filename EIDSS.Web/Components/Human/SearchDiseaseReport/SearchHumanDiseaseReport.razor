@@ -1,6 +1,7 @@
 ﻿@using EIDSS.Web.Areas.Human.ViewModels.Human
 @using EIDSS.Domain.ViewModels.Human
 @using EIDSS.Web.Components.Shared
+@using EIDSS.Web.Components.Shared.Organization
 @using EIDSS.Web.Components.CrossCutting
 @inherits SearchHumanDiseaseReportBase
 
@@ -97,17 +98,14 @@
     <div aria-labelledby="humanDiseaseReportAdvancedSearchCriteria" class="@(expandAdvancedSearchCriteria ? "collapse show" : "collapse")" data-parent="#accordion" id="humanDiseaseReportAdvancedSearchCriteriaBody">
         <div class="card-body">
             <div class="form-row">
-                <!--Sent By Facility Drop Down-->
                 <InterfaceEditorResource CssClass="col-md-4" For="sentByFacilityID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsSentByFacilityFieldLabel" IsRow="false">
-                    <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@Model.SearchCriteria.SentByFacilityID" class="form-control" Data="@SentByFacilities" Disabled="@LoadingComponentIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="sentByFacilityID" LoadData="@GetSentByOrganizationsAsync" Name="sentByFacilityID" TextProperty="name" TValue="long?" ValueProperty="idfOffice"/>
+                    <OrganizationSearch @bind-SelectedOrganizationId="@Model.SearchCriteria.SentByFacilityID" name="sentByFacilityID"></OrganizationSearch>
                 </InterfaceEditorResource>
-                <!--Received By Facility Drop Down-->
                 <InterfaceEditorResource CssClass="col-md-4" For="receivedByFacilityID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsReceivedByFacilityFieldLabel" IsRow="false">
-                    <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@Model.SearchCriteria.ReceivedByFacilityID" class="form-control" Data="@ReceivedByFacilities" Disabled="@LoadingComponentIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="receivedByFacilityID" LoadData="@GetReceivedByOrganizationsAsync" Name="receivedByFacilityID" TextProperty="name" TValue="long?" ValueProperty="idfOffice"/>
+                    <OrganizationSearch @bind-SelectedOrganizationId="@Model.SearchCriteria.ReceivedByFacilityID" name="receivedByFacilityID"></OrganizationSearch>
                 </InterfaceEditorResource>
-                <!--Data Entry Site Drop Down-->
                 <InterfaceEditorResource CssClass="col-md-4" For="dataEntrySiteID" InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchHumanDiseaseReportsDataEntrySiteFieldLabel" IsRow="false">
-                    <RadzenDropDown AllowClear="true" AllowFiltering="true" AllowVirtualization="false" @bind-Value="@Model.SearchCriteria.DataEntrySiteID" class="form-control" Data="@DataEntrySites" Disabled="@LoadingComponentIndicator" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="dataEntrySiteID" LoadData="@GetEnteredByOrganizationsAsync" TextProperty="name" TValue="long?" ValueProperty="idfsSite"/>
+                    <OrganizationSearch @bind-SelectedOrganizationId="@Model.SearchCriteria.DataEntrySiteID" name="dataEntrySiteID"></OrganizationSearch>
                 </InterfaceEditorResource>
             </div>
             <div class="form-row">

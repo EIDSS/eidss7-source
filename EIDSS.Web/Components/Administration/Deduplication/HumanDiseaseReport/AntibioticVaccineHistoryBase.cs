@@ -253,7 +253,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                 HumanDiseaseReportDeduplicationService.chkCheckAllAntibioticDetails = false;
                 HumanDiseaseReportDeduplicationService.chkCheckAllAntibioticDetails2 = false;
 
-                await EableDisableMergeButtonAsync();
+                await EnableDisableMergeButtonAsync();
 
                 //HumanDiseaseReportDeduplicationService.SurvivorAntibioticsHistoryDetails = CopyAllInList<DiseaseReportAntiviralTherapiesViewModel>(HumanDiseaseReportDeduplicationService.antibioticsHistory);
                 //foreach (var item in HumanDiseaseReportDeduplicationService.antibioticsHistory2)
@@ -350,7 +350,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                 HumanDiseaseReportDeduplicationService.chkCheckAllAntibioticDetails = false;
                 HumanDiseaseReportDeduplicationService.chkCheckAllAntibioticDetails2 = false;
 
-                await EableDisableMergeButtonAsync();
+                await EnableDisableMergeButtonAsync();
                 //HumanDiseaseReportDeduplicationService.SurvivorAntibioticsHistoryDetails = CopyAllInList<DiseaseReportAntiviralTherapiesViewModel>(HumanDiseaseReportDeduplicationService.antibioticsHistory2);
                 //foreach (var item in HumanDiseaseReportDeduplicationService.antibioticsHistory)
                 //{
@@ -438,7 +438,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                 HumanDiseaseReportDeduplicationService.chkCheckAllAntibioticDetails = false;
                 HumanDiseaseReportDeduplicationService.chkCheckAllAntibioticDetails2 = false;
 
-                await EableDisableMergeButtonAsync();
+                await EnableDisableMergeButtonAsync();
                // HumanDiseaseReportDeduplicationService.SurvivorVaccinationHistoryDetails = HumanDiseaseReportDeduplicationService.vaccinationHistory;
 
                 //HumanDiseaseReportDeduplicationService.SurvivorVaccinationHistoryDetails = CopyAllInList<DiseaseReportVaccinationViewModel>(HumanDiseaseReportDeduplicationService.vaccinationHistory);
@@ -529,7 +529,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                 HumanDiseaseReportDeduplicationService.chkCheckAllAntibioticDetails = false;
                 HumanDiseaseReportDeduplicationService.chkCheckAllAntibioticDetails2 = false;
 
-                await EableDisableMergeButtonAsync();
+                await EnableDisableMergeButtonAsync();
                // HumanDiseaseReportDeduplicationService.SurvivorVaccinationHistoryDetails = HumanDiseaseReportDeduplicationService.vaccinationHistory2;
 
                 //HumanDiseaseReportDeduplicationService.SurvivorVaccinationHistoryDetails = CopyAllInList<DiseaseReportVaccinationViewModel>(HumanDiseaseReportDeduplicationService.vaccinationHistory2);
@@ -606,7 +606,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                 HumanDiseaseReportDeduplicationService.chkCheckAllAntibioticDetails = false;
                 HumanDiseaseReportDeduplicationService.chkCheckAllAntibioticDetails2 = false;
 
-                await EableDisableMergeButtonAsync();
+                await EnableDisableMergeButtonAsync();
 
                 //HumanDiseaseReportDeduplicationService.SurvivorVaccinationHistoryDetails = CopyAllInList<DiseaseReportVaccinationViewModel>(HumanDiseaseReportDeduplicationService.vaccinationHistory);
 
@@ -668,7 +668,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                 HumanDiseaseReportDeduplicationService.chkCheckAllAntibioticDetails = false;
                 HumanDiseaseReportDeduplicationService.chkCheckAllAntibioticDetails2 = false;
 
-                await EableDisableMergeButtonAsync();
+                await EnableDisableMergeButtonAsync();
 
                 //HumanDiseaseReportDeduplicationService.SurvivorVaccinationHistoryDetails = CopyAllInList<DiseaseReportVaccinationViewModel>(HumanDiseaseReportDeduplicationService.vaccinationHistory2);
 

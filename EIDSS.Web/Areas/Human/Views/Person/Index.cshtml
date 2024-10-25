@@ -12,6 +12,7 @@
     }
 </style>
 
+@*<partial name="_InformationalModalPartial" for="InformationalMessage" />*@
 <partial name="_WarningModalPartial" />
 <partial name="_ErrorModalPartial" />
 
@@ -21,5 +22,6 @@
     </div>
     <div class="card-body">
         <component type="typeof(SearchPerson)" render-mode="Server" param-Mode=@SearchModeEnum.Default param-CallbackUrl='string.Empty' />
+        @*@await Component.InvokeAsync("PersonSearchView", Model.SearchLocationViewModel)*@
     </div>
 </div>

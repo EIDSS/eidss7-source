@@ -3,6 +3,7 @@ using EIDSS.ClientLibrary.Enumerations;
 using EIDSS.ClientLibrary.Services;
 using EIDSS.Domain.RequestModels.Administration;
 using EIDSS.Domain.RequestModels.DataTables;
+using EIDSS.Domain.ResponseModels;
 using EIDSS.Domain.ViewModels.Administration;
 using EIDSS.Localization.Constants;
 using EIDSS.Web.Abstracts;
@@ -20,10 +21,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using EIDSS.Domain.ResponseModels;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.Int32;
-using static System.String;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace EIDSS.Web.Areas.Administration.Controllers
@@ -90,8 +87,8 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                 AdvancedSearch = JObject.Parse(dataTableQueryPostObj.postArgs)["SearchBox"]?.ToString(),
                 Page = iPage,
                 PageSize = iLength,
-                SortColumn = !IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "intOrder",
-                SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Ascending
+                SortColumn = !string.IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "intOrder",
+                SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending
             };
 
             var response = await _speciesTypeClient.GetSpeciesTypeList(request);
@@ -114,9 +111,9 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     speciesTypeList.ElementAt(i).KeyId.ToString(),
                     speciesTypeList.ElementAt(i).StrDefault,
                     speciesTypeList.ElementAt(i).StrName,
-                    (speciesTypeList.ElementAt(i).StrCode == null) ? Empty : speciesTypeList.ElementAt(i).StrCode,
-                    (speciesTypeList.ElementAt(i).StrHACode == null) ? Empty : speciesTypeList.ElementAt(i).StrHACode,
-                    (speciesTypeList.ElementAt(i).StrHACodeNames == null) ? Empty : speciesTypeList.ElementAt(i).StrHACodeNames,
+                    (speciesTypeList.ElementAt(i).StrCode == null) ? string.Empty : speciesTypeList.ElementAt(i).StrCode,
+                    (speciesTypeList.ElementAt(i).StrHACode == null) ? string.Empty : speciesTypeList.ElementAt(i).StrHACode,
+                    (speciesTypeList.ElementAt(i).StrHACodeNames == null) ? string.Empty : speciesTypeList.ElementAt(i).StrHACodeNames,
                     speciesTypeList.ElementAt(i).IntOrder.ToString()
                 };
 
@@ -130,11 +127,11 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         {
             var response = await _speciesTypeClient.SaveSpeciesType(request);
 
-            var strDuplicationMessage = Empty;
+            var strDuplicationMessage = string.Empty;
 
             if (response.ReturnMessage == "DOES EXIST")
             {
-                strDuplicationMessage = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
+                strDuplicationMessage = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
             }
 
             var data = new
@@ -147,11 +144,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             return Json(data);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         [HttpPost]
         public async Task<JsonResult> DeleteSpeciesType([FromBody] JsonElement data)
         {
@@ -159,14 +151,14 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
                 if (jsonObject["SpeciesTypeId"] != null)
                 {
                     var request = new SpeciesTypeSaveRequestModel
                     {
                         DeleteAnyway = true,
                         LanguageId = GetCurrentLanguage(),
-                        EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                        EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                         AuditUserName = authenticatedUser.UserName,
                         LocationId = authenticatedUser.RayonId,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -198,16 +190,16 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         [HttpPost]
         public async Task<IActionResult> AddEditSpeciesType([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             var serializer = JsonSerializer.Serialize(data);
-            //serializer.Serialize(data);
+
             var request = new SpeciesTypeSaveRequestModel
             {
                 intHACode = Common.GetHAcodeTotal(jsonObject, "strHACodeNames", _speciesTypeClient),
                 Default = jsonObject["strDefault"]?.ToString(),
                 Name = jsonObject["strName"]?.ToString(),
                 LanguageId = GetCurrentLanguage(),
-                EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                 AuditUserName = authenticatedUser.UserName,
                 LocationId = authenticatedUser.RayonId,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -216,18 +208,19 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             if (jsonObject["intOrder"] != null)
             {
-                if (!IsNullOrEmpty(jsonObject["intOrder"].ToString())){
-                    request.intOrder = Parse(jsonObject["intOrder"].ToString());
+                if (!string.IsNullOrEmpty(jsonObject["intOrder"].ToString()))
+                {
+                    request.intOrder = int.Parse(jsonObject["intOrder"].ToString());
                 }
                 else
                 {
                     request.intOrder = 0;
                 }
             }
-            
+
             request.strCode = jsonObject["strCode"]?.ToString();
             request.SpeciesTypeId = (jsonObject["SpeciesTypeId"] == null) ? null : long.Parse(jsonObject["SpeciesTypeId"].ToString());
-            
+
             return Json(await SaveSpeciesType(request));
         }
     }

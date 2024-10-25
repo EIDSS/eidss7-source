@@ -3,6 +3,7 @@ using EIDSS.ClientLibrary.Enumerations;
 using EIDSS.ClientLibrary.Services;
 using EIDSS.Domain.RequestModels.Administration;
 using EIDSS.Domain.RequestModels.DataTables;
+using EIDSS.Domain.ResponseModels;
 using EIDSS.Domain.ViewModels;
 using EIDSS.Domain.ViewModels.Administration;
 using EIDSS.Localization.Constants;
@@ -19,10 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using EIDSS.Domain.ResponseModels;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.Int64;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Administration.Controllers
 {
@@ -48,7 +45,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             _pageViewModel.UserPermissions = _userPermissions;
         }
 
-        //[Route("Index")]
         public IActionResult Index()
         {
             _pageViewModel.Select2Configurations = new List<Select2Configruation>();
@@ -66,9 +62,9 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             long? measureTypeId = null;
             if (referenceType.ddlMeasureType != null)
             {
-                if (!IsNullOrEmpty(referenceType.ddlMeasureType))
+                if (!string.IsNullOrEmpty(referenceType.ddlMeasureType))
                 {
-                    measureTypeId = Parse(referenceType.ddlMeasureType);
+                    measureTypeId = long.Parse(referenceType.ddlMeasureType);
                 }
             }
 
@@ -76,7 +72,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             var valuePair = dataTableQueryPostObj.ReturnSortParameter();
 
             var strSortColumn = "intOrder";
-            if (!IsNullOrEmpty(valuePair.Key) && valuePair.Key != "MeasureId")
+            if (!string.IsNullOrEmpty(valuePair.Key) && valuePair.Key != "MeasureId")
             {
                 strSortColumn = valuePair.Key;
             }
@@ -84,23 +80,23 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             var request = new MeasuresGetRequestModel
             {
                 LanguageId = GetCurrentLanguage(),
-                AdvancedSearch = IsNullOrEmpty(referenceType.SearchBox) ? null : referenceType.SearchBox,
+                AdvancedSearch = string.IsNullOrEmpty(referenceType.SearchBox) ? null : referenceType.SearchBox,
                 IdfsActionList = measureTypeId,
                 Page = dataTableQueryPostObj.page,
                 PageSize = dataTableQueryPostObj.length,
                 SortColumn = strSortColumn,
-                SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Ascending
+                SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending
             };
 
-            var response = await _measuresClient.GetMeasuresList(request);            
+            var response = await _measuresClient.GetMeasuresList(request);
             IEnumerable<BaseReferenceEditorsViewModel> measuresList = response;
 
             measuresList = strSortColumn switch
             {
-                "intOrder" when request.SortOrder == SortConstants.Descending => measuresList
+                "intOrder" when request.SortOrder == EIDSSConstants.SortConstants.Descending => measuresList
                     .OrderByDescending(o => o.IntOrder)
                     .ThenBy(n => n.StrName),
-                "intOrder" when request.SortOrder == SortConstants.Ascending => measuresList.OrderBy(o => o.IntOrder)
+                "intOrder" when request.SortOrder == EIDSSConstants.SortConstants.Ascending => measuresList.OrderBy(o => o.IntOrder)
                     .ThenBy(n => n.StrName),
                 _ => measuresList
             };
@@ -122,9 +118,9 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     (row + i + 1).ToString(),
                     measuresList.ElementAt(i).KeyId.ToString(),
                     measureTypeId.ToString(),
-                    measuresList.ElementAt(i).StrDefault ?? Empty, // English Value
-                    measuresList.ElementAt(i).StrName ?? Empty,  // Translated Value                  
-                    measuresList.ElementAt(i).StrActionCode ?? Empty,
+                    measuresList.ElementAt(i).StrDefault ?? string.Empty, // English Value
+                    measuresList.ElementAt(i).StrName ?? string.Empty,  // Translated Value                  
+                    measuresList.ElementAt(i).StrActionCode ?? string.Empty,
                     measuresList.ElementAt(i).IntOrder.ToString()
                 };
                 tableData.data.Add(cols);
@@ -137,17 +133,17 @@ namespace EIDSS.Web.Areas.Administration.Controllers
         [Route("AddMeasure")]
         public async Task<IActionResult> AddMeasure([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
             MeasuresSaveRequestModel request = new()
             {
                 Default = jsonObject["Default"]?.ToString().Trim(),
                 Name = jsonObject["Name"]?.ToString().Trim(),
                 StrActionCode = jsonObject["Code"]?.ToString(),
-                intOrder = !IsNullOrEmpty(jsonObject["Order"]?.ToString()) ? int.Parse(jsonObject["Order"].ToString()) : 0,
-                IdfsReferenceType = Parse(jsonObject["ddlMeasureType"]?[0]?["id"]?.ToString() ?? Empty),
+                intOrder = !string.IsNullOrEmpty(jsonObject["Order"]?.ToString()) ? int.Parse(jsonObject["Order"].ToString()) : 0,
+                IdfsReferenceType = long.Parse(jsonObject["ddlMeasureType"]?[0]?["id"]?.ToString() ?? string.Empty),
                 LanguageId = GetCurrentLanguage(),
-                EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                 AuditUserName = authenticatedUser.UserName,
                 LocationId = authenticatedUser.RayonId,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -155,30 +151,29 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             };
 
             var response = await _measuresClient.SaveMeasure(request);
-            response.StrDuplicatedField = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
+            response.StrDuplicatedField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
             return Json(response);
         }
 
         [HttpPost]
-        //[Route("EditMeasure")]
         public async Task<JsonResult> EditMeasure([FromBody] JsonElement json)
         {
             try
             {
-                var jsonObject = JObject.Parse(json.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(json.ToString() ?? string.Empty);
 
                 MeasuresSaveRequestModel request = new()
                 {
                     Default = jsonObject["StrDefault"]?.ToString().Trim(),
                     Name = jsonObject["StrName"]?.ToString().Trim(),
                     StrActionCode = jsonObject["StrCode"]?.ToString(),
-                    intOrder = !IsNullOrEmpty(jsonObject["IntOrder"]?.ToString())
+                    intOrder = !string.IsNullOrEmpty(jsonObject["IntOrder"]?.ToString())
                         ? int.Parse(jsonObject["IntOrder"].ToString())
                         : 0,
                     IdfsBaseReference = Convert.ToInt64(jsonObject["MeasureId"]),
-                    IdfsReferenceType = Parse(jsonObject["ReferenceTypeId"]?.ToString() ?? Empty),
+                    IdfsReferenceType = long.Parse(jsonObject["ReferenceTypeId"]?.ToString() ?? string.Empty),
                     LanguageId = GetCurrentLanguage(),
-                    EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                    EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                     AuditUserName = authenticatedUser.UserName,
                     LocationId = authenticatedUser.RayonId,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -187,7 +182,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
                 var response = await _measuresClient.SaveMeasure(request);
                 response.StrDuplicatedField =
-                    Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
+                    string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
                 return Json(response);
             }
             catch (Exception ex)
@@ -197,11 +192,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="json"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("DeleteMeasure")]
         public async Task<JsonResult> DeleteMeasure([FromBody] JsonElement json)
@@ -210,15 +200,15 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             try
             {
-                var jsonObject = JObject.Parse(json.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(json.ToString() ?? string.Empty);
                 if (jsonObject["ReferenceTypeId"] != null)
                 {
                     var request = new MeasuresSaveRequestModel
                     {
-                        IdfsAction = Parse(jsonObject["MeasureId"]?.ToString() ?? Empty),
+                        IdfsAction = long.Parse(jsonObject["MeasureId"]?.ToString() ?? string.Empty),
                         IdfsMeasureList = Convert.ToInt64(jsonObject["ReferenceTypeId"]?.ToString()),
                         DeleteAnyway = true,
-                        EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                        EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                         AuditUserName = authenticatedUser.UserName,
                         LocationId = authenticatedUser.RayonId,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -228,7 +218,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
                     var response = await _measuresClient.DeleteMeasure(request);
 
                     responsePost.ReturnMessage = response.ReturnMessage;
-                    responsePost.KeyId = Parse(jsonObject["ReferenceTypeId"]?.ToString() ?? Empty);
+                    responsePost.KeyId = long.Parse(jsonObject["ReferenceTypeId"]?.ToString() ?? string.Empty);
 
                     if (response.ReturnMessage == "IN USE")
                     {
@@ -257,7 +247,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             {
                 var list = await _measuresClient.GetMeasuresDropDownList(GetCurrentLanguage());
 
-                if (!IsNullOrEmpty(term))
+                if (!string.IsNullOrEmpty(term))
                 {
                     List<BaseReferenceEditorsViewModel> toList = list.Where(c => c.StrReferenceTypeName != null && c.StrReferenceTypeName.Contains(term, StringComparison.CurrentCultureIgnoreCase)).ToList();
                     list = toList;
@@ -265,7 +255,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
                 if (list != null)
                 {
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.IdfsReferenceType.ToString(), text = item.StrReferenceTypeName}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.IdfsReferenceType.ToString(), text = item.StrReferenceTypeName }));
                 }
                 select2DataObj.results = select2DataItems;
             }

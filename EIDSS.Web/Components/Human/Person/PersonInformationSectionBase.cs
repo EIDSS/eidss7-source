@@ -1,14 +1,13 @@
-﻿#region Usings
-
-using EIDSS.ClientLibrary.ApiClients.Configuration;
+﻿using EIDSS.ClientLibrary.ApiClients.Configuration;
 using EIDSS.ClientLibrary.ApiClients.CrossCutting;
+using EIDSS.ClientLibrary.ApiClients.Human;
 using EIDSS.Domain.Enumerations;
 using EIDSS.Domain.RequestModels.Configuration;
 using EIDSS.Domain.ViewModels.Configuration;
 using EIDSS.Domain.ViewModels.CrossCutting;
 using EIDSS.Domain.ViewModels.Human;
 using EIDSS.Localization.Constants;
-using EIDSS.Web.Components.Human.ActiveSurveillanceSession;
+using EIDSS.Web.Helpers;
 using EIDSS.Web.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Localization;
@@ -22,71 +21,98 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.String;
-
-#endregion
 
 namespace EIDSS.Web.Components.Human.Person
 {
     public class PersonInformationSectionBase : PersonBaseComponent
     {
-        #region Globals
+        protected PersonHeader PersonHeaderComponent;
+        
+        [Parameter]
+        public Func<DateTime?> CollectEndDateOfAgeCalculationHandler { get; set; }
+        
+        [Parameter]
+        public Func<DateTime?, Task> OnDateOnBirthChange { get; set; }
+        
+        [Parameter]
+        public bool HdrDateOfBirthDisabled { get; set; }
 
-        #region Dependencies
+        [Inject]
+        private ICrossCuttingClient CrossCuttingClient { get; set; }
 
-        [Inject] public ICrossCuttingClient CrossCuttingClient { get; set; }
-        [Inject] public IPersonalIdentificationTypeMatrixClient PersonalIdentificationTypeMatrixClient { get; set; }
-        [Inject] private ILogger<PersonInformationSectionBase> PersonInformationSectionLogger { get; set; }
+        [Inject]
+        private IPersonalIdentificationTypeMatrixClient PersonalIdentificationTypeMatrixClient { get; set; }
 
-        #endregion Dependencies
+        [Inject]
+        private IPersonalIDClient PersonalIDClient { get; set; }
 
-        #region Properties
+        [Inject]
+        private ILogger<PersonInformationSectionBase> PersonInformationSectionLogger { get; set; }
 
         protected IList<PersonalIdentificationTypeMatrixViewModel> PersonalIdentificationTypeMatrices { get; set; }
+
         protected IEnumerable<BaseReferenceViewModel> PersonalIdTypes { get; set; }
+
         protected IEnumerable<BaseReferenceViewModel> HumanAgeTypes { get; set; }
+
         protected IEnumerable<BaseReferenceViewModel> GenderTypes { get; set; }
+
         protected IEnumerable<BaseReferenceViewModel> CitizenshipTypes { get; set; }
+
         protected RadzenTemplateForm<PersonStateContainer> Form { get; set; }
+
         private bool IsReview { get; set; }
-        protected bool IsAgeInputDisabled { get; set; }
 
-        #endregion
+        protected bool IsPersonalIDTypeExists
+        {
+            get
+            {
+                return StateContainer.PersonalIDType is not null &&
+                    PersonalIdentificationTypeMatrices is not null &&
+                    PersonalIdentificationTypeMatrices.Any(x => x.IdfPersonalIDType == (long)StateContainer.PersonalIDType);
+            }
+        }
 
-        #region Member Variables
+        protected bool IsPersonalIDTypeUndefined
+        {
+            get
+            {
+                return !StateContainer.PersonalIDType.HasValue ||
+                    StateContainer.PersonalIDType == (long)PersonalIDTypeEnum.Unknown;
+            }
+        }
+
+        protected bool IsPersonalIDTypeNumeric
+        {
+            get
+            {
+                var fieldType = PersonalIdentificationTypeMatrices.FirstOrDefault(x => x.IdfPersonalIDType == (long)StateContainer.PersonalIDType)?.StrFieldType;
+                return fieldType is not null && fieldType.Equals(PersonalIDTypeMatriceAttributeTypes.Numeric, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        protected int? PersonalIDLength
+        {
+            get
+            {
+                return PersonalIdentificationTypeMatrices.FirstOrDefault(x => x.IdfPersonalIDType == (long)StateContainer.PersonalIDType)?.Length;
+            }
+        }
 
         private CancellationTokenSource _source;
         private CancellationToken _token;
-        protected RadzenDatePicker<DateTime?> dobPicker;
 
-        #endregion
-
-        #endregion
-
-        #region Methods
-
-        #region Lifecycle Methods
-
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         protected override async Task OnInitializedAsync()
         {
+            await base.OnInitializedAsync();
+            
             _logger = PersonInformationSectionLogger;
 
             //reset the cancellation token
             _source = new CancellationTokenSource();
             _token = _source.Token;
-
-            StateContainer.OnChange += async _ => await OnStateContainerChangeAsync();
-
-            await base.OnInitializedAsync();
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="firstRender"></param>
-        /// <returns></returns>
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
@@ -109,32 +135,17 @@ namespace EIDSS.Web.Components.Human.Person
             }
         }
 
-        /// <summary>
-        /// </summary>
         public void Dispose()
         {
             _source?.Cancel();
             _source?.Dispose();
-            if (StateContainer != null)
-                StateContainer.OnChange -= async _ => await OnStateContainerChangeAsync().ConfigureAwait(false);
         }
 
-        #endregion
-
-        #region Data Loading and Events
-
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         private async Task OnStateContainerChangeAsync()
         {
             await InvokeAsync(StateHasChanged);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="args"></param>
-        /// <returns></returns>
         public async Task GetPersonalIdTypes(LoadDataArgs args)
         {
             try
@@ -142,7 +153,7 @@ namespace EIDSS.Web.Components.Human.Person
                 PersonalIdTypes = await CrossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(),
                     BaseReferenceConstants.PersonalIDType, null);
 
-                if (!IsNullOrEmpty(args.Filter))
+                if (!string.IsNullOrEmpty(args.Filter))
                     PersonalIdTypes = PersonalIdTypes.Where(c =>
                         c.Name != null && c.Name.Contains(args.Filter, StringComparison.CurrentCultureIgnoreCase));
 
@@ -155,9 +166,6 @@ namespace EIDSS.Web.Components.Human.Person
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         public async Task GetPersonalIdentificationTypeConfigurationMatrices()
         {
             try
@@ -180,36 +188,23 @@ namespace EIDSS.Web.Components.Human.Person
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
         protected async Task OnPersonalIDTypeChange(object value)
         {
             SetDOBRequired();
             switch (value)
             {
                 case (long)PersonalIDTypeEnum.PIN:
-                    StateContainer.IsFindPINDisabled = ((StateContainer.DateOfBirth == null) ? true : false);
+                    StateContainer.IsFindPINDisabled = StateContainer.DateOfBirth == null;
                     break;
-
-                case (long)PersonalIDTypeEnum.Unknown:
-                    StateContainer.IsFindPINDisabled = true;
-                    StateContainer.PersonalID = null;
-                    break;
-
                 default:
                     StateContainer.IsFindPINDisabled = true;
+                    StateContainer.PersonalID = null;
                     break;
             }
 
             await InvokeAsync(StateHasChanged);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="args"></param>
-        /// <returns></returns>
         public async Task GetHumanAgeTypes(LoadDataArgs args)
         {
             try
@@ -217,9 +212,8 @@ namespace EIDSS.Web.Components.Human.Person
                 HumanAgeTypes = await CrossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(),
                     BaseReferenceConstants.HumanAgeType, null);
 
-                if (!IsNullOrEmpty(args.Filter))
-                    HumanAgeTypes = HumanAgeTypes.Where(c =>
-                        c.Name != null && c.Name.Contains(args.Filter, StringComparison.CurrentCultureIgnoreCase));
+                HumanAgeTypes = HumanAgeTypes.Where(c =>
+                        c.Name != null && !c.Name.Contains("weeks", StringComparison.CurrentCultureIgnoreCase));
 
                 await InvokeAsync(StateHasChanged);
             }
@@ -230,16 +224,6 @@ namespace EIDSS.Web.Components.Human.Person
             }
         }
 
-        /// <summary>
-        /// </summary>
-        //protected void OnHumanAgeTypeDropDownChange()
-        //{
-        //}
-
-        /// <summary>
-        /// </summary>
-        /// <param name="args"></param>
-        /// <returns></returns>
         public async Task GetGenderTypes(LoadDataArgs args)
         {
             try
@@ -247,7 +231,7 @@ namespace EIDSS.Web.Components.Human.Person
                 GenderTypes = await CrossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(),
                     BaseReferenceConstants.HumanGender, null);
 
-                if (!IsNullOrEmpty(args.Filter))
+                if (!string.IsNullOrEmpty(args.Filter))
                     GenderTypes = GenderTypes.Where(c =>
                         c.Name != null && c.Name.Contains(args.Filter, StringComparison.CurrentCultureIgnoreCase));
 
@@ -260,10 +244,6 @@ namespace EIDSS.Web.Components.Human.Person
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="args"></param>
-        /// <returns></returns>
         public async Task GetCitizenshipTypes(LoadDataArgs args)
         {
             try
@@ -271,7 +251,7 @@ namespace EIDSS.Web.Components.Human.Person
                 CitizenshipTypes = await CrossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(),
                     BaseReferenceConstants.NationalityList, null);
 
-                if (!IsNullOrEmpty(args.Filter))
+                if (!string.IsNullOrEmpty(args.Filter))
                     CitizenshipTypes = CitizenshipTypes.Where(c =>
                         c.Name != null && c.Name.Contains(args.Filter, StringComparison.CurrentCultureIgnoreCase));
 
@@ -284,9 +264,6 @@ namespace EIDSS.Web.Components.Human.Person
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         public async Task OnFindPINClick()
         {
             try
@@ -305,8 +282,12 @@ namespace EIDSS.Web.Components.Human.Person
                 StateContainer.PersonMiddleName = person.SecondName;
                 StateContainer.PersonLastName = person.LastOrSurname;
                 StateContainer.DateOfBirth = person.DateOfBirth;
+                if (OnDateOnBirthChange != null)
+                {
+                    await OnDateOnBirthChange(person.DateOfBirth);
+                }
                 StateContainer.PersonalID = person.PersonalID;
-                await UpdateAge(StateContainer.DateOfBirth);
+                await UpdateAge();
 
                 if (person.GenderTypeName == "Male")
                 {
@@ -318,11 +299,6 @@ namespace EIDSS.Web.Components.Human.Person
                     BaseReferenceViewModel male = GenderTypes.Where(gender => gender.StrDefault == "Female").First();
                     StateContainer.GenderType = male.IdfsBaseReference;
                 }
-                //else if (person.GenderTypeName == "Unknown")
-                //{
-                //    BaseReferenceViewModel male = GenderTypes.Where(gender => gender.Name == "Unknown").First();
-                //    StateContainer.GenderType = male.IdfsBaseReference;
-                //}
             }
             catch (Exception ex)
             {
@@ -331,8 +307,22 @@ namespace EIDSS.Web.Components.Human.Person
             }
         }
 
-        public async Task UpdateAge(DateTime? dob)
+        public async Task DateOfBirthHasChanged(DateTime? dateOfBirth)
         {
+            StateContainer.DateOfBirth = dateOfBirth;
+            OnDateOnBirthChange?.Invoke(dateOfBirth);
+            await UpdateAge();
+        }
+
+        public async Task UpdateAge()
+        {
+            DateTime? dob = StateContainer.DateOfBirth;
+            DateTime? dod = null;
+            if (CollectEndDateOfAgeCalculationHandler != null)
+            {
+                dod = CollectEndDateOfAgeCalculationHandler();
+            }
+            dod ??= StateContainer.DateOfDeath;
             if (dob is not null && dob < DateTime.Now.Date.AddDays(1))
             {
                 if (StateContainer.PersonalIDType == (long)PersonalIDTypeEnum.PIN)
@@ -340,36 +330,14 @@ namespace EIDSS.Web.Components.Human.Person
                     StateContainer.IsFindPINDisabled = false;
                 }
 
-                TimeSpan ageInYears = DateTime.Now - Convert.ToDateTime(dob);
-                if (ageInYears.Days > 365)
-                {
-                    StateContainer.ReportedAgeUOMID = Convert.ToInt64(HumanAgeTypeConstants.Years);
-                    StateContainer.ReportedAge = ageInYears.Days / 365;
-                }
-                else if (ageInYears.Days == 365)
-                {
-                    StateContainer.ReportedAgeUOMID = Convert.ToInt64(HumanAgeTypeConstants.Years);
-                    StateContainer.ReportedAge = ageInYears.Days / 365;
-                }
-                else if (ageInYears.Days < 7)
-                {
-                    StateContainer.ReportedAgeUOMID = Convert.ToInt64(HumanAgeTypeConstants.Days);
-                    StateContainer.ReportedAge = ageInYears.Days;
-                }
-                else if (ageInYears.Days < 31)
-                {
-                    StateContainer.ReportedAgeUOMID = Convert.ToInt64(HumanAgeTypeConstants.Weeks);
-                    StateContainer.ReportedAge = ageInYears.Days / 7;
-                }
-                else if (ageInYears.Days < 365)
-                {
-                    StateContainer.ReportedAgeUOMID = Convert.ToInt64(HumanAgeTypeConstants.Months);
-                    StateContainer.ReportedAge = ageInYears.Days / 30;
-                }
 
-                await CheckDOBGreaterThan100Years();
+                int age = 0;
+                long ageType = 0;
 
-                IsAgeInputDisabled = true;
+                AgeCalculationHelper.GetDOBandAgeForPerson(dob, dod ?? DateTime.Now, ref age, ref ageType);
+
+                StateContainer.ReportedAgeUOMID = ageType;
+                StateContainer.ReportedAge = age;
             }
             else
             {
@@ -377,18 +345,6 @@ namespace EIDSS.Web.Components.Human.Person
                 StateContainer.ReportedAge = null;
                 StateContainer.DateOfBirth = null;
                 StateContainer.IsFindPINDisabled = true;
-                IsAgeInputDisabled = false;
-            }
-        }
-
-        public async Task CheckDOBGreaterThan100Years()
-        {
-            if (StateContainer.ReportedAge > 100 && StateContainer.ReportedAge < 200 && StateContainer.ReportedAgeUOMID == Convert.ToInt64(HumanAgeTypeConstants.Years))
-            {
-                //dynamic result = 
-                await DiagService.OpenAsync<VerifyAgeModal>(Localizer.GetString(HeadingResourceKeyConstants.PersonInformationHeading),
-                null,
-                new DialogOptions() { Width = "900px", Height = "230px", Resizable = false, Draggable = false });
             }
         }
 
@@ -399,19 +355,12 @@ namespace EIDSS.Web.Components.Human.Person
 
         public async Task SetHumanAgeTypeRequired()
         {
-            if (StateContainer.ReportedAge is not null && StateContainer.ReportedAge > 0) StateContainer.IsHumanAgeTypeRequired = true;
-            else StateContainer.IsHumanAgeTypeRequired = false;
-
-            await CheckDOBGreaterThan100Years();
+            if (StateContainer.ReportedAge is not null && StateContainer.ReportedAge > 0)
+                StateContainer.IsHumanAgeTypeRequired = true;
+            else
+                StateContainer.IsHumanAgeTypeRequired = false;
         }
 
-        #endregion
-
-        #region Validation Methods
-
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         [JSInvokable]
         public async Task<bool> ValidateSection(bool isReview)
         {
@@ -425,14 +374,15 @@ namespace EIDSS.Web.Components.Human.Person
                 isValid = Form.EditContext.Validate();
 
                 DateTime? dob = StateContainer.DateOfBirth;
+                DateTime? dod = StateContainer.DateOfDeath;
 
                 // check if dob or years is over 200 years
                 if (StateContainer.ReportedAgeUOMID == Convert.ToInt64(HumanAgeTypeConstants.Years))
-                {                    
+                {
                     if (dob is not null && dob < DateTime.Now.Date.AddDays(1))
                     {
                         TimeSpan span = DateTime.Now - Convert.ToDateTime(dob);
-                        DateTime zeroTime = new DateTime(1, 1, 1);
+                        DateTime zeroTime = new(1, 1, 1);
                         int years = (zeroTime + span).Year - 1;
                         if (years > 200) isDOBValid = false;
                     }
@@ -442,20 +392,23 @@ namespace EIDSS.Web.Components.Human.Person
                     }
                 }
                 // check if months is over 60
-                else if (StateContainer.ReportedAgeUOMID == Convert.ToInt64(HumanAgeTypeConstants.Months) && StateContainer.ReportedAge > 60)
+                else if (StateContainer.ReportedAgeUOMID == Convert.ToInt64(HumanAgeTypeConstants.Months) &&
+                    StateContainer.ReportedAge > 60)
                 {
                     isDOBValid = false;
                 }
                 // check if days is over 31
-                else if (StateContainer.ReportedAgeUOMID == Convert.ToInt64(HumanAgeTypeConstants.Days) && StateContainer.ReportedAge > 31)
+                else if (StateContainer.ReportedAgeUOMID == Convert.ToInt64(HumanAgeTypeConstants.Days) &&
+                    StateContainer.ReportedAge > 31)
                 {
                     isDOBValid = false;
                 }
 
-                if (!isDOBValid) StateContainer.IsDOBErrorMessageVisible = true;
-                else StateContainer.IsDOBErrorMessageVisible = false;
+                StateContainer.IsDOBErrorMessageVisible = !isDOBValid;
 
                 StateContainer.PersonInformationSectionValidIndicator = isValid && isDOBValid;
+
+                await ValidatePersonID();
 
                 if (!Form.IsValid && isReview)
                     IsReview = true;
@@ -465,33 +418,37 @@ namespace EIDSS.Web.Components.Human.Person
                 Logger.LogError(ex.Message, null);
             }
 
-            //StateContainer.PersonInformationSectionValidIndicator = isValid;
             return StateContainer.PersonInformationSectionValidIndicator;
         }
 
-        #endregion
+        private async Task ValidatePersonID()
+        {
+            if (string.IsNullOrEmpty(StateContainer.PersonalID) || !StateContainer.IsPersonValidationActive)
+            {
+                return;
+            }
 
-        #region Reload Section Method
+            StateContainer.IsPersonalIDDuplicated = await PersonalIDClient.IsPersonalIDExistsAsync(StateContainer.PersonalID, StateContainer.HumanMasterID);
+            StateContainer.PersonInformationSectionValidIndicator = !StateContainer.IsPersonalIDDuplicated;
+        }
+        
+        public async Task RefreshComponent()
+        {
+            await InvokeAsync(StateHasChanged);
+            await PersonHeaderComponent.RefreshComponent();
+        }
 
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         [JSInvokable]
         public async Task ReloadSection()
         {
             await InvokeAsync(StateHasChanged);
         }
 
-        #endregion
-
-        #region SetPersonDisabledIndicator
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         [JSInvokable("SetPersonDisabledIndicator")]
         public async Task SetPersonDisabledIndicator(int currentIndex)
         {
-            if (currentIndex == 3) //review section
+            // review section
+            if (currentIndex == 3)
             {
                 StateContainer.IsReadOnly = true;
                 StateContainer.IsReview = true;
@@ -504,9 +461,5 @@ namespace EIDSS.Web.Components.Human.Person
                 await InvokeAsync(StateHasChanged);
             }
         }
-
-        #endregion SetPersonDisabledIndicators
-
-        #endregion
     }
 }

@@ -343,6 +343,7 @@
 
 <partial name="_WarningModalPartial" />
 <partial name="_InformationalModalPartial" , model="String.Empty" />
+@*<partial name="_SuccessDuplicateModalPartial" />*@
 
 <!-- Success Modal -->
 <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -358,6 +359,7 @@
                 @Localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage)
             </div>
             <div class="modal-footer">
+                @*<button type="button" class="btn btn-secondary" data-dismiss="modal">@Localizer.GetString((int)InterfaceEditorResourceSetEnum.CommonButtons + "No" + (long)InterfaceEditorTypeEnum.ButtonText)</button>*@
                 <button type="button" class="btn btn-primary" data-dismiss="modal"> @Localizer.GetString(ButtonResourceKeyConstants.OKButton)</button>
             </div>
         </div>
@@ -561,6 +563,7 @@
 
          //Method called after grid edit button click
         function ParameterTypeEditClick(data) {
+           // alert(JSON.stringify(data));
             isNew = false;
             $("#AddEditParameterTypeModalctrlAdd_0").val(data[1]); //idfsParameterType
             $("#AddEditParameterTypeModalctrlAdd_1").val(data[2]); //default value
@@ -573,11 +576,13 @@
             }
             else
             {
+               // alert('DID NOT Find Reference Type');
                 var newOption = new Option(data[7], data[4], true, true);
 
                 $('#AddEditParameterTypeModalctrlAdd_4').append(newOption).trigger('change');
                 $('#AddEditParameterTypeModalctrlAdd_4').val(data[4]);
                 $('#AddEditParameterTypeModalctrlAdd_4').trigger('change');
+                // alert(JSON.stringify(data) + "------" + data[7] + "------" + data[4]);
             }
 
             //parameter type
@@ -586,11 +591,14 @@
             }
             else
             {
+               // alert('DID NOT Find Parameter Type');
                 var newOption = new Option(data[6], data[5], true, true);
                 $('#AddEditParameterTypeModalctrlAdd_3').append(newOption).trigger('change');
                 $('#AddEditParameterTypeModalctrlAdd_3').val(data[5]);
                 $('#AddEditParameterTypeModalctrlAdd_3').trigger('change');
                 
+                
+                // alert("Parameter Type------" + data[6] + "------" + data[5]);
             }
 
         }
@@ -719,14 +727,20 @@
                     }
                     else {
                         $("#fixedValueDetail").html(resp);
+                        //turn off paging on data table
+                        //$("#FixedValueParameterDetailGrid").DataTable({
+                        //    paging: false
+                        //});
                         $("#fixedPresetValueDetailModal").modal('show');
                         $("#referenceValueDetailModal").modal('hide');
                         $("#referenceValueDetail").empty();
                     }
                 },
                 complete: function (resp) {
+                    //alert('complete');
                 },
                 error: function (request, error) {
+                    //alert(error);
                 }
             });
 

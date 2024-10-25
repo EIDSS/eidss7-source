@@ -24,7 +24,12 @@ namespace EIDSS.Localization.Contexts
 
             if (typeof(T).GetProperties().Any())
             {
+                //Commented this code for The connection was not closed, The connection's current state is open
+                //using (var db2 = new ContextForQueryType<T>(db.Database.GetDbConnection(), db.Database.CurrentTransaction))
+                //{
+                //    db2.Database.SetCommandTimeout(db.Database.GetCommandTimeout());
                 return await db.Set<T>().FromSqlRaw(sql, parameters).ToListAsync(cancellationToken);
+                //
             }
             else
             {

@@ -597,16 +597,16 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Farm
 					}
 				}
 
-				//await EableDisableMergeButtonAsync();
+                //await EableDisableMergeButtonAsync();
 
-			}
-			catch (Exception ex)
+            }
+            catch (Exception ex)
 			{
 				_logger.LogError(ex.Message);
 			}
 		}
 
-		protected async Task EableDisableMergeButtonAsync()
+		protected async Task EnableDisableMergeButtonAsync()
 		{
 			if (AllTabValid() == true)
 			{
@@ -696,7 +696,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Farm
 			FarmDeduplicationService.InfoValues = (IEnumerable<int>)FarmDeduplicationService.InfoList.Where(s => s.Checked == true).Select(s => s.Index);
 			FarmDeduplicationService.InfoValues2 = (IEnumerable<int>)FarmDeduplicationService.InfoList2.Where(s => s.Checked == true).Select(s => s.Index);
 
-			await EableDisableMergeButtonAsync();
+			await EnableDisableMergeButtonAsync();
 			TabFarmDetailsValid();
 		}
 
@@ -845,7 +845,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Farm
 					FarmDeduplicationService.SupersededFarmMasterID = FarmDeduplicationService.FarmMasterID2;
 
 					FarmDeduplicationService.SurvivorInfoList = FarmDeduplicationService.InfoList0.Select(a => a.Copy()).ToList();
-					CheckAllSurvivorfields(FarmDeduplicationService.InfoList, FarmDeduplicationService.InfoList2);
+					CheckAllSurvivorFields(FarmDeduplicationService.InfoList, FarmDeduplicationService.InfoList2);
 					break;
 				case 2:
 					FarmDeduplicationService.RecordSelection = 2;
@@ -854,7 +854,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Farm
 					FarmDeduplicationService.SupersededFarmMasterID = FarmDeduplicationService.FarmMasterID;
 
 					FarmDeduplicationService.SurvivorInfoList = FarmDeduplicationService.InfoList02.Select(a => a.Copy()).ToList();
-					CheckAllSurvivorfields(FarmDeduplicationService.InfoList2, FarmDeduplicationService.InfoList);
+					CheckAllSurvivorFields(FarmDeduplicationService.InfoList2, FarmDeduplicationService.InfoList);
 					break;
 				default:
 					break;
@@ -881,7 +881,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Farm
 					FarmDeduplicationService.SupersededFarmMasterID = FarmDeduplicationService.FarmMasterID;
 
 					FarmDeduplicationService.SurvivorInfoList = FarmDeduplicationService.InfoList02.Select(a => a.Copy()).ToList();
-					CheckAllSurvivorfields(FarmDeduplicationService.InfoList2, FarmDeduplicationService.InfoList);
+					CheckAllSurvivorFields(FarmDeduplicationService.InfoList2, FarmDeduplicationService.InfoList);
 					break;
 				case 2:
 					FarmDeduplicationService.RecordSelection = 1;
@@ -890,7 +890,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Farm
 					FarmDeduplicationService.SupersededFarmMasterID = FarmDeduplicationService.FarmMasterID2;
 
 					FarmDeduplicationService.SurvivorInfoList = FarmDeduplicationService.InfoList0.Select(a => a.Copy()).ToList();
-					CheckAllSurvivorfields(FarmDeduplicationService.InfoList, FarmDeduplicationService.InfoList2);
+					CheckAllSurvivorFields(FarmDeduplicationService.InfoList, FarmDeduplicationService.InfoList2);
 					break;
 				default:
 					break;
@@ -899,7 +899,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Farm
 			await InvokeAsync(StateHasChanged);
 		}
 
-		protected void CheckAllSurvivorfields(IList<Field> list, IList<Field> list2)
+		protected void CheckAllSurvivorFields(IList<Field> list, IList<Field> list2)
 		{
 			foreach (Field item in list)
 			{

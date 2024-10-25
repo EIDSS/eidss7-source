@@ -1,0 +1,31 @@
+@using EIDSS.Domain.ViewModels.Administration
+@inherits NonNotifiableDiagnosisSearchBase
+
+<RadzenStack>
+    <RadzenDropDownDataGrid
+        Name="@Name"
+        TextProperty="@nameof(BaseReferenceEditorsViewModel.StrName)"
+        SelectedValue="@(SelectedDiagnosisText ?? string.Empty)"
+        Change="@OnNonNotifiableDiagnosisChange"
+        Disabled="@Disabled"
+        ShowSearch="false"
+        Density="@Density.Compact"
+        PageSize="@PageSize"
+        Count="@NonNotifiableDiagnosisCount"
+        MouseEnter="@LoadNonNotifiableDiagnosisOnce"
+        Data="@NonNotifiableDiagnosis"
+        LoadData="@LoadData"
+        AllowClear="true"
+        TValue="BaseReferenceEditorsViewModel">
+        <EmptyTemplate>
+            <RadzenStack AlignItems="@AlignItems.Center" JustifyContent="@JustifyContent.Center" Style="height: 100px;">
+                @Localizer.GetString(MessageResourceKeyConstants.NoRecordsFoundMessage)
+            </RadzenStack>
+        </EmptyTemplate>
+        <Columns>
+            <RadzenDropDownDataGridColumn
+                Property="@nameof(BaseReferenceEditorsViewModel.StrName)"
+                Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.NameColumnHeading).Value"/>
+        </Columns>
+    </RadzenDropDownDataGrid>
+</RadzenStack>

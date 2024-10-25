@@ -6,6 +6,7 @@
     <div class="card-body">
         <div class="form-row justify-content-end mb-3">
             <div class="col-2">
+@*                  <button class="btn btn-outline-primary" type="button" disabled="@(CampaignId != null)" @onclick=@OnSearchSessionClick>@Localizer.GetString(ButtonResourceKeyConstants.SearchButton)</button>*@  
                     <button id="searchSession" type="button" class="btn btn-outline-secondary" disabled="@(CampaignId == null  || @CampaignStatusId.Value == (long)CampaignStatusTypes.Closed || @IsReadOnly)" @onclick="@OnSearchSessionClick"><i class="fas fa-search"></i></button>
                     <button class="btn btn-outline-primary" type="button" disabled="@(CampaignId == null || @CampaignStatusId.Value == (long)CampaignStatusTypes.Closed || @IsReadOnly)" @onclick="@OnAddSessionClickAsync">@Localizer.GetString(ButtonResourceKeyConstants.AddButton)</button>
             </div>

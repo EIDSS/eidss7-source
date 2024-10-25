@@ -34,6 +34,66 @@
                 <RadzenDropDown AllowClear="false" AllowFiltering="true" @bind-Value="@model.Month" Change="MonthIDTypeChangedAsync" Class="form-control" Data="@reportMonths" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" id="monthIDType" LoadData="@GetMonthNameQueryAsync" Name="monthIDType" Placeholder="@model.CurrentMonth.ToString()" TextProperty="strDefault" TValue="string" ValueProperty="strDefault" />
             </InterfaceEditorResource>
         </div>
+       @* <div class="row">
+            <div class="col-12">
+                <RadzenDataGrid HeaderCellRender=@((args) => HeaderCellRender(args.Column.Property)) AllowColumnReorder="true" AllowColumnPicking="true" @ref="HasCampaignSessionListGrid" id="searchSessionResults" TItem="ActiveSurveillanceSessionResponseModel" IsLoading="@isLoading" LoadData=@((args) => LoadData(args)) Data="@HasCampaignSessionList.Where(r=>r.CampaignKey!=null)"
+                                AllowPaging="true" PageSize="10" AllowSorting="true" Count="@HasCampaignSessionListCount" AllowColumnResize="true"
+                                ExpandMode="DataGridExpandMode.Single" Visible="true" >
+                    <Columns>
+                        <RadzenDataGridColumn TItem="ActiveSurveillanceSessionResponseModel" Property="SessionID" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanActiveSurveillanceCampaignSessionIDColumnHeading) Width="150px" Sortable="true">
+                            <Template Context="data">
+                                <button class="btn btn-link btn-sm" @onclick=@(() => SendReportLink(data.SessionKey))>@data.SessionID.ToString()</button>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("AdministrativeLevel2Name")" Visible="@GetColumnVisibility("AdministrativeLevel2Name")"   TItem="ActiveSurveillanceSessionResponseModel" Property="AdministrativeLevel2Name" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanActiveSurveillanceCampaignSessionAdministrativeLevel1ColumnHeading) Sortable="true" />
+                        <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("AdministrativeLevel3Name")" Visible="@GetColumnVisibility("AdministrativeLevel3Name")" TItem="ActiveSurveillanceSessionResponseModel" Property="AdministrativeLevel3Name" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanActiveSurveillanceCampaignSessionAdministrativeLevel2ColumnHeading) Sortable="true" />
+                        <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("AdministrativeLevel4Name")" Visible="@GetColumnVisibility("AdministrativeLevel4Name")" TItem="ActiveSurveillanceSessionResponseModel" Property="AdministrativeLevel4Name" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanActiveSurveillanceCampaignSessionSettlementColumnHeading) Sortable="true" />
+                        <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("StartDate")" Visible="@GetColumnVisibility("StartDate")" TItem="ActiveSurveillanceSessionResponseModel" Property="StartDate" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.HumanActiveSurveillanceCampaignSessionStartDateColumnHeading) Sortable="true" />
+                        <RadzenDataGridColumn Reorderable="true" OrderIndex="@FindColumnOrder("EndDate")" Visible="@GetColumnVisibility("EndDate")"TItem="ActiveSurveillanceSessionResponseModel" Property="EndDate" Title=@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryActiveSurveillanceCampaignSessionEndDateColumnHeading) Width="200px" Sortable="true" />
+
+                        <RadzenDataGridColumn TItem="ActiveSurveillanceSessionResponseModel" Property="" Title="" Sortable="false" Filterable="false" Visible="@CheckPermissonForEditOrDelete()">
+                            <Template Context="data">
+                                <button @onclick=@(() => OpenEdit(data.SessionKey)) class="btn btn-sm" type="button">
+                                    <i class="fas fa-edit fa-lg"></i>
+                                </button>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="ActiveSurveillanceSessionResponseModel" Property="" Title="" Sortable="false" Filterable="false" Visible="@CheckPermissonForEditOrDelete()" >
+                            <Template Context="data">
+                                <button @onclick=@(() => onDelete(data.SessionKey)) class="btn btn-sm" type="button">
+                                    <i class="fas fa-trash fa-lg"></i>
+                                </button>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                    <!--Expandable Detail Template for Grid-->
+                    <Template Context="data">
+                        <RadzenCard>
+                            <div class="row">
+                                <div class="form-group col-md-4">
+                                    <label for="@data.StartDate">@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryActiveSurveillanceCampaignSessionStartDateColumnHeading)</label>
+                                    @data.StartDate
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="@data.EndDate">@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryActiveSurveillanceCampaignSessionEndDateColumnHeading)</label>
+                                    @data.EndDate
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="@data.SiteKey">@Localizer.GetString("")</label>
+                                    @data.SiteKey
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-4">
+                                        <label for="@data.EnteredByPersonName">@Localizer.GetString("")</label>
+                                        @data.EnteredByPersonName
+                                    </div>
+                                </div>
+                            </div>
+                        </RadzenCard>
+                    </Template>
+                </RadzenDataGrid>
+            </div>
+        </div>*@
     </div>
     
                        
@@ -47,3 +107,8 @@
         </div>
     </div>
 </RadzenTemplateForm>
+@*<div class="card">
+    <div>
+        <DisplayReport ReportName="@model.ReportPath" Parameters="@model.ReportParameters" CancelButtonVisibleIndicator="false"></DisplayReport>
+    </div>
+</div>*@

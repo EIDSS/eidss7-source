@@ -291,7 +291,7 @@ namespace EIDSS.Web.Components.Human.WeeklyReporting
                             Model.strEndDate = ReportDetailViewModel.datFinishDate;
                             Model.strStartDate = ReportDetailViewModel.datStartDate;
 
-                            string[] formats = { "MM/dd/yyyy" };
+                            string[] formats = { CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern };
                             DateTime.TryParseExact(ReportDetailViewModel.datStartDate, formats,
                                 CultureInfo.CurrentCulture,
                                 DateTimeStyles.None, out var outDate);

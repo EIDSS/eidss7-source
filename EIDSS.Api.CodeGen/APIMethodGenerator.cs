@@ -24,6 +24,13 @@ namespace EIDSS.CodeGenerator
 
         public void Initialize(GeneratorInitializationContext context)
         {
+//#if DEBUG
+//            if (!Debugger.IsAttached)
+//            {
+//                Debugger.Launch();
+//            }
+//#endif
+
             // Register a syntax receiver that will be created for each generation pass
             context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
 
@@ -88,6 +95,7 @@ namespace EIDSS.Api.Controllers
                     if (gen.APIClassName == null || gen.APIClassName.Trim().Length == 0)
                         continue;
 
+                    //if(!sourceController.Any( a=> a.Key == gen.APIClassName))
                     if (sourceController.Where(w => w.Key == gen.APIClassName).Count() == 0)
                     {
                         sourceController.Add(gen.APIClassName, new SourceController
@@ -101,6 +109,7 @@ namespace EIDSS.Api.Controllers
                     // Process forwarding parameters...
                     // Each repo call requires an output parameter prior to the Cancellation Token...
                     methodparameters = gen.MethodParms.Replace('"', ' ').Trim();
+                    //methodparameters = gen.MethodParms.Replace("[FromBody]", "");
                     forwardingparameters = ProcessForwardingParms(methodparameters);
                     forwardingparameters = forwardingparameters.Insert(forwardingparameters.IndexOf("cancellationToken", StringComparison.OrdinalIgnoreCase), " null, ").Trim();
 
@@ -111,6 +120,7 @@ namespace EIDSS.Api.Controllers
                     summary = gen.SummaryInfo;
 
 
+                    //Gotta find a better test for this...  Escape chars only...
                     apigroupname = gen.APIGroup.Length == 0 ? apiclassname.Substring(0, apiclassname.IndexOf("Controller", StringComparison.OrdinalIgnoreCase)) : gen.APIGroup;
 
                     var _ = source.ToString().TrimEnd();
@@ -448,6 +458,9 @@ namespace EIDSS.Api.Controllers
         }}
 ");
 
+                        //// Diagnostics...
+                        //if (string.IsNullOrEmpty(gen.SummaryInfo))
+                        //    context.ReportDiagnostic(Diagnostic.Create(MissingSummaryInformation, Location.None, ""));
                     }
                 }
                 if (sourceController.Count > 0)

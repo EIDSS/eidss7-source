@@ -33,6 +33,24 @@ namespace EIDSS.Domain.RequestModels.Human
 		public int IntYear { get; set; }
 		public int IntWeek { get; set; }
 
-    }
+
+		//string LanguageID, 
+		//long? idfAggregateHeader, 
+		//long? idfAggregateDetail, 
+		//int? RowStatus, 
+		//long? idfHospital, 
+		//int? intAge0_4, 
+		//int? intAge5_14, 
+		//int? intAge15_29, 
+		//int? intAge30_64, 
+		//int? intAge65, 
+		//int? inTotalILI, 
+		//int? intTotalAdmissions, 
+		//int? intILISamples, 
+		//string AuditUserName, 
+		//string RowAction, 
+		//OutputParameter<int> returnValue = null, 
+		//CancellationToken cancellationToken = default)
+	}
 	
 }

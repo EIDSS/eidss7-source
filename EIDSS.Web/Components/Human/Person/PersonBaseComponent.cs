@@ -1,36 +1,38 @@
-﻿using EIDSS.ClientLibrary;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using EIDSS.ClientLibrary;
 using EIDSS.ClientLibrary.ApiClients.Human;
 using EIDSS.ClientLibrary.ApiClients.Outbreak;
 using EIDSS.ClientLibrary.ApiClients.PIN;
 using EIDSS.ClientLibrary.Enumerations;
 using EIDSS.Domain.Enumerations;
 using EIDSS.Domain.RequestModels.Human;
-using EIDSS.Domain.ResponseModels;
 using EIDSS.Domain.ResponseModels.Human;
 using EIDSS.Domain.ViewModels.CrossCutting;
 using EIDSS.Localization.Constants;
 using EIDSS.Web.Abstracts;
+using EIDSS.Web.Enumerations;
 using EIDSS.Web.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using EIDSS.Web.Enumerations;
-using Microsoft.Extensions.Localization;
 
 namespace EIDSS.Web.Components.Human.Person
 {
     public class PersonBaseComponent : BaseComponent
     {
-        #region Globals
+        protected PersonStateContainer? StateContainer { get; set; }
 
-        #region Dependencies
+        [CascadingParameter(Name = "ParentScopeModel")] 
+        public string ParentScopeModel { get; set; } = "personForm";
+
+        public bool IsNotHdrForm => ParentScopeModel != "HDR";
 
         [Inject]
-        protected PersonStateContainer StateContainer { get; set; }
-
+        protected IPersonStateContainerResolver PersonStateContainerResolver { get; set; }
+        
         [Inject]
         protected IPersonClient PersonClient { get; set; }
 
@@ -52,77 +54,36 @@ namespace EIDSS.Web.Components.Human.Person
         [Inject]
         protected ILogger<PersonBaseComponent> Logger { get; set; }
 
-        #endregion
+        [Parameter]
+        public SearchModeEnum Mode { get; set; }
 
-        #region Parameters
+        [Parameter]
+        public LocalizedString ReturnButtonResourceString { get; set; }
 
-        [Parameter] public SearchModeEnum Mode { get; set; }
-        [Parameter] public LocalizedString ReturnButtonResourceString { get; set; }
-        [Parameter] public EventCallback<long?> PersonAddEditComplete { get; set; }
-        [Parameter] public bool ShowInDialog { get; set; }
+        [Parameter]
+        public EventCallback<long?> PersonAddEditComplete { get; set; }
 
-        #endregion
+        [Parameter]
+        public bool ShowInDialog { get; set; }
 
-        #region Member Variables
-
-        private CancellationTokenSource _source;
-        private CancellationToken _token;
-
-        #endregion
-
-        #endregion
-
-        #region Methods
-
-        #region Lifecycle Methods
-
-        protected override Task OnInitializedAsync()
+        protected override void OnInitialized()
         {
-            _logger = Logger;
-
-            //reset the cancellation token
-            _source = new();
-            _token = _source.Token;
-
-            return base.OnInitializedAsync();
+            base.OnInitialized();
+            StateContainer = PersonStateContainerResolver.GetContainerFor(ParentScopeModel);
         }
 
-        #endregion
-
-        #region Person Header Section Methods
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public bool ValidatePersonHeaderSection()
         {
             StateContainer.PersonHeaderSectionValidIndicator = true;
             return true;
         }
 
-        #endregion
-
-        #region Person Information Section Methods
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public bool ValidatePersonInformationSection()
         {
             StateContainer.PersonInformationSectionValidIndicator = true;
             return true;
         }
 
-        #endregion
-
-        #region Person Address Section Methods
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         public bool ValidatePersonAddressSection()
         {
             StateContainer.PersonAddressSectionValidIndicator = true;
@@ -135,23 +96,19 @@ namespace EIDSS.Web.Components.Human.Person
             return true;
         }
 
-        #endregion
-
-        #region Person Review Section Methods
-
         protected bool ValidateMinimumPersonFields()
         {
             bool isValid = true;
 
-            if(string.IsNullOrEmpty(StateContainer.PersonLastName) 
+            if (string.IsNullOrEmpty(StateContainer.PersonLastName)
                 || StateContainer.PersonCurrentAddressLocationModel.AdminLevel1Value is null
                 || StateContainer.PersonCurrentAddressLocationModel.AdminLevel2Value is null)
             {
                 isValid = false;
             }
-            else if(StateContainer.PersonalIDType != (long)PersonalIDTypeEnum.Unknown && string.IsNullOrEmpty(StateContainer.PersonalID))
+            else
             {
-                isValid = false;
+                isValid = ValidatePersonalID();
             }
 
             if (isValid)
@@ -162,18 +119,9 @@ namespace EIDSS.Web.Components.Human.Person
             }
 
             return isValid;
-
         }
-        #endregion
 
-        #region Save Person Methods
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param></param>
-        /// <returns></returns>
-        protected async Task<PersonSaveResponseModel> SavePerson()
+        protected async Task<PersonSaveResponseModel?> SavePerson()
         {
             try
             {
@@ -181,17 +129,17 @@ namespace EIDSS.Web.Components.Human.Person
                 PersonSaveRequestModel request = new();
                 PersonSaveResponseModel response = new();
 
-                var systemPreferences = ConfigurationService.SystemPreferences;                                
+                var systemPreferences = ConfigurationService.SystemPreferences;
 
                 if (StateContainer.PersonInformationSectionValidIndicator
                     && StateContainer.PersonAddressSectionValidIndicator
                     && StateContainer.PersonEmploymentSchoolSectionValidIndicator)
                 {
-                    request.HumanMasterID = StateContainer.HumanMasterID;                                        
+                    request.HumanMasterID = StateContainer.HumanMasterID;
                     request.CopyToHumanIndicator = false;
                     request.PersonalIDType = StateContainer.PersonalIDType;
 
-                    request.EIDSSPersonID = StateContainer.EIDSSPersonID; 
+                    request.EIDSSPersonID = StateContainer.EIDSSPersonID;
                     request.PersonalID = StateContainer.PersonalID;
                     request.FirstName = StateContainer.PersonFirstName;
                     request.SecondName = StateContainer.PersonMiddleName;
@@ -200,14 +148,15 @@ namespace EIDSS.Web.Components.Human.Person
                     if (StateContainer.DateOfBirth == DateTime.MinValue) StateContainer.DateOfBirth = null;
                     else request.DateOfBirth = StateContainer.DateOfBirth;
 
-                    request.ReportedAge = StateContainer.ReportedAge;
-                    request.ReportAgeUOMID = StateContainer.ReportedAgeUOMID;
+                    if (StateContainer.DateOfDeath == DateTime.MinValue) StateContainer.DateOfDeath = null;
+                    else request.DateOfDeath = StateContainer.DateOfDeath;
+
                     request.HumanGenderTypeID = StateContainer.GenderType;
                     request.CitizenshipTypeID = StateContainer.CitizenshipType;
                     request.PassportNumber = StateContainer.PassportNumber;
 
                     // Current Address Info
-                    request.HumanGeoLocationID = StateContainer.HumanGeoLocationID; 
+                    request.HumanGeoLocationID = StateContainer.HumanGeoLocationID;
                     request.HumanidfsLocation = GetLowestLocationID(StateContainer.PersonCurrentAddressLocationModel);
                     request.HumanstrStreetName = StateContainer.PersonCurrentAddressLocationModel.StreetText;
                     request.HumanstrApartment = StateContainer.PersonCurrentAddressLocationModel.Apartment;
@@ -216,9 +165,8 @@ namespace EIDSS.Web.Components.Human.Person
                     request.HumanidfsPostalCode = StateContainer.PersonCurrentAddressLocationModel.PostalCodeText;
                     request.HumanstrLatitude = StateContainer.PersonCurrentAddressLocationModel.Latitude;
                     request.HumanstrLongitude = StateContainer.PersonCurrentAddressLocationModel.Longitude;
-                    
-
-                    if(StateContainer.IsAnotherAddressTypeID == Convert.ToInt64(EIDSSConstants.YesNoValueList.Yes))
+                    request.IsAnotherAddressTypeID = StateContainer.IsAnotherAddressTypeID;
+                    if (StateContainer.IsAnotherAddressTypeID == EIDSSConstants.YesNoValues.Yes)
                     {
                         // Permanent Address Info                        
                         request.HumanPermGeoLocationID = StateContainer.HumanPermGeoLocationID;
@@ -228,8 +176,6 @@ namespace EIDSS.Web.Components.Human.Person
                         request.HumanPermstrBuilding = StateContainer.PersonPermanentAddressLocationModel.Building;
                         request.HumanPermstrHouse = StateContainer.PersonPermanentAddressLocationModel.House;
                         request.HumanPermidfsPostalCode = StateContainer.PersonPermanentAddressLocationModel.PostalCodeText;
-                        //request.HumanstrLatitude = StateContainer.PersonPermanentAddressLocationModel.Latitude;
-                        //request.HumanstrLongitude = StateContainer.PersonPermanentAddressLocationModel.Longitude;
 
                         // Alternate Address Info
                         request.HumanAltGeoLocationID = StateContainer.HumanAltGeoLocationID;
@@ -250,7 +196,7 @@ namespace EIDSS.Web.Components.Human.Person
                         request.HomePhone = StateContainer.HomePhone;
                         request.WorkPhone = StateContainer.WorkPhone;
                     }
-                    
+
                     // Phone Number 1 
                     request.ContactPhoneCountryCode = null;
                     request.ContactPhone = StateContainer.ContactPhone;
@@ -258,20 +204,20 @@ namespace EIDSS.Web.Components.Human.Person
 
                     // Phone Number 2
                     request.ContactPhone2CountryCode = null;
-                    if (StateContainer.IsAnotherPhoneTypeID == Convert.ToInt64(EIDSSConstants.YesNoValueList.Yes))
-                    {                        
+                    request.IsAnotherPhoneTypeID = StateContainer.IsAnotherPhoneTypeID;
+                    if (StateContainer.IsAnotherPhoneTypeID == EIDSSConstants.YesNoValues.Yes)
+                    {
                         request.ContactPhone2 = StateContainer.ContactPhone2;
                         request.ContactPhone2TypeID = StateContainer.ContactPhone2TypeID;
                     }
-                  
+
                     // Employment Information
                     request.IsEmployedTypeID = StateContainer.IsEmployedTypeID;
-                    if (StateContainer.IsEmployedTypeID == Convert.ToInt64(EIDSSConstants.YesNoValueList.Yes))
+                    if (StateContainer.IsEmployedTypeID == EIDSSConstants.YesNoValues.Yes)
                     {
                         request.OccupationTypeID = StateContainer.OccupationType;
                         request.EmployerName = StateContainer.EmployerName;
-                        
-                        //request.EmployedDateLastPresent = StateContainer.DateOfLastPresenceAtWork;
+
                         if (StateContainer.DateOfLastPresenceAtWork == DateTime.MinValue) StateContainer.DateOfLastPresenceAtWork = null;
                         else request.EmployedDateLastPresent = StateContainer.DateOfLastPresenceAtWork;
 
@@ -290,15 +236,14 @@ namespace EIDSS.Web.Components.Human.Person
                         request.EmployerstrHouse = StateContainer.PersonEmploymentAddressLocationModel.House;
                         request.EmployeridfsPostalCode = StateContainer.PersonEmploymentAddressLocationModel.PostalCodeText;
                         request.EmployerPhone = StateContainer.EmployerPhoneNumber;
-                    }                  
-                    
+                    }
+
                     // School Information
                     request.IsStudentTypeID = StateContainer.IsStudentTypeID;
                     if (StateContainer.IsStudentTypeID == Convert.ToInt64(EIDSSConstants.YesNoValueList.Yes))
                     {
                         request.SchoolName = StateContainer.SchoolName;
 
-                        //request.SchoolDateLastAttended = StateContainer.DateOfLastPresenceAtSchool;
                         if (StateContainer.DateOfLastPresenceAtSchool == DateTime.MinValue) StateContainer.DateOfLastPresenceAtSchool = null;
                         else request.SchoolDateLastAttended = StateContainer.DateOfLastPresenceAtSchool;
 
@@ -322,10 +267,16 @@ namespace EIDSS.Web.Components.Human.Person
                     // Audit User
                     request.AuditUser = authenticatedUser.UserName;
 
+                    if (!(StateContainer.HumanMasterID > 0) &&
+                        !await ShouldSaveHumanRecordAfterDuplicationValidation(request.DateOfBirth, request.HumanidfsLocation,
+                            request.LastName, request.FirstName))
+                    {
+                        Logger.LogInformation("Save Person has been aborted by user because of duplications");
+                        return new PersonSaveResponseModel();
+                    }
+
                     Logger.LogInformation("Save Person Before Api call");
 
-
-                    //Save!
                     response = await PersonClient.SavePerson(request);
 
                     Logger.LogInformation("Save Person after Api call");
@@ -334,13 +285,6 @@ namespace EIDSS.Web.Components.Human.Person
 
                     return response;
                 }
-                //else
-                //{
-                //    if (!StateContainer.PersonInformationSectionValidIndicator)
-                //    {
-                //        await JsRuntime.InvokeVoidAsync("navigateToReviewStep", 0);
-                //    }
-                //}
             }
             catch (Exception ex)
             {
@@ -351,34 +295,8 @@ namespace EIDSS.Web.Components.Human.Person
             return new PersonSaveResponseModel();
         }
 
-        #endregion
-
-        #region Delete Person Methods
-
-        #endregion
-
-        #region Helper Methods
-        
-        //private long? GetLowestLocationID(long? level0, long? level1, long? level2, long? level3)
-        //{
-        //    long? idfsLocation = null;
-
-        //    //Get lowest administrative level.
-        //    if (level3 != null)
-        //        idfsLocation = level3;
-        //    else if (level2 != null)
-        //        idfsLocation = level2;
-        //    else if (level1 != null)
-        //        idfsLocation = level1;
-        //    else
-        //        idfsLocation = level0;
-
-        //    return idfsLocation;
-        //}
-
         private long? GetLowestLocationID(LocationViewModel locationViewModel)
         {
-            //var LocationViewModel = 
             if (locationViewModel.AdministrativeLevelId is null)
             {
                 //Get lowest administrative level for location
@@ -398,12 +316,57 @@ namespace EIDSS.Web.Components.Human.Person
                     return locationViewModel.AdminLevel1Value.Value;
             }
             return locationViewModel.AdministrativeLevelId;
-            
         }
-       
 
-        #endregion
+        private bool ValidatePersonalID()
+        {
+            if (StateContainer.PersonalIDType.HasValue &&
+                StateContainer.PersonalIDType != (long)PersonalIDTypeEnum.Unknown)
+            {
+                return !string.IsNullOrEmpty(StateContainer.PersonalID);
+            }
 
-        #endregion
+            return true;
+        }
+        
+        private async Task<bool> ShouldSaveHumanRecordAfterDuplicationValidation(DateTime? dateOfBirth, long? idfsLocation, string lastOrSurname, string firstOrGivenName)
+        {
+            HumanPersonSearchRequestModel request = new();
+            request.LanguageId = GetCurrentLanguage();
+            request.Page = 1;
+            request.PageSize = 10;
+            request.SortColumn = "EIDSSPersonID";
+            request.SortOrder = "DESC";
+            if (dateOfBirth != null)
+            {
+                request.DateOfBirthFrom = dateOfBirth;
+                request.DateOfBirthTo = dateOfBirth;
+            }
+
+            if (!string.IsNullOrWhiteSpace(firstOrGivenName))
+            {
+                request.FirstOrGivenName = firstOrGivenName;
+            }
+            
+            request.idfsLocation = idfsLocation;
+            request.LastOrSurname = lastOrSurname;
+
+            var foundPersons = await PersonClient.GetPersonList(request);
+            if (foundPersons.Count > 0)
+            {
+                var duplicateRecordsFound = string.Join(", ", foundPersons.Select(x => $"{x.FirstOrGivenName ?? ""} {x.LastOrSurname}".Trim()));
+                var duplicateMessage = string.Format(Localizer.GetString(MessageResourceKeyConstants.HumanActiveSurveillanceCampaignDuplicateRecordFoundDoYouWantToContinueSavingTheCurrentRecordMessage), duplicateRecordsFound);
+                    
+                var result = await ShowWarningDialog(duplicateMessage, duplicateMessage);
+
+                var yesWasClicked = result is DialogReturnResult returnResult && returnResult.ButtonResultText == Localizer.GetString(ButtonResourceKeyConstants.YesButton);
+                if (!yesWasClicked)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }

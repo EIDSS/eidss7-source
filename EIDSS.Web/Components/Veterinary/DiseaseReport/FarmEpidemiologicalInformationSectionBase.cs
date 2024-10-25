@@ -97,7 +97,7 @@ namespace EIDSS.Web.Components.Veterinary.DiseaseReport
             if (firstRender)
             {
                 FarmEpidemiologicalInfo.FlexFormClient = FlexFormClient;
-                FarmEpidemiologicalInfo.SetRequestParameter(Model.FarmEpidemiologicalInfoFlexForm);
+                await FarmEpidemiologicalInfo.SetRequestParameter(Model.FarmEpidemiologicalInfoFlexForm);
 
                 await JsRuntime
                     .InvokeVoidAsync("FarmEpidemiologicalInformationSection.SetDotNetReference", _token,
@@ -188,17 +188,16 @@ namespace EIDSS.Web.Components.Veterinary.DiseaseReport
         /// <param name="isReview"></param>
         /// <returns></returns>
         [JSInvokable]
-        public void ReloadSection(bool isReview)
+        public async Task ReloadSection(bool isReview)
         {
             try
             {
                 IsReview = isReview;
 
-                var response = Task.Run(() => FarmEpidemiologicalInfo.CollectAnswers(), _token);
-                response.Wait(_token);
+                var response = await FarmEpidemiologicalInfo.CollectAnswers();
                 Model.FarmEpidemiologicalInfoFlexFormAnswers = FarmEpidemiologicalInfo.Answers;
-                Model.FarmEpidemiologicalInfoObservationParameters = response.Result.Answers;
-                FarmEpidemiologicalInfo.Render();
+                Model.FarmEpidemiologicalInfoObservationParameters = response.Answers;
+                await FarmEpidemiologicalInfo.Render();
                 StateHasChanged();
             }
             catch (Exception e)

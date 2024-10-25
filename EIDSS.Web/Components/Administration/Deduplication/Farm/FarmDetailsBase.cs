@@ -70,14 +70,14 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Farm
 		{
 			if (value == true)
 			{
-				await CheckAllAsync(FarmDeduplicationService.InfoList, FarmDeduplicationService.InfoList2, true, false, FarmDeduplicationService.SurvivorInfoList, "ValidInfo");
-				TabFarmDetailsValid();
-				//await EableDisableMergeButtonAsync();
-				disableMergeButton = false;
+                await CheckAllAsync(FarmDeduplicationService.InfoList, FarmDeduplicationService.InfoList2, true, false, FarmDeduplicationService.SurvivorInfoList, "ValidInfo");
+                TabFarmDetailsValid();
+                //await EableDisableMergeButtonAsync();
+                disableMergeButton = false;
 
-				//await InvokeAsync(StateHasChanged);
-			}
-			else
+                //await InvokeAsync(StateHasChanged);
+            }
+            else
 			{
 				await BindTabFarmDetailsAsync();
 			}
@@ -87,14 +87,14 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Farm
 		{
 			if (value == true)
 			{
-				await CheckAllAsync(FarmDeduplicationService.InfoList2, FarmDeduplicationService.InfoList, true, false, FarmDeduplicationService.SurvivorInfoList, "ValidInfo");
-				TabFarmDetailsValid();
-				//await EableDisableMergeButtonAsync();
-				disableMergeButton = false;
+                await CheckAllAsync(FarmDeduplicationService.InfoList2, FarmDeduplicationService.InfoList, true, false, FarmDeduplicationService.SurvivorInfoList, "ValidInfo");
+                TabFarmDetailsValid();
+                //await EableDisableMergeButtonAsync();
+                disableMergeButton = false;
 
-				//await InvokeAsync(StateHasChanged);
+                //await InvokeAsync(StateHasChanged);
 			}
-			else
+            else
 			{
 				await BindTabFarmDetailsAsync();
 			}
@@ -216,7 +216,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Farm
 				FarmDeduplicationService.chkCheckAll2 = false;
 
 				TabFarmDetailsValid();
-				await EableDisableMergeButtonAsync();
+				await EnableDisableMergeButtonAsync();
 			}
 		}
 
@@ -327,7 +327,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Farm
 				FarmDeduplicationService.chkCheckAll = false;
 				FarmDeduplicationService.chkCheckAll2 = false;
 
-				await EableDisableMergeButtonAsync();
+				await EnableDisableMergeButtonAsync();
 			}
 		}
 
@@ -434,7 +434,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Farm
 				FarmDeduplicationService.chkCheckAll2 = false;
 
 				TabFarmDetailsValid();
-				await EableDisableMergeButtonAsync();
+				await EnableDisableMergeButtonAsync();
 			}
 		}
 
@@ -534,7 +534,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.Farm
 				FarmDeduplicationService.chkCheckAll2 = false;
 
 				TabFarmDetailsValid();
-				await EableDisableMergeButtonAsync();
+				await EnableDisableMergeButtonAsync();
 			}
 		}
 

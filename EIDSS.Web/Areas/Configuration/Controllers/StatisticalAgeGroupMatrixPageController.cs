@@ -22,9 +22,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.Int64;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Configuration.Controllers
 {
@@ -69,9 +66,9 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             long? id = null;
             if (referenceType.AgeGroupDD != null)
             {
-                if (!IsNullOrEmpty(referenceType.AgeGroupDD))
+                if (!string.IsNullOrEmpty(referenceType.AgeGroupDD))
                 {
-                    id = Parse(referenceType.AgeGroupDD);
+                    id = long.Parse(referenceType.AgeGroupDD);
                 }
             }
 
@@ -81,7 +78,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 var sortColumn = "strStatisticalAgeGroupName";
                 var valuePair = dataTableQueryPostObj.ReturnSortParameter();
 
-                if (!IsNullOrEmpty(valuePair.Key) && valuePair.Key != "IdfDiagnosisAgeGroupToStatisticalAgeGroup")
+                if (!string.IsNullOrEmpty(valuePair.Key) && valuePair.Key != "IdfDiagnosisAgeGroupToStatisticalAgeGroup")
                 {
                     sortColumn = valuePair.Key;
                 }
@@ -93,7 +90,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                     Page = dataTableQueryPostObj.page,
                     PageSize = dataTableQueryPostObj.length,
                     SortColumn = sortColumn,
-                    SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Ascending
+                    SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending
                 };
 
                 list = await _configurationClient.GetStatisticalAgeGroupMatrixList(request);
@@ -131,14 +128,14 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         public async Task<JsonResult> Create([FromBody] JsonElement data)
         {
             StatisticalAgeGroupMatrixSaveRequestResponseModel response;
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
             try
             {
-                var statisticalAgeGroup = Empty;
+                var statisticalAgeGroup = string.Empty;
                 if (jsonObject["StatisticalAgeGroupDD"] != null)
                 {
-                    if (IsNullOrEmpty(jsonObject["StatisticalAgeGroupDD"].ToString()))
+                    if (string.IsNullOrEmpty(jsonObject["StatisticalAgeGroupDD"].ToString()))
                     {
                         // should select a Statistical Age Group
                         return Json("");
@@ -152,15 +149,15 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 long idfsDiagnosisAgeGroup = 0;
                 if (jsonObject["AgeGroupDD"] != null)
                 {
-                    idfsDiagnosisAgeGroup = Parse(jsonObject["AgeGroupDD"][0]?["id"]?.ToString() ?? Empty);
+                    idfsDiagnosisAgeGroup = long.Parse(jsonObject["AgeGroupDD"][0]?["id"]?.ToString() ?? string.Empty);
                 }
 
                 var request = new StatisticalAgeGroupMatrixSaveRequestModel
                 {
                     idfDiagnosisAgeGroupToStatisticalAgeGroup = null,
-                    idfsStatisticalAgeGroup = jsonObject["StatisticalAgeGroupDD"] != null ? Parse(jsonObject["StatisticalAgeGroupDD"][0]?["id"]?.ToString() ?? Empty) : null,
+                    idfsStatisticalAgeGroup = jsonObject["StatisticalAgeGroupDD"] != null ? long.Parse(jsonObject["StatisticalAgeGroupDD"][0]?["id"]?.ToString() ?? string.Empty) : null,
                     idfsDiagnosisAgeGroup = idfsDiagnosisAgeGroup,
-                    EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                    EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                     UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                     LocationId = authenticatedUser.RayonId,
@@ -168,7 +165,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 };
 
                 response = await _configurationClient.SaveStatisticalAgeGroupMatrix(request);
-                response.DuplicatedField = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), statisticalAgeGroup);
+                response.DuplicatedField = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), statisticalAgeGroup);
             }
             catch (Exception ex)
             {
@@ -185,11 +182,11 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             var response = new APIPostResponseModel();
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
                 var request = new StatisticalAgeGroupMatrixSaveRequestModel
                 {
-                    EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                    EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                     UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                     LocationId = authenticatedUser.RayonId,
@@ -199,7 +196,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 if (jsonObject["IdfDiagnosisAgeGroupToStatisticalAgeGroup"] != null)
                 {
                     request.idfDiagnosisAgeGroupToStatisticalAgeGroup =
-                        Parse(jsonObject["IdfDiagnosisAgeGroupToStatisticalAgeGroup"].ToString());
+                        long.Parse(jsonObject["IdfDiagnosisAgeGroupToStatisticalAgeGroup"].ToString());
                     response = await _configurationClient.DeleteStatisticalAgeGroupMatrix(request);
                 }
             }
@@ -227,13 +224,13 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                     Page = page ?? 1,
                     PageSize = 10,
                     SortColumn = "intOrder",
-                    SortOrder = SortConstants.Ascending
+                    SortOrder = EIDSSConstants.SortConstants.Ascending
                 };
                 var list = await _adminClient.GetAgeGroupList(request);
 
                 if (list != null)
                 {
-                    select2DataItems.AddRange(list.Select(item => new Select2DataItem {id = item.KeyId.ToString(), text = item.StrName}));
+                    select2DataItems.AddRange(list.Select(item => new Select2DataItem { id = item.KeyId.ToString(), text = item.StrName }));
                 }
                 select2DataObj.results = select2DataItems;
             }
@@ -248,24 +245,24 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [HttpPost()]
         public async Task<IActionResult> AddStatisticalAgeGroup([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
             var intOrder = 0;
             if (jsonObject["intOrder"] != null)
             {
-                intOrder = IsNullOrEmpty(((JValue)jsonObject["intOrder"]).Value?.ToString()) ? 0 : int.Parse(jsonObject["intOrder"].ToString());
+                intOrder = string.IsNullOrEmpty(((JValue)jsonObject["intOrder"]).Value?.ToString()) ? 0 : int.Parse(jsonObject["intOrder"].ToString());
             }
 
             var request = new BaseReferenceSaveRequestModel
             {
                 BaseReferenceId = null,
-                Default = jsonObject["StrDefault"] != null ? jsonObject["StrDefault"].ToString() : Empty,
-                Name = jsonObject["StrName"] != null ? jsonObject["StrName"].ToString() : Empty,
-                intHACode = (int) AccessoryCodes.HumanHACode, //always human in this case
+                Default = jsonObject["StrDefault"] != null ? jsonObject["StrDefault"].ToString() : string.Empty,
+                Name = jsonObject["StrName"] != null ? jsonObject["StrName"].ToString() : string.Empty,
+                intHACode = (int)AccessoryCodes.HumanHACode, //always human in this case
                 intOrder = intOrder,
                 LanguageId = GetCurrentLanguage(),
-                ReferenceTypeId = BaseReferenceTypeIds.StatisticalAgeGroup,
-                EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                ReferenceTypeId = EIDSSConstants.BaseReferenceTypeIds.StatisticalAgeGroup,
+                EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                 AuditUserName = authenticatedUser.UserName,
                 LocationId = authenticatedUser.RayonId,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -273,7 +270,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             };
 
             var response = await _adminClient.SaveBaseReference(request);
-            response.strClientPageMessage = Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Name);
+            response.strClientPageMessage = string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Name);
             return Json(response);
         }
     }

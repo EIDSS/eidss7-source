@@ -55,74 +55,10 @@ BEGIN
 
         DECLARE @ReturnMessage VARCHAR(MAX) = 'Success';
         DECLARE @ReturnCode BIGINT = 0;
-        --Declare @ConnectedReports Varchar(Max);
-        --		Select @ConnectedReports = ( SELECT ',' + CAST(RelatedToHumanDiseaseReportIdRoot AS VARCHAR)  + '-' +  (Select strCaseId from tlbhumancase where idfHumancase =  RelatedToHumanDiseaseReportIdRoot)
-        --		From  dbo.HumanDiseaseReportRelationship where RelatedToHumanDiseaseReportIdRoot =  @SearchHumanCaseId)
-        DECLARE @parentHumanCaseId bigint
-        DECLARE @ParentCaseId bigint
-        DECLARE @ChildCaseId bigint
-        SET @ParentCaseId =
-        (
-            SELECT TOP 1
-                RelatedToHumanDiseaseReportIdRoot
-            FROM dbo.HumanDiseaseReportRelationship
-            WHERE (HumanDiseaseReportID = @SearchHumanCaseId)
-        )
-        SET @ChildCaseId =
-        (
-            SELECT TOP 1
-                HumanDiseaseReportID
-            FROM dbo.HumanDiseaseReportRelationship
-            WHERE (RelatedToHumanDiseaseReportIdRoot = @SearchHumanCaseId)
-        )
+	DECLARE @idfsLanguage BIGINT = dbo.FN_GBL_LanguageCode_Get(@LangID)
+	DECLARE @idfsLanguageEn BIGINT = dbo.FN_GBL_LanguageCode_Get('en-US')
+
         SELECT hc.idfHumanCase,
-               NULL AS parentHumanDiseaseReportID,     --HumanDiseaseReportRelationship.RelateToHumanDiseaseReportID as parentHumanDiseaseReportID,  
-               (
-                   SELECT DISTINCT
-                       STUFF(
-                       (
-                           SELECT ',' + CAST(t2.RelatedToHumanDiseaseReportIdRoot AS VARCHAR) + '-' +
-                                  (
-                                      SELECT strCaseId
-                                      FROM dbo.tlbhumancase
-                                      WHERE idfHumancase = t2.RelatedToHumanDiseaseReportIdRoot
-                                  )
-                           FROM dbo.HumanDiseaseReportRelationship t2
-                           WHERE t2.RelatedToHumanDiseaseReportIdRoot = @ParentCaseId -- (Select top 1 RelatedToHumanDiseaseReportIdRoot  from HumanDiseaseReportRelationship where (HumanDiseaseReportID = @SearchHumanCaseId) )
-                                 --AND ((t2.RelateToHumanDiseaseReportID = hc.idfHumanCase) or (t2.HumanDiseaseReportID = hc.idfHumanCase)))
-                                 AND t2.intRowStatus = 0
-                           FOR XML PATH('')
-                       ),
-                       1,
-                       1,
-                       ''
-                            )
-                   FROM dbo.HumanDiseaseReportRelationship t1
-               --NULL
-               ) AS relatedParentHumanDiseaseReportIdList,
-               (
-                   SELECT DISTINCT
-                       STUFF(
-                       (
-                           SELECT ',' + CAST(t2.HumanDiseaseReportID AS VARCHAR) + '-' +
-                                  (
-                                      SELECT strCaseId
-                                      FROM dbo.tlbhumancase
-                                      WHERE idfHumancase = t2.HumanDiseaseReportID
-                                  )
-                           FROM dbo.HumanDiseaseReportRelationship t2
-                           WHERE t2.HumanDiseaseReportID = @ChildCaseId -- (Select top 1 RelatedToHumanDiseaseReportIdRoot  from HumanDiseaseReportRelationship where (HumanDiseaseReportID = @SearchHumanCaseId) )
-                                 --AND ((t2.RelateToHumanDiseaseReportID = hc.idfHumanCase) or (t2.HumanDiseaseReportID = hc.idfHumanCase)))
-                                 AND t2.intRowStatus = 0
-                           FOR XML PATH('')
-                       ),
-                       1,
-                       1,
-                       ''
-                            )
-                   FROM dbo.HumanDiseaseReportRelationship t1
-               --NULL
-               ) AS relatedChildHumanDiseaseReportIdList,
                hc.idfHuman,
                hc.idfsHospitalizationStatus,
                hc.idfsYNSpecimenCollected,
@@ -132,10 +68,10 @@ BEGIN
                hc.idfsYNRelatedToOutbreak,
                hc.idfsOutCome,
                hc.idfsInitialCaseStatus,
-               hc.idfsFinalDiagnosis,
-               FinalDiagnosis.name AS strFinalDiagnosis,
+               hc.idfsTentativeDiagnosis as idfsFinalDiagnosis,
+               tentativeDiagnosisRef.[name] AS strFinalDiagnosis,
                hc.idfsFinalCaseStatus,
-               FinalCaseClassification.name AS strFinalCaseStatus,
+               FinalCaseClassification.[name] AS strFinalCaseStatus,
                hc.idfSentByOffice,
                hc.idfInvestigatedByOffice,
                hc.idfReceivedByOffice,
@@ -156,7 +92,7 @@ BEGIN
                hc.strCurrentLocation,
                hc.strHospitalizationPlace,
                hc.strLocalIdentifier,
-               SoughtByOfficeRef.name AS strSoughtCareFacility,
+               SoughtByOfficeRef.[name] AS strSoughtCareFacility,
                hc.strSentByFirstName,
                hc.strSentByPatronymicName,
                hc.strSentByLastName,
@@ -192,7 +128,7 @@ BEGIN
                hc.idfsYNTestsConducted,
                hc.idfSoughtCareFacility,
                hc.idfsNonNotifiableDiagnosis,
-               NonNotifiableDiagnosisRef.name AS stridfsNonNotifiableDiagnosis,
+               NonNotifiableDiagnosisRef.[name] AS stridfsNonNotifiableDiagnosis,
                hc.idfOutbreak,
                hc.strCaseId,
                hc.idfsCaseProgressStatus,
@@ -211,15 +147,15 @@ BEGIN
                hc.idfsFinalDiagnosis AS idfsDiagnosis, --possible duplicate
                hc.idfsFinalState,
                hc.DiseaseReportTypeID,
-               ReportTypeRef.name AS 'ReportType',
+               ReportTypeRef.[name] AS 'ReportType',
                hc.LegacyCaseID,
                hc.datFinalCaseClassificationDate AS DateofClassification,
                o.strOutbreakID,
                o.strDescription,
                h.strPersonId,
                h.datDateOfDeath,
-               RegionRef.[name] AS Region,
-               RayonRef.[name] AS Rayon,
+               ISNULL(ld.Level2Name, ld_en.Level2Name) AS Region,
+               ISNULL(ld.Level3Name, ld_en.Level3Name) AS Rayon,
                HumanAgeRef.[name] AS HumanAgeType,
                OutcomeRef.[name] AS Outcome,
                NonNotifiableDiagnosisRef.[name] AS NonNotifiableDiagnosis,
@@ -247,35 +183,47 @@ BEGIN
                groundTypeRef.[name] AS strGroundType,
                gl.strDescription AS ExposureLocationDescription,
                ISNULL(FinalCaseClassification.[name], InitialCaseClassification.[name]) AS SummaryCaseClassification,
-               ISNULL(sentByPersonRef.strFamilyName, N'') + ISNULL(' ' + sentByPersonRef.strFirstName, '')
-               + ISNULL(' ' + sentByPersonRef.strSecondName, '') AS SentByPerson,
-               ISNULL(receivedByPersonRef.strFamilyName, N'') + ISNULL(' ' + receivedByPersonRef.strFirstName, '')
-               + ISNULL(' ' + receivedByPersonRef.strSecondName, '') AS ReceivedByPerson,
-               ISNULL(investigatedByPersonRef.strFamilyName, N'')
-               + ISNULL(' ' + investigatedByPersonRef.strFirstName, '')
-               + ISNULL(' ' + investigatedByPersonRef.strSecondName, '') AS InvestigatedByPerson,
+               dbo.fnConcatFullName(
+                                       sentByPersonRef.strFamilyName,
+                                       sentByPersonRef.strFirstName,
+                                       sentByPersonRef.strSecondName
+                                   ) AS SentByPerson,
+               dbo.fnConcatFullName(
+                                       receivedByPersonRef.strFamilyName,
+                                       receivedByPersonRef.strFirstName,
+                                       receivedByPersonRef.strSecondName
+                                   ) AS ReceivedByPerson,
+               dbo.fnConcatFullName(
+                                       investigatedByPersonRef.strFamilyName,
+                                       investigatedByPersonRef.strFirstName,
+                                       investigatedByPersonRef.strSecondName
+                                   ) AS InvestigatedByPerson,
                dbo.fnConcatFullName(
                                        personEnteredByRef.strFamilyName,
                                        personEnteredByRef.strFirstName,
                                        personEnteredByRef.strSecondName
                                    ) AS EnteredByPerson,
-               tlbEnteredByOffice.name AS strOfficeEnteredBy,
+               tlbEnteredByOffice.[name] AS strOfficeEnteredBy,
                tlbEnteredByOffice.idfOffice AS idfOfficeEnteredBy,
-               SentByOfficeRef.name AS strNotificationSentby,
+               SentByOfficeRef.[name] AS strNotificationSentby,
                '' AS strNotificationReceivedby,
                PatientState.[name] AS PatientStatus,
-               CountryRef.[name] AS Country,
-               SettlementRef.[name] AS Settlement,
-               ISNULL(ha.strFirstName, '') + ' ' + ISNULL(ha.strLastName, '') AS PatientFarmOwnerName,
+               ISNULL(ld.Level1Name, ld_en.Level1Name) AS Country,
+               ISNULL(ld.Level4Name, ld_en.Level4Name) AS Settlement,
+               dbo.fnConcatFullName(ha.strLastName, ha.strFirstName, ha.strSecondName) AS PatientFarmOwnerName,
                addinfo.EIDSSPersonID AS EIDSSPersonID,
                ha.idfHumanActual AS HumanActualId,
                initialSyndromicSurveielanceDiseases.blnSyndrome AS blnInitialSSD,
                finalSyndromicSurveielanceDiseases.blnSyndrome AS blnFinalSSD,
-               relatedTo.RelateToHumanDiseaseReportID AS RelateToHumanDiseaseReportID,
-               relatedToReport.strCaseID AS RelatedToHumanDiseaseEIDSSReportID,
-               connectedTo.HumanDiseaseReportID AS ConnectedDiseaseReportID,
-               connectedToReport.strCaseID AS ConnectedDiseaseEIDSSReportID,
-			   hc.idfParentMonitoringSession
+               hc.idfParentMonitoringSession,
+               hc.idfsTentativeDiagnosis as DiseaseId,
+               tentativeDiagnosisRef.[name] as DiseaseName,
+               hc.datTentativeDiagnosisDate as DateOfDiagnosis,
+               hc.idfsFinalDiagnosis as ChangedDiseaseId,
+               FinalDiagnosis.[name] as ChangedDiseaseName,
+               hc.datFinalDiagnosisDate as DateOfChangedDiagnosis,
+               CAST(NULL as bigint) as ChangeDiagnosisReasonId
+
         FROM dbo.tlbHumanCase hc WITH (NOLOCK)
             LEFT JOIN dbo.tlbOutbreak AS o
                 ON o.idfOutbreak = hc.idfOutbreak
@@ -290,34 +238,30 @@ BEGIN
             LEFT JOIN dbo.tlbGeoLocation AS gl
                 ON gl.idfGeoLocation = hc.idfPointGeoLocation
                    AND gl.intRowStatus = 0
-            LEFT JOIN dbo.tlbPerson AS sentByPersonRef
-                ON sentByPersonRef.idfPerson = hc.idfSentByPerson
-                   AND sentByPersonRef.intRowStatus = 0
-            LEFT JOIN dbo.tlbPerson AS receivedByPersonRef
-                ON receivedByPersonRef.idfPerson = hc.idfReceivedByPerson
-                   AND receivedByPersonRef.intRowStatus = 0
-            LEFT JOIN dbo.tlbPerson AS investigatedByPersonRef
-                ON investigatedByPersonRef.idfPerson = hc.idfInvestigatedByPerson
-                   AND investigatedByPersonRef.intRowStatus = 0
-            LEFT JOIN dbo.tlbPerson AS personEnteredByRef
-                ON personEnteredByRef.idfPerson = hc.idfPersonEnteredBy
-                   AND personEnteredByRef.intRowStatus = 0
-            LEFT JOIN dbo.gisLocation L
-                ON L.idfsLocation = gl.idfsLocation
-            LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000001) AS CountryRef
-                ON L.node.IsDescendantOf(CountryRef.node) = 1
-            LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000003) AS RegionRef
-                ON L.node.IsDescendantOf(RegionRef.node) = 1
-            LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000002) AS RayonRef
-                ON L.node.IsDescendantOf(RayonRef.node) = 1
-            LEFT JOIN dbo.FN_GBL_GIS_ReferenceRepair_GET(@LangID, 19000004) AS SettlementRef
-                ON L.node.IsDescendantOf(SettlementRef.node) = 1
+
+            LEFT JOIN dbo.gisLocationDenormalized ld
+                ON ld.idfsLocation = gl.idfsLocation AND ld.idfsLanguage = @idfsLanguage
+            LEFT JOIN dbo.gisLocationDenormalized ld_en
+                ON ld_en.idfsLocation = gl.idfsLocation AND ld.idfsLanguage = @idfsLanguageEn
+            LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000036) AS ExposureLocationTypeRef
+                ON ExposureLocationTypeRef.idfsReference = gl.idfsGeoLocationType
+			LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000038) AS groundTypeRef
+                ON groundTypeRef.idfsReference = gl.idfsGroundType
+
+            LEFT JOIN dbo.trtDiagnosis AS initialSyndromicSurveielanceDiseases
+                ON initialSyndromicSurveielanceDiseases.idfsDiagnosis = hc.idfsTentativeDiagnosis
+            LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000019) AS tentativeDiagnosisRef
+                ON tentativeDiagnosisRef.idfsReference = hc.idfsTentativeDiagnosis
+
+            LEFT JOIN dbo.trtDiagnosis AS finalSyndromicSurveielanceDiseases
+                ON finalSyndromicSurveielanceDiseases.idfsDiagnosis = hc.idfsFinalDiagnosis
+			LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000019) AS FinalDiagnosis
+                ON FinalDiagnosis.idfsReference = hc.idfsFinalDiagnosis
+
             LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000042) AS HumanAgeRef
                 ON HumanAgeRef.idfsReference = hc.idfsHumanAgeType
             LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000064) AS OutcomeRef
                 ON OutcomeRef.idfsReference = hc.idfsOutcome
-            LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000019) AS FinalDiagnosis
-                ON FinalDiagnosis.idfsReference = hc.idfsFinalDiagnosis
             LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000011) AS InitialCaseClassification
                 ON InitialCaseClassification.idfsReference = hc.idfsInitialCaseStatus
             LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000011) AS FinalCaseClassification
@@ -346,12 +290,6 @@ BEGIN
                 ON SpecimenCollection.idfsReference = hc.idfsYNSpecimenCollected
             LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000100) AS RelatedToOutBreak
                 ON RelatedToOutBreak.idfsReference = hc.idfsYNRelatedToOutbreak
-            LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000036) AS ExposureLocationTypeRef
-                ON ExposureLocationTypeRef.idfsReference = gl.idfsGeoLocationType
-            LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000019) AS tentativeDiagnosisRef
-                ON tentativeDiagnosisRef.idfsReference = hc.idfsTentativeDiagnosis
-            LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000038) AS groundTypeRef
-                ON groundTypeRef.idfsReference = gl.idfsGroundType
             LEFT JOIN dbo.tlbOffice RBO
                 ON RBO.idfOffice = hc.idfReceivedByOffice
             LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000045) ReceivedByOfficeRef
@@ -365,42 +303,41 @@ BEGIN
             LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000045) SentByOfficeRef
                 ON SentByOfficeRef.idfsReference = SBO.idfsOfficeAbbreviation
             LEFT JOIN dbo.tlbOffice SoughtByOffice
-                ON SBO.idfOffice = hc.idfSoughtCareFacility
+                ON SoughtByOffice.idfOffice = hc.idfSoughtCareFacility
             LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000045) SoughtByOfficeRef
                 ON SoughtByOfficeRef.idfsReference = SoughtByOffice.idfsOfficeAbbreviation
             LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000100) AS TestConducted
                 ON TestConducted.idfsReference = hc.idfsYNTestsConducted
-            LEFT JOIN dbo.tlbMonitoringSession AS MonitoringSession
-                ON MonitoringSession.idfMonitoringSession = hc.idfParentMonitoringSession
+            LEFT JOIN dbo.tstSite S
+                ON S.idfsSite = hc.idfsSite
+            LEFT JOIN dbo.FN_HUM_Institution_GET(@LangID) AS tlbEnteredByOffice
+                ON tlbEnteredByOffice.idfOffice = S.idfOffice
+                   AND tlbEnteredByOffice.idfsSite = hc.idfsSite
+
+            LEFT JOIN dbo.tlbPerson AS sentByPersonRef
+                ON sentByPersonRef.idfPerson = hc.idfSentByPerson
+                   AND sentByPersonRef.intRowStatus = 0
+            LEFT JOIN dbo.tlbPerson AS receivedByPersonRef
+                ON receivedByPersonRef.idfPerson = hc.idfReceivedByPerson
+                   AND receivedByPersonRef.intRowStatus = 0
+            LEFT JOIN dbo.tlbPerson AS investigatedByPersonRef
+                ON investigatedByPersonRef.idfPerson = hc.idfInvestigatedByPerson
+                   AND investigatedByPersonRef.intRowStatus = 0
+            LEFT JOIN dbo.tlbPerson AS personEnteredByRef
+                ON personEnteredByRef.idfPerson = hc.idfPersonEnteredBy
+                   AND personEnteredByRef.intRowStatus = 0
+
             LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000035) AS PatientState
                 ON PatientState.idfsReference = hc.idfsFinalState
             LEFT JOIN dbo.tlbOffice Hospital
                 ON Hospital.idfOffice = hc.idfHospital
             LEFT JOIN dbo.FN_GBL_ReferenceRepair(@LangID, 19000045) HospitalRef
                 ON HospitalRef.idfsReference = Hospital.idfsOfficeAbbreviation
-            LEFT JOIN dbo.tstSite S
-                ON S.idfsSite = hc.idfsSite
-            LEFT JOIN dbo.FN_HUM_Institution_GET(@LangID) AS tlbEnteredByOffice
-                ON tlbEnteredByOffice.idfOffice = S.idfOffice
-                   AND tlbEnteredByOffice.idfsSite = hc.idfsSite
-            LEFT JOIN dbo.trtDiagnosis AS finalSyndromicSurveielanceDiseases
-                ON finalSyndromicSurveielanceDiseases.idfsDiagnosis = hc.idfsFinalDiagnosis
-            LEFT JOIN dbo.trtDiagnosis AS initialSyndromicSurveielanceDiseases
-                ON initialSyndromicSurveielanceDiseases.idfsDiagnosis = hc.idfsTentativeDiagnosis
-            LEFT JOIN dbo.HumanDiseaseReportRelationship relatedTo
-                ON relatedTo.HumanDiseaseReportID = hc.idfHumanCase
-                   AND relatedTo.intRowStatus = 0
-                   AND relatedTo.RelationshipTypeID = 10503001
-            LEFT JOIN dbo.tlbHumanCase relatedToReport
-                ON relatedToReport.idfHumanCase = relatedTo.RelateToHumanDiseaseReportID
-                   AND relatedToReport.intRowStatus = 0
-            LEFT JOIN dbo.HumanDiseaseReportRelationship connectedTo
-                ON connectedTo.RelateToHumanDiseaseReportID = hc.idfHumanCase
-                   AND connectedTo.intRowStatus = 0
-                   AND connectedTo.RelationshipTypeID = 10503001
-            LEFT JOIN dbo.tlbHumanCase connectedToReport
-                ON connectedToReport.idfHumanCase = connectedTo.HumanDiseaseReportID
-                   AND connectedToReport.intRowStatus = 0
+
+
+            LEFT JOIN dbo.tlbMonitoringSession AS MonitoringSession
+                ON MonitoringSession.idfMonitoringSession = hc.idfParentMonitoringSession
+
         WHERE hc.idfHumanCase = @SearchHumanCaseId
               OR @SearchHumanCaseId IS NULL;
     END TRY

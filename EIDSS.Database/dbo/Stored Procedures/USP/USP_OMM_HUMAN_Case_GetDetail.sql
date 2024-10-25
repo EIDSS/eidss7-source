@@ -328,6 +328,7 @@ BEGIN
             hc.datOnSetDate,
             hc.datFinalDiagnosisDate,
             hc.idfHospital,
+            hc.strHospitalizationPlace,
             hc.datHospitalizationDate,
             hc.datDischargeDate,
             hc.strClinicalNotes,

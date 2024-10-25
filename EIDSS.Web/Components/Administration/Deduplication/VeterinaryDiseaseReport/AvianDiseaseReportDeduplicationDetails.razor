@@ -302,6 +302,13 @@
                 PageSizeOptions="pageSizeOptions" 
                 ShowPagingSummary="true" TItem="VaccinationGetListViewModel">
             <Columns>
+                @*<RadzenDataGridColumn TItem="VaccinationGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool" 
+                        Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedVaccinations != null && VeterinaryDiseaseReportDeduplicationService.SelectedVaccinations.Contains(data))" 
+                        />
+                    </Template>
+                </RadzenDataGridColumn>*@
                 <RadzenDataGridColumn Property="DiseaseName" TItem="VaccinationGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportVaccinationsDiseaseNameColumnHeading)"/>
                 <RadzenDataGridColumn FormatString="{0:d}" Property="VaccinationDate" TItem="VaccinationGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportVaccinationsDateColumnHeading)"/>
                 <RadzenDataGridColumn Property="Species" TItem="VaccinationGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportVaccinationsSpeciesColumnHeading)"/>
@@ -328,6 +335,13 @@
                 PageSizeOptions="pageSizeOptions"
                 ShowPagingSummary="true" TItem="SampleGetListViewModel">
             <Columns>
+                @*<RadzenDataGridColumn TItem="SampleGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool" 
+                            Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedSamples != null && VeterinaryDiseaseReportDeduplicationService.SelectedSamples.Contains(data))" 
+                            />
+                    </Template> 
+                </RadzenDataGridColumn>*@
                 <RadzenDataGridColumn Property="EIDSSLaboratorySampleID" TItem="SampleGetListViewModel" Title="@LabSampleIdColumnHeadingResourceKey" Width="150px"/>
                 <RadzenDataGridColumn Property="SampleTypeName" TItem="SampleGetListViewModel" Title="@SampleTypeColumnHeadingResourceKey" Width="200px"/>
                 <RadzenDataGridColumn Property="EIDSSLocalOrFieldSampleID" TItem="SampleGetListViewModel" Title="@FieldSampleIdColumnHeadingResourceKey" Width="150px"/>
@@ -358,6 +372,12 @@
                 PageSizeOptions="pageSizeOptions"
                 ShowPagingSummary="true" TItem="PensideTestGetListViewModel">
             <Columns>
+                @*<RadzenDataGridColumn TItem="PensideTestGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" Disabled= "true" 
+                            Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedPensideTests != null && VeterinaryDiseaseReportDeduplicationService.SelectedPensideTests.Contains(data))" />
+                    </Template>
+                </RadzenDataGridColumn>*@
                 <RadzenDataGridColumn Property="PensideTestNameTypeName" TItem="PensideTestGetListViewModel" Title="@TestNameColumnHeadingResourceKey"/>
                 <RadzenDataGridColumn Property="EIDSSLocalOrFieldSampleID" TItem="PensideTestGetListViewModel" Title="@FieldSampleIdColumnHeadingResourceKey"/>
                 <RadzenDataGridColumn Property="SampleTypeName" TItem="PensideTestGetListViewModel" Title="@SampleTypeColumnHeadingResourceKey"/>
@@ -391,6 +411,12 @@
                     PageSizeOptions="pageSizeOptions"
                     ShowPagingSummary="true" TItem="LaboratoryTestGetListViewModel">
                     <Columns>
+                        @*<RadzenDataGridColumn TItem="LaboratoryTestGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                            <Template Context="data">
+                                <RadzenCheckBox TriState="false" Disabled= "true" 
+                                    Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedLabTests != null && VeterinaryDiseaseReportDeduplicationService.SelectedLabTests.Contains(data))" />
+                            </Template>
+                        </RadzenDataGridColumn>*@
                         <RadzenDataGridColumn Property="EIDSSLocalOrFieldSampleID" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsFieldSampleIdColumnHeadingResourceKey"/>
                         <RadzenDataGridColumn Property="Species" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsSpeciesColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Avian)"/>
                         <RadzenDataGridColumn Property="EIDSSAnimalID" TItem="LaboratoryTestGetListViewModel" Title="@LaboratoryTestsAnimalIdColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Livestock)"/>
@@ -411,6 +437,12 @@
                     PageSizeOptions="pageSizeOptions"
                     ShowPagingSummary="true" TItem="LaboratoryTestInterpretationGetListViewModel">
                     <Columns>
+                        @*<RadzenDataGridColumn TItem="LaboratoryTestInterpretationGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                            <Template Context="data">
+                                <RadzenCheckBox TriState="false" Disabled= "true" 
+                                    Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedInterpretations != null && VeterinaryDiseaseReportDeduplicationService.SelectedInterpretations.Contains(data))" />
+                            </Template>
+                        </RadzenDataGridColumn>*@
                         <RadzenDataGridColumn Property="EIDSSAnimalID" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsAnimalIdColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Livestock)" Width="150px"/>
                         <RadzenDataGridColumn Property="Species" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsSpeciesColumnHeadingResourceKey" Visible="@(Model.ReportType == VeterinaryReportTypeEnum.Avian)"/>
                         <RadzenDataGridColumn Property="DiseaseName" TItem="LaboratoryTestInterpretationGetListViewModel" Title="@LaboratoryTestInterpretationsDiseaseColumnHeadingResourceKey" Width="300px"/>
@@ -450,6 +482,13 @@
                 PageSizeOptions="pageSizeOptions"
                 ShowPagingSummary="true" TItem="CaseLogGetListViewModel">
             <Columns>
+                @*<RadzenDataGridColumn TItem="CaseLogGetListViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" TValue="bool"  
+                        Value="@(VeterinaryDiseaseReportDeduplicationService.SelectedCaseLogs != null && VeterinaryDiseaseReportDeduplicationService.SelectedCaseLogs.Contains(data))" 
+                        />
+                    </Template>
+                </RadzenDataGridColumn>*@
                 <RadzenDataGridColumn Property="ActionRequired" TItem="CaseLogGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportCaseLogActionRequiredColumnHeading)" Width="150px"/>
                 <RadzenDataGridColumn FormatString="{0:d}" Property="LogDate" TItem="CaseLogGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportCaseLogDateColumnHeading)" Width="125px"/>
                 <RadzenDataGridColumn Property="EnteredByPersonName" TItem="CaseLogGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.VeterinaryDiseaseReportCaseLogEnteredByColumnHeading)" Width="150px"/>

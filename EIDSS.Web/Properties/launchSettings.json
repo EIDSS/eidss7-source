@@ -1,5 +1,12 @@
 {
   "profiles": {
+    "Development": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
     "EIDSS.Web": {
       "commandName": "Project",
       "launchBrowser": true,

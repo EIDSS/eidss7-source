@@ -44,6 +44,7 @@ namespace EIDSS.Domain.ViewModels.Veterinary
         {
             get
             {
+                //TODO: replace hard-coded value.
                 if (RecordType == "Species")
                     species = EIDSSFlockOrHerdID + " - " + SpeciesTypeName;
 

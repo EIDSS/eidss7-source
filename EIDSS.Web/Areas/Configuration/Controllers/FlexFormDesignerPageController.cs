@@ -1,5 +1,4 @@
-﻿//using Nancy.Extensions;
-using EIDSS.ClientLibrary.ApiClients.FlexForm;
+﻿using EIDSS.ClientLibrary.ApiClients.FlexForm;
 using EIDSS.ClientLibrary.Enumerations;
 using EIDSS.ClientLibrary.Responses;
 using EIDSS.ClientLibrary.Services;
@@ -10,20 +9,16 @@ using EIDSS.Domain.ResponseModels.FlexForm;
 using EIDSS.Domain.ViewModels.FlexForm;
 using EIDSS.Localization.Constants;
 using EIDSS.Web.Abstracts;
+using EIDSS.Web.Extensions;
 using EIDSS.Web.ViewModels.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.String;
-using EIDSS.Domain.ViewModels;
-using Newtonsoft.Json.Linq;
-using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
 
 namespace EIDSS.Web.Controllers.Configuration
 {
@@ -63,15 +58,18 @@ namespace EIDSS.Web.Controllers.Configuration
             public long? idfsFormTypeDestination { get; set; }
         }
 
-        public FlexFormDesignerPageController(IFlexFormClient flexFormClient, IStringLocalizer localizer, ITokenService tokenService, ILogger<FlexFormDesignerPageController> logger): base(logger, tokenService)
+        public FlexFormDesignerPageController(IFlexFormClient flexFormClient, IStringLocalizer localizer, ITokenService tokenService, ILogger<FlexFormDesignerPageController> logger) : base(logger, tokenService)
         {
             _flexFormClient = flexFormClient;
-            _localizer = localizer; 
+            _localizer = localizer;
             _authenticatedUser = _tokenService.GetAuthenticatedUser();
         }
 
         public async Task<ActionResult> Index(OutbreakFlexFormDesignerModel outbreak)
         {
+            //temporary disable this module - until we refactor this solution #122527
+            return RedirectToAction("index", "Dashboard");
+            
             var formTypesListRequest = new FlexFormFormTypesGetRequestModel()
             {
                 LanguageId = GetCurrentLanguage(),
@@ -297,14 +295,14 @@ namespace EIDSS.Web.Controllers.Configuration
                 TemplateDesign = _flexFormClient.GetTemplateDesignList(request).Result
             };
 
-            var html = Empty;
-            var floatingSection = Empty;
-            var strSection = Empty;
-            var floatingHtml = Empty;
+            var html = string.Empty;
+            var floatingSection = string.Empty;
+            var strSection = string.Empty;
+            var floatingHtml = string.Empty;
             long? idfsCurrentSection = null;
-            var strDisabled = Empty;
-            var strUp = Empty;
-            var strDown = Empty;
+            var strDisabled = string.Empty;
+            var strUp = string.Empty;
+            var strDown = string.Empty;
             var iResult = -1;
             int? iObservations;
             var bLocked = true;
@@ -377,13 +375,13 @@ namespace EIDSS.Web.Controllers.Configuration
                     foreach (var dl in _flexFormDesignerPageViewModel.TemplateDesign)
                     {
                         iResult++;
-                        strDown = Empty;
-                        strUp = Empty;
+                        strDown = string.Empty;
+                        strUp = string.Empty;
 
                         if (dl.idfsSection != idfsCurrentSection)
                         {
                             html = html.Replace("[" + idfsCurrentSection.ToString() + "]", strSection);
-                            strSection = Empty;
+                            strSection = string.Empty;
 
                             idfsCurrentSection = long.Parse(dl.idfsSection.ToString());
 
@@ -410,8 +408,8 @@ namespace EIDSS.Web.Controllers.Configuration
                         strSection += "         <label>" + dl.ParameterName + "</label>";
                         strSection += "     </div>";
                         strSection += "     <div class='col-lg-5 col-md-5 col-sm-5 col-xs-5'>";
-                        
-                        
+
+
                         if (dl.idfsEditor != null)
                         {
                             strSection += ControlHTML(dl.idfsEditor, dl.idfsParameter);
@@ -487,29 +485,10 @@ namespace EIDSS.Web.Controllers.Configuration
                         break;
                     case (long)FlexibleFormEditorTypeEnum.DatePicker:
                     case (long)FlexibleFormEditorTypeEnum.DateTimePicker:
-                        string strDateformat = String.Empty;
-                        string strControlFormat = string.Empty;
-
-                        switch (GetCurrentLanguage())
-                        {
-                            case "ar-JO":
-                            case "az-Latn-AZ":
-                            case "ka-GE":
-                            case "ru-RU":
-                                strDateformat = "dd.MM.yyyy";
-                                strControlFormat = "dd.mm.yy"; ;
-                                break;
-
-                            default:
-                                strDateformat = "MM/dd/yyyy";
-                                strControlFormat = "mm/dd/yy";
-                                break;
-                        }
-
                         if (!string.IsNullOrEmpty(strValue))
                         {
                             DateTime dt = DateTime.Parse(strValue);
-                            strValue = dt.ToString(strDateformat);
+                            strValue = dt.ToString(cultureInfo.DateTimeFormat.ShortDatePattern);
                         }
 
                         strControl += "<input type='text' style='position:relative;float:left;width:85%'></input>";
@@ -521,16 +500,16 @@ namespace EIDSS.Web.Controllers.Configuration
                         strControl += " showOn: \"both\",";
                         strControl += " yearRange: \"-122:+79\",";
                         strControl += " constrainInput: false,";
-                        strControl += " buttonText: \"<i class='fas fa-calendar'></i>\",";
+                        strControl += " buttonText: \"\",";
                         strControl += " beforeShow: function() {";
                         strControl += "     setTimeout(function(){";
                         strControl += "         $('.ui-datepicker').css('z-index', 9999);";
                         strControl += "     }, 0);";
                         strControl += " }";
                         strControl += "},";
-                        strControl += "$.datepicker.regional[\"" + GetCurrentLanguage().Split("-")[0].ToString() + "\"],";
-                        strControl += " { dateFormat: '" + strControlFormat + "'}";
-                        strControl += " ))";
+                        strControl += "$.datepicker.regional[\"" + cultureInfo.TwoLetterISOLanguageName + "\"],";
+                        strControl += " { dateFormat: '" + cultureInfo.DateTimeFormat.ToJavascriptShortDatePattern() + "'}";
+                        strControl += " )).next('.ui-datepicker-trigger').addClass('flex-form-datepicker fas fa-calendar');";
                         strControl += "})";
                         strControl += "</script>";
                         break;
@@ -616,7 +595,7 @@ namespace EIDSS.Web.Controllers.Configuration
         public async Task<JsonResult> DeleteParameter(FlexFormParameterDeleteRequestModel request)
         {
             request.LangId = GetCurrentLanguage();
-            request.User = _authenticatedUser.UserName;            
+            request.User = _authenticatedUser.UserName;
             return Json(await _flexFormClient.DeleteParameter(request));
         }
 
@@ -642,7 +621,6 @@ namespace EIDSS.Web.Controllers.Configuration
 
         public async Task<JsonResult> DeleteTemplateParameter(FlexFormParameterTemplateDeleteRequestModel request)
         {
-            //request.User = _authenticatedUser.EIDSSUserId;
             return Json(await _flexFormClient.DeleteTemplateParameter(request));
         }
 
@@ -655,7 +633,6 @@ namespace EIDSS.Web.Controllers.Configuration
 
         public async Task<JsonResult> DeleteTemplate(FlexFormTemplateDeleteRequestModel request)
         {
-            //request.User = _authenticatedUser.EIDSSUserId;
             request.LangId = GetCurrentLanguage();
 
             return Json(await _flexFormClient.DeleteTemplate(request));
@@ -663,14 +640,12 @@ namespace EIDSS.Web.Controllers.Configuration
 
         public async Task<JsonResult> AddToOutbreak(FlexFormAddToOutbreakSaveRequestModel request)
         {
-            //request.User = _authenticatedUser.EIDSSUserId;
             await _flexFormClient.SetOutbreakFlexForm(request);
             return Json("");
         }
 
         public async Task<JsonResult> PasteTreeViewNode(PasteTreeviewNodeRequestModel request)
         {
-            //request.User = _authenticatedUser.EIDSSUserId;
             if (request.idfsParameter != null)
             {
                 var copyRequest = new FlexFormParameterCopyRequestModel
@@ -700,7 +675,7 @@ namespace EIDSS.Web.Controllers.Configuration
         {
             request.LangID = GetCurrentLanguage();
             request.User = _authenticatedUser.EIDSSUserId;
-            request.EventTypeId = (long) SystemEventLogTypes.FlexibleFormUNITemplateChange;
+            request.EventTypeId = (long)SystemEventLogTypes.FlexibleFormUNITemplateChange;
             request.SiteId = Convert.ToInt64(_authenticatedUser.SiteId);
             request.UserId = Convert.ToInt64(_authenticatedUser.EIDSSUserId);
             request.LocationId = _authenticatedUser.RayonId;
@@ -720,7 +695,7 @@ namespace EIDSS.Web.Controllers.Configuration
                 idfsFormTemplate = idfsFormTemplate,
                 intRowStatus = intRowStatus,
                 User = _authenticatedUser.EIDSSUserId,
-                EventTypeId = (long) SystemEventLogTypes.FlexibleFormDeterminantChange,
+                EventTypeId = (long)SystemEventLogTypes.FlexibleFormDeterminantChange,
                 SiteId = Convert.ToInt64(_authenticatedUser.SiteId),
                 UserId = Convert.ToInt64(_authenticatedUser.EIDSSUserId),
                 LocationId = _authenticatedUser.RayonId
@@ -746,7 +721,7 @@ namespace EIDSS.Web.Controllers.Configuration
             var designList = _flexFormClient.GetTemplateDesignList(request).Result;
 
             long? idfsCurrentSection = 0;
-            var strHTML = Empty;
+            var strHTML = string.Empty;
 
             foreach (var item in designList)
             {
@@ -780,7 +755,7 @@ namespace EIDSS.Web.Controllers.Configuration
         {
             request.LanguageId = GetCurrentLanguage();
             request.User = _authenticatedUser.UserName;
-            
+
             return Json(await _flexFormClient.SetRule(request));
         }
 
@@ -810,15 +785,15 @@ namespace EIDSS.Web.Controllers.Configuration
             request.LangId = GetCurrentLanguage();
             var response = _flexFormClient.GetSectionsParametersList(request).Result;
 
-            var strHTML = Empty;
-            var li = Empty;
-            var strText = Empty;
-            var idfs = Empty;
+            var strHTML = string.Empty;
+            var li = string.Empty;
+            var strText = string.Empty;
+            var idfs = string.Empty;
             var strType = "Form";
             var iLevel = 0;
             var iLevels = 0;
-            var strParent = Empty;
-            var idfsFormType = Empty;
+            var strParent = string.Empty;
+            var idfsFormType = string.Empty;
             var random = new Random();
 
             if (response.Count != 0)
@@ -844,13 +819,13 @@ namespace EIDSS.Web.Controllers.Configuration
                 }
             }
 
-            var strPreviousParent = Empty;
+            var strPreviousParent = string.Empty;
 
             //Section nodes
             for (iLevel = 1; iLevel < iLevels; iLevel++)
             {
-                li = Empty;
-                strParent = Empty;
+                li = string.Empty;
+                strParent = string.Empty;
 
                 foreach (var item in response)
                 {
@@ -858,10 +833,10 @@ namespace EIDSS.Web.Controllers.Configuration
                     idfs = item.Section.Split('!')[iLevel].Split('¦')[0].ToString();
                     strText = item.Section.Split('!')[iLevel].Split('¦')[1].ToString();
 
-                    if (strParent != strPreviousParent && !IsNullOrEmpty(strPreviousParent))
+                    if (strParent != strPreviousParent && !string.IsNullOrEmpty(strPreviousParent))
                     {
                         strHTML = strHTML.Replace("[" + strPreviousParent + "]", li);
-                        li = Empty;
+                        li = string.Empty;
                     }
 
                     if ((li.IndexOf(idfs) == -1) && idfs != "0")
@@ -876,7 +851,7 @@ namespace EIDSS.Web.Controllers.Configuration
                         li += "</li>";
 
                         strPreviousParent = strParent;
-                        strParent = Empty;
+                        strParent = string.Empty;
                     }
                 }
 
@@ -884,8 +859,8 @@ namespace EIDSS.Web.Controllers.Configuration
             }
 
             //Parameters
-            li = Empty;
-            strParent = Empty;
+            li = string.Empty;
+            strParent = string.Empty;
 
             foreach (var item in response)
             {
@@ -896,21 +871,21 @@ namespace EIDSS.Web.Controllers.Configuration
                     idfs = item.Section.Split('!')[iLevel].Split('¦')[0].ToString();
                     strText = item.Section.Split('!')[iLevel].Split('¦')[1].ToString();
 
-                    if (idfs == "0" && IsNullOrEmpty(strParent))
+                    if (idfs == "0" && string.IsNullOrEmpty(strParent))
                     {
                         strParent = item.Section.Split('!')[iLevel - 1].Split('¦')[0].ToString();
                     }
-                    else if (idfs != "0" && !IsNullOrEmpty(strParent))
+                    else if (idfs != "0" && !string.IsNullOrEmpty(strParent))
                     {
-                        if (strParent != strPreviousParent && !IsNullOrEmpty(strPreviousParent))
+                        if (strParent != strPreviousParent && !string.IsNullOrEmpty(strPreviousParent))
                         {
                             strHTML = strHTML.Replace("[" + strPreviousParent + "]", li);
-                            li = Empty;
+                            li = string.Empty;
                         }
 
                         li += "<li class=\"parameterType\"><span class=\"parameterTreeViewItem\" idfs=\"" + idfs + "\" type=\"Parameter\" onclick=\"flexForm.selectTreeViewItem(this);\" idfsformtype=\"" + idfsFormType + "\" idfsparentsection=\"" + strParent + "\">" + strText + "</span></li>";
                         strPreviousParent = strParent;
-                        strParent = Empty;
+                        strParent = string.Empty;
                     }
                 }
             }
@@ -929,7 +904,7 @@ namespace EIDSS.Web.Controllers.Configuration
                 Page = 1,
                 PageSize = 99999,
                 SortColumn = "strName",
-                SortOrder = SortConstants.Ascending,
+                SortOrder = EIDSSConstants.SortConstants.Ascending,
                 AccessoryCode = intHACode,
                 SimpleSearch = "",
                 AdvancedSearch = "",

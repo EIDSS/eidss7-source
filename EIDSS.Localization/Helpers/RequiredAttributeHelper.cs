@@ -36,7 +36,7 @@ namespace EIDSS.Localization.Helpers
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             IServiceProvider service = (IServiceProvider)validationContext.GetService(typeof(IServiceProvider));
-
+            
             if (service != null)
             {
                 CacheProvider = (LocalizationMemoryCacheProvider)service.GetService(typeof(LocalizationMemoryCacheProvider));

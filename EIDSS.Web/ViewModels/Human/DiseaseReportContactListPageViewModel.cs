@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using EIDSS.Domain.Enumerations;
 
 namespace EIDSS.Web.ViewModels.Human
 {
@@ -30,7 +31,9 @@ namespace EIDSS.Web.ViewModels.Human
 
         public DiseaseReportContactDetailsViewModel AddContactDetails { get; set; }
 
-        public List<DiseaseReportContactDetailsViewModel> ContactDetails { get; set; }
+        public List<DiseaseReportContactDetailsViewModel> ContactDetails { get; set; } = new();
+
+        public IEnumerable<DiseaseReportContactDetailsViewModel> NotDeletedContactDetails => ContactDetails.Where(x => x.RowStatus != (int)RowActionTypeEnum.Delete);
         
         public bool IsReportClosed { get; set; } = false;
 

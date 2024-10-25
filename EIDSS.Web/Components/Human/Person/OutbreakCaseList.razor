@@ -40,6 +40,12 @@
                     </Template>
                 </RadzenDataGridColumn>
 
+              @*  <RadzenDataGridColumn Width="175px"
+                                      TItem="CaseGetListViewModel"
+                                      Property="EIDSSCaseID"
+                                      Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.OutbreakCasesOutbreakCaseIDColumnHeading)"
+                                      Sortable="true" />*@
+
                 <RadzenDataGridColumn Width="175px"
                                       TItem="CaseGetListViewModel"
                                       Property="CaseTypeName"
@@ -67,6 +73,7 @@
                                       Filterable="false">
                     <Template Context="item">
                         <button @onclick="_ => OnEditCaseClick(item)" class="btn btn-sm sidebar-do-not-disable" type="button">
+                            @*<span class="fas fa-edit"></span>*@
                             <i class="fas fa-edit fa-lg"></i>
                         </button>
                     </Template>
@@ -74,6 +81,29 @@
 
             </Columns>
             <!--Expandable Detail Template for Grid for Avian -->
+            @*<Template Context="data">
+            <RadzenCard>
+            <div class="row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmDiseaseAndOutbreakReportsReportDateFieldLabel" IsRow="false" CssClass="col-4" For="reportDate">
+            <input type="text" readonly id="reportDate" name="reportDate" class="form-control-plaintext" value=@(data.ReportDate.HasValue ? data.ReportDate.Value.ToShortDateString() : string.Empty) />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmDiseaseAndOutbreakReportsReportedByFieldLabel" IsRow="false" CssClass="col-4" For="reportedByPersonName">
+            <input type="text" readonly id="reportedByPersonName" class="form-control-plaintext" value=@data.ReportedByPersonName />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.FarmDiseaseAndOutbreakReportsInvestigatedByFieldLabel" IsRow="false" CssClass="col-4" For="investigatedByPersonName">
+            <input id="investigatedByPersonName" readonly class="form-control-plaintext" value="@data.InvestigagedByPersonName" />
+            </InterfaceEditorResource>
+            </div>
+            <div class="row">
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchVeterinaryDiseaseReportsModalSickAnimalQuantityFieldLabel" IsRow="false" CssClass="col-4" For="totalSickAnimalQuantity">
+            <input id="totalSickAnimalQuantity" readonly class="form-control-plaintext" value="@data.TotalSickAnimalQuantity" />
+            </InterfaceEditorResource>
+            <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.SearchVeterinaryDiseaseReportsModalDeadAnimalQuantityFieldLabel" IsRow="false" CssClass="col-4" For="totalDeadAnimalQuantity">
+            <input id="totalDeadAnimalQuantity" readonly class="form-control-plaintext" value="@data.TotalDeadAnimalQuantity" />
+            </InterfaceEditorResource>
+            </div>
+            </RadzenCard>
+            </Template>*@
         </RadzenDataGrid>
     </div>
 </div>

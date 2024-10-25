@@ -470,7 +470,7 @@ namespace EIDSS.Web.Components.Outbreak.Case
         /// </summary>
         /// <returns></returns>
         [JSInvokable]
-        public void ReloadSection()
+        public async Task ReloadSection()
         {
             if (Model.VeterinaryDiseaseReport.ReportCategoryTypeID == 0) return;
             FlexFormQuestionnaireGetRequestModel caseQuestionnaireFlexFormRequest = new()
@@ -494,11 +494,10 @@ namespace EIDSS.Web.Components.Outbreak.Case
             }
 
             if (CaseQuestionnaireFlexForm is null) return;
-            var response = Task.Run(() => CaseQuestionnaireFlexForm.CollectAnswers(), _token);
-            response.Wait(_token);
+            var response = await CaseQuestionnaireFlexForm.CollectAnswers();
             Model.CaseQuestionnaireFlexFormAnswers = CaseQuestionnaireFlexForm.Answers;
-            Model.CaseQuestionnaireObservationParameters = response.Result.Answers;
-            CaseQuestionnaireFlexForm.Render();
+            Model.CaseQuestionnaireObservationParameters = response.Answers;
+            await CaseQuestionnaireFlexForm.Render();
             StateHasChanged();
         }
 

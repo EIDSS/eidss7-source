@@ -183,7 +183,7 @@ namespace EIDSS.Web.Components.Human.Person
                     authenticatedUser = _tokenService.GetAuthenticatedUser();
                     var response = await SavePerson();
 
-                    if (response.ReturnCode == 0)
+                    if (response?.ReturnCode == 0)
                     {
                         await OpenDiseaseReport(StateContainer.HumanMasterID, null);
                     }

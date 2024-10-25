@@ -11,17 +11,6 @@ using EIDSS.Domain.ViewModels.Human;
 
 namespace EIDSS.Api.CodeGeneration.Human
 {
-    public class GetPersonListAsync : ICodeGenDirective
-    {
-        public string APIClassName { get => TargetedClassNames.PersonController; }
-        public Type APIReturnType { get => typeof(List<PersonViewModel>); }
-        public string MethodParameters { get => "HumanPersonSearchRequestModel request, CancellationToken cancellationToken = default"; }
-        public APIMethodVerbEnumeration MethodVerb { get => APIMethodVerbEnumeration.GET_USING_POST_VERB; }
-        public Type RepositoryReturnType { get => typeof(List<USP_HUM_HUMAN_MASTER_GETListResult>); }
-        public string APIGroupName => "Human";
-        public string SummaryInfo => "";
-    }
-
     public class GetPersonListForOfficeAsync : ICodeGenDirective
     {
         public string APIClassName { get => TargetedClassNames.PersonController; }
@@ -29,17 +18,6 @@ namespace EIDSS.Api.CodeGeneration.Human
         public string MethodParameters { get => "GetPersonForOfficeRequestModel request, CancellationToken cancellationToken = default"; }
         public APIMethodVerbEnumeration MethodVerb { get => APIMethodVerbEnumeration.GET_USING_POST_VERB; }
         public Type RepositoryReturnType { get => typeof(List<USP_GBL_LKUP_PERSON_GETListResult>); }
-        public string APIGroupName => "Human";
-        public string SummaryInfo => "";
-    }
-
-    public class SavePerson : ICodeGenDirective
-    {
-        public string APIClassName { get => TargetedClassNames.PersonController; }
-        public Type APIReturnType { get => typeof(PersonSaveResponseModel); }
-        public string MethodParameters { get => "PersonSaveRequestModel request, CancellationToken cancellationToken = default"; }
-        public APIMethodVerbEnumeration MethodVerb { get => APIMethodVerbEnumeration.SAVE; }
-        public Type RepositoryReturnType { get => typeof(USP_HUM_HUMAN_MASTER_SETResult); }
         public string APIGroupName => "Human";
         public string SummaryInfo => "";
     }

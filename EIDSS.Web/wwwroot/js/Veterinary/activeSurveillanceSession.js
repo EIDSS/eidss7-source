@@ -79,7 +79,14 @@ function initializeVetSurveillanceSidebar(cancelButtonText, finishButtonText, ne
             delete: deleteButtonText,
             loading: loadingMessageText
         },
-        onInit: function (event) { },
+        onInit: function (event) {
+            $("#veterinaryActiveSurveillanceSessionWizard .steps ul").append('<li id="saveStep" role="tab"><a href="#" role="menuitem"><span class="fa-stack text-muted"><i class="fas fa-circle fa-stack-2x"></i><i class="fas fa-save fa-stack-1x fa-inverse"></i></span>  <span class="stepTitleText">' + finishButtonText +'</span></a></li>');
+
+            $(document).on('click', '#saveStep', function (e) {
+                e.preventDefault();
+                $("#veterinaryActiveSurveillanceSessionWizard").steps("finish");
+            });
+        },
         onCanceled: function (event) {
             VeterinaryActiveSurveillanceSession.DotNetReference.invokeMethodAsync("OnCancel");
         },
@@ -120,14 +127,70 @@ function initializeVetSurveillanceSidebar(cancelButtonText, finishButtonText, ne
         //onPrinting: function (event) {
         //    VeterinaryActiveSurveillanceSession.DotNetReference.invokeMethodAsync('OnPrint');
         //},
-        onFinished: function (event) {
-            $("#saveButton").removeAttr("href");
-            $("#processing").addClass("fas fa-sync fa-spin");
-            validateSurveillanceSession();
-            VeterinaryActiveSurveillanceSession.DotNetReference.invokeMethodAsync("OnSubmit");
+        onFinished: async function (event) {
+            var isVetSurveillanceSessionInformationSectionValid = await VetSurveillanceSessionInformationSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar");
+            var isVetSurveillanceDetailedInformationSectionValid = await VetSurveillanceDetailedInformationSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar");
+            var isVetSurveillanceTestsSectionValid = await VetSurveillanceTestsSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar");
+            var isVetSurveillanceActionsSectionValid = await VetSurveillanceActionsSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar");
+            var isVetSurveillanceAggregateInformationSectionValid = await VetSurveillanceAggregateInformationSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar");
+            var isVetSurveillanceDiseaseReportsSectionValid = await VetSurveillanceDiseaseReportsSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar");
+
+            hideDefaultStepIcons();
+            setWizardState(isVetSurveillanceSessionInformationSectionValid, "#veterinaryActiveSurveillanceSessionWizard-t-0");
+            setWizardState(isVetSurveillanceDetailedInformationSectionValid, "#veterinaryActiveSurveillanceSessionWizard-t-1");
+            setWizardState(isVetSurveillanceTestsSectionValid, "#veterinaryActiveSurveillanceSessionWizard-t-2");
+            setWizardState(isVetSurveillanceActionsSectionValid, "#veterinaryActiveSurveillanceSessionWizard-t-3");
+            setWizardState(isVetSurveillanceAggregateInformationSectionValid, "#veterinaryActiveSurveillanceSessionWizard-t-4");
+            setWizardState(isVetSurveillanceDiseaseReportsSectionValid, "#veterinaryActiveSurveillanceSessionWizard-t-5");
+
+            if (isVetSurveillanceSessionInformationSectionValid &&
+                isVetSurveillanceDetailedInformationSectionValid &&
+                isVetSurveillanceTestsSectionValid &&
+                isVetSurveillanceActionsSectionValid &&
+                isVetSurveillanceAggregateInformationSectionValid &&
+                isVetSurveillanceDiseaseReportsSectionValid
+            ) {
+                VeterinaryActiveSurveillanceSession.DotNetReference.invokeMethodAsync("OnSubmit");
+            } else {
+                $("#saveButton").removeAttr("href");
+                $("#processing").addClass("fas fa-sync fa-spin");
+                if (!isVetSurveillanceSessionInformationSectionValid) {
+                    $("#veterinaryActiveSurveillanceSessionWizard").steps("setStep", 0);
+                } else if (!isVetSurveillanceDetailedInformationSectionValid) {
+                    $("#veterinaryActiveSurveillanceSessionWizard").steps("setStep", 1);
+                } else if (!isVetSurveillanceTestsSectionValid) {
+                    $("#veterinaryActiveSurveillanceSessionWizard").steps("setStep", 2);
+                } else if (!isVetSurveillanceActionsSectionValid) {
+                    $("#veterinaryActiveSurveillanceSessionWizard").steps("setStep", 3);
+                } else if (!isVetSurveillanceAggregateInformationSectionValid) {
+                    $("#veterinaryActiveSurveillanceSessionWizard").steps("setStep", 4);
+                } else if (!isVetSurveillanceDiseaseReportsSectionValid) {
+                    $("#veterinaryActiveSurveillanceSessionWizard").steps("setStep", 5);
+                }
+            }
+
         }
     });
 };
+
+function setWizardState(isValid, stringId) {
+    if (isValid) {
+        $(stringId).find("#erroredStep").hide();
+        $(stringId).find("#completedStep").show();
+    } else {
+        $(stringId).find("#erroredStep").show();
+        $(stringId).find("#completedStep").hide();
+    }
+}
+
+function hideDefaultStepIcons() {
+    $("#veterinaryActiveSurveillanceSessionWizard-t-0").find("#step").hide();
+    $("#veterinaryActiveSurveillanceSessionWizard-t-1").find("#step").hide();
+    $("#veterinaryActiveSurveillanceSessionWizard-t-2").find("#step").hide();
+    $("#veterinaryActiveSurveillanceSessionWizard-t-3").find("#step").hide();
+    $("#veterinaryActiveSurveillanceSessionWizard-t-4").find("#step").hide();
+    $("#veterinaryActiveSurveillanceSessionWizard-t-5").find("#step").hide();
+}
 
 function navigateToVeterinarySurveillanceSessionReviewStep(reviewStep) {
     $("#veterinaryActiveSurveillanceSessionWizard").steps("setStep", reviewStep);
@@ -159,19 +222,6 @@ function validateSessionSection(dotNetReference, wizard, stepNumber) {
             $("#" + wizard + "-t-" + stepNumber).find("#completedStep").show();
         }
     });
-};
-
-function validateSurveillanceSession() {
-    var surveillanceSessionIsValid = true;
-
-    VetSurveillanceSessionInformationSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar").then(valid => { if (!valid) { surveillanceSessionIsValid = false; } });
-    VetSurveillanceDetailedInformationSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar").then(valid => { if (!valid) { surveillanceSessionIsValid = false; } });
-    VetSurveillanceTestsSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar").then(valid => { if (!valid) { surveillanceSessionIsValid = false; } });
-    VetSurveillanceActionsSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar").then(valid => { if (!valid) { surveillanceSessionIsValid = false; } });
-    VetSurveillanceDiseaseReportsSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar").then(valid => { if (!valid) { surveillanceSessionIsValid = false; } });
-    VetSurveillanceAggregateInformationSection.DotNetReference.invokeMethodAsync("ValidateSectionForSidebar").then(valid => { if (!valid) { surveillanceSessionIsValid = false; } });
-
-    return surveillanceSessionIsValid;
 };
 
 function reloadSections() {

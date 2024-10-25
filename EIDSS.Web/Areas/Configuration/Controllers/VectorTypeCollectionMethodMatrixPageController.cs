@@ -21,9 +21,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.Int64;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Configuration.Controllers
 {
@@ -66,7 +63,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [HttpPost]
         public async Task<JsonResult> GetList([FromBody] JQueryDataTablesQueryObject dataTableQueryPostObj)
         {
-            var postParameterDefinitions = new {VectorTypeDDD = "", SearchBox = ""};
+            var postParameterDefinitions = new { VectorTypeDDD = "", SearchBox = "" };
             var referenceType =
                 Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(dataTableQueryPostObj.postArgs,
                     postParameterDefinitions);
@@ -75,14 +72,14 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             long? id = null;
             if (referenceType.VectorTypeDDD != null)
             {
-                if (!IsNullOrEmpty(referenceType.VectorTypeDDD))
+                if (!string.IsNullOrEmpty(referenceType.VectorTypeDDD))
                 {
-                    id = Parse(referenceType.VectorTypeDDD);
+                    id = long.Parse(referenceType.VectorTypeDDD);
                 }
             }
 
-            var sortColumn = !IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "strDefault";
-            var sortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : SortConstants.Descending;
+            var sortColumn = !string.IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "strDefault";
+            var sortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Descending;
 
             var request = new VectorTypeCollectionMethodMatrixGetRequestModel
             {
@@ -130,13 +127,13 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
         public async Task<JsonResult> Create([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             var collectionMethod = "";
             try
             {
                 if (jsonObject["VectorTypeDDD"] != null)
                 {
-                    if (IsNullOrEmpty(jsonObject["VectorTypeDDD"][0]?["id"]?.ToString()))
+                    if (string.IsNullOrEmpty(jsonObject["VectorTypeDDD"][0]?["id"]?.ToString()))
                     {
                         // should select a Vector Type
                         return Json("");
@@ -146,7 +143,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 long idfsCollectionMethod = 0;
                 if (jsonObject["idfsCollectionMethod"]?[0]?["id"] != null)
                 {
-                    idfsCollectionMethod = Parse(jsonObject["idfsCollectionMethod"][0]["id"].ToString());
+                    idfsCollectionMethod = long.Parse(jsonObject["idfsCollectionMethod"][0]["id"].ToString());
                 }
 
                 if (jsonObject["idfsCollectionMethod"]?[0]?["text"] != null)
@@ -158,10 +155,10 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 {
                     idfCollectionMethodForVectorType = null,
                     idfsVectorType = jsonObject["VectorTypeDDD"]?[0]?["id"] != null
-                        ? Parse(jsonObject["VectorTypeDDD"][0]["id"].ToString())
+                        ? long.Parse(jsonObject["VectorTypeDDD"][0]["id"].ToString())
                         : null,
                     idfsCollectionMethod = idfsCollectionMethod,
-                    EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                    EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                     UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                     LocationId = authenticatedUser.RayonId,
@@ -171,7 +168,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 var response = await _configurationClient.SaveVectorTypeCollectionMethodMatrix(request);
 
                 response.strDuplicatedField =
-                    Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), collectionMethod);
+                    string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), collectionMethod);
 
                 if (response.idfCollectionMethodForVectorType != 0 && response.ReturnMessage == "SUCCESS")
                 {
@@ -194,7 +191,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [Route("Edit")]
         public async Task<JsonResult> Edit([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
             try
             {
@@ -203,19 +200,19 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                     long idfsCollectionMethod = 0;
                     if (jsonObject["idfsCollectionMethod"] != null)
                     {
-                        idfsCollectionMethod = TryParse(jsonObject["strDefault"]?.ToString(), out var result) == false
-                            ? Parse(jsonObject["idfsCollectionMethod"].ToString())
+                        idfsCollectionMethod = long.TryParse(jsonObject["strDefault"]?.ToString(), out var result) == false
+                            ? long.Parse(jsonObject["idfsCollectionMethod"].ToString())
                             : result;
                     }
 
                     var request = new VectorTypeCollectionMethodMatrixSaveRequestModel
                     {
-                        idfCollectionMethodForVectorType = Parse(jsonObject["KeyId"].ToString()),
+                        idfCollectionMethodForVectorType = long.Parse(jsonObject["KeyId"].ToString()),
                         idfsVectorType = jsonObject["idfsVectorType"] != null
-                            ? Parse(jsonObject["idfsVectorType"].ToString())
+                            ? long.Parse(jsonObject["idfsVectorType"].ToString())
                             : null,
                         idfsCollectionMethod = idfsCollectionMethod,
-                        EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                        EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                         UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                         LocationId = authenticatedUser.RayonId,
@@ -247,13 +244,13 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         {
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
                 if (jsonObject["KeyId"] != null)
                 {
                     var request = new VectorTypeCollectionMethodMatrixSaveRequestModel
                     {
-                        idfCollectionMethodForVectorType = Parse(jsonObject["KeyId"].ToString()),
-                        EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                        idfCollectionMethodForVectorType = long.Parse(jsonObject["KeyId"].ToString()),
+                        EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                         UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                         LocationId = authenticatedUser.RayonId,
@@ -289,12 +286,12 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             try
             {
                 var list = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(),
-                    BaseReferenceConstants.VectorType, HACodeList.VectorHACode);
+                    EIDSSConstants.BaseReferenceConstants.VectorType, EIDSSConstants.HACodeList.VectorHACode);
 
                 if (list != null)
                 {
                     select2DataItems.AddRange(list.Select(item => new Select2DataItem()
-                        {id = item.IdfsBaseReference.ToString(), text = item.Name}));
+                    { id = item.IdfsBaseReference.ToString(), text = item.Name }));
                 }
 
                 select2DataObj.results = select2DataItems;
@@ -312,13 +309,13 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [Route("AddCollectionMethod")]
         public async Task<IActionResult> AddCollectionMethod([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             var request = new BaseReferenceSaveRequestModel();
 
             int? intHACodeTotal = 0;
             if (jsonObject["IntHACode"] != null)
             {
-                if (IsNullOrEmpty(jsonObject["IntHACode"].ToString()))
+                if (string.IsNullOrEmpty(jsonObject["IntHACode"].ToString()))
                 {
                     // popup a modal with message "Accessory Code is mandatory. You must enter data in this field before saving the form. Do you want to correct the value?"
                     return Json("");
@@ -327,25 +324,25 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 var a = JArray.Parse(jsonObject["IntHACode"].ToString());
 
                 intHACodeTotal = a.Aggregate(intHACodeTotal,
-                    (current, t) => current + int.Parse(t["id"]?.ToString() ?? Empty));
+                    (current, t) => current + int.Parse(t["id"]?.ToString() ?? string.Empty));
                 request.intHACode = intHACodeTotal;
             }
 
             var intOrder = 0;
             if (jsonObject["intOrder"] != null)
             {
-                intOrder = IsNullOrEmpty(((JValue) jsonObject["intOrder"]).Value?.ToString())
+                intOrder = string.IsNullOrEmpty(((JValue)jsonObject["intOrder"]).Value?.ToString())
                     ? 0
                     : int.Parse(jsonObject["intOrder"].ToString());
             }
 
             request.BaseReferenceId = null;
-            request.Default = jsonObject["StrDefault"] != null ? jsonObject["StrDefault"].ToString() : Empty;
-            request.Name = jsonObject["StrName"] != null ? jsonObject["StrName"].ToString() : Empty;
+            request.Default = jsonObject["StrDefault"] != null ? jsonObject["StrDefault"].ToString() : string.Empty;
+            request.Name = jsonObject["StrName"] != null ? jsonObject["StrName"].ToString() : string.Empty;
             request.intOrder = intOrder;
             request.LanguageId = GetCurrentLanguage();
-            request.ReferenceTypeId = (long) ReferenceTypes.CollectionMethod;
-            request.EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange;
+            request.ReferenceTypeId = (long)ReferenceTypes.CollectionMethod;
+            request.EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange;
             request.AuditUserName = authenticatedUser.UserName;
             request.LocationId = authenticatedUser.RayonId;
             request.SiteId = Convert.ToInt64(authenticatedUser.SiteId);
@@ -353,7 +350,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
             var response = await _adminClient.SaveBaseReference(request);
             response.strDuplicatedField =
-                Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
+                string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
             return Json(response);
         }
 
@@ -362,22 +359,22 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         {
             var request = new VectorTypeSaveRequestModel();
 
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             request.VectorTypeId = null;
-            request.Default = jsonObject["Default"] != null && jsonObject["Default"].ToString() != Empty
+            request.Default = jsonObject["Default"] != null && jsonObject["Default"].ToString() != string.Empty
                 ? jsonObject["Default"].ToString()
                 : "";
-            request.Name = jsonObject["Name"] != null && jsonObject["Name"].ToString() != Empty
+            request.Name = jsonObject["Name"] != null && jsonObject["Name"].ToString() != string.Empty
                 ? jsonObject["Name"].ToString()
                 : "";
-            request.Code = jsonObject["Code"] != null && jsonObject["Code"].ToString() != Empty
+            request.Code = jsonObject["Code"] != null && jsonObject["Code"].ToString() != string.Empty
                 ? jsonObject["Code"].ToString()
                 : "";
-            request.intOrder = jsonObject["Order"] != null && jsonObject["Order"].ToString() != Empty
+            request.intOrder = jsonObject["Order"] != null && jsonObject["Order"].ToString() != string.Empty
                 ? int.Parse(jsonObject["Order"].ToString())
                 : null;
             request.CollectionByPool = false;
-            if (jsonObject["CollectedByPool"] != null && jsonObject["CollectedByPool"].ToString() != Empty &&
+            if (jsonObject["CollectedByPool"] != null && jsonObject["CollectedByPool"].ToString() != string.Empty &&
                 jsonObject["CollectedByPool"].ToString().Contains("1"))
                 request.CollectionByPool = true;
 
@@ -385,7 +382,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
             var response = await _vectorTypeClient.SaveVectorType(request);
             response.strDuplicatedField =
-                Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
+                string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage), request.Default);
             return Json(response);
         }
     }

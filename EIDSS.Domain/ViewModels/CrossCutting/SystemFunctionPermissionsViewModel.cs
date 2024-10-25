@@ -9,6 +9,10 @@ namespace EIDSS.Domain.ViewModels.CrossCutting
 {
     public class SystemFunctionPermissionsViewModel :BaseModel
     {
+   
+       // public string SystemFunctions { get; set; }
+       // public PermissionViewModel Read { get; set; }
+
         public long? RoleID { get; set; }
         public long SystemFunctionId { get; set; }
         public string Permission { get; set; }

@@ -1,0 +1,38 @@
+@using EIDSS.Web.Components.CrossCutting
+
+@inherits EIDSS.Web.Components.Human.HumanDiseaseReport.HumanDiseasePrintModalBase
+
+<RadzenStack Visible="@Visible" class="@(Visible ? "modal fade show" : "modal fade")" id="printModal" tabindex="-1" role="dialog" aria-labelledby="printModal">
+    <div class="modal-dialog" style="top: 150px; left: 150px; max-width: 1050px; max-height: 600px; resize: both">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@Localizer.GetString(@HeadingResourceKeyConstants.CommonHeadingsPrintHeading)</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="Hide">×</button>
+            </div>
+            <div class="modal-body" style="width: 1050px; height: 600px;">
+                <RadzenRadioButtonList class="form-control" TValue="string" @bind-Value="@SelectedTab">
+                    <Items>
+                        <RadzenRadioButtonListItem
+                            Text="@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportNotificationHeading)"
+                            Value="@NotificationTabName"/>
+                        <RadzenRadioButtonListItem
+                            Text="@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportCaseInvestigationDetailsHeading)"
+                            Value="@DiseaseTabName"/>
+                    </Items>
+                </RadzenRadioButtonList>
+                <RadzenStack Visible="@(Visible && SelectedTab == NotificationTabName)">
+                    <DisplayReport
+                        ReportHeader="@ContactPrintViewModel.ReportHeading"
+                        ReportName="@ContactPrintViewModel.ReportName"
+                        Parameters="@ContactPrintViewModel.Parameters"/>
+                </RadzenStack>
+                <RadzenStack Visible="@(Visible && SelectedTab == DiseaseTabName)">
+                    <DisplayReport
+                        ReportHeader="@CaseInvestigationPrintViewModel.ReportHeading"
+                        ReportName="@CaseInvestigationPrintViewModel.ReportName"
+                        Parameters="@CaseInvestigationPrintViewModel.Parameters"/>
+                </RadzenStack>
+            </div>
+        </div>
+    </div>
+</RadzenStack>

@@ -19,8 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static System.Int64;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Configuration.Controllers
 {
@@ -60,9 +58,9 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             long? id = null;
             if (referenceType.SampleTypeDD != null)
             {
-                if (!IsNullOrEmpty(referenceType.SampleTypeDD))
+                if (!string.IsNullOrEmpty(referenceType.SampleTypeDD))
                 {
-                    id = Parse(referenceType.SampleTypeDD);
+                    id = long.Parse(referenceType.SampleTypeDD);
                 }
             }
 
@@ -73,7 +71,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 var valuePair = dataTableQueryPostObj.ReturnSortParameter();
 
                 var strSortColumn = "strDerivative";
-                if (!IsNullOrEmpty(valuePair.Key) && valuePair.Key != "KeyId")
+                if (!string.IsNullOrEmpty(valuePair.Key) && valuePair.Key != "KeyId")
                 {
                     strSortColumn = valuePair.Key;
                 }
@@ -85,7 +83,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                     Page = dataTableQueryPostObj.page,
                     PageSize = dataTableQueryPostObj.length,
                     SortColumn = strSortColumn,
-                    SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending
+                    SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Ascending
                 };
 
                 list = await _configurationClient.GetSampleTypeDerivativeMatrixList(request);
@@ -122,14 +120,14 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
         public async Task<JsonResult> Create([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             APISaveResponseModel response;
 
             try
             {
                 if (jsonObject["SampleTypeDD"] != null)
                 {
-                    if (IsNullOrEmpty(jsonObject["SampleTypeDD"][0]?["id"]?.ToString()))
+                    if (string.IsNullOrEmpty(jsonObject["SampleTypeDD"][0]?["id"]?.ToString()))
                     {
                         // should select a Sample Type
                         return Json("");
@@ -139,15 +137,15 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 long idfsDerivativeType = 0;
                 if (jsonObject["idfsDerivativeType"] != null)
                 {
-                    idfsDerivativeType = Parse(jsonObject["idfsDerivativeType"][0]?["id"]?.ToString() ?? Empty);
+                    idfsDerivativeType = long.Parse(jsonObject["idfsDerivativeType"][0]?["id"]?.ToString() ?? string.Empty);
                 }
 
                 var request = new SampleTypeDerivativeMatrixSaveRequestModel
                 {
                     idfDerivativeForSampleType = null,
-                    idfsSampleType = jsonObject["SampleTypeDD"]?[0]?["id"] != null ? Parse(jsonObject["SampleTypeDD"][0]["id"].ToString()) : null,
+                    idfsSampleType = jsonObject["SampleTypeDD"]?[0]?["id"] != null ? long.Parse(jsonObject["SampleTypeDD"][0]["id"].ToString()) : null,
                     idfsDerivativeType = idfsDerivativeType,
-                    EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                    EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                     UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                     LocationId = authenticatedUser.RayonId,
@@ -157,7 +155,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 response = await _configurationClient.SaveSampleTypeDerivativeMatrix(request);
                 response.strClientPageMessage = response.ReturnMessage switch
                 {
-                    "DOES EXIST" => Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage),
+                    "DOES EXIST" => string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage),
                         jsonObject["idfsDerivativeType"]?[0]?["text"]),
                     "SUCCESS" => _localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage),
                     _ => response.strClientPageMessage
@@ -177,21 +175,21 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         {
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
                 if (jsonObject["KeyId"] != null)
                 {
                     var request = new SampleTypeDerivativeMatrixSaveRequestModel
                     {
-                        idfDerivativeForSampleType = Convert.ToInt64(jsonObject["KeyId"].ToString()),                                               
-                        EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                        idfDerivativeForSampleType = Convert.ToInt64(jsonObject["KeyId"].ToString()),
+                        EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                         UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                         LocationId = authenticatedUser.RayonId,
                         User = authenticatedUser.UserName,
                         deleteAnyway = false
                     };
-                    
+
                     var response = await _configurationClient.DeleteSampleTypeDerivativeMatrix(request);
 
                     if (response.ReturnMessage == "IN USE")

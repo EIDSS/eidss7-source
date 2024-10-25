@@ -1,0 +1,26 @@
+@using EIDSS.Web.ViewModels.Human
+@using EIDSS.Web.Components.Human.Person
+@inherits EIDSS.Web.Components.Human.HumanDiseaseReport.DiseaseReportPersonalInformationBase
+
+<CascadingValue TValue="string" Value="@("HDR")" Name="ParentScopeModel">
+    <RadzenTemplateForm @ref="@Form" TItem="@DiseaseReportPersonalInformationPageViewModel" Data="@Model" id="PersonalInfoForm">
+        <div class="card">
+            <div class="card-header"><h4>@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportPersonInformationHeading)</h4></div>
+            <div class="card-body">
+                <section>
+                    <PersonInformationSection 
+                        CollectEndDateOfAgeCalculationHandler="@(() => HdrStateContainer.GetEndDateForAgeCalculation())" 
+                        OnDateOnBirthChange="@OnDateOfBirthChange"
+                        HdrDateOfBirthDisabled="@IsReportClosed"
+                        @ref="@PersonInformationSection"/>
+                </section>
+                <section>
+                    <PersonAddressSection />
+                </section>
+                <section>
+                    <PersonEmploymentSchool />
+                </section>
+            </div>
+        </div>
+    </RadzenTemplateForm>
+</CascadingValue>

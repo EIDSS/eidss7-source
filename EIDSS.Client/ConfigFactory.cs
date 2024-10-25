@@ -42,6 +42,7 @@ namespace EIDSS.ClientLibrary
         {
             AuthenticatedUser user = null;
 
+            // Traffic light.... we want to mitigate issues...
             lock (_object)
             {
                 if (_tokencoll.ContainsKey(username))
@@ -50,6 +51,8 @@ namespace EIDSS.ClientLibrary
                     if (isTokenExpired(username))
                     {
                         // remove the token...
+                        //_tokencoll.Remove(username);
+                        //throw new Exception("Your session has expired!  You must log into the system again.");
                     }
                 }
                 return user;
@@ -119,5 +122,10 @@ namespace EIDSS.ClientLibrary
             UserPrefs = prefs;
         }
 
+        //static ConfigFactory()
+        //{
+        //    PreferenceServiceClient ps = new PreferenceServiceClient();
+        //    var x = ps.InitializeSystemPreferences();
+        //}
     }
 }

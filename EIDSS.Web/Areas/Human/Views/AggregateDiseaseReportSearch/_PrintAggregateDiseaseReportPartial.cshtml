@@ -3,30 +3,99 @@
 
 @using EIDSS.Web.Components.CrossCutting;
 
+@*<input asp-for="Prefix"  type="hidden"/>
+<input asp-for="Site"  type="hidden" />
+<input asp-for="TypeOfBarCodeLabel"  type="hidden" />
+<input asp-for="Year" type="hidden" />*@
 
 
 <div class="row">
     
- 
+
+   @* <div class="form-group col-lg-4 col-md-4">
+        <i class="fas fa-asterisk text-danger"></i>
+        <label asp-for="LanguageId" field-label-for="@(FieldLabelResourceKeyConstants.LanguageFieldLabel + "," + Model.LanguageId)"></label>
+        <div class="input-group">
+            <select asp-for="LanguageId" class="form-control"
+                    asp-items="@(new SelectList(Model.ReportLanguageModels, "LangID", "Language"))" class="form-control">
+            </select>
+        </div>
+    </div>*@
+    @*<div class="form-group col-lg-6 col-md-6">
+        <i class="fas fa-asterisk text-danger"></i>
+        <label asp-for="TypeOfBarCodeLabelName" field-label-for="@(FieldLabelResourceKeyConstants.PrintBarcodesTypeOfBarcodeLabelFieldLabel + "," + Model.LanguageId)"></label>
+        <div class="input-group">
+            <input asp-for="TypeOfBarCodeLabelName"   class="form-control" style="width: 200px" disabled="disabled"/>
+        </div>
+    </div>*@
+   
+
+  
 </div>
 
 <div class="row">
+    @*<div class="form-group col-lg-8 col-md-8">
+        <i class="fas fa-asterisk text-danger"></i>
+        <label asp-for="LanguageId" field-label-for="@(FieldLabelResourceKeyConstants.PrintBarcodesNumberOfLabelsToPrintFieldLabel + "," + Model.LanguageId)"></label>
+        <div class="input-group">
+            <input asp-for="NoOfLabelsToPrint" class="form-control" min="1" max="32567" type="number"  maxlength="5" oninput="numberOnly(this.id);"  
+                   onKeyPress="if(this.value.length => 5) return false;" 
+                   onKeyUp="if(this.value>999){this.value='32567';}else if(this.value<1){this.value='';}"/>
+
+        </div>
+    </div>*@
+    
+   @* <div class="form-group col-lg-2 col-md-2">
+    </div>
+
+    <div class="form-group col-lg-2 col-md-2">
+           <button type="button" id="submitReport" onclick="showPrintReport()" class="btn btn-primary" button-for="@(ButtonResourceKeyConstants.GenerateReportButton + "," + Model.iLIAggregateFormSearchRequestModel.LanguageId)"></button>
+    </div>*@
 
 </div>
 
 <div class="row">
+@*    
+    <div class="form-group col-md-2">
+        <div class="input-group">
+            <input asp-for="isPrefixChecked" class="form-check-input" type="checkbox"/>
+            <label asp-for="isPrefixChecked" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.PrintBarcodesPrefixFieldLabel + "," + Model.LanguageId)"></label>
+        </div>
+    </div>
+    <div class="form-group col-md-2">
+        <div class="input-group">
+            <input asp-for="isSiteChecked" class="form-check-input" type="checkbox"/>
+            <label asp-for="isSiteChecked" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.SiteFieldLabel + "," + Model.LanguageId)"></label>
+        </div>
+    </div>
+    <div class="form-group col-md-2">
+        <div class="input-group">
+            <input asp-for="isYearChecked" class="form-check-input" type="checkbox"/>
+            <label asp-for="isYearChecked" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.YearFieldLabel + "," + Model.LanguageId)"></label>
+        </div>
+    </div>
+    <div class="form-group col-md-2">
+        <div class="input-group">
+            <input asp-for="isDateChecked" class="form-check-input" type="checkbox"/>
+            <label asp-for="isDateChecked" class="form-check-label" field-label-for="@(FieldLabelResourceKeyConstants.PrintBarcodesDateFieldLabel + "," + Model.LanguageId)"></label>
+        </div>
+    </div>*@
 
 </div>
 
 
 
 <div style="height:480px">
+   @* @if (Model.ShowBarCodePrintArea)
+    {*@
+
         <component type="typeof(DisplayReport)"
                    render-mode="ServerPrerendered"
                    param-ReportHeader="@Model.ReportHeader"
                    param-ReportName="@Model.ReportName"
                    param-ParametersJSON="@Model.PrintParameters"
                    param-CancelButtonVisibleIndicator="false"/>
+    @*}*@
 </div>
 
 
@@ -37,6 +106,18 @@
 
 
         var model = {};
+        //model.prefix = $("#Prefix").val();
+        //model.site = $("#Site").val();
+        //model.year = $("#Year").val();
+        //model.noOfLabelsToPrint = $("#NoOfLabelsToPrint").val();
+        //model.typeOfBarCodeLabel = $("#TypeOfBarCodeLabel").val();
+        //model.typeOfBarCodeLabelName = $("#TypeOfBarCodeLabelName").val();
+        //model.isPrefixChecked = $("#isPrefixChecked").prop('checked');
+        //model.isSiteChecked = $("#isSiteChecked").prop('checked');
+        //model.isYearChecked = $("#isYearChecked").prop('checked');
+        //model.isDateChecked = $("#isDateChecked").prop('checked');
+        //model.showBarCodePrintArea = "true";
+        //model.languageId = $("#LanguageId").val();
 
         //go get the detail partial view for the modal
         $.ajax({
@@ -54,8 +135,10 @@
 
             },
             complete: function (resp) {
+                //alert('complete');
             },
             error: function (request, error) {
+                //alert(error);
             }
         });
 
@@ -92,8 +175,10 @@
 
             },
             complete: function (resp) {
+                //alert('complete');
             },
             error: function (request, error) {
+                //alert(error);
             }
         });
 

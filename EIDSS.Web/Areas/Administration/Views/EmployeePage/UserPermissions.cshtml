@@ -271,6 +271,9 @@
 
             <div class="card-header"><h1>System Functions</h1></div>
             <div class="card-body">
+                @*<div id="SystemFunctionsPermissions" class="card-body collapse in">*@
+                @* @await Component.InvokeAsync("SystemFunctionsView",Model)*@
+                @*</div>*@
             </div>
         </div>
         <div class="card-footer">
@@ -372,6 +375,7 @@
                     var selectedData = new Object();
                     if ($("#UserGroupDD").val() != null && $("#UserGroupDD").val() != "" && $("#UserGroupDD").val() != undefined)
                         selectedData.UserGroupDD = $("#UserGroupDD").val();
+                    // selectedData.UserGroupDD = "-501,-508,389445040000888";
                     selectedData.EmployeeID = 420664190000901;
                     selectedDataList.push(selectedData);
                     $.ajax({
@@ -404,6 +408,7 @@
                         contentType: "application/json; charset=utf-8",
                     })
                         .done(function (data) {
+                         //   SaveSystemFunctions();
                         });
 
                 }
@@ -451,6 +456,44 @@
                     debugger;
                     alert($("#submitbtn"));
                     SaveEmployeeOrganizationRoleData();
+                    //PermissionObjectList = [];
+                    //var table = $('#tblPermission').DataTable({
+                    //    searching: false,
+                    //    lengthChange: false,
+                    //    paging: false,
+                    //    orderable: false,
+                    //    rowReorder: false
+                    //});
+                    //if (table.rows().eq(0) != null) {
+                    //    var intNumRow = 1;
+                    //    table.rows().eq(0).each(function (index) {
+                    //        var row = table.row(index);
+                    //        permissionItem = new Object();
+                    //        permissionItem.IsEmpty = false;
+                    //        permissionItem.IntNumRow = intNumRow;
+                    //        permissionItem.RoleID = 420664190000901;
+                    //        permissionItem.SystemFunctionID = row.nodes().to$().find('input:hidden').val();
+                    //        permissionItem.Permission = row.nodes().to$().find('.functions').val();
+                    //        permissionItem.CreatePermission = row.nodes().to$().find('.Create').prop('checked');                          
+                    //        permissionItem.ReadPermission = row.nodes().to$().find('.Read').prop('checked');                           
+                    //        permissionItem.WritePermission = row.nodes().to$().find('.Write').prop('checked');
+                    //        permissionItem.ExecutePermission = row.nodes().to$().find('.Execute').prop('checked');
+                    //        permissionItem.DeletePermission = row.nodes().to$().find('.DeletePer').prop('checked');
+                    //        permissionItem.AccessToPersonalDataPermission = row.nodes().to$().find('.PersonalData').prop('checked');
+                    //        permissionItem.AccessToGenderAndAgeDataPermission = row.nodes().to$().find('.GenderData').prop('checked');
+                    //        PermissionObjectList.push(permissionItem);
+                    //    });
+                    //}
+                    //$.ajax({
+                    //    url: "SaveSystemFunctions",
+                    //    type: 'POST',
+                    //    data: JSON.stringify(PermissionObjectList),
+                    //    dataType: 'json',
+                    //    contentType: "application/json; charset=utf-8",
+                    //    })
+                    //    .done(function (data) {
+                    //        RenderSystemFunctionsComponent();
+                    //    });                         
                 });
             </script>
         }

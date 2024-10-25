@@ -3,6 +3,11 @@
 <form id="userGroupInfoForm">
     <input type="hidden" asp-for="UserGroupDetails.idfEmployeeGroup" />
     <input type="hidden" id="recordSelectionIndicator" />
+    @*<input type="hidden" asp-for="OrganizationDetails.AddressID" />
+        <input type="hidden" asp-for="OrganizationDetails.AbbreviatedNameReferenceID" />
+        <input type="hidden" asp-for="OrganizationDetails.FullNameReferenceID" />
+        <input type="hidden" asp-for="OrganizationDetails.AccessoryCodeIDsString" />
+        <input type="hidden" asp-for="OrganizationDetails.AccessoryCodeNamesString" />*@
     <div class="container-fluid">
         <div class="form-row">
             <div class="col-md-11">
@@ -20,14 +25,18 @@
                 <span asp-validation-for="UserGroupDetails.strDefault" class="text-danger"></span>
             </div>
             <div class="form-group col-md-6">
+                @*<i class="fas fa-asterisk text-danger"></i>*@
                 <label asp-for="UserGroupDetails.strName" field-label-for="@FieldLabelResourceKeyConstants.UserGroupDetailsNationalNameFieldLabel"></label>
                 <input asp-for="UserGroupDetails.strName" class="form-control" />
+                @*<span asp-validation-for="UserGroupDetails.strName" class="text-danger"></span>*@
             </div>
         </div>
         <div class="form-row">
             <div class="form-group col-md-6">
+                @*<i class="fas fa-asterisk text-danger"></i>*@
                 <label asp-for="UserGroupDetails.strDescription" field-label-for="@FieldLabelResourceKeyConstants.UserGroupDetailsDescriptionFieldLabel"></label>
                 <input asp-for="UserGroupDetails.strDescription" class="form-control" />
+                @*<span asp-validation-for="UserGroupDetails.strDescription" class="text-danger"></span>*@
             </div>
         </div>
     </div>

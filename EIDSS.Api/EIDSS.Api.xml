@@ -4,37 +4,6 @@
         <name>EIDSS.Api</name>
     </assembly>
     <members>
-        <member name="T:EIDSS.Api.Abstracts.EIDSSControllerBase">
-            <summary>
-            Base controller class
-            </summary>
-        </member>
-        <member name="M:EIDSS.Api.Abstracts.EIDSSControllerBase.GetFromCache``1(System.String)">
-            <summary>
-            Returns item T from the cache given the cachekey.
-            If item isn't found, null is returned
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="cachekey"></param>
-            <returns></returns>
-        </member>
-        <!-- Badly formed XML comment ignored for member "M:EIDSS.Api.Abstracts.EIDSSControllerBase.SetCache``1(System.String,``0,System.Boolean,System.Boolean,System.Nullable{System.Int32},System.Nullable{System.Int32})" -->
-        <member name="T:EIDSS.Api.ActionFilters.SystemEventActionFilterAttribute">
-            <summary>
-            System event action filter that when decorated on an API method fires upon the successful completion of that method and inserts the associated event into the eventing tables
-            </summary>
-        </member>
-        <member name="F:EIDSS.Api.ActionFilters.SystemEventActionFilterAttribute._eventParticipation">
-            <summary>
-            The event assocated with the call
-            </summary>
-        </member>
-        <member name="M:EIDSS.Api.ActionFilters.SystemEventActionFilterAttribute.OnResultExecuted(Microsoft.AspNetCore.Mvc.Filters.ResultExecutedContext)">
-            <summary>
-            Called after the associated API completes.  This method calls the MQ service to insert the associated event if the API call produced a StatusCode 200.
-            </summary>
-            <param name="context"></param>
-        </member>
         <member name="T:EIDSS.Api.CodeGeneration.Configuration.GetSampleTypeDerivativeTypeMatrixListAsync">
             <summary>
             </summary>
@@ -92,12 +61,6 @@
             Indicates the return type of the repository function that will be called in the EIDSSContext class.
             </summary>
         </member>
-        <member name="P:EIDSS.Api.CodeGeneration.Control.ICodeGenDirective.FiresEvent">
-            <summary>
-            A 64 bit signed integer representing the base reference identifier of the system event the API method fires when completed.
-            This value is defaulted and must specify the actual event participation in all implemented classes.
-            </summary>
-        </member>
         <member name="P:EIDSS.Api.CodeGeneration.Control.ICodeGenDirective.MethodParameters">
             <summary>
             A string representing the generated API parameters.  Typically these paramaters mimic the parameters
@@ -125,11 +88,24 @@
             
             </summary>
         </member>
+        <member name="T:EIDSS.Api.ControllerBehavior.ControllerVisibilityConventions">
+            <summary>
+            Hides  various security controller api methods.
+            </summary>
+        </member>
         <member name="M:EIDSS.Api.Controllers.AdminController.UserExists(System.String)">
-            <summary>   
-            VerifyUserName 
+            <summary>
+            VerifyUserName
             </summary>
             <param name="userName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EIDSS.Api.Controllers.AdminController.GetUserClaims(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Gets GetUserClaims
+            </summary>
+            <param name="userName">UserName</param>
+            <param name="cancellationToken">A token that will enable cooperative cancellation of this task</param>
             <returns></returns>
         </member>
         <member name="M:EIDSS.Api.Controllers.AdminController.GetUserRolesAndPermissions(System.Nullable{System.Int64},System.Nullable{System.Int64},System.Threading.CancellationToken)">
@@ -148,8 +124,14 @@
             <returns></returns>
         </member>
         <member name="M:EIDSS.Api.Controllers.AdminController.UpdateIdentityOptions">
-            <summary>   
-            UpdateIdentityOptions 
+            <summary>
+            UpdateIdentityOptions
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EIDSS.Api.Controllers.AdminController.ConnectToArchive(System.Boolean)">
+            <summary>
+            ConnectToArchive
             </summary>
             <returns></returns>
         </member>
@@ -173,10 +155,53 @@
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
+        <member name="M:EIDSS.Api.Controllers.Administration.Security.DataAuditController.GetTransactionLogDetailRecords(System.String,System.Int64,System.Threading.CancellationToken)">
+            <summary>
+            Retrieves a GetTransactionLogDetail 
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:EIDSS.Api.Controllers.Administration.Security.SiteController.GetSiteDetails(System.String,System.Int64,System.Int64,System.Threading.CancellationToken)">
             <summary>
-            Retrieves a GetSiteDetails 
+            Gets a site detail record.
             </summary>
+            <param name="languageId"></param>
+            <param name="siteId"></param>
+            <param name="userId"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EIDSS.Api.Controllers.Administration.Security.SiteController.GetSiteList(EIDSS.Domain.RequestModels.Administration.Security.SiteGetRequestModel,System.Threading.CancellationToken)">
+            <summary>
+            
+            </summary>
+            <param name="request"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EIDSS.Api.Controllers.Administration.Security.SiteController.GetSiteActorList(EIDSS.Domain.RequestModels.Administration.Security.SiteActorGetRequestModel,System.Threading.CancellationToken)">
+            <summary>
+            
+            </summary>
+            <param name="request"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EIDSS.Api.Controllers.Administration.Security.SiteController.SaveSite(EIDSS.Domain.RequestModels.Administration.Security.SiteSaveRequestModel,System.Threading.CancellationToken)">
+            <summary>
+            
+            </summary>
+            <param name="request"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EIDSS.Api.Controllers.Administration.Security.SiteController.DeleteSite(System.Int64,System.String,System.Threading.CancellationToken)">
+            <summary>
+            
+            </summary>
+            <param name="siteId"></param>
+            <param name="auditUserName"></param>
+            <param name="cancellationToken"></param>
             <returns></returns>
         </member>
         <member name="M:EIDSS.Api.Controllers.Administration.Security.SiteGroupController.GetSiteGroupDetails(System.String,System.Int64,System.Threading.CancellationToken)">
@@ -224,48 +249,40 @@
         </member>
         <member name="T:EIDSS.Api.Controllers.ConfigurationController">
             <summary>
-            
             </summary>
         </member>
         <member name="M:EIDSS.Api.Controllers.ConfigurationController.#ctor(EIDSS.Repository.Interfaces.IDataRepository,Microsoft.Extensions.Caching.Memory.IMemoryCache)">
             <summary>
-            Creates a new instance of the class.
+                Creates a new instance of the class.
             </summary>
             <param name="repository"></param>
         </member>
         <member name="M:EIDSS.Api.Controllers.ConfigurationController.GetHumanDiseaseMatrixListAsync(System.Nullable{System.Int64},System.Nullable{System.Int64},System.String,System.Threading.CancellationToken)">
             <summary>
-            Retrieves a list of human diseases
+                Retrieves a list of human aggregate disease report matrices
             </summary>
             <returns></returns>
         </member>
         <member name="M:EIDSS.Api.Controllers.ConfigurationController.GetHumanDiseaseDiagnosisMatrixListAsync(System.Nullable{System.Int64},System.Nullable{System.Int64},System.String,System.Threading.CancellationToken)">
             <summary>
-            Retrieves a list of human disease diagnosis
+                Retrieves a list of human disease diagnosis
             </summary>
             <returns></returns>
         </member>
         <member name="M:EIDSS.Api.Controllers.ConfigurationController.GetVeterinaryDiagnosticInvestigationMatrixReport(EIDSS.Domain.RequestModels.Configuration.MatrixGetRequestModel,System.Threading.CancellationToken)">
             <summary>
-            Retrieves a list of matrix versions by type
+                Retrieves a list of matrix versions by type
             </summary>
             <returns></returns>
         </member>
         <member name="M:EIDSS.Api.Controllers.ConfigurationController.GetVeterinaryDiseaseMatrixListAsync(System.Nullable{System.Int64},System.Nullable{System.Int64},System.String,System.Threading.CancellationToken)">
             <summary>
-            Retrieves a list of veterinary diseases
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:EIDSS.Api.Controllers.ConfigurationController.SaveVeterinaryDiagnosticInvestigationMatrix(EIDSS.Domain.ViewModels.Configuration.MatrixViewModel,System.Threading.CancellationToken)">
-            <summary>
-            Retrieves a list of Veterinary Prophylactic Measures
+                Retrieves a list of veterinary diseases
             </summary>
             <returns></returns>
         </member>
         <member name="M:EIDSS.Api.Controllers.ConfigurationController.GetSpeciesAnimalAgeListAsync(EIDSS.Domain.RequestModels.Configuration.SpeciesAnimalAgeGetRequestModel,System.Threading.CancellationToken)">
             <summary>
-            
             </summary>
             <param name="request"></param>
             <param name="cancellationToken"></param>
@@ -279,18 +296,16 @@
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
-        <member name="M:EIDSS.Api.Controllers.ConfigurationController.DeleteSpeciesAnimalAge(System.Int64,System.Nullable{System.Boolean},System.Threading.CancellationToken)">
+        <member name="M:EIDSS.Api.Controllers.ConfigurationController.DeleteSpeciesAnimalAge(EIDSS.Domain.RequestModels.Configuration.SpeciesAnimalAgeSaveRequestModel,System.Threading.CancellationToken)">
             <summary>
             Delete a Species Animal Age
             </summary>
-            <param name="idfSpeciesTypeToAnimalAge"></param>
-            <param name="deleteAnyway"></param>
+            <param name="request"></param>
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
         <member name="M:EIDSS.Api.Controllers.ConfigurationController.GetSampleTypeDerivativeMatrixListAsync(EIDSS.Domain.RequestModels.Configuration.SampleTypeDerivativeMatrixGetRequestModel,System.Threading.CancellationToken)">
             <summary>
-            
             </summary>
             <param name="request"></param>
             <param name="cancellationToken"></param>
@@ -298,24 +313,22 @@
         </member>
         <member name="M:EIDSS.Api.Controllers.ConfigurationController.SaveSampleTypeDerivativeMatrix(EIDSS.Domain.RequestModels.Configuration.SampleTypeDerivativeMatrixSaveRequestModel,System.Threading.CancellationToken)">
             <summary>
-            Save a Sample Type Derivative Type Matrix
+                Save a Sample Type Derivative Type Matrix
             </summary>
             <param name="request"></param>
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
-        <member name="M:EIDSS.Api.Controllers.ConfigurationController.DeleteSampleTypeDerivativeMatrix(System.Int64,System.Nullable{System.Boolean},System.Threading.CancellationToken)">
+        <member name="M:EIDSS.Api.Controllers.ConfigurationController.DeleteSampleTypeDerivativeMatrix(EIDSS.Domain.RequestModels.Configuration.SampleTypeDerivativeMatrixSaveRequestModel,System.Threading.CancellationToken)">
             <summary>
-            Delete a Sample Type Derivative Type Matrix
+                Delete a Sample Type Derivative Type Matrix
             </summary>
-            <param name="idfDerivativeForSampleType"></param>
-            <param name="deleteAnyway"></param>
+            <param name="request"></param>
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
         <member name="M:EIDSS.Api.Controllers.ConfigurationController.GetCustomReportRowsMatrixListAsync(EIDSS.Domain.RequestModels.Configuration.CustomReportRowsMatrixGetRequestModel,System.Threading.CancellationToken)">
             <summary>
-            
             </summary>
             <param name="request"></param>
             <param name="cancellationToken"></param>
@@ -323,7 +336,7 @@
         </member>
         <member name="M:EIDSS.Api.Controllers.ConfigurationController.SaveCustomReportRowsMatrix(EIDSS.Domain.RequestModels.Configuration.CustomReportRowsMatrixSaveRequestModel,System.Threading.CancellationToken)">
             <summary>
-            Save a Custom Report Rows Matrix
+                Save a Custom Report Rows Matrix
             </summary>
             <param name="request"></param>
             <param name="cancellationToken"></param>
@@ -331,7 +344,7 @@
         </member>
         <member name="M:EIDSS.Api.Controllers.ConfigurationController.DeleteCustomReportRowsMatrix(System.Int64,System.Nullable{System.Boolean},System.Threading.CancellationToken)">
             <summary>
-            Delete a Custom Report Rows Matrix
+                Delete a Custom Report Rows Matrix
             </summary>
             <param name="idfReportRows"></param>
             <param name="deleteAnyway"></param>
@@ -340,7 +353,6 @@
         </member>
         <member name="M:EIDSS.Api.Controllers.ConfigurationController.GetDiseaseGroupDiseaseMatrixListAsync(EIDSS.Domain.RequestModels.Configuration.DiseaseGroupDiseaseMatrixGetRequestModel,System.Threading.CancellationToken)">
             <summary>
-            
             </summary>
             <param name="request"></param>
             <param name="cancellationToken"></param>
@@ -348,18 +360,17 @@
         </member>
         <member name="M:EIDSS.Api.Controllers.ConfigurationController.SaveDiseaseGroupDiseaseMatrix(EIDSS.Domain.RequestModels.Configuration.DiseaseGroupDiseaseMatrixSaveRequestModel,System.Threading.CancellationToken)">
             <summary>
-            Save a Disease Group Disease Matrix
+                Save a Disease Group Disease Matrix
             </summary>
             <param name="request"></param>
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
-        <member name="M:EIDSS.Api.Controllers.ConfigurationController.DeleteDiseaseGroupDiseaseMatrix(System.Int64,System.Nullable{System.Boolean},System.Threading.CancellationToken)">
+        <member name="M:EIDSS.Api.Controllers.ConfigurationController.DeleteDiseaseGroupDiseaseMatrix(EIDSS.Domain.RequestModels.Configuration.DiseaseGroupDiseaseMatrixSaveRequestModel,System.Threading.CancellationToken)">
             <summary>
             Delete a Disease Group Disease Matrix
             </summary>
-            <param name="idfDiagnosisToDiagnosisGroup"></param>
-            <param name="deleteAnyway"></param>
+            <param name="request"></param>
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
@@ -374,18 +385,9 @@
             This service contains common functionality shared amoung all other EIDSS modules
             </summary>
         </member>
-        <member name="M:EIDSS.Api.Controllers.CrossCuttingController.#ctor(EIDSS.Repository.Interfaces.IDataRepository,Microsoft.Extensions.Options.IOptionsSnapshot{EIDSS.Api.Provider.XSiteConfigurationOptions},EIDSS.Repository.IxSiteContextHelper,Microsoft.Extensions.Caching.Memory.IMemoryCache)">
-            <summary>
-            Creates a new instance of the class.
-            </summary>
-            <param name="repository"></param>
-            <param name="options"></param>
-            <param name="xsitehelper"></param>
-            <param name="memoryCache"></param>
-        </member>
         <member name="M:EIDSS.Api.Controllers.CrossCuttingController.GetActorList(EIDSS.Domain.RequestModels.CrossCutting.ActorGetRequestModel,System.Threading.CancellationToken)">
             <summary>
-            Gets a list of actors (users, user groups, sites and site groups) for configurable and 
+            Gets a list of actors (users, user groups, sites and site groups) for configurable and
             disease filtration.
             </summary>
             <param name="request"></param>
@@ -394,7 +396,16 @@
         </member>
         <member name="M:EIDSS.Api.Controllers.CrossCuttingController.GetObjectAccessList(EIDSS.Domain.RequestModels.Administration.ObjectAccessGetRequestModel,System.Threading.CancellationToken)">
             <summary>
-            Gets a list of actors (users, user groups, sites and site groups) for configurable and 
+            Gets a list of actors (users, user groups, sites and site groups) for configurable and
+            disease filtration.
+            </summary>
+            <param name="request"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EIDSS.Api.Controllers.CrossCuttingController.GetDiseaseTestList(EIDSS.Domain.RequestModels.CrossCutting.DiseaseTestGetRequestModel,System.Threading.CancellationToken)">
+            <summary>
+            Gets a list of actors (users, user groups, sites and site groups) for configurable and
             disease filtration.
             </summary>
             <param name="request"></param>
@@ -443,45 +454,30 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:EIDSS.Api.Controllers.CrossCuttingController.GetXSITEHelpFile(System.String)">
-            <summary>
-            Retrieves the given xsite help file as a stream...
-            </summary>
-            <param name="filename">A fully qualified path to the location of the file on disk.  This filename will have been returned
-            via a call to the <see cref="M:EIDSS.Api.Controllers.CrossCuttingController.GetXSiteDocumentList(System.String,System.Threading.CancellationToken)"/> method.</param>
-            <returns>
-            Returns a JSON OBJECT APIFileResponseModel with Properties: ReturnCode, ReturnMessage and the results payload
-            </returns>
-        </member>
         <member name="T:EIDSS.Api.Controllers.MenuController">
             <summary>
             
             </summary>
         </member>
-        <member name="M:EIDSS.Api.Controllers.MenuController.#ctor(EIDSS.Repository.Interfaces.IDataRepository,Microsoft.Extensions.Caching.Memory.IMemoryCache)">
-            <summary>
-            Creates a new instance of the class.
-            </summary>
-            <param name="repository"></param>
-        </member>
-        <member name="M:EIDSS.Api.Controllers.MenuController.GetMenuList(System.Nullable{System.Int64},System.String,System.Nullable{System.Int64},System.Threading.CancellationToken)">
-            <summary>
-            Retrieves a list of Personal Identification types 
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:EIDSS.Api.Controllers.MenuController.GetMenuByUserList(System.Nullable{System.Int64},System.String,System.Nullable{System.Int64},System.Threading.CancellationToken)">
-            <summary>
-            Retrieves Menu by Logged in User
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:EIDSS.Api.Controllers.Outbreak.OutbreakController.#ctor(EIDSS.Repository.Interfaces.IDataRepository,Microsoft.Extensions.Caching.Memory.IMemoryCache)">
+        <member name="M:EIDSS.Api.Controllers.MenuController.#ctor(EIDSS.Repository.Interfaces.IDataRepository,Microsoft.Extensions.Caching.Memory.IMemoryCache,EIDSS.Repository.Contexts.EidssArchiveContext,MapsterMapper.IMapper)">
             <summary>
             Creates a new instance of the class.
             </summary>
             <param name="repository"></param>
             <param name="memoryCache"></param>
+            <param name="eidssArchiveContext"></param>
+        </member>
+        <member name="M:EIDSS.Api.Controllers.MenuController.GetMenuList(System.Nullable{System.Int64},System.String,System.Nullable{System.Int64},System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Retrieves a list of Personal Identification types 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EIDSS.Api.Controllers.MenuController.GetMenuByUserList(System.Nullable{System.Int64},System.String,System.Nullable{System.Int64},System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Retrieves Menu by Logged in User
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:EIDSS.Api.Extensions.ServiceExtensions">
             <summary>
@@ -511,11 +507,22 @@
             Registers each context used by the application
             </summary>
             <param name="services"></param>
-            <param name="config"></param>
+            <param name="configuration"></param>
         </member>
         <member name="T:EIDSS.Api.Helpers.SecurityMappingProfile">
             <summary>
-            Temporary security mapping profile until ApplicationUser can be moved to Domain
+            ApplicationUser Mapster model mapping profile.
+            </summary>
+        </member>
+        <member name="T:EIDSS.Api.Integrations.PIN.Georgia.PINIntegrationController">
+            <summary>
+            This controller mocks the production API in country.  It is not intended for production use and is only used
+            for development and testing.
+            </summary>
+        </member>
+        <member name="T:EIDSS.Api.Integrations.PIN.Georgia.PINGetDataResponse">
+            <summary>
+            This data collection exists to mimic inputs passed to the real testing API at the MOH.
             </summary>
         </member>
         <member name="P:EIDSS.Api.Providers.ApplicationUser.idfUserID">

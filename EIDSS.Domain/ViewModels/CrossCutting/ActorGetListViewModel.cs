@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 
 namespace EIDSS.Domain.ViewModels.CrossCutting
 {
+    //[MetaMapping("USP_ADMIN_Actor_GETList", Infrastructure.Enumerations.SystemEventEnum.DoesNotParticipate)]
     public class ActorGetListViewModel : BaseModel
     {
         [JsonProperty("ActorID")]

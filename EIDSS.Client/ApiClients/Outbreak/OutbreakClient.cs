@@ -42,6 +42,7 @@ namespace EIDSS.ClientLibrary.ApiClients.Outbreak
         public Task<List<ContactGetListViewModel>> GetContactList(ContactGetListRequestModel request, CancellationToken cancellationToken = default);
         public Task<List<VectorGetListViewModel>> GetVectorList(VectorGetListRequestModel request, CancellationToken cancellationToken = default);
         public Task<ContactSaveResponseModel> SaveContact(ContactSaveRequestModel request);
+        Task<List<OutbreakHumanCaseDetailResponseModel>> GetHumanCaseDetailAsync(OutbreakHumanCaseDetailRequestModel request, CancellationToken cancellationToken = default);
     }
 
     public partial class OutbreakClient : BaseApiClient, IOutbreakClient
@@ -663,6 +664,33 @@ namespace EIDSS.ClientLibrary.ApiClients.Outbreak
             }
             finally
             {
+            }
+        }
+        
+        public async Task<List<OutbreakHumanCaseDetailResponseModel>> GetHumanCaseDetailAsync(OutbreakHumanCaseDetailRequestModel request, CancellationToken cancellationToken = default)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                var url = string.Format(_eidssApiOptions.OutbreakHumanCaseDetailAsyncPath, _eidssApiOptions.BaseUrl);
+                var aj = new MediaTypeWithQualityHeaderValue("application/json");
+
+                await JsonSerializer.SerializeAsync(ms, request);
+                ms.Seek(0, SeekOrigin.Begin);
+
+                var requestmessage = new HttpRequestMessage(HttpMethod.Post, url);
+                requestmessage.Headers.Accept.Add(aj);
+
+                using (var requestContent = new StreamContent(ms))
+                {
+                    requestmessage.Content = requestContent;
+                    requestContent.Headers.ContentType = aj;
+                    using (var response = await _httpClient.SendAsync(requestmessage, HttpCompletionOption.ResponseHeadersRead))
+                    {
+                        response.EnsureSuccessStatusCode();
+                        var content = await response.Content.ReadAsStreamAsync();
+                        return await JsonSerializer.DeserializeAsync<List<OutbreakHumanCaseDetailResponseModel>>(content, SerializationOptions);
+                    }
+                }
             }
         }
     }

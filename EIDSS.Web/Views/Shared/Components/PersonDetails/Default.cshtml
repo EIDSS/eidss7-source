@@ -135,8 +135,10 @@
 
     function submitPersonDetails(event)
     {
+        /* alert("submitPersonDetails start")*/
         var request = {};
         request.HumanMasterID = $("#PersonInformationSection_PersonDetails_HumanActualId").val();
+        /*request.CopyToHumanIndicator = $("#PersonDetails_EIDSSPersonID").val();*/
         request.PersonalIDType = $("#PersonalIDType").val();
         request.EIDSSPersonID = $("#PersonInformationSection_PersonDetails_EIDSSPersonID").val();
         request.PersonalID = $("#PersonInformationSection_PersonDetails_PersonalID").val();
@@ -144,6 +146,8 @@
         request.SecondName = $("#PersonInformationSection_PersonDetails_SecondName").val();
         request.LastOrSurname = $("#PersonInformationSection_PersonDetails_LastOrSurname").val();
         request.DateOfBirth = $("#PersonInformationSection_PersonDetails_DateOfBirth").val();
+        /*request.DateOfBirth = $("#PersonDetails_DateOfBirth").val();*/
+        /*request.DateOfDeath = $("#PersonDetails_EIDSSPersonID").val();*/
         request.ReportedAge = $("#PersonInformationSection_PersonDetails_ReportedAge").val();
         request.ReportedAgeUOMID = $("#ReportedAgeUOMID").val();
         request.GenderTypeID = $("#GenderType").val();
@@ -154,6 +158,7 @@
         request.HumanidfsCountry = $("#PersonAddressSection_CurrentAddress_AdminLevel0Value").val();
         request.HumanidfsRegion = $("#PersonAddressSection_CurrentAddress_AdminLevel1Value").val();
         request.HumanidfsRayon = $("#PersonAddressSection_CurrentAddress_AdminLevel2Value").val();
+        /*request.HumanidfsSettlement = $("#PersonAddressSection_CurrentAddress_Settlement").val();*/
         request.HumanidfsSettlement = $("#PersonAddressSection_CurrentAddress_AdminLevel3Value").val();
         request.HumanstrStreetName = $("#PersonAddressSection_CurrentAddress_StreetText").val();
         request.HumanstrApartment = $("#PersonAddressSection_CurrentAddress_Apartment").val();
@@ -164,6 +169,8 @@
         request.HumanstrLongitude = $("#PersonAddressSection_CurrentAddress_Longitude").val();
 
         request.HumanPermGeoLocationID = $("#PersonInformationSection_PersonDetails_HumanPermGeoLocationID").val();
+        //request.HumanAltForeignAddressIndicator = $("#HumanAltForeignAddressIndicator").is(':checked') ? 'true' : 'false';
+        //request.HumanAltForeignAddressString = $("#PersonAddressSection_PersonDetails_HumanAltForeignAddressString").val();
         request.HumanPermidfsCountry = $("#PersonAddressSection_PermanentAddress_AdminLevel0Value option:selected").val();
         request.HumanPermidfsRegion = $("#PersonAddressSection_PermanentAddress_AdminLevel1Value option:selected").val();
         request.HumanPermidfsRayon = $("#PersonAddressSection_PermanentAddress_AdminLevel2Value option:selected").val();
@@ -174,6 +181,7 @@
         request.HumanPermstrHouse = $("#PersonAddressSection_PermanentAddress_House").val();
         request.HumanPermidfsPostalCode = $("#PersonAddressSection_PermanentAddress_PostalCodeText option:selected").val();
 
+        /*request.HumanstrElevation = $("#PersonAddressSection_CurrentAddress_Elevation").val();*/
         request.HumanAltGeoLocationID = $("#PersonInformationSection_PersonDetails_HumanAltGeoLocationID").val();
         request.HumanAltForeignAddressIndicator = $("#HumanAltForeignAddressIndicator").is(':checked') ? 'true' : 'false';
         request.HumanAltForeignidfsCountry = $("#HumanAltForeignidfsCountry").val();
@@ -187,7 +195,11 @@
         request.HumanAltstrBuilding = $("#PersonAddressSection_AlternateAddress_Building").val();
         request.HumanAltstrHouse = $("#PersonAddressSection_AlternateAddress_House").val();
         request.HumanAltidfsPostalCode = $("#PersonAddressSection_AlternateAddress_PostalCodeText").val();
+        //request.HumanAltstrLatitude = $("#PersonAddressSection_AlternateAddress_Latitude").val();
+        //request.HumanAltstrLongitude = $("#PersonAddressSection_AlternateAddress_Longitude").val();
+       /* request.HumanAltstrElevation = $("#PersonAddressSection_AlternateAddress_Elevation").val();*/
 
+        /*request.RegistrationPhone = $("#PersonDetails_RegistrationPhone").val();*/
         request.HomePhone = $("#PersonInformationSection_PersonDetails_HomePhone").val();
         request.WorkPhone = $("#PersonInformationSection_PersonDetails_WorkPhone").val();
 
@@ -236,6 +248,7 @@
         request.SchoolPhone = $("#PersonEmploymentSchoolSection_PersonDetails_SchoolPhone").val();
 
 
+            /*alert("submitPersonDetails request")*/
             $.ajax({
                 url: '@Url.Action("SavePerson", "PersonDetails", new { Area = "Human" })',
                 data: JSON.stringify(request),
@@ -247,12 +260,16 @@
                         showErrorModal(response.errorMessage);
                     }
                     else {
+                        /*alert("Save success!") */
                         $("#PersonInformationSection_PersonDetails_EIDSSPersonID").val(response.personInformationSection.personDetails.eIDSSPersonID);
                         $("#PersonInformationSection_PersonDetails_HumanActualId").val(response.humanMasterID);
 
+                         /*alert("success popup start!")*/
+                        /*showWarningModal(response.informationalMessage).then(response => {*/
                         showNewPersonRecordSuccessModal(response.informationalMessage).then(response => {
                             if (response == 1) {
                                 // Add Disease Report
+                                /*alert($("#PersonInformationSection_PersonDetails_HumanActualId").val())*/
                                 var humanActualId = $("#PersonInformationSection_PersonDetails_HumanActualId").val();
                                 location.href = '@Url.Action("LoadDiseaseReport", "HumanDiseaseReport", new { area = "Human"})?humanId=' + humanActualId;
                             }
@@ -260,12 +277,19 @@
                                 // Return To Dashboard
                                 location.href = '@Url.Action("Index", "Dashboard", new { area = "Administration" })';
                             } else {
+                                 //location.href = '#';
+                                //$("#divPersonID").show();
                                 $("#newPersonRecordSuccessModal").modal("hide");
                                 var humanActualId = $("#PersonInformationSection_PersonDetails_HumanActualId").val();
                                 location.href = '@Url.Action("DetailsReviewPage", "Person", new { area = "Human" })?id=' + humanActualId + '&reviewPageNo=3';
                             }
 
                             });
+                        @*showInformationalModalWait(response.informationalMessage).then(response => {
+                            /*alert("after success!")*/
+                            if (response)
+                                location.href = '@Url.Action("Index", "Person")';
+                        });*@
                     }
                 },
                 error: function (response) { alert("An error occurred: " + response); }

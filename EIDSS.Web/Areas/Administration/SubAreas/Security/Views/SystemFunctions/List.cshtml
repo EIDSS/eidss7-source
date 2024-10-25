@@ -84,6 +84,38 @@
         <h3 heading-for="@HeadingResourceKeyConstants.SystemFunctionsHeading"></h3>
     </div>
     <div class="card-body">
+        @*<form id="SearchForm" method="post">
+            <div id="systemFunctionsSearchCriteria" class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+                            <h4 id="searchCriteriaHeader" class="header" heading-for="@HeadingResourceKeyConstants.SearchCriteriaHeading"></h4>
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 text-right">
+                            <a id="aToggleSystemFunctionsSearch" href="#systemFunctionsSearchCriteriaForm" data-toggle="collapse" data-parent="#systemFunctionsSearchCriteria" onclick="toggleSystemFunctionsSearchCriteria(event);">
+                                <span id="toggleSystemFunctionsSearchIcon" role="button" class="toggle-icon fas fa-caret-down fa-2x">&nbsp;</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div id="systemFunctionsSearchCriteriaForm" class="card-body collapse in">
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                                <label asp-for="SearchCriteria.FunctionName">Function Name</label>
+                                <input asp-for="SearchCriteria.FunctionName" type="text" class="form-control" />
+                            </div>
+                        </div>
+                </div>
+                <div id="systemFunctionsSearchCriteriaCommands" class="card-footer">
+                    <button id="cancelSearchCriteria" type="button" class="btn btn-outline-primary" onclick="cancelSearch('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelMessage)', event)" button-for="@ButtonResourceKeyConstants.CancelButton"></button>
+                    <button id="clear" type="reset" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.ClearButton"></button>
+                    <button id="search" type="submit" class="btn btn-primary" button-for="@ButtonResourceKeyConstants.SearchButton" title="@ButtonResourceKeyConstants.SearchButton"></button>
+                </div>
+            </div>
+            <input type="hidden" asp-for="SearchCriteria.SortColumn" />
+            <input type="hidden" asp-for="SearchCriteria.SortOrder" />
+            <br />
+        </form>*@
        
             <div class="card-body">
                 <eidss-grid id="@Model.SystemFunctionsGridConfiguration.GridId"
@@ -174,3 +206,10 @@
         }
 
 </script>
+
+@*@if (ViewBag.JavaScriptFunction != null)
+{
+    <script type="text/javascript">
+        @Html.Raw(ViewBag.JavaScriptFunction)
+    </script>
+}*@

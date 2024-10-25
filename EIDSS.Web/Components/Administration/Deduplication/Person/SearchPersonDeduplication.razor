@@ -208,6 +208,7 @@
                                     <RadzenDataGridColumn TItem="PersonViewModel" Filterable="false" Frozen="true" Sortable="false" Width="40px">
                                         <Template Context="item">
                                             <RadzenCheckBox TriState="false" TValue="bool" Value="item.Selected"  />
+                                            @*<RadzenCheckBox TriState="false" Value="@(PersonDeduplicationService.SelectedRecords != null && PersonDeduplicationService.SelectedRecords.Count < 2 && PersonDeduplicationService.SelectedRecords.Contains(data))" />*@
                                         </Template>
                                     </RadzenDataGridColumn>
                                     <RadzenDataGridColumn TItem="PersonViewModel" Property="EIDSSPersonID" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.SearchPersonPersonIDColumnHeading)" Width="150px" Sortable="true">

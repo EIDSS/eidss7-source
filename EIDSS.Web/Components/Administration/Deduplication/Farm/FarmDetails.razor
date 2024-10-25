@@ -31,6 +31,20 @@
         <RadzenCard>
             @if (FarmDeduplicationService.InfoList != null)
             {
+
+                @*       <RadzenCheckBoxList id="rcblInfo" Name="rcblInfo" AllowClear="true" TValue="int" @bind-Value=@FarmDeduplicationService.InfoValues
+                    Orientation="Orientation.Horizontal" Change=@OnCheckBoxListInfoSelectionChangeAsync>
+                    <Items>
+                    @foreach (Field item in FarmDeduplicationService.InfoList)
+                    {
+                    <div  Style="width:300px;">
+
+                    <RadzenCheckBoxListItem Text="@item.Label" Value="@item.Index" Disabled="item.Disabled" Visible="@(item.Index < RegionID)" Style="@item.Color" />
+
+                    </div>
+                    }
+                    </Items>
+                    </RadzenCheckBoxList>*@
                 <RadzenDataList WrapItems=false AllowPaging=false Data=FarmDeduplicationService.InfoList TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false >
                     <Template Context="field">
                     @if (field.Index < RegionID)
@@ -60,6 +74,17 @@
         <RadzenCard>
             @if (FarmDeduplicationService.InfoList2 != null)
             {
+                @*         <RadzenCheckBoxList id="rcblInfo2" Name="rcblInfo2" AllowClear="true" TValue="int" @bind-Value=@FarmDeduplicationService.InfoValues2
+                    Orientation="Orientation.Horizontal" Change=@OnCheckBoxListInfo2SelectionChangeAsync>
+                    <Items>
+                    @foreach (Field item in FarmDeduplicationService.InfoList2)
+                    {
+                    <div Style="width:300px;">
+                    <RadzenCheckBoxListItem Text="@item.Label" Value="@item.Index" Disabled="item.Disabled" Visible="@(item.Index < RegionID)" Style="@item.Color" />
+                    </div>
+                    }
+                    </Items>
+                    </RadzenCheckBoxList>*@
                 <RadzenDataList WrapItems=false AllowPaging=false Data=FarmDeduplicationService.InfoList2 TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
                     <Template Context="field">
                     @if (field.Index < RegionID)

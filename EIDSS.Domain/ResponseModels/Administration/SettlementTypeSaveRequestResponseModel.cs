@@ -9,5 +9,6 @@ namespace EIDSS.Domain.ResponseModels.Administration
     public class SettlementTypeSaveRequestResponseModel : APIPostResponseModel
     {
         public long? idfsGISBaseReference { get; set; }
+        //public string strDuplicatedField { get; set; }
     }
 }

@@ -39,7 +39,6 @@ namespace EIDSS.Domain.ResponseModels.Outbreak
         private DateTime? dtStartDate;
         [LocalizedDateLessThanOrEqualToToday]
         [DateComparer(nameof(datStartDate), "SessionDetails_datStartDate", nameof(datCloseDate), "SessionDetails_datCloseDate", CompareTypeEnum.LessThanOrEqualTo, nameof(FieldLabelResourceKeyConstants.OutbreakSessionStartDateFieldLabel), nameof(FieldLabelResourceKeyConstants.OutbreakSessionEndDateFieldLabel))]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         [LocalizedRequired]
         public DateTime? datStartDate
         {
@@ -56,7 +55,6 @@ namespace EIDSS.Domain.ResponseModels.Outbreak
 
         [LocalizedDateLessThanOrEqualToToday]
         [DateComparer(nameof(datCloseDate), "SessionDetails_datCloseDate", nameof(datStartDate), "SessionDetails_datStartDate", CompareTypeEnum.GreaterThanOrEqualTo, nameof(FieldLabelResourceKeyConstants.OutbreakSessionEndDateFieldLabel), nameof(FieldLabelResourceKeyConstants.OutbreakSessionStartDateFieldLabel))]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? datCloseDate { get; set; }
         public string strOutbreakID { get; set; }
         public string strDescription { get; set; }

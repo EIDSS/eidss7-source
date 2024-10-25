@@ -38,6 +38,7 @@ namespace EIDSS.Web.ViewModels.Human
         public long? idfsOutCome { get; set; }
         public string Outcome { get; set; }
         public DateTime? datDateOfDeath { get; set; }
+        public DateTime? datDateOfDischarge { get; set; }
         public string strEpidemiologistsName { get; set; }
         public long? idfInvestigatedByPerson { get; set; }
         public string Comments { get; set; }

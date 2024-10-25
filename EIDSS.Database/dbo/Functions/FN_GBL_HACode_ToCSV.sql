@@ -33,33 +33,28 @@ RETURNS NVARCHAR(4000)
 AS
 BEGIN
 
-DECLARE
-@CSV				NVARCHAR(4000) = N''; -- size string returned by STRING_AGG
+	DECLARE
+		@CSV		NVARCHAR(4000) = N'',
+		@HACodeMax	BIGINT = 510;
 
 	-- if passed a null, we return a null result
-	IF (@HACode IS NULL) return NULL;
+	IF (@HACode IS NULL) OR (@HACode = 0) return CAST(@HACode as nvarchar(4000));
 
-	-- if passed a zero, we return only a zero and avoid query overhead
-	IF (@HACode = 0) return N'0'; 
+	SET @CSV = 
+		STUFF(ISNULL(
+				CAST(	(
+							SELECT	N',' + cast(intHACode AS nvarchar(4))
+							FROM 	trtHACodeList 
+							WHERE	intRowStatus = 0
+							AND		intHACode <> 0
+							AND		intHACode <> @HACodeMax
+							AND 	intHACode & @HACode > 0
+							ORDER BY	intHACode
+							FOR XML PATH('')
+						)
+						AS VARCHAR(200)
+					), N',0'), 1, 1, N'')
 
-	WITH cteOrderedResults([intHACode]) as
-	(
-		SELECT TOP 100 PERCENT 
-			[intHACode]
-		FROM [dbo].[trtHACodeList]
-		WHERE
-			([intHACode] <> 0 AND [intHACode] <> 510)
-			AND ((@HACode & [intHACode]) = [intHACode])
-		ORDER BY [intHACode] ASC
-	)
-
-	SELECT @CSV = STRING_AGG(CAST([intHACode] as NVARCHAR(20)), N',')
-	FROM cteOrderedResults;	-- needed CTE to get ordered result set due to AGGREGATE function
-
-	-- if passed an invalid HACode that doesn't match any of the bitmap masks, then return 0 which is 'none'.
-	IF (@CSV IS NULL OR LEN(@CSV) = 0)
-		SET @CSV = N'0';
-
-RETURN @CSV;
+	RETURN @CSV;
 
 END

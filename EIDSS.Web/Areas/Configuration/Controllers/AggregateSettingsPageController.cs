@@ -1,6 +1,4 @@
-﻿#region Usings
-
-using EIDSS.ClientLibrary.ApiClients.Administration.Security;
+﻿using EIDSS.ClientLibrary.ApiClients.Administration.Security;
 using EIDSS.ClientLibrary.ApiClients.Configuration;
 using EIDSS.ClientLibrary.ApiClients.CrossCutting;
 using EIDSS.ClientLibrary.Enumerations;
@@ -18,11 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.Int32;
-using static System.String;
-
-#endregion
 
 namespace EIDSS.Web.Areas.Configuration.Controllers
 {
@@ -39,7 +32,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         private SiteGetDetailViewModel _siteDetails;
 
         public AggregateSettingsPageController(IAggregateSettingsClient configurationClient, ICrossCuttingClient crossCuttingClient, ISiteClient siteClient,
-            INotificationSiteAlertService notificationSiteAlertService, ILogger<AggregateSettingsPageController> logger, ITokenService tokenService) : base(logger,tokenService)
+            INotificationSiteAlertService notificationSiteAlertService, ILogger<AggregateSettingsPageController> logger, ITokenService tokenService) : base(logger, tokenService)
         {
             _pageViewModel = new AggregateSettingsListViewModel();
             _configurationClient = configurationClient;
@@ -75,26 +68,22 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             return View(_pageViewModel);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="idfCustomizationPackage"></param>
-        /// <returns></returns>
         private async Task<AggregateSettingsListViewModel> LoadAggregateSettings(long idfCustomizationPackage, long idfsSite)
         {
-            var lstAreaType = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), BaseReferenceConstants.StatisticalAreaType, null);
-            var lstPeriodType = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), BaseReferenceConstants.StatisticalPeriodType, null);
-            
+            var lstAreaType = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), EIDSSConstants.BaseReferenceConstants.StatisticalAreaType, null);
+            var lstPeriodType = await _crossCuttingClient.GetBaseReferenceList(GetCurrentLanguage(), EIDSSConstants.BaseReferenceConstants.StatisticalPeriodType, null);
+
             var request = new AggregateSettingsGetRequestModel
             {
                 LanguageId = GetCurrentLanguage(),
                 IdfCustomizationPackage = idfCustomizationPackage,
                 idfsSite = idfsSite,
                 Page = 1,
-                PageSize = MaxValue - 1,
+                PageSize = int.MaxValue - 1,
                 SortColumn = "idfsAggrCaseType",
                 SortOrder = "asc"
             };
-            
+
             var lstAggregateSettings = await _configurationClient.GetAggregateSettingsList(request);
 
             AggregateSettingsListViewModel lstViewModel = new()
@@ -107,14 +96,10 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             return lstViewModel;
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
         public async Task<ActionResult> SaveAggregateSettings([FromBody] JsonElement data)
         {
             _siteDetails = await _siteClient.GetSiteDetails(GetCurrentLanguage(), Convert.ToInt64(_authenticatedUser.SiteId), Convert.ToInt64(_authenticatedUser.EIDSSUserId));
-            var jsonArray = JArray.Parse(data.ToString() ?? Empty);
+            var jsonArray = JArray.Parse(data.ToString() ?? string.Empty);
             long aggregateDiseaseReportTypeId = 0;
             AggregateSettingsSaveRequestModel request = new()
             {
@@ -124,15 +109,15 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             {
                 AggregateSettingRecordsSaveRequestModel record = new()
                 {
-                    AggregateDiseaseReportTypeId = IsNullOrEmpty(item["idfsAggrCaseType"]?.ToString()) ? 0 : (long)item["idfsAggrCaseType"], 
+                    AggregateDiseaseReportTypeId = string.IsNullOrEmpty(item["idfsAggrCaseType"]?.ToString()) ? 0 : (long)item["idfsAggrCaseType"],
                     CustomizationPackageId = _siteDetails.CustomizationPackageID,
                     SiteId = _siteDetails.SiteID,
-                    StatisticalAreaTypeId = (long)item["idfsStatisticAreaType"], 
+                    StatisticalAreaTypeId = (long)item["idfsStatisticAreaType"],
                     StatisticalPeriodTypeId = (long)item["idfsStatisticPeriodType"]
                 };
 
-                if (!IsNullOrEmpty(item["idfsAggrCaseType"]?.ToString()))
-                    aggregateDiseaseReportTypeId = (long) item["idfsAggrCaseType"];
+                if (!string.IsNullOrEmpty(item["idfsAggrCaseType"]?.ToString()))
+                    aggregateDiseaseReportTypeId = (long)item["idfsAggrCaseType"];
 
                 request.AggregateSettingRecordsList.Add(record);
             }
@@ -145,7 +130,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
             request.User = _authenticatedUser.UserName;
             await _configurationClient.SaveAggregateSettings(request);
-            
+
             return new EmptyResult();
         }
     }

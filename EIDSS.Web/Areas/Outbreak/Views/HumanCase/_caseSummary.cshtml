@@ -44,7 +44,7 @@
                 <input type="hidden" id="idfPerson" name="idfPerson" asp-for="@Model" />
                 <div class="col-md-3">
                     <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateHumanCaseLastUpdatedFieldLabel)</label>
-                    <div class="panel panel-default">@Model.CaseSummaryDetails.strLastUpdated</div>
+                    <div class="panel panel-default">@Model.CaseSummaryDetails.LastUpdated?.ToShortDateString()</div>
                 </div>
                 <div class="col-md-3">
                     <label>@Localizer.GetString(FieldLabelResourceKeyConstants.CreateHumanCaseCaseClassificationFieldLabel)</label>
@@ -74,8 +74,8 @@
                                     index += 1;
                                 }
                             </strong>
-                            <br/>
-                            <br/>
+                            <br />
+                            <br />
                         </div>
                     }
                     else
@@ -86,16 +86,16 @@
                                     <i class="fas fa-link fa-lg"></i> @(Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakCaseSummaryRelatedToFieldLabel) + " " + Model.RelatedToReportIdentifiers)
                                 </strong>
                             </a>
-                            <br/>
-                            <br/>
+                            <br />
+                            <br />
                         </div>
                     }
                 }
             }
             <div class="row">
-                <input type="hidden" id="idfOutbreak" name="idfOutbreak" asp-for="@Model.idfOutbreak"/>
-                <input type="hidden" id="idfsDiagnosisOrDiagnosisGroup" name="idfsDiagnosisOrDiagnosisGroup" asp-for="@Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup"/>
-                <input type="hidden" id="sessionStartDate" name="sessionStartDate" value="@Model.SessionDetails.datStartDate"/>
+                <input type="hidden" id="idfOutbreak" name="idfOutbreak" asp-for="@Model.idfOutbreak" />
+                <input type="hidden" id="idfsDiagnosisOrDiagnosisGroup" name="idfsDiagnosisOrDiagnosisGroup" asp-for="@Model.SessionDetails.idfsDiagnosisOrDiagnosisGroup" />
+                <input type="hidden" id="sessionStartDate" name="sessionStartDate" value="@Model.SessionDetails.datStartDate" />
 
                 <div class="col-md-3">
                     <label>@Localizer.GetString(FieldLabelResourceKeyConstants.OutbreakSessionOutbreakIDFieldLabel)</label>

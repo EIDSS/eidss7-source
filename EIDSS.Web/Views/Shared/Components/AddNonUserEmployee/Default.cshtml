@@ -128,11 +128,34 @@
                 ControlName = "Phone",
                 Visible = true,
                 ClassName = "Phone",
+                //ValidationSetting = new ValidatorSettings()
+                //{
+                //    ValidationRuleTypes = VaildationRuleType.ValidationRuleType.PHONE,
+                //    ValidationRule = "/^[0-9]{8,15}$/",
+                //    PhoneValidationMessage = Localizer.GetString(MessageResourceKeyConstants.InvalidFieldMessage),
+                //},
             });
+    //eIDSSModalConfiguration.ControlNames.Add(new EIDSSControlNames()
+    //{
+    //    LabelNameForControl = Localizer.GetString(FieldLabelResourceKeyConstants.SearchEmployeePhoneFieldLabel),
+    //    ControlType = ControlType.ValidationLabel,
+    //    ControlName = "ValidationDetail",
+    //    Visible = true,
+    //    ClassName = "ValidationDetail"
+    //});
 
     Model.eIDSSModalConfiguration.Add(eIDSSModalConfiguration);
 
 }
+
+@*<form>
+    <div class="card">
+        <div class="card-body">
+            <div id="ValidationDetail">
+            </div>
+        </div>
+    </div>
+</form>*@
 
 <partial name="_ErrorModalPartial" />
 <partial name="_WarningModalPartial" />

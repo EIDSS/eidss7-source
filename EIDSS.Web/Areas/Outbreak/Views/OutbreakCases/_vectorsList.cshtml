@@ -2,4 +2,34 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
+    @*<eidss:GridView ID="gvVectors"
+                    runat="server"
+                    AllowPaging="True"
+                    AllowSorting="True"
+                    AutoGenerateColumns="False"
+                    CaptionAlign="Bottom"
+                    CssClass="table table-striped table-hover"
+                    DataKeyNames="idfVectorSurveillanceSession"
+                    GridLines="None"
+                    EmptyDataText="<%$ Resources: Labels, Lbl_No_Results_Found_Text %>"
+                    UseAccessibleHeader="false"
+                    ShowHeader="true"
+                    ShowHeaderWhenEmpty="true">
+        <HeaderStyle CssClass="table-striped-header" />
+        <FooterStyle HorizontalAlign="Right" />
+        <PagerStyle CssClass="lab-table-striped-pager" HorizontalAlign="Right" />
+        <PagerStyle CssClass="table-striped-pager" />
+        <Columns>
+            <asp:TemplateField ItemStyle-Width="31">
+                <ItemTemplate>
+                    <asp:LinkButton ID="lnbEditVector" runat="server" CssClass="btn glyphicon glyphicon-edit" CommandName="Edit" CommandArgument='<% #Bind("idfVectorSurveillanceSession") %>' CausesValidation="false"></asp:LinkButton>
+                </ItemTemplate>
+            </asp:TemplateField>
+            <asp:BoundField DataField="strSessionID" HeaderText="<%$ Resources: Grd_Outbreak_Vector_Session_ID_Heading %>" />
+            <asp:BoundField DataField="VectorSurveillanceStatus" HeaderText="<%$ Resources: Grd_Outbreak_Vector_Surveillance_Status_Heading %>" />
+            <asp:BoundField DataField="datStartDate" HeaderText="<%$ Resources: Grd_Outbreak_Vector_Start_Date_Heading %>" />
+            <asp:BoundField DataField="datCloseDate" HeaderText="<%$ Resources: Grd_Outbreak_Vector_Close_Date_Heading %>" />
+            <asp:BoundField DataField="Location" HeaderText="<%$ Resources: Grd_Outbreak_Vector_Location_Heading %>" />
+        </Columns>
+    </eidss:GridView>*@
 }

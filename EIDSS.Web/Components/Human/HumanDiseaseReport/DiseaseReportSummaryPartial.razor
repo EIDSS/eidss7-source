@@ -1,0 +1,193 @@
+﻿@using EIDSS.Domain.ViewModels.Administration
+@using EIDSS.Web.ViewModels.Human
+
+@inherits EIDSS.Web.Components.Human.HumanDiseaseReport.DiseaseReportSummaryPartialBase
+
+<RadzenTemplateForm @ref="@Form" TItem="DiseaseReportComponentViewModel" Data="@Model">
+    <div class="card">
+        <div class="card-body">
+            <RadzenRow>
+                <RadzenColumn Size="6">
+                    <i class="fas fa-asterisk text-danger"></i>
+                    <RadzenLabel Component="ReportSummary_ReportStatusID"
+                                 Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSummaryReportStatusFieldLabel)"
+                                 class="label" />
+                    <RadzenDropDown Name="ReportSummary_ReportStatusID"
+                                    TValue="long?"
+                                    Data="@ReportStatuses"
+                                    ValueProperty="@nameof(BaseReferenceEditorsViewModel.KeyId)"
+                                    TextProperty="@nameof(BaseReferenceEditorsViewModel.StrName)"
+                                    @bind-Value="@Model.ReportSummary.ReportStatusID"
+                                    Disabled="@IsReportStatusDisabled()"
+                                    Change="@(async () => await OnReportStatusChange())"
+                                    AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    AllowClear="true" />
+                    <input type="hidden" id="ReportStatusDD" value="@Model.ReportSummary.ReportStatusID" />
+                    <RadzenRequiredValidator Component="ReportSummary_ReportStatusID"
+                                             Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow>
+                <RadzenColumn Size="6">
+                    <RadzenLabel Component="ReportSummary_PersonID"
+                                 Text="@Localizer.GetString(FieldLabelResourceKeyConstants.PersonInformationPersonIDFieldLabel)"
+                                 class="label" />
+                    <RadzenTextBox Name="ReportSummary_PersonID"
+                                   Value="@Model.ReportSummary.PersonID"
+                                   Disabled="true" />
+                </RadzenColumn>
+                <RadzenColumn Size="6">
+                    <RadzenLabel Component="ReportSummary_ReportID"
+                                 Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanAggregateDiseaseReportReportIDFieldLabel)"
+                                 class="label" />
+                    <RadzenTextBox Name="ReportSummary_ReportID"
+                                   Value="@Model.ReportSummary.ReportID"
+                                   Disabled="true" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow>
+                <RadzenColumn Size="6">
+                    <RadzenLabel Component="ReportSummary_Disease"
+                                 Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSummaryDiseaseFieldLabel)"
+                                 class="label" />
+                    <RadzenTextBox Name="ReportSummary_Disease"
+                                   Value="@GetDisease()"
+                                   Disabled="true" />
+                </RadzenColumn>
+                <RadzenColumn Size="6">
+                    <RadzenLabel Component="ReportSummary_DateOfDiagnosis"
+                                 Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportNotificationDateOfDiagnosisFieldLabel)"
+                                 class="label" />
+                    <RadzenTextBox Name="ReportSummary_DateOfDiagnosis"
+                                   Value="@GetDateOfDiagnosisFormatted()"
+                                   Disabled="true" />
+                </RadzenColumn>
+            </RadzenRow>
+            @if (!string.IsNullOrEmpty(Model.ReportSummary.LegacyID))
+            {
+                <RadzenRow>
+                    <RadzenColumn Size="6">
+                        <RadzenLabel Component="ReportSummary_LegacyID"
+                                     Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSummaryLegacyIDFieldLabel)"
+                                     class="label" />
+                        <RadzenTextBox Name="ReportSummary_LegacyID"
+                                       Value="@Model.ReportSummary.LegacyID"
+                                       Disabled="true" />
+                    </RadzenColumn>
+                </RadzenRow>
+            }
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <RadzenRow>
+                    <RadzenColumn Size="11">
+                        <h4>@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportDiseaseReportSummaryHeading)</h4>
+                    </RadzenColumn>
+                    <RadzenColumn Size="1">
+                        <span id="sReportSummaryToggle" class="fas align-bottom fa-2x e-dark-blue @(IsSummaryVisible ? "fa-caret-up" : "fa-caret-down")" @onclick="@ToggleReportSummary"></span>
+                    </RadzenColumn>
+                </RadzenRow>
+            </div>
+            @if (IsSummaryVisible)
+            {
+                <div class="card-body">
+                    <RadzenRow>
+                        <RadzenColumn Size="6">
+                            <i class="fas fa-asterisk text-danger"></i>
+                            <RadzenLabel Component="ReportSummary_ReportTypeID"
+                                         Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSummaryReportTypeFieldLabel)"
+                                         class="label" />
+                            <RadzenDropDown Name="ReportSummary_ReportTypeID"
+                                            TValue="long?"
+                                            Data="@ReportTypes"
+                                            ValueProperty="@nameof(BaseReferenceEditorsViewModel.KeyId)"
+                                            TextProperty="@nameof(BaseReferenceEditorsViewModel.StrName)"
+                                            @bind-Value="@Model.ReportSummary.ReportTypeID"
+                                            Disabled="@IsReportTypeDisabled()"
+                                            AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowClear="true" />
+                            <input type="hidden" id="ReportTypeDD" value="@Model.ReportSummary.ReportTypeID" />
+                            <RadzenRequiredValidator Component="ReportSummary_ReportTypeID"
+                                                     Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)" />
+                        </RadzenColumn>
+                        <RadzenColumn Size="6">
+                            @if (IsReportTypeActive())
+                            {
+                                <RadzenLabel Component="ReportSummary_SessionID"
+                                             Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSummarySessionIDFieldLabel)"
+                                             class="label" />
+                                <RadzenTextBox Name="ReportSummary_SessionID"
+                                               Value="@Model.ReportSummary.SessionID"
+                                               Disabled="true" />
+                            }
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow>
+                        <RadzenColumn Size="6">
+                            <RadzenLabel Component="ReportSummary_PersonName"
+                                         Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSummaryPersonNameFieldLabel)"
+                                         class="label" />
+                            <RadzenTextBox Name="ReportSummary_PersonName"
+                                           Value="@Model.ReportSummary.PersonName"
+                                           Disabled="true" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow>
+                        <RadzenColumn Size="6">
+                            <RadzenLabel Component="ReportSummary_DateEntered"
+                                         Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSummaryDateEnteredFieldLabel)"
+                                         class="label" />
+                            <RadzenTextBox Name="ReportSummary_DateEntered"
+                                           Value="@Model.ReportSummary.DateEnteredFormatted"
+                                           Disabled="true" />
+                        </RadzenColumn>
+                        <RadzenColumn Size="6">
+                            <RadzenLabel Component="ReportSummary_EnteredBy"
+                                         Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSummaryEnteredByFieldLabel)"
+                                         class="label" />
+                            <RadzenTextBox Name="ReportSummary_EnteredBy"
+                                           Value="@Model.ReportSummary.EnteredBy"
+                                           Disabled="true" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow>
+                        <RadzenColumn Size="6">
+                            <RadzenLabel Component="ReportSummary_EnteredByOrganization"
+                                         Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSummaryEnteredByOrganizationFieldLabel)"
+                                         class="label" />
+                            <RadzenTextBox Name="ReportSummary_EnteredByOrganization"
+                                           Value="@Model.ReportSummary.EnteredByOrganization"
+                                           Disabled="true" />
+                        </RadzenColumn>
+                        <RadzenColumn Size="6">
+                            @if (@Model.ReportSummary.DateLastUpdated != null)
+                            {
+                                <RadzenLabel Component="ReportSummary_DateLastUpdated"
+                                             Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSummaryDateLastUpdatedFieldLabel)"
+                                             class="label" />
+                                <RadzenTextBox Name="ReportSummary_DateLastUpdated"
+                                               Value="@Model.ReportSummary.DateLastUpdated"
+                                               Disabled="true" />
+                            }
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow>
+                        <RadzenColumn Size="6">
+                            @if (HasCaseClassification())
+                            {
+                                <RadzenLabel Component="ReportSummary_CaseClassification"
+                                             Text="@Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSummaryCaseClassificationFieldLabel)"
+                                             class="label" />
+                                <RadzenTextBox Name="ReportSummary_CaseClassification"
+                                               Value="@Model.ReportSummary.CaseClassification"
+                                               Disabled="true" />
+                            }
+                        </RadzenColumn>
+                    </RadzenRow>
+                </div>
+            }
+        </div>
+    </div>
+</RadzenTemplateForm>

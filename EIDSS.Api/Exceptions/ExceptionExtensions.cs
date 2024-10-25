@@ -32,6 +32,8 @@ namespace EIDSS.Api.Exceptions
         }
         private Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
+            //context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
             context.Response.ContentType = "application/json";
 
             switch (exception)

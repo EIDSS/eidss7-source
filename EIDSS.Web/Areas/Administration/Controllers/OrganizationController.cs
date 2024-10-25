@@ -1,6 +1,4 @@
-﻿#region Usings
-
-using EIDSS.ClientLibrary.ApiClients.Admin;
+﻿using EIDSS.ClientLibrary.ApiClients.Admin;
 using EIDSS.ClientLibrary.Services;
 using EIDSS.Domain.ResponseModels;
 using EIDSS.Web.Abstracts;
@@ -11,9 +9,6 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static System.String;
-
-#endregion
 
 namespace EIDSS.Web.Areas.Administration.Controllers
 {
@@ -21,13 +16,7 @@ namespace EIDSS.Web.Areas.Administration.Controllers
     [Controller]
     public class OrganizationController : BaseController
     {
-        #region Globals
-
         private readonly IOrganizationClient _organizationClient;
-
-        #endregion
-
-        #region Constructors
 
         public OrganizationController(IOrganizationClient organizationClient, ITokenService tokenService, ILogger<OrganizationController> logger) :
             base(logger, tokenService)
@@ -36,24 +25,11 @@ namespace EIDSS.Web.Areas.Administration.Controllers
             authenticatedUser = _tokenService.GetAuthenticatedUser();
         }
 
-        #endregion
-
-        #region Search Organizations
-
         public IActionResult List()
         {
             return View();
         }
 
-        #endregion
-
-        #region Organization Details
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public IActionResult Details(long? id)
         {
             OrganizationDetailsViewModel model = new()
@@ -63,10 +39,6 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             return View(model);
         }
-
-        #endregion
-
-        #region Delete Organization
 
         /// <summary>
         /// Deletes an organization.
@@ -80,8 +52,8 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
-                if (!IsNullOrEmpty(jsonObject.ToString()) && jsonObject["OrganizationKey"] != null)
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
+                if (!string.IsNullOrEmpty(jsonObject.ToString()) && jsonObject["OrganizationKey"] != null)
                 {
                     response = await _organizationClient.DeleteOrganization(long.Parse(jsonObject["OrganizationKey"].ToString()), authenticatedUser.UserName, false);
                 }
@@ -93,7 +65,5 @@ namespace EIDSS.Web.Areas.Administration.Controllers
 
             return Json(response.ReturnMessage);
         }
-
-        #endregion
     }
 }

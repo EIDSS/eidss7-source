@@ -255,7 +255,7 @@ namespace EIDSS.Web.Components.Laboratory
 
                     args.Top ??= 0;
 
-                    var page = args.Skip == null ? 1 : ((int) args.Skip + (int) args.Top) / pageSize;
+                    var page = args.Skip == null ? 1 : ((int)args.Skip + (int)args.Top) / pageSize;
 
                     if (args.Sorts == null || args.Sorts.Any() == false)
                     {
@@ -333,7 +333,7 @@ namespace EIDSS.Web.Components.Laboratory
                             var indicatorResult = await BrowserStorage.GetAsync<bool>(SearchPersistenceKeys
                                 .LaboratorySamplesAdvancedSearchPerformedIndicatorKey);
 
-                            var searchPerformedIndicator = indicatorResult is {Success: true, Value: true};
+                            var searchPerformedIndicator = indicatorResult is { Success: true, Value: true };
                             if (searchPerformedIndicator)
                             {
                                 var searchModelResult = await BrowserStorage.GetAsync<AdvancedSearchGetRequestModel>(
@@ -413,7 +413,7 @@ namespace EIDSS.Web.Components.Laboratory
                             {
                                 if (LaboratoryService.SearchSamples.Any() &&
                                     LaboratoryService.SearchSamples.First().RowAction ==
-                                    (int) RowActionTypeEnum.NarrowSearchCriteria)
+                                    (int)RowActionTypeEnum.NarrowSearchCriteria)
                                 {
                                     await ShowNarrowSearchCriteriaDialog();
                                 }
@@ -793,9 +793,9 @@ namespace EIDSS.Web.Components.Laboratory
                 if (record.Data.ActionPerformedIndicator)
                     cssClass = record.Data.RowAction switch
                     {
-                        (int) RowActionTypeEnum.Accession => LaboratoryModuleCSSClassConstants.UnaccessionedSavePending,
-                        (int) RowActionTypeEnum.InsertAccession => LaboratoryModuleCSSClassConstants.SavePending,
-                        (int) RowActionTypeEnum.Update => record.Data.AccessionIndicator == 0
+                        (int)RowActionTypeEnum.Accession => LaboratoryModuleCSSClassConstants.UnaccessionedSavePending,
+                        (int)RowActionTypeEnum.InsertAccession => LaboratoryModuleCSSClassConstants.SavePending,
+                        (int)RowActionTypeEnum.Update => record.Data.AccessionIndicator == 0
                             ? LaboratoryModuleCSSClassConstants.UnaccessionedSavePending
                             : LaboratoryModuleCSSClassConstants.SavePending,
                         _ => record.Data.AccessionIndicator == 0
@@ -845,7 +845,7 @@ namespace EIDSS.Web.Components.Laboratory
                 if (Samples is null)
                     return false;
 
-                if (LaboratoryService.SelectedSamples is {Count: > 0})
+                if (LaboratoryService.SelectedSamples is { Count: > 0 })
                     if (Samples.Any(item => LaboratoryService.SelectedSamples.Any(x => x.SampleID == item.SampleID)))
                         return true;
             }
@@ -1004,12 +1004,13 @@ namespace EIDSS.Web.Components.Laboratory
                 AccessionInViewModel model = new()
                 {
                     AccessionConditionTypeID = sample.AccessionConditionTypeID,
-                    AccessionInComment = sample.AccessionComment, SampleID = sample.SampleID, 
+                    AccessionInComment = sample.AccessionComment,
+                    SampleID = sample.SampleID,
                     WritePermissionIndicator = sample.WritePermissionIndicator
                 };
 
                 var result = await DiagService.OpenAsync<AccessionInComment>(Empty,
-                    new Dictionary<string, object> {{"Tab", LaboratoryTabEnum.Samples}, {"AccessionInAction", model}},
+                    new Dictionary<string, object> { { "Tab", LaboratoryTabEnum.Samples }, { "AccessionInAction", model } },
                     new DialogOptions
                     {
                         ShowTitle = false,
@@ -1226,7 +1227,9 @@ namespace EIDSS.Web.Components.Laboratory
                     {
                         Style = LaboratoryModuleCSSClassConstants.LaboratoryRecordDetailsDialog,
                         AutoFocusFirstElement = true,
-                        CloseDialogOnOverlayClick = false, Draggable = false, Resizable = true
+                        CloseDialogOnOverlayClick = false,
+                        Draggable = false,
+                        Resizable = true
                     }).ConfigureAwait(false);
 
                 if (result is DialogReturnResult)
@@ -1419,5 +1422,15 @@ namespace EIDSS.Web.Components.Laboratory
         #endregion
 
         #endregion
+
+        protected bool IsAccessionDateDisabled(SamplesGetListViewModel item) =>
+            !item.AccessionConditionTypeID.HasValue ||
+            item.AccessionConditionTypeID == (long)AccessionConditionTypeEnum.Rejected ||
+            !item.AllowDatesInThePast ||
+            !CanModifyAccessionDatePermissionIndicator;
+
+        protected bool IsAccessionDateValid(DateTime? date) =>
+            !date.HasValue ||
+            date.Value <= DateTime.Now;
     }
 }

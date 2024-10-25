@@ -1,13 +1,11 @@
-using EIDSS.Api.ActionFilters;
 using EIDSS.Api.Exceptions;
 using EIDSS.Api.Extensions;
 using EIDSS.Api.Integrations.PIN.Georgia;
 using EIDSS.Api.Provider;
-using EIDSS.Api.Providers;
 using EIDSS.Localization.Extensions;
+using EIDSS.Repository;
 using EIDSS.Repository.Contexts;
-using EIDSS.Repository.Interfaces;
-using EIDSS.Repository.Repositories;
+using EIDSS.Repository.Providers;
 using EIDSS.Repository.ReturnModels;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -15,6 +13,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCaching;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,17 +23,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using EIDSS.Api.ControllerBehavior;
-using EIDSS.Repository;
-using EIDSS.Repository.Providers;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 
 namespace EIDSS.Api
 {
@@ -61,53 +53,42 @@ namespace EIDSS.Api
             services.Configure<ConnectionStringOptions>(Configuration.GetSection("ConnectionStrings"));
 
             // Register options handler for XSite section...
+            // THIS SERVICE MUST BE REGISTERED BEFORE CONTEXTS ARE LOADED!!!!!!
             services.Configure<XSiteConfigurationOptions>(Configuration.GetSection("XSite"));
 
             // Register db contexts...
+            // MUST BE REGISTERED BEFORE LOCALIZATION!!!
             services.ConfigureContexts(Configuration);
 
             services.AddEIDSSLocalization(Configuration);
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddHttpContextAccessor();
-            // Inject Class mappings...
+
             services.ConfigureClassMappings();
 
-            // Inject Repos...
             services.ConfigureRepositories();
 
-            //Inject Services
             services.ConfigureServices();
 
-
-            // Inject content negotiation...
             services.AddMvc(config =>
             {
                 config.RespectBrowserAcceptHeader = true;
                 config.EnableEndpointRouting = false;
-                config.CacheProfiles.Add("Cache30", new Microsoft.AspNetCore.Mvc.CacheProfile() { Duration = 30, VaryByQueryKeys = new string[] {"*"}});
-                config.CacheProfiles.Add("Cache60", new Microsoft.AspNetCore.Mvc.CacheProfile() { Duration = 60, VaryByQueryKeys = new string[] {"*"}});
-                config.CacheProfiles.Add("Cache5Min", new Microsoft.AspNetCore.Mvc.CacheProfile() { Duration = 300, VaryByQueryKeys = new string[] {"*"}});
-                config.CacheProfiles.Add("Cache10Min", new Microsoft.AspNetCore.Mvc.CacheProfile() { Duration = 600, VaryByQueryKeys = new string[] {"*"}});
-                config.CacheProfiles.Add("CacheHour", new Microsoft.AspNetCore.Mvc.CacheProfile() { Duration = 3600, VaryByQueryKeys = new string[] {"*"}});
-                config.CacheProfiles.Add("CacheInfini", new Microsoft.AspNetCore.Mvc.CacheProfile() { Duration = 31104000, VaryByQueryKeys = new string[] {"*"}});
+                config.CacheProfiles.Add("Cache30", new CacheProfile() { Duration = 30, VaryByQueryKeys = new string[] { "*" } });
+                config.CacheProfiles.Add("Cache60", new CacheProfile() { Duration = 60, VaryByQueryKeys = new string[] { "*" } });
+                config.CacheProfiles.Add("Cache5Min", new CacheProfile() { Duration = 300, VaryByQueryKeys = new string[] { "*" } });
+                config.CacheProfiles.Add("Cache10Min", new CacheProfile() { Duration = 600, VaryByQueryKeys = new string[] { "*" } });
+                config.CacheProfiles.Add("CacheHour", new CacheProfile() { Duration = 3600, VaryByQueryKeys = new string[] { "*" } });
+                config.CacheProfiles.Add("CacheInfini", new CacheProfile() { Duration = 31104000, VaryByQueryKeys = new string[] { "*" } });
             });
-
-
-            //Add Configurations
 
             services.Configure<JwtTokenConfig>(Configuration.GetSection(JwtTokenConfig.JwtToken));
 
-            // Register the XSITE context helper...
-            services.AddScoped<IxSiteContextHelper, xSiteContextHelper>();
+            services.AddScoped<IXSiteContextHelper, XSiteContextHelper>();
 
-            // Hide API endpoints that don't need to be visible...
-            services.AddControllers(o=>
-            {
-            });
-            
-            
-            // Register the Swagger generator, defining 1 or more Swagger documents
+            services.AddControllers();
+
             services.AddSwaggerGen(c =>
             {
                 c.EnableAnnotations();
@@ -153,7 +134,6 @@ namespace EIDSS.Api
                     }
                 });
 
-
                 // Set the comments path for the Swagger JSON and UI.
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -171,8 +151,6 @@ namespace EIDSS.Api
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-
-            // Adding Jwt Bearer
             .AddJwtBearer(options =>
             {
                 options.SaveToken = true;
@@ -186,7 +164,7 @@ namespace EIDSS.Api
                     ValidAudience = Configuration["JwtToken:ValidAudience"],
                     ValidIssuer = Configuration["JwtToken:ValidIssuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtToken:Secret"])),
-                    ClockSkew= TimeSpan.Zero
+                    ClockSkew = TimeSpan.Zero
                 };
                 options.Events = new JwtBearerEvents
                 {
@@ -202,24 +180,26 @@ namespace EIDSS.Api
             });
 
             services.AddSingleton<IPINMockDataService, PINMockDataService>();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IOptions<IdentityOptions> identityOptions)
         {
-            if (env.IsDevelopment() || env.EnvironmentName.ToLower() == "ajdevlocal")
+            if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-
-
+            else
+            {
+                app.UseExceptionHandler("/Error");
+                app.UseHsts();
+            }
 
             using (var serviceScope = app.ApplicationServices.CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetService<EIDSSContextProcedures>();
 
-                System.Threading.Tasks.Task<System.Collections.Generic.List<USP_SecurityConfiguration_GetResult>>
+                Task<System.Collections.Generic.List<USP_SecurityConfiguration_GetResult>>
                     settings = context.USP_SecurityConfiguration_GetAsync();
 
                 identityOptions.Value.Lockout.AllowedForNewUsers = true;
@@ -227,20 +207,18 @@ namespace EIDSS.Api
                 identityOptions.Value.Lockout.DefaultLockoutTimeSpan =
                     TimeSpan.FromMinutes(settings.Result[0].LockoutDurationMinutes.Value);
                 identityOptions.Value.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890@._-";
-                    
             }
-
+            
+            app.UseHttpsRedirection();
             app.ConfigureExceptionMiddleware();
 
-            app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            // using Serilog
             app.UseSerilogRequestLogging();
             app.UseRouting();
 
             //  UseCors must be called before UseResponseCaching...
-            app.UseCors( _CORSPolicyName);
+            app.UseCors(_CORSPolicyName);
 
             app.UseResponseCaching();
             app.Use(async (context, next) =>
@@ -267,11 +245,10 @@ namespace EIDSS.Api
 
             app.UseAuthentication();
             app.UseAuthorization();
-            
+
             // Register our middleware that adds the username to the log...
             app.UseMiddleware<LogUsernameExtension>();
 
-            // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
@@ -287,21 +264,15 @@ namespace EIDSS.Api
 #if DEBUG
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "EIDSS API V1");
 #else
-
                 // if hosting in IIS we need the endpoint configured like this...
-                // =================================================================
                 c.SwaggerEndpoint("../swagger/v1/swagger.json", "EIDSS API V1");
 #endif
-
             });
-            app.UseHttpsRedirection();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
-
-
         }
 
     }

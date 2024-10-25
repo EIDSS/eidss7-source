@@ -61,13 +61,6 @@ namespace EIDSS.Localization.Extensions
             return resource?.ResourceValue ?? string.Empty;
         }
 
-        public static string GetHiddenResourceValueByLanguageCultureNameAndResourceKey(this LocalizationMemoryCacheProvider cache, string cultureName, string resourceKey)
-        {
-            var resource = cache.GetHiddenResourceByLanguageCultureNameAndResourceKey(cultureName, resourceKey);
-
-            return resource.ToString();
-        }
-
         public static string GetRequiredResourceValueByLanguageCultureNameAndResourceKey(this LocalizationMemoryCacheProvider cache, string cultureName, string resourceKey)
         {
             var resource = cache.GetRequiredResourceByLanguageCultureNameAndResourceKey(cultureName, resourceKey);

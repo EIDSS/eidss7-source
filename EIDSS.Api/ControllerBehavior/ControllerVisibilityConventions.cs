@@ -15,6 +15,8 @@ namespace EIDSS.Api.ControllerBehavior
     /// </summary>
     public class ControllerVisibilityConventions : IActionModelConvention
     {
+        //private List<string> _excludedcontrollers = new List<string>();
+
         private bool _hideAllControllers { get; set; }
 
         private ControllerVisibilitySettings _settings;

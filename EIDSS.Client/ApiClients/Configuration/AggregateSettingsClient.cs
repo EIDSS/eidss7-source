@@ -21,6 +21,8 @@ namespace EIDSS.ClientLibrary.ApiClients.Configuration
     }
     public partial class AggregateSettingsClient : BaseApiClient , IAggregateSettingsClient
     {
+        ///api/Configuration/VectorTypeFieldTestMatrix/DeleteFieldTestMatrix
+        ///#region Vector Type Field Test Matrix
         protected internal EidssApiConfigurationOptions _eidssApiConfigurationOptions;
 
         public AggregateSettingsClient(HttpClient httpClient, IOptionsSnapshot<EidssApiOptions> eidssApiOptions, IOptionsSnapshot<EidssApiConfigurationOptions> eidssApiConfigurationOptions,

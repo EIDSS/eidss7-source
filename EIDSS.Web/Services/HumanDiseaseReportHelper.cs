@@ -19,12 +19,6 @@ namespace EIDSS.Web.Services
             
         }
 
-        [JSInvokable("SetInvestigationOffice")]
-        public string SetInvestigationOffice(string data)
-        {
-            return data;
-        }
-
         [JSInvokable]
         public string SayHello() => $"Hello, {Name}!";
     }

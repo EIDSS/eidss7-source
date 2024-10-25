@@ -328,29 +328,20 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                     SortOrder = "desc"
                 };
 
-                List<HumanDiseaseReportDetailViewModel> list = await HumanDiseaseReportClient.GetHumanDiseaseDetail(request);
-                List<HumanDiseaseReportDetailViewModel> list2 = await HumanDiseaseReportClient.GetHumanDiseaseDetail(request2);
+                var record = await HumanDiseaseReportClient.GetHumanDiseaseDetail(request);
+                var record2 = await HumanDiseaseReportClient.GetHumanDiseaseDetail(request2);
 
-                HumanDiseaseReportDetailViewModel record = list.FirstOrDefault();
-                HumanDiseaseReportDetailViewModel record2 = list2.FirstOrDefault();
 
-                HumanDiseaseReportDeduplicationService.parentHumanDiseaseReportID = record.parentHumanDiseaseReportID;
-                HumanDiseaseReportDeduplicationService.relatedParentHumanDiseaseReportIdList = record.relatedParentHumanDiseaseReportIdList;
-                HumanDiseaseReportDeduplicationService.relatedChildHumanDiseaseReportIdList = record.relatedChildHumanDiseaseReportIdList;
                 HumanDiseaseReportDeduplicationService.idfHuman = record.idfHuman;
                 HumanDiseaseReportDeduplicationService.idfHumanActual = record.HumanActualId.Value;
                 HumanDiseaseReportDeduplicationService.idfsCaseProgressStatus = record.idfsCaseProgressStatus;
                 HumanDiseaseReportDeduplicationService.idfsYNRelatedToOutbreak = record.idfsYNRelatedToOutbreak;
-                HumanDiseaseReportDeduplicationService.relatedHumanDiseaseReportIdList = record.relatedHumanDiseaseReportIdList;
                 HumanDiseaseReportDeduplicationService.DiseaseReportTypeID = record.DiseaseReportTypeID;
                 HumanDiseaseReportDeduplicationService.strHumanCaseId = record.strCaseId;
-                //HumanDiseaseReportDeduplicationService.datCompletionPaperFormDate = record.datCompletionPaperFormDate;
-                //HumanDiseaseReportDeduplicationService.strLocalIdentifier = record.strLocalIdentifier;
                 HumanDiseaseReportDeduplicationService.blnClinicalDiagBasis = record.blnClinicalDiagBasis != null ? record.blnClinicalDiagBasis: false;
                 HumanDiseaseReportDeduplicationService.blnLabDiagBasis = record.blnLabDiagBasis != null ? record.blnLabDiagBasis : false;
                 HumanDiseaseReportDeduplicationService.blnEpiDiagBasis = record.blnEpiDiagBasis != null ? record.blnEpiDiagBasis : false;
                 HumanDiseaseReportDeduplicationService.strNote = record.strNote;
-                //HumanDiseaseReportDeduplicationService.InitialCaseStatus = record.InitialCaseStatus;
 
                 string strBasisOfDiagnosis = string.Empty;
                 if ((bool)HumanDiseaseReportDeduplicationService.blnClinicalDiagBasis)
@@ -373,29 +364,22 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                 }
                 record.strClinicalDiagnosis = strBasisOfDiagnosis;
 
-                HumanDiseaseReportDeduplicationService.parentHumanDiseaseReportID2 = record2.parentHumanDiseaseReportID;
-                HumanDiseaseReportDeduplicationService.relatedParentHumanDiseaseReportIdList2 = record2.relatedParentHumanDiseaseReportIdList;
-                HumanDiseaseReportDeduplicationService.relatedChildHumanDiseaseReportIdList2 = record2.relatedChildHumanDiseaseReportIdList;
                 HumanDiseaseReportDeduplicationService.idfHuman2 = record2.idfHuman;
                 HumanDiseaseReportDeduplicationService.idfHumanActual2 = record.HumanActualId.Value;
                 HumanDiseaseReportDeduplicationService.idfsCaseProgressStatus2 = record2.idfsCaseProgressStatus;
                 HumanDiseaseReportDeduplicationService.idfsYNRelatedToOutbreak2 = record2.idfsYNRelatedToOutbreak;
-                HumanDiseaseReportDeduplicationService.relatedHumanDiseaseReportIdList2 = record2.relatedHumanDiseaseReportIdList;
                 HumanDiseaseReportDeduplicationService.DiseaseReportTypeID2 = record2.DiseaseReportTypeID;
                 HumanDiseaseReportDeduplicationService.strHumanCaseId2 = record2.strCaseId;
-                //HumanDiseaseReportDeduplicationService.datCompletionPaperFormDate2 = record2.datCompletionPaperFormDate;
-                //HumanDiseaseReportDeduplicationService.strLocalIdentifier2 = record2.strLocalIdentifier;
                 HumanDiseaseReportDeduplicationService.blnClinicalDiagBasis2 = record2.blnClinicalDiagBasis != null ? record2.blnClinicalDiagBasis : false;
                 HumanDiseaseReportDeduplicationService.blnLabDiagBasis2 = record2.blnLabDiagBasis != null ? record2.blnLabDiagBasis : false;
                 HumanDiseaseReportDeduplicationService.blnEpiDiagBasis2 = record2.blnEpiDiagBasis != null ? record2.blnEpiDiagBasis : false;
-                //HumanDiseaseReportDeduplicationService.InitialCaseStatus2 = record2.InitialCaseStatus;
                 HumanDiseaseReportDeduplicationService.strNote2 = record2.strNote;
 
                 strBasisOfDiagnosis = string.Empty;
                 if ((bool)HumanDiseaseReportDeduplicationService.blnClinicalDiagBasis2)
                     strBasisOfDiagnosis = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFinalOutcomeClinicalFieldLabel);
 
-               if ((bool)HumanDiseaseReportDeduplicationService.blnEpiDiagBasis2)
+                if ((bool)HumanDiseaseReportDeduplicationService.blnEpiDiagBasis2)
                 {
                     if (string.IsNullOrEmpty(strBasisOfDiagnosis))
                         strBasisOfDiagnosis = Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportFinalOutcomeEpidemiologicalLinksFieldLabel);
@@ -1230,7 +1214,6 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
             {
                 request.LanguageID = GetCurrentLanguage();
                 // var jsonObject = JObject.Parse(data.ToString());
-                // request.idfHumanCaseRelatedTo = !string.IsNullOrEmpty(jsonObject["idfHumanCaseRelatedTo"].ToString()) && long.Parse(jsonObject["idfHumanCaseRelatedTo"].ToString()) != 0 ? long.Parse(jsonObject["idfHumanCaseRelatedTo"].ToString()) : null;
                 request.idfHumanCase = HumanDiseaseReportDeduplicationService.SurvivorHumanDiseaseReportID;
                 request.idfsSite = long.Parse(authenticatedUser.SiteId);
                 request.idfHuman = HumanDiseaseReportDeduplicationService.SurvivoridfHuman;
@@ -1238,7 +1221,6 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                 request.idfsYNRelatedToOutbreak = HumanDiseaseReportDeduplicationService.SurvivoridfsYNRelatedToOutbreak;
                 //request.idfsCaseProgressStatus = HumanDiseaseReportDeduplicationService.SurvivoridfsCaseProgressStatus;
                 //request.DiseaseReportTypeID = HumanDiseaseReportDeduplicationService.SurvivorDiseaseReportTypeID;
-                //request.idfHumanCaseRelatedTo = HumanDiseaseReportDeduplicationService.SurvivorrelatedHumanDiseaseReportIdList;
                 request.SurvivorDiseaseReportID = HumanDiseaseReportDeduplicationService.SurvivorHumanDiseaseReportID;
                 request.SupersededDiseaseReportID = HumanDiseaseReportDeduplicationService.SupersededHumanDiseaseReportID;
                 request.strHumanCaseId = HumanDiseaseReportDeduplicationService.SurvivorstrHumanCaseId;
@@ -1457,7 +1439,7 @@ namespace EIDSS.Web.Components.Administration.Deduplication.HumanDiseaseReport
                     contactItem.CaseOrReportId = HumanDiseaseReportDeduplicationService.SurvivorHumanDiseaseReportID;
                     contactItem.HumanId = item.idfHuman;
                     contactItem.HumanMasterId = item.idfHumanActual;
-                    contactItem.ContactTypeId = item.idfsPersonContactType;
+                    contactItem.ContactTypeId = (long?)OutbreakContactTypeEnum.Human;
                     contactItem.ContactedCasePersonId = item.idfContactedCasePerson; 
                     contactItem.DateOfLastContact =item.datDateOfLastContact;
                     contactItem.PlaceOfLastContact = item.strPlaceInfo;

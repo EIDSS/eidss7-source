@@ -5,16 +5,21 @@
 @using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
 @using EIDSS.Web.Components.CrossCutting;
 
+@*<h2 heading-for="@HeadingResourceKeyConstants.DiseaseAgeGroupMatrixPageHeading"></h2>*@
+@*<h2>Unique Numbering Schema</h2>*@
 <h2>@Localizer.GetString(HeadingResourceKeyConstants.UniqueNumberingSchemaPageHeading)</h2>
 
 @{
+    //ViewData["Title"] = Localizer.GetString(HeadingResourceKeyConstants.DiseaseAgeGroupMatrixPageHeading);
     ViewData["Title"] = "Unique Numbering Schema";
 
+    //Model.PageLevelAddButtonID = "btnAddUniqueNumberingSchema";
 
     //SET UP GRID
     Model.eidssGridConfiguration.GridId = "gUniqueNumberingSchema";
     Model.eidssGridConfiguration.GridClass = "table table-sm table-striped";
     Model.eidssGridConfiguration.EditModalAjaxUrl = @Url.Action("EditUniqueNumberingSchema", "UniqueNumberingSchemaPage");
+    //Model.eidssGridConfiguration.DeleteModalAjaxUrl = @Url.Action("DeleteDiseaseHumanGender", "UniqueNumberingSchemaPage");
     Model.eidssGridConfiguration.AjaxDataUrl = @Url.Action("GetList", "UniqueNumberingSchemaPage");
     Model.eidssGridConfiguration.EnableServerSide = true;
     Model.eidssGridConfiguration.EnableCustomSearching = true;
@@ -107,6 +112,7 @@
         Visible = true,
         ColumnType = ColumnType.ReadOnly,
         VisibleInModal = false,
+        //ClassName = "DefaultValueRequired",
         Orderable = false
     });
 
@@ -117,6 +123,7 @@
         Visible = true,
         ColumnType = ColumnType.ReadOnly,
         VisibleInModal = false,
+        //ClassName = "DefaultValueRequired",
         Orderable = false
     });
 
@@ -153,6 +160,26 @@
         DisableIfNumericFieldHasChar = true
     });
 
+    //Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    //{
+    //    ColumnName = "IntNextNumberValue",
+    //    ColumnTitleHeader = "Next Number Value",
+    //    Visible = true,
+    //    ColumnType = ColumnType.Numeric,
+    //    VisibleInModal = false,
+    //    ValidationSetting = new ValidatorSettings()
+    //    {
+    //        ValidationRuleTypes = VaildationRuleType.ValidationRuleType.RANGE,
+    //        ValidationRule = "[1,9999]",
+    //        RangeValidationMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsInvalidValidRangeIsMessage)
+    //    },
+    //    ClassName = "IntNextNumberValueRange",
+    //    Orderable = false,
+    //    MaxLength = 4,
+    //    Max = 9999,
+    //    Min =1
+    //    //ClientFunction = "PadNumber"
+    //});
 
     Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
     {
@@ -173,6 +200,11 @@
         ColumnType = ColumnType.Default,
         VisibleInModal = false,
         MaxLength = 1,
+        //ValidationSetting = new ValidatorSettings()
+        //{
+        //    ValidationRuleTypes = VaildationRuleType.ValidationRuleType.REQUIRED,
+        //    ValidatorMessage = Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)
+        //},
         ClassName = "StrSpecialCharacterRequired",
         Orderable = false
     });
@@ -195,6 +227,7 @@
         Visible = true,
         ColumnType = ColumnType.ReadOnly,
         VisibleInModal = false,
+        //ClassName = "DefaultValueRequired",
         Orderable = false
     });
 
@@ -236,6 +269,17 @@
         CallAppendedJSFunctions = true
 
     });
+
+    //Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
+    //{
+    //    ColumnName = "name",
+    //    ColumnTitleHeader = String.Empty,
+    //    ColumnType = ColumnType.Link,
+    //    CustomLinkText = "<a class='fa fa-print'></a>",
+    //    Visible=true,
+    //    ClientFunction = 
+
+    //});
 
 
     Model.eidssGridConfiguration.ColumnNames.Add(new EIDSSColumnNames()
@@ -340,6 +384,7 @@
     
     function refreshPage()
     {
+       // window.location.reload();
         window.location.href = '@Url.Action("Index", "UniqueNumberingSchemaPage", new { Area = "Configuration" })';
     }
 
@@ -351,10 +396,17 @@
             $("#mdSaveSuccess").modal("show");            
         }
         else if (parsed_data.returnMessage == "INVALID") {
+            //$("#mdSaveSuccess").modal("show");            
+            //alert("the next number is not valid");
+
             $("#invalidModal").modal("show");       
             $("#invalidMsg").html(parsed_data.strInvalidRange);
 
         }
+        //else if (parsed_data.returnMessage == "DOES EXIST") {            
+        //    $("#duplicatesModal").modal("show");
+        //    $("#dupemsg").html(parsed_data.strDuplicatedField);
+        //}
     }
 
     function AppendedJSFunctions(id) {
@@ -386,8 +438,10 @@
                 $("#printModal").modal('show');
             },
             complete: function (resp) {
+                //alert('complete');
             },
             error: function (request, error) {
+                //alert(error);
             }
         });
     }

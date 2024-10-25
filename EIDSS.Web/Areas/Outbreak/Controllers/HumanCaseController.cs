@@ -94,9 +94,9 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
 
             //Permissions
             _outbreakHumanCasesViewModel.diseaseReportComponentViewModel.PersonInfoSection = new DiseaseReportPersonalInformationPageViewModel
-                {
-                    PermissionsAccessToPersonalData = _userPermissions
-                };
+            {
+                PermissionsAccessToPersonalData = _userPermissions
+            };
             _outbreakHumanCasesViewModel.diseaseReportComponentViewModel.isEdit = true;
 
             //Notification Section
@@ -128,7 +128,7 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
                 House = _getCaseDetailResult.First().strHouse,
                 Building = _getCaseDetailResult.First().strBuilding,
                 Apartment = _getCaseDetailResult.First().strApartment,
-                PostalCodeText = _getCaseDetailResult.First().strPostCode, 
+                PostalCodeText = _getCaseDetailResult.First().strPostCode,
                 Latitude = _getCaseDetailResult.First().dblLatitude,
                 Longitude = _getCaseDetailResult.First().dblLongitude
             };
@@ -152,8 +152,8 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
 
             _outbreakHumanCasesViewModel.diseaseReportComponentViewModel.FacilityDetailsSection = new DiseaseReportFacilityDetailsPageViewModel()
             {
+                HospitalizationPlace = _getCaseDetailResult.First().strHospitalizationPlace,
                 Hospitalized = _getCaseDetailResult.First().idfsYNHospitalization,
-                HospitalID = _getCaseDetailResult.First().idfHospital,
                 HospitalizationDate = _getCaseDetailResult.First().datHospitalizationDate,
                 DateOfDischarge = _getCaseDetailResult.First().datDischargeDate
             };
@@ -175,21 +175,21 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
             };
 
             _outbreakHumanCasesViewModel.diseaseReportComponentViewModel.RiskFactorsSection = new DiseaseReportCaseInvestigationRiskFactorsPageViewModel
+            {
+                RiskFactors = new Domain.RequestModels.FlexForm.FlexFormQuestionnaireGetRequestModel
                 {
-                    RiskFactors = new Domain.RequestModels.FlexForm.FlexFormQuestionnaireGetRequestModel
-                    {
-                        idfObservation = _getCaseDetailResult.First().idfEpiObservation,
-                        idfsFormType = (long)FlexFormType.HumanCaseQuestionnaire,
-                        idfsDiagnosis = _getCaseDetailResult.First().idfsDiagnosisOrDiagnosisGroup,
-                        LangID = GetCurrentLanguage()
-                    }
-                };
+                    idfObservation = _getCaseDetailResult.First().idfEpiObservation,
+                    idfsFormType = (long)FlexFormType.HumanCaseQuestionnaire,
+                    idfsDiagnosis = _getCaseDetailResult.First().idfsDiagnosisOrDiagnosisGroup,
+                    LangID = GetCurrentLanguage()
+                }
+            };
 
             //Case Monitoring
             _outbreakHumanCasesViewModel.diseaseReportComponentViewModel.CaseDetails = new CaseGetDetailViewModel
-                {
-                    CaseTypeId = (long) OutbreakSpeciesTypeEnum.Human
-                };
+            {
+                CaseTypeId = (long)OutbreakSpeciesTypeEnum.Human
+            };
 
             var monitorings = _getCaseDetailResult.First().CaseMonitorings;
             if (monitorings != null)
@@ -197,22 +197,23 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
                 var monitoringsArray = JArray.Parse(monitorings);
 
                 var caseMonitorings = monitoringsArray.Select(jsonObject => new CaseMonitoringGetListViewModel
+                {
+                    CaseMonitoringId = (long?)GetJsonValue(jsonObject, "idfOutbreakCaseMonitoring", DataType.Long),
+                    ObservationId = (long?)GetJsonValue(jsonObject, "idfObservation", DataType.Long),
+                    MonitoringDate = (DateTime?)GetJsonValue(jsonObject, "datMonitoringdate", DataType.DateTime),
+                    InvestigatedByOrganizationId = (long?)GetJsonValue(jsonObject, "idfInvestigatedByOffice", DataType.Long),
+                    InvestigatedByOrganizationName = GetJsonValue(jsonObject, "InvestigatedByOffice", DataType.String).ToString(),
+                    InvestigatedByPersonId = (long?)GetJsonValue(jsonObject, "idfInvestigatedByPerson", DataType.Long),
+                    InvestigatedByPersonName = GetJsonValue(jsonObject, "InvestigatedByPerson", DataType.String).ToString(),
+                    AdditionalComments = GetJsonValue(jsonObject, "strAdditionalComments", DataType.String).ToString(),
+                    CaseMonitoringFlexFormRequest = new Domain.RequestModels.FlexForm.FlexFormQuestionnaireGetRequestModel()
                     {
-                        CaseMonitoringId = (long?) GetJsonValue(jsonObject, "idfOutbreakCaseMonitoring", DataType.Long),
-                        ObservationId = (long?) GetJsonValue(jsonObject, "idfObservation", DataType.Long),
-                        MonitoringDate = (DateTime?) GetJsonValue(jsonObject, "datMonitoringdate", DataType.DateTime),
-                        InvestigatedByOrganizationId = (long?) GetJsonValue(jsonObject, "idfInvestigatedByOffice", DataType.Long),
-                        InvestigatedByOrganizationName = GetJsonValue(jsonObject, "InvestigatedByOffice", DataType.String).ToString(),
-                        InvestigatedByPersonId = (long?) GetJsonValue(jsonObject, "idfInvestigatedByPerson", DataType.Long),
-                        InvestigatedByPersonName = GetJsonValue(jsonObject, "InvestigatedByPerson", DataType.String).ToString(),
-                        AdditionalComments = GetJsonValue(jsonObject, "strAdditionalComments", DataType.String).ToString(),
-                        CaseMonitoringFlexFormRequest = new Domain.RequestModels.FlexForm.FlexFormQuestionnaireGetRequestModel() {
-                            idfObservation = (long?) GetJsonValue(jsonObject, "idfObservation", DataType.Long), 
-                            idfsFormType = (long?) GetJsonValue(jsonObject, "idfsFormType", DataType.Long), 
-                            idfsDiagnosis = _getCaseDetailResult.First().idfsDiagnosisOrDiagnosisGroup,
-                            LangID = GetCurrentLanguage()
-                        }
-                    })
+                        idfObservation = (long?)GetJsonValue(jsonObject, "idfObservation", DataType.Long),
+                        idfsFormType = (long?)GetJsonValue(jsonObject, "idfsFormType", DataType.Long),
+                        idfsDiagnosis = _getCaseDetailResult.First().idfsDiagnosisOrDiagnosisGroup,
+                        LangID = GetCurrentLanguage()
+                    }
+                })
                     .ToList();
 
                 _outbreakHumanCasesViewModel.diseaseReportComponentViewModel.CaseDetails.CaseMonitorings = caseMonitorings.ToList();
@@ -220,16 +221,16 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
 
             //Contacts
             _outbreakHumanCasesViewModel.diseaseReportComponentViewModel.ContactListSection = new DiseaseReportContactListPageViewModel
-                {
-                    ContactDetails = new List<DiseaseReportContactDetailsViewModel>()
-                };
+            {
+                ContactDetails = new List<DiseaseReportContactDetailsViewModel>()
+            };
 
             //Samples
             _outbreakHumanCasesViewModel.diseaseReportComponentViewModel.SamplesSection = new DiseaseReportSamplePageViewModel
-                {
-                    SamplesDetails = new List<DiseaseReportSamplePageSampleDetailViewModel>(),
-                    SamplesCollectedYN = _getCaseDetailResult.First().idfsYNSpecimenCollected
-                };
+            {
+                SamplesDetails = new List<DiseaseReportSamplePageSampleDetailViewModel>(),
+                SamplesCollectedYN = _getCaseDetailResult.First().idfsYNSpecimenCollected
+            };
 
             var samples = _getCaseDetailResult.First().Samples;
             if (samples != null)
@@ -260,10 +261,10 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
 
             //Tests Section
             _outbreakHumanCasesViewModel.diseaseReportComponentViewModel.TestsSection = new DiseaseReportTestPageViewModel
-                {
-                    TestDetails = new List<DiseaseReportTestDetailForDiseasesViewModel>(),
-                    TestsConducted = _getCaseDetailResult.First().idfsYNTestsConducted
-                };
+            {
+                TestDetails = new List<DiseaseReportTestDetailForDiseasesViewModel>(),
+                TestsConducted = _getCaseDetailResult.First().idfsYNTestsConducted
+            };
 
             var tests = _getCaseDetailResult.First().Tests;
             if (tests != null)
@@ -320,7 +321,7 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
                 HumanMasterID = id,
                 EIDSSPersonID = personDetailList.FirstOrDefault().EIDSSPersonID,
                 Name = personDetailList.FirstOrDefault().FirstOrGivenName + " " + personDetailList.FirstOrDefault().LastOrSurname,
-                DateEntered = personDetailList.FirstOrDefault().EnteredDate.ToString()
+                DateEntered = personDetailList.FirstOrDefault().EnteredDate
             };
 
             var sessionDetailRequest = new OutbreakSessionDetailRequestModel
@@ -343,9 +344,9 @@ namespace EIDSS.Web.Areas.Outbreak.Controllers
             };
 
             _outbreakHumanCasesViewModel.diseaseReportComponentViewModel.CaseInvestigationSection = new DiseaseReportCaseInvestigationPageViewModel
-                {
-                    CurrentDate = DateTime.Now
-                };
+            {
+                CurrentDate = DateTime.Now
+            };
 
             _outbreakHumanCasesViewModel.SessionParameters = _outbreakClient.GetSessionParametersList(parametersRequest).Result.FirstOrDefault(x => x.OutbreakSpeciesTypeID == (long?)OutbreakSpeciesTypeEnum.Human);
 

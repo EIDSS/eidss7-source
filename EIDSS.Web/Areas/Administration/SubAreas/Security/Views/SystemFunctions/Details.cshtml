@@ -57,10 +57,35 @@
     </div>
     <div class="card-footer">
         <button type="button" class="btn btn-outline-primary" disabled="@(enableAdd == false)" button-for="@ButtonResourceKeyConstants.AddButton" onclick="initializeAddEmployee('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)', event,'@Model.SystemFunctionId')"></button>
+        @*<button type="button" class="btn btn-outline-primary" disabled="@(Model.AcccessRightWritePermission == false)" button-for="@ButtonResourceKeyConstants.DeleteButton" onclick="deleteAccessDetails('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToDeleteThisRecordMessage)', '@Model.SystemFunctionId')" visible-if="true"></button>*@
         <button type="button" id="savePermissions" class="btn btn-outline-primary" onclick="savePermissions();" button-for="@ButtonResourceKeyConstants.SaveButton"></button>
         <button type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.CancelButton" onclick="cancelDetails('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)', event)"></button>
     </div>
 </div>
+@*<div class="card">
+
+    <div class="card-body">
+        <h4 heading-for="@HeadingResourceKeyConstants.PermissionsHeading" class="header"></h4>
+
+        <div class="table-responsive">
+            <table id="permissionList" class="table table-striped">
+                <thead>
+                    <tr> 
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th>Operation</th>
+                        <th>Access</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer">
+        <button type="button" id="savePermissions1" class="btn btn-outline-primary" onclick="savePermissions();" button-for="@ButtonResourceKeyConstants.SaveButton"></button>
+        <button type="button" class="btn btn-outline-primary" button-for="@ButtonResourceKeyConstants.CancelButton" onclick="cancelDetails('@Localizer.GetString(MessageResourceKeyConstants.DoYouWantToCancelChangesMessage)', event)"></button>
+    </div>
+</div>*@
 
 
 
@@ -278,6 +303,43 @@
                 'order': [[1, 'asc']]
             });
 
+            @*$.ajax({
+                url: '@Url.Action("GetAccessUserList", "SystemFunctions", new { Area = "Administration", SubArea = "Security" })?systemFunctionId=' + $("#systemFunctionId").val(),
+                    contentType: "application/json",
+                    type: "GET",
+                    success: function (result) {
+
+                        userList = $("#accessUserList").DataTable({
+                            "data": result.data,
+                            "columnDefs": [{
+                                "targets": 0,
+                                "orderable": false
+                            }],
+                        "columns": [{
+                            "className": 'details-control-item',
+                            "orderable": true,
+                            "data": null,
+                            "defaultContent": ''
+                        }, {
+
+                                "defaultContent": ''
+                            },
+                            {
+                                "defaultContent": ''
+                            }
+                            ],
+                            "order": [[1, 'asc']]
+                        });
+
+                    },
+                    fail(error)
+                    {
+                        alert(error);
+                                                },
+                    error: function (reponse) {
+                        alert("An error occurred: " + reponse);
+                    }
+                });*@
         };
 
         function initializUserPermissionListTable(userId) {

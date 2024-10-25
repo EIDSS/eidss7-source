@@ -50,18 +50,8 @@
         <RadzenDataGridColumn FormatString="{0:g}" HeaderCssClass="lab-table-striped-header" Property="AccessionDate" TItem="SamplesGetListViewModel" Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.LaboratorySamplesAccessionDateTimeColumnHeading)" Width="225px">
             <Template Context="item">
                 <div style="max-height: 35px;">
-                    @{
-                        var componentName = "accessionDate" + item.SampleID;
-                        if (item.AccessionConditionTypeID is (long)AccessionConditionTypeEnum.Rejected or null)
-                        {
-                            <RadzenDatePicker AllowClear="false" @bind-Value="item.AccessionDate" DateFormat="g" Disabled="true" Name="@componentName" ShowTime="false" TValue="DateTime?" />
-                        }
-                        else
-                        {
-                            <RadzenDatePicker AllowClear="@(CanModifyAccessionDatePermissionIndicator)" @bind-Value="item.AccessionDate" Change="_ => OnAccessionDateDatePickerChange(item)" DateFormat="g" Disabled="@(!item.AllowDatesInThePast || !CanModifyAccessionDatePermissionIndicator)" Name="@componentName" ShowTime="false" TValue="DateTime?" />
-                        }
-                        <RadzenCompareValidator Component="@componentName" Operator="CompareOperator.LessThanEqual" Popup="true" Style="z-index: 999;" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Value="DateTime.Now" />
-                    }
+                    <RadzenDatePicker AllowClear="@(CanModifyAccessionDatePermissionIndicator)" @bind-Value="item.AccessionDate" Change="_ => OnAccessionDateDatePickerChange(item)" DateFormat="g" Disabled="@IsAccessionDateDisabled(item)" Name="AccessionDate_DatePicker" ShowTime="false" TValue="DateTime?" />
+                    <RadzenCustomValidator Component="AccessionDate_DatePicker" Popup="true" Style="position: absolute;" Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)" Validator="@(() => IsAccessionDateValid(item.AccessionDate))" />
                 </div>
             </Template>
         </RadzenDataGridColumn>

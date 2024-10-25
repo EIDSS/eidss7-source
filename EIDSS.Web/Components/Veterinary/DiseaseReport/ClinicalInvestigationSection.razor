@@ -25,7 +25,7 @@
         @if (Model.FarmInventory is not null && IsReview == false)
         {
             <InterfaceEditorResource CssClass="col-6" For="species" InterfaceEditorKey="@FieldLabelResourceKeyConstants.LivestockDiseaseReportAnimalDetailsModalSpeciesFieldLabel" IsRow="false">
-                <RadzenRadioButtonList @bind-Value="SpeciesId" Change="args => OnSpeciesChange(args)" Data="Model.FarmInventory.Where(x => x.RecordType == RecordTypeConstants.Species)" Name="species" Orientation="Orientation.Vertical" TextProperty="Species" TValue="long?" ValueProperty="SpeciesID"/>
+                <RadzenRadioButtonList @bind-Value="SpeciesId" Change="@OnSpeciesChange" Data="Model.FarmInventory.Where(x => x.RecordType == RecordTypeConstants.Species)" Name="species" Orientation="Orientation.Vertical" TextProperty="Species" TValue="long?" ValueProperty="SpeciesID"/>
             </InterfaceEditorResource>
         }
         <div class="col-6">

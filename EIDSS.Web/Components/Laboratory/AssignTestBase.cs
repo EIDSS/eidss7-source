@@ -1,6 +1,4 @@
-﻿#region Usings
-
-using EIDSS.ClientLibrary.ApiClients.Configuration;
+﻿using EIDSS.ClientLibrary.ApiClients.Configuration;
 using EIDSS.Domain.Enumerations;
 using EIDSS.Domain.RequestModels.Configuration;
 using EIDSS.Domain.ViewModels.Administration;
@@ -20,35 +18,15 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static EIDSS.ClientLibrary.Enumerations.EIDSSConstants;
-using static System.GC;
-using static System.Int32;
-using static System.String;
-
-#endregion
 
 namespace EIDSS.Web.Components.Laboratory
 {
-    /// <summary>
-    /// </summary>
     public class AssignTestBase : LaboratoryBaseComponent, IDisposable
     {
-        #region Globals
-
-        #region Dependencies
-
         [Inject] private ILogger<AssignTestBase> Logger { get; set; }
         [Inject] private IDiseaseLabTestMatrixClient DiseaseLabTestMatrixClient { get; set; }
 
-        #endregion
-
-        #region Parameters
-
         [Parameter] public LaboratoryTabEnum Tab { get; set; }
-
-        #endregion
-
-        #region Properties
 
         public IEnumerable<FilteredDiseaseGetListViewModel> Diseases;
         public List<TestNameTestResultsMatrixViewModel> TestResultTypes { get; set; }
@@ -57,45 +35,20 @@ namespace EIDSS.Web.Components.Laboratory
         public RadzenDataGrid<TestingGetListViewModel> TestsGrid { get; set; }
         public TestingGetListViewModel TestToInsert { get; set; }
 
-        #endregion
-
-        #region Member Variables
-
         private CancellationTokenSource _source;
         private CancellationToken _token;
         private bool _disposedValue;
 
-        #endregion
-
-        #region Constants
-
         private const string OpeningParagraphHtmlTag = "<p>";
         private const string ClosingParagraphHtmlTag = "</p>";
 
-        #endregion
-
-        #endregion
-
-        #region Constructors
-
-        /// <summary>
-        /// </summary>
-        /// <param name="token"></param>
         public AssignTestBase(CancellationToken token) : base(token)
         {
         }
 
-        /// <summary>
-        /// </summary>
         protected AssignTestBase() : base(CancellationToken.None)
         {
         }
-
-        #endregion
-
-        #region Methods
-
-        #region Lifecycle Methods
 
         protected override async void OnInitialized()
         {
@@ -122,7 +75,7 @@ namespace EIDSS.Web.Components.Laboratory
                 case LaboratoryTabEnum.Samples:
                     foreach (var sample in LaboratoryService.SelectedSamples)
                     {
-                        if (IsNullOrEmpty(sample.DiseaseID)) continue;
+                        if (string.IsNullOrEmpty(sample.DiseaseID)) continue;
                         if (Model.Diseases?.Find(x => x.DiseaseID.ToString() == sample.DiseaseID) != null) continue;
 
                         if (sample.DiseaseID.Contains(","))
@@ -163,7 +116,7 @@ namespace EIDSS.Web.Components.Laboratory
                 case LaboratoryTabEnum.MyFavorites:
                     foreach (var myFavorite in LaboratoryService.SelectedMyFavorites)
                     {
-                        if (IsNullOrEmpty(myFavorite.DiseaseID)) continue;
+                        if (string.IsNullOrEmpty(myFavorite.DiseaseID)) continue;
                         if (Model.Diseases?.Find(x => x.DiseaseID.ToString() == myFavorite.DiseaseID) != null) continue;
 
                         if (myFavorite.DiseaseID.Contains(","))
@@ -196,9 +149,6 @@ namespace EIDSS.Web.Components.Laboratory
             await base.OnInitializedAsync();
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
             try
@@ -224,15 +174,9 @@ namespace EIDSS.Web.Components.Laboratory
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(true);
-            SuppressFinalize(this);
+            GC.SuppressFinalize(this);
         }
-        #endregion
 
-        #region Load Data Methods
-
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         private async Task GetTestNamesByDisease()
         {
             if (Model.Diseases.Any())
@@ -240,20 +184,20 @@ namespace EIDSS.Web.Components.Laboratory
                 DiseaseLabTestMatrixGetRequestModel request = new()
                 {
                     LanguageId = GetCurrentLanguage(),
-                    PageSize = MaxValue - 1,
-                    SortOrder = SortConstants.Ascending,
+                    PageSize = int.MaxValue - 1,
+                    SortOrder = ClientLibrary.Enumerations.EIDSSConstants.SortConstants.Ascending,
                     SortColumn = "strDisease"
                 };
 
                 var lst = await DiseaseLabTestMatrixClient.GetLabTestMatrix(request, _token);
 
                 foreach (var baseRef in from r in lst
-                         where r?.idfsTestName != null && r.idfsDiagnosis == Model.Diseases.First().DiseaseID
-                         select new BaseReferenceViewModel
-                         {
-                             IdfsBaseReference = (long) r.idfsTestName,
-                             Name = r.strTestName
-                         })
+                                        where r?.idfsTestName != null && r.idfsDiagnosis == Model.Diseases.First().DiseaseID
+                                        select new BaseReferenceViewModel
+                                        {
+                                            IdfsBaseReference = (long)r.idfsTestName,
+                                            Name = r.strTestName
+                                        })
                     Model.TestNameTypes.Add(baseRef);
 
                 Model.TestNameTypes = Model.TestNameTypes.GroupBy(x => x.IdfsBaseReference).Select(x => x.First()).ToList();
@@ -261,25 +205,18 @@ namespace EIDSS.Web.Components.Laboratory
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="args"></param>
         public async Task GetTestNameTypesByFilter(LoadDataArgs args)
         {
-            if (!IsNullOrEmpty(args.Filter))
+            if (!string.IsNullOrEmpty(args.Filter))
                 Model.TestNameTypes = Model.TestNameTypes.Where(c =>
                     c.Name != null && c.Name.Contains(args.Filter, StringComparison.CurrentCultureIgnoreCase)).ToList();
 
             await InvokeAsync(StateHasChanged).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="args"></param>
-        /// <param name="testNameTypeId"></param>
         public async Task GetTestResultTypesByFilter(LoadDataArgs args, long? testNameTypeId)
         {
-            if (!IsNullOrEmpty(args.Filter))
+            if (!string.IsNullOrEmpty(args.Filter))
                 TestResultTypes = TestResultTypes.Where(c =>
                     c.strTestResultName != null && c.strTestResultName.Contains(args.Filter, StringComparison.CurrentCultureIgnoreCase)).ToList();
             else
@@ -293,19 +230,11 @@ namespace EIDSS.Web.Components.Laboratory
             await InvokeAsync(StateHasChanged).ConfigureAwait(false);
         }
 
-        #endregion
-
-        #region Filter Test Names By Disease Change Event
-
-        /// <summary>
-        /// </summary>
-        /// <param name="isChecked"></param>
-        /// <returns></returns>
         protected async void OnFilterTestNameByDiseaseChanged(bool isChecked)
         {
             try
             {
-                TestResultTypes.Clear();
+                TestResultTypes?.Clear();
 
                 if (isChecked)
                 {
@@ -328,14 +257,6 @@ namespace EIDSS.Web.Components.Laboratory
             }
         }
 
-        #endregion
-
-        #region Test Name Type Drop Down Change Event
-
-        /// <summary>
-        /// </summary>
-        /// <param name="test"></param>
-        /// <returns></returns>
         public async Task OnTestNameTypeChange(TestingGetListViewModel test)
         {
             try
@@ -358,13 +279,6 @@ namespace EIDSS.Web.Components.Laboratory
             }
         }
 
-        #endregion
-
-        #region Edit Row Click Event
-
-        /// <summary>
-        /// </summary>
-        /// <param name="item"></param>
         protected async void OnEditRowClick(TestingGetListViewModel item)
         {
             try
@@ -378,19 +292,12 @@ namespace EIDSS.Web.Components.Laboratory
             }
         }
 
-        #endregion
-
-        #region Update Row Event
-
-        /// <summary>
-        /// </summary>
-        /// <param name="item"></param>
         protected async Task OnRowUpdate(TestingGetListViewModel item)
         {
             if (item == TestToInsert) TestToInsert = null;
 
             string testResultName, diseaseName;
-            var testName = testResultName = diseaseName = Empty;
+            var testName = testResultName = diseaseName = string.Empty;
 
             var testNameTypeName = Model.TestNameTypes.ToList().Find(x => x.IdfsBaseReference == item.TestNameTypeID);
             if (testNameTypeName != null) testName = testNameTypeName.Name;
@@ -427,14 +334,6 @@ namespace EIDSS.Web.Components.Laboratory
             await InvokeAsync(StateHasChanged).ConfigureAwait(false);
         }
 
-        #endregion
-
-        #region Save Row Click Event
-
-        /// <summary>
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
         protected async Task OnSaveRowClick(TestingGetListViewModel item)
         {
             if (item == TestToInsert) TestToInsert = null;
@@ -442,13 +341,6 @@ namespace EIDSS.Web.Components.Laboratory
             await TestsGrid.UpdateRow(item);
         }
 
-        #endregion
-
-        #region Cancel Edit Click Event
-
-        /// <summary>
-        /// </summary>
-        /// <param name="item"></param>
         protected void OnCancelEditClick(TestingGetListViewModel item)
         {
             if (item == TestToInsert) TestToInsert = null;
@@ -456,14 +348,6 @@ namespace EIDSS.Web.Components.Laboratory
             TestsGrid.CancelEditRow(item);
         }
 
-        #endregion
-
-        #region Delete Row Click Event
-
-        /// <summary>
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
         protected async Task OnDeleteRowClick(TestingGetListViewModel item)
         {
             if (item == TestToInsert) TestToInsert = null;
@@ -488,13 +372,6 @@ namespace EIDSS.Web.Components.Laboratory
             }
         }
 
-        #endregion
-
-        #region Insert Row Click Event
-
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         public async Task OnInsertRowClick()
         {
             TestToInsert = new TestingGetListViewModel();
@@ -504,13 +381,6 @@ namespace EIDSS.Web.Components.Laboratory
             await TestsGrid.InsertRow(TestToInsert);
         }
 
-        #endregion
-
-        #region Row Create Event
-
-        /// <summary>
-        /// </summary>
-        /// <param name="item"></param>
         protected async void OnRowCreate(TestingGetListViewModel item)
         {
             var disease = Model.Diseases.Find(x => x.DiseaseID == item.DiseaseID);
@@ -528,7 +398,7 @@ namespace EIDSS.Web.Components.Laboratory
 
             if (Model.Tests.Any())
             {
-                _ = TryParse(Model.Tests.Max(t => t.RowNumber).ToString(), out var maxRowNumber);
+                _ = int.TryParse(Model.Tests.Max(t => t.RowNumber).ToString(), out var maxRowNumber);
                 maxRowNumber++;
                 item.RowNumber = maxRowNumber;
             }
@@ -545,13 +415,6 @@ namespace EIDSS.Web.Components.Laboratory
             Model.IsSaveDisabled = false;
         }
 
-        #endregion
-
-        #region Save Method
-
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         protected async Task Save()
         {
             try
@@ -577,7 +440,7 @@ namespace EIDSS.Web.Components.Laboratory
                                                 x.DiseaseID == test.DiseaseID) > 1)
                                         {
                                             errorMessages.Append(OpeningParagraphHtmlTag + "<strong>"
-                                                + Format(Localizer.GetString(
+                                                + string.Format(Localizer.GetString(
                                                     MessageResourceKeyConstants.DuplicateValueMessage,
                                                     test.TestNameTypeName))
                                                 + "</strong>" + ClosingParagraphHtmlTag);
@@ -629,7 +492,7 @@ namespace EIDSS.Web.Components.Laboratory
                                         newTest.ResultDate = DateTime.Now;
                                         newTest.ResultEnteredByOrganizationID = authenticatedUser.OfficeId;
                                         newTest.ResultEnteredByPersonID = Convert.ToInt64(authenticatedUser.PersonId);
-                                        newTest.ResultEnteredByPersonName = authenticatedUser.LastName + (IsNullOrEmpty(authenticatedUser.FirstName) ? "" : ", " + authenticatedUser.FirstName);
+                                        newTest.ResultEnteredByPersonName = authenticatedUser.LastName + (string.IsNullOrEmpty(authenticatedUser.FirstName) ? "" : ", " + authenticatedUser.FirstName);
                                         newTest.TestStatusTypeID = (long)TestStatusTypeEnum.Preliminary;
                                     }
                                 }
@@ -652,7 +515,7 @@ namespace EIDSS.Web.Components.Laboratory
                                                 x.DiseaseID == test.DiseaseID) > 1)
                                         {
                                             errorMessages.Append(OpeningParagraphHtmlTag + "<strong>"
-                                                + Format(Localizer.GetString(
+                                                + string.Format(Localizer.GetString(
                                                     MessageResourceKeyConstants.DuplicateValueMessage,
                                                     test.TestNameTypeName))
                                                 + "</strong>" + ClosingParagraphHtmlTag);
@@ -705,7 +568,7 @@ namespace EIDSS.Web.Components.Laboratory
                                         newTest.ResultDate = DateTime.Now;
                                         newTest.ResultEnteredByOrganizationID = authenticatedUser.OfficeId;
                                         newTest.ResultEnteredByPersonID = Convert.ToInt64(authenticatedUser.PersonId);
-                                        newTest.ResultEnteredByPersonName = authenticatedUser.LastName + (IsNullOrEmpty(authenticatedUser.FirstName) ? "" : ", " + authenticatedUser.FirstName);
+                                        newTest.ResultEnteredByPersonName = authenticatedUser.LastName + (string.IsNullOrEmpty(authenticatedUser.FirstName) ? "" : ", " + authenticatedUser.FirstName);
                                         newTest.TestStatusTypeID = (long)TestStatusTypeEnum.Preliminary;
                                     }
                                 }
@@ -726,7 +589,7 @@ namespace EIDSS.Web.Components.Laboratory
                                                 x.DiseaseID == test.DiseaseID) > 1)
                                         {
                                             errorMessages.Append(OpeningParagraphHtmlTag + "<strong>"
-                                                                 + Format(Localizer.GetString(
+                                                                 + string.Format(Localizer.GetString(
                                                                      MessageResourceKeyConstants.DuplicateValueMessage,
                                                                      test.TestNameTypeName))
                                                                  + "</strong>" + ClosingParagraphHtmlTag);
@@ -749,7 +612,7 @@ namespace EIDSS.Web.Components.Laboratory
                                 newTest.EIDSSAnimalID = record.EIDSSAnimalID;
                                 newTest.EIDSSLaboratorySampleID = record.EIDSSLaboratorySampleID;
                                 newTest.EIDSSLocalOrFieldSampleID = record.EIDSSLocalOrFieldSampleID;
-                                newTest.EIDSSReportOrSessionID = record.EIDSSReportOrSessionID;                                
+                                newTest.EIDSSReportOrSessionID = record.EIDSSReportOrSessionID;
                                 newTest.FavoriteIndicator = true;
                                 newTest.FunctionalAreaName = record.FunctionalAreaName;
                                 newTest.PatientOrFarmOwnerName = record.PatientOrFarmOwnerName;
@@ -779,7 +642,7 @@ namespace EIDSS.Web.Components.Laboratory
                                         newTest.ResultDate = DateTime.Now;
                                         newTest.ResultEnteredByOrganizationID = authenticatedUser.OfficeId;
                                         newTest.ResultEnteredByPersonID = Convert.ToInt64(authenticatedUser.PersonId);
-                                        newTest.ResultEnteredByPersonName = authenticatedUser.LastName + (IsNullOrEmpty(authenticatedUser.FirstName) ? "" : ", " + authenticatedUser.FirstName);
+                                        newTest.ResultEnteredByPersonName = authenticatedUser.LastName + (string.IsNullOrEmpty(authenticatedUser.FirstName) ? "" : ", " + authenticatedUser.FirstName);
                                         newTest.TestStatusTypeID = (long)TestStatusTypeEnum.Preliminary;
                                     }
                                 }
@@ -792,7 +655,7 @@ namespace EIDSS.Web.Components.Laboratory
                 if (validateStatus)
                 {
                     await AssignTest(tests);
-                    DiagService.Close(new DialogReturnResult {ButtonResultText = DialogResultConstants.AssignTest});
+                    DiagService.Close(new DialogReturnResult { ButtonResultText = ClientLibrary.Enumerations.EIDSSConstants.DialogResultConstants.AssignTest });
                 }
                 else
                 {
@@ -807,13 +670,6 @@ namespace EIDSS.Web.Components.Laboratory
             }
         }
 
-        #endregion
-
-        #region Cancel Click Event
-
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
         protected async Task OnCancel()
         {
             try
@@ -834,9 +690,5 @@ namespace EIDSS.Web.Components.Laboratory
                 throw;
             }
         }
-
-        #endregion
-
-        #endregion
     }
 }

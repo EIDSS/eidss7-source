@@ -11,6 +11,7 @@ namespace EIDSS.Domain.RequestModels.Administration
     [DataUpdateType(Enumerations.DataUpdateTypeEnum.Update)]
     public class UserGroupSaveRequestModel
     {
+        //public UserGroupDetailViewModel UserGroupDetails { get; set; }
         public long? idfEmployeeGroup { get; set; }
         public long? idfsSite { get; set; }
         public string strDefault { get; set; }

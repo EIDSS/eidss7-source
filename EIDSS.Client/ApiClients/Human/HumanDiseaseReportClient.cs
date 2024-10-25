@@ -23,7 +23,7 @@ namespace EIDSS.ClientLibrary.ApiClients.Human
     public partial interface IHumanDiseaseReportClient
     {
         Task<List<HumanDiseaseReportViewModel>> GetHumanDiseaseReports(HumanDiseaseReportSearchRequestModel request, CancellationToken cancellationToken = default);
-        Task<List<HumanDiseaseReportDetailViewModel>> GetHumanDiseaseDetail(HumanDiseaseReportDetailRequestModel request);
+        Task<HumanDiseaseReportDetailViewModel> GetHumanDiseaseDetail(HumanDiseaseReportDetailRequestModel request);
         Task<List<DiseaseReportPersonalInformationViewModel>> GetHumanDiseaseReportPersonInfoAsync(HumanPersonDetailsRequestModel request);
         Task<List<DiseaseReportPersonalInformationViewModel>> GetHumanDiseaseReportFromHumanIDAsync(HumanPersonDetailsFromHumanIDRequestModel request);
         Task<List<DiseaseReportAntiviralTherapiesViewModel>> GetAntiviralTherapisListAsync(HumanAntiviralTherapiesAndVaccinationRequestModel request);
@@ -80,33 +80,10 @@ namespace EIDSS.ClientLibrary.ApiClients.Human
 
         }
 
-        public async Task<List<HumanDiseaseReportDetailViewModel>> GetHumanDiseaseDetail(HumanDiseaseReportDetailRequestModel request)
+        public async Task<HumanDiseaseReportDetailViewModel> GetHumanDiseaseDetail(HumanDiseaseReportDetailRequestModel request)
         {
-            try
-            {
-                var _ = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
-                var url = string.Format(_eidssApiOptions.HumanDiseaseReportDetailAsyncPath, _eidssApiOptions.BaseUrl);
-
-                var httpResponse = await _httpClient.PostAsync(url, _);
-
-                httpResponse.EnsureSuccessStatusCode();
-                var contentStream = await httpResponse.Content.ReadAsStreamAsync();
-
-                var response = await JsonSerializer.DeserializeAsync<List<HumanDiseaseReportDetailViewModel>>(contentStream,
-                new JsonSerializerOptions
-                {
-                    IgnoreNullValues = true,
-                    PropertyNameCaseInsensitive = true
-                });
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message, new object[] { request });
-                throw;
-            }
-
+            var url = string.Format(_eidssApiOptions.HumanDiseaseReportDetailAsyncPath, _eidssApiOptions.BaseUrl);
+            return await PostAsync<HumanDiseaseReportDetailRequestModel, HumanDiseaseReportDetailViewModel>(url, request);
         }
 
         public async Task<List<DiseaseReportPersonalInformationViewModel>> GetHumanDiseaseReportPersonInfoAsync(HumanPersonDetailsRequestModel request)
@@ -341,30 +318,9 @@ namespace EIDSS.ClientLibrary.ApiClients.Human
         }
         public async Task<List<SetHumanDiseaseReportResponseModel>> SaveHumanDiseaseReport(HumanSetDiseaseReportRequestModel request)
         {
-            try
-            {
-                var requestJson = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
-                var url = string.Format(_eidssApiOptions.SaveHumanDiseaseReportPath, _eidssApiOptions.BaseUrl);
-
-                var httpResponse = await _httpClient.PostAsync(url, requestJson);
-                httpResponse.EnsureSuccessStatusCode();
-                var contentStream = await httpResponse.Content.ReadAsStreamAsync();
-
-                return await JsonSerializer.DeserializeAsync<List<SetHumanDiseaseReportResponseModel>>(contentStream,
-                    new JsonSerializerOptions
-                    {
-                        IgnoreNullValues = true,
-                        PropertyNameCaseInsensitive = true
-                    });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message, new object[] { request });
-                throw;
-            }
-            finally
-            {
-            }
+            var url = string.Format(_eidssApiOptions.SaveHumanDiseaseReportPath, _eidssApiOptions.BaseUrl);
+            var result = await PostAsync<HumanSetDiseaseReportRequestModel, List<SetHumanDiseaseReportResponseModel>>(url, request);
+            return result;
         }
         public async Task<List<DiseaseReportContactDetailsViewModel>> GetHumanDiseaseContactListAsync(HumanDiseaseContactListRequestModel request)
         {

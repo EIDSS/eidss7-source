@@ -1,5 +1,4 @@
-﻿@implements IDisposable;
-@using System.Threading.Tasks;
+﻿@using System.Threading.Tasks;
 @using EIDSS.ClientLibrary.ApiClients.FlexForm;
 @using EIDSS.Domain.Enumerations
 @using EIDSS.Web.ViewModels.CrossCutting;
@@ -11,9 +10,8 @@
 @using EIDSS.Web.Services;
 @using Microsoft.Extensions.Logging
 
-<RadzenTemplateForm @ref="FlexFormForm" Data="ComponentParameter" TItem="Parameter">
-    @if (ShouldRender())
-    {
+<RadzenTemplateForm @ref="FlexFormForm" TItem="Parameter" class="ff-form">
+    @{
         ComponentParameters = new List<Parameter>();
         ComponentParameters.Clear();
 
@@ -36,29 +34,25 @@
                 };
                 Sections.Add(SectionItem);
 
-                @* First-level or embedded section *@
                 if (item.idfsSection != 0)
                 {
-                    <legend>@item.SectionName</legend>
-
-                    @* First-level section only *@
-                    if ((item.idfsParentSection == null))
-                    {
-                        <div class="card-header">
-                            <h6 title></h6>
-                        </div>
-                    }
-
+                    var topLevelSectionClass = item.idfsParentSection == null ? "ff-first-header" : "";
+                    var classForColumn = $"ff-section-name {topLevelSectionClass}";
+                    <RadzenRow>
+                        <RadzenColumn Size="12" class="@classForColumn">
+                           <legend>@item.SectionName</legend>
+                        </RadzenColumn>
+                    </RadzenRow>
                 }
             }
 
-            @* Table item(header, sub-header or column(parameter)) *@
+            @* Table item(header, sub-header or column(parameter))(TODO: implement sub - header) *@
             if (item.blnGrid.HasValue && item.blnGrid.Value)
             {
                 @* Table Section *@
                 if (item.idfsSection == item.idfsParameter)
                 {
-                    @* Temporary ignore sub-headers *@
+                    @* TODO: temporary ignore sub-headers *@
                     var isSubHeader = false;
                     if (item.idfsParentSection != null && Sections is { Count: > 0 })
                     {
@@ -66,6 +60,7 @@
                         if (parentSectionItem is { BlnGrid: true })
                             isSubHeader = true;
                     }
+
                     if (!isSubHeader)
                     {
                         var strPasteId = "Paste-" + item.idfsSection;
@@ -109,27 +104,27 @@
 
                                         var tagId = ComponentParameters.FirstOrDefault(x => x.ParameterId == item2.idfsParameter && x.IdfRow == idfRow)?.TagID;
 
-                                        ComponentParameter = new Parameter
-                                            {
-                                                ParameterId = item2.idfsParameter,
-                                                IdfRow = Answer.idfRow,
-                                                Value = Answer.varValue,
-                                                EditorId = long.Parse(item2.idfsEditor.ToString()),
-                                                Name = item2.ParameterName,
-                                                TagID = tagId ?? rnd.Next(),
-                                                EditMode = (long)item2.idfsEditMode
-                                            };
+                                        var componentParameter = new Parameter
+                                        {
+                                            ParameterId = item2.idfsParameter,
+                                            IdfRow = Answer.idfRow,
+                                            Value = Answer.varValue,
+                                            EditorId = long.Parse(item2.idfsEditor.ToString()),
+                                            Name = item2.ParameterName,
+                                            TagID = tagId ?? rnd.Next(),
+                                            EditMode = (long)item2.idfsEditMode
+                                        };
 
-                                        ComponentParameters.Add(ComponentParameter);
+                                        ComponentParameters.Add(componentParameter);
 
                                         <td>
-                                            @if (SelectedRow == ComponentParameter.IdfRow && SelectedSection == item.idfsSection)
+                                            @if (SelectedRow == componentParameter.IdfRow && SelectedSection == item.idfsSection)
                                             {
-                                                <FlexFormParameter FfParameter="@ComponentParameter" FormDisabledIndicator="@FormDisabledIndicator" Selected="true" IsGrid="true" />
+                                                <FlexFormParameter FfParameter="@componentParameter" FormDisabledIndicator="@FormDisabledIndicator" Selected="true" IsGrid="true"/>
                                             }
                                             else
                                             {
-                                                <FlexFormParameter FfParameter="@ComponentParameter" FormDisabledIndicator="@FormDisabledIndicator" IsGrid="true" />
+                                                <FlexFormParameter FfParameter="@componentParameter" FormDisabledIndicator="@FormDisabledIndicator" IsGrid="true"/>
                                             }
                                         </td>
                                         strSelectRow = item.idfsSection + "-" + idfRow;
@@ -183,9 +178,10 @@
                     {
                         Answer = Answers.First(x => x.idfsParameter == item.idfsParameter);
                     }
+
                     var tagId = ComponentParameters.FirstOrDefault(x => x.ParameterId == item.idfsParameter && x.IdfRow == Answer.idfRow)?.TagID;
 
-                    ComponentParameter = new Parameter
+                    var componentParameter = new Parameter
                     {
                         ParameterId = item.idfsParameter,
                         IdfRow = Answer.idfRow,
@@ -196,25 +192,26 @@
                         EditMode = item.idfsEditMode ?? 0
                     };
 
-                    ComponentParameters.Add(ComponentParameter);
+                    ComponentParameters.Add(componentParameter);
 
-                <div style="margin-left: -10px; border: solid 0 black">
-                   <div class="row">
-                        <FlexFormParameter FfParameter="@ComponentParameter" FormDisabledIndicator="@FormDisabledIndicator" IsGrid="false" />
-                    </div>
-                </div>
+                    <RadzenRow class="param-row">
+                        <RadzenColumn Size="6" class="@(componentParameter.EditorId == (long) FlexibleFormEditorTypeEnum.CheckBox ? "ff-checkbox" : "")">
+                            <FlexFormParameter FfParameter="@componentParameter" FormDisabledIndicator="@FormDisabledIndicator" IsGrid="false"/>
+                        </RadzenColumn>
+                    </RadzenRow>
 
                 }
-                @* Label *@
                 else
                 {
-                    <legend>@item.DecoreElementText</legend>
+                    <RadzenRow>
+                        <RadzenColumn Size="12" class="ff-label-column">
+                            <legend>@item.DecoreElementText</legend>
+                        </RadzenColumn>
+                    </RadzenRow>
                 }
             }
 
         }
-
-        FlexFormLoading = false;
     }
 </RadzenTemplateForm>
 
@@ -225,6 +222,7 @@
 
     [Parameter] public FlexFormQuestionnaireGetRequestModel Request { get; set; }
     [Parameter] public bool FormDisabledIndicator { get; set; } = false;
+    [Parameter] public bool ShouldBeRenderedOnLoad { get; set; } = true;
 
     public FlexFormQuestionnaireViewModel FlexFormQuestionnaire { get; set; }
     protected RadzenTemplateForm<Parameter> FlexFormForm { get; set; }
@@ -236,15 +234,13 @@
     private string StrFlexFormSectionHtml { get; set; }
     public IList<FlexFormActivityParametersListResponseModel> Answers { get; set; }
     private FlexFormActivityParametersListResponseModel Answer { get; set; }
-    public Parameter ComponentParameter { get; set; }
     public List<Parameter> Parameters { get; set; }
     public List<Parameter> ComponentParameters { get; set; }
 
-    private static long SelectedRow { get; set; }
-    private static long SelectedSection { get; set; }
-    private static long CopyRowId { get; set; }
-    private static long CopySectionId { get; set; }
-    private static bool FlexFormLoading { get; set; } = false;
+    private long SelectedRow { get; set; }
+    private long SelectedSection { get; set; }
+    private long CopyRowId { get; set; }
+    private long CopySectionId { get; set; }
 
     private long? TagID { get; set; }
 
@@ -284,33 +280,22 @@
         _logger = Logger;
     }
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        base.OnAfterRender(firstRender);
+        await base.OnAfterRenderAsync(firstRender);
 
-        if (!firstRender) return;
+        if (!firstRender || !ShouldBeRenderedOnLoad) return;
         Parameters = new List<Parameter>();
-            DisplayQuestionnaire();
-            FlexFormLoading = true;
-            StateHasChanged();
+        await DisplayQuestionnaire();
+        StateHasChanged();
     }
 
-    protected override bool ShouldRender()
+    public async Task Render()
     {
-        return FlexFormLoading;
+        await DisplayQuestionnaire();
     }
 
-    void IDisposable.Dispose()
-    {
-    }
-
-    public void Render()
-    {
-        FlexFormLoading = true;
-        DisplayQuestionnaire();
-    }
-
-    public async Task SaveFlexForm()
+    public async Task<long?> SaveFlexForm()
     {
         var answers = await CollectAnswers();
 
@@ -318,14 +303,17 @@
         {
             var response = await FlexFormClient.SaveAnswers(answers);
             Request.idfObservation = response.idfObservation;
+            return response.idfObservation;
         }
+
+        return null;
     }
 
-    public void SetRequestParameter(FlexFormQuestionnaireGetRequestModel ffRequest)
+    public Task SetRequestParameter(FlexFormQuestionnaireGetRequestModel ffRequest)
     {
         Request = ffRequest;
 
-        Render();
+        return Render();
     }
 
     public async Task<FlexFormActivityParametersSaveRequestModel> CollectAnswers(long? sectionId = null, long? tagId = null)
@@ -469,18 +457,6 @@
                 else if (ComponentParameters is not null && ComponentParameters.Count(x => x.ParameterId == parameterId && x.TagID == TagID) > 0)
                     answer.varValue = ComponentParameters.First(x => x.ParameterId == parameterId && x.TagID == TagID).BValue.ToString();
                 break;
-            case (long)FlexibleFormEditorTypeEnum.DatePicker:
-            case (long)FlexibleFormEditorTypeEnum.DateTimePicker:
-                var date = (RadzenDatePicker<DateTime?>) FlexFormForm?.FindComponent(id);
-
-                if (date?.Value != null)
-                {
-                    if (DateTime.TryParse(date.Value.ToString(), out _))
-                    {
-                        answer.varValue = date.Value.ToString();
-                    }
-                }
-                break;
             default:
                 if (TagID is null)
                 {
@@ -510,7 +486,7 @@
         return answer;
     }
 
-    public void DisplayQuestionnaire()
+    public async Task DisplayQuestionnaire()
     {
         try
         {
@@ -547,9 +523,7 @@
 
                 if (FlexFormClient is not null)
                 {
-                    var t = Task.Run(() => FlexFormClient.GetQuestionnaire(Request));
-                    t.Wait();
-                    FlexFormQuestionnaireResponses = t.Result;
+                    FlexFormQuestionnaireResponses = await FlexFormClient.GetQuestionnaire(Request);
                 }
 
                 var answersRequest = new FlexFormActivityParametersGetRequestModel();
@@ -562,9 +536,7 @@
                     answersRequest.observationList = Request.idfObservation.ToString();
                     answersRequest.LangID = Request.LangID;
                     if (FlexFormClient is null) return;
-                    var t = Task.Run(() => FlexFormClient.GetAnswers(answersRequest));
-                    t.Wait();
-                    Answers = t.Result;
+                    Answers = await FlexFormClient.GetAnswers(answersRequest);
                 }
                 else if (Request != null) Answers = Request.ReviewAnswers;
             }
@@ -590,7 +562,6 @@
         }
 
         await CollectAnswers();
-        FlexFormLoading = true;
     }
 
     protected async Task CopyRow(object value, object id)
@@ -599,7 +570,6 @@
         CopySectionId = SelectedSection;
 
         await CollectAnswers();
-        FlexFormLoading = true;
     }
 
     protected async Task PasteRow(object value, object id)
@@ -610,27 +580,20 @@
         {
             Answers.FirstOrDefault(x => x.idfsParameter == answer.idfsParameter && x.idfsSection == SelectedSection && x.idfRow == SelectedRow)!.varValue = answer.varValue;
         }
-
-        FlexFormLoading = true;
     }
 
     protected async Task AddRow(object value, object id)
     {
         SelectedSection = long.Parse(id?.ToString()?.Split("-")[1] ?? "0");
         await CollectAnswers(SelectedSection);
-        FlexFormLoading = true;
     }
 
-    /// <summary>
-    /// </summary>
     public void ClearForm()
     {
         foreach (var answer in Answers)
         {
             answer.varValue = null;
         }
-
-        FlexFormLoading = true;
     }
 
     public bool IsFormModified()

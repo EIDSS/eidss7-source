@@ -61,6 +61,8 @@ namespace EIDSS.ClientLibrary
     public class UserConfigurationService : IUserConfigurationService
     {
 
+        //TODO: Consider cleanup of obsolete sessions
+
         /// <summary>
         /// AuthenticatedUser storage collection with two keys representing session Id and user name
         /// </summary>
@@ -97,6 +99,17 @@ namespace EIDSS.ClientLibrary
         {
         }
 
+
+        //TODO: remove commented if session-User approach works
+        /////// <summary>
+        /////// Returns an instance of <see cref="UserPreferences"/> which represent overrides to system preferences
+        /////// </summary>
+        /////// <returns></returns>
+        ////public UserPreferences GetUserPreferences(string username)
+        ////{
+        ////    return _tokencoll[username].Preferences;
+        ////}
+
         public UserPreferences GetUserPreferences(string username)
         {
             if (string.IsNullOrEmpty(username))
@@ -108,6 +121,7 @@ namespace EIDSS.ClientLibrary
             var uList = _sessionTokenColl.Where((w =>
                 (string.Equals(w.Key.Item2, username, StringComparison.OrdinalIgnoreCase) &&
                     (w.Value != null) &&
+                    //(((AuthenticatedUser)(w.Value)).ExpireDate >= DateTime.UtcNow) &&
                     (!string.IsNullOrEmpty(((AuthenticatedUser)(w.Value)).RefreshToken)))));
 
             var u = uList.FirstOrDefault();
@@ -272,7 +286,7 @@ namespace EIDSS.ClientLibrary
         }
 
 
-        /// <summary>
+    /// <summary>
         /// Removes a user's token
         /// </summary>
         public void RemoveUserToken()
@@ -307,11 +321,15 @@ namespace EIDSS.ClientLibrary
         /// <param name="userId">User Identifier</param>
         public void SetUserPreferences(UserPreferences prefs, string sessionId, long userId)
         {
+            //if (string.IsNullOrEmpty(sessionId))
+            //    return;
+
             if ((_sessionTokenColl == null) || (_sessionTokenColl.Count == 0))
                 return;
 
             var uList = _sessionTokenColl.Where((w =>
-                ((w.Value != null) &&
+                (//string.Equals(w.Key.Item1, sessionId, StringComparison.OrdinalIgnoreCase) &&
+                 (w.Value != null) &&
                  string.Equals(((AuthenticatedUser)(w.Value)).EIDSSUserId, string.Format("{0}", userId), StringComparison.InvariantCultureIgnoreCase))));
             foreach (var u in uList)
                 if (u.Value != null)
@@ -338,6 +356,9 @@ namespace EIDSS.ClientLibrary
         /// <param name="username">User Name</param>
         public void SetUserPreferences(UserPreferences prefs, string sessionId, string username)
         {
+            //if (string.IsNullOrEmpty(sessionId))
+            //    return;
+
             if (string.IsNullOrEmpty(username))
                 return;
 
@@ -345,7 +366,8 @@ namespace EIDSS.ClientLibrary
                 return;
 
             var uList = _sessionTokenColl.Where((w =>
-                (string.Equals(w.Key.Item2, username.ToLowerInvariant().Trim(), StringComparison.InvariantCultureIgnoreCase))));
+                (//string.Equals(w.Key.Item1, sessionId, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(w.Key.Item2, username.ToLowerInvariant().Trim(), StringComparison.InvariantCultureIgnoreCase))));
             foreach (var u in uList)
                 if (u.Value != null)
                     (u.Value).Preferences = prefs;
@@ -383,6 +405,35 @@ namespace EIDSS.ClientLibrary
 
             if (_sessionTokenColl == null)
                 return;
+
+            /////// Commented temporary solution
+            //////// Temporary solution: remove token from other sessions of the same user and set it for the given session of the user
+            //////// TODO: notifying and deactivate other sessions of the same user instead of expiration 
+            //////// TODO: is there a different scenario when token == null?
+
+            //////if (token != null)
+            //////{
+
+            //////    var uList = _sessionTokenColl.Where((w =>
+            //////        ((!string.Equals(w.Key.Item1, sessionId, StringComparison.OrdinalIgnoreCase)) &&
+            //////         string.Equals(w.Key.Item2, username.ToLowerInvariant().Trim(),
+            //////             StringComparison.InvariantCultureIgnoreCase))));
+
+            //////    List<Tuple<string, string>> uKeys = new List<Tuple<string, string>>();
+            //////    foreach (var u in uList)
+            //////    {
+            //////        uKeys.Add(u.Key);
+            //////    }
+
+            //////    foreach (var uKey in uKeys)
+            //////    {
+            //////        _sessionTokenColl.TryGetValue(uKey, out var u);
+            //////        if (u != null)
+            //////        {
+            //////            _sessionTokenColl[uKey] = null;
+            //////        }
+            //////    }
+            //////}
 
             var sessionUserKey =
                 new Tuple<string, string>(sessionId.ToLowerInvariant().Trim(), username.ToLowerInvariant().Trim());

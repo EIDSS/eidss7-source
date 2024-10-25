@@ -22,8 +22,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static System.Int32;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Configuration.Controllers
 {
@@ -67,7 +65,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             long? id = null;
             if (referenceType.PageLevelDD != null)
             {
-                if (!IsNullOrEmpty(referenceType.PageLevelDD))
+                if (!string.IsNullOrEmpty(referenceType.PageLevelDD))
                 {
                     id = long.Parse(referenceType.PageLevelDD);
                 }
@@ -80,7 +78,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 var valuePair = dataTableQueryPostObj.ReturnSortParameter();
 
                 var strSortColumn = "intOrder";
-                if (!IsNullOrEmpty(valuePair.Key) && valuePair.Key != "KeyId")
+                if (!string.IsNullOrEmpty(valuePair.Key) && valuePair.Key != "KeyId")
                 {
                     strSortColumn = valuePair.Key;
                 }
@@ -92,7 +90,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                     Page = dataTableQueryPostObj.page,
                     PageSize = dataTableQueryPostObj.length,
                     SortColumn = strSortColumn,
-                    SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : "asc"
+                    SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : "asc"
                 };
 
                 list = await _configurationClient.GetDiseaseGroupDiseaseMatrixList(request);
@@ -131,14 +129,14 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
         public async Task<JsonResult> Create([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             APISaveResponseModel response;
 
             try
             {
                 if (jsonObject["PageLevelDD"] != null)
                 {
-                    if (IsNullOrEmpty(jsonObject["PageLevelDD"][0]?["id"]?.ToString()))
+                    if (string.IsNullOrEmpty(jsonObject["PageLevelDD"][0]?["id"]?.ToString()))
                     {
                         // should select a Sample Type
                         return Json("");
@@ -148,9 +146,9 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 var request = new DiseaseGroupDiseaseMatrixSaveRequestModel
                 {
                     idfDiagnosisToDiagnosisGroup = null,
-                    idfsDiagnosisGroup = jsonObject["PageLevelDD"] != null ? long.Parse(jsonObject["PageLevelDD"][0]?["id"]?.ToString() ?? Empty) : null,
-                    idfsDiagnosis = jsonObject["idfsDiagnosis"] != null ? long.Parse(jsonObject["idfsDiagnosis"][0]?["id"]?.ToString() ?? Empty) : null,
-                    EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                    idfsDiagnosisGroup = jsonObject["PageLevelDD"] != null ? long.Parse(jsonObject["PageLevelDD"][0]?["id"]?.ToString() ?? string.Empty) : null,
+                    idfsDiagnosis = jsonObject["idfsDiagnosis"] != null ? long.Parse(jsonObject["idfsDiagnosis"][0]?["id"]?.ToString() ?? string.Empty) : null,
+                    EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                     SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                     UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                     LocationId = authenticatedUser.RayonId,
@@ -160,7 +158,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 response = await _configurationClient.SaveDiseaseGroupDiseaseMatrix(request);
                 response.strClientPageMessage = response.ReturnMessage switch
                 {
-                    "DOES EXIST" => Format(
+                    "DOES EXIST" => string.Format(
                         _localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage),
                         jsonObject["idfsDiagnosis"]?[0]?["text"]),
                     "SUCCESS" => _localizer.GetString(MessageResourceKeyConstants.RecordSubmittedSuccessfullyMessage),
@@ -181,13 +179,13 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         {
             try
             {
-                var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+                var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
                 if (jsonObject["KeyId"] != null)
                 {
                     var request = new DiseaseGroupDiseaseMatrixSaveRequestModel
                     {
                         idfDiagnosisToDiagnosisGroup = long.Parse(jsonObject["KeyId"].ToString()),
-                        EventTypeId = (long) SystemEventLogTypes.MatrixChange,
+                        EventTypeId = (long)SystemEventLogTypes.MatrixChange,
                         SiteId = Convert.ToInt64(authenticatedUser.SiteId),
                         UserId = Convert.ToInt64(authenticatedUser.EIDSSUserId),
                         LocationId = authenticatedUser.RayonId,
@@ -216,7 +214,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         [HttpPost]
         public async Task<IActionResult> AddDiseaseGroup([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
             BaseReferenceSaveRequestResponseModel response;
             var request = new BaseReferenceSaveRequestModel
@@ -224,7 +222,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                 BaseReferenceId = null,
                 LanguageId = GetCurrentLanguage(),
                 ReferenceTypeId = 19000156,
-                EventTypeId = (long) SystemEventLogTypes.ReferenceTableChange,
+                EventTypeId = (long)SystemEventLogTypes.ReferenceTableChange,
                 AuditUserName = authenticatedUser.UserName,
                 LocationId = authenticatedUser.RayonId,
                 SiteId = Convert.ToInt64(authenticatedUser.SiteId),
@@ -247,7 +245,7 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
                     var sumHaCode = 0;
                     for (var i = 0; i < jsonObject["StrHACode"].Children().Count(); i++)
                     {
-                        TryParse(jsonObject["StrHACode"].Children().ElementAt(i)["id"]?.ToString(), out var outResult);
+                        int.TryParse(jsonObject["StrHACode"].Children().ElementAt(i)["id"]?.ToString(), out var outResult);
                         sumHaCode += outResult;
                     }
                     request.intHACode = sumHaCode;
@@ -255,14 +253,14 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
 
                 if (jsonObject["IntOrder"] != null)
                 {
-                    TryParse(jsonObject["IntOrder"].ToString(), out var intOrder);
+                    int.TryParse(jsonObject["IntOrder"].ToString(), out var intOrder);
                     request.intOrder = intOrder;
                 }
 
                 response = await _adminClient.SaveBaseReference(request);
                 response.strClientPageMessage = response.ReturnMessage switch
                 {
-                    "DOES EXIST" => Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage),
+                    "DOES EXIST" => string.Format(_localizer.GetString(MessageResourceKeyConstants.DuplicateValueMessage),
                         request.Default),
                     "SUCCESS" => _localizer.GetString(MessageResourceKeyConstants.RecordSavedSuccessfullyMessage),
                     _ => response.strClientPageMessage
@@ -282,14 +280,14 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
         {
             var request = new DiseaseSaveRequestModel();
 
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
 
             if (jsonObject["strHACodeNames"] != null)
             {
                 var sumHaCode = 0;
                 for (var i = 0; i < jsonObject["strHACodeNames"].Children().Count(); i++)
                 {
-                    TryParse(jsonObject["strHACodeNames"].Children().ElementAt(i)["id"]?.ToString(), out var outResult);
+                    int.TryParse(jsonObject["strHACodeNames"].Children().ElementAt(i)["id"]?.ToString(), out var outResult);
                     sumHaCode += outResult;
                 }
                 request.intHACode = sumHaCode;
@@ -312,12 +310,12 @@ namespace EIDSS.Web.Areas.Configuration.Controllers
             var intOrder = 0;
             if (jsonObject["intOrder"] != null)
             {
-                intOrder = IsNullOrEmpty(((JValue)jsonObject["intOrder"]).Value?.ToString()) ? 0 : Parse(jsonObject["intOrder"].ToString());
+                intOrder = string.IsNullOrEmpty(((JValue)jsonObject["intOrder"]).Value?.ToString()) ? 0 : int.Parse(jsonObject["intOrder"].ToString());
             }
 
             request.LanguageId = GetCurrentLanguage();
             request.DiagnosisId = (jsonObject["IdfsDiagnosis"] == null) ? null : long.Parse(jsonObject["IdfsDiagnosis"].ToString());
-            request.UsingTypeId = (jsonObject["idfsUsingType"] == null) ? null : long.Parse(jsonObject["idfsUsingType"][0]?["id"]?.ToString() ?? Empty);
+            request.UsingTypeId = (jsonObject["idfsUsingType"] == null) ? null : long.Parse(jsonObject["idfsUsingType"][0]?["id"]?.ToString() ?? string.Empty);
             request.Default = jsonObject["strDefault"]?.ToString();
             request.Name = jsonObject["strName"]?.ToString();
             request.IDC10 = jsonObject["strIDC10"]?.ToString();

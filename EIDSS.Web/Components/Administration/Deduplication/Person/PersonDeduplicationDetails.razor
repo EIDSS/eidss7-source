@@ -62,6 +62,19 @@
         </div>
             <div class="form-row">
                 <div class="col-md-12">
+                     @*<RadzenCard>*@
+                        @*<RadzenCheckBoxList id="rcblReviewInfo" Name="rcblReviewInfo" AllowClear="true" TValue="int" @bind-Value=@PersonDeduplicationService.SurvivorInfoValues
+                                Orientation="Orientation.Horizontal">
+                        <Items>
+                        @foreach (Field item in PersonDeduplicationService.SurvivorInfoList)
+                        {
+                            <div  Style="width:350px;">
+                                <RadzenCheckBoxListItem Text="@item.Label" Value="@item.Index" Disabled="item.Disabled" Visible="@(item.Index < GenderTypeID)" Style="@item.Color" />
+                            </div>
+                        }
+                        </Items>
+                        </RadzenCheckBoxList>*@
+                       @*</RadzenCard>*@
                 <RadzenDataList WrapItems=false AllowPaging=false Data=PersonDeduplicationService.SurvivorInfoList TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
                     <Template Context="field">
                     @if (field.Index < GenderTypeID)
@@ -100,6 +113,19 @@
         </div>
             <div class="form-row">
                 <div class="col-md-12">
+                    @*<RadzenCard >*@
+                    @*<RadzenCheckBoxList id="rcblReviewAddress" Name="rcblReviewAddress" AllowClear="true" TValue="int" @bind-Value=@PersonDeduplicationService.SurvivorAddressValues
+                                Orientation="Orientation.Horizontal">
+                    <Items>
+                    @foreach (Field item in PersonDeduplicationService.SurvivorAddressList)
+                    {
+                        <div  Style="width:350px;">
+                            <RadzenCheckBoxListItem Text="@item.Label" Value="@item.Index" Disabled="item.Disabled" Visible="@(item.Index < HumanidfsRegion)" Style="@item.Color" />
+                        </div>
+                    }
+                    </Items>
+                    </RadzenCheckBoxList>*@
+                     @* </RadzenCard>*@
                 <RadzenDataList WrapItems=false AllowPaging=false Data=PersonDeduplicationService.SurvivorAddressList TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
                     <Template Context="field">
                     @if (field.Index < HumanidfsRegion)
@@ -138,6 +164,19 @@
         </div>
             <div class="form-row">
                 <div class="col-md-12">
+                    @*<RadzenCard>*@
+                    @*<RadzenCheckBoxList id="rcblReviewEmp" Name="rcblReviewEmp" AllowClear="true" TValue="int" @bind-Value=@PersonDeduplicationService.SurvivorEmpValues
+                                Orientation="Orientation.Horizontal">
+                    <Items>
+                    @foreach (Field item in PersonDeduplicationService.SurvivorEmpList)
+                    {
+                        <div  Style="width:350px;">
+                            <RadzenCheckBoxListItem Text="@item.Label" Value="@item.Index" Disabled="item.Disabled" Visible="@(item.Index < IsEmployedTypeID)" Style="@item.Color" />
+                        </div>
+                    }
+                    </Items>
+                </RadzenCheckBoxList>*@
+                      @*</RadzenCard>*@
                 <RadzenDataList WrapItems=false AllowPaging=false Data=PersonDeduplicationService.SurvivorEmpList TItem="Field" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary=false>
                     <Template Context="field">
                     @if (field.Index < IsEmployedTypeID)

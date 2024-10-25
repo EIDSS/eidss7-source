@@ -26,13 +26,11 @@ namespace EIDSS.Domain.RequestModels.Veterinary
         
         public long? TimeIntervalTypeID { get; set; }
 
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? StartDate { get; set; }
 
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? EndDate { get; set; }
 
-        public long? AdministrativeUnitTypeID { get; set; }
+        public long? AdministrativeUnitTypeID { get; set; }  //todo: rename to administrative unit type ID once human agg complete.
         public long? IdfsLocation { get; set; }
     }
 }

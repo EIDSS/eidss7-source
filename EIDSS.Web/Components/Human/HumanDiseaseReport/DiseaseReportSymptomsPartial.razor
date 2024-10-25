@@ -1,0 +1,65 @@
+@using EIDSS.Web.ViewModels.Human
+@using EIDSS.Web.Components.FlexForm
+@using EIDSS.Domain.ResponseModels.Human
+
+@inherits EIDSS.Web.Components.Human.HumanDiseaseReport.DiseaseReportSymptomsPartialBase
+
+<RadzenTemplateForm @ref="@Form" TItem="@DiseaseReportSymptomsPageViewModel" Data="@Model" id="SymptomsForm">
+    <div class="card">
+        <div class="card-header"><h4>@Localizer.GetString(HeadingResourceKeyConstants.HumanDiseaseReportClinicalInformationSymptomsHeading)</h4></div>
+        <div class="card-body padding-bottom-0">
+            <RadzenRow>
+                <RadzenColumn Size="6">
+                    <RadzenText
+                        class="label"
+                        for="SymptomsSection_SymptomsOnsetDate">
+                        @Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSymptomsDateOfSymptomsOnsetFieldLabel)
+                    </RadzenText>
+                    <HdrCustomDatePicker
+                        FieldType="HdrCustomDatePickerFieldTypes.DateOfSymptomsOnset"
+                        @bind-Value="@HdrStateContainer.DateOfSymptomsOnset"
+                        Change="@SymptomsOnsetDateChanged"
+                        Disabled="@Model.IsReportClosed"
+                        Name="SymptomsSection_SymptomsOnsetDate"/>
+                </RadzenColumn>
+                <RadzenColumn Size="6">
+                       @if (Model.blnFinalSSD is null or false && Model.blnInitialSSD is null or false)
+                            {
+                                <i class="fas fa-asterisk text-danger"/>
+                                <RadzenText
+                                    class="label"
+                                    for="SymptomsSection_SymptomsOnsetDate">
+                                    @Localizer.GetString(FieldLabelResourceKeyConstants.HumanDiseaseReportSymptomsInitialCaseClassificationFieldLabel)
+                                </RadzenText>
+                                <RadzenStack>
+                                    <RadzenDropDown
+                                        Name="caseClassficationComponent"
+                                        ValueProperty="@nameof(HumanDiseaseReportLkupCaseClassificationResponseModel.idfsCaseClassification)"
+                                        TextProperty="@nameof(HumanDiseaseReportLkupCaseClassificationResponseModel.strName)"
+                                        @bind-Value="@Model.idfCaseClassfication"
+                                        Disabled="@Model.IsReportClosed"
+                                        AllowFiltering="false"
+                                        Data="@CaseClassifications"
+                                        AllowClear="true"
+                                        TValue="long?">
+                                    </RadzenDropDown>
+                                     <input type="hidden" value="@Model.idfCaseClassfication" id="caseClassficationDD"/>
+                                    <RadzenRequiredValidator Component="caseClassficationComponent" Text="@Localizer.GetString(MessageResourceKeyConstants.FieldIsRequiredMessage)"/>
+                                </RadzenStack>
+                            }
+                </RadzenColumn>
+            </RadzenRow>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body" id="divSymptomsList">
+            <FlexForm 
+                @ref="@FlexFormHumanDiseaseSymptoms" 
+                FormDisabledIndicator="@Model.IsReportClosed" 
+                Request="@Model.HumanDiseaseSymptoms"
+                ShouldBeRenderedOnLoad="@(Model.HumanDiseaseSymptoms.idfsDiagnosis!=null)" />
+            <input type="hidden" value="@HumanDiseaseSymptomsObservationId" id="HumanDiseaseSymptomsObservationId"/>
+        </div>
+    </div>
+
+</RadzenTemplateForm>

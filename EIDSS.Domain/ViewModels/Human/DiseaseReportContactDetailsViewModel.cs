@@ -1,14 +1,6 @@
-﻿using EIDSS.Domain.Abstracts;
-using EIDSS.Domain.RequestModels.FlexForm;
-using EIDSS.Domain.ViewModels.Administration;
+﻿using System;
+using EIDSS.Domain.Enumerations;
 using EIDSS.Domain.ViewModels.CrossCutting;
-using EIDSS.Localization.Constants;
-using EIDSS.Localization.Helpers;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EIDSS.Domain.ViewModels.Human
 {
@@ -21,7 +13,7 @@ namespace EIDSS.Domain.ViewModels.Human
         public long?  idfHumanActual { get; set; }
         public long? idfRootHuman { get; set; }
         public string strContactPersonFullName { get; set; }
-        public long idfsPersonContactType { get; set; }
+        public long idfsPersonContactType { get; set; } = (long)PatientRelationshipTypeEnum.Other; 
         public string strPersonContactType { get; set; }
         public DateTime? datDateOfLastContact { get; set; }
         public string strPlaceInfo { get; set; }
@@ -51,6 +43,7 @@ namespace EIDSS.Domain.ViewModels.Human
         public long? idfContactPhoneTypeID { get; set; }
 
         public bool? blnForeignAddress { get; set; }
+       // public bool? isForiegnAddress { get; set; } = false;
         public LocationViewModel LocationViewModel { get; set; }
 
        public int? Age { get; set; }

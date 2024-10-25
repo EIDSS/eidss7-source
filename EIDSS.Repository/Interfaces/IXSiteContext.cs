@@ -1,10 +1,5 @@
 ﻿using EIDSS.Repository.ReturnModels;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EIDSS.Repository.Interfaces
 {
@@ -17,7 +12,7 @@ namespace EIDSS.Repository.Interfaces
         /// Indicates the language supported by this XSite instance, represented by either an ISO 3166  country code or 
         /// an ISO 639 language code or a combination of both.
         /// </summary>
-        public string LanguageCode { get; set; }
+        string LanguageCode { get; }
 
         DbSet<TContainer> TContainers { get; set; }
         DbSet<TContainersLayout> TContainersLayouts { get; set; }

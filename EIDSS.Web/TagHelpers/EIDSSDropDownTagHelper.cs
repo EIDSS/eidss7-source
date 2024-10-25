@@ -88,6 +88,11 @@ namespace EIDSS.Web.TagHelpers
         /// </summary>
         public bool AllowTags { get; set; }
 
+        /// <summary>
+        /// Allows users to add validation span
+        /// </summary>
+        public bool AddValidationSpan { get; set; } = true;
+
         public EIDSSGenericPostParameters filteredData { get; set; }
 
         public bool isDisabled { get; set; }
@@ -226,11 +231,14 @@ namespace EIDSS.Web.TagHelpers
                     output.PostElement.AppendHtml("</div>");
                 }
 
-                //jQuery validation span
-                output.PostElement.AppendHtml("<span class='text-danger field-validation-valid' data-valmsg-for='" + Name + "' data-valmsg-replace='true'></span>");
+                if (AddValidationSpan)
+                {
+					//jQuery validation span
+					output.PostElement.AppendHtml("<span class='text-danger field-validation-valid' data-valmsg-for='" + Name + "' data-valmsg-replace='true'></span>");
+                }
 
-                //Injecting Javascript For Select2
-                output.PostElement.AppendHtml(LoadJavascript());
+				//Injecting Javascript For Select2
+				output.PostElement.AppendHtml(LoadJavascript());
             }
         }
 

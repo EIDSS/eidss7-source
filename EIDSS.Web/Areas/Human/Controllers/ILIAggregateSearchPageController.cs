@@ -22,8 +22,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static System.Int32;
-using static System.String;
 
 namespace EIDSS.Web.Areas.Human.Controllers
 {
@@ -35,7 +33,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
         private readonly IILIAggregateFormClient _iliAggregateFormClient;
         private readonly IOrganizationClient _organizationClient;
         private readonly ICrossCuttingClient _crossCuttingClient;
-       
+
         public ILIAggregateSearchPageController(
             IILIAggregateFormClient iliAggregateFormClient,
             IOrganizationClient organizationClient,
@@ -48,7 +46,6 @@ namespace EIDSS.Web.Areas.Human.Controllers
             _iliAggregateFormClient = iliAggregateFormClient;
             var userPermissions = GetUserPermissions(PagePermission.CanManageReferencesAndConfigurations);
             _pageViewModel.UserPermissions = userPermissions;
-            //authenticatedUser = _tokenService.GetAuthenticatedUser();
         }
 
         public async Task<IActionResult> Index()
@@ -61,7 +58,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
             {
                 LanguageId = GetCurrentLanguage(),
                 Page = 1,
-                PageSize = MaxValue - 1,
+                PageSize = int.MaxValue - 1,
                 SortColumn = "Order",
                 SortOrder = EIDSSConstants.SortConstants.Ascending,
                 AccessoryCode = Convert.ToInt32(AccessoryCodeEnum.Human),
@@ -74,7 +71,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
             {
                 LanguageId = GetCurrentLanguage(),
                 Page = 1,
-                PageSize = MaxValue - 1,
+                PageSize = int.MaxValue - 1,
                 SortColumn = "Order",
                 SortOrder = EIDSSConstants.SortConstants.Ascending,
                 AccessoryCode = Convert.ToInt32(AccessoryCodeEnum.Syndromic),
@@ -84,15 +81,15 @@ namespace EIDSS.Web.Areas.Human.Controllers
             var lstSyndromic = await _organizationClient.GetOrganizationList(requestSyndromic);
             var lstOrganizationsCombined = lstHuman.Concat(lstSyndromic).GroupBy(x => x.OrganizationKey).Select(x => x.FirstOrDefault()).ToList();
 
-            _pageViewModel.HospitalList = lstOrganizationsCombined;            
+            _pageViewModel.HospitalList = lstOrganizationsCombined;
 
             OrganizationGetListViewModel item = new()
             {
                 OrganizationKey = -1,
-                FullName = Empty
+                FullName = string.Empty
             };
 
-            _pageViewModel.HospitalList.Insert(0, item);            
+            _pageViewModel.HospitalList.Insert(0, item);
             _pageViewModel.DataEntrySiteList = _pageViewModel.HospitalList;
 
             //Default Weeks From to the first monday of the first week
@@ -127,16 +124,16 @@ namespace EIDSS.Web.Areas.Human.Controllers
                     LanguageId = GetCurrentLanguage(),
                     Page = iPage,
                     PageSize = iLength,
-                    SortColumn = !IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "FormID",
-                    SortOrder = !IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Descending
+                    SortColumn = !string.IsNullOrEmpty(valuePair.Key) ? valuePair.Key : "FormID",
+                    SortOrder = !string.IsNullOrEmpty(valuePair.Value) ? valuePair.Value : EIDSSConstants.SortConstants.Descending
                 };
 
                 var searchFilter = JObject.Parse(dataTableQueryPostObj.postArgs);
 
-                request.FormID = searchFilter["txtFormID"]?.ToString() == Empty ? null : searchFilter["txtFormID"]?.ToString();
-                request.LegacyFormID = searchFilter["txtLegacyFormID"]?.ToString() == Empty ? null : searchFilter["txtLegacyFormID"]?.ToString();
+                request.FormID = searchFilter["txtFormID"]?.ToString() == string.Empty ? null : searchFilter["txtFormID"]?.ToString();
+                request.LegacyFormID = searchFilter["txtLegacyFormID"]?.ToString() == string.Empty ? null : searchFilter["txtLegacyFormID"]?.ToString();
 
-                if (!IsNullOrEmpty(request.FormID)) // ignore legacy form id, hospital, start date, and end date if form id is entered in search
+                if (!string.IsNullOrEmpty(request.FormID)) // ignore legacy form id, hospital, start date, and end date if form id is entered in search
                 {
                     request.LegacyFormID = null;
                     request.AggregateHeaderID = null;
@@ -145,7 +142,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
                     request.UserEmployeeID = Convert.ToInt64(authenticatedUser.PersonId);
                     request.ApplySiteFiltrationIndicator = false;
                 }
-                else if (!IsNullOrEmpty(request.LegacyFormID)) // ignore form id, hospital, start date, and end date if legacy form id is entered in search
+                else if (!string.IsNullOrEmpty(request.LegacyFormID)) // ignore form id, hospital, start date, and end date if legacy form id is entered in search
                 {
                     request.FormID = null;
                     request.AggregateHeaderID = null;
@@ -156,9 +153,9 @@ namespace EIDSS.Web.Areas.Human.Controllers
                 }
                 else
                 {
-                    request.HospitalID = long.Parse(searchFilter["ddlHospitalList"]?.ToString() ?? Empty);
+                    request.HospitalID = long.Parse(searchFilter["ddlHospitalList"]?.ToString() ?? string.Empty);
 
-                    if (!IsNullOrEmpty(searchFilter["WeeksFrom"]?.ToString()))
+                    if (!string.IsNullOrEmpty(searchFilter["WeeksFrom"]?.ToString()))
                     {
                         _ = DateTime.TryParse(searchFilter["WeeksFrom"].ToString(), out startDate);
                         var start = (int)startDate.DayOfWeek;
@@ -178,7 +175,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
                         request.StartDate = null;
                     }
 
-                    if (!IsNullOrEmpty(searchFilter["WeeksTo"]?.ToString()))
+                    if (!string.IsNullOrEmpty(searchFilter["WeeksTo"]?.ToString()))
                     {
                         _ = DateTime.TryParse(searchFilter["WeeksTo"].ToString(), out finishDate);
                         while (finishDate.DayOfWeek != DayOfWeek.Saturday)
@@ -213,7 +210,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
                     request.ApplySiteFiltrationIndicator = false;
                 }
 
-                if (IsNullOrEmpty(request.FormID) &&
+                if (string.IsNullOrEmpty(request.FormID) &&
                     request.StartDate == null &&
                     request.FinishDate == null &&
                     request.HospitalID == -1)
@@ -222,7 +219,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
                 }
 
                 if (request.HospitalID == -1) request.HospitalID = null;
-                  
+
                 var response = await _iliAggregateFormClient.GetILIAggregateList(request);
                 IEnumerable<ILIAggregateViewModel> iliAggregateList = response;
                 var r = JsonSerializer.Serialize(request);
@@ -277,28 +274,27 @@ namespace EIDSS.Web.Areas.Human.Controllers
         [HttpPost]
         public async Task<IActionResult> ShowPrintBarCodeScreen([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             var printViewModel = new ILIAggregateFormSearchRequestModel
             {
-                    
-                AggregateHeaderID = !IsNullOrEmpty(jsonObject["AggregateHeaderId"]?.ToString()) ? long.Parse(jsonObject["AggregateHeaderId"].ToString()): null,
-                ApplySiteFiltrationIndicator = !IsNullOrEmpty(jsonObject["ApplySiteFiltrationIndicator"]?.ToString()) && bool.Parse(jsonObject["ApplySiteFiltrationIndicator"].ToString()),
-                StartDate = !IsNullOrEmpty(jsonObject["startDate"]?.ToString()) ? DateTime.Parse(jsonObject["startDate"].ToString()): null,
-                FinishDate = !IsNullOrEmpty(jsonObject["FinishDate"]?.ToString() )? DateTime.Parse(jsonObject["FinishDate"].ToString()): null,
-                FormID = !IsNullOrEmpty(jsonObject["FormID"]?.ToString()) ? jsonObject["FormID"].ToString(): Empty,
-                LegacyFormID = !IsNullOrEmpty(jsonObject["LegacyFormID"]?.ToString()) ? jsonObject["LegacyFormID"].ToString(): Empty,
-                HospitalID = !IsNullOrEmpty(jsonObject["HospitalId"]?.ToString()) & jsonObject["HospitalId"]?.ToString() != "-1" ?  long.Parse(jsonObject["HospitalId"]?.ToString() ?? string.Empty): null,
-                Page = !IsNullOrEmpty(jsonObject["pageNo"]?.ToString()) ? Parse(jsonObject["pageNo"].ToString()): 1,
-                //PageSize = string.Equa,
+
+                AggregateHeaderID = !string.IsNullOrEmpty(jsonObject["AggregateHeaderId"]?.ToString()) ? long.Parse(jsonObject["AggregateHeaderId"].ToString()) : null,
+                ApplySiteFiltrationIndicator = !string.IsNullOrEmpty(jsonObject["ApplySiteFiltrationIndicator"]?.ToString()) && bool.Parse(jsonObject["ApplySiteFiltrationIndicator"].ToString()),
+                StartDate = !string.IsNullOrEmpty(jsonObject["startDate"]?.ToString()) ? DateTime.Parse(jsonObject["startDate"].ToString()) : null,
+                FinishDate = !string.IsNullOrEmpty(jsonObject["FinishDate"]?.ToString()) ? DateTime.Parse(jsonObject["FinishDate"].ToString()) : null,
+                FormID = !string.IsNullOrEmpty(jsonObject["FormID"]?.ToString()) ? jsonObject["FormID"].ToString() : string.Empty,
+                LegacyFormID = !string.IsNullOrEmpty(jsonObject["LegacyFormID"]?.ToString()) ? jsonObject["LegacyFormID"].ToString() : string.Empty,
+                HospitalID = !string.IsNullOrEmpty(jsonObject["HospitalId"]?.ToString()) & jsonObject["HospitalId"]?.ToString() != "-1" ? long.Parse(jsonObject["HospitalId"]?.ToString() ?? string.Empty) : null,
+                Page = !string.IsNullOrEmpty(jsonObject["pageNo"]?.ToString()) ? int.Parse(jsonObject["pageNo"].ToString()) : 1,
                 UserSiteID = Convert.ToInt64(authenticatedUser.SiteId),
                 UserEmployeeID = Convert.ToInt64(authenticatedUser.EIDSSUserId),
-                UserOrganizationID = !IsNullOrEmpty(jsonObject["UserOrganizationId"].ToString()) ? long.Parse(jsonObject["UserOrganizationId"].ToString()): null,
-                LanguageId = !IsNullOrEmpty(jsonObject["FinishDate"].ToString()) ? jsonObject["FinishDate"].ToString(): Empty,
-                SortColumn = !IsNullOrEmpty(jsonObject["SortColumn"].ToString()) ? jsonObject["SortColumn"].ToString() : "FormID",
-                SortOrder = !IsNullOrEmpty(jsonObject["SortOrder"].ToString()) ? jsonObject["SortOrder"].ToString()  : "desc"
+                UserOrganizationID = !string.IsNullOrEmpty(jsonObject["UserOrganizationId"].ToString()) ? long.Parse(jsonObject["UserOrganizationId"].ToString()) : null,
+                LanguageId = !string.IsNullOrEmpty(jsonObject["FinishDate"].ToString()) ? jsonObject["FinishDate"].ToString() : string.Empty,
+                SortColumn = !string.IsNullOrEmpty(jsonObject["SortColumn"].ToString()) ? jsonObject["SortColumn"].ToString() : "FormID",
+                SortOrder = !string.IsNullOrEmpty(jsonObject["SortOrder"].ToString()) ? jsonObject["SortOrder"].ToString() : "desc"
             };
 
-            if (!IsNullOrEmpty(jsonObject["startDate"].ToString()))
+            if (!string.IsNullOrEmpty(jsonObject["startDate"].ToString()))
             {
                 _ = DateTime.TryParse(jsonObject["startDate"].ToString(), out var startDate);
                 var start = (int)startDate.DayOfWeek;
@@ -308,7 +304,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
             }
             else printViewModel.StartDate = null;
 
-            if (!IsNullOrEmpty(jsonObject["FinishDate"].ToString()))
+            if (!string.IsNullOrEmpty(jsonObject["FinishDate"].ToString()))
             {
                 _ = DateTime.TryParse(jsonObject["FinishDate"].ToString(), out var finishDate);
                 while (finishDate.DayOfWeek != DayOfWeek.Saturday)
@@ -326,20 +322,20 @@ namespace EIDSS.Web.Areas.Human.Controllers
                 new("ApplySiteFiltrationIndicator", printViewModel.ApplySiteFiltrationIndicator.ToString())
             };
             if (printViewModel.StartDate != null)
-                printParameters.Add(new KeyValuePair<string, string>("StartDate", printViewModel.StartDate != null ? printViewModel.StartDate.Value.ToString("d",uiCultureInfo): Empty));
+                printParameters.Add(new KeyValuePair<string, string>("StartDate", printViewModel.StartDate != null ? printViewModel.StartDate.Value.ToString("d", uiCultureInfo) : string.Empty));
             if (printViewModel.FinishDate != null)
-                printParameters.Add(new KeyValuePair<string, string>("FinishDate", printViewModel.FinishDate != null ? printViewModel.FinishDate.Value.ToString("d",uiCultureInfo) : Empty));
+                printParameters.Add(new KeyValuePair<string, string>("FinishDate", printViewModel.FinishDate != null ? printViewModel.FinishDate.Value.ToString("d", uiCultureInfo) : string.Empty));
             printParameters.Add(new KeyValuePair<string, string>("FormID", printViewModel.FormID));
             printParameters.Add(new KeyValuePair<string, string>("LegacyFormID", printViewModel.LegacyFormID));
-            printParameters.Add(new KeyValuePair<string, string>("HospitalID", printViewModel.HospitalID != null ? printViewModel.HospitalID.ToString() : Empty));
+            printParameters.Add(new KeyValuePair<string, string>("HospitalID", printViewModel.HospitalID != null ? printViewModel.HospitalID.ToString() : string.Empty));
             printParameters.Add(new KeyValuePair<string, string>("pageNo", printViewModel.Page.ToString()));
             printParameters.Add(new KeyValuePair<string, string>("PageSize", "50000"));
             printParameters.Add(new KeyValuePair<string, string>("UserSiteID", printViewModel.UserSiteID.ToString()));
-            printParameters.Add(new KeyValuePair<string, string>("UserEmployeeID", printViewModel.UserEmployeeID != null ? printViewModel.UserEmployeeID.ToString() : Empty));
-            printParameters.Add(new KeyValuePair<string, string>("UserOrganizationID", printViewModel.UserOrganizationID != null ? printViewModel.UserOrganizationID.ToString() : Empty));
+            printParameters.Add(new KeyValuePair<string, string>("UserEmployeeID", printViewModel.UserEmployeeID != null ? printViewModel.UserEmployeeID.ToString() : string.Empty));
+            printParameters.Add(new KeyValuePair<string, string>("UserOrganizationID", printViewModel.UserOrganizationID != null ? printViewModel.UserOrganizationID.ToString() : string.Empty));
             printParameters.Add(new KeyValuePair<string, string>("SortColumn", printViewModel.SortColumn));
             printParameters.Add(new KeyValuePair<string, string>("SortOrder", printViewModel.SortOrder));
-            printParameters.Add(new KeyValuePair<string, string>("PrintDateTime", DateTime.Parse(jsonObject["printDateTime"]?.ToString() ?? Empty).ToString(uiCultureInfo)));
+            printParameters.Add(new KeyValuePair<string, string>("PrintDateTime", DateTime.Parse(jsonObject["printDateTime"]?.ToString() ?? string.Empty).ToString(uiCultureInfo)));
             _pageViewModel.PrintParameters = JsonSerializer.Serialize(printParameters);
             _pageViewModel.iLIAggregateFormSearchRequestModel = printViewModel;
             _pageViewModel.ReportName = "SearchForILIAggregateForm";
@@ -349,7 +345,7 @@ namespace EIDSS.Web.Areas.Human.Controllers
         [HttpPost]
         public async Task<IActionResult> PrintBarCode([FromBody] JsonElement data)
         {
-            var jsonObject = JObject.Parse(data.ToString() ?? Empty);
+            var jsonObject = JObject.Parse(data.ToString() ?? string.Empty);
             var languageId = jsonObject["languageId"]?.ToString();
             var showBarCodePrintArea = jsonObject["showBarCodePrintArea"]?.ToString();
 

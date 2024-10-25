@@ -142,78 +142,60 @@ END
 
 GO
 
--- =============================================
--- Author:		Romasheva Svetlana
--- Create date: May 19 2014  2:45PM
--- Description:	Trigger for correct problems 
---              with replication and checkin in the same time
--- =============================================
-CREATE TRIGGER [dbo].[trtMonitoringSessionReplicationUp] 
+CREATE TRIGGER [dbo].[TR_tlbMonitoringSession_Insert_DF] 
    ON  [dbo].[tlbMonitoringSession]
    for INSERT
    NOT FOR REPLICATION
 AS 
 BEGIN
 	SET NOCOUNT ON;
-	
-	--DECLARE @context VARCHAR(50)
-	--SET @context = dbo.fnGetContext()
 
-	delete  nID
-	from  dbo.tflNewID as nID
-		inner join inserted as ins
-		on   ins.idfMonitoringSession = nID.idfKey1
-	where  nID.strTableName = 'tflMonitoringSessionFiltered'
+	declare @guid uniqueidentifier = newid()
+	declare @strTableName nvarchar(128) = N'tlbMonitoringSession' + cast(@guid as nvarchar(36)) collate Cyrillic_General_CI_AS
 
-	insert into dbo.tflNewID 
+	insert into [dbo].[tflNewID] 
 		(
-			strTableName, 
-			idfKey1, 
-			idfKey2
+			[strTableName], 
+			[idfKey1], 
+			[idfKey2]
 		)
 	select  
-			'tflMonitoringSessionFiltered', 
-			ins.idfMonitoringSession, 
-			sg.idfSiteGroup
+			@strTableName, 
+			ins.[idfMonitoringSession], 
+			sg.[idfSiteGroup]
 	from  inserted as ins
-		inner join dbo.tflSiteToSiteGroup as stsg
-		on   stsg.idfsSite = ins.idfsSite
+		inner join [dbo].[tflSiteToSiteGroup] as stsg with(nolock)
+		on   stsg.[idfsSite] = ins.[idfsSite]
 		
-		inner join dbo.tflSiteGroup sg
-		on	sg.idfSiteGroup = stsg.idfSiteGroup
-			and sg.idfsRayon is null
-			and sg.idfsCentralSite is null
-			and sg.intRowStatus = 0
+		inner join [dbo].[tflSiteGroup] sg with(nolock)
+		on	sg.[idfSiteGroup] = stsg.[idfSiteGroup]
+			and sg.[idfsRayon] is null
+			and sg.[idfsCentralSite] is null
+			and sg.[intRowStatus] = 0
 			
-		left join dbo.tflMonitoringSessionFiltered as btf
-		on  btf.idfMonitoringSession = ins.idfMonitoringSession
-			and btf.idfSiteGroup = sg.idfSiteGroup
-	where  btf.idfMonitoringSessionFiltered is null
+		left join [dbo].[tflMonitoringSessionFiltered] as cf
+		on  cf.[idfMonitoringSession] = ins.[idfMonitoringSession]
+			and cf.[idfSiteGroup] = sg.[idfSiteGroup]
+	where  cf.[idfMonitoringSessionFiltered] is null
 
-	insert into dbo.tflMonitoringSessionFiltered
+	insert into [dbo].[tflMonitoringSessionFiltered]
 		(
-			idfMonitoringSessionFiltered, 
-			idfMonitoringSession, 
-			idfSiteGroup
+			[idfMonitoringSessionFiltered], 
+			[idfMonitoringSession], 
+			[idfSiteGroup]
 		)
 	select 
-			nID.NewID, 
-			ins.idfMonitoringSession, 
-			nID.idfKey2
+			nID.[NewID], 
+			ins.[idfMonitoringSession], 
+			nID.[idfKey2]
 	from  inserted as ins
-		inner join dbo.tflNewID as nID
-		on  nID.strTableName = 'tflMonitoringSessionFiltered'
-			and nID.idfKey1 = ins.idfMonitoringSession
-			and nID.idfKey2 is not null
-		left join dbo.tflMonitoringSessionFiltered as btf
-		on   btf.idfMonitoringSessionFiltered = nID.NewID
-	where  btf.idfMonitoringSessionFiltered is null
-
-	delete  nID
-	from  dbo.tflNewID as nID
-		inner join inserted as ins
-		on   ins.idfMonitoringSession = nID.idfKey1
-	where  nID.strTableName = 'tflMonitoringSessionFiltered'
+		inner join [dbo].[tflNewID] as nID
+		on  nID.[strTableName] = @strTableName collate Cyrillic_General_CI_AS
+			and nID.[idfKey1] = ins.[idfMonitoringSession]
+			and nID.[idfKey2] is not null
+		left join [dbo].[tflMonitoringSessionFiltered] as cf
+		on   cf.[idfMonitoringSessionFiltered] = nID.[NewID]
+	where  cf.[idfMonitoringSessionFiltered] is null
 
 	SET NOCOUNT OFF;
 END

@@ -13,39 +13,6 @@ using EIDSS.Domain.ResponseModels.Human;
 
 namespace EIDSS.Api.CodeGeneration.Human
 {
-    public class GetHumanDiseaseReportListAsync : ICodeGenDirective
-    {
-        public string APIClassName { get => TargetedClassNames.HumanDiseaseReportController; }
-        public Type APIReturnType { get => typeof(List<HumanDiseaseReportViewModel>); }
-        public string MethodParameters { get => "HumanDiseaseReportSearchRequestModel request, CancellationToken cancellationToken = default"; }
-        public APIMethodVerbEnumeration MethodVerb { get => APIMethodVerbEnumeration.GET_USING_POST_VERB; }
-        public Type RepositoryReturnType { get => typeof(List<USP_HUM_DISEASE_REPORT_GETListResult>); }
-        public string APIGroupName => "Human";
-        public string SummaryInfo => "";
-    }
-
-    public class GetHumanDiseaseReportDetailAsync : ICodeGenDirective
-    {
-        public string APIClassName { get => TargetedClassNames.HumanDiseaseReportController; }
-        public Type APIReturnType { get => typeof(List<Domain.ViewModels.Human.HumanDiseaseReportDetailViewModel>); }
-        public string MethodParameters { get => "HumanDiseaseReportDetailRequestModel request, CancellationToken cancellationToken = default"; }
-        public APIMethodVerbEnumeration MethodVerb { get => APIMethodVerbEnumeration.GET_USING_POST_VERB; }
-        public Type RepositoryReturnType { get => typeof(List<USP_HUM_DISEASE_GETDetailResult>); }
-        public string APIGroupName => "Human";
-        public string SummaryInfo => "";
-    }
-
-
-    public class GetHumanDiseaseReportPersonInfoAsync : ICodeGenDirective
-    {
-        public string APIClassName { get => TargetedClassNames.HumanDiseaseReportController; }
-        public Type APIReturnType { get => typeof(List<DiseaseReportPersonalInformationViewModel>); }
-        public string MethodParameters { get => "HumanPersonDetailsRequestModel request, CancellationToken cancellationToken = default"; }
-        public APIMethodVerbEnumeration MethodVerb { get => APIMethodVerbEnumeration.GET_USING_POST_VERB; }
-        public Type RepositoryReturnType { get => typeof(List<USP_HUM_HUMAN_MASTER_GETDetailResult>); }
-        public string APIGroupName => "Human Disease Report";
-        public string SummaryInfo => "";
-    }
     public class GetHumanDiseaseReportFromHumanIDAsync : ICodeGenDirective
     {
         public string APIClassName { get => TargetedClassNames.HumanDiseaseReportController; }
@@ -117,17 +84,6 @@ namespace EIDSS.Api.CodeGeneration.Human
         public string MethodParameters { get => "HumanTestNameForDiseasesRequestModel request, CancellationToken cancellationToken = default"; }
         public APIMethodVerbEnumeration MethodVerb { get => APIMethodVerbEnumeration.GET_USING_POST_VERB; }
         public Type RepositoryReturnType { get => typeof(List<USP_HUMAN_DISEASELABTESTMATRIX_BY_DISEASE_GETLISTResult>); }
-        public string APIGroupName => "Human Disease Report";
-        public string SummaryInfo => "";
-    }
-
-    public class SetHumanDiseaseReportAsync : ICodeGenDirective
-    {
-        public string APIClassName { get => TargetedClassNames.HumanDiseaseReportController; }
-        public Type APIReturnType { get => typeof(List<SetHumanDiseaseReportResponseModel>); }
-        public string MethodParameters { get => "HumanSetDiseaseReportRequestModel request, CancellationToken cancellationToken = default"; }
-        public APIMethodVerbEnumeration MethodVerb { get => APIMethodVerbEnumeration.GET_USING_POST_VERB; }
-        public Type RepositoryReturnType { get => typeof(List<USP_HUM_HUMAN_DISEASE_SETResult>); }
         public string APIGroupName => "Human Disease Report";
         public string SummaryInfo => "";
     }

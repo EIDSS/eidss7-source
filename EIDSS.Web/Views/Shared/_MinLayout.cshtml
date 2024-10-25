@@ -10,6 +10,7 @@
     <link href="~/lib/jqueryui/jquery-ui.css" rel="stylesheet" />
     <link href="~/css/EIDSS7Styles-1.0.0.css" media="screen" rel="stylesheet" /> <!-- media="screen" to avoid css conflicts in print media -->
     <link rel="stylesheet" href="~/css/site.css" />
+    <link href="EIDSS.Web.styles.css" rel="stylesheet">
 
     <base href="~/" />
 
@@ -43,56 +44,35 @@
                     <environment names="Release">
                         <strong>Production</strong>
                     </environment>
-                    <environment names="BV">
-                        <strong>Production-like Testbed</strong>
-                    </environment>
-                    <environment names="DemoAM">
-                        <strong>Demo (Armenia)</strong>
-                    </environment>
-                    <environment names="DemoGE">
-                        <strong>Demo (Georgia)</strong>
-                    </environment>
-                    <environment names="DemoAZ">
-                        <strong>Demo (Azerbaijan)</strong>
-                    </environment>
-                    <environment names="UAT">
-                        <strong>UAT</strong>
-                    </environment>
-                    <environment names="BVAzure">
-                        <strong>Cloud-based Testbed</strong>
-                    </environment>
-                    <environment exclude="Production,BV,UAT,DemoAM,DemoGE,DemoAZ,BVAzure">
-                        <strong>Test</strong>
+                    <environment names="Dev">
+                        <strong>Development</strong>
                     </environment>
                 </span>
             </div>
         </div>
     </footer>
 
-@*Blazor*@
-<script src="_framework/blazor.server.js" autostart="false"></script>
-<script>
-    
-    Blazor.start({
-        configureSignalR: function (builder) {
-            var b = builder.build();
+    @*Blazor*@
+    <script src="_framework/blazor.server.js" autostart="false"></script>
+    <script>
+
+        Blazor.start({
+            configureSignalR: function (builder) {
+                var b = builder.build();
                 b.serverTimeoutInMilliseconds = 6000000;
                 b.keepAliveIntervalInMillisecons = 6000000;
-            builder.build = () => {
-                return b;
-            };
-        },
-
-
+                builder.build = () => {
+                    return b;
+                };
+            }
         }).then(() => {
             Blazor.defaultReconnectionHandler._reconnectCallback = function (d) {
                 document.location.reload();
             }
         });;
-</script>
+    </script>
+    <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
 
-<script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
-   
     @RenderSection("Scripts", required: false)
     @RenderSection("AdditionalHeadContent", required: false)
     @RenderSection("Content", false)

@@ -24,18 +24,14 @@
                     </InterfaceEditorResource>
                 </div>
                 <div class="form-row">
+                    @*<input type="hidden" id="RowID" value="@testDetailModel.RowID" />*@
                     <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ContactInformationModalMiddleNameFieldLabel" IsRow="false" CssClass="col-md-6" For="strSecondName">
                         <RadzenTextBox @bind-Value="@contactDetailModal.strSecondName" class="form-control" Disabled="true"></RadzenTextBox>
                     </InterfaceEditorResource>
-
-                </div>
-                <div class="form-row">
                     <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ContactInformationModalDateOfBirthFieldLabel" IsRow="false" CssClass="col-md-6" For="datDateofBirth">
                         <RadzenDatePicker id="datDateofBirth" Name="datDateofBirth" @bind-Value="@contactDetailModal.datDateofBirth" class="form-control-range" DateFormat="d" Disabled="true"></RadzenDatePicker>
                     </InterfaceEditorResource>
-                    <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ContactInformationModalAgeFieldLabel" IsRow="false" CssClass="col-md-6" For="strSecondName">
-                        <RadzenNumeric @bind-Value="@contactDetailModal.Age" class="form-control" Disabled="true"></RadzenNumeric>
-                    </InterfaceEditorResource>
+
                 </div>
                 <div class="form-row">
                     <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ContactInformationModalGenderFieldLabel" IsRow="false" CssClass="col-md-6" For="idfsHumanGender">
@@ -56,13 +52,6 @@
                 <h5>@Localizer.GetString(HeadingResourceKeyConstants.PersonAddressCurrentAddressHeading)</h5>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ContactInformationModalForeignAddressFieldLabel" IsRow="false" CssClass="col-md-6" For="isForiegnAddress">
-                            <RadzenCheckBox @bind-Value="@contactDetailModal.blnForeignAddress" TValue="bool?" Change="@(args => EnableLocation(args))"></RadzenCheckBox>
-                        </InterfaceEditorResource>
-                    </div>
-                </div>
                 <div class="row" id="PersonLocation" hidden="@enableLocation">
                     <div class="col-md-12">
                         <LocationView ParmLocationViewModel="@contactDetailModal.LocationViewModel" LocationViewModelChanged="RefreshLocationViewModelHandlerAsync" />
@@ -105,13 +94,17 @@
         </div>
         <div class="card-body">
             <div class="row">
-                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ContactInformationModalRelationFieldLabel" IsRow="false" CssClass="col-md-6" For="idfsPersonContactType">
-                    <RadzenDropDown id="idfsPersonContactType" Name="idfsPersonContactType" AllowClear="true" TValue="long" Data="@patientContactType" LoadData="@GetPatientContactTypeAsync"
+                <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ContactInformationModalRelationFieldLabel" IsRequiredByDefaultBusinessRule="true" IsRow="false" CssClass="col-md-6" For="idfsPersonContactType">
+                    <RadzenDropDown id="idfsPersonContactType" Name="idfsPersonContactType" TValue="long" Data="@patientContactType" SelectedItem="@contactDetailModal.idfsPersonContactType"
                                     ValueProperty="IdfsBaseReference" TextProperty="Name" @bind-Value="@contactDetailModal.idfsPersonContactType" class="form-control"
                                     AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@(args => UpdateRelation(args))"/>
                 </InterfaceEditorResource>
                 <InterfaceEditorResource InterfaceEditorKey="@FieldLabelResourceKeyConstants.ContactInformationModalDateOfLastContactFieldLabel" IsRow="false" CssClass="col-md-6" For="datDateOfLastContact">
-                    <RadzenDatePicker id="datDateOfLastContact" Name="datDateOfLastContact" AllowClear="true" AllowInput="true" class="form-control-range" TValue="DateTime?" @bind-Value="@contactDetailModal.datDateOfLastContact" DateFormat="d" />
+                    <HdrCustomDatePicker
+                        FieldType="@HdrCustomDatePickerFieldTypes.DateOfLastContact"
+                        @bind-Value="@contactDetailModal.datDateOfLastContact"
+                        Id="datDateOfLastContact"
+                        Name="datDateOfLastContact"/>
                     <RadzenCompareValidator Value="@DateTime.Now" Component="datDateOfLastContact" Popup="false" Operator="CompareOperator.LessThanEqual"
                                             Text="@Localizer.GetString(MessageResourceKeyConstants.FutureDatesAreNotAllowedMessage)"
                                             Style="display: block" />

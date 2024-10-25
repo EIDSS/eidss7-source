@@ -21,6 +21,7 @@ namespace EIDSS.Domain.RequestModels.Human
         public string CampaignAdministrator { get; set; }
         public string Conclusion { get; set; }
         public long? SiteID { get; set; }
+       // public string AuditUserName { get; set; }
         public string CampaignToDiagnosisCombo { get; set; }
 
         public string MonitoringSessions { get; set; }

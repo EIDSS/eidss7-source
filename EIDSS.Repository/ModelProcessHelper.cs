@@ -141,6 +141,10 @@ namespace EIDSS.Repository
                 .Where(w => w.IsClass && !w.IsAbstract && 
                             (w.Namespace.ToLower().Contains("requestmodels") || w.Namespace.ToLower().Contains("viewmodels")));
 
+            //var models = Assembly.GetExecutingAssembly().DefinedTypes.Where( w=>
+            //    w.IsClass && !w.IsAbstract && 
+            //    (w.Namespace.ToLower().Contains("requestmodels") || w.Namespace.ToLower().Contains("viewmodels")));
+
             // Add the model to the collection...
             if (models != null)
                 foreach (var c in models)

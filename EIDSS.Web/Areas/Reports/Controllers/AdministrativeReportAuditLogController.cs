@@ -46,8 +46,9 @@ namespace EIDSS.Web.Areas.Reports.Controllers
         }
 
         public string reportName { get; set; } = "Administrative Report Audit Log";
-        public string startIssueDate { get; set; } = DateTime.Now.AddMonths(-1).ToString("MM/dd/yyyy");
-        public string endIssueDate { get; set; } = DateTime.Now.ToString("MM/dd/yyyy");
+        public string startIssueDate { get; set; } = DateTime.Now.AddMonths(-1).ToShortDateString();
+        public string endIssueDate { get; set; } = DateTime.Now.ToShortDateString();
+            
 
         protected override string ReportServerUrl
         {

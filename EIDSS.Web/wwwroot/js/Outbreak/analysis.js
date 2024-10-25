@@ -5,7 +5,7 @@
             var long = $("#hdnHeatMap_Long").val();
             var zoom = $("#hdnHeatMap_Zoom").val();
             var data = $("#hdnHeatMap_Data").val();
-            var addressPoints = eval('[' + data + ']');
+            var addressPoints = JSON.parse('[' + data.replace(/'/g, '"') + ']');
 
             if (addressPoints.length > 0) {
                 lat = addressPoints[0][0];
@@ -54,7 +54,7 @@
 
     redrawHeatMap: function () {
         var data = $("#hdnHeatMap_Data").val();
-        var addressPoints_unfiltered = eval('[' + data + ']');
+        var addressPoints_unfiltered = JSON.parse('[' + data.replace(/'/g, '"') + ']');
         var addressPoints = [];
 
         if (!$("#EIDSSBodyCPH_chkHeatMapHuman").is(":checked") &&

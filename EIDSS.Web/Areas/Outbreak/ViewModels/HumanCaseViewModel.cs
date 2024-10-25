@@ -1,7 +1,6 @@
 ﻿using EIDSS.Domain.ResponseModels.Outbreak;
 using EIDSS.Domain.ViewModels.Outbreak;
 using EIDSS.Web.ViewModels.Human;
-using System;
 
 namespace EIDSS.Web.Areas.Outbreak.ViewModels
 {
@@ -22,46 +21,5 @@ namespace EIDSS.Web.Areas.Outbreak.ViewModels
         public string CancelURL { get; set; }
         public CaseGetDetailViewModel Case { get; set; }
         public DiseaseReportPrintViewModel CaseReportPrintViewModal { get; set; }
-    }
-
-    public class OutbreakCaseSummaryModel 
-    {
-        public string EIDSSPersonID { get; set; }
-        public long HumanMasterID { get; set; }
-        public string Name { get; set; }
-        private string _dateEntered;
-        public string DateEntered
-        {
-            get
-            {
-                return _dateEntered;
-            }
-            set
-            {
-                _dateEntered = DateTime.Parse(value).ToShortDateString();
-
-            }
-        }
-
-        private DateTime? _lastUpdated;
-        public DateTime? LastUpdated
-        {
-            get
-            {
-                return _lastUpdated;
-            }
-            set
-            {
-                _lastUpdated = value;
-                DateTime returnValue;
-                if (DateTime.TryParse(value.ToString(), out returnValue))
-                {
-                    strLastUpdated = returnValue.ToShortDateString();
-                }
-            }
-        }
-
-        public string strLastUpdated { get; set; }
-        public string CaseClassification { get; set; }
     }
 }

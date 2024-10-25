@@ -1,0 +1,34 @@
+﻿@using EIDSS.Domain.ResponseModels.Human
+@inherits EIDSS.Web.Components.Human.HumanDiseaseReport.DiseaseReportChangeDiagnosisHistoryModalBase
+
+<RadzenDataGrid TItem="ChangeDiagnosisHistoryResponseModel"
+                Data="@Data"
+                AllowColumnReorder="true"
+                AllowColumnResize="true"
+                AllowPaging="true"
+                PageSizeOptions="@PageSizeOptions"
+                PagerAlwaysVisible="true"
+                ShowPagingSummary="true"
+                Style="width: 1000px;">
+    <Columns>
+        <RadzenDataGridColumn TItem="ChangeDiagnosisHistoryResponseModel"
+                              Property="@nameof(ChangeDiagnosisHistoryResponseModel.DateOfChange)"
+                              Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.DiseaseReportChangeDiagnosisHistoryModalDateOfChange)"
+                              FormatString="{0:d}" />
+        <RadzenDataGridColumn TItem="ChangeDiagnosisHistoryResponseModel"
+                              Property="@nameof(ChangeDiagnosisHistoryResponseModel.ChangedByOrganization)"
+                              Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.DiseaseReportChangeDiagnosisHistoryModalChangedByOrganization)" />
+        <RadzenDataGridColumn TItem="ChangeDiagnosisHistoryResponseModel"
+                              Property="@nameof(ChangeDiagnosisHistoryResponseModel.ChangedByPerson)"
+                              Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.DiseaseReportChangeDiagnosisHistoryModalChangedByPerson)" />
+        <RadzenDataGridColumn TItem="ChangeDiagnosisHistoryResponseModel"
+                              Property="@nameof(ChangeDiagnosisHistoryResponseModel.PreviousDisease)"
+                              Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.DiseaseReportChangeDiagnosisHistoryModalPreviousDisease)" />
+        <RadzenDataGridColumn TItem="ChangeDiagnosisHistoryResponseModel"
+                              Property="@nameof(ChangeDiagnosisHistoryResponseModel.ChangedDisease)"
+                              Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.DiseaseReportChangeDiagnosisHistoryModalChangedDisease)" />
+        <RadzenDataGridColumn TItem="ChangeDiagnosisHistoryResponseModel"
+                              Property="@nameof(ChangeDiagnosisHistoryResponseModel.Reason)"
+                              Title="@Localizer.GetString(ColumnHeadingResourceKeyConstants.DiseaseReportChangeDiagnosisHistoryModalReason)" />
+    </Columns>
+</RadzenDataGrid>
